@@ -16,6 +16,8 @@ jobs:
       - run: pip install -e ".[dev]"
       - name: Compile package and scripts
         run: python -m compileall -q src scripts tests
+      - name: Check Research Cockpit JavaScript
+        run: node --check dashboard/app.js
       - name: Unit tests
         run: pytest -q
       - name: V3 smoke benchmark
@@ -33,7 +35,9 @@ jobs:
       - name: Phase 6B paired landing smoke benchmark
         run: python scripts/run_phase6b_landing.py --episodes 1 --seed 626262 --calibration-seed 616161 --temporal-calibration-samples 12 --component-calibration-samples 32 --out /tmp/aegis-phase6b-smoke
       - name: Phase 7 external-validity smoke benchmark
-        run: python scripts/run_phase7_external_validity.py --episodes 1 --seed 979797 --calibration-seed 616161 --temporal-calibration-samples 12 --component-calibration-samples 32 --conditions clean mixed --faults independent shared_lateral_bias --out /tmp/aegis-phase7-smoke
+        run: |
+          python scripts/run_phase7_external_validity.py --episodes 1 --seed 979797 --calibration-seed 616161 --temporal-calibration-samples 12 --component-calibration-samples 32 --conditions clean mixed --faults independent shared_lateral_bias --plants legacy phase7 --out /tmp/aegis-phase7-smoke
+          python scripts/validate_result_manifest.py /tmp/aegis-phase7-smoke/result_manifest.json
       - name: Phase 6 clean abstention diagnostic
         run: python scripts/diagnose_phase6_episode.py --condition clean --episodes 1 --calibration-samples 30
       - name: Phase 6 occlusion abstention diagnostic
