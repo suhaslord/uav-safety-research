@@ -1,0 +1,37 @@
+name: Phase 6C Occlusion VZ Diagnostic
+
+on:
+  push:
+    paths:
+      - '.github/workflows/phase6c-occlusion-vz-diagnostic.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  trace-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Run development-only vertical-rate trace audit
+        run: |
+          python scripts/diagnose_phase6c_occlusion_vz.py \
+            --seed 1033307971 \
+            --calibration-seed 616161 \
+            --out results/phase6c_occlusion_vz_diagnostic
+      - name: Upload trace audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase6c-occlusion-vz-diagnostic
+          path: results/phase6c_occlusion_vz_diagnostic
+          if-no-files-found: error
+          retention-days: 45
