@@ -1,12 +1,11 @@
 from __future__ import annotations
 
-from dataclasses import asdict
 import numpy as np
 
 from .config import ControllerConfig, SimConfig
 from .controller import LandingController
 from .dynamics import State, step_dynamics
-from .perception import PerceptionModel
+from .perception import PerceptionModel, PerceptionProfile
 from .simulator import EpisodeResult, _wind_sample
 from .supervisor_v2 import (
     DecisionV2,
@@ -22,14 +21,15 @@ def run_episode_v2(
     sim_cfg: SimConfig | None = None,
     ctrl_cfg: ControllerConfig | None = None,
     sup_cfg: SupervisorV2Config | None = None,
+    perception_profile: PerceptionProfile | None = None,
     return_trace: bool = False,
 ):
     """Run one Aegis V2 episode.
 
     V2 keeps the same plant, initial-state distribution, disturbance process,
-    touchdown criteria, and perception profiles as V1. The changed components
-    are only the temporal safety supervisor and the control-side observation
-    filter.
+    touchdown criteria, and perception profiles as V1. Robustness studies may
+    supply an explicit perception profile without modifying the historical named
+    profiles.
     """
 
     sim_cfg = sim_cfg or SimConfig()
@@ -44,7 +44,11 @@ def run_episode_v2(
         vz=0.0,
     )
 
-    perception = PerceptionModel(profile, rng)
+    perception = PerceptionModel(
+        perception_profile if perception_profile is not None else profile,
+        rng,
+        profile_name=profile if perception_profile is not None else None,
+    )
     controller = LandingController(ctrl_cfg, sim_cfg)
     supervisor = TemporalSafetySupervisorV2(sup_cfg)
     obs_filter = TemporalObservationFilter(dt=sim_cfg.dt)
@@ -76,9 +80,6 @@ def run_episode_v2(
 
         descent_rate = sim_cfg.target_descent_rate
         if decision.decision == DecisionV2.HOLD:
-            # V1 almost stopped descending, which produced very long holds and
-            # many timeout/abort cascades. V2 uses a cautious descent while the
-            # temporal filter attempts to reacquire a stable estimate.
             descent_rate = -0.28
             interventions += 1
 
