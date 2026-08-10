@@ -9,6 +9,63 @@ from .image_perception import IMAGE_CONDITIONS, SyntheticLandingPadRenderer
 from .perception import Observation
 
 
+class Phase6LandingPadRenderer(SyntheticLandingPadRenderer):
+    """Phase-6-only renderer with usable apparent scale closer to touchdown.
+
+    The Phase 5 renderer intentionally clipped marker half-size at 18 px, which
+    makes altitude increasingly unobservable below roughly one metre. Phase 6
+    keeps the historical renderer untouched and uses a separate perspective
+    mapping whose apparent scale remains informative much closer to the ground.
+    """
+
+    def render(
+        self,
+        x_offset_m: float,
+        altitude_m: float,
+        rng: np.random.Generator,
+        condition: str = "clean",
+        severity: float = 1.0,
+    ) -> np.ndarray:
+        if condition not in IMAGE_CONDITIONS:
+            raise ValueError(f"Unknown image condition: {condition}")
+        if severity <= 0:
+            raise ValueError("severity must be > 0")
+
+        c = self.cfg
+        n = c.image_size
+        yy, _ = np.mgrid[0:n, 0:n]
+        image = np.full((n, n), c.background_level, dtype=float)
+        image += 0.025 * (yy / max(1, n - 1))
+        image += rng.normal(0.0, c.sensor_noise * severity, size=(n, n))
+
+        center_x = (n - 1) / 2 - (x_offset_m / c.horizontal_span_m) * n
+        center_y = (n - 1) / 2
+        max_half = max(18, int(0.46 * n))
+        half = int(np.clip(35.0 / (max(0.05, altitude_m) + 0.60), 4, max_half))
+
+        x0 = max(0, int(round(center_x - half)))
+        x1 = min(n, int(round(center_x + half + 1)))
+        y0 = max(0, int(round(center_y - half)))
+        y1 = min(n, int(round(center_y + half + 1)))
+
+        if x0 < x1 and y0 < y1:
+            border = max(1, half // 4)
+            image[y0:y1, x0:x1] += 0.35
+            image[y0:y0 + border, x0:x1] += 0.45
+            image[y1 - border:y1, x0:x1] += 0.45
+            image[y0:y1, x0:x0 + border] += 0.45
+            image[y0:y1, x1 - border:x1] += 0.45
+
+            cx = int(np.clip(round(center_x), 0, n - 1))
+            cy = int(np.clip(round(center_y), 0, n - 1))
+            arm = max(1, border)
+            image[max(0, cy - arm):min(n, cy + arm + 1), x0:x1] += 0.28
+            image[y0:y1, max(0, cx - arm):min(n, cx + arm + 1)] += 0.28
+
+        image = np.clip(image, 0.0, 1.0)
+        return self._degrade(image, rng, condition, severity, center_x, center_y, half)
+
+
 @dataclass
 class FrameMeasurement:
     x_m: float
@@ -18,6 +75,7 @@ class FrameMeasurement:
     selected_pixels: int
     bbox_width_px: int
     contrast: float
+    geometry_score: float
 
 
 @dataclass
@@ -30,28 +88,25 @@ class TemporalImageDiagnostics:
     innovation_score: float
     selected_pixels: int
     bbox_width_px: int
+    geometry_score: float
 
 
 @dataclass(frozen=True)
 class TemporalImageConfig:
     dt: float = 0.05
     min_calibrated_confidence: float = 0.52
+    min_raw_confidence: float = 0.16
+    min_geometry_score: float = 0.40
     max_innovation_score: float = 2.2
     x_innovation_scale_m: float = 0.65
-    z_innovation_scale_m: float = 1.00
+    z_innovation_scale_m: float = 0.85
     min_component_pixels: int = 10
     min_bbox_width_px: int = 4
     max_sigma_pos: float = 2.2
 
 
 class Phase6PadEstimator:
-    """Structured, interpretable estimator for the synthetic landing-pad frame.
-
-    Unlike the Phase 5 centroid-only estimator, this estimator uses the largest
-    bright connected component to estimate lateral offset and apparent pad size.
-    Apparent pad size is inverted into a rough altitude estimate using the same
-    synthetic rendering geometry. It remains a simulation-only perception model.
-    """
+    """Structured, interpretable estimator for the Phase 6 synthetic frame."""
 
     def __init__(self, min_component_pixels: int = 10, min_bbox_width_px: int = 4):
         self.min_component_pixels = min_component_pixels
@@ -64,19 +119,14 @@ class Phase6PadEstimator:
         median = float(np.median(image))
         std = float(np.std(image))
         p90 = float(np.percentile(image, 90))
-
-        # Reject frames with essentially no visual information before thresholding.
-        # Without this guard a uniform zero-valued frame has threshold==0 and the
-        # whole image would incorrectly become one giant foreground component.
         if std < 1e-4 or (p90 - median) < 0.008:
-            return FrameMeasurement(0.0, 0.0, 0.0, False, 0, 0, 0.0)
+            return FrameMeasurement(0.0, 0.0, 0.0, False, 0, 0, 0.0, 0.0)
 
         threshold = max(median + 1.30 * std, 0.72 * p90 + 0.28 * median)
         mask = image > threshold
-
         component = _largest_component(mask)
         if len(component) < self.min_component_pixels:
-            return FrameMeasurement(0.0, 0.0, 0.0, False, len(component), 0, 0.0)
+            return FrameMeasurement(0.0, 0.0, 0.0, False, len(component), 0, 0.0, 0.0)
 
         yy = np.asarray([p[0] for p in component], dtype=int)
         xx = np.asarray([p[1] for p in component], dtype=int)
@@ -85,31 +135,29 @@ class Phase6PadEstimator:
 
         width = int(xx.max() - xx.min() + 1)
         height = int(yy.max() - yy.min() + 1)
-        if width < self.min_bbox_width_px:
-            return FrameMeasurement(0.0, 0.0, 0.0, False, len(component), width, 0.0)
+        if width < self.min_bbox_width_px or height < self.min_bbox_width_px:
+            return FrameMeasurement(0.0, 0.0, 0.0, False, len(component), width, 0.0, 0.0)
 
         n = image.shape[1]
         center = (n - 1) / 2
-        horizontal_span_m = 6.0
-        x_m = -(centroid_x - center) / n * horizontal_span_m
+        x_m = -(centroid_x - center) / n * 6.0
 
-        # Renderer uses half ~= 30 / (z + 0.8), clipped to [4, 18]. A robust
-        # apparent half-size estimate uses the geometric mean of component width
-        # and height, then inverts that relation.
+        # Invert the Phase 6 renderer's perspective scale:
+        # half ~= 35 / (z + 0.60).
         apparent_half = max(2.0, 0.5 * np.sqrt(max(1.0, width * height)))
-        z_m = float(np.clip(30.0 / apparent_half - 0.8, 0.35, 7.5))
+        z_m = float(np.clip(35.0 / apparent_half - 0.60, 0.08, 8.0))
 
         contrast = max(0.0, float(image[yy, xx].mean()) - median)
         if contrast < 0.01:
-            return FrameMeasurement(0.0, 0.0, 0.0, False, len(component), width, contrast)
+            return FrameMeasurement(0.0, 0.0, 0.0, False, len(component), width, contrast, 0.0)
 
         contrast_score = contrast / (contrast + 0.10)
-        support_score = float(np.clip(len(component) / 110.0, 0.0, 1.0))
+        support_score = float(np.clip(len(component) / 120.0, 0.0, 1.0))
         aspect = min(width, height) / max(width, height)
         area_fill = float(np.clip(len(component) / max(1.0, width * height), 0.0, 1.0))
-        shape_score = float(np.clip(0.55 * aspect + 0.45 * area_fill, 0.0, 1.0))
+        geometry_score = float(np.clip(0.60 * aspect + 0.40 * area_fill, 0.0, 1.0))
         raw_confidence = float(np.clip(
-            contrast_score * (0.30 + 0.45 * support_score + 0.25 * shape_score),
+            contrast_score * (0.25 + 0.40 * support_score + 0.35 * geometry_score),
             0.0,
             0.995,
         ))
@@ -122,6 +170,7 @@ class Phase6PadEstimator:
             selected_pixels=len(component),
             bbox_width_px=width,
             contrast=float(contrast),
+            geometry_score=geometry_score,
         )
 
 
@@ -170,13 +219,10 @@ class EmpiricalConfidenceCalibrator:
                 mean_z[i] = global_z
                 continue
             good = int(((xerr[idx] <= tolerance_x_m) & (zerr[idx] <= tolerance_z_m)).sum())
-            # Mild beta prior prevents tiny bins from becoming exactly 0 or 1.
             probs[i] = (good + 2.0) / (n + 4.0)
             mean_x[i] = float(np.mean(xerr[idx]))
             mean_z[i] = float(np.mean(zerr[idx]))
 
-        # Confidence calibration should become more optimistic as raw confidence
-        # rises, while expected error should not rise with confidence.
         probs = np.maximum.accumulate(probs)
         mean_x = np.maximum.accumulate(mean_x[::-1])[::-1]
         mean_z = np.maximum.accumulate(mean_z[::-1])[::-1]
@@ -213,17 +259,7 @@ class EmpiricalConfidenceCalibrator:
 
 
 class CalibratedTemporalImagePipeline:
-    """Turn a sequence of synthetic camera frames into Aegis observations.
-
-    The pipeline performs three distinct operations:
-    1. frame-level pixel measurement;
-    2. confidence calibration from a separate development dataset;
-    3. temporal consistency checking with explicit abstention.
-
-    On abstention it does not invent a fresh camera measurement. It propagates
-    the last accepted state, marks the Observation as dropped, lowers confidence,
-    and expands uncertainty so Aegis can react to missing visual evidence.
-    """
+    """Convert a synthetic image sequence into calibrated Aegis observations."""
 
     def __init__(
         self,
@@ -248,6 +284,10 @@ class CalibratedTemporalImagePipeline:
             return self._abstain(m, calibrated, 0.0, "no reliable landing-pad component")
 
         innovation = self._innovation(m)
+        if m.raw_confidence < self.cfg.min_raw_confidence:
+            return self._abstain(m, calibrated, innovation, "raw image quality below threshold")
+        if m.geometry_score < self.cfg.min_geometry_score:
+            return self._abstain(m, calibrated, innovation, "landing-pad geometry inconsistent")
         if calibrated < self.cfg.min_calibrated_confidence:
             return self._abstain(m, calibrated, innovation, "calibrated confidence below threshold")
         if self._state is not None and innovation > self.cfg.max_innovation_score:
@@ -269,8 +309,9 @@ class CalibratedTemporalImagePipeline:
             )
         else:
             gain = float(np.clip(0.24 + 0.56 * calibrated, 0.28, 0.78))
-            x = (1.0 - gain) * (prev.x + prev.vx * self.cfg.dt) + gain * m.x_m
+            x_pred = prev.x + prev.vx * self.cfg.dt
             z_pred = max(0.0, prev.z + prev.vz * self.cfg.dt)
+            x = (1.0 - gain) * x_pred + gain * m.x_m
             z = max(0.0, (1.0 - gain) * z_pred + gain * m.z_m)
 
             measured_vx = float(np.clip((x - prev.x) / self.cfg.dt, -4.0, 4.0))
@@ -301,6 +342,7 @@ class CalibratedTemporalImagePipeline:
             innovation_score=innovation,
             selected_pixels=m.selected_pixels,
             bbox_width_px=m.bbox_width_px,
+            geometry_score=m.geometry_score,
         )
 
     def _innovation(self, m: FrameMeasurement) -> float:
@@ -321,9 +363,6 @@ class CalibratedTemporalImagePipeline:
         reason: str,
     ) -> tuple[Observation, TemporalImageDiagnostics]:
         if self._state is None:
-            # No accepted visual track exists yet. Use a deliberately uncertain
-            # neutral observation; Aegis can rely on independent evidence rather
-            # than receiving a fabricated confident camera state.
             obs = Observation(
                 x=0.0,
                 z=5.0,
@@ -354,6 +393,7 @@ class CalibratedTemporalImagePipeline:
             innovation_score=innovation,
             selected_pixels=m.selected_pixels,
             bbox_width_px=m.bbox_width_px,
+            geometry_score=m.geometry_score,
         )
 
 
@@ -362,18 +402,11 @@ def fit_synthetic_calibrator(
     seed: int = 616161,
     samples_per_condition: int = 180,
 ) -> EmpiricalConfidenceCalibrator:
-    """Fit confidence calibration on a dedicated synthetic development set.
-
-    The development set is deterministic and separate from episode evaluation
-    seeds. Calibration labels use ground truth only here, during offline fitting;
-    the runtime image pipeline receives pixels only.
-    """
-
     if samples_per_condition < 10:
         raise ValueError("samples_per_condition must be >= 10")
 
     rng = np.random.default_rng(seed)
-    renderer = SyntheticLandingPadRenderer()
+    renderer = Phase6LandingPadRenderer()
     estimator = Phase6PadEstimator()
     conf: list[float] = []
     xerr: list[float] = []
@@ -382,7 +415,7 @@ def fit_synthetic_calibrator(
     for condition in IMAGE_CONDITIONS:
         for _ in range(samples_per_condition):
             x_true = float(rng.uniform(-2.1, 2.1))
-            z_true = float(rng.uniform(0.8, 5.3))
+            z_true = float(rng.uniform(0.25, 5.3))
             severity = float(rng.uniform(0.75, 1.35))
             frame_seed = int(rng.integers(0, 2**31 - 1))
             frame = renderer.render(
@@ -394,8 +427,6 @@ def fit_synthetic_calibrator(
             )
             m = estimator.estimate(frame)
             if not m.valid:
-                # Invalid detections are represented as zero-confidence failures
-                # in calibration rather than silently removed.
                 conf.append(0.0)
                 xerr.append(3.0)
                 zerr.append(4.0)
