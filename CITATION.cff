@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: "If you use this student research project, please cite the repository."
+title: "AegisLand: Confidence-Aware Autonomous UAV Landing Safety Research"
+type: software
+authors:
+  - family-names: "Beemineni"
+    given-names: "Suhas"
+repository-code: "https://github.com/suhaslord/uav-safety-research"
+license: MIT
+version: 0.1.0
