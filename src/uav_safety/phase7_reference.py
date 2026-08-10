@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from collections import deque
 from dataclasses import dataclass
 from math import hypot
 
@@ -56,10 +55,15 @@ class Phase7ReferenceDiagnostics:
     applied_latency_steps: int
     gnss_bias_m: float
     baro_bias_m: float
+    delivered_transport_latency_steps: int = 0
+    delivered_age_steps: int = 10**6
+    new_delivery: bool = False
 
 
 @dataclass(frozen=True)
 class _ReferenceSnapshot:
+    acquisition_step: int
+    scheduled_latency_steps: int
     observation: ReferenceObservation
     diagnostics: Phase7ReferenceDiagnostics
 
@@ -69,6 +73,11 @@ class Phase7SensorStackReferenceEstimator:
 
     Ground-truth state is read only inside this sensor simulator to synthesize
     imperfect measurements. Downstream fusion receives only ReferenceObservation.
+
+    Transport latency is represented with a scheduled-delivery queue. Packets are
+    tagged with an acquisition step and delivered no earlier than their scheduled
+    time. If a later, lower-latency packet overtakes an older one, the older packet
+    is discarded once it is obsolete; no acquisition is re-delivered as fresh.
     """
 
     def __init__(
@@ -93,8 +102,9 @@ class Phase7SensorStackReferenceEstimator:
         self._last_vertical_measurement: float | None = None
         self._last_vertical_step: int | None = None
 
-        maxlen = max(4, self.cfg.max_latency_history_steps)
-        self._history: deque[_ReferenceSnapshot] = deque(maxlen=maxlen)
+        self._pending: list[tuple[int, _ReferenceSnapshot]] = []
+        self._last_delivered: _ReferenceSnapshot | None = None
+        self._last_delivered_acquisition_step = -1
 
     def observe(
         self,
@@ -177,7 +187,7 @@ class Phase7SensorStackReferenceEstimator:
             sigma_x = c.gnss_sigma_x_m + c.stale_sigma_growth_per_step * self._x_age
             sigma_z = vertical_sigma + c.stale_sigma_growth_per_step * self._z_age
             sigma_pos = float(min(c.max_sigma_pos_m, hypot(sigma_x, sigma_z)))
-            obs = ReferenceObservation(
+            acquired_obs = ReferenceObservation(
                 x=float(self._x),
                 z=float(self._z),
                 vx=float(self._vx),
@@ -188,23 +198,14 @@ class Phase7SensorStackReferenceEstimator:
                 age_steps=int(max(self._x_age, self._z_age)),
             )
         else:
-            obs = ReferenceObservation(
-                x=float(self._x or 0.0),
-                z=float(self._z or 0.0),
-                vx=float(self._vx or 0.0),
-                vz=float(self._vz),
-                sigma_pos=c.max_sigma_pos_m,
-                fresh=False,
-                available=False,
-                age_steps=10**6,
-            )
+            acquired_obs = self._unavailable()
 
         latency = int(np.clip(
             c.base_latency_steps + f.reference_latency_extra_steps,
             0,
             c.max_latency_history_steps - 1,
         ))
-        diag = Phase7ReferenceDiagnostics(
+        acquisition_diag = Phase7ReferenceDiagnostics(
             gnss_fresh=gnss_fresh,
             baro_fresh=baro_fresh,
             range_fresh=range_fresh,
@@ -213,52 +214,101 @@ class Phase7SensorStackReferenceEstimator:
             applied_latency_steps=latency,
             gnss_bias_m=float(self._gnss_bias + f.reference_x_bias_m),
             baro_bias_m=float(self._baro_bias + f.reference_z_bias_m),
+            delivered_transport_latency_steps=latency,
+            delivered_age_steps=int(acquired_obs.age_steps),
+            new_delivery=False,
         )
-        self._history.append(_ReferenceSnapshot(obs, diag))
+        snapshot = _ReferenceSnapshot(
+            acquisition_step=step,
+            scheduled_latency_steps=latency,
+            observation=acquired_obs,
+            diagnostics=acquisition_diag,
+        )
+        self._pending.append((step + latency, snapshot))
 
-        if len(self._history) <= latency:
-            unavailable = ReferenceObservation(
-                x=0.0,
-                z=0.0,
-                vx=0.0,
-                vz=0.0,
-                sigma_pos=c.max_sigma_pos_m,
-                fresh=False,
-                available=False,
-                age_steps=10**6,
+        due: list[_ReferenceSnapshot] = []
+        still_pending: list[tuple[int, _ReferenceSnapshot]] = []
+        for delivery_step, pending_snapshot in self._pending:
+            if delivery_step <= step:
+                due.append(pending_snapshot)
+            else:
+                still_pending.append((delivery_step, pending_snapshot))
+        self._pending = still_pending
+
+        new_delivery = False
+        candidates = [
+            item for item in due
+            if item.acquisition_step > self._last_delivered_acquisition_step
+        ]
+        if candidates:
+            newest = max(candidates, key=lambda item: item.acquisition_step)
+            self._last_delivered = newest
+            self._last_delivered_acquisition_step = newest.acquisition_step
+            new_delivery = True
+
+        if self._last_delivered is None:
+            diag = Phase7ReferenceDiagnostics(
+                gnss_fresh=False,
+                baro_fresh=False,
+                range_fresh=False,
+                gnss_age_steps=10**6,
+                vertical_age_steps=10**6,
+                applied_latency_steps=latency,
+                gnss_bias_m=0.0,
+                baro_bias_m=0.0,
+                delivered_transport_latency_steps=0,
+                delivered_age_steps=10**6,
+                new_delivery=False,
             )
-            return unavailable, diag
+            return self._unavailable(), diag
 
-        delayed = list(self._history)[-(latency + 1)]
-        delayed_obs = delayed.observation
-        if delayed_obs.available:
-            # ``fresh`` means a newly delivered sensor update, not zero transport
-            # delay. A delayed acquisition can still be new information when it
-            # reaches the estimator on this timestep.
-            delayed_obs = ReferenceObservation(
-                x=delayed_obs.x,
-                z=delayed_obs.z,
-                vx=delayed_obs.vx,
-                vz=delayed_obs.vz,
-                sigma_pos=float(min(c.max_sigma_pos_m, delayed_obs.sigma_pos + latency * c.stale_sigma_growth_per_step)),
-                fresh=bool(delayed_obs.fresh),
+        delivered = self._last_delivered
+        transport_age = max(0, step - delivered.acquisition_step)
+        base = delivered.observation
+        delivered_age = int(base.age_steps + transport_age) if base.available else 10**6
+        delivered_available = bool(base.available and delivered_age <= c.max_channel_age_steps)
+
+        if delivered_available:
+            delivered_obs = ReferenceObservation(
+                x=base.x,
+                z=base.z,
+                vx=base.vx,
+                vz=base.vz,
+                sigma_pos=float(min(
+                    c.max_sigma_pos_m,
+                    base.sigma_pos + transport_age * c.stale_sigma_growth_per_step,
+                )),
+                fresh=bool(new_delivery and base.fresh),
                 available=True,
-                age_steps=int(delayed_obs.age_steps + latency),
+                age_steps=delivered_age,
             )
+        else:
+            delivered_obs = self._unavailable()
 
-        # The delayed snapshot owns the measurement/bias provenance, while the
-        # current step owns the transport delay that selected that snapshot.
-        # This distinction matters during latency bursts: reporting the old
-        # snapshot's historical latency would understate the delay actually
-        # applied to the delivered sample.
+        source_diag = delivered.diagnostics
         delivery_diag = Phase7ReferenceDiagnostics(
-            gnss_fresh=delayed.diagnostics.gnss_fresh,
-            baro_fresh=delayed.diagnostics.baro_fresh,
-            range_fresh=delayed.diagnostics.range_fresh,
-            gnss_age_steps=int(delayed.diagnostics.gnss_age_steps + latency),
-            vertical_age_steps=int(delayed.diagnostics.vertical_age_steps + latency),
+            gnss_fresh=bool(new_delivery and source_diag.gnss_fresh),
+            baro_fresh=bool(new_delivery and source_diag.baro_fresh),
+            range_fresh=bool(new_delivery and source_diag.range_fresh),
+            gnss_age_steps=int(source_diag.gnss_age_steps + transport_age),
+            vertical_age_steps=int(source_diag.vertical_age_steps + transport_age),
             applied_latency_steps=latency,
-            gnss_bias_m=delayed.diagnostics.gnss_bias_m,
-            baro_bias_m=delayed.diagnostics.baro_bias_m,
+            gnss_bias_m=source_diag.gnss_bias_m,
+            baro_bias_m=source_diag.baro_bias_m,
+            delivered_transport_latency_steps=int(delivered.scheduled_latency_steps),
+            delivered_age_steps=delivered_age,
+            new_delivery=new_delivery,
         )
-        return delayed_obs, delivery_diag
+        return delivered_obs, delivery_diag
+
+    def _unavailable(self) -> ReferenceObservation:
+        return ReferenceObservation(
+            x=0.0,
+            z=0.0,
+            vx=0.0,
+            vz=0.0,
+            sigma_pos=self.cfg.max_sigma_pos_m,
+            fresh=False,
+            available=False,
+            age_steps=10**6,
+        )
