@@ -17,10 +17,11 @@ def episode_seeds(seed: int, condition: str, episodes: int) -> list[int]:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Inspect Phase 6 image abstention causes for development episodes.")
+    parser = argparse.ArgumentParser(description="Inspect Phase 6 development episode failure mechanisms.")
     parser.add_argument("--condition", choices=IMAGE_CONDITIONS, default="clean")
     parser.add_argument("--episodes", type=int, default=2)
     parser.add_argument("--seed", type=int, default=626262)
+    parser.add_argument("--episode-seed", type=int, default=None)
     parser.add_argument("--calibration-seed", type=int, default=616161)
     parser.add_argument("--calibration-samples", type=int, default=60)
     parser.add_argument("--architecture", choices=("image_temporal", "image_aegis_v3"), default="image_aegis_v3")
@@ -31,7 +32,8 @@ def main() -> None:
         samples_per_condition=args.calibration_samples,
     )
 
-    for episode_seed in episode_seeds(args.seed, args.condition, args.episodes):
+    seeds = [args.episode_seed] if args.episode_seed is not None else episode_seeds(args.seed, args.condition, args.episodes)
+    for episode_seed in seeds:
         result, trace = run_image_episode(
             episode_seed,
             args.condition,
@@ -58,6 +60,24 @@ def main() -> None:
         if accepted:
             print("accepted true-z range:", round(min(r["true_z"] for r in accepted), 3), "to", round(max(r["true_z"] for r in accepted), 3))
             print("mean accepted innovation:", round(float(np.mean([r["innovation_score"] for r in accepted])), 3))
+
+        near_touchdown = [r for r in trace if r["true_z_before"] <= 1.0]
+        if near_touchdown:
+            true_vx = np.asarray([r["true_vx_before"] for r in near_touchdown])
+            image_vx = np.asarray([r["image_vx"] for r in near_touchdown])
+            control_vx = np.asarray([r["control_vx"] for r in near_touchdown])
+            robust_target = np.asarray([r["robust_vx_target"] for r in near_touchdown])
+            print("near-ground frames:", len(near_touchdown))
+            print("near-ground true vx MAE vs image:", round(float(np.mean(np.abs(image_vx - true_vx))), 4))
+            print("near-ground true vx MAE vs control:", round(float(np.mean(np.abs(control_vx - true_vx))), 4))
+            print("near-ground true vx MAE vs robust target:", round(float(np.mean(np.abs(robust_target - true_vx))), 4))
+            print("last 8 frames: t z true_vx image_vx control_vx robust_target quality true_x control_x")
+            for r in near_touchdown[-8:]:
+                print(
+                    f"{r['t']:.2f} {r['true_z_before']:.3f} {r['true_vx_before']:+.3f} "
+                    f"{r['image_vx']:+.3f} {r['control_vx']:+.3f} {r['robust_vx_target']:+.3f} "
+                    f"{r['velocity_quality']:.3f} {r['true_x_before']:+.3f} {r['control_x']:+.3f}"
+                )
 
 
 if __name__ == "__main__":
