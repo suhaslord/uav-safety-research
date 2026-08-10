@@ -12,16 +12,7 @@ from .supervisor_v3 import FusionResult, RedundantStateFusion, SupervisorV3Confi
 
 @dataclass(frozen=True)
 class Phase6FusionConfig:
-    """Adapter policy for pixel-derived observations feeding frozen V3 safety logic.
-
-    The historical V3 fusion layer was tuned for an abstract perception stream and
-    always gave a usable reference estimate some direct control weight. Phase 6's
-    calibrated temporal image track is much cleaner in ordinary frames, so noisy
-    reference blending can create rather than remove control error.
-
-    This adapter keeps the original bias estimator/disagreement calculation, but
-    gates how that evidence is allowed to modify the control observation.
-    """
+    """Adapter policy for pixel-derived observations feeding frozen V3 safety logic."""
 
     bias_confidence_gate: float = 0.50
     bias_correction_ramp_end: float = 0.78
@@ -31,14 +22,26 @@ class Phase6FusionConfig:
     reference_vertical_weight_when_dropped: float = 0.55
     reference_velocity_weight_when_dropped: float = 0.45
 
+    # Near touchdown, a visually plausible sequence can still be smoothly wrong.
+    # If independent evidence strongly conflicts with the accepted image track,
+    # temporarily treat redundancy as an integrity fallback rather than merely a
+    # small bias-correction aid.
+    integrity_gate_altitude_m: float = 1.00
+    integrity_position_disagreement_m: float = 0.65
+    integrity_velocity_disagreement_mps: float = 0.80
+    integrity_max_reference_age_steps: int = 5
+    integrity_reference_weight_fresh: float = 0.78
+    integrity_reference_weight_stale: float = 0.62
+    integrity_velocity_weight: float = 0.85
+
 
 class Phase6RedundantFusionAdapter:
-    """Use frozen V3 bias/disagreement evidence without over-blending reference noise.
+    """Use frozen V3 evidence while adapting fusion to calibrated image tracks.
 
-    Key rule: when the image tracker has accepted a frame, its altitude and
-    velocities stay primary. Redundant evidence is used chiefly to estimate and
-    correct persistent lateral bias. When the image tracker abstains, the
-    independent reference may receive substantially more weight.
+    Healthy accepted image tracks stay primary. Persistent bias evidence may
+    gradually correct lateral position. During image abstention, or during a
+    strong near-ground cross-estimator integrity conflict, the independent
+    reference is allowed to carry substantially more temporary control weight.
     """
 
     def __init__(
@@ -55,15 +58,12 @@ class Phase6RedundantFusionAdapter:
         image_obs: Observation,
         reference: ReferenceObservation,
     ) -> FusionResult:
-        # Preserve frozen V3's evidence model: its bias window, confidence logic,
-        # and normalized/unexplained disagreement are computed unchanged.
+        # Preserve frozen V3's evidence model: bias window, confidence logic, and
+        # explained/unexplained disagreement are computed unchanged.
         base = self._core.update(image_obs, image_obs, reference)
         c = self.cfg
 
         if not image_obs.dropped:
-            # A single noisy reference sample must not perturb an accepted image
-            # trajectory. Persistent cross-estimator evidence can gradually turn
-            # on lateral correction, but z/v stay image-derived.
             ramp = float(np.clip(
                 (base.bias_confidence - c.bias_confidence_gate)
                 / max(1e-6, c.bias_correction_ramp_end - c.bias_confidence_gate),
@@ -73,6 +73,44 @@ class Phase6RedundantFusionAdapter:
             correction = float(base.applied_bias_correction * ramp)
             corrected_x = float(image_obs.x - correction)
 
+            if self._integrity_conflict(image_obs, reference, base):
+                ref_weight = float(
+                    c.integrity_reference_weight_fresh
+                    if reference.fresh
+                    else c.integrity_reference_weight_stale
+                )
+                velocity_weight = float(c.integrity_velocity_weight)
+                control_x = (1.0 - ref_weight) * corrected_x + ref_weight * reference.x
+                control_vx = (1.0 - velocity_weight) * image_obs.vx + velocity_weight * reference.vx
+
+                # Accepted image geometry/altitude can remain useful even when its
+                # lateral solution is corrupted. Keep z/vz image-derived, but
+                # reduce confidence and expose higher uncertainty to frozen V3.
+                confidence = float(np.clip(image_obs.confidence * 0.72, 0.05, 0.90))
+                sigma = float(np.clip(max(image_obs.sigma_pos, reference.sigma_pos) * 1.15, 0.08, 2.2))
+                control_obs = Observation(
+                    x=float(control_x),
+                    z=float(image_obs.z),
+                    vx=float(control_vx),
+                    vz=float(image_obs.vz),
+                    confidence=confidence,
+                    sigma_pos=sigma,
+                    dropped=False,
+                )
+                return FusionResult(
+                    control_obs=control_obs,
+                    lateral_disagreement_m=base.lateral_disagreement_m,
+                    normalized_disagreement=base.normalized_disagreement,
+                    unexplained_disagreement=base.unexplained_disagreement,
+                    bias_estimate_x=base.bias_estimate_x,
+                    bias_confidence=base.bias_confidence,
+                    applied_bias_correction=correction,
+                    reference_weight=ref_weight,
+                    reference_usable=base.reference_usable,
+                )
+
+            # Normal tracked mode: a single noisy reference sample must not
+            # perturb an already-good accepted image trajectory.
             if base.reference_usable and ramp > 0.0:
                 ref_weight = float(min(
                     c.max_reference_weight_when_tracked,
@@ -105,10 +143,9 @@ class Phase6RedundantFusionAdapter:
                 reference_usable=base.reference_usable,
             )
 
-        # Image abstention: the visual state is propagated rather than fresh. If
-        # independent evidence is usable, allow it to carry more of the control
-        # estimate until vision reacquires. Fresh updates receive more weight than
-        # old propagated reference estimates.
+        # Image abstention: visual state is propagated rather than fresh. If
+        # independent evidence is usable, allow it to carry more of the estimate
+        # until image tracking reacquires.
         if base.reference_usable:
             freshness = exp(-reference.age_steps / 7.0)
             target_w = (
@@ -166,3 +203,24 @@ class Phase6RedundantFusionAdapter:
             reference_weight=ref_weight,
             reference_usable=base.reference_usable,
         )
+
+    def _integrity_conflict(
+        self,
+        image_obs: Observation,
+        reference: ReferenceObservation,
+        base: FusionResult,
+    ) -> bool:
+        c = self.cfg
+        if not base.reference_usable:
+            return False
+        if reference.age_steps > c.integrity_max_reference_age_steps:
+            return False
+        if reference.z > c.integrity_gate_altitude_m:
+            return False
+
+        # Use independent disagreement, never simulator ground truth. Either a
+        # large unexplained lateral offset or a large velocity disagreement is
+        # enough to indicate that a smooth image track may be confidently wrong.
+        position_conflict = base.unexplained_disagreement >= c.integrity_position_disagreement_m
+        velocity_conflict = abs(image_obs.vx - reference.vx) >= c.integrity_velocity_disagreement_mps
+        return bool(position_conflict or velocity_conflict)
