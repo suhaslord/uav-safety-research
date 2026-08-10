@@ -1,0 +1,39 @@
+name: Phase 6 Mixed Velocity Diagnostic
+
+on:
+  push:
+    paths:
+      - '.github/workflows/phase6-diagnose-mixed.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Trace failed mixed Aegis development episode after integrity fallback
+        run: |
+          python scripts/diagnose_phase6_episode.py \
+            --condition mixed \
+            --episode-seed 315334802 \
+            --architecture image_aegis_v3 \
+            --calibration-seed 616161 \
+            --calibration-samples 180
+      - name: Trace paired image-only episode
+        run: |
+          python scripts/diagnose_phase6_episode.py \
+            --condition mixed \
+            --episode-seed 315334802 \
+            --architecture image_temporal \
+            --calibration-seed 616161 \
+            --calibration-samples 180

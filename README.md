@@ -8,20 +8,70 @@
 
 [![CI](https://github.com/suhaslord/uav-safety-research/actions/workflows/ci.yml/badge.svg)](https://github.com/suhaslord/uav-safety-research/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)
-![Research](https://img.shields.io/badge/status-frozen%20V3%20result-success)
-![Episodes](https://img.shields.io/badge/frozen%20evaluation-10%2C000%20episodes-blue)
+![Research](https://img.shields.io/badge/status-V3%20%2B%20Phase%206%20frozen-success)
+![V3](https://img.shields.io/badge/V3%20evaluation-10%2C000%20episodes-blue)
+![Phase 6](https://img.shields.io/badge/Phase%206%20held--out-1%2C000%20image%20episodes-blue)
 ![Scope](https://img.shields.io/badge/scope-simulation--only-blueviolet)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-**A reproducible simulation study of uncertainty, persistent perception bias, redundant estimation, and safety–availability tradeoffs.**
+**A reproducible simulation study of uncertainty, persistent perception bias, temporal image perception, redundant estimation, and safety–availability tradeoffs.**
 
 </div>
 
 ---
 
+## Phase 6: pixels → temporal perception → Aegis
+
+AegisLand now includes a complete synthetic image-sequence perception path rather than relying only on directly corrupted state variables.
+
+```mermaid
+flowchart LR
+    I["Synthetic camera frames"] --> P["Pixel measurement"]
+    P --> C["Confidence calibration"]
+    C --> T["Temporal tracking / abstention / reacquisition"]
+    T --> V["Robust image-derived lateral velocity"]
+    R["Independent imperfect estimate"] --> D["Cross-estimator integrity check"]
+    V --> D
+    D --> F["Phase 6 redundant fusion"]
+    F --> S["Frozen V3 safety supervisor"]
+    S --> L["Landing controller"]
+    L --> M["Planar simulated dynamics"]
+```
+
+### Frozen held-out image result
+
+The Phase 6 algorithm was frozen before evaluation. The held-out test used **100 paired episodes per image condition / architecture cell**, for **1,000 simulated landing episodes** total.
+
+| Image condition | Image-only success | Image-only unsafe | **Image + Aegis success** | **Image + Aegis unsafe** | Aegis abort |
+|---|---:|---:|---:|---:|---:|
+| clean | 100% | 0% | **100%** | **0%** | 0% |
+| blur | 100% | 0% | **100%** | **0%** | 0% |
+| low light | 100% | 0% | **100%** | **0%** | 0% |
+| occlusion | 89% | 11% | **96%** | **4%** | 0% |
+| **mixed** | **63%** | **37%** | **92%** | **7%** | **1%** |
+
+For held-out `mixed` image degradation, redundant Aegis supervision improved success by **29 percentage points** and reduced unsafe touchdowns by **30 percentage points** relative to the same temporal image-perception system without Aegis.
+
+Paired episodes showed:
+
+- **33** mixed image-only unsafe touchdowns became Aegis successes
+- **3** mixed image-only successes became Aegis unsafe touchdowns
+- **11** occlusion image-only unsafe touchdowns became Aegis successes
+- **4** occlusion image-only successes became Aegis unsafe touchdowns
+
+Full Phase 6 result: [`docs/phase6_results.md`](docs/phase6_results.md)  
+Freeze protocol: [`docs/phase6_freeze.md`](docs/phase6_freeze.md)  
+Architecture: [`docs/phase6_design.md`](docs/phase6_design.md)
+
+> **Important negative result:** frame-level abstention is still weakly selective under the hardest synthetic degradation. The held-out system-level gain comes from the combined temporal + robust-velocity + redundant-integrity architecture, not from an abstention classifier that catches every bad frame.
+
+> **Scope:** all Phase 6 results are synthetic-image, planar-simulation results. They are not physical-aircraft safety claims.
+
+---
+
 ## Frozen V3 result
 
-The held-out V3 benchmark used **500 paired episode seeds per profile/architecture cell**, for **10,000 simulated landing episodes** total.
+Before the image-based extension, the held-out V3 benchmark used **500 paired episode seeds per profile/architecture cell**, for **10,000 simulated landing episodes** total.
 
 | Profile | Baseline unsafe | V2 unsafe | **V3 unsafe** | **V3 success** | V3 abort |
 |---|---:|---:|---:|---:|---:|
@@ -31,9 +81,7 @@ The held-out V3 benchmark used **500 paired episode seeds per profile/architectu
 | occlusion | 34.6% | 33.6% | **1.4%** | **98.6%** | 0.0% |
 | **mixed** | **84.2%** | **84.0%** | **2.4%** | **97.6%** | **0.0%** |
 
-Under the primary `mixed` stress profile, V3 reduced the observed unsafe-touchdown rate by **81.8 percentage points** versus baseline, approximately **97.1% relative** in this simulation.
-
-Under `occlusion`, V3 reduced the observed unsafe-touchdown rate by **33.2 percentage points**, approximately **96.0% relative**.
+Under the primary abstract `mixed` stress profile, V3 reduced the observed unsafe-touchdown rate by **81.8 percentage points** versus baseline, approximately **97.1% relative** in this simulation.
 
 ### 95% Wilson intervals for V3
 
@@ -42,10 +90,8 @@ Under `occlusion`, V3 reduced the observed unsafe-touchdown rate by **33.2 perce
 - `occlusion` success: **97.14%–99.32%**
 - `occlusion` unsafe touchdown: **0.68%–2.86%**
 
-Full frozen results: [`docs/v3_results.md`](docs/v3_results.md)  
+Full V3 results: [`docs/v3_results.md`](docs/v3_results.md)  
 Raw committed outputs: [`results/v3_frozen/`](results/v3_frozen/)
-
-> **Important:** these are simulation results, not real-aircraft safety claims.
 
 ---
 
@@ -53,90 +99,34 @@ Raw committed outputs: [`results/v3_frozen/`](results/v3_frozen/)
 
 AegisLand was intentionally developed through measured failures instead of deleting old results when they looked bad.
 
-| Version | Main idea | What the experiment taught us |
+| Stage | Main idea | What the experiment taught us |
 |---|---|---|
 | **Baseline** | always continue landing | easy conditions are fine; severe bias/noise causes unsafe touchdowns |
 | **V1** | static confidence/risk thresholds | safety can improve by simply becoming unusably conservative |
 | **V2** | temporal filtering + persistence + hysteresis | availability recovers, but persistent bias remains unidentifiable from one stream |
-| **V3** | independent redundant estimate + bias-aware fusion | held-out simulation result strongly reduces the persistent-bias failure without returning to excessive aborts |
+| **V3** | independent redundant estimate + bias-aware fusion | redundant evidence strongly reduces persistent-bias failures in held-out abstract-perception simulation |
+| **Phase 5** | post-freeze robustness stress tests | V3 generalizes across seed families and stress axes, but reference quality matters |
+| **Phase 6** | actual synthetic pixel sequences | temporal perception works, but smoothly wrong image tracks require cross-estimator integrity checks; standalone abstention remains a limitation |
 
-That progression changed the project from a threshold-tuning exercise into an **observability problem**:
+That progression changed the project from threshold tuning into an **observability and selective-reliability problem**:
 
-> If one sensor stream is consistently wrong, does the autonomy stack need independent error structure to know that it is wrong?
-
----
-
-## Paired episode evidence
-
-All architectures were compared using paired episode seeds.
-
-### Mixed degradation
-
-- **410** baseline unsafe episodes became V3 successes
-- **1** baseline success became V3 unsafe
-- **409** V2 unsafe episodes became V3 successes
-- **1** V2 success became V3 unsafe
-
-### Occlusion
-
-- **166** baseline unsafe episodes became V3 successes
-- **0** baseline successes became V3 unsafe
-- **161** V2 unsafe episodes became V3 successes
-- **0** V2 successes became V3 unsafe
-
-This matters because the aggregate improvement is not merely hiding an equal number of new failures elsewhere.
+> If a sensor stream is internally consistent but wrong, what independent evidence is needed to recognize and safely handle the error?
 
 ---
 
-## V3 architecture
-
-```mermaid
-flowchart LR
-    P["Corrupted vision"] --> F["Temporal vision filter"]
-    R["Independent lower-rate estimate"] --> D["Cross-estimator disagreement"]
-    F --> D
-    D --> B["Persistent bias estimator"]
-    B --> U["Bias-aware state fusion"]
-    F --> U
-    R --> U
-    U --> S["Aegis V3 supervisor"]
-    S -->|PROCEED| C["Landing controller"]
-    S -->|HOLD| C
-    S -->|ABORT| X["Terminate simulated attempt"]
-    C --> M["Planar simulated dynamics"]
-```
+## V3 / Phase 6 safety architecture
 
 The independent reference estimate is intentionally imperfect:
 
-- lower update rate than vision
+- lower update rate than the primary perception stream
 - independent zero-mean noise
 - missed updates
 - uncertainty growth between updates
 - isolated RNG stream
 
-V3 therefore does **not** get a perfect ground-truth controller input.
+Phase 6 adds a confidence-aware adapter so a good image track is not unnecessarily corrupted by noisy reference blending. Near simulated touchdown, strong image/reference disagreement can instead activate a temporary integrity fallback.
 
----
-
-## What V3 adds
-
-### Persistent-bias estimation
-
-Fresh cross-estimator disagreement is accumulated over time. Strong correction is applied only when the estimated offset is persistent, large enough to matter, and statistically distinguishable from ordinary disagreement noise.
-
-### Bias-aware fusion
-
-The control-side estimate combines:
-
-1. temporally filtered vision,
-2. confidence-gated lateral bias correction,
-3. a modest independent-reference contribution.
-
-The strongest redundant-estimator influence is applied to lateral position because persistent lateral bias was the measured V2 failure mode.
-
-### Explained vs unexplained disagreement
-
-A stable, estimable bias is treated differently from disagreement that remains unexplained near touchdown. This avoids recreating the V1 failure mode where uncertainty simply caused near-universal aborts.
+The system therefore does **not** get perfect ground truth as a controller input.
 
 ---
 
@@ -144,27 +134,33 @@ A stable, estimable bias is treated differently from disagreement that remains u
 
 - deterministic top-level seeds
 - paired architecture comparisons
-- isolated V3 reference RNG
-- development/frozen seed separation
-- frozen V3 algorithm before held-out evaluation
-- raw episode-level CSV output
+- isolated environment, image, and reference RNG streams
+- separate calibration, development, and frozen evaluation seeds
+- explicit algorithm freeze before held-out evaluation
+- full configuration snapshot in Phase 6 result metadata
 - 95% Wilson intervals
-- paired-effect analysis
-- automated dataset validator
+- paired rescue/regression analysis
+- touchdown failure decomposition
+- calibration reliability / ECE audit
+- automated frozen-result validators
 - unit tests + compile checks
-- GitHub Actions CI smoke benchmark
-- historical V1/V2 results retained
-- explicit limitations and safety scope
+- GitHub Actions CI
+- historical negative results retained
+- explicit safety and external-validity limitations
 
 See:
 
 - [`docs/reproducibility.md`](docs/reproducibility.md)
 - [`docs/v3_freeze.md`](docs/v3_freeze.md)
 - [`docs/v3_results.md`](docs/v3_results.md)
+- [`docs/phase5_results.md`](docs/phase5_results.md)
+- [`docs/phase6_evaluation_protocol.md`](docs/phase6_evaluation_protocol.md)
+- [`docs/phase6_freeze.md`](docs/phase6_freeze.md)
+- [`docs/phase6_results.md`](docs/phase6_results.md)
 
 ---
 
-## Reproduce the frozen evaluation
+## Reproduce the project
 
 ```bash
 git clone https://github.com/suhaslord/uav-safety-research.git
@@ -179,40 +175,41 @@ pip install -e ".[dev]"
 pytest -q
 ```
 
-Run the frozen benchmark:
+### Reproduce frozen V3
 
 ```bash
 python scripts/run_v3_comparison.py --episodes 500 --seed 424242 --out results/v3_frozen
-```
-
-Validate it:
-
-```bash
 python scripts/validate_v3_frozen.py --out results/v3_frozen --seed 424242 --episodes 500
 ```
 
-Expected validation summary:
+### Reproduce frozen Phase 6 image evaluation
 
-```text
-V3 frozen result validation: PASS
-seed: 424242
-episodes per cell: 500
-total rows: 10000
+```bash
+python scripts/run_phase6_image_landing.py \
+  --episodes 100 \
+  --seed 747474 \
+  --calibration-seed 616161 \
+  --calibration-samples 180 \
+  --severity 1.0 \
+  --run-role frozen \
+  --out results/phase6_frozen
 ```
 
----
+Then validate:
 
-## Experimental profiles
+```bash
+python scripts/validate_phase6_frozen.py \
+  --out results/phase6_frozen \
+  --seed 747474 \
+  --episodes 100 \
+  --calibration-seed 616161
+```
 
-| Profile | Stressors | Role |
-|---|---|---|
-| `clean` | low noise | control condition |
-| `blur` | moderate state noise | mild degradation |
-| `low_light` | uncertainty + moderate bias | visibility-like stress surrogate |
-| `occlusion` | dropout + noise + bias | partial-observation surrogate |
-| `mixed` | strongest noise + dropout + persistent bias | primary V3 stress test |
+Expected validator summary begins with:
 
-These are **abstract simulation stress profiles**, not calibrated camera models.
+```text
+Phase 6 frozen validation: PASS
+```
 
 ---
 
@@ -223,6 +220,10 @@ uav-safety-research/
 ├── src/uav_safety/
 │   ├── dynamics.py
 │   ├── perception.py
+│   ├── image_perception.py
+│   ├── image_temporal.py
+│   ├── phase6_velocity.py
+│   ├── phase6_fusion.py
 │   ├── controller.py
 │   ├── supervisor.py
 │   ├── supervisor_v2.py
@@ -231,13 +232,20 @@ uav-safety-research/
 │   ├── simulator.py
 │   ├── simulator_v2.py
 │   ├── simulator_v3.py
+│   ├── simulator_image_v3.py
 │   └── metrics.py
 ├── scripts/
 │   ├── run_experiments.py
 │   ├── run_threshold_sweep.py
 │   ├── run_v2_comparison.py
 │   ├── run_v3_comparison.py
-│   └── validate_v3_frozen.py
+│   ├── validate_v3_frozen.py
+│   ├── run_robustness_suite.py
+│   ├── run_image_perception_benchmark.py
+│   ├── run_phase6_image_landing.py
+│   ├── run_phase6_selective_perception.py
+│   ├── analyze_phase6_failures.py
+│   └── validate_phase6_frozen.py
 ├── results/
 │   ├── threshold_sweep/
 │   ├── v2_comparison/
@@ -250,29 +258,29 @@ uav-safety-research/
 
 ---
 
-## Limitations
+## Current limitations
 
-The frozen result is strong **inside this simulation**, but external validity is intentionally limited.
+The results are strong **inside these simulations**, but external validity remains limited.
 
 Current limitations include:
 
 - planar dynamics rather than a full 6-DOF aircraft model
-- synthetic perception degradation rather than calibrated camera physics
-- abstract redundant estimator rather than a modeled physical sensor
+- synthetic imagery rather than calibrated real-camera data
+- synthetic degradation rather than measured sensor physics
+- abstract independent reference estimator rather than a modeled physical sensor
+- no common-mode / correlated sensor-failure study yet
+- frame-level abstention target is poorly aligned with some downstream landing outcomes
+- weak bad-frame abstention recall under held-out mixed image sequences
 - synthetic wind/disturbance field
-- no image-based perception front end in V3
-- no hardware or flight validation
-- one frozen evaluation seed family
+- no hardware or physical-flight validation
 
-The next serious scientific question is therefore whether the result survives **multi-seed sensitivity analysis and more realistic perception**, not whether more threshold tuning can make the current table look even better.
+The next research step should attack those limitations rather than retune the frozen Phase 6 numbers.
 
 ---
 
 ## Paper workspace
 
-A first result-grounded abstract is available at [`paper/abstract.md`](paper/abstract.md).
-
-The write-up is being built from committed experiment artifacts rather than reconstructed from memory.
+A result-grounded V3 abstract is available at [`paper/abstract.md`](paper/abstract.md). Phase 6 now provides the next major methods/results section for the manuscript.
 
 ---
 

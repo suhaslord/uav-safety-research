@@ -1,0 +1,96 @@
+name: Phase 6 Frozen Evaluation
+
+on:
+  push:
+    paths:
+      - '.github/workflows/phase6-frozen-evaluation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Compile
+        run: python -m compileall -q src scripts tests
+      - name: Full test suite
+        run: pytest -q
+
+  frozen-landing:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Run frozen held-out image landing evaluation
+        run: |
+          python scripts/run_phase6_image_landing.py \
+            --episodes 100 \
+            --seed 747474 \
+            --calibration-seed 616161 \
+            --calibration-samples 180 \
+            --severity 1.0 \
+            --run-role frozen \
+            --out results/phase6_frozen
+      - name: Validate frozen result bundle
+        run: |
+          python scripts/validate_phase6_frozen.py \
+            --out results/phase6_frozen \
+            --seed 747474 \
+            --episodes 100 \
+            --calibration-seed 616161
+      - name: Decompose frozen unsafe touchdowns
+        run: python scripts/analyze_phase6_failures.py --results results/phase6_frozen
+      - name: Upload frozen landing results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase6-frozen-landing-results
+          path: results/phase6_frozen
+          if-no-files-found: warn
+          retention-days: 90
+
+  frozen-selective-perception:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Run held-out selective-perception benchmark
+        run: |
+          python scripts/run_phase6_selective_perception.py \
+            --sequences 20 \
+            --frames 100 \
+            --seed 757575 \
+            --calibration-seed 616161 \
+            --calibration-samples 180 \
+            --out results/phase6_selective_frozen
+      - name: Upload frozen selective-perception results
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase6-frozen-selective-results
+          path: results/phase6_selective_frozen
+          if-no-files-found: error
+          retention-days: 90
