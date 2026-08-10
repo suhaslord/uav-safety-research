@@ -2,62 +2,89 @@
 
 # AegisLand
 
-### Confidence-Aware Safety Supervision for Vision-Based Autonomous UAV Landing
+### Redundant Perception Safety for Simulated Autonomous UAV Landing
 
-> **When perception becomes unreliable, should an autonomous system keep acting on it?**
+> **When one perception stream is confidently wrong, can independent evidence keep the system from acting on the error?**
 
 [![CI](https://github.com/suhaslord/uav-safety-research/actions/workflows/ci.yml/badge.svg)](https://github.com/suhaslord/uav-safety-research/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)
-![Research](https://img.shields.io/badge/status-active%20research-orange)
+![Research](https://img.shields.io/badge/status-frozen%20V3%20result-success)
+![Episodes](https://img.shields.io/badge/frozen%20evaluation-10%2C000%20episodes-blue)
 ![Scope](https://img.shields.io/badge/scope-simulation--only-blueviolet)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-**A reproducible simulation research project on uncertainty, perception failure, and safety–availability tradeoffs.**
+**A reproducible simulation study of uncertainty, persistent perception bias, redundant estimation, and safety–availability tradeoffs.**
 
 </div>
 
 ---
 
-## Current research question
+## Frozen V3 result
 
-**Can independent, imperfect state evidence detect persistent visual bias and reduce unsafe simulated UAV touchdowns without returning to the excessive-abort behavior of earlier safety supervisors?**
+The held-out V3 benchmark used **500 paired episode seeds per profile/architecture cell**, for **10,000 simulated landing episodes** total.
 
-AegisLand has evolved through measured failures rather than replacing old results:
+| Profile | Baseline unsafe | V2 unsafe | **V3 unsafe** | **V3 success** | V3 abort |
+|---|---:|---:|---:|---:|---:|
+| clean | 0.0% | 0.0% | **0.0%** | **100.0%** | 0.0% |
+| blur | 0.0% | 0.0% | **0.0%** | **100.0%** | 0.0% |
+| low light | 0.0% | 0.2% | **0.0%** | **100.0%** | 0.0% |
+| occlusion | 34.6% | 33.6% | **1.4%** | **98.6%** | 0.0% |
+| **mixed** | **84.2%** | **84.0%** | **2.4%** | **97.6%** | **0.0%** |
 
-| Version | Main idea | What the experiment taught us |
-|---|---|---|
-| **Baseline** | always continue landing | works in easy conditions, fails badly under severe bias/noise |
-| **V1** | static confidence/risk thresholds | can reduce unsafe touchdowns, but often by aborting almost everything |
-| **V2** | temporal filtering + persistence + hysteresis | fixes V1 over-conservatism, modestly helps occlusion, but cannot identify persistent bias |
-| **V3** | independent redundant estimate + bias-aware fusion | **implemented; evaluation pending** |
+Under the primary `mixed` stress profile, V3 reduced the observed unsafe-touchdown rate by **81.8 percentage points** versus baseline, approximately **97.1% relative** in this simulation.
 
-No V3 performance claim is made until the frozen benchmark is run.
+Under `occlusion`, V3 reduced the observed unsafe-touchdown rate by **33.2 percentage points**, approximately **96.0% relative**.
+
+### 95% Wilson intervals for V3
+
+- `mixed` success: **95.85%–98.62%**
+- `mixed` unsafe touchdown: **1.38%–4.15%**
+- `occlusion` success: **97.14%–99.32%**
+- `occlusion` unsafe touchdown: **0.68%–2.86%**
+
+Full frozen results: [`docs/v3_results.md`](docs/v3_results.md)  
+Raw committed outputs: [`results/v3_frozen/`](results/v3_frozen/)
+
+> **Important:** these are simulation results, not real-aircraft safety claims.
 
 ---
 
-## Why V3 exists
+## The research story
 
-The fixed 500-episode-per-cell V2 evaluation produced the clearest unresolved result:
+AegisLand was intentionally developed through measured failures instead of deleting old results when they looked bad.
 
-| Profile | Baseline unsafe | V2 unsafe | Baseline success | V2 success |
-|---|---:|---:|---:|---:|
-| clean | 0.0% | 0.0% | 100.0% | 100.0% |
-| blur | 0.0% | 0.0% | 100.0% | 100.0% |
-| low light | 0.4% | 0.4% | 99.6% | 99.6% |
-| occlusion | 33.8% | 30.6% | 66.2% | 69.4% |
-| **mixed** | **84.2%** | **84.8%** | **15.8%** | **15.2%** |
+| Version | Main idea | What the experiment taught us |
+|---|---|---|
+| **Baseline** | always continue landing | easy conditions are fine; severe bias/noise causes unsafe touchdowns |
+| **V1** | static confidence/risk thresholds | safety can improve by simply becoming unusably conservative |
+| **V2** | temporal filtering + persistence + hysteresis | availability recovers, but persistent bias remains unidentifiable from one stream |
+| **V3** | independent redundant estimate + bias-aware fusion | held-out simulation result strongly reduces the persistent-bias failure without returning to excessive aborts |
 
-V2 solved the excessive-abort problem but did **not** solve the persistent lateral bias in `mixed`.
+That progression changed the project from a threshold-tuning exercise into an **observability problem**:
 
-That changed the research question from:
+> If one sensor stream is consistently wrong, does the autonomy stack need independent error structure to know that it is wrong?
 
-> “Can I tune the thresholds better?”
+---
 
-into:
+## Paired episode evidence
 
-> **“Does the system need another independent source of information to identify systematic bias?”**
+All architectures were compared using paired episode seeds.
 
-See [`docs/v2_results.md`](docs/v2_results.md) and [`docs/v3_research_plan.md`](docs/v3_research_plan.md).
+### Mixed degradation
+
+- **410** baseline unsafe episodes became V3 successes
+- **1** baseline success became V3 unsafe
+- **409** V2 unsafe episodes became V3 successes
+- **1** V2 success became V3 unsafe
+
+### Occlusion
+
+- **166** baseline unsafe episodes became V3 successes
+- **0** baseline successes became V3 unsafe
+- **161** V2 unsafe episodes became V3 successes
+- **0** V2 successes became V3 unsafe
+
+This matters because the aggregate improvement is not merely hiding an equal number of new failures elsewhere.
 
 ---
 
@@ -79,72 +106,65 @@ flowchart LR
     C --> M["Planar simulated dynamics"]
 ```
 
-### Important design constraints
-
-V3 does **not** receive perfect ground truth as a second controller input.
-
 The independent reference estimate is intentionally imperfect:
 
 - lower update rate than vision
 - independent zero-mean noise
 - missed updates
 - uncertainty growth between updates
-- separate RNG stream
+- isolated RNG stream
 
-The reference stream exists to test the value of **independent error structure**, not to make the problem artificially easy.
+V3 therefore does **not** get a perfect ground-truth controller input.
 
 ---
 
-## What V3 changes
+## What V3 adds
 
-### Persistent-bias detection
+### Persistent-bias estimation
 
-V3 tracks lateral disagreement only when fresh independent evidence is available. A rolling estimator determines whether the offset is:
-
-- persistent,
-- large enough to matter, and
-- statistically distinguishable from ordinary noise.
-
-Strong correction is applied only when all three are true.
+Fresh cross-estimator disagreement is accumulated over time. Strong correction is applied only when the estimated offset is persistent, large enough to matter, and statistically distinguishable from ordinary disagreement noise.
 
 ### Bias-aware fusion
 
-The control estimate combines:
+The control-side estimate combines:
 
 1. temporally filtered vision,
-2. confidence-gated visual-bias correction,
-3. a modest weight from the independent reference estimate.
+2. confidence-gated lateral bias correction,
+3. a modest independent-reference contribution.
 
-The strongest redundant-estimator weight is applied to lateral position because that is the measured V2 failure mode.
+The strongest redundant-estimator influence is applied to lateral position because persistent lateral bias was the measured V2 failure mode.
 
 ### Explained vs unexplained disagreement
 
-Persistent disagreement that can be explained by a stable bias estimate is treated differently from large disagreement that remains unexplained near touchdown.
-
-That prevents the safety layer from turning every detectable bias into another V1-style abort cascade.
+A stable, estimable bias is treated differently from disagreement that remains unexplained near touchdown. This avoids recreating the V1 failure mode where uncertainty simply caused near-universal aborts.
 
 ---
 
-## Research-quality safeguards
-
-AegisLand is built around reproducibility rather than a single impressive demo.
+## Reproducibility safeguards
 
 - deterministic top-level seeds
 - paired architecture comparisons
 - isolated V3 reference RNG
+- development/frozen seed separation
+- frozen V3 algorithm before held-out evaluation
 - raw episode-level CSV output
 - 95% Wilson intervals
 - paired-effect analysis
-- threshold/architecture history preserved
-- automated unit tests
-- compile checks + CI smoke benchmark
+- automated dataset validator
+- unit tests + compile checks
+- GitHub Actions CI smoke benchmark
+- historical V1/V2 results retained
 - explicit limitations and safety scope
 
-See [`docs/reproducibility.md`](docs/reproducibility.md).
+See:
+
+- [`docs/reproducibility.md`](docs/reproducibility.md)
+- [`docs/v3_freeze.md`](docs/v3_freeze.md)
+- [`docs/v3_results.md`](docs/v3_results.md)
 
 ---
 
-## Quick start
+## Reproduce the frozen evaluation
 
 ```bash
 git clone https://github.com/suhaslord/uav-safety-research.git
@@ -159,43 +179,32 @@ pip install -e ".[dev]"
 pytest -q
 ```
 
-### V3 development comparison
-
-```bash
-python scripts/run_v3_comparison.py --episodes 30 --seed 3031 --out results/v3_development
-```
-
-### V3 frozen evaluation
-
-Run this **only after the development result has been reviewed and the V3 configuration is frozen**:
+Run the frozen benchmark:
 
 ```bash
 python scripts/run_v3_comparison.py --episodes 500 --seed 424242 --out results/v3_frozen
 ```
 
-That evaluates:
+Validate it:
 
-**5 profiles × 4 architectures × 500 paired episode seeds = 10,000 simulated episodes.**
+```bash
+python scripts/validate_v3_frozen.py --out results/v3_frozen --seed 424242 --episodes 500
+```
 
-Outputs include:
+Expected validation summary:
 
 ```text
-episodes.csv
-summary.csv
-paired_effects.csv
-summary.md
-success_rate.png
-unsafe_touchdown_rate.png
-abort_rate.png
-mean_interventions.png
-run_metadata.json
+V3 frozen result validation: PASS
+seed: 424242
+episodes per cell: 500
+total rows: 10000
 ```
 
 ---
 
 ## Experimental profiles
 
-| Profile | Stressors | Purpose |
+| Profile | Stressors | Role |
 |---|---|---|
 | `clean` | low noise | control condition |
 | `blur` | moderate state noise | mild degradation |
@@ -204,26 +213,6 @@ run_metadata.json
 | `mixed` | strongest noise + dropout + persistent bias | primary V3 stress test |
 
 These are **abstract simulation stress profiles**, not calibrated camera models.
-
----
-
-## Primary V3 endpoint
-
-**Unsafe touchdown rate under `mixed` degradation.**
-
-Secondary checks:
-
-- mixed success rate
-- mixed abort rate
-- clean/blur regression
-- low-light availability
-- occlusion unsafe-touchdown rate
-- intervention count
-- estimated lateral bias
-- bias confidence
-- paired episode rescues/regressions
-
-A system that achieves zero unsafe touchdowns by aborting everything is **not** considered successful.
 
 ---
 
@@ -247,29 +236,43 @@ uav-safety-research/
 │   ├── run_experiments.py
 │   ├── run_threshold_sweep.py
 │   ├── run_v2_comparison.py
-│   └── run_v3_comparison.py
+│   ├── run_v3_comparison.py
+│   └── validate_v3_frozen.py
+├── results/
+│   ├── threshold_sweep/
+│   ├── v2_comparison/
+│   ├── v3_development/
+│   └── v3_frozen/
 ├── tests/
 ├── docs/
-│   ├── research_plan.md
-│   ├── methodology.md
-│   ├── v1_findings_and_v2_plan.md
-│   ├── v2_results.md
-│   ├── v3_research_plan.md
-│   ├── v3_design.md
-│   ├── reproducibility.md
-│   └── ethics_and_safety.md
 └── paper/
 ```
 
 ---
 
-## Scientific status
+## Limitations
 
-**V1:** fixed historical result  
-**V2:** fixed historical result  
-**V3:** implementation complete; benchmark pending
+The frozen result is strong **inside this simulation**, but external validity is intentionally limited.
 
-Negative results are part of the project. New versions do not overwrite old ones.
+Current limitations include:
+
+- planar dynamics rather than a full 6-DOF aircraft model
+- synthetic perception degradation rather than calibrated camera physics
+- abstract redundant estimator rather than a modeled physical sensor
+- synthetic wind/disturbance field
+- no image-based perception front end in V3
+- no hardware or flight validation
+- one frozen evaluation seed family
+
+The next serious scientific question is therefore whether the result survives **multi-seed sensitivity analysis and more realistic perception**, not whether more threshold tuning can make the current table look even better.
+
+---
+
+## Paper workspace
+
+A first result-grounded abstract is available at [`paper/abstract.md`](paper/abstract.md).
+
+The write-up is being built from committed experiment artifacts rather than reconstructed from memory.
 
 ---
 
@@ -278,8 +281,6 @@ Negative results are part of the project. New versions do not overwrite old ones
 **AegisLand is not flight-control software.**
 
 It is an educational, simulation-only research project. It is not validated for physical aircraft and should not be used to operate one.
-
-The research goal is to understand how autonomous systems should respond to **uncertain or conflicting perception**, not to provide real-world flight instructions.
 
 ---
 
