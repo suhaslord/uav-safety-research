@@ -6,7 +6,7 @@ import numpy as np
 
 from .config import ControllerConfig, SimConfig
 from .controller import LandingController
-from .dynamics import State
+from .dynamics import State, step_dynamics
 from .dynamics_phase7 import Phase7DynamicsConfig, Phase7PlantMemory, step_phase7_dynamics
 from .image_perception import IMAGE_CONDITIONS
 from .image_temporal import (
@@ -26,11 +26,15 @@ from .simulator import _wind_sample
 from .supervisor_v3 import DecisionV3, RedundantSafetySupervisorV3, SupervisorV3Config
 
 
+PLANT_MODELS = ("legacy", "phase7")
+
+
 @dataclass
 class Phase7EpisodeResult:
     seed: int
     condition: str
     fault_scenario: str
+    plant_model: str
     architecture: str
     outcome: str
     success: bool
@@ -91,6 +95,7 @@ def run_phase7_episode(
     component_calibrator: ComponentConfidenceCalibrator,
     *,
     fault_scenario: FaultScenario | str = FaultScenario.INDEPENDENT,
+    plant_model: str = "phase7",
     severity: float = 1.0,
     sim_cfg: SimConfig | None = None,
     ctrl_cfg: ControllerConfig | None = None,
@@ -103,10 +108,19 @@ def run_phase7_episode(
     fault_cfg: Phase7FaultConfig | None = None,
     dynamics_cfg: Phase7DynamicsConfig | None = None,
 ) -> Phase7EpisodeResult:
-    """Run the Phase 7 simulation-only external-validity stress architecture."""
+    """Run one Phase 7 simulation-only external-validity episode.
+
+    ``plant_model='legacy'`` isolates the new sensing/fault assumptions while
+    retaining the historical point-mass plant. ``plant_model='phase7'`` adds
+    actuator lag, nonlinear drag, and colored disturbances. The sensing stack,
+    image stream, fault schedule, controller, fusion, and supervisor are otherwise
+    identical for a given seed.
+    """
 
     if condition not in IMAGE_CONDITIONS:
         raise ValueError(f"Unknown image condition: {condition}")
+    if plant_model not in PLANT_MODELS:
+        raise ValueError(f"Unknown plant model: {plant_model}; expected one of {PLANT_MODELS}")
     scenario = FaultScenario(fault_scenario)
 
     sim_cfg = sim_cfg or SimConfig()
@@ -221,17 +235,27 @@ def run_phase7_episode(
 
         cmd = controller.command(fused.control_obs, descent_rate)
         wind_ax, wind_az = _wind_sample(env_rng, t)
-        state, plant_memory = step_phase7_dynamics(
-            state,
-            plant_memory,
-            cmd.ax,
-            cmd.az,
-            wind_ax,
-            wind_az,
-            dynamics_rng,
-            sim_cfg,
-            dynamics_cfg,
-        )
+        if plant_model == "legacy":
+            state = step_dynamics(
+                state,
+                cmd.ax,
+                cmd.az,
+                wind_ax,
+                wind_az,
+                sim_cfg,
+            )
+        else:
+            state, plant_memory = step_phase7_dynamics(
+                state,
+                plant_memory,
+                cmd.ax,
+                cmd.az,
+                wind_ax,
+                wind_az,
+                dynamics_rng,
+                sim_cfg,
+                dynamics_cfg,
+            )
 
         if state.z <= 0.0:
             safe_x = abs(state.x) <= sim_cfg.touchdown_x_tolerance
@@ -244,7 +268,8 @@ def run_phase7_episode(
         seed=seed,
         condition=condition,
         fault_scenario=scenario.value,
-        architecture="image_aegis_phase7_external",
+        plant_model=plant_model,
+        architecture=f"image_aegis_phase7_external_{plant_model}_plant",
         outcome=outcome,
         success=bool(outcome == "success"),
         unsafe_touchdown=bool(outcome == "unsafe_touchdown"),
