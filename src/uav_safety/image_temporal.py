@@ -9,13 +9,15 @@ from .image_perception import IMAGE_CONDITIONS, SyntheticLandingPadRenderer
 from .perception import Observation
 
 
-class Phase6LandingPadRenderer(SyntheticLandingPadRenderer):
-    """Phase-6-only renderer with usable apparent scale closer to touchdown.
+PHASE6_HORIZONTAL_SPAN_M = 8.0
 
-    The Phase 5 renderer intentionally clipped marker half-size at 18 px, which
-    makes altitude increasingly unobservable below roughly one metre. Phase 6
-    keeps the historical renderer untouched and uses a separate perspective
-    mapping whose apparent scale remains informative much closer to the ground.
+
+class Phase6LandingPadRenderer(SyntheticLandingPadRenderer):
+    """Phase-6-only renderer with usable scale and field of view through touchdown.
+
+    The historical Phase 5 renderer is intentionally left unchanged. Phase 6
+    uses a wider field of view and an outline/cross marker whose bounding box
+    remains observable as the marker grows near the ground.
     """
 
     def render(
@@ -38,7 +40,7 @@ class Phase6LandingPadRenderer(SyntheticLandingPadRenderer):
         image += 0.025 * (yy / max(1, n - 1))
         image += rng.normal(0.0, c.sensor_noise * severity, size=(n, n))
 
-        center_x = (n - 1) / 2 - (x_offset_m / c.horizontal_span_m) * n
+        center_x = (n - 1) / 2 - (x_offset_m / PHASE6_HORIZONTAL_SPAN_M) * n
         center_y = (n - 1) / 2
         max_half = max(18, int(0.46 * n))
         half = int(np.clip(35.0 / (max(0.05, altitude_m) + 0.60), 4, max_half))
@@ -49,18 +51,21 @@ class Phase6LandingPadRenderer(SyntheticLandingPadRenderer):
         y1 = min(n, int(round(center_y + half + 1)))
 
         if x0 < x1 and y0 < y1:
-            border = max(1, half // 4)
-            image[y0:y1, x0:x1] += 0.35
-            image[y0:y0 + border, x0:x1] += 0.45
-            image[y1 - border:y1, x0:x1] += 0.45
-            image[y0:y1, x0:x0 + border] += 0.45
-            image[y0:y1, x1 - border:x1] += 0.45
+            # Keep the interior near background intensity. If the entire square
+            # is filled brightly, a near-ground pad dominates the image histogram
+            # and adaptive thresholding loses the true outer extent.
+            image[y0:y1, x0:x1] += 0.025
+            border = max(1, half // 5)
+            image[y0:y0 + border, x0:x1] += 0.72
+            image[y1 - border:y1, x0:x1] += 0.72
+            image[y0:y1, x0:x0 + border] += 0.72
+            image[y0:y1, x1 - border:x1] += 0.72
 
             cx = int(np.clip(round(center_x), 0, n - 1))
             cy = int(np.clip(round(center_y), 0, n - 1))
             arm = max(1, border)
-            image[max(0, cy - arm):min(n, cy + arm + 1), x0:x1] += 0.28
-            image[y0:y1, max(0, cx - arm):min(n, cx + arm + 1)] += 0.28
+            image[max(0, cy - arm):min(n, cy + arm + 1), x0:x1] += 0.52
+            image[y0:y1, max(0, cx - arm):min(n, cx + arm + 1)] += 0.52
 
         image = np.clip(image, 0.0, 1.0)
         return self._degrade(image, rng, condition, severity, center_x, center_y, half)
@@ -98,8 +103,8 @@ class TemporalImageConfig:
     min_raw_confidence: float = 0.16
     min_geometry_score: float = 0.40
     max_innovation_score: float = 2.2
-    x_innovation_scale_m: float = 0.65
-    z_innovation_scale_m: float = 0.85
+    x_innovation_scale_m: float = 0.75
+    z_innovation_scale_m: float = 0.90
     min_component_pixels: int = 10
     min_bbox_width_px: int = 4
     max_sigma_pos: float = 2.2
@@ -122,7 +127,7 @@ class Phase6PadEstimator:
         if std < 1e-4 or (p90 - median) < 0.008:
             return FrameMeasurement(0.0, 0.0, 0.0, False, 0, 0, 0.0, 0.0)
 
-        threshold = max(median + 1.30 * std, 0.72 * p90 + 0.28 * median)
+        threshold = max(median + 1.05 * std, 0.58 * p90 + 0.42 * median)
         mask = image > threshold
         component = _largest_component(mask)
         if len(component) < self.min_component_pixels:
@@ -140,10 +145,9 @@ class Phase6PadEstimator:
 
         n = image.shape[1]
         center = (n - 1) / 2
-        x_m = -(centroid_x - center) / n * 6.0
+        x_m = -(centroid_x - center) / n * PHASE6_HORIZONTAL_SPAN_M
 
-        # Invert the Phase 6 renderer's perspective scale:
-        # half ~= 35 / (z + 0.60).
+        # Invert the Phase 6 renderer's scale: half ~= 35 / (z + 0.60).
         apparent_half = max(2.0, 0.5 * np.sqrt(max(1.0, width * height)))
         z_m = float(np.clip(35.0 / apparent_half - 0.60, 0.08, 8.0))
 
@@ -155,7 +159,7 @@ class Phase6PadEstimator:
         support_score = float(np.clip(len(component) / 120.0, 0.0, 1.0))
         aspect = min(width, height) / max(width, height)
         area_fill = float(np.clip(len(component) / max(1.0, width * height), 0.0, 1.0))
-        geometry_score = float(np.clip(0.60 * aspect + 0.40 * area_fill, 0.0, 1.0))
+        geometry_score = float(np.clip(0.72 * aspect + 0.28 * area_fill, 0.0, 1.0))
         raw_confidence = float(np.clip(
             contrast_score * (0.25 + 0.40 * support_score + 0.35 * geometry_score),
             0.0,
@@ -286,10 +290,13 @@ class CalibratedTemporalImagePipeline:
         innovation = self._innovation(m)
         if m.raw_confidence < self.cfg.min_raw_confidence:
             return self._abstain(m, calibrated, innovation, "raw image quality below threshold")
-        if m.geometry_score < self.cfg.min_geometry_score:
-            return self._abstain(m, calibrated, innovation, "landing-pad geometry inconsistent")
         if calibrated < self.cfg.min_calibrated_confidence:
             return self._abstain(m, calibrated, innovation, "calibrated confidence below threshold")
+        # During acquisition, a marker can be clipped by the image boundary. Let
+        # a valid high-confidence component establish the first track; once the
+        # track exists, require stronger geometry consistency.
+        if self._accepted_frames >= 2 and m.geometry_score < self.cfg.min_geometry_score:
+            return self._abstain(m, calibrated, innovation, "landing-pad geometry inconsistent")
         if self._state is not None and innovation > self.cfg.max_innovation_score:
             return self._abstain(m, calibrated, innovation, "temporal innovation inconsistent with track")
 
@@ -414,7 +421,7 @@ def fit_synthetic_calibrator(
 
     for condition in IMAGE_CONDITIONS:
         for _ in range(samples_per_condition):
-            x_true = float(rng.uniform(-2.1, 2.1))
+            x_true = float(rng.uniform(-2.8, 2.8))
             z_true = float(rng.uniform(0.25, 5.3))
             severity = float(rng.uniform(0.75, 1.35))
             frame_seed = int(rng.integers(0, 2**31 - 1))
@@ -428,7 +435,7 @@ def fit_synthetic_calibrator(
             m = estimator.estimate(frame)
             if not m.valid:
                 conf.append(0.0)
-                xerr.append(3.0)
+                xerr.append(4.0)
                 zerr.append(4.0)
             else:
                 conf.append(m.raw_confidence)
