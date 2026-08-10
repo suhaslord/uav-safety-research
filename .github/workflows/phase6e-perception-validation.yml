@@ -1,0 +1,43 @@
+name: Phase 6E Perception Validation
+
+on:
+  push:
+    paths:
+      - '.github/workflows/phase6e-perception-validation.yml'
+      - 'scripts/benchmark_phase6e_perception.py'
+      - 'src/uav_safety/phase6e_perception.py'
+      - 'tests/test_phase6e_perception.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  perception-validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Full test suite
+        run: pytest -q
+      - name: Run perception-only Phase 6E validation
+        run: |
+          python scripts/benchmark_phase6e_perception.py \
+            --samples 40 \
+            --seed 697431 \
+            --calibration-seed 616161 \
+            --out results/phase6e_perception_validation
+      - name: Upload Phase 6E perception validation
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase6e-perception-validation
+          path: results/phase6e_perception_validation
+          if-no-files-found: error
+          retention-days: 45
