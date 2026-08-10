@@ -46,6 +46,7 @@ class Phase7EpisodeResult:
     final_vz: float
     frames: int
     fault_active_frames: int
+    shared_dropout_event_rate: float
     image_drop_rate: float
     reference_available_rate: float
     reference_delivery_rate: float
@@ -77,7 +78,11 @@ def _apply_vision_fault(
     confidence = float(obs.confidence)
     sigma_pos = float(obs.sigma_pos)
 
-    if fault.vision_dropout_boost > 0.0 and rng.random() < fault.vision_dropout_boost:
+    if fault.shared_dropout_event:
+        dropped = True
+        confidence = max(0.02, 0.25 * confidence)
+        sigma_pos = max(sigma_pos, 1.20)
+    elif fault.vision_dropout_boost > 0.0 and rng.random() < fault.vision_dropout_boost:
         dropped = True
         confidence = max(0.02, 0.25 * confidence)
         sigma_pos = max(sigma_pos, 1.20)
@@ -171,6 +176,7 @@ def run_phase7_episode(
     )
 
     fault_active_frames = 0
+    shared_dropout_event_frames = 0
     image_dropped_frames = 0
     reference_available = 0
     reference_deliveries = 0
@@ -194,6 +200,7 @@ def run_phase7_episode(
         t = i * sim_cfg.dt
         fault = fault_injector.state(i)
         fault_active_frames += int(fault.active)
+        shared_dropout_event_frames += int(fault.shared_dropout_event)
         shared_vision_biases.append(abs(float(fault.vision_x_bias_m)))
 
         frame = renderer.render(
@@ -301,6 +308,7 @@ def run_phase7_episode(
         final_vz=float(state.vz),
         frames=int(frames),
         fault_active_frames=int(fault_active_frames),
+        shared_dropout_event_rate=float(shared_dropout_event_frames / max(1, frames)),
         image_drop_rate=float(image_dropped_frames / max(1, frames)),
         reference_available_rate=float(reference_available / max(1, frames)),
         reference_delivery_rate=float(reference_deliveries / max(1, frames)),
