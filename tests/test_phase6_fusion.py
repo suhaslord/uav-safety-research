@@ -65,3 +65,27 @@ def test_persistent_lateral_disagreement_eventually_enables_bias_correction():
     assert max(corrections) > 0.25
     assert fused.control_obs.x < image.x - 0.20
     assert max(weights) <= 0.10 + 1e-12
+
+
+def test_near_ground_integrity_conflict_shifts_lateral_state_to_reference():
+    adapter = Phase6RedundantFusionAdapter()
+    image = image_obs(x=1.8, z=0.35, vx=1.2, vz=-0.45, confidence=0.86, sigma=0.20)
+    reference = ref_obs(x=-0.15, z=0.32, vx=-0.65, vz=-0.43, fresh=True, age=0)
+
+    fused = adapter.update(image, reference)
+
+    assert fused.reference_weight > 0.70
+    assert abs(fused.control_obs.x - reference.x) < abs(image.x - reference.x)
+    assert abs(fused.control_obs.vx - reference.vx) < abs(image.vx - reference.vx)
+    assert np.isclose(fused.control_obs.z, image.z)
+    assert np.isclose(fused.control_obs.vz, image.vz)
+
+
+def test_far_from_ground_large_disagreement_does_not_trigger_integrity_fallback():
+    adapter = Phase6RedundantFusionAdapter()
+    image = image_obs(x=1.8, z=3.0, vx=1.2, vz=-0.45)
+    reference = ref_obs(x=-0.15, z=3.1, vx=-0.65, vz=-0.43, fresh=True, age=0)
+
+    fused = adapter.update(image, reference)
+
+    assert fused.reference_weight <= 0.10 + 1e-12
