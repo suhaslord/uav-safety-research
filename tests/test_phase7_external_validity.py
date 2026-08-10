@@ -6,7 +6,7 @@ from uav_safety.config import SimConfig
 from uav_safety.dynamics import State
 from uav_safety.dynamics_phase7 import Phase7PlantMemory, step_phase7_dynamics
 from uav_safety.phase7_faults import FaultScenario, Phase7FaultConfig, Phase7FaultInjector, FaultState
-from uav_safety.phase7_reference import Phase7SensorStackReferenceEstimator
+from uav_safety.phase7_reference import Phase7SensorStackConfig, Phase7SensorStackReferenceEstimator
 
 
 def test_shared_bias_fault_moves_both_measurement_streams_same_direction():
@@ -52,6 +52,27 @@ def test_sensor_stack_does_not_expose_exact_truth_as_reference():
     available = [o for o in observations if o.available]
     assert available
     assert any(abs(o.x - state.x) > 1e-8 or abs(o.z - state.z) > 1e-8 for o in available)
+
+
+def test_delayed_sensor_acquisition_is_fresh_when_delivered():
+    cfg = Phase7SensorStackConfig(
+        gnss_update_every_steps=1,
+        baro_update_every_steps=1,
+        range_update_every_steps=1,
+        base_latency_steps=2,
+        gnss_dropout_prob=0.0,
+        baro_dropout_prob=0.0,
+        range_dropout_prob=0.0,
+    )
+    est = Phase7SensorStackReferenceEstimator(np.random.default_rng(34), 0.05, cfg)
+    state = State(x=0.5, z=2.0, vx=0.0, vz=-0.2)
+    neutral = FaultState(active=False, scenario=FaultScenario.INDEPENDENT)
+
+    observations = [est.observe(state, neutral)[0] for _ in range(5)]
+    delivered = [o for o in observations if o.available]
+    assert delivered
+    assert any(o.fresh for o in delivered)
+    assert all(o.age_steps >= cfg.base_latency_steps for o in delivered)
 
 
 def test_phase7_dynamics_has_actuator_lag():
