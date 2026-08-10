@@ -44,6 +44,37 @@ def test_sensor_stack_is_reproducible_for_identical_seed_and_states():
     ]
 
 
+def test_range_activation_cannot_shift_gnss_noise_sequence():
+    cfg = Phase7SensorStackConfig(
+        gnss_update_every_steps=1,
+        baro_update_every_steps=1,
+        range_update_every_steps=1,
+        base_latency_steps=0,
+        gnss_dropout_prob=0.0,
+        baro_dropout_prob=0.0,
+        range_dropout_prob=0.0,
+        gnss_bias_walk_sigma_m=0.0,
+        baro_bias_walk_sigma_m=0.0,
+    )
+    high = Phase7SensorStackReferenceEstimator(np.random.default_rng(220), 0.05, cfg)
+    low = Phase7SensorStackReferenceEstimator(np.random.default_rng(220), 0.05, cfg)
+    neutral = FaultState(active=False, scenario=FaultScenario.INDEPENDENT)
+
+    high_outputs = []
+    low_outputs = []
+    for i in range(12):
+        x = 0.8 - 0.01 * i
+        vx = -0.2
+        high_obs, high_diag = high.observe(State(x=x, z=4.0, vx=vx, vz=-0.3), neutral)
+        low_obs, low_diag = low.observe(State(x=x, z=2.0, vx=vx, vz=-0.3), neutral)
+        assert not high_diag.range_fresh
+        assert low_diag.range_fresh
+        high_outputs.append((high_obs.x, high_obs.vx))
+        low_outputs.append((low_obs.x, low_obs.vx))
+
+    assert high_outputs == low_outputs
+
+
 def test_sensor_stack_does_not_expose_exact_truth_as_reference():
     est = Phase7SensorStackReferenceEstimator(np.random.default_rng(33), 0.05)
     state = State(x=1.25, z=3.2, vx=-0.15, vz=-0.5)
