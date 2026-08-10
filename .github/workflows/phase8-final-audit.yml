@@ -1,0 +1,182 @@
+name: Phase 8 Final Audit
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - phase8-trace-validation
+
+jobs:
+  phase8-final-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Compile Python
+        run: python -m compileall -q src scripts tests
+
+      - name: Validate Phase 7 Research Cockpit JavaScript
+        run: node --check dashboard/app.js
+
+      - name: Validate Phase 8 Trace Lab JavaScript
+        run: node --check phase8_dashboard/app.js
+
+      - name: Run full pytest suite
+        run: pytest -q
+
+      - name: Generate deterministic non-authoritative Phase 8 fixtures
+        run: |
+          python scripts/generate_phase8_fixture_traces.py \
+            --rows 160 \
+            --out results/phase8_final_audit_inputs
+
+      - name: Validate fixture input schemas
+        run: |
+          python scripts/validate_external_trace.py results/phase8_final_audit_inputs/phase7_surrogate_fixture.csv
+          python scripts/validate_external_trace.py results/phase8_final_audit_inputs/external_simulator_fixture.csv
+
+      - name: Run complete Phase 8 comparison pipeline
+        run: |
+          python scripts/run_phase8_trace_validation.py \
+            results/phase8_final_audit_inputs/phase7_surrogate_fixture.csv \
+            results/phase8_final_audit_inputs/external_simulator_fixture.csv \
+            --out results/phase8_final_audit \
+            --git-sha "$GITHUB_SHA" \
+            --external-evidence-status fixture_non_authoritative \
+            --surrogate-source "phase7_surrogate_interface_fixture" \
+            --external-source "synthetic_interface_fixture"
+
+      - name: Verify Phase 8 provenance and manifest
+        run: |
+          python scripts/validate_result_manifest.py \
+            results/phase8_final_audit/result_manifest.json \
+            --schema aegisland.phase8.result-bundle.v1
+          python - <<'PY'
+          import json
+          import os
+          from hashlib import sha256
+          from pathlib import Path
+
+          root = Path("results/phase8_final_audit")
+          inputs = Path("results/phase8_final_audit_inputs")
+          bundle = json.loads((root / "trace_comparison.json").read_text(encoding="utf-8"))
+          metadata = json.loads((root / "run_metadata.json").read_text(encoding="utf-8"))
+          manifest = json.loads((root / "result_manifest.json").read_text(encoding="utf-8"))
+          expected_sha = os.environ["GITHUB_SHA"]
+
+          assert bundle["schema"] == "aegisland.phase8.trace-comparison.v1"
+          assert bundle["git_sha"] == expected_sha
+          assert metadata["git_sha"] == expected_sha
+          assert manifest["extra"]["git_sha"] == expected_sha
+
+          expected_phase7 = "7354eeda8b975f45b659ce4f3f86c82501e6321d"
+          expected_phase6b = "b4e9838555e935a5ec42690495315473629b58f6"
+          assert bundle["phase7_audited_baseline_commit"] == expected_phase7
+          assert metadata["phase7_audited_baseline_commit"] == expected_phase7
+          assert manifest["extra"]["phase7_audited_baseline_commit"] == expected_phase7
+          assert bundle["historical_phase6b_frozen_commit"] == expected_phase6b
+          assert metadata["historical_phase6b_frozen_commit"] == expected_phase6b
+          assert manifest["extra"]["historical_phase6b_frozen_commit"] == expected_phase6b
+
+          assert bundle["external_evidence_status"] == "fixture_non_authoritative"
+          assert bundle["claim_level"] == "pipeline_validation_only"
+          assert bundle["safety_acceptance"] is False
+          assert bundle["controller_tuning_allowed"] is False
+          assert metadata["safety_acceptance"] is False
+          assert metadata["controller_tuning_allowed"] is False
+          assert manifest["extra"]["safety_acceptance"] is False
+          assert manifest["extra"]["controller_tuning_allowed"] is False
+
+          assert len(bundle["metrics"]) >= 20
+          assert set(bundle["status_counts"]) == {"close", "watch", "mismatch", "insufficient"}
+
+          def digest(path: Path) -> str:
+              return sha256(path.read_bytes()).hexdigest()
+
+          surrogate = inputs / "phase7_surrogate_fixture.csv"
+          external = inputs / "external_simulator_fixture.csv"
+          assert bundle["input_provenance"]["surrogate"]["sha256"] == digest(surrogate)
+          assert bundle["input_provenance"]["external"]["sha256"] == digest(external)
+          assert len(bundle["input_provenance"]["surrogate"]["sha256"]) == 64
+          assert len(bundle["input_provenance"]["external"]["sha256"]) == 64
+
+          report = (root / "phase8_report.html").read_text(encoding="utf-8")
+          summary = (root / "summary.md").read_text(encoding="utf-8")
+          assert "NON-AUTHORITATIVE" in report
+          assert "NON-AUTHORITATIVE FIXTURE" in summary
+
+          print(f"Phase 8 fixture pipeline verified at exact head {expected_sha}")
+          PY
+
+      - name: Run inherited Phase 7 200-episode regression factorial
+        run: |
+          python scripts/run_phase7_external_validity.py \
+            --episodes 5 \
+            --seed 979797 \
+            --calibration-seed 616161 \
+            --temporal-calibration-samples 180 \
+            --component-calibration-samples 280 \
+            --conditions clean low_light occlusion mixed \
+            --faults independent reference_drift shared_lateral_bias shared_dropout latency_burst \
+            --plants legacy phase7 \
+            --out results/phase8_phase7_regression
+          python scripts/stamp_phase7_bundle.py \
+            results/phase8_phase7_regression \
+            --git-sha "$GITHUB_SHA"
+          python scripts/validate_result_manifest.py \
+            results/phase8_phase7_regression/result_manifest.json
+
+      - name: Verify Phase 7 regression structure remains frozen
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          out = Path("results/phase8_phase7_regression")
+          metadata = json.loads((out / "run_metadata.json").read_text(encoding="utf-8"))
+          bundle = json.loads((out / "dashboard_bundle.json").read_text(encoding="utf-8"))
+          expected_sha = os.environ["GITHUB_SHA"]
+
+          assert metadata["git_sha"] == expected_sha
+          assert bundle["metadata"]["git_sha"] == expected_sha
+          assert metadata["episode_seed"] == 979797
+          assert metadata["episode_seed_status"] == "development_seen"
+          assert metadata["episodes_per_condition_fault_plant"] == 5
+          assert metadata["paired_plant_episode_seeds"] is True
+          assert metadata["historical_phase6b_frozen_commit"] == "b4e9838555e935a5ec42690495315473629b58f6"
+          assert len(bundle["summary"]) == 40
+          assert len(bundle["paired_plant_effects"]) == 20
+
+          expected_semantics = {
+              "image_rng_model": "frame_indexed_v1",
+              "sensor_transport_model": "scheduled_delivery_queue_v1",
+              "sensor_rng_model": "channel_isolated_time_indexed_v1",
+              "reference_lateral_freshness_model": "gnss_delivery_only_v1",
+              "component_reference_freshness_model": "per_component_delivered_v1",
+              "shared_dropout_model": "single_common_event_blackout_v1",
+              "phase7_architecture_status": "current_development_architecture",
+          }
+          for key, value in expected_semantics.items():
+              assert metadata[key] == value
+              assert bundle["metadata"][key] == value
+
+          print("Inherited Phase 7 architecture and 200-episode regression structure verified")
+          PY
+
+      - name: Upload Phase 8 final audit fixture artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase8-final-audit-fixture
+          path: |
+            results/phase8_final_audit
+            results/phase8_final_audit_inputs
+          retention-days: 30
