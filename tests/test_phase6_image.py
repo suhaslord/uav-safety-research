@@ -1,9 +1,9 @@
 import numpy as np
 
-from uav_safety.image_perception import SyntheticLandingPadRenderer
 from uav_safety.image_temporal import (
     CalibratedTemporalImagePipeline,
     EmpiricalConfidenceCalibrator,
+    Phase6LandingPadRenderer,
     Phase6PadEstimator,
     fit_synthetic_calibrator,
 )
@@ -20,14 +20,24 @@ def _high_conf_calibrator():
 
 
 def test_phase6_clean_frame_estimates_lateral_position_and_altitude():
-    renderer = SyntheticLandingPadRenderer()
+    renderer = Phase6LandingPadRenderer()
     estimator = Phase6PadEstimator()
     image = renderer.render(0.9, 2.4, np.random.default_rng(42), "clean")
     measurement = estimator.estimate(image)
     assert measurement.valid
     assert abs(measurement.x_m - 0.9) < 0.35
-    assert abs(measurement.z_m - 2.4) < 1.1
+    assert abs(measurement.z_m - 2.4) < 0.85
     assert 0.0 <= measurement.raw_confidence <= 1.0
+
+
+def test_phase6_renderer_preserves_near_ground_scale_signal():
+    renderer = Phase6LandingPadRenderer()
+    estimator = Phase6PadEstimator()
+    image = renderer.render(0.2, 0.35, np.random.default_rng(77), "clean")
+    measurement = estimator.estimate(image)
+    assert measurement.valid
+    assert abs(measurement.x_m - 0.2) < 0.35
+    assert measurement.z_m < 0.90
 
 
 def test_calibrator_is_monotone_in_raw_confidence():
@@ -35,8 +45,13 @@ def test_calibrator_is_monotone_in_raw_confidence():
     xerr = np.linspace(1.2, 0.02, 200)
     zerr = np.linspace(2.0, 0.05, 200)
     calibrator = EmpiricalConfidenceCalibrator.fit(conf, xerr, zerr)
-    calibrated = [calibrator.calibrate(v) for v in np.linspace(0.0, 1.0, 50)]
+    query = np.linspace(0.0, 1.0, 50)
+    calibrated = [calibrator.calibrate(v) for v in query]
+    expected_x = [calibrator.expected_error(v)[0] for v in query]
+    expected_z = [calibrator.expected_error(v)[1] for v in query]
     assert np.all(np.diff(calibrated) >= -1e-12)
+    assert np.all(np.diff(expected_x) <= 1e-12)
+    assert np.all(np.diff(expected_z) <= 1e-12)
 
 
 def test_temporal_pipeline_abstains_on_blank_frame():
@@ -48,7 +63,7 @@ def test_temporal_pipeline_abstains_on_blank_frame():
 
 
 def test_temporal_pipeline_accepts_clean_sequence():
-    renderer = SyntheticLandingPadRenderer()
+    renderer = Phase6LandingPadRenderer()
     pipeline = CalibratedTemporalImagePipeline(_high_conf_calibrator())
     rng = np.random.default_rng(8)
     accepted = 0
@@ -68,6 +83,7 @@ def test_default_synthetic_calibration_is_deterministic():
     b = fit_synthetic_calibrator(seed=1234, samples_per_condition=10)
     assert np.allclose(a.probability_good, b.probability_good)
     assert np.allclose(a.expected_x_error_m, b.expected_x_error_m)
+    assert np.allclose(a.expected_z_error_m, b.expected_z_error_m)
 
 
 def test_image_aegis_episode_smoke_is_deterministic():
