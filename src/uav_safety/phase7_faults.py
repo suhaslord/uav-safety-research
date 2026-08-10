@@ -46,6 +46,7 @@ class FaultState:
     reference_dropout_boost: float = 0.0
     vision_dropout_boost: float = 0.0
     reference_latency_extra_steps: int = 0
+    shared_dropout_event: bool = False
 
 
 class Phase7FaultInjector:
@@ -104,11 +105,14 @@ class Phase7FaultInjector:
             )
 
         if self.scenario == FaultScenario.SHARED_DROPOUT:
+            # One Bernoulli event is sampled and applied to both streams on the
+            # same frame. This is intentionally different from giving two
+            # independent sensors the same dropout probability.
+            common_outage = bool(self.rng.random() < c.shared_dropout_probability)
             return FaultState(
                 active=True,
                 scenario=self.scenario,
-                reference_dropout_boost=c.shared_dropout_probability,
-                vision_dropout_boost=c.shared_dropout_probability,
+                shared_dropout_event=common_outage,
             )
 
         if self.scenario == FaultScenario.LATENCY_BURST:
