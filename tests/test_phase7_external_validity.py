@@ -30,6 +30,24 @@ def test_shared_bias_fault_moves_both_measurement_streams_same_direction():
     assert fault.reference_x_bias_m == fault.vision_x_bias_m
 
 
+def test_shared_dropout_fault_is_one_common_mode_event():
+    cfg = Phase7FaultConfig(
+        onset_fraction_low=0.0,
+        onset_fraction_high=0.0,
+        duration_fraction_low=1.0,
+        duration_fraction_high=1.0,
+        shared_dropout_probability=1.0,
+    )
+    injector = Phase7FaultInjector(
+        np.random.default_rng(2),
+        scenario=FaultScenario.SHARED_DROPOUT,
+        total_steps=8,
+        dt=0.1,
+        cfg=cfg,
+    )
+    assert all(injector.state(step).shared_dropout_event for step in range(8))
+
+
 def test_sensor_stack_is_reproducible_for_identical_seed_and_states():
     states = [State(x=1.0 - 0.01 * i, z=4.0 - 0.02 * i, vx=-0.2, vz=-0.4) for i in range(20)]
     a = Phase7SensorStackReferenceEstimator(np.random.default_rng(22), 0.05)
@@ -73,6 +91,64 @@ def test_range_activation_cannot_shift_gnss_noise_sequence():
         low_outputs.append((low_obs.x, low_obs.vx))
 
     assert high_outputs == low_outputs
+
+
+def test_vertical_only_update_is_not_marked_fresh_lateral_evidence():
+    cfg = Phase7SensorStackConfig(
+        gnss_update_every_steps=4,
+        baro_update_every_steps=1,
+        range_update_every_steps=1,
+        base_latency_steps=0,
+        gnss_dropout_prob=0.0,
+        baro_dropout_prob=0.0,
+        range_dropout_prob=0.0,
+        gnss_bias_walk_sigma_m=0.0,
+        baro_bias_walk_sigma_m=0.0,
+    )
+    est = Phase7SensorStackReferenceEstimator(np.random.default_rng(221), 0.05, cfg)
+    neutral = FaultState(active=False, scenario=FaultScenario.INDEPENDENT)
+    state = State(x=0.4, z=2.0, vx=-0.1, vz=-0.2)
+
+    first_obs, first_diag = est.observe(state, neutral)
+    second_obs, second_diag = est.observe(state, neutral)
+
+    assert first_diag.gnss_fresh
+    assert first_obs.fresh
+    assert not second_diag.gnss_fresh
+    assert second_diag.baro_fresh
+    assert second_diag.range_fresh
+    assert second_obs.available
+    assert not second_obs.fresh
+
+
+def test_common_mode_dropout_makes_reference_unavailable_on_same_frame():
+    cfg = Phase7SensorStackConfig(
+        gnss_update_every_steps=1,
+        baro_update_every_steps=1,
+        range_update_every_steps=1,
+        base_latency_steps=0,
+        gnss_dropout_prob=0.0,
+        baro_dropout_prob=0.0,
+        range_dropout_prob=0.0,
+    )
+    est = Phase7SensorStackReferenceEstimator(np.random.default_rng(222), 0.05, cfg)
+    state = State(x=0.4, z=2.0, vx=-0.1, vz=-0.2)
+    neutral = FaultState(active=False, scenario=FaultScenario.INDEPENDENT)
+    outage = FaultState(
+        active=True,
+        scenario=FaultScenario.SHARED_DROPOUT,
+        shared_dropout_event=True,
+    )
+
+    warm_obs, _ = est.observe(state, neutral)
+    outage_obs, outage_diag = est.observe(state, outage)
+    recovered_obs, recovered_diag = est.observe(state, neutral)
+
+    assert warm_obs.available
+    assert not outage_obs.available
+    assert not outage_diag.new_delivery
+    assert recovered_obs.available
+    assert recovered_diag.new_delivery
 
 
 def test_sensor_stack_does_not_expose_exact_truth_as_reference():
