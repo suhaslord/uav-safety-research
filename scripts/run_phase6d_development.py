@@ -122,11 +122,13 @@ def main() -> None:
         "altitude_consistency": {"sigma_threshold": 3.0, "min_combined_sigma_m": 0.20},
         "threshold_selection": "0.80/0.80 inherited unchanged from Phase 6B; 3-sigma consistency rule selected before the Phase 6D landing matrix",
         "phase6d_delta": "soft altitude uncertainty preserves Phase 6 vz; hard >3-sigma image/reference altitude contradiction also blends reference vz",
-        "reserved_unseen_seeds_not_used": [868686, 878787],
+        "historical_seen_heldout_seeds_do_not_reuse": [868686, 878787],
+        "replacement_reserved_unseen_seeds_not_used": [918271, 928271],
+        "integrity_note": "docs/research_integrity_recovery.md",
     }, indent=2), encoding="utf-8")
     (args.out / "summary.md").write_text(
         "# Phase 6D paired development simulation\n\n"
-        "This is development evidence only. Reserved held-out seeds are not used.\n\n"
+        "This is development evidence only. Replacement reserved held-out seeds 918271 and 928271 are not used.\n\n"
         "## Landing summary\n\n" + summary.to_markdown(index=False)
         + "\n\n## Phase 6D paired effects\n\n" + paired.to_markdown(index=False)
         + "\n\n## Hard-altitude-alias activity\n\n" + alias_summary.to_markdown(index=False)
