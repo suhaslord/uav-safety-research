@@ -67,6 +67,17 @@ The first bridge beyond the historical point mass adds:
 
 This remains a planar educational model. It is deliberately a bridge, not a claim of aircraft-identification fidelity.
 
+### Factorial plant design
+
+The new sensing/fault model and the stronger plant must not be changed as one inseparable treatment. Phase 7 therefore runs the same condition/fault episode seed on two plant models:
+
+- `legacy` — the historical planar dynamics;
+- `phase7` — lagged/rate-limited/nonlinear dynamics with colored disturbances.
+
+This creates a paired plant comparison for each condition/fault/seed. It lets us distinguish a sensing/common-mode weakness from sensitivity introduced by the stronger plant model.
+
+Plant-model effects are reported separately rather than averaged into the main fault result.
+
 ## Phase 7D — Higher-fidelity backend
 
 The preferred next simulator backend is **PX4 SITL + modern Gazebo**, initially as an offline/log-replay validation source rather than a physical-flight workflow.
@@ -102,21 +113,28 @@ The integration order is intentionally conservative:
 4. **simulation-in-the-loop only** — if replay results are stable, connect the same research supervisor inside SITL for closed-loop simulation;
 5. physical flight remains out of scope for this repository.
 
+The repository now includes an offline external-trace schema and validator. That bridge intentionally accepts logs for analysis only and does not provide a physical-flight control path.
+
 ## Development experiment
 
-The first Phase 7 development benchmark uses:
+The Phase 7 development family uses:
 
 - seed: `979797`;
 - calibration seed: `616161` (historical image-calibration seed, already seen and used only for calibration);
 - conditions: clean, low light, occlusion, mixed;
 - fault families: all five Phase 7 fault scenarios;
-- default 10 episodes per condition/fault cell for the initial development pass.
+- plant models: legacy and stronger Phase 7;
+- paired episode seeds across the two plant models.
 
-This is **development evidence only**. No Phase 7 held-out seed is declared yet.
+The first non-factorial development pass used 10 episodes per condition/fault cell. It is development evidence only and is not a frozen Phase 7 result.
+
+A subsequent factorial pass uses 5 episodes per condition/fault/plant cell so the total run remains compact while each episode is paired across the two plant models. This pass is used to inspect attribution and experiment mechanics, not to make a final safety claim.
+
+No Phase 7 held-out seed is declared yet.
 
 ## Primary outcomes
 
-Per condition/fault cell report:
+Per condition/fault/plant cell report:
 
 - success rate and 95% Wilson interval;
 - unsafe-touchdown rate and 95% Wilson interval;
@@ -130,6 +148,34 @@ Per condition/fault cell report:
 - intervention count;
 - final lateral and touchdown-speed errors.
 
+For every condition/fault pair also report paired legacy-vs-Phase 7 plant deltas and paired outcome transitions.
+
+## Result provenance
+
+Every Phase 7 result bundle records the complete default configuration used for:
+
+- sensor stack;
+- fault model;
+- stronger dynamics;
+- frozen Phase 6B component gates;
+- frozen V3 supervisor.
+
+The runner also writes `result_manifest.json` with file sizes and SHA-256 hashes for the episode table, aggregate summary, paired plant effects, metadata, and Markdown summary. The development seed is explicitly marked as seen.
+
+This prevents a later result directory from being treated as equivalent merely because it has the same filename.
+
+## Research cockpit
+
+`dashboard/` provides a dependency-free local analysis interface for Phase 7 result bundles. It can load `summary.csv` and `paired_plant_effects.csv`, filter by condition/fault/plant, compare plant sensitivity, and display the unsafe-touchdown failure surface.
+
+The cockpit deliberately labels Phase 7 as development evidence and simulation-only. It is not a vehicle-control interface.
+
+Run it with:
+
+```bash
+python scripts/serve_dashboard.py
+```
+
 ## Interpretation rules
 
 1. Phase 7 does not overwrite frozen Phase 6B.
@@ -137,7 +183,9 @@ Per condition/fault cell report:
 3. Do not tune Phase 6B's frozen `0.80 / 0.80` component thresholds against Phase 7 failures.
 4. Any Phase 7 algorithm change motivated by development results must be recorded before a future held-out seed is declared.
 5. Common-mode failures must be reported separately; do not average them into an easy-condition headline.
-6. The higher-fidelity simulator stage should first be used for log replay and distribution checks before closed-loop SITL claims.
+6. Plant-model effects must be reported separately so sensing/fault failures are not conflated with dynamics sensitivity.
+7. The higher-fidelity simulator stage should first be used for log replay and distribution checks before closed-loop SITL claims.
+8. A zero observed unsafe-touchdown rate in a small development cell is not evidence of zero real risk.
 
 ## Success criterion for this phase
 
@@ -148,6 +196,7 @@ A scientifically useful outcome may therefore be:
 - strong robustness under independent sensor realism;
 - degraded performance under correlated faults;
 - a clear common-mode failure boundary;
+- plant-model sensitivity that changes the interpretation of a sensing result;
 - or evidence that the current controller/supervisor needs a new architecture before higher-fidelity simulation.
 
 The goal is not to preserve a high success percentage. The goal is to make the claim more defensible.
