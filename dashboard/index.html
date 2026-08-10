@@ -97,7 +97,7 @@
         <article class="metric panel">
           <span class="metric-label">Reference available</span>
           <strong id="referenceMetric">—</strong>
-          <span id="latencyMetric" class="metric-note">Latency —</span>
+          <span id="latencyMetric" class="metric-note">Transport —</span>
         </article>
       </section>
 
@@ -149,6 +149,19 @@
         </div>
         <div id="matrix" class="matrix empty-state">
           Load a Phase 7 result bundle to render the condition × fault surface.
+        </div>
+      </section>
+
+      <section class="panel ranking-panel">
+        <div class="section-heading">
+          <div>
+            <div class="eyebrow">WEAKEST CELLS FIRST</div>
+            <h2>Highest observed unsafe-touchdown rates</h2>
+          </div>
+          <span id="rankingPlantLabel" class="status">No plant selected</span>
+        </div>
+        <div id="weaknessList" class="weakness-list empty-state">
+          Load a result bundle to rank the observed failure cells.
         </div>
       </section>
 
