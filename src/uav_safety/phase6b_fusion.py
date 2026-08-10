@@ -47,6 +47,10 @@ class Phase6BComponentFusionAdapter:
     The base Phase 6 fusion and frozen V3 disagreement/bias evidence are retained.
     Phase 6B only changes the control observation when a calibrated image
     component is below its preselected confidence threshold.
+
+    Optional component-specific reference freshness flags are a Phase 7
+    compatibility extension. If they are omitted, the historical scalar
+    ``reference.fresh`` behavior is preserved exactly for Phase 6B callers.
     """
 
     def __init__(
@@ -66,6 +70,8 @@ class Phase6BComponentFusionAdapter:
         *,
         p_x_good: float,
         p_z_good: float,
+        lateral_reference_fresh: bool | None = None,
+        altitude_reference_fresh: bool | None = None,
     ) -> tuple[FusionResult, ComponentFusionDiagnostics]:
         base = self.base.update(image_obs, reference)
         c = self.gate_cfg
@@ -78,12 +84,26 @@ class Phase6BComponentFusionAdapter:
             and reference.age_steps <= c.max_stale_reference_age_steps
         )
 
+        lateral_fresh = bool(reference.fresh) if lateral_reference_fresh is None else bool(lateral_reference_fresh)
+        altitude_fresh = bool(reference.fresh) if altitude_reference_fresh is None else bool(altitude_reference_fresh)
+
         if reference_usable:
             freshness = exp(-reference.age_steps / 7.0)
-            target = c.fresh_reference_weight if reference.fresh else c.stale_reference_weight
-            fallback_weight = float(np.clip(target * (0.60 + 0.40 * freshness), 0.0, 0.92))
+            lateral_target = c.fresh_reference_weight if lateral_fresh else c.stale_reference_weight
+            altitude_target = c.fresh_reference_weight if altitude_fresh else c.stale_reference_weight
+            lateral_fallback_weight = float(np.clip(
+                lateral_target * (0.60 + 0.40 * freshness),
+                0.0,
+                0.92,
+            ))
+            altitude_fallback_weight = float(np.clip(
+                altitude_target * (0.60 + 0.40 * freshness),
+                0.0,
+                0.92,
+            ))
         else:
-            fallback_weight = 0.0
+            lateral_fallback_weight = 0.0
+            altitude_fallback_weight = 0.0
 
         control = base.control_obs
         x, z, vx, vz = control.x, control.z, control.vx, control.vz
@@ -91,12 +111,12 @@ class Phase6BComponentFusionAdapter:
         altitude_w = 0.0
 
         if lateral_abstained and reference_usable:
-            lateral_w = fallback_weight
+            lateral_w = lateral_fallback_weight
             x = (1.0 - lateral_w) * control.x + lateral_w * reference.x
             vx = (1.0 - lateral_w) * control.vx + lateral_w * reference.vx
 
         if altitude_abstained and reference_usable:
-            altitude_w = fallback_weight
+            altitude_w = altitude_fallback_weight
             z = (1.0 - altitude_w) * control.z + altitude_w * reference.z
             vz = (1.0 - altitude_w) * control.vz + altitude_w * reference.vz
 
