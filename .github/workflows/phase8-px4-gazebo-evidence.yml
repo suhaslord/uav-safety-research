@@ -131,7 +131,10 @@ jobs:
           fi
           sleep 2
 
-          LOG_ROOT=/tmp/PX4-Autopilot/build/px4_sitl_default/rootfs/fs/microsd/log
+          # PX4 POSIX SITL runs from build/px4_sitl_default/rootfs and the
+          # logger writes relative ./log/... paths there. Restrict discovery to
+          # that runtime log directory and to files created by this run.
+          LOG_ROOT=/tmp/PX4-Autopilot/build/px4_sitl_default/rootfs/log
           if [ -d "$LOG_ROOT" ] && [ -f /tmp/phase8-evidence/px4_run_started ]; then
             find "$LOG_ROOT" -type f -name '*.ulg' -newer /tmp/phase8-evidence/px4_run_started -print | sort | tee /tmp/phase8-evidence/ulog_candidates.txt
             ULOG="$(find "$LOG_ROOT" -type f -name '*.ulg' -newer /tmp/phase8-evidence/px4_run_started -printf '%T@ %p\n' | sort -n | tail -1 | cut -d' ' -f2-)"
