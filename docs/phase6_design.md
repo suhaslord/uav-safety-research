@@ -25,6 +25,8 @@ temporal tracker + reacquisition
         ↓
 ACCEPT or ABSTAIN
         ↓
+robust lateral-velocity estimator
+        ↓
 image-derived Observation
         ↓
 Phase 6 redundant-fusion adapter
@@ -84,7 +86,7 @@ For each new frame it:
 5. computes a normalized temporal innovation,
 6. accepts, abstains, or begins a reacquisition sequence.
 
-Accepted measurements are stored in a short history window. Lateral and vertical velocities are estimated from a least-squares slope across recent accepted measurements rather than a single noisy frame difference.
+Accepted measurements are stored in a short history window rather than treated as unrelated frames.
 
 ### Reacquisition
 
@@ -104,7 +106,25 @@ The image front end abstains when:
 
 An abstention is represented as a dropped `Observation`. The previous image-derived state is propagated, confidence falls, and uncertainty grows. The system does not manufacture a new trustworthy camera measurement.
 
-## 6. Direct Aegis integration
+## 6. Robust lateral velocity
+
+The first 30-episode-per-condition Phase 6 development study found a specific failure that was not obvious from position error alone. Under `mixed`, accepted lateral position estimates averaged roughly 0.14 m error, yet most unsafe touchdowns violated the simulated horizontal-speed limit. For `image_aegis_v3`, 18 of 19 mixed unsafe touchdowns violated horizontal speed while none violated vertical speed.
+
+That showed that differentiating noisy image positions was the dominant remaining development problem.
+
+`RobustImageVelocityFilter` therefore treats lateral velocity as a separate perception quantity:
+
+- accepted lateral positions are stored in a longer short-term history,
+- all sufficiently time-separated pairwise position slopes are computed,
+- the median slope supplies an outlier-resistant velocity target,
+- median absolute deviation of the slope set measures derivative consistency,
+- inconsistent slope sets update the velocity state more conservatively,
+- dropped frames do not generate artificial finite-difference spikes,
+- confidence and uncertainty are adjusted mildly when velocity evidence is weak.
+
+The same stabilized image observation is used by both `image_temporal` and `image_aegis_v3`, so the Aegis comparison remains paired at the perception-interface level.
+
+## 7. Direct Aegis integration
 
 `run_image_episode` removes the abstract `PerceptionModel` from the Phase 6 primary perception path.
 
@@ -116,10 +136,10 @@ A paired episode uses isolated RNG streams for:
 
 Two architectures are compared:
 
-- `image_temporal`: calibrated temporal image perception directly drives the landing controller;
-- `image_aegis_v3`: the same image-derived observation is paired with the intentionally imperfect independent reference estimate and assessed by frozen V3 safety logic.
+- `image_temporal`: calibrated temporal image perception plus robust image-derived lateral velocity directly drives the landing controller;
+- `image_aegis_v3`: the exact same image-derived observation is paired with the intentionally imperfect independent reference estimate and assessed by frozen V3 safety logic.
 
-## 7. Phase 6 redundant-fusion adapter
+## 8. Phase 6 redundant-fusion adapter
 
 The first direct integration exposed a useful interface mismatch. Historical V3 fusion always gave a usable reference estimate some direct control weight. That was appropriate for the abstract V3 perception stream, but the Phase 6 temporal image track can already be accurate in ordinary frames. Directly blending a noisy reference could therefore make a good image estimate worse even when the safety supervisor never intervened.
 
@@ -133,17 +153,18 @@ The first direct integration exposed a useful interface mismatch. Historical V3 
 
 This separates a **perception-interface adaptation** from the historical V3 result rather than silently retuning V3 after seeing Phase 6 data.
 
-## 8. Evaluation outputs
+## 9. Evaluation outputs
 
 `scripts/run_phase6_image_landing.py` records:
 
 - success / unsafe touchdown / abort / timeout rates,
+- 95% Wilson intervals for the outcome rates,
 - image abstention rate,
 - mean calibrated confidence,
 - accepted-frame lateral error,
 - Aegis intervention count,
 - paired rescue and regression counts,
-- held-out calibration reliability,
+- calibration reliability and expected calibration error,
 - deterministic run metadata and the fitted calibration table.
 
 `scripts/analyze_phase6_failures.py` decomposes unsafe touchdowns into failures of simulated:
@@ -154,16 +175,19 @@ This separates a **perception-interface adaptation** from the historical V3 resu
 
 The categories are not mutually exclusive.
 
-## 9. Reproducibility split
+`scripts/run_phase6_selective_perception.py` separately evaluates whether abstention is selective: it measures rejection of truly bad frame estimates and unnecessary rejection of frame estimates that remain inside the calibration tolerances.
+
+## 10. Reproducibility split
 
 Current development defaults are intentionally separate:
 
 - calibration development seed: `616161`
 - landing development seed: `626262`
+- selective-perception development seed: `636363`
 
-The evaluation script rejects identical calibration/evaluation seeds.
+The landing evaluation script rejects identical calibration/evaluation seeds.
 
-A later frozen Phase 6 evaluation must use a new held-out seed and must not be used for tuning.
+A later frozen Phase 6 evaluation must use a new held-out seed that has not guided design, and that result must not be retuned after inspection.
 
 ## Safety scope
 
