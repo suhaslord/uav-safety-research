@@ -1,0 +1,157 @@
+# Phase 7 — External-Validity Stress Program
+
+## Status
+
+Phase 7 is a **new post-frozen research phase**. It does not alter or reinterpret the frozen Phase 6B result.
+
+Frozen Phase 6B remains tied to executable commit:
+
+- `b4e9838555e935a5ec42690495315473629b58f6`
+
+Phase 7 asks a different question:
+
+> Do the Phase 6B conclusions survive when the independent-reference assumption, sensor timing, failure independence, and point-mass plant are made less favorable and less abstract?
+
+All Phase 7 work remains simulation-only.
+
+## Why Phase 7 is needed
+
+Phase 6B has strong internal validity inside its synthetic setup, but several assumptions limit external validity:
+
+1. the historical independent reference estimator samples simulator state directly and adds generic noise;
+2. reference errors are mostly independent of the image stream;
+3. the plant is a first-order planar point mass with instantaneous commanded acceleration;
+4. synthetic camera degradation and the reference model are not tied to a higher-fidelity simulator or measured sensor logs;
+5. no common-mode failure family tests the case where both perception streams agree because both are wrong.
+
+Phase 7 attacks those assumptions instead of retuning Phase 6B thresholds.
+
+## Phase 7A — Multi-sensor reference surrogate
+
+Replace the direct noisy-state reference with a separated simulated sensing stack:
+
+- GNSS-like lateral position and horizontal velocity;
+- barometric-like altitude;
+- lower-altitude range-like vertical measurement;
+- mismatched update rates;
+- fixed transport latency plus latency bursts;
+- dropout;
+- slowly varying sensor bias;
+- uncertainty growth with stale data.
+
+Ground truth is used only inside the sensor simulator to synthesize measurements. The Aegis fusion/supervisor receives the same `ReferenceObservation` interface as before.
+
+The parameters are generic stress-model values, **not** calibrated claims about a named physical sensor.
+
+## Phase 7B — Correlated and common-mode faults
+
+Predeclare explicit fault families rather than hiding them inside aggregate noise:
+
+- `independent` — ordinary sensor noise/dropout only;
+- `reference_drift` — the backup reference slowly becomes biased;
+- `shared_lateral_bias` — camera and reference acquire the same lateral offset, representing a measurement-space proxy for a shared frame/map/geometry error;
+- `shared_dropout` — both streams become intermittently unavailable during the same interval;
+- `latency_burst` — reference delivery becomes temporarily stale.
+
+The `shared_lateral_bias` condition is especially important because cross-estimator agreement is not evidence of correctness when both streams share the same error source.
+
+## Phase 7C — Stronger planar dynamics
+
+The first bridge beyond the historical point mass adds:
+
+- acceleration actuator lag;
+- acceleration rate limits;
+- linear and quadratic drag;
+- colored disturbance memory;
+- separate environment and dynamics RNG streams.
+
+This remains a planar educational model. It is deliberately a bridge, not a claim of aircraft-identification fidelity.
+
+## Phase 7D — Higher-fidelity backend
+
+The preferred next simulator backend is **PX4 SITL + modern Gazebo**, initially as an offline/log-replay validation source rather than a physical-flight workflow.
+
+Reasons:
+
+- current PX4 documentation identifies modern Gazebo as the recommended simulator for new work and describes richer physics/rendering and sensor simulation;
+- PX4 documents simulated camera, LiDAR/depth, IMU, GPS, barometer, and magnetometer support in Gazebo;
+- PX4 SIH provides a faster deterministic physics/sensor path that can be useful as an intermediate estimator/sensor sanity check;
+- PX4 documents simulator interfaces that preserve a separation between simulated ground truth and estimator outputs, which is useful for evaluating perception and state-estimation error.
+
+Primary references:
+
+- https://docs.px4.io/main/en/simulation/
+- https://docs.px4.io/main/en/sim_sih/
+- https://docs.px4.io/main/en/sensor/rangefinders
+- https://docs.px4.io/main/en/sensor/barometer
+- https://gazebosim.org/docs/latest/sensors/
+
+AirSim remains a useful reference for multi-sensor simulation concepts (camera, barometer, IMU, GPS, magnetometer, distance sensor, LiDAR), but Phase 7 currently prioritizes the PX4/Gazebo path because it connects the perception study to an actively documented autopilot simulation stack without requiring physical hardware.
+
+Reference:
+
+- https://microsoft.github.io/AirSimExtensions/sensors/
+
+## Higher-fidelity integration order
+
+The integration order is intentionally conservative:
+
+1. **offline trace schema** — define a neutral log format for truth, image estimates, reference estimates, and timestamps;
+2. **Gazebo/PX4 replay import** — ingest simulator logs and evaluate Aegis decisions without sending control commands back;
+3. **distribution comparison** — compare noise, latency, dropout, and disagreement distributions against Phase 7 surrogate assumptions;
+4. **simulation-in-the-loop only** — if replay results are stable, connect the same research supervisor inside SITL for closed-loop simulation;
+5. physical flight remains out of scope for this repository.
+
+## Development experiment
+
+The first Phase 7 development benchmark uses:
+
+- seed: `979797`;
+- calibration seed: `616161` (historical image-calibration seed, already seen and used only for calibration);
+- conditions: clean, low light, occlusion, mixed;
+- fault families: all five Phase 7 fault scenarios;
+- default 10 episodes per condition/fault cell for the initial development pass.
+
+This is **development evidence only**. No Phase 7 held-out seed is declared yet.
+
+## Primary outcomes
+
+Per condition/fault cell report:
+
+- success rate and 95% Wilson interval;
+- unsafe-touchdown rate and 95% Wilson interval;
+- safe-abort rate and 95% Wilson interval;
+- timeout rate and 95% Wilson interval;
+- reference availability;
+- reference latency;
+- maximum simulated reference lateral bias;
+- maximum shared visual lateral bias;
+- lateral and altitude component abstention rates;
+- intervention count;
+- final lateral and touchdown-speed errors.
+
+## Interpretation rules
+
+1. Phase 7 does not overwrite frozen Phase 6B.
+2. A worse Phase 7 result is informative evidence of an external-validity weakness, not a reason to hide the run.
+3. Do not tune Phase 6B's frozen `0.80 / 0.80` component thresholds against Phase 7 failures.
+4. Any Phase 7 algorithm change motivated by development results must be recorded before a future held-out seed is declared.
+5. Common-mode failures must be reported separately; do not average them into an easy-condition headline.
+6. The higher-fidelity simulator stage should first be used for log replay and distribution checks before closed-loop SITL claims.
+
+## Success criterion for this phase
+
+Phase 7 is successful as research if it tells us **where the Phase 6B conclusion stops generalizing**.
+
+A scientifically useful outcome may therefore be:
+
+- strong robustness under independent sensor realism;
+- degraded performance under correlated faults;
+- a clear common-mode failure boundary;
+- or evidence that the current controller/supervisor needs a new architecture before higher-fidelity simulation.
+
+The goal is not to preserve a high success percentage. The goal is to make the claim more defensible.
+
+## Safety scope
+
+Phase 7 is simulation-only research. It does not provide real-aircraft operating guidance, hardware integration instructions, or physical-flight validation.
