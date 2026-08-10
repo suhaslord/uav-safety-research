@@ -188,13 +188,14 @@ def main() -> None:
         "severity": args.severity,
         "sensor_stack": asdict(Phase7SensorStackConfig()),
         "sensor_transport_model": "scheduled_delivery_queue_v1",
+        "sensor_rng_model": "channel_isolated_v1",
         "fault_model": asdict(Phase7FaultConfig()),
         "phase7_dynamics": asdict(Phase7DynamicsConfig()),
         "component_gate": asdict(Phase6BComponentGateConfig()),
         "supervisor": asdict(SupervisorV3Config()),
         "historical_phase6b_frozen_commit": "b4e9838555e935a5ec42690495315473629b58f6",
         "scope": "simulation-only external-validity stress study; not physical-flight validation",
-        "interpretation": "The legacy-vs-Phase7 plant pairing isolates plant-model sensitivity while holding the new sensing/fault assumptions and episode seed fixed. This remains development evidence and does not overwrite frozen Phase 6B.",
+        "interpretation": "The legacy-vs-Phase7 plant pairing isolates plant-model sensitivity while holding the new sensing/fault assumptions and episode seed fixed. Sensor RNG streams are channel-isolated so state-dependent range activation cannot shift GNSS/barometer noise. This remains development evidence and does not overwrite frozen Phase 6B.",
     }
     (args.out / "run_metadata.json").write_text(
         json.dumps(metadata, indent=2),
