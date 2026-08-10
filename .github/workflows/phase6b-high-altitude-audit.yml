@@ -1,0 +1,42 @@
+name: Phase 6B High-Altitude Audit
+
+on:
+  push:
+    paths:
+      - '.github/workflows/phase6b-high-altitude-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  high-altitude-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Run high-altitude confidence audit
+        run: |
+          python scripts/audit_phase6b_high_altitude.py \
+            --samples 400 \
+            --seed 666666 \
+            --calibration-seed 616161 \
+            --calibration-samples 280 \
+            --threshold 0.80 \
+            --z-min 5.8 \
+            --z-max 8.0 \
+            --out results/phase6b_high_altitude_audit
+      - name: Upload audit artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase6b-high-altitude-audit
+          path: results/phase6b_high_altitude_audit
+          if-no-files-found: error
+          retention-days: 30
