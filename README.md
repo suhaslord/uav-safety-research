@@ -4,99 +4,143 @@
 
 ### Confidence-Aware Safety Supervision for Vision-Based Autonomous UAV Landing
 
-**A simulation-first research project asking a simple safety question:**
-
-> When an autonomous aircraft's perception becomes unreliable, should it keep landing?
+> **When perception becomes unreliable, should an autonomous system keep acting on it?**
 
 [![CI](https://github.com/suhaslord/uav-safety-research/actions/workflows/ci.yml/badge.svg)](https://github.com/suhaslord/uav-safety-research/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)
 ![Research](https://img.shields.io/badge/status-active%20research-orange)
-![Simulation](https://img.shields.io/badge/scope-simulation--first-blueviolet)
+![Scope](https://img.shields.io/badge/scope-simulation--only-blueviolet)
 ![License](https://img.shields.io/badge/license-MIT-green)
+
+**A reproducible simulation research project on uncertainty, perception failure, and safety–availability tradeoffs.**
 
 </div>
 
 ---
 
-## Research question
+## Current research question
 
-**Can an uncertainty-aware supervisory layer reduce unsafe simulated UAV landings caused by degraded visual perception without causing an impractically high intervention or abort rate?**
+**Can independent, imperfect state evidence detect persistent visual bias and reduce unsafe simulated UAV touchdowns without returning to the excessive-abort behavior of earlier safety supervisors?**
 
-Most autonomy stacks are optimized around *getting the estimate right*. AegisLand studies the next question:
+AegisLand has evolved through measured failures rather than replacing old results:
 
-**What should the system do when it knows the estimate may be wrong?**
+| Version | Main idea | What the experiment taught us |
+|---|---|---|
+| **Baseline** | always continue landing | works in easy conditions, fails badly under severe bias/noise |
+| **V1** | static confidence/risk thresholds | can reduce unsafe touchdowns, but often by aborting almost everything |
+| **V2** | temporal filtering + persistence + hysteresis | fixes V1 over-conservatism, modestly helps occlusion, but cannot identify persistent bias |
+| **V3** | independent redundant estimate + bias-aware fusion | **implemented; evaluation pending** |
 
-The project compares two architectures:
-
-| System | Behavior under uncertain perception |
-|---|---|
-| **Baseline** | Continues the landing using the current estimate |
-| **Aegis Supervisor** | Uses confidence + uncertainty + flight state to `PROCEED`, `HOLD`, or `ABORT` |
-
-No result is assumed in advance. The experiment runner preserves raw episode data and the threshold-sweep tool is designed to expose the tradeoff between **safety** and **availability**, rather than cherry-picking a single threshold.
+No V3 performance claim is made until the frozen benchmark is run.
 
 ---
 
-## System architecture
+## Why V3 exists
+
+The fixed 500-episode-per-cell V2 evaluation produced the clearest unresolved result:
+
+| Profile | Baseline unsafe | V2 unsafe | Baseline success | V2 success |
+|---|---:|---:|---:|---:|
+| clean | 0.0% | 0.0% | 100.0% | 100.0% |
+| blur | 0.0% | 0.0% | 100.0% | 100.0% |
+| low light | 0.4% | 0.4% | 99.6% | 99.6% |
+| occlusion | 33.8% | 30.6% | 66.2% | 69.4% |
+| **mixed** | **84.2%** | **84.8%** | **15.8%** | **15.2%** |
+
+V2 solved the excessive-abort problem but did **not** solve the persistent lateral bias in `mixed`.
+
+That changed the research question from:
+
+> “Can I tune the thresholds better?”
+
+into:
+
+> **“Does the system need another independent source of information to identify systematic bias?”**
+
+See [`docs/v2_results.md`](docs/v2_results.md) and [`docs/v3_research_plan.md`](docs/v3_research_plan.md).
+
+---
+
+## V3 architecture
 
 ```mermaid
 flowchart LR
-    GT["Simulated UAV dynamics"] --> S["Synthetic perception stress model"]
-    S --> O["Noisy / biased / stale observation"]
-    O --> C["Landing controller"]
-    O --> R["Aegis risk estimator"]
-    R --> D{"Supervisor decision"}
-    D -->|PROCEED| C
-    D -->|HOLD| C
-    D -->|ABORT| X["Terminate simulated landing"]
-    C --> GT
-    GT --> M["Episode metrics"]
-    R --> M
+    P["Corrupted vision"] --> F["Temporal vision filter"]
+    R["Independent lower-rate estimate"] --> D["Cross-estimator disagreement"]
+    F --> D
+    D --> B["Persistent bias estimator"]
+    B --> U["Bias-aware state fusion"]
+    F --> U
+    R --> U
+    U --> S["Aegis V3 supervisor"]
+    S -->|PROCEED| C["Landing controller"]
+    S -->|HOLD| C
+    S -->|ABORT| X["Terminate simulated attempt"]
+    C --> M["Planar simulated dynamics"]
 ```
 
-### Current phase: isolate the safety decision layer
+### Important design constraints
 
-The first version intentionally does **not** claim to model a real camera. Instead, it introduces controlled perception failures:
+V3 does **not** receive perfect ground truth as a second controller input.
 
-- measurement noise
-- lateral bias
-- stale observations / dropout
-- imperfect confidence estimates
-- mixed degradation
+The independent reference estimate is intentionally imperfect:
 
-This lets the project isolate a hard research question before adding a computer-vision model:
+- lower update rate than vision
+- independent zero-mean noise
+- missed updates
+- uncertainty growth between updates
+- separate RNG stream
 
-> **Can downstream autonomy use uncertainty well enough to avoid acting confidently on bad perception?**
-
-See [`docs/methodology.md`](docs/methodology.md) for the exact assumptions.
+The reference stream exists to test the value of **independent error structure**, not to make the problem artificially easy.
 
 ---
 
-## What makes this more than a demo
+## What V3 changes
 
-### 1. Repeated Monte Carlo trials
+### Persistent-bias detection
 
-Each condition is run across many randomized episodes with deterministic seeds.
+V3 tracks lateral disagreement only when fresh independent evidence is available. A rolling estimator determines whether the offset is:
 
-### 2. Raw data first
+- persistent,
+- large enough to matter, and
+- statistically distinguishable from ordinary noise.
 
-Every episode is stored in CSV. Aggregate figures are generated from the same data.
+Strong correction is applied only when all three are true.
 
-### 3. Confidence intervals
+### Bias-aware fusion
 
-Success and unsafe-touchdown rates are reported with **95% Wilson intervals**.
+The control estimate combines:
 
-### 4. Threshold ablation
+1. temporally filtered vision,
+2. confidence-gated visual-bias correction,
+3. a modest weight from the independent reference estimate.
 
-Instead of declaring one supervisor threshold "best", the project sweeps thresholds and plots a **safety–availability frontier**.
+The strongest redundant-estimator weight is applied to lateral position because that is the measured V2 failure mode.
 
-### 5. Explicit limitations
+### Explained vs unexplained disagreement
 
-The current perception model is a *surrogate stress model*, not calibrated optics. That limitation is written into the methodology instead of hidden.
+Persistent disagreement that can be explained by a stable bias estimate is treated differently from large disagreement that remains unexplained near touchdown.
 
-### 6. Reproducible code
+That prevents the safety layer from turning every detectable bias into another V1-style abort cascade.
 
-The repository includes tests and GitHub Actions CI.
+---
+
+## Research-quality safeguards
+
+AegisLand is built around reproducibility rather than a single impressive demo.
+
+- deterministic top-level seeds
+- paired architecture comparisons
+- isolated V3 reference RNG
+- raw episode-level CSV output
+- 95% Wilson intervals
+- paired-effect analysis
+- threshold/architecture history preserved
+- automated unit tests
+- compile checks + CI smoke benchmark
+- explicit limitations and safety scope
+
+See [`docs/reproducibility.md`](docs/reproducibility.md).
 
 ---
 
@@ -105,7 +149,6 @@ The repository includes tests and GitHub Actions CI.
 ```bash
 git clone https://github.com/suhaslord/uav-safety-research.git
 cd uav-safety-research
-
 python -m venv .venv
 ```
 
@@ -116,70 +159,71 @@ pip install -e ".[dev]"
 pytest -q
 ```
 
-### Run one visual demo
+### V3 development comparison
 
 ```bash
-python scripts/run_demo.py
+python scripts/run_v3_comparison.py --episodes 30 --seed 3031 --out results/v3_development
 ```
 
-This compares baseline and supervised trajectories using the same random seed.
+### V3 frozen evaluation
 
-### Run the main experiment
+Run this **only after the development result has been reviewed and the V3 configuration is frozen**:
 
 ```bash
-python scripts/run_experiments.py --episodes 100 --seed 2026
+python scripts/run_v3_comparison.py --episodes 500 --seed 424242 --out results/v3_frozen
 ```
 
-Outputs are written to `results/latest/`:
+That evaluates:
+
+**5 profiles × 4 architectures × 500 paired episode seeds = 10,000 simulated episodes.**
+
+Outputs include:
 
 ```text
 episodes.csv
 summary.csv
+paired_effects.csv
 summary.md
 success_rate.png
 unsafe_touchdown_rate.png
+abort_rate.png
+mean_interventions.png
 run_metadata.json
 ```
 
-### Run the supervisor ablation
-
-```bash
-python scripts/run_threshold_sweep.py --episodes 60 --profile occlusion
-```
-
-This creates a **safety–availability frontier** showing where reducing unsafe touchdowns begins to cost too many successful landings.
-
 ---
 
-## Experimental matrix
+## Experimental profiles
 
-Five perception-stress conditions are currently implemented:
-
-| Profile | Main stressors | Intended role |
+| Profile | Stressors | Purpose |
 |---|---|---|
 | `clean` | low noise | control condition |
 | `blur` | moderate state noise | mild degradation |
-| `low_light` | higher uncertainty + bias | degraded visibility surrogate |
-| `occlusion` | dropout + uncertainty + bias | partial-observation surrogate |
-| `mixed` | strongest combined stress | worst-case stress test |
+| `low_light` | uncertainty + moderate bias | visibility-like stress surrogate |
+| `occlusion` | dropout + noise + bias | partial-observation surrogate |
+| `mixed` | strongest noise + dropout + persistent bias | primary V3 stress test |
 
-Each profile is tested against both:
+These are **abstract simulation stress profiles**, not calibrated camera models.
 
-- baseline controller
-- confidence-aware supervised controller
+---
 
-Primary outcome:
+## Primary V3 endpoint
 
-**unsafe touchdown rate**
+**Unsafe touchdown rate under `mixed` degradation.**
 
-Secondary outcomes:
+Secondary checks:
 
-- successful landing rate
-- abort rate
-- final horizontal error
-- touchdown velocity
+- mixed success rate
+- mixed abort rate
+- clean/blur regression
+- low-light availability
+- occlusion unsafe-touchdown rate
 - intervention count
-- mean / maximum predicted risk
+- estimated lateral bias
+- bias confidence
+- paired episode rescues/regressions
+
+A system that achieves zero unsafe touchdowns by aborting everything is **not** considered successful.
 
 ---
 
@@ -188,88 +232,44 @@ Secondary outcomes:
 ```text
 uav-safety-research/
 ├── src/uav_safety/
-│   ├── dynamics.py       # planar UAV model
-│   ├── perception.py     # controlled perception degradation
-│   ├── controller.py     # landing controller
-│   ├── supervisor.py     # confidence-aware safety layer
-│   ├── simulator.py      # episode engine
-│   ├── metrics.py        # safety metrics + confidence intervals
-│   └── experiment.py     # reproducible Monte Carlo runner
+│   ├── dynamics.py
+│   ├── perception.py
+│   ├── controller.py
+│   ├── supervisor.py
+│   ├── supervisor_v2.py
+│   ├── supervisor_v3.py
+│   ├── reference_estimator.py
+│   ├── simulator.py
+│   ├── simulator_v2.py
+│   ├── simulator_v3.py
+│   └── metrics.py
 ├── scripts/
-│   ├── run_demo.py
 │   ├── run_experiments.py
-│   └── run_threshold_sweep.py
+│   ├── run_threshold_sweep.py
+│   ├── run_v2_comparison.py
+│   └── run_v3_comparison.py
 ├── tests/
 ├── docs/
 │   ├── research_plan.md
 │   ├── methodology.md
-│   ├── literature.md
+│   ├── v1_findings_and_v2_plan.md
+│   ├── v2_results.md
+│   ├── v3_research_plan.md
+│   ├── v3_design.md
+│   ├── reproducibility.md
 │   └── ethics_and_safety.md
 └── paper/
 ```
 
 ---
 
-## Research roadmap
+## Scientific status
 
-### Phase 1 — Safety supervisor
-- [x] reproducible planar landing simulation
-- [x] baseline landing controller
-- [x] controlled perception degradation
-- [x] interpretable confidence-aware supervisor
-- [x] Monte Carlo evaluation pipeline
-- [x] Wilson confidence intervals
-- [x] safety–availability threshold sweep
-- [x] automated tests + CI
-- [ ] freeze v1 experiment parameters
-- [ ] run full preregistered experiment
+**V1:** fixed historical result  
+**V2:** fixed historical result  
+**V3:** implementation complete; benchmark pending
 
-### Phase 2 — Image-based perception
-- [ ] create a synthetic landing-pad image dataset
-- [ ] apply controlled blur, low contrast, masking, and sensor noise
-- [ ] estimate landing-pad position from pixels
-- [ ] measure confidence calibration
-- [ ] connect image-estimation uncertainty to the supervisor
-
-### Phase 3 — Research-grade evaluation
-- [ ] temporal-consistency supervisor
-- [ ] confidence-only ablation
-- [ ] uncertainty-only ablation
-- [ ] calibration curves / reliability diagrams
-- [ ] multi-seed sensitivity analysis
-- [ ] failure-case gallery
-- [ ] statistical write-up
-
-### Phase 4 — Paper / poster
-- [ ] related-work review
-- [ ] methods figure
-- [ ] results tables
-- [ ] limitations section
-- [ ] research poster
-- [ ] short technical paper
-
----
-
-## Hypothesis
-
-> Under degraded perception, explicitly using uncertainty in the autonomy decision layer will reduce unsafe simulated touchdowns compared with a controller that always continues landing, but overly conservative thresholds may trade safety for excessive holds or aborts.
-
-That second half matters. A supervisor that simply refuses to land every time is not a useful solution.
-
-The project therefore studies **both sides of the tradeoff**.
-
----
-
-## Literature starting point
-
-The project is informed by research on uncertainty-aware UAV navigation, vision-based landing, and risk-aware landing systems. The literature map is maintained in [`docs/literature.md`](docs/literature.md).
-
-Starting references include:
-
-- Arnez et al., *Quantifying and Using System Uncertainty in UAV Navigation* (2022)
-- Dong, *Vision-based control for landing an aerial vehicle on a marine vessel* (2024)
-- de la Torre-Vanegas et al., *Vision-Based Risk Aware Emergency Landing for UAVs in Complex Urban Environments* (2025)
-- Chen et al., *Robust Autonomous Landing of UAV in Non-Cooperative Environments based on Dynamic Time Camera-LiDAR Fusion* (2020)
+Negative results are part of the project. New versions do not overwrite old ones.
 
 ---
 
@@ -277,16 +277,17 @@ Starting references include:
 
 **AegisLand is not flight-control software.**
 
-It is an educational, simulation-first research project and is not validated for physical aircraft. See [`docs/ethics_and_safety.md`](docs/ethics_and_safety.md).
+It is an educational, simulation-only research project. It is not validated for physical aircraft and should not be used to operate one.
 
-The goal is to study **when autonomous perception should not be trusted**, not to provide instructions for operating a real UAV.
+The research goal is to understand how autonomous systems should respond to **uncertain or conflicting perception**, not to provide real-world flight instructions.
 
 ---
 
 ## Author
 
 **Suhas Beemineni**  
-River Islands High School  
+River Islands High School
+
 Interested in aerospace engineering, autonomous systems, AI reliability, computational engineering, and research.
 
-If you're a researcher working in UAV autonomy, controls, perception uncertainty, robotics, or aerospace systems, technical criticism of the methodology is very welcome.
+Technical criticism, methodology review, and reproducibility feedback are welcome.
