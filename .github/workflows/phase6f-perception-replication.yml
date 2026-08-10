@@ -1,0 +1,39 @@
+name: Phase 6F Perception Replication
+
+on:
+  push:
+    paths:
+      - '.github/workflows/phase6f-perception-replication.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  perception-replication:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Full test suite
+        run: pytest -q
+      - name: Run preregistered perception-only replication
+        run: |
+          python scripts/run_phase6f_perception_replication.py \
+            --samples 40 \
+            --calibration-seed 616161 \
+            --out results/phase6f_perception_replication
+      - name: Upload Phase 6F perception replication
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase6f-perception-replication
+          path: results/phase6f_perception_replication
+          if-no-files-found: error
+          retention-days: 60
