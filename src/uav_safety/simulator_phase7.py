@@ -47,10 +47,14 @@ class Phase7EpisodeResult:
     frames: int
     fault_active_frames: int
     reference_available_rate: float
+    reference_delivery_rate: float
     gnss_fresh_rate: float
     baro_fresh_rate: float
     range_fresh_rate: float
     mean_reference_latency_steps: float
+    mean_delivered_transport_latency_steps: float
+    mean_reference_age_steps: float
+    max_reference_age_steps: int
     max_abs_reference_bias_x_m: float
     max_abs_shared_vision_bias_x_m: float
     lateral_component_abstention_rate: float
@@ -167,10 +171,13 @@ def run_phase7_episode(
 
     fault_active_frames = 0
     reference_available = 0
+    reference_deliveries = 0
     gnss_fresh = 0
     baro_fresh = 0
     range_fresh = 0
-    latency_steps: list[int] = []
+    configured_latency_steps: list[int] = []
+    delivered_transport_steps: list[int] = []
+    reference_age_steps: list[int] = []
     reference_biases: list[float] = []
     shared_vision_biases: list[float] = []
     lateral_abstentions = 0
@@ -203,10 +210,14 @@ def run_phase7_episode(
 
         ref_obs, ref_diag = reference.observe(state, fault)
         reference_available += int(ref_obs.available)
+        reference_deliveries += int(ref_diag.new_delivery)
         gnss_fresh += int(ref_diag.gnss_fresh)
         baro_fresh += int(ref_diag.baro_fresh)
         range_fresh += int(ref_diag.range_fresh)
-        latency_steps.append(int(ref_diag.applied_latency_steps))
+        configured_latency_steps.append(int(ref_diag.applied_latency_steps))
+        if ref_obs.available:
+            delivered_transport_steps.append(int(ref_diag.delivered_transport_latency_steps))
+            reference_age_steps.append(int(ref_obs.age_steps))
         reference_biases.append(abs(float(ref_diag.gnss_bias_m)))
 
         fused, component_diag = fusion.update(
@@ -281,10 +292,14 @@ def run_phase7_episode(
         frames=int(frames),
         fault_active_frames=int(fault_active_frames),
         reference_available_rate=float(reference_available / max(1, frames)),
+        reference_delivery_rate=float(reference_deliveries / max(1, frames)),
         gnss_fresh_rate=float(gnss_fresh / max(1, frames)),
         baro_fresh_rate=float(baro_fresh / max(1, frames)),
         range_fresh_rate=float(range_fresh / max(1, frames)),
-        mean_reference_latency_steps=float(np.mean(latency_steps) if latency_steps else 0.0),
+        mean_reference_latency_steps=float(np.mean(configured_latency_steps) if configured_latency_steps else 0.0),
+        mean_delivered_transport_latency_steps=float(np.mean(delivered_transport_steps) if delivered_transport_steps else 0.0),
+        mean_reference_age_steps=float(np.mean(reference_age_steps) if reference_age_steps else 0.0),
+        max_reference_age_steps=int(max(reference_age_steps) if reference_age_steps else 0),
         max_abs_reference_bias_x_m=float(max(reference_biases) if reference_biases else 0.0),
         max_abs_shared_vision_bias_x_m=float(max(shared_vision_biases) if shared_vision_biases else 0.0),
         lateral_component_abstention_rate=float(lateral_abstentions / max(1, frames)),
