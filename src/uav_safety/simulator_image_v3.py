@@ -7,10 +7,11 @@ import numpy as np
 from .config import ControllerConfig, SimConfig
 from .controller import LandingController
 from .dynamics import State, step_dynamics
-from .image_perception import IMAGE_CONDITIONS, SyntheticLandingPadRenderer
+from .image_perception import IMAGE_CONDITIONS
 from .image_temporal import (
     CalibratedTemporalImagePipeline,
     EmpiricalConfidenceCalibrator,
+    Phase6LandingPadRenderer,
     TemporalImageConfig,
 )
 from .reference_estimator import IndependentReferenceEstimator, ReferenceEstimatorConfig
@@ -64,14 +65,9 @@ def run_image_episode(
 ):
     """Run a landing episode whose primary perception comes from rendered pixels.
 
-    Architectures:
-    - ``image_temporal``: calibrated temporal image observations drive the normal
-      landing controller without the redundant Aegis supervisor.
-    - ``image_aegis_v3``: the same image observations are fused with the
-      intentionally imperfect independent reference estimate and assessed by V3.
-
-    RNG streams are isolated so adding image rendering/reference estimation does
-    not change the initial state or wind sequence for a paired episode seed.
+    ``image_temporal`` uses only the calibrated temporal image observation.
+    ``image_aegis_v3`` feeds that same observation into frozen V3 redundant fusion
+    and supervision. Environment, image, and reference RNG streams are isolated.
     """
 
     if condition not in IMAGE_CONDITIONS:
@@ -97,7 +93,7 @@ def run_image_episode(
         vz=0.0,
     )
 
-    renderer = SyntheticLandingPadRenderer()
+    renderer = Phase6LandingPadRenderer()
     image_pipeline = CalibratedTemporalImagePipeline(calibrator, image_cfg)
     controller = LandingController(ctrl_cfg, sim_cfg)
 
@@ -126,7 +122,7 @@ def run_image_episode(
         t = i * sim_cfg.dt
         frame = renderer.render(
             x_offset_m=state.x,
-            altitude_m=max(0.35, state.z),
+            altitude_m=max(0.08, state.z),
             rng=image_rng,
             condition=condition,
             severity=severity,
@@ -149,9 +145,8 @@ def run_image_episode(
             reference_updates += int(ref_obs.fresh)
             reference_fresh = bool(ref_obs.fresh)
 
-            # The image pipeline is already temporal, so it is the filtered visual
-            # observation consumed by V3. Passing it as both visual inputs avoids a
-            # hidden second state-corruption model or double filtering.
+            # The image pipeline already performs temporal filtering, so this is
+            # the visual state used by V3 without an abstract PerceptionModel.
             fused = fusion.update(image_obs, image_obs, ref_obs)
             last_fusion = fused
             decision = supervisor.assess(image_obs, fused, ref_obs)
@@ -227,6 +222,7 @@ def _trace_row(t, state, image_obs, diag, control_x, risk, decision, reference_f
         "image_dropped": bool(image_obs.dropped),
         "raw_confidence": float(diag.raw_confidence),
         "calibrated_confidence": float(diag.calibrated_confidence),
+        "geometry_score": float(diag.geometry_score),
         "abstained": bool(diag.abstained),
         "abstain_reason": diag.reason,
         "innovation_score": float(diag.innovation_score),
