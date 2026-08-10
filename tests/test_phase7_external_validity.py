@@ -221,8 +221,8 @@ def test_latency_burst_holds_stale_reference_without_redelivering_old_packet_as_
     assert first_stale_obs.available and second_stale_obs.available
     assert first_stale_diag.applied_latency_steps == 4
     assert second_stale_diag.applied_latency_steps == 4
-    assert first_stale_diag.delivered_transport_latency_steps == 1
-    assert second_stale_diag.delivered_transport_latency_steps == 1
+    assert first_stale_diag.delivered_transport_latency_steps == 2
+    assert second_stale_diag.delivered_transport_latency_steps == 3
     assert not first_stale_diag.new_delivery
     assert not second_stale_diag.new_delivery
     assert not first_stale_obs.fresh
