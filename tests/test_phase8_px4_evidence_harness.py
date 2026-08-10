@@ -15,7 +15,8 @@ def test_px4_evidence_workflow_installs_requirements_in_active_python() -> None:
 
 def test_px4_evidence_ulog_discovery_is_run_scoped() -> None:
     text = EVIDENCE_WORKFLOW.read_text(encoding="utf-8")
-    assert "rootfs/fs/microsd/log" in text
+    assert "build/px4_sitl_default/rootfs/log" in text
+    assert "rootfs/fs/microsd/log" not in text
     assert "-newer /tmp/phase8-evidence/px4_run_started" in text
     assert "find /tmp/PX4-Autopilot -type f -name '*.ulg'" not in text
     assert "px4_ulog_source_path.txt" in text
