@@ -1,13 +1,22 @@
 # Phase 6D method and freeze criteria
 
+> **Integrity correction:** the original planned held-out seeds `868686` and `878787` were subsequently found to have already been executed by the historical Phase 6B frozen workflow. They are permanently seen and are not valid held-out seeds for Phase 6D or later revisions. This document is corrected by `docs/research_integrity_recovery.md`.
+
 ## Scope
 
 Phase 6D is a simulation-only development revision of the Phase 6 image-to-Aegis experiment. It does not alter or overwrite historical Phase 6, Phase 6B, or Phase 6C results.
 
-The reserved unseen seeds remain unused during Phase 6D development:
+Replacement held-out seed families reserved after the integrity audit are:
 
-- landing evaluation: `868686`
-- selective-perception evaluation: `878787`
+- landing evaluation: `918271`
+- selective-perception evaluation: `928271`
+
+They must remain unused during development.
+
+Historical seen seeds that must not be reused as held-out are:
+
+- Phase 6B landing: `868686`
+- Phase 6B selective perception: `878787`
 
 ## Fixed architecture before the full development result
 
@@ -26,7 +35,7 @@ Phase 6D changes only altitude fallback logic:
 2. **Hard altitude contradiction**: if the usable image and independent reference altitude differ by more than 3 combined standard deviations, classify the visual altitude track as a hard alias and blend both `z` and `vz` using the already-existing Phase 6B fallback weight.
 3. Lateral x/vx fallback remains unchanged.
 
-The hard-contradiction rule is fixed at 3 sigma with a 0.20 m minimum combined-altitude uncertainty floor. These values are declared before the full Phase 6D development matrix and are not selected from Phase 6D landing outcomes.
+The hard-contradiction rule is fixed at 3 sigma with a 0.20 m minimum combined-altitude uncertainty floor. These values were declared before the full Phase 6D development matrix and were not selected from Phase 6D landing outcomes.
 
 ## Development matrix
 
@@ -51,6 +60,15 @@ Phase 6D may proceed to held-out evaluation only if the paired development evide
 5. **Alias activation is auditable.** Hard-altitude-alias frame counts and condition-level activation rates must be saved. Unexpected widespread activation in nominal clean/blur operation blocks freezing and requires diagnosis rather than threshold tuning from landing outcomes.
 6. **No post-result retuning.** If any criterion fails, Phase 6D is preserved as a development result and any subsequent change becomes a new explicitly labeled revision. The 3-sigma rule and 0.80/0.80 component gates are not adjusted using the Phase 6D development outcome table.
 
-## Held-out rule
+## Phase 6D development decision
 
-If all development criteria pass, the exact Phase 6D architecture and constants are frozen before any reserved seed is run. A separate untriggered held-out workflow must then use `868686` for landing and `878787` for selective perception exactly once. The held-out outcome must be reported regardless of whether it improves or worsens the development result.
+Phase 6D is **not frozen**. Although its development landing outcomes were strong, the hard-altitude-alias detector activated widely in nominal clean and blur episodes, triggering the preregistered audit criterion. The next revision must be based on an altitude-specific estimator-consistency benchmark rather than changing the 3-sigma number to improve landing outcomes.
+
+## Replacement held-out rule
+
+Only after a later final architecture passes its development and detector-audit criteria may held-out evaluation occur. That architecture must be frozen in writing before execution, and the replacement seeds must be used exactly once:
+
+- landing: `918271`
+- selective perception: `928271`
+
+Both outcomes must be reported regardless of whether they improve or worsen the development result.
