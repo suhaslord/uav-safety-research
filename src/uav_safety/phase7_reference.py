@@ -7,7 +7,7 @@ from math import hypot
 import numpy as np
 
 from .dynamics import State
-from .phase7_faults import FaultState
+from .phase7_faults import FaultScenario, FaultState
 from .reference_estimator import ReferenceObservation
 
 
@@ -101,7 +101,7 @@ class Phase7SensorStackReferenceEstimator:
         state: State,
         fault: FaultState | None = None,
     ) -> tuple[ReferenceObservation, Phase7ReferenceDiagnostics]:
-        f = fault or FaultState(active=False, scenario="independent")  # type: ignore[arg-type]
+        f = fault or FaultState(active=False, scenario=FaultScenario.INDEPENDENT)
         c = self.cfg
         step = self._step
         self._step += 1
