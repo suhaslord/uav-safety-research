@@ -1,0 +1,6 @@
+profile,episodes,v3_minus_baseline_success_pp,v3_minus_baseline_unsafe_pp,v3_minus_v2_success_pp,v3_minus_v2_unsafe_pp,baseline_unsafe_rescued_to_v3_success,baseline_success_became_v3_unsafe,v2_unsafe_rescued_to_v3_success,v2_success_became_v3_unsafe
+blur,30,0.0,0.0,0.0,0.0,0,0,0,0
+clean,30,0.0,0.0,0.0,0.0,0,0,0,0
+low_light,30,0.0,0.0,0.0,0.0,0,0,0,0
+mixed,30,83.33333333333334,-83.33333333333334,83.33333333333334,-83.33333333333334,25,0,25,0
+occlusion,30,26.66666666666667,-26.666666666666668,26.66666666666667,-26.666666666666668,8,0,8,0

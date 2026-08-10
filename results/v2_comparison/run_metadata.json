@@ -1,0 +1,10 @@
+{
+  "seed": 2027,
+  "episodes_total": 7500,
+  "architectures": [
+    "baseline",
+    "aegis_v1",
+    "aegis_v2"
+  ],
+  "paired_seeds": true
+}
