@@ -54,7 +54,7 @@ def test_sensor_stack_does_not_expose_exact_truth_as_reference():
     assert any(abs(o.x - state.x) > 1e-8 or abs(o.z - state.z) > 1e-8 for o in available)
 
 
-def test_delayed_sensor_acquisition_is_fresh_when_delivered():
+def test_delayed_sensor_acquisition_is_fresh_once_when_delivered():
     cfg = Phase7SensorStackConfig(
         gnss_update_every_steps=1,
         baro_update_every_steps=1,
@@ -68,14 +68,16 @@ def test_delayed_sensor_acquisition_is_fresh_when_delivered():
     state = State(x=0.5, z=2.0, vx=0.0, vz=-0.2)
     neutral = FaultState(active=False, scenario=FaultScenario.INDEPENDENT)
 
-    observations = [est.observe(state, neutral)[0] for _ in range(5)]
-    delivered = [o for o in observations if o.available]
+    samples = [est.observe(state, neutral) for _ in range(6)]
+    delivered = [(obs, diag) for obs, diag in samples if obs.available]
     assert delivered
-    assert any(o.fresh for o in delivered)
-    assert all(o.age_steps >= cfg.base_latency_steps for o in delivered)
+    assert all(obs.age_steps >= cfg.base_latency_steps for obs, _ in delivered)
+    assert all(diag.delivered_transport_latency_steps == cfg.base_latency_steps for _, diag in delivered)
+    assert all(diag.new_delivery for _, diag in delivered)
+    assert all(obs.fresh for obs, _ in delivered)
 
 
-def test_latency_diagnostic_reports_delay_applied_at_delivery():
+def test_latency_burst_holds_stale_reference_without_redelivering_old_packet_as_fresh():
     cfg = Phase7SensorStackConfig(
         gnss_update_every_steps=1,
         baro_update_every_steps=1,
@@ -96,11 +98,53 @@ def test_latency_diagnostic_reports_delay_applied_at_delivery():
 
     for _ in range(6):
         est.observe(state, neutral)
-    observation, diagnostics = est.observe(state, burst)
 
-    assert observation.available
-    assert diagnostics.applied_latency_steps == 4
-    assert observation.age_steps >= 4
+    first_obs, first_diag = est.observe(state, burst)
+    second_obs, second_diag = est.observe(state, burst)
+
+    assert first_obs.available and second_obs.available
+    assert first_diag.applied_latency_steps == 4
+    assert second_diag.applied_latency_steps == 4
+    assert first_diag.delivered_transport_latency_steps == 1
+    assert second_diag.delivered_transport_latency_steps == 1
+    assert not first_diag.new_delivery
+    assert not second_diag.new_delivery
+    assert not first_obs.fresh
+    assert not second_obs.fresh
+    assert second_obs.age_steps > first_obs.age_steps
+
+
+def test_latency_burst_packet_is_fresh_when_it_reaches_delivery_time():
+    cfg = Phase7SensorStackConfig(
+        gnss_update_every_steps=1,
+        baro_update_every_steps=1,
+        range_update_every_steps=1,
+        base_latency_steps=1,
+        gnss_dropout_prob=0.0,
+        baro_dropout_prob=0.0,
+        range_dropout_prob=0.0,
+    )
+    est = Phase7SensorStackReferenceEstimator(np.random.default_rng(36), 0.05, cfg)
+    state = State(x=0.5, z=2.0, vx=0.0, vz=-0.2)
+    neutral = FaultState(active=False, scenario=FaultScenario.INDEPENDENT)
+    burst = FaultState(
+        active=True,
+        scenario=FaultScenario.LATENCY_BURST,
+        reference_latency_extra_steps=3,
+    )
+
+    for _ in range(5):
+        est.observe(state, neutral)
+
+    burst_samples = [est.observe(state, burst) for _ in range(8)]
+    four_step_deliveries = [
+        (obs, diag)
+        for obs, diag in burst_samples
+        if diag.new_delivery and diag.delivered_transport_latency_steps == 4
+    ]
+    assert four_step_deliveries
+    assert all(obs.fresh for obs, _ in four_step_deliveries)
+    assert all(obs.age_steps >= 4 for obs, _ in four_step_deliveries)
 
 
 def test_phase7_dynamics_has_actuator_lag():
