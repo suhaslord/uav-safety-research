@@ -63,9 +63,18 @@ jobs:
 
       - name: Run reproducible PX4/Gazebo mission
         run: |
-          python scripts/run_px4_gazebo_mission.py \
-            --connection udpin://0.0.0.0:14540 \
-            --metadata-out /tmp/phase8-evidence/px4_mission_metadata.json
+          set +e
+          timeout --signal=TERM --kill-after=15s 240s \
+            python scripts/run_px4_gazebo_mission.py \
+              --connection udpin://0.0.0.0:14540 \
+              --metadata-out /tmp/phase8-evidence/px4_mission_metadata.json
+          status=$?
+          if [ "$status" -ne 0 ]; then
+            echo "PX4/Gazebo mission failed or timed out with status $status"
+            echo "--- tail of PX4/Gazebo log ---"
+            tail -n 300 /tmp/phase8-evidence/px4_gazebo.log || true
+            exit "$status"
+          fi
 
       - name: Stop simulator and locate raw ULog
         if: always()
