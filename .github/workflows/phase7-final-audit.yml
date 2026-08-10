@@ -3,8 +3,8 @@ name: Phase 7 Final Audit Development
 on:
   workflow_dispatch:
   push:
-    paths:
-      - '.github/workflows/phase7-final-audit.yml'
+    branches:
+      - phase7-external-validity
 
 jobs:
   final-audit:
