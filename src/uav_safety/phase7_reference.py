@@ -245,4 +245,20 @@ class Phase7SensorStackReferenceEstimator:
                 available=True,
                 age_steps=int(delayed_obs.age_steps + latency),
             )
-        return delayed_obs, delayed.diagnostics
+
+        # The delayed snapshot owns the measurement/bias provenance, while the
+        # current step owns the transport delay that selected that snapshot.
+        # This distinction matters during latency bursts: reporting the old
+        # snapshot's historical latency would understate the delay actually
+        # applied to the delivered sample.
+        delivery_diag = Phase7ReferenceDiagnostics(
+            gnss_fresh=delayed.diagnostics.gnss_fresh,
+            baro_fresh=delayed.diagnostics.baro_fresh,
+            range_fresh=delayed.diagnostics.range_fresh,
+            gnss_age_steps=int(delayed.diagnostics.gnss_age_steps + latency),
+            vertical_age_steps=int(delayed.diagnostics.vertical_age_steps + latency),
+            applied_latency_steps=latency,
+            gnss_bias_m=delayed.diagnostics.gnss_bias_m,
+            baro_bias_m=delayed.diagnostics.baro_bias_m,
+        )
+        return delayed_obs, delivery_diag
