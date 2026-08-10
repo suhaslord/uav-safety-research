@@ -78,6 +78,10 @@ class Phase7SensorStackReferenceEstimator:
     tagged with an acquisition step and delivered no earlier than their scheduled
     time. If a later, lower-latency packet overtakes an older one, the older packet
     is discarded once it is obsolete; no acquisition is re-delivered as fresh.
+
+    GNSS-like, barometric-like, and range-like measurements use isolated RNG
+    streams. A plant-dependent range-sensor activation therefore cannot shift the
+    later GNSS or barometer noise sequence in paired plant experiments.
     """
 
     def __init__(
@@ -86,12 +90,19 @@ class Phase7SensorStackReferenceEstimator:
         dt: float,
         cfg: Phase7SensorStackConfig | None = None,
     ):
-        self.rng = rng
         self.dt = float(dt)
         self.cfg = cfg or Phase7SensorStackConfig()
         self._step = 0
         self._gnss_bias = 0.0
         self._baro_bias = 0.0
+
+        # Use the supplied generator only as a deterministic parent. Separate
+        # child streams prevent state-dependent use of one sensor from changing
+        # the random sequence consumed by another sensor.
+        child_seeds = rng.integers(0, 2**63 - 1, size=3, dtype=np.int64)
+        self._gnss_rng = np.random.default_rng(int(child_seeds[0]))
+        self._baro_rng = np.random.default_rng(int(child_seeds[1]))
+        self._range_rng = np.random.default_rng(int(child_seeds[2]))
 
         self._x: float | None = None
         self._vx: float | None = None
@@ -124,39 +135,44 @@ class Phase7SensorStackReferenceEstimator:
 
         if step % c.gnss_update_every_steps == 0:
             p_drop = float(np.clip(c.gnss_dropout_prob + f.reference_dropout_boost, 0.0, 0.98))
-            if self.rng.random() >= p_drop:
-                self._gnss_bias += float(self.rng.normal(0.0, c.gnss_bias_walk_sigma_m))
+            if self._gnss_rng.random() >= p_drop:
+                self._gnss_bias += float(self._gnss_rng.normal(0.0, c.gnss_bias_walk_sigma_m))
                 self._x = float(
                     state.x
                     + self._gnss_bias
                     + f.reference_x_bias_m
-                    + self.rng.normal(0.0, c.gnss_sigma_x_m)
+                    + self._gnss_rng.normal(0.0, c.gnss_sigma_x_m)
                 )
-                self._vx = float(state.vx + self.rng.normal(0.0, c.gnss_sigma_vx_mps))
+                self._vx = float(state.vx + self._gnss_rng.normal(0.0, c.gnss_sigma_vx_mps))
                 self._x_age = 0
                 gnss_fresh = True
 
         vertical_candidates: list[tuple[float, float]] = []
         if step % c.baro_update_every_steps == 0:
             p_drop = float(np.clip(c.baro_dropout_prob + f.reference_dropout_boost, 0.0, 0.98))
-            if self.rng.random() >= p_drop:
-                self._baro_bias += float(self.rng.normal(0.0, c.baro_bias_walk_sigma_m))
+            if self._baro_rng.random() >= p_drop:
+                self._baro_bias += float(self._baro_rng.normal(0.0, c.baro_bias_walk_sigma_m))
                 z_baro = float(
                     max(
                         0.0,
                         state.z
                         + self._baro_bias
                         + f.reference_z_bias_m
-                        + self.rng.normal(0.0, c.baro_sigma_z_m),
+                        + self._baro_rng.normal(0.0, c.baro_sigma_z_m),
                     )
                 )
                 vertical_candidates.append((z_baro, c.baro_sigma_z_m))
                 baro_fresh = True
 
-        if state.z <= c.range_max_altitude_m and step % c.range_update_every_steps == 0:
+        if step % c.range_update_every_steps == 0:
+            # Draw every scheduled range step, even while out of range, so the
+            # range RNG is indexed by time rather than by a plant-dependent
+            # altitude crossing.
+            range_drop_draw = float(self._range_rng.random())
+            range_noise = float(self._range_rng.normal(0.0, c.range_sigma_z_m))
             p_drop = float(np.clip(c.range_dropout_prob + f.reference_dropout_boost, 0.0, 0.98))
-            if self.rng.random() >= p_drop:
-                z_range = float(max(0.0, state.z + self.rng.normal(0.0, c.range_sigma_z_m)))
+            if state.z <= c.range_max_altitude_m and range_drop_draw >= p_drop:
+                z_range = float(max(0.0, state.z + range_noise))
                 vertical_candidates.append((z_range, c.range_sigma_z_m))
                 range_fresh = True
 
