@@ -3,7 +3,6 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
-import time
 from pathlib import Path
 
 from mavsdk import System
@@ -108,7 +107,10 @@ async def mission(connection: str, metadata_out: Path) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run a deterministic, simulation-only PX4/Gazebo landing trajectory for Phase 8 evidence capture.")
-    parser.add_argument("--connection", default="udpin://0.0.0.0:14540")
+    # PX4 v1.17.0's default SITL MAVLink instance in this headless Gazebo setup
+    # sends to localhost UDP 14550. The evidence harness listens there rather
+    # than assuming the 14540 offboard port used by other PX4 launch layouts.
+    parser.add_argument("--connection", default="udpin://0.0.0.0:14550")
     parser.add_argument("--metadata-out", type=Path, required=True)
     args = parser.parse_args()
     asyncio.run(asyncio.wait_for(mission(args.connection, args.metadata_out), timeout=300.0))
