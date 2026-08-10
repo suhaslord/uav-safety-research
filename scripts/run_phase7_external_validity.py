@@ -8,13 +8,17 @@ import json
 import numpy as np
 import pandas as pd
 
+from uav_safety.dynamics_phase7 import Phase7DynamicsConfig
 from uav_safety.image_perception import IMAGE_CONDITIONS
 from uav_safety.image_temporal import fit_synthetic_calibrator
 from uav_safety.metrics import wilson_interval
-from uav_safety.phase7_faults import FaultScenario
+from uav_safety.phase6b_fusion import Phase6BComponentGateConfig
+from uav_safety.phase7_faults import FaultScenario, Phase7FaultConfig
 from uav_safety.phase7_reference import Phase7SensorStackConfig
+from uav_safety.provenance import write_result_manifest
 from uav_safety.selective_confidence_v2 import fit_component_calibrator
 from uav_safety.simulator_phase7 import PLANT_MODELS, run_phase7_episode
+from uav_safety.supervisor_v3 import SupervisorV3Config
 
 
 DEFAULT_CONDITIONS = ("clean", "low_light", "occlusion", "mixed")
@@ -160,22 +164,29 @@ def main() -> None:
     raw.to_csv(args.out / "episodes.csv", index=False)
     summary.to_csv(args.out / "summary.csv", index=False)
     plant_effects.to_csv(args.out / "paired_plant_effects.csv", index=False)
+
+    metadata = {
+        "run_role": "development_external_validity_factorial",
+        "episode_seed": args.seed,
+        "episode_seed_status": "development_seen",
+        "calibration_seed": args.calibration_seed,
+        "episodes_per_condition_fault_plant": args.episodes,
+        "conditions": list(conditions),
+        "fault_scenarios": [f.value for f in faults],
+        "plant_models": list(plants),
+        "paired_plant_episode_seeds": True,
+        "severity": args.severity,
+        "sensor_stack": asdict(Phase7SensorStackConfig()),
+        "fault_model": asdict(Phase7FaultConfig()),
+        "phase7_dynamics": asdict(Phase7DynamicsConfig()),
+        "component_gate": asdict(Phase6BComponentGateConfig()),
+        "supervisor": asdict(SupervisorV3Config()),
+        "historical_phase6b_frozen_commit": "b4e9838555e935a5ec42690495315473629b58f6",
+        "scope": "simulation-only external-validity stress study; not physical-flight validation",
+        "interpretation": "The legacy-vs-Phase7 plant pairing isolates plant-model sensitivity while holding the new sensing/fault assumptions and episode seed fixed. This remains development evidence and does not overwrite frozen Phase 6B.",
+    }
     (args.out / "run_metadata.json").write_text(
-        json.dumps({
-            "run_role": "development_external_validity_factorial",
-            "episode_seed": args.seed,
-            "calibration_seed": args.calibration_seed,
-            "episodes_per_condition_fault_plant": args.episodes,
-            "conditions": list(conditions),
-            "fault_scenarios": [f.value for f in faults],
-            "plant_models": list(plants),
-            "paired_plant_episode_seeds": True,
-            "severity": args.severity,
-            "sensor_stack": asdict(Phase7SensorStackConfig()),
-            "historical_phase6b_frozen_commit": "b4e9838555e935a5ec42690495315473629b58f6",
-            "scope": "simulation-only external-validity stress study; not physical-flight validation",
-            "interpretation": "The legacy-vs-Phase7 plant pairing isolates plant-model sensitivity while holding the new sensing/fault assumptions and episode seed fixed. This remains development evidence and does not overwrite frozen Phase 6B.",
-        }, indent=2),
+        json.dumps(metadata, indent=2),
         encoding="utf-8",
     )
     (args.out / "summary.md").write_text(
@@ -186,6 +197,22 @@ def main() -> None:
         + plant_effects.to_markdown(index=False)
         + "\n",
         encoding="utf-8",
+    )
+    write_result_manifest(
+        args.out,
+        [
+            "episodes.csv",
+            "summary.csv",
+            "paired_plant_effects.csv",
+            "run_metadata.json",
+            "summary.md",
+        ],
+        schema="aegisland.phase7.result-bundle.v1",
+        extra={
+            "episode_seed": args.seed,
+            "calibration_seed": args.calibration_seed,
+            "run_role": "development_external_validity_factorial",
+        },
     )
 
     print(summary.to_string(index=False))
