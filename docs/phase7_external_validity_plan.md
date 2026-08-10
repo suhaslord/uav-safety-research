@@ -43,6 +43,26 @@ Ground truth is used only inside the sensor simulator to synthesize measurements
 
 The parameters are generic stress-model values, **not** calibrated claims about a named physical sensor.
 
+### Transport semantics
+
+Transport delay uses a **scheduled-delivery queue**, not a history-index shortcut. Each reference packet is tagged with its acquisition step and scheduled latency. A packet:
+
+- cannot arrive before its scheduled delivery time;
+- is marked fresh only when that acquisition is newly delivered;
+- is never re-delivered as a fresh update;
+- may be overtaken by a newer lower-latency packet, in which case the obsolete older packet is discarded;
+- leaves the last delivered estimate available as stale information while no new packet arrives, with growing state age and uncertainty.
+
+This prevents a latency burst from silently becoming an artificial sensor dropout or from replaying an old measurement as if it were new.
+
+The benchmark reports both the **latency currently configured by the fault condition** and the **transport delay of the packet actually being used**, plus delivered-state age. These quantities are intentionally distinct during latency transitions.
+
+### Sensor-channel RNG isolation
+
+GNSS-like, barometric-like, and range-like sensors use separate deterministic child RNG streams. The range stream consumes its scheduled draws even while the vehicle is above the simulated range-sensor operating altitude.
+
+This is important for the paired plant experiment. If the stronger plant reaches the range-sensor region at a different time from the legacy plant, that state-dependent activation must not shift the later GNSS or barometer random-number sequence. The isolated streams make the paired comparison more interpretable: plant trajectories can change sensor *values*, but one sensor's activation cannot change another sensor's noise sequence.
+
 ## Phase 7B — Correlated and common-mode faults
 
 Predeclare explicit fault families rather than hiding them inside aggregate noise:
@@ -54,6 +74,8 @@ Predeclare explicit fault families rather than hiding them inside aggregate nois
 - `latency_burst` — reference delivery becomes temporarily stale.
 
 The `shared_lateral_bias` condition is especially important because cross-estimator agreement is not evidence of correctness when both streams share the same error source.
+
+For Phase 7, an image observation marked dropped is also forced to component-abstain: `p_x_good = 0` and `p_z_good = 0`. A simulated camera outage therefore cannot keep contributing trustworthy-looking component scores merely because the underlying synthetic frame still exists inside the renderer. The benchmark records the realized image-drop rate explicitly.
 
 ## Phase 7C — Stronger planar dynamics
 
@@ -75,6 +97,8 @@ The new sensing/fault model and the stronger plant must not be changed as one in
 - `phase7` — lagged/rate-limited/nonlinear dynamics with colored disturbances.
 
 This creates a paired plant comparison for each condition/fault/seed. It lets us distinguish a sensing/common-mode weakness from sensitivity introduced by the stronger plant model.
+
+The image, reference, fault, and dynamics random streams are explicitly separated. Within the reference stack, GNSS/barometer/range streams are further isolated so plant-dependent range activation does not contaminate the paired comparison by shifting unrelated sensor noise.
 
 Plant-model effects are reported separately rather than averaged into the main fault result.
 
@@ -109,11 +133,11 @@ The integration order is intentionally conservative:
 
 1. **offline trace schema** — define a neutral log format for truth, image estimates, reference estimates, and timestamps;
 2. **Gazebo/PX4 replay import** — ingest simulator logs and evaluate Aegis decisions without sending control commands back;
-3. **distribution comparison** — compare noise, latency, dropout, and disagreement distributions against Phase 7 surrogate assumptions;
+3. **distribution comparison** — compare noise, latency, dropout, disagreement, and cross-sensor error correlation against Phase 7 surrogate assumptions;
 4. **simulation-in-the-loop only** — if replay results are stable, connect the same research supervisor inside SITL for closed-loop simulation;
 5. physical flight remains out of scope for this repository.
 
-The repository now includes an offline external-trace schema and validator. That bridge intentionally accepts logs for analysis only and does not provide a physical-flight control path.
+The repository now includes an offline external-trace schema and validator. In addition to basic trace integrity, it reports image/reference lateral MAE, their disagreement, and simultaneous lateral-error correlation so the independence assumption can be checked against higher-fidelity simulator logs. The bridge intentionally accepts logs for analysis only and does not provide a physical-flight control path.
 
 ## Development experiment
 
@@ -130,6 +154,8 @@ The first non-factorial development pass used 10 episodes per condition/fault ce
 
 A subsequent factorial pass uses 5 episodes per condition/fault/plant cell so the total run remains compact while each episode is paired across the two plant models. This pass is used to inspect attribution and experiment mechanics, not to make a final safety claim.
 
+Several early Phase 7 development attempts are intentionally superseded for interpretation because interface audits found modeling-semantics problems before those outputs were accepted: delayed-new packets were initially marked non-fresh, the first latency implementation used history indexing instead of packet scheduling, and image-drop faults initially left component confidence available. The corrected architecture is rerun rather than retroactively treating those earlier outputs as evidence.
+
 No Phase 7 held-out seed is declared yet.
 
 ## Primary outcomes
@@ -140,8 +166,11 @@ Per condition/fault/plant cell report:
 - unsafe-touchdown rate and 95% Wilson interval;
 - safe-abort rate and 95% Wilson interval;
 - timeout rate and 95% Wilson interval;
-- reference availability;
-- reference latency;
+- realized image-drop rate;
+- reference availability and new-delivery rate;
+- configured reference latency;
+- delivered packet transport latency;
+- mean and maximum delivered-state age;
 - maximum simulated reference lateral bias;
 - maximum shared visual lateral bias;
 - lateral and altitude component abstention rates;
@@ -155,20 +184,34 @@ For every condition/fault pair also report paired legacy-vs-Phase 7 plant deltas
 Every Phase 7 result bundle records the complete default configuration used for:
 
 - sensor stack;
+- scheduled-delivery transport model;
+- channel-isolated sensor RNG model;
 - fault model;
 - stronger dynamics;
 - frozen Phase 6B component gates;
 - frozen V3 supervisor.
 
-The runner also writes `result_manifest.json` with file sizes and SHA-256 hashes for the episode table, aggregate summary, paired plant effects, metadata, and Markdown summary. The development seed is explicitly marked as seen.
+The runner writes the exact executable Git commit into `git_sha.txt`, `run_metadata.json`, and the dashboard bundle. It also writes `result_manifest.json` with file sizes and SHA-256 hashes for the episode table, aggregate summary, paired plant effects, commit marker, metadata, Markdown summary, and dashboard bundle. The development seed is explicitly marked as seen.
+
+The companion manifest validator detects missing files, size changes, hash changes, and unsafe relative paths.
 
 This prevents a later result directory from being treated as equivalent merely because it has the same filename.
 
 ## Research cockpit
 
-`dashboard/` provides a dependency-free local analysis interface for Phase 7 result bundles. It can load `summary.csv` and `paired_plant_effects.csv`, filter by condition/fault/plant, compare plant sensitivity, and display the unsafe-touchdown failure surface.
+`dashboard/` provides a dependency-free local analysis interface for Phase 7 result bundles. The preferred input is the runner-generated `dashboard_bundle.json`; CSV fallback mode remains available.
 
-The cockpit deliberately labels Phase 7 as development evidence and simulation-only. It is not a vehicle-control interface.
+The cockpit can:
+
+- filter by condition, fault, and plant;
+- show success, unsafe touchdown, abort, and reference-availability confidence intervals;
+- expose reference delivery, configured latency, delivered transport delay, and state age;
+- compare the paired legacy and stronger plants;
+- render the unsafe-touchdown condition × fault matrix;
+- rank the highest observed unsafe-touchdown cells first without inventing a weighted score;
+- display run role, exact commit, development-seed status, and sample count.
+
+The cockpit deliberately labels Phase 7 as development evidence and simulation-only. It is not a vehicle-control interface. It uses no external JavaScript libraries, services, or telemetry.
 
 Run it with:
 
@@ -186,6 +229,8 @@ python scripts/serve_dashboard.py
 6. Plant-model effects must be reported separately so sensing/fault failures are not conflated with dynamics sensitivity.
 7. The higher-fidelity simulator stage should first be used for log replay and distribution checks before closed-loop SITL claims.
 8. A zero observed unsafe-touchdown rate in a small development cell is not evidence of zero real risk.
+9. Superseded development attempts remain part of the audit trail but are not mixed into the accepted development result.
+10. A paired plant result is interpreted as plant sensitivity only after verifying that state-dependent sensor activation cannot shift unrelated RNG streams.
 
 ## Success criterion for this phase
 
