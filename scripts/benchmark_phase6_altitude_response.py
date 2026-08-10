@@ -8,7 +8,11 @@ import pandas as pd
 
 from uav_safety.image_perception import IMAGE_CONDITIONS
 from uav_safety.image_temporal import Phase6LandingPadRenderer
-from uav_safety.selective_confidence_v2 import SharpnessAwarePadEstimator, fit_component_calibrator
+from uav_safety.selective_confidence_v2 import (
+    SharpnessAwarePadEstimator,
+    altitude_scale_bin_width_m,
+    fit_component_calibrator,
+)
 
 
 ALTITUDES_M = (
@@ -61,7 +65,7 @@ def main() -> None:
                     "geometry_score": m.geometry_score,
                     "contrast": m.contrast,
                     "sharpness_score": m.sharpness_score,
-                    "scale_quantization_bin_width_m": m.scale_quantization_bin_width_m,
+                    "scale_quantization_bin_width_m": altitude_scale_bin_width_m(m),
                     "p_x_good": p_x,
                     "p_z_good": p_z,
                 })
@@ -85,8 +89,6 @@ def main() -> None:
     )
     summary["median_z_bias_m"] = summary["median_measured_z_m"] - summary["true_z_m"]
 
-    # A compact observability table highlights where image scale ceases to be
-    # one-to-one or confidence correctly identifies the loss of information.
     nominal = summary[summary["condition"].isin(["clean", "blur"])].copy()
 
     args.out.mkdir(parents=True, exist_ok=True)
