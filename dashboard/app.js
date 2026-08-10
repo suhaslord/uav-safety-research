@@ -1,11 +1,14 @@
 const state = {
   summary: [],
   paired: [],
+  metadata: null,
 };
 
 const els = {
+  bundleFile: document.getElementById('bundleFile'),
   summaryFile: document.getElementById('summaryFile'),
   pairedFile: document.getElementById('pairedFile'),
+  bundleDropzone: document.getElementById('bundleDropzone'),
   summaryDropzone: document.getElementById('summaryDropzone'),
   pairedDropzone: document.getElementById('pairedDropzone'),
   condition: document.getElementById('conditionFilter'),
@@ -31,6 +34,7 @@ const els = {
   evidenceText: document.getElementById('evidenceText'),
   matrix: document.getElementById('matrix'),
   matrixPlantLabel: document.getElementById('matrixPlantLabel'),
+  provenanceMeta: document.getElementById('provenanceMeta'),
 };
 
 function parseCsv(text) {
@@ -101,7 +105,7 @@ function fillSelect(select, values) {
   for (const value of values) {
     const option = document.createElement('option');
     option.value = value;
-    option.textContent = value.replaceAll('_', ' ');
+    option.textContent = String(value).replaceAll('_', ' ');
     select.appendChild(option);
   }
   select.disabled = values.length === 0;
@@ -118,9 +122,9 @@ function currentRow(plantOverride = null) {
 
 function validateSummary(rows) {
   const required = ['condition', 'fault_scenario', 'plant_model', 'success_rate', 'unsafe_touchdown_rate'];
-  if (!rows.length) throw new Error('summary.csv contains no rows.');
+  if (!Array.isArray(rows) || !rows.length) throw new Error('The result summary contains no rows.');
   const missing = required.filter(k => !(k in rows[0]));
-  if (missing.length) throw new Error(`summary.csv is missing: ${missing.join(', ')}`);
+  if (missing.length) throw new Error(`Result summary is missing: ${missing.join(', ')}`);
 }
 
 function setLoaded(fileName) {
@@ -129,6 +133,20 @@ function setLoaded(fileName) {
   const plants = unique('plant_model').length;
   els.analysisMode.textContent = `${conditions} conditions · ${faults} faults · ${plants} plants`;
   els.loadedSource.textContent = `${fileName} · ${state.summary.length} aggregate cells loaded`;
+  renderProvenance();
+}
+
+function renderProvenance() {
+  if (!state.metadata) {
+    els.provenanceMeta.textContent = 'CSV mode · no run metadata loaded.';
+    return;
+  }
+  const m = state.metadata;
+  const seed = m.episode_seed ?? 'unknown';
+  const role = String(m.run_role ?? 'unknown').replaceAll('_', ' ');
+  const count = m.episodes_per_condition_fault_plant ?? 'unknown';
+  const seedStatus = String(m.episode_seed_status ?? 'unknown').replaceAll('_', ' ');
+  els.provenanceMeta.textContent = `Run role: ${role} · episode seed ${seed} (${seedStatus}) · ${count} episodes per condition/fault/plant cell.`;
 }
 
 function initializeFilters() {
@@ -281,6 +299,24 @@ function render() {
   renderComparison();
   renderEvidence();
   renderMatrix();
+  renderProvenance();
+}
+
+async function loadBundle(file) {
+  try {
+    const payload = JSON.parse(await file.text());
+    if (payload.schema !== 'aegisland.phase7.dashboard-bundle.v1') {
+      throw new Error('Unsupported dashboard bundle schema.');
+    }
+    validateSummary(payload.summary);
+    state.summary = payload.summary;
+    state.paired = Array.isArray(payload.paired_plant_effects) ? payload.paired_plant_effects : [];
+    state.metadata = payload.metadata ?? null;
+    setLoaded(file.name);
+    initializeFilters();
+  } catch (error) {
+    alert(error.message || 'Could not load dashboard_bundle.json');
+  }
 }
 
 async function loadSummary(file) {
@@ -288,6 +324,7 @@ async function loadSummary(file) {
     const rows = parseCsv(await file.text());
     validateSummary(rows);
     state.summary = rows;
+    state.metadata = null;
     setLoaded(file.name);
     initializeFilters();
   } catch (error) {
@@ -322,6 +359,7 @@ function attachDropzone(zone, input, handler) {
   });
 }
 
+attachDropzone(els.bundleDropzone, els.bundleFile, loadBundle);
 attachDropzone(els.summaryDropzone, els.summaryFile, loadSummary);
 attachDropzone(els.pairedDropzone, els.pairedFile, loadPaired);
 [els.condition, els.fault, els.plant].forEach(select => select.addEventListener('change', render));
