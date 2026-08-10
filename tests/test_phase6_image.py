@@ -78,6 +78,26 @@ def test_temporal_pipeline_accepts_clean_sequence():
     assert abs(last.x - 0.55) < 0.55
 
 
+def test_temporal_pipeline_can_reacquire_after_consistent_innovation_burst():
+    renderer = Phase6LandingPadRenderer()
+    pipeline = CalibratedTemporalImagePipeline(_high_conf_calibrator())
+    rng = np.random.default_rng(808)
+
+    for _ in range(4):
+        _, diag = pipeline.update(renderer.render(0.2, 5.0, rng, "clean"))
+        assert diag.accepted
+
+    reacquired = False
+    abstained_before_reacquire = 0
+    for _ in range(5):
+        _, diag = pipeline.update(renderer.render(0.2, 2.0, rng, "clean"))
+        abstained_before_reacquire += int(diag.abstained and not reacquired)
+        reacquired = reacquired or diag.reacquired
+
+    assert abstained_before_reacquire >= 1
+    assert reacquired
+
+
 def test_default_synthetic_calibration_is_deterministic():
     a = fit_synthetic_calibrator(seed=1234, samples_per_condition=10)
     b = fit_synthetic_calibrator(seed=1234, samples_per_condition=10)
