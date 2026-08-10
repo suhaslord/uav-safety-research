@@ -11,6 +11,8 @@ from uav_safety.image_perception import IMAGE_CONDITIONS
 from uav_safety.image_temporal import Phase6LandingPadRenderer
 from uav_safety.selective_confidence_v2 import (
     SharpnessAwarePadEstimator,
+    altitude_observability_cap,
+    altitude_scale_bin_width_m,
     fit_component_calibrator,
 )
 
@@ -50,7 +52,10 @@ def run_frames(*, sequences: int, frames: int, seed: int, calibration_seed: int,
                     severity,
                 )
                 m = estimator.estimate(frame)
+                learned_px, learned_pz = calibrator.learned_probabilities(m)
                 px, pz = calibrator.probabilities(m)
+                z_cap = altitude_observability_cap(m, calibrator.tolerance_z_m)
+                z_bin_width = altitude_scale_bin_width_m(m)
                 x_error = abs(m.x_m - x_true) if m.valid else np.inf
                 z_error = abs(m.z_m - z_true) if m.valid else np.inf
                 rows.append({
@@ -60,6 +65,11 @@ def run_frames(*, sequences: int, frames: int, seed: int, calibration_seed: int,
                     "valid": bool(m.valid),
                     "p_x_good": px,
                     "p_z_good": pz,
+                    "learned_p_x_good": learned_px,
+                    "learned_p_z_good": learned_pz,
+                    "altitude_observability_cap": z_cap,
+                    "altitude_scale_bin_width_m": z_bin_width,
+                    "observability_cap_active": bool(pz + 1e-12 < learned_pz),
                     "joint_lower_bound": calibrator.joint_probability_lower_bound(m),
                     "x_good": bool(m.valid and x_error <= calibrator.tolerance_x_m),
                     "z_good": bool(m.valid and z_error <= calibrator.tolerance_z_m),
@@ -106,6 +116,9 @@ def calibration_summary(raw: pd.DataFrame) -> pd.DataFrame:
             "joint_good_rate": float(group["joint_good"].mean()),
             "mean_p_x_good": float(group["p_x_good"].mean()),
             "mean_p_z_good": float(group["p_z_good"].mean()),
+            "mean_learned_p_z_good": float(group["learned_p_z_good"].mean()),
+            "mean_altitude_observability_cap": float(group["altitude_observability_cap"].mean()),
+            "observability_cap_active_rate": float(group["observability_cap_active"].mean()),
             "x_ece": _ece(group, "p_x_good", "x_good"),
             "z_ece": _ece(group, "p_z_good", "z_good"),
             "mean_sharpness": float(group["sharpness_score"].mean()),
@@ -138,7 +151,7 @@ def risk_coverage(raw: pd.DataFrame) -> pd.DataFrame:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Evaluate Phase 6B sharpness-aware component confidence calibration.")
+    parser = argparse.ArgumentParser(description="Evaluate Phase 6B component confidence calibration and observability.")
     parser.add_argument("--sequences", type=int, default=20)
     parser.add_argument("--frames", type=int, default=100)
     parser.add_argument("--seed", type=int, default=656565)
@@ -166,7 +179,7 @@ def main():
     (args.out / "calibrator.json").write_text(json.dumps(calibrator.to_dict(), indent=2), encoding="utf-8")
     (args.out / "summary.md").write_text(
         "# Phase 6B component-confidence benchmark\n\n"
-        "Lateral and altitude reliability are calibrated separately. Risk/coverage is reported over fixed probability thresholds rather than choosing a threshold after seeing evaluation outcomes.\n\n"
+        "Lateral and altitude reliability are calibrated separately. Final altitude confidence is the learned probability capped by the synthetic renderer's scale observability. Risk/coverage is reported over fixed probability thresholds.\n\n"
         "## Calibration\n\n"
         + summary.to_markdown(index=False)
         + "\n\n## Risk / coverage\n\n"

@@ -3,6 +3,8 @@ import numpy as np
 from uav_safety.image_temporal import Phase6LandingPadRenderer
 from uav_safety.selective_confidence_v2 import (
     SharpnessAwarePadEstimator,
+    altitude_observability_cap,
+    altitude_scale_bin_width_m,
     fit_component_calibrator,
 )
 
@@ -40,3 +42,29 @@ def test_invalid_measurement_has_zero_component_confidence():
     m = estimator.estimate(np.zeros((96, 96), dtype=float))
     assert not m.valid
     assert cal.probabilities(m) == (0.0, 0.0)
+
+
+def test_scale_quantization_uncertainty_increases_at_high_altitude():
+    renderer = Phase6LandingPadRenderer()
+    estimator = SharpnessAwarePadEstimator()
+    low = estimator.estimate(renderer.render(0.0, 3.0, np.random.default_rng(11), "clean", 1.0))
+    high = estimator.estimate(renderer.render(0.0, 7.2, np.random.default_rng(12), "clean", 1.0))
+    assert low.valid and high.valid
+    assert altitude_scale_bin_width_m(high) > altitude_scale_bin_width_m(low)
+    assert altitude_observability_cap(high) < altitude_observability_cap(low)
+    assert altitude_observability_cap(high) < 0.80
+
+
+def test_reported_altitude_probability_respects_observability_cap():
+    calibrator = fit_component_calibrator(seed=535353, samples_per_condition=40)
+    renderer = Phase6LandingPadRenderer()
+    estimator = SharpnessAwarePadEstimator()
+    measurement = estimator.estimate(
+        renderer.render(0.1, 7.0, np.random.default_rng(77), "clean", 1.0)
+    )
+    learned_x, learned_z = calibrator.learned_probabilities(measurement)
+    px, pz = calibrator.probabilities(measurement)
+    cap = altitude_observability_cap(measurement, calibrator.tolerance_z_m)
+    assert np.isclose(px, learned_x)
+    assert pz <= learned_z + 1e-12
+    assert pz <= cap + 1e-12

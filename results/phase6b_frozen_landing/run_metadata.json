@@ -1,0 +1,36 @@
+{
+  "run_role": "frozen",
+  "episode_seed": 868686,
+  "calibration_seed": 616161,
+  "episodes_per_condition_architecture": 100,
+  "temporal_calibration_samples_per_condition": 180,
+  "component_calibration_samples_per_condition": 280,
+  "severity": 1.0,
+  "architectures": [
+    "image_temporal",
+    "image_aegis_v3",
+    "image_aegis_phase6b"
+  ],
+  "conditions": [
+    "clean",
+    "blur",
+    "low_light",
+    "occlusion",
+    "mixed"
+  ],
+  "paired_episode_seeds": true,
+  "phase6b_component_gate": {
+    "lateral_confidence_threshold": 0.8,
+    "altitude_confidence_threshold": 0.8,
+    "fresh_reference_weight": 0.86,
+    "stale_reference_weight": 0.66,
+    "max_stale_reference_age_steps": 14,
+    "unresolved_confidence_scale": 0.45,
+    "unresolved_sigma_floor": 1.1
+  },
+  "component_confidence": "learned component probabilities with simulation-specific altitude scale-observability cap",
+  "threshold_selection": "0.80/0.80 selected from predeclared Phase 6B development risk-coverage grid before Phase 6B landing runs",
+  "historical_phase6_frozen_landing_seed": 747474,
+  "historical_phase6_frozen_selective_seed": 757575,
+  "scope": "simulation-only synthetic image sequences"
+}

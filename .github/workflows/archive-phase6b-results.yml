@@ -1,0 +1,71 @@
+name: Archive Phase 6B Frozen Results
+
+on:
+  push:
+    paths:
+      - '.github/workflows/archive-phase6b-results.yml'
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  archive:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: phase6-image-aegis
+          fetch-depth: 0
+
+      - name: Download frozen Phase 6B artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          rm -rf /tmp/phase6b-landing /tmp/phase6b-selective
+          mkdir -p /tmp/phase6b-landing /tmp/phase6b-selective
+          gh run download 31355377934 --repo suhaslord/uav-safety-research --name phase6b-frozen-landing --dir /tmp/phase6b-landing
+          gh run download 31355377934 --repo suhaslord/uav-safety-research --name phase6b-frozen-selective --dir /tmp/phase6b-selective
+
+      - name: Copy and compress raw evidence
+        run: |
+          rm -rf results/phase6b_frozen_landing results/phase6b_frozen_selective
+          mkdir -p results/phase6b_frozen_landing results/phase6b_frozen_selective
+          cp -a /tmp/phase6b-landing/. results/phase6b_frozen_landing/
+          cp -a /tmp/phase6b-selective/. results/phase6b_frozen_selective/
+          gzip -9 results/phase6b_frozen_landing/episodes.csv
+          gzip -9 results/phase6b_frozen_selective/frames.csv
+          cat > results/phase6b_frozen_landing/ARTIFACT_PROVENANCE.md <<'EOF'
+          # Frozen Phase 6B landing artifact provenance
+
+          - GitHub Actions run: `31355377934`
+          - Artifact ID: `9051147608`
+          - Artifact SHA-256: `ca175ae7906e84fdf2dffe95d2e56ebc6fb5e2334ed94d8c7bbc479276d321bf`
+          - Frozen executable commit: `b4e9838555e935a5ec42690495315473629b58f6`
+          - Held-out landing seed: `868686`
+
+          `episodes.csv` was gzip-compressed after download; its rows were not modified.
+          EOF
+          cat > results/phase6b_frozen_selective/ARTIFACT_PROVENANCE.md <<'EOF'
+          # Frozen Phase 6B selective-perception artifact provenance
+
+          - GitHub Actions run: `31355377934`
+          - Artifact ID: `9050458293`
+          - Artifact SHA-256: `679a75e0d139c8cdb462d61c3bd8cf936d8234a45e10aa690ba301ae414e852c`
+          - Frozen executable commit: `b4e9838555e935a5ec42690495315473629b58f6`
+          - Held-out selective-perception seed: `878787`
+
+          `frames.csv` was gzip-compressed after download; its rows were not modified.
+          EOF
+
+      - name: Commit archived evidence
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add results/phase6b_frozen_landing results/phase6b_frozen_selective
+          if git diff --cached --quiet; then
+            echo 'Frozen results already archived.'
+            exit 0
+          fi
+          git commit -m 'Archive frozen Phase 6B held-out results'
+          git push origin HEAD:phase6-image-aegis

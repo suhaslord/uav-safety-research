@@ -1,0 +1,109 @@
+name: Phase 6B Frozen Evaluation
+
+on:
+  push:
+    paths:
+      - '.github/workflows/phase6b-frozen-evaluation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Full test suite
+        run: pytest -q
+      - name: Record frozen source commit
+        run: |
+          mkdir -p results/phase6b_freeze_metadata
+          printf '%s\n' "$GITHUB_SHA" > results/phase6b_freeze_metadata/git_sha.txt
+      - name: Upload freeze metadata
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase6b-freeze-metadata
+          path: results/phase6b_freeze_metadata
+          if-no-files-found: error
+          retention-days: 90
+
+  heldout-selective:
+    needs: preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Run preregistered held-out selective-perception audit
+        run: |
+          python scripts/run_phase6_component_calibration.py \
+            --sequences 20 \
+            --frames 100 \
+            --seed 878787 \
+            --calibration-seed 616161 \
+            --calibration-samples 280 \
+            --out results/phase6b_frozen_selective
+      - name: Record held-out selective metadata
+        run: |
+          printf '%s\n' "$GITHUB_SHA" > results/phase6b_frozen_selective/git_sha.txt
+          printf '%s\n' '878787' > results/phase6b_frozen_selective/heldout_seed.txt
+      - name: Upload held-out selective artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase6b-frozen-selective
+          path: results/phase6b_frozen_selective
+          if-no-files-found: error
+          retention-days: 90
+
+  heldout-landing:
+    needs: preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Run preregistered held-out paired landing study
+        run: |
+          python scripts/run_phase6b_landing.py \
+            --episodes 100 \
+            --seed 868686 \
+            --calibration-seed 616161 \
+            --temporal-calibration-samples 180 \
+            --component-calibration-samples 280 \
+            --lateral-threshold 0.80 \
+            --altitude-threshold 0.80 \
+            --run-role frozen \
+            --out results/phase6b_frozen_landing
+      - name: Decompose held-out touchdown failures
+        run: python scripts/analyze_phase6_failures.py --results results/phase6b_frozen_landing
+      - name: Record held-out landing metadata
+        run: |
+          printf '%s\n' "$GITHUB_SHA" > results/phase6b_frozen_landing/git_sha.txt
+          printf '%s\n' '868686' > results/phase6b_frozen_landing/heldout_seed.txt
+      - name: Upload held-out landing artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase6b-frozen-landing
+          path: results/phase6b_frozen_landing
+          if-no-files-found: error
+          retention-days: 90

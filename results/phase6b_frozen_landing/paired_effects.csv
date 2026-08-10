@@ -1,0 +1,16 @@
+condition,comparison,paired_episodes,candidate_minus_reference_success_pp,candidate_minus_reference_unsafe_pp,candidate_minus_reference_timeout_pp,reference_unsafe_rescued_to_candidate_success,reference_success_became_candidate_unsafe,reference_success_became_candidate_abort,reference_success_became_candidate_timeout,reference_abort_became_candidate_success
+blur,phase6_vs_image_temporal,100,0.0,0.0,0.0,0,0,0,0,0
+blur,phase6b_vs_image_temporal,100,0.0,0.0,0.0,0,0,0,0,0
+blur,phase6b_vs_phase6,100,0.0,0.0,0.0,0,0,0,0,0
+clean,phase6_vs_image_temporal,100,0.0,0.0,0.0,0,0,0,0,0
+clean,phase6b_vs_image_temporal,100,0.0,0.0,0.0,0,0,0,0,0
+clean,phase6b_vs_phase6,100,0.0,0.0,0.0,0,0,0,0,0
+low_light,phase6_vs_image_temporal,100,0.0,0.0,0.0,0,0,0,0,0
+low_light,phase6b_vs_image_temporal,100,-3.0000000000000027,0.0,3.0,0,0,0,3,0
+low_light,phase6b_vs_phase6,100,-3.0000000000000027,0.0,3.0,0,0,0,3,0
+mixed,phase6_vs_image_temporal,100,37.0,-37.0,0.0,39,2,0,0,0
+mixed,phase6b_vs_image_temporal,100,42.00000000000001,-42.0,0.0,43,1,0,0,0
+mixed,phase6b_vs_phase6,100,5.000000000000004,-5.0,0.0,6,1,0,0,0
+occlusion,phase6_vs_image_temporal,100,7.000000000000006,-7.000000000000001,0.0,11,4,0,0,0
+occlusion,phase6b_vs_image_temporal,100,9.999999999999998,-10.0,0.0,13,3,0,0,0
+occlusion,phase6b_vs_phase6,100,2.9999999999999916,-3.0000000000000004,0.0,6,3,0,0,0
