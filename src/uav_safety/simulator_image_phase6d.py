@@ -17,7 +17,7 @@ from .image_temporal import (
 from .phase6_fusion import Phase6FusionConfig
 from .phase6_velocity import RobustImageVelocityFilter, RobustVelocityConfig
 from .phase6b_fusion import Phase6BComponentGateConfig
-from .phase6d_fusion import Phase6CConsistencyConfig if False else Phase6DConsistencyConfig
+from .phase6d_fusion import Phase6DConsistencyConfig
 from .phase6d_fusion import Phase6DComponentFusionAdapter
 from .reference_estimator import IndependentReferenceEstimator, ReferenceEstimatorConfig
 from .selective_confidence_v2 import ComponentConfidenceCalibrator, SharpnessAwarePadEstimator
