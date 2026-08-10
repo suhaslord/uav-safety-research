@@ -102,7 +102,9 @@ def main() -> None:
         "paired_condition_criteria_pass": bool(pass_all),
         "clean_blur_alias_review_triggered": clean_blur_alias_review,
         "alias_review_rule": "manual review is required if hard-altitude-alias activation appears in more than 10% of clean or blur development episodes; this is an audit trigger, not a tuned landing threshold",
-        "reserved_unseen_seeds_remain_unrun": [868686, 878787],
+        "historical_seen_heldout_seeds_do_not_reuse": [868686, 878787],
+        "replacement_reserved_unseen_seeds_remain_unrun": [918271, 928271],
+        "integrity_note": "docs/research_integrity_recovery.md",
     }
 
     report.to_csv(args.results / "freeze_criteria.csv", index=False)
