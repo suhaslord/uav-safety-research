@@ -1,0 +1,37 @@
+name: Phase 6E Residual Confidence Diagnostic
+
+on:
+  push:
+    paths:
+      - '.github/workflows/phase6e-residual-diagnostic.yml'
+      - 'scripts/diagnose_phase6e_residual_occlusion.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  residual-diagnostic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Run static residual confidence diagnostic
+        run: |
+          python scripts/diagnose_phase6e_residual_occlusion.py \
+            --calibration-seed 616161 \
+            --out results/phase6e_residual_occlusion
+      - name: Upload residual diagnostic
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase6e-residual-occlusion
+          path: results/phase6e_residual_occlusion
+          if-no-files-found: error
+          retention-days: 45
