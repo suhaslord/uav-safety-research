@@ -15,6 +15,7 @@ from .image_temporal import (
     TemporalImageConfig,
 )
 from .phase6_fusion import Phase6FusionConfig, Phase6RedundantFusionAdapter
+from .phase6_velocity import RobustImageVelocityFilter, RobustVelocityConfig
 from .reference_estimator import IndependentReferenceEstimator, ReferenceEstimatorConfig
 from .simulator import _wind_sample
 from .supervisor_v3 import DecisionV3, RedundantSafetySupervisorV3, SupervisorV3Config
@@ -62,14 +63,16 @@ def run_image_episode(
     image_cfg: TemporalImageConfig | None = None,
     sup_cfg: SupervisorV3Config | None = None,
     phase6_fusion_cfg: Phase6FusionConfig | None = None,
+    velocity_cfg: RobustVelocityConfig | None = None,
     ref_cfg: ReferenceEstimatorConfig | None = None,
     return_trace: bool = False,
 ):
     """Run a landing episode whose primary perception comes from rendered pixels.
 
-    ``image_temporal`` uses only calibrated temporal image perception.
-    ``image_aegis_v3`` uses a Phase-6-only adapter around frozen V3 bias and
-    safety logic. Environment, image, and reference RNG streams are isolated.
+    ``image_temporal`` uses calibrated temporal image perception plus robust
+    image-derived lateral velocity. ``image_aegis_v3`` sends that exact same
+    observation through a Phase-6-only adapter around frozen V3 bias/safety logic.
+    Environment, image, and reference RNG streams are isolated.
     """
 
     if condition not in IMAGE_CONDITIONS:
@@ -83,6 +86,7 @@ def run_image_episode(
     ctrl_cfg = ctrl_cfg or ControllerConfig()
     image_cfg = image_cfg or TemporalImageConfig(dt=sim_cfg.dt)
     sup_cfg = sup_cfg or SupervisorV3Config(dt=sim_cfg.dt)
+    velocity_cfg = velocity_cfg or RobustVelocityConfig(dt=sim_cfg.dt)
 
     env_rng = np.random.default_rng(seed)
     image_rng = np.random.default_rng(np.random.SeedSequence([seed, 6006]))
@@ -97,6 +101,7 @@ def run_image_episode(
 
     renderer = Phase6LandingPadRenderer()
     image_pipeline = CalibratedTemporalImagePipeline(calibrator, image_cfg)
+    velocity_filter = RobustImageVelocityFilter(velocity_cfg)
     controller = LandingController(ctrl_cfg, sim_cfg)
 
     reference = None
@@ -131,6 +136,7 @@ def run_image_episode(
             severity=severity,
         )
         image_obs, diag = image_pipeline.update(frame)
+        image_obs, velocity_diag = velocity_filter.update(image_obs)
         frame_count += 1
         abstentions += int(diag.abstained)
         calibrated_confidences.append(diag.calibrated_confidence)
@@ -161,8 +167,8 @@ def run_image_episode(
                 outcome = "safe_abort"
                 if return_trace:
                     trace.append(_trace_row(
-                        t, pre_state, pre_state, image_obs, diag, fused, ref_obs,
-                        risk, decision_value,
+                        t, pre_state, pre_state, image_obs, diag, velocity_diag,
+                        fused, ref_obs, risk, decision_value,
                     ))
                 break
             if decision.decision == DecisionV3.HOLD:
@@ -178,8 +184,8 @@ def run_image_episode(
 
         if return_trace:
             trace.append(_trace_row(
-                t, pre_state, state, image_obs, diag, fused, ref_obs,
-                risk, decision_value,
+                t, pre_state, state, image_obs, diag, velocity_diag,
+                fused, ref_obs, risk, decision_value,
                 control_obs=control_obs,
             ))
 
@@ -224,6 +230,7 @@ def _trace_row(
     post_state,
     image_obs,
     diag,
+    velocity_diag,
     fused,
     ref_obs,
     risk,
@@ -256,6 +263,10 @@ def _trace_row(
         "reacquired": bool(diag.reacquired),
         "abstain_reason": diag.reason,
         "innovation_score": float(diag.innovation_score),
+        "robust_vx_target": float(velocity_diag.robust_vx),
+        "stabilized_vx": float(velocity_diag.stabilized_vx),
+        "velocity_slope_mad": float(velocity_diag.slope_mad),
+        "velocity_quality": float(velocity_diag.quality),
         "control_x": float(control_obs.x),
         "control_z": float(control_obs.z),
         "control_vx": float(control_obs.vx),
