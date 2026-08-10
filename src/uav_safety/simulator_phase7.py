@@ -29,6 +29,18 @@ from .supervisor_v3 import DecisionV3, RedundantSafetySupervisorV3, SupervisorV3
 PLANT_MODELS = ("legacy", "phase7")
 
 
+def _phase7_image_rng(seed: int, frame_index: int) -> np.random.Generator:
+    """Return deterministic camera randomness isolated to one frame.
+
+    The synthetic occlusion renderer can consume a state-dependent number of
+    random pixels. Deriving the RNG from ``(episode seed, frame index)`` prevents
+    a geometry difference on one plant from shifting camera noise on every later
+    frame of the paired plant comparison.
+    """
+
+    return np.random.default_rng(np.random.SeedSequence([seed, 6006, frame_index]))
+
+
 @dataclass
 class Phase7EpisodeResult:
     seed: int
@@ -140,7 +152,6 @@ def run_phase7_episode(
     velocity_cfg = velocity_cfg or RobustVelocityConfig(dt=sim_cfg.dt)
 
     env_rng = np.random.default_rng(seed)
-    image_rng = np.random.default_rng(np.random.SeedSequence([seed, 6006]))
     reference_rng = np.random.default_rng(np.random.SeedSequence([seed, 7007]))
     fault_rng = np.random.default_rng(np.random.SeedSequence([seed, 7070]))
     fault_effect_rng = np.random.default_rng(np.random.SeedSequence([seed, 7071]))
@@ -206,7 +217,7 @@ def run_phase7_episode(
         frame = renderer.render(
             x_offset_m=state.x,
             altitude_m=max(0.08, state.z),
-            rng=image_rng,
+            rng=_phase7_image_rng(seed, i),
             condition=condition,
             severity=severity,
         )
