@@ -37,22 +37,28 @@
         <div class="hero-stat">
           <span class="hero-stat-label">Analysis mode</span>
           <strong id="analysisMode">Waiting for data</strong>
-          <span id="loadedSource">Load a Phase 7 summary.csv to begin.</span>
+          <span id="loadedSource">Load dashboard_bundle.json or summary.csv to begin.</span>
         </div>
       </section>
 
       <section class="upload-grid">
+        <label class="dropzone panel primary-drop" id="bundleDropzone">
+          <input id="bundleFile" type="file" accept=".json,application/json" />
+          <span class="drop-icon">00</span>
+          <span class="drop-title">Load dashboard_bundle.json</span>
+          <span class="drop-subtitle">Recommended · summary + paired effects + metadata</span>
+        </label>
         <label class="dropzone panel" id="summaryDropzone">
           <input id="summaryFile" type="file" accept=".csv,text/csv" />
           <span class="drop-icon">01</span>
           <span class="drop-title">Load summary.csv</span>
-          <span class="drop-subtitle">Required · condition/fault/plant outcome table</span>
+          <span class="drop-subtitle">Fallback · condition/fault/plant outcome table</span>
         </label>
         <label class="dropzone panel" id="pairedDropzone">
           <input id="pairedFile" type="file" accept=".csv,text/csv" />
           <span class="drop-icon">02</span>
           <span class="drop-title">Load paired_plant_effects.csv</span>
-          <span class="drop-subtitle">Optional · paired legacy ↔ Phase 7 deltas</span>
+          <span class="drop-subtitle">Optional with CSV mode · paired plant deltas</span>
         </label>
       </section>
 
@@ -127,7 +133,7 @@
           <div class="eyebrow">EVIDENCE CHECK</div>
           <h2 id="evidenceTitle">No result selected</h2>
           <p id="evidenceText">
-            Load a summary bundle to inspect whether the failure is primarily associated with sensing/fault assumptions,
+            Load a result bundle to inspect whether the failure is primarily associated with sensing/fault assumptions,
             stronger dynamics, or both.
           </p>
         </article>
@@ -142,7 +148,7 @@
           <span id="matrixPlantLabel" class="status">No plant selected</span>
         </div>
         <div id="matrix" class="matrix empty-state">
-          Load summary.csv to render the condition × fault surface.
+          Load a Phase 7 result bundle to render the condition × fault surface.
         </div>
       </section>
 
@@ -150,6 +156,7 @@
         <div>
           <div class="eyebrow">PROVENANCE</div>
           <h2>Interpretation guardrails</h2>
+          <p class="provenance-meta" id="provenanceMeta">No run metadata loaded.</p>
         </div>
         <div class="guardrails">
           <p><strong>Do not:</strong> treat Phase 7 development numbers as a frozen claim.</p>
