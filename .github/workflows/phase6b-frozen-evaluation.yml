@@ -1,6 +1,9 @@
 name: Phase 6B Frozen Evaluation
 
 on:
+  push:
+    paths:
+      - '.github/workflows/phase6b-frozen-evaluation.yml'
   workflow_dispatch:
 
 permissions:
