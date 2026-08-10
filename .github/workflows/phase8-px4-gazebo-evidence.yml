@@ -64,7 +64,7 @@ jobs:
       - name: Run reproducible PX4/Gazebo mission
         run: |
           python scripts/run_px4_gazebo_mission.py \
-            --connection udp://:14540 \
+            --connection udpin://0.0.0.0:14540 \
             --metadata-out /tmp/phase8-evidence/px4_mission_metadata.json
 
       - name: Stop simulator and locate raw ULog
