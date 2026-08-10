@@ -4,6 +4,7 @@ from dataclasses import asdict
 from pathlib import Path
 import argparse
 import json
+import os
 
 import numpy as np
 import pandas as pd
@@ -165,8 +166,12 @@ def main() -> None:
     summary.to_csv(args.out / "summary.csv", index=False)
     plant_effects.to_csv(args.out / "paired_plant_effects.csv", index=False)
 
+    git_sha = os.environ.get("GITHUB_SHA", "unknown-local-worktree")
+    (args.out / "git_sha.txt").write_text(git_sha + "\n", encoding="utf-8")
+
     metadata = {
         "run_role": "development_external_validity_factorial",
+        "git_sha": git_sha,
         "episode_seed": args.seed,
         "episode_seed_status": "development_seen",
         "calibration_seed": args.calibration_seed,
@@ -192,6 +197,7 @@ def main() -> None:
     (args.out / "summary.md").write_text(
         "# Phase 7 external-validity development benchmark\n\n"
         "The same sensor/fault episode seeds are paired across the historical and stronger Phase 7 plant models so sensing/fault robustness can be separated from plant-model sensitivity. This is development evidence only.\n\n"
+        + f"Executable commit: `{git_sha}`\n\n"
         + summary.to_markdown(index=False)
         + "\n\n## Paired plant effects\n\n"
         + plant_effects.to_markdown(index=False)
@@ -216,12 +222,14 @@ def main() -> None:
             "episodes.csv",
             "summary.csv",
             "paired_plant_effects.csv",
+            "git_sha.txt",
             "run_metadata.json",
             "summary.md",
             "dashboard_bundle.json",
         ],
         schema="aegisland.phase7.result-bundle.v1",
         extra={
+            "git_sha": git_sha,
             "episode_seed": args.seed,
             "calibration_seed": args.calibration_seed,
             "run_role": "development_external_validity_factorial",
