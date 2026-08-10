@@ -48,6 +48,50 @@ Before any larger development matrix, Phase 6C was replayed on the three already
 
 This replay is diagnostic evidence only because all three episode seeds were already seen during development.
 
+## Full Phase 6C development matrix
+
+Phase 6C was then evaluated on the paired 30-episode-per-condition development matrix using episode seed family `626262` and calibration seed `616161`.
+
+- clean: 100% success, 0% unsafe;
+- blur: 100% success, 0% unsafe;
+- low light: 100% success, 0% unsafe, removing the Phase 6B timeout;
+- mixed: 100% success, 0% unsafe, removing the Phase 6B vertical-speed regression;
+- occlusion: 93.33% success and 6.67% unsafe, versus 96.67% success and 3.33% unsafe for original Phase 6 and Phase 6B.
+
+Therefore Phase 6C was **not frozen**. It solved the direct Phase 6B coupling problem but introduced one additional occlusion failure.
+
+The new occlusion regression occurred at already-seen development seed `1033307971`. Original Phase 6 and Phase 6B succeeded; Phase 6C touched down with vertical speed about `-0.856 m/s`, just beyond the `0.80 m/s` touchdown limit.
+
+## Occlusion trace finding
+
+A near-ground trace showed that the failure was not ordinary low-confidence altitude noise. The visual track abruptly aliased from roughly `0.2 m` altitude to a false `3–5 m` altitude while `p_z_good` remained near 0.97–1.00. The temporal derivative consequently clipped near `+1.2 m/s`, making the controller believe the simulated vehicle was ascending even though it was already descending near the ground.
+
+At the same time, the independent reference estimator remained near the true low-altitude regime. This created a large image/reference altitude contradiction that the component probability alone did not capture.
+
+## Phase 6D hypothesis
+
+Phase 6D tests whether **soft uncertainty and hard estimator contradiction should be handled separately**.
+
+The revision keeps all Phase 6C behavior unless a statistically large image/reference altitude disagreement occurs:
+
+- soft altitude uncertainty (`p_z_good < 0.80`) uses Phase 6C behavior: blend altitude position `z` only and preserve the established Phase 6 `vz`;
+- hard altitude contradiction uses a fixed 3-sigma consistency rule based on the combined image/reference positional uncertainty;
+- when the altitude disagreement exceeds 3 combined standard deviations and the reference is usable, both `z` and `vz` may use the existing Phase 6B fallback weight;
+- lateral behavior, component thresholds, controller, and frozen V3 supervisor remain unchanged.
+
+The 3-sigma rule was declared before the Phase 6D landing development matrix; it is not selected from Phase 6D outcome rates.
+
+## Phase 6D targeted replay
+
+Before the full matrix, Phase 6D was replayed on four already-seen development cases. The full test suite passed 64 tests.
+
+- Low-light seed `327915747`: remained a successful simulated landing.
+- Mixed seed `404641207`: remained a successful simulated landing.
+- Occlusion alias seed `1033307971`: recovered from the Phase 6C unsafe touchdown to success; the hard-altitude-alias rule fired on 9 frames.
+- Shared horizontal-speed failure seed `1488232361`: remained unsafe, as expected for an unrelated lateral failure mechanism.
+
+This targeted replay is diagnostic development evidence only and does not count as held-out validation.
+
 ## Freeze rule
 
-Phase 6C must first pass the full paired development matrix on development seed `626262`. No architecture or threshold may be selected based on the reserved held-out seeds. If Phase 6C is frozen, the held-out run must use the preregistered seeds exactly once and must be reported regardless of outcome.
+Phase 6D must first pass the full paired development matrix on development seed `626262`. No architecture or threshold may be selected based on the reserved held-out seeds. The reserved landing seed `868686` and selective-perception seed `878787` remain unused until a final architecture is frozen. Any eventual held-out result must be reported regardless of outcome.
