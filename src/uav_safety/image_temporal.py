@@ -51,9 +51,6 @@ class Phase6LandingPadRenderer(SyntheticLandingPadRenderer):
         y1 = min(n, int(round(center_y + half + 1)))
 
         if x0 < x1 and y0 < y1:
-            # Keep the interior near background intensity. If the entire square
-            # is filled brightly, a near-ground pad dominates the image histogram
-            # and adaptive thresholding loses the true outer extent.
             image[y0:y1, x0:x1] += 0.025
             border = max(1, half // 5)
             image[y0:y0 + border, x0:x1] += 0.72
@@ -94,6 +91,9 @@ class TemporalImageDiagnostics:
     selected_pixels: int
     bbox_width_px: int
     geometry_score: float
+    measured_x_m: float
+    measured_z_m: float
+    reacquired: bool = False
 
 
 @dataclass(frozen=True)
@@ -108,6 +108,12 @@ class TemporalImageConfig:
     min_component_pixels: int = 10
     min_bbox_width_px: int = 4
     max_sigma_pos: float = 2.2
+    history_window: int = 7
+    reacquire_streak: int = 3
+    reacquire_min_calibrated_confidence: float = 0.70
+    reacquire_min_geometry_score: float = 0.52
+    reacquire_max_x_step_m: float = 0.55
+    reacquire_max_z_step_m: float = 0.85
 
 
 class Phase6PadEstimator:
@@ -147,7 +153,6 @@ class Phase6PadEstimator:
         center = (n - 1) / 2
         x_m = -(centroid_x - center) / n * PHASE6_HORIZONTAL_SPAN_M
 
-        # Invert the Phase 6 renderer's scale: half ~= 35 / (z + 0.60).
         apparent_half = max(2.0, 0.5 * np.sqrt(max(1.0, width * height)))
         z_m = float(np.clip(35.0 / apparent_half - 0.60, 0.08, 8.0))
 
@@ -263,7 +268,7 @@ class EmpiricalConfidenceCalibrator:
 
 
 class CalibratedTemporalImagePipeline:
-    """Convert a synthetic image sequence into calibrated Aegis observations."""
+    """Convert image sequences into calibrated observations with abstention/reacquisition."""
 
     def __init__(
         self,
@@ -279,62 +284,97 @@ class CalibratedTemporalImagePipeline:
         )
         self._state: Observation | None = None
         self._accepted_frames = 0
+        self._time_s = 0.0
+        self._history: list[tuple[float, float, float]] = []
+        self._reacquire_candidates: list[tuple[float, FrameMeasurement]] = []
 
     def update(self, image: np.ndarray) -> tuple[Observation, TemporalImageDiagnostics]:
+        self._time_s += self.cfg.dt
         m = self.estimator.estimate(image)
         calibrated = self.calibrator.calibrate(m.raw_confidence) if m.valid else 0.0
 
         if not m.valid:
+            self._clear_reacquisition()
             return self._abstain(m, calibrated, 0.0, "no reliable landing-pad component")
 
         innovation = self._innovation(m)
         if m.raw_confidence < self.cfg.min_raw_confidence:
+            self._clear_reacquisition()
             return self._abstain(m, calibrated, innovation, "raw image quality below threshold")
         if calibrated < self.cfg.min_calibrated_confidence:
+            self._clear_reacquisition()
             return self._abstain(m, calibrated, innovation, "calibrated confidence below threshold")
-        # During acquisition, a marker can be clipped by the image boundary. Let
-        # a valid high-confidence component establish the first track; once the
-        # track exists, require stronger geometry consistency.
         if self._accepted_frames >= 2 and m.geometry_score < self.cfg.min_geometry_score:
+            self._clear_reacquisition()
             return self._abstain(m, calibrated, innovation, "landing-pad geometry inconsistent")
+
         if self._state is not None and innovation > self.cfg.max_innovation_score:
+            if self._update_reacquisition_candidate(m, calibrated):
+                return self._accept(m, calibrated, innovation, reacquired=True)
             return self._abstain(m, calibrated, innovation, "temporal innovation inconsistent with track")
 
+        self._clear_reacquisition()
+        return self._accept(m, calibrated, innovation, reacquired=False)
+
+    def _accept(
+        self,
+        m: FrameMeasurement,
+        calibrated: float,
+        innovation: float,
+        *,
+        reacquired: bool,
+    ) -> tuple[Observation, TemporalImageDiagnostics]:
         prev = self._state
         expected_x, expected_z = self.calibrator.expected_error(m.raw_confidence)
         sigma = float(np.clip(np.hypot(expected_x, expected_z), 0.05, self.cfg.max_sigma_pos))
 
-        if prev is None:
+        if reacquired:
+            candidate_history = [(t, cm.x_m, cm.z_m) for t, cm in self._reacquire_candidates]
+            self._history = candidate_history[-self.cfg.history_window:]
+            vx_hist, vz_hist = _fit_velocity(self._history)
             obs = Observation(
-                x=m.x_m,
-                z=m.z_m,
-                vx=0.0,
-                vz=0.0,
-                confidence=float(np.clip(calibrated * 0.80, 0.02, 0.99)),
+                x=float(m.x_m),
+                z=float(m.z_m),
+                vx=float(np.clip(vx_hist, -3.0, 3.0)),
+                vz=float(np.clip(vz_hist, -1.8, 1.2)),
+                confidence=float(np.clip(calibrated * 0.82, 0.02, 0.99)),
                 sigma_pos=sigma,
                 dropped=False,
             )
+            self._clear_reacquisition()
         else:
-            gain = float(np.clip(0.24 + 0.56 * calibrated, 0.28, 0.78))
-            x_pred = prev.x + prev.vx * self.cfg.dt
-            z_pred = max(0.0, prev.z + prev.vz * self.cfg.dt)
-            x = (1.0 - gain) * x_pred + gain * m.x_m
-            z = max(0.0, (1.0 - gain) * z_pred + gain * m.z_m)
+            self._history.append((self._time_s, m.x_m, m.z_m))
+            self._history = self._history[-self.cfg.history_window:]
+            vx_hist, vz_hist = _fit_velocity(self._history)
 
-            measured_vx = float(np.clip((x - prev.x) / self.cfg.dt, -4.0, 4.0))
-            measured_vz = float(np.clip((z - prev.z) / self.cfg.dt, -3.0, 3.0))
-            velocity_gain = float(np.clip(0.12 + 0.30 * calibrated, 0.14, 0.42))
-            vx = (1.0 - velocity_gain) * prev.vx + velocity_gain * measured_vx
-            vz = (1.0 - velocity_gain) * prev.vz + velocity_gain * measured_vz
+            if prev is None:
+                x = m.x_m
+                z = m.z_m
+                vx = vx_hist
+                vz = vz_hist
+                maturity = 0.55
+            else:
+                gain = float(np.clip(0.30 + 0.48 * calibrated, 0.34, 0.76))
+                x_pred = prev.x + prev.vx * self.cfg.dt
+                z_pred = max(0.0, prev.z + prev.vz * self.cfg.dt)
+                x = (1.0 - gain) * x_pred + gain * m.x_m
+                z = max(0.0, (1.0 - gain) * z_pred + gain * m.z_m)
+                velocity_gain = float(np.clip(0.20 + 0.30 * calibrated, 0.22, 0.46))
+                vx = (1.0 - velocity_gain) * prev.vx + velocity_gain * vx_hist
+                vz = (1.0 - velocity_gain) * prev.vz + velocity_gain * vz_hist
+                maturity = float(np.clip((self._accepted_frames + 1) / 5.0, 0.45, 1.0))
 
-            maturity = float(np.clip((self._accepted_frames + 1) / 5.0, 0.35, 1.0))
             obs = Observation(
                 x=float(x),
                 z=float(z),
-                vx=float(vx),
-                vz=float(vz),
+                vx=float(np.clip(vx, -3.0, 3.0)),
+                vz=float(np.clip(vz, -1.8, 1.2)),
                 confidence=float(np.clip(calibrated * maturity, 0.02, 0.99)),
-                sigma_pos=float(np.clip(0.55 * prev.sigma_pos + 0.45 * sigma, 0.05, self.cfg.max_sigma_pos)),
+                sigma_pos=float(np.clip(
+                    sigma if prev is None else 0.55 * prev.sigma_pos + 0.45 * sigma,
+                    0.05,
+                    self.cfg.max_sigma_pos,
+                )),
                 dropped=False,
             )
 
@@ -343,13 +383,16 @@ class CalibratedTemporalImagePipeline:
         return obs, TemporalImageDiagnostics(
             accepted=True,
             abstained=False,
-            reason="frame accepted",
+            reason="track reacquired" if reacquired else "frame accepted",
             raw_confidence=m.raw_confidence,
             calibrated_confidence=calibrated,
             innovation_score=innovation,
             selected_pixels=m.selected_pixels,
             bbox_width_px=m.bbox_width_px,
             geometry_score=m.geometry_score,
+            measured_x_m=m.x_m,
+            measured_z_m=m.z_m,
+            reacquired=reacquired,
         )
 
     def _innovation(self, m: FrameMeasurement) -> float:
@@ -361,6 +404,29 @@ class CalibratedTemporalImagePipeline:
             (m.x_m - pred_x) / self.cfg.x_innovation_scale_m,
             (m.z_m - pred_z) / self.cfg.z_innovation_scale_m,
         ))
+
+    def _update_reacquisition_candidate(self, m: FrameMeasurement, calibrated: float) -> bool:
+        if (
+            calibrated < self.cfg.reacquire_min_calibrated_confidence
+            or m.geometry_score < self.cfg.reacquire_min_geometry_score
+        ):
+            self._clear_reacquisition()
+            return False
+
+        if self._reacquire_candidates:
+            _, prev = self._reacquire_candidates[-1]
+            if (
+                abs(m.x_m - prev.x_m) > self.cfg.reacquire_max_x_step_m
+                or abs(m.z_m - prev.z_m) > self.cfg.reacquire_max_z_step_m
+            ):
+                self._reacquire_candidates = []
+
+        self._reacquire_candidates.append((self._time_s, m))
+        self._reacquire_candidates = self._reacquire_candidates[-self.cfg.reacquire_streak:]
+        return len(self._reacquire_candidates) >= self.cfg.reacquire_streak
+
+    def _clear_reacquisition(self) -> None:
+        self._reacquire_candidates = []
 
     def _abstain(
         self,
@@ -384,10 +450,10 @@ class CalibratedTemporalImagePipeline:
             obs = Observation(
                 x=float(prev.x + prev.vx * self.cfg.dt),
                 z=float(max(0.0, prev.z + prev.vz * self.cfg.dt)),
-                vx=float(prev.vx),
-                vz=float(prev.vz),
-                confidence=float(max(0.02, prev.confidence * 0.72)),
-                sigma_pos=float(min(self.cfg.max_sigma_pos, prev.sigma_pos * 1.22 + 0.03)),
+                vx=float(prev.vx * 0.98),
+                vz=float(prev.vz * 0.98),
+                confidence=float(max(0.02, prev.confidence * 0.76)),
+                sigma_pos=float(min(self.cfg.max_sigma_pos, prev.sigma_pos * 1.18 + 0.03)),
                 dropped=True,
             )
         self._state = obs
@@ -401,6 +467,9 @@ class CalibratedTemporalImagePipeline:
             selected_pixels=m.selected_pixels,
             bbox_width_px=m.bbox_width_px,
             geometry_score=m.geometry_score,
+            measured_x_m=m.x_m,
+            measured_z_m=m.z_m,
+            reacquired=False,
         )
 
 
@@ -443,6 +512,20 @@ def fit_synthetic_calibrator(
                 zerr.append(abs(m.z_m - z_true))
 
     return EmpiricalConfidenceCalibrator.fit(conf, xerr, zerr)
+
+
+def _fit_velocity(history: list[tuple[float, float, float]]) -> tuple[float, float]:
+    if len(history) < 2:
+        return 0.0, 0.0
+    arr = np.asarray(history, dtype=float)
+    t = arr[:, 0]
+    t = t - t.mean()
+    denom = float(np.dot(t, t))
+    if denom < 1e-8:
+        return 0.0, 0.0
+    vx = float(np.dot(t, arr[:, 1] - arr[:, 1].mean()) / denom)
+    vz = float(np.dot(t, arr[:, 2] - arr[:, 2].mean()) / denom)
+    return vx, vz
 
 
 def _largest_component(mask: np.ndarray) -> list[tuple[int, int]]:
