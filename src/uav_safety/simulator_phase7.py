@@ -46,6 +46,7 @@ class Phase7EpisodeResult:
     final_vz: float
     frames: int
     fault_active_frames: int
+    image_drop_rate: float
     reference_available_rate: float
     reference_delivery_rate: float
     gnss_fresh_rate: float
@@ -170,6 +171,7 @@ def run_phase7_episode(
     )
 
     fault_active_frames = 0
+    image_dropped_frames = 0
     reference_available = 0
     reference_deliveries = 0
     gnss_fresh = 0
@@ -204,9 +206,17 @@ def run_phase7_episode(
         image_obs, _ = image_pipeline.update(frame)
         image_obs, _ = velocity_filter.update(image_obs)
         image_obs = _apply_vision_fault(image_obs, fault, fault_effect_rng)
+        image_dropped_frames += int(image_obs.dropped)
 
         component_measurement = component_estimator.estimate(frame)
         p_x_good, p_z_good = component_calibrator.probabilities(component_measurement)
+        if image_obs.dropped:
+            # A dropped image stream cannot simultaneously provide trustworthy
+            # component evidence. This makes the Phase 7 shared-dropout stress
+            # case an actual image-unavailability condition rather than merely a
+            # confidence penalty attached to still-visible image geometry.
+            p_x_good = 0.0
+            p_z_good = 0.0
 
         ref_obs, ref_diag = reference.observe(state, fault)
         reference_available += int(ref_obs.available)
@@ -291,6 +301,7 @@ def run_phase7_episode(
         final_vz=float(state.vz),
         frames=int(frames),
         fault_active_frames=int(fault_active_frames),
+        image_drop_rate=float(image_dropped_frames / max(1, frames)),
         reference_available_rate=float(reference_available / max(1, frames)),
         reference_delivery_rate=float(reference_deliveries / max(1, frames)),
         gnss_fresh_rate=float(gnss_fresh / max(1, frames)),
