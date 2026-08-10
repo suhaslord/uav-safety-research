@@ -75,6 +75,34 @@ def test_delayed_sensor_acquisition_is_fresh_when_delivered():
     assert all(o.age_steps >= cfg.base_latency_steps for o in delivered)
 
 
+def test_latency_diagnostic_reports_delay_applied_at_delivery():
+    cfg = Phase7SensorStackConfig(
+        gnss_update_every_steps=1,
+        baro_update_every_steps=1,
+        range_update_every_steps=1,
+        base_latency_steps=1,
+        gnss_dropout_prob=0.0,
+        baro_dropout_prob=0.0,
+        range_dropout_prob=0.0,
+    )
+    est = Phase7SensorStackReferenceEstimator(np.random.default_rng(35), 0.05, cfg)
+    state = State(x=0.5, z=2.0, vx=0.0, vz=-0.2)
+    neutral = FaultState(active=False, scenario=FaultScenario.INDEPENDENT)
+    burst = FaultState(
+        active=True,
+        scenario=FaultScenario.LATENCY_BURST,
+        reference_latency_extra_steps=3,
+    )
+
+    for _ in range(6):
+        est.observe(state, neutral)
+    observation, diagnostics = est.observe(state, burst)
+
+    assert observation.available
+    assert diagnostics.applied_latency_steps == 4
+    assert observation.age_steps >= 4
+
+
 def test_phase7_dynamics_has_actuator_lag():
     sim = SimConfig(dt=0.05)
     state = State(x=0.0, z=5.0, vx=0.0, vz=0.0)
