@@ -142,10 +142,10 @@ select:disabled, .button:disabled { opacity: .42; cursor: not-allowed; }
 .metric { padding: 22px; min-height: 150px; display: flex; flex-direction: column; justify-content: space-between; }
 .metric-label { color: var(--muted); font-size: 12px; font-weight: 700; }
 .metric strong { font-size: clamp(30px, 4vw, 52px); letter-spacing: -.055em; }
-.metric-note { color: var(--soft); font-size: 11px; }
+.metric-note { color: var(--soft); font-size: 11px; line-height: 1.45; }
 .danger-card strong { color: #ffd0d3; }
 
-.comparison-card, .evidence-card, .matrix-panel, .provenance-panel { margin-top: 14px; padding: 24px; }
+.comparison-card, .evidence-card, .matrix-panel, .ranking-panel, .provenance-panel { margin-top: 14px; padding: 24px; }
 .section-heading { display: flex; align-items: start; justify-content: space-between; gap: 16px; }
 h2 { margin: 6px 0 0; font-size: 20px; letter-spacing: -.025em; }
 .plant-columns { display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px; align-items: stretch; margin-top: 22px; }
@@ -166,6 +166,16 @@ h2 { margin: 6px 0 0; font-size: 20px; letter-spacing: -.025em; }
 .matrix-table td:hover { transform: translateY(-1px); border-color: var(--line-strong); }
 .empty-state { color: var(--muted); padding: 34px 0 14px; }
 
+.weakness-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 20px; }
+.weakness-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px; align-items: center; padding: 16px; border: 1px solid var(--line); border-radius: 16px; background: rgba(255,255,255,.02); cursor: pointer; transition: transform .12s ease, border-color .12s ease, background .12s ease; }
+.weakness-row:hover { transform: translateY(-1px); border-color: var(--line-strong); background: rgba(255,255,255,.035); }
+.weakness-label { display: grid; gap: 5px; min-width: 0; }
+.weakness-label strong { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.weakness-label span { color: var(--muted); font-size: 11px; }
+.weakness-rate { text-align: right; display: grid; gap: 4px; }
+.weakness-rate strong { color: #ffd0d3; font-size: 22px; letter-spacing: -.035em; }
+.weakness-rate span { color: var(--soft); font-size: 10px; white-space: nowrap; }
+
 .provenance-panel { display: grid; grid-template-columns: .65fr 1.35fr; gap: 30px; align-items: start; }
 .provenance-meta { margin: 10px 0 0; max-width: 420px; color: var(--muted); font-size: 12px; line-height: 1.55; }
 .guardrails { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
@@ -181,6 +191,10 @@ h2 { margin: 6px 0 0; font-size: 20px; letter-spacing: -.025em; }
   .metric-grid { grid-template-columns: repeat(2, 1fr); }
   .controls { grid-template-columns: 1fr 1fr; }
   .guardrails { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 760px) {
+  .weakness-list { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 640px) {
