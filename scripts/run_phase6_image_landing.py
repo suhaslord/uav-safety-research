@@ -10,6 +10,7 @@ import pandas as pd
 
 from uav_safety.image_perception import IMAGE_CONDITIONS
 from uav_safety.image_temporal import Phase6LandingPadRenderer, Phase6PadEstimator, fit_synthetic_calibrator
+from uav_safety.metrics import wilson_interval
 from uav_safety.simulator_image_v3 import run_image_episode
 
 
@@ -53,13 +54,26 @@ def run_comparison(
 def summarize(raw: pd.DataFrame) -> pd.DataFrame:
     rows: list[dict] = []
     for (condition, architecture), group in raw.groupby(["condition", "architecture"], sort=True):
+        n = len(group)
+        success_n = int(group["success"].sum())
+        unsafe_n = int(group["unsafe_touchdown"].sum())
+        abort_n = int(group["aborted"].sum())
+        success_ci = wilson_interval(success_n, n)
+        unsafe_ci = wilson_interval(unsafe_n, n)
+        abort_ci = wilson_interval(abort_n, n)
         rows.append({
             "condition": condition,
             "architecture": architecture,
-            "episodes": len(group),
-            "success_rate": float(group["success"].mean()),
-            "unsafe_touchdown_rate": float(group["unsafe_touchdown"].mean()),
-            "abort_rate": float(group["aborted"].mean()),
+            "episodes": n,
+            "success_rate": success_n / n,
+            "success_ci_low": success_ci[0],
+            "success_ci_high": success_ci[1],
+            "unsafe_touchdown_rate": unsafe_n / n,
+            "unsafe_ci_low": unsafe_ci[0],
+            "unsafe_ci_high": unsafe_ci[1],
+            "abort_rate": abort_n / n,
+            "abort_ci_low": abort_ci[0],
+            "abort_ci_high": abort_ci[1],
             "timeout_rate": float((group["outcome"] == "timeout").mean()),
             "mean_image_abstention_rate": float(group["image_abstention_rate"].mean()),
             "mean_calibrated_confidence": float(group["mean_calibrated_confidence"].mean()),
@@ -86,6 +100,8 @@ def paired_effects(raw: pd.DataFrame) -> pd.DataFrame:
             "aegis_minus_temporal_unsafe_pp": 100 * float(aegis["unsafe_touchdown"].mean() - temporal["unsafe_touchdown"].mean()),
             "temporal_unsafe_rescued_to_aegis_success": int((temporal["unsafe_touchdown"] & aegis["success"]).sum()),
             "temporal_success_became_aegis_unsafe": int((temporal["success"] & aegis["unsafe_touchdown"]).sum()),
+            "temporal_abort_became_aegis_success": int((temporal["aborted"] & aegis["success"]).sum()),
+            "temporal_success_became_aegis_abort": int((temporal["success"] & aegis["aborted"]).sum()),
         })
     return pd.DataFrame(rows)
 
@@ -98,7 +114,7 @@ def calibration_audit(calibrator, *, seed: int, samples_per_condition: int = 120
 
     for condition in IMAGE_CONDITIONS:
         for _ in range(samples_per_condition):
-            x_true = float(rng.uniform(-2.1, 2.1))
+            x_true = float(rng.uniform(-2.8, 2.8))
             z_true = float(rng.uniform(0.25, 5.3))
             severity = float(rng.uniform(0.75, 1.35))
             frame_seed = int(rng.integers(0, 2**31 - 1))
@@ -111,7 +127,7 @@ def calibration_audit(calibrator, *, seed: int, samples_per_condition: int = 120
             )
             m = estimator.estimate(image)
             calibrated = calibrator.calibrate(m.raw_confidence) if m.valid else 0.0
-            xerr = abs(m.x_m - x_true) if m.valid else 3.0
+            xerr = abs(m.x_m - x_true) if m.valid else 4.0
             zerr = abs(m.z_m - z_true) if m.valid else 4.0
             good = bool(m.valid and xerr <= calibrator.tolerance_x_m and zerr <= calibrator.tolerance_z_m)
             rows.append({
@@ -144,12 +160,20 @@ def calibration_audit(calibrator, *, seed: int, samples_per_condition: int = 120
     return reliability
 
 
+def expected_calibration_error(reliability: pd.DataFrame) -> float:
+    if reliability.empty or int(reliability["samples"].sum()) == 0:
+        return float("nan")
+    weights = reliability["samples"] / reliability["samples"].sum()
+    return float((weights * reliability["absolute_calibration_gap"]).sum())
+
+
 def save_results(raw, summary, paired, reliability, calibrator, out: Path, args) -> None:
     out.mkdir(parents=True, exist_ok=True)
     raw.to_csv(out / "episodes.csv", index=False)
     summary.to_csv(out / "summary.csv", index=False)
     paired.to_csv(out / "paired_effects.csv", index=False)
     reliability.to_csv(out / "calibration_reliability.csv", index=False)
+    ece = expected_calibration_error(reliability)
     (out / "calibrator.json").write_text(json.dumps(calibrator.to_dict(), indent=2), encoding="utf-8")
     (out / "run_metadata.json").write_text(json.dumps({
         "evaluation_seed": args.seed,
@@ -162,6 +186,8 @@ def save_results(raw, summary, paired, reliability, calibrator, out: Path, args)
         "paired_episode_seeds": True,
         "image_rng_isolated": True,
         "reference_rng_isolated": True,
+        "confidence_intervals": "95% Wilson intervals for success/unsafe/abort rates",
+        "calibration_ece": ece,
         "renderer": "phase6 perspective synthetic landing-pad renderer",
         "scope": "simulation-only synthetic image sequences",
     }, indent=2), encoding="utf-8")
@@ -169,8 +195,9 @@ def save_results(raw, summary, paired, reliability, calibrator, out: Path, args)
     (out / "summary.md").write_text(
         "# Phase 6: pixel-sequence landing comparison\n\n"
         "The calibration set and evaluation episode seeds are separate. Runtime "
-        "Aegis receives image-derived observations plus the same intentionally "
-        "imperfect independent reference estimator used by V3.\n\n"
+        "Aegis receives image-derived observations plus the intentionally imperfect "
+        "independent reference estimator used by V3.\n\n"
+        f"Calibration expected calibration error (ECE): **{ece:.4f}**.\n\n"
         + summary.to_markdown(index=False)
         + "\n\n## Paired effects\n\n"
         + paired.to_markdown(index=False)
@@ -228,7 +255,8 @@ def main() -> None:
     print(paired.to_string(index=False))
     print("\nCalibration reliability:")
     print(reliability.to_string(index=False))
-    print(f"\nSaved Phase 6 results to {args.out.resolve()}")
+    print(f"\nCalibration ECE: {expected_calibration_error(reliability):.4f}")
+    print(f"Saved Phase 6 results to {args.out.resolve()}")
 
 
 if __name__ == "__main__":
