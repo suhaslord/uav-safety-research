@@ -39,6 +39,22 @@ def test_external_trace_schema_accepts_valid_simulator_log():
     assert report.rows == 4
     assert report.duration_s == pytest.approx(0.15)
     assert report.reference_available_rate == pytest.approx(1.0)
+    assert report.image_lateral_mae_m == pytest.approx(0.02)
+    assert report.reference_lateral_mae_m == pytest.approx(0.01)
+    assert report.mean_abs_lateral_disagreement_m == pytest.approx(0.03)
+    assert report.paired_lateral_samples == 4
+    assert report.lateral_error_correlation is None
+
+
+def test_external_trace_reports_common_mode_error_correlation():
+    frame = valid_trace()
+    truth = frame["truth_x_m"]
+    errors = pd.Series([0.01, 0.04, -0.02, 0.08])
+    frame["image_x_m"] = truth + errors
+    frame["reference_x_m"] = truth + 0.8 * errors
+
+    _, report = validate_external_trace(frame)
+    assert report.lateral_error_correlation == pytest.approx(1.0)
 
 
 def test_external_trace_rejects_nonmonotonic_time():
