@@ -1,0 +1,38 @@
+name: Phase 6G Known-Case Development Replay
+
+on:
+  push:
+    paths:
+      - '.github/workflows/phase6g-known-cases.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  known-cases:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Full test suite
+        run: pytest -q
+      - name: Replay already-seen Phase 6G development cases
+        run: |
+          python scripts/diagnose_phase6g_known_cases.py \
+            --calibration-seed 616161 \
+            --out results/phase6g_known_cases
+      - name: Upload Phase 6G diagnostic
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase6g-known-cases
+          path: results/phase6g_known_cases
+          if-no-files-found: error
+          retention-days: 60
