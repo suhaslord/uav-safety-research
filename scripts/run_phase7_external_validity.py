@@ -14,7 +14,7 @@ from uav_safety.metrics import wilson_interval
 from uav_safety.phase7_faults import FaultScenario
 from uav_safety.phase7_reference import Phase7SensorStackConfig
 from uav_safety.selective_confidence_v2 import fit_component_calibrator
-from uav_safety.simulator_phase7 import run_phase7_episode
+from uav_safety.simulator_phase7 import PLANT_MODELS, run_phase7_episode
 
 
 DEFAULT_CONDITIONS = ("clean", "low_light", "occlusion", "mixed")
@@ -28,7 +28,8 @@ def _episode_seeds(seed: int, condition_index: int, fault_index: int, episodes: 
 
 def summarize(raw: pd.DataFrame) -> pd.DataFrame:
     rows: list[dict] = []
-    for (condition, fault), group in raw.groupby(["condition", "fault_scenario"], sort=True):
+    grouped = raw.groupby(["condition", "fault_scenario", "plant_model"], sort=True)
+    for (condition, fault, plant_model), group in grouped:
         n = len(group)
         success_n = int(group["success"].sum())
         unsafe_n = int(group["unsafe_touchdown"].sum())
@@ -41,6 +42,7 @@ def summarize(raw: pd.DataFrame) -> pd.DataFrame:
         rows.append({
             "condition": condition,
             "fault_scenario": fault,
+            "plant_model": plant_model,
             "episodes": n,
             "success_rate": success_n / n,
             "success_ci_low": success_ci[0],
@@ -68,11 +70,37 @@ def summarize(raw: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+def paired_plant_effects(raw: pd.DataFrame) -> pd.DataFrame:
+    """Summarize paired outcome changes caused only by the stronger plant."""
+    rows: list[dict] = []
+    if set(raw["plant_model"].unique()) != {"legacy", "phase7"}:
+        return pd.DataFrame(rows)
+
+    for (condition, fault), group in raw.groupby(["condition", "fault_scenario"], sort=True):
+        legacy = group[group["plant_model"] == "legacy"].set_index("seed")
+        stronger = group[group["plant_model"] == "phase7"].set_index("seed")
+        common = legacy.index.intersection(stronger.index)
+        if len(common) == 0:
+            continue
+        legacy = legacy.loc[common]
+        stronger = stronger.loc[common]
+        rows.append({
+            "condition": condition,
+            "fault_scenario": fault,
+            "paired_episodes": int(len(common)),
+            "phase7_minus_legacy_success_pp": float(100.0 * (stronger["success"].mean() - legacy["success"].mean())),
+            "phase7_minus_legacy_unsafe_pp": float(100.0 * (stronger["unsafe_touchdown"].mean() - legacy["unsafe_touchdown"].mean())),
+            "legacy_success_became_phase7_failure": int((legacy["success"] & ~stronger["success"]).sum()),
+            "legacy_unsafe_became_phase7_success": int((legacy["unsafe_touchdown"] & stronger["success"]).sum()),
+        })
+    return pd.DataFrame(rows)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Run Phase 7 simulation-only external-validity stress tests."
     )
-    parser.add_argument("--episodes", type=int, default=10)
+    parser.add_argument("--episodes", type=int, default=5)
     parser.add_argument("--seed", type=int, default=979797)
     parser.add_argument("--calibration-seed", type=int, default=616161)
     parser.add_argument("--temporal-calibration-samples", type=int, default=180)
@@ -80,6 +108,7 @@ def main() -> None:
     parser.add_argument("--severity", type=float, default=1.0)
     parser.add_argument("--conditions", nargs="+", default=list(DEFAULT_CONDITIONS))
     parser.add_argument("--faults", nargs="+", default=list(DEFAULT_FAULTS))
+    parser.add_argument("--plants", nargs="+", default=list(PLANT_MODELS))
     parser.add_argument("--out", type=Path, default=Path("results/phase7_development"))
     args = parser.parse_args()
 
@@ -93,6 +122,10 @@ def main() -> None:
     if unknown_conditions:
         raise ValueError(f"unknown conditions: {sorted(unknown_conditions)}")
     faults = tuple(FaultScenario(value) for value in args.faults)
+    plants = tuple(args.plants)
+    unknown_plants = set(plants) - set(PLANT_MODELS)
+    if unknown_plants:
+        raise ValueError(f"unknown plant models: {sorted(unknown_plants)}")
 
     temporal_calibrator = fit_synthetic_calibrator(
         seed=args.calibration_seed,
@@ -106,47 +139,59 @@ def main() -> None:
     rows: list[dict] = []
     for condition_index, condition in enumerate(conditions):
         for fault_index, fault in enumerate(faults):
-            for episode_seed in _episode_seeds(args.seed, condition_index, fault_index, args.episodes):
-                result = run_phase7_episode(
-                    episode_seed,
-                    condition,
-                    temporal_calibrator,
-                    component_calibrator,
-                    fault_scenario=fault,
-                    severity=args.severity,
-                )
-                rows.append(result.to_dict())
+            episode_seeds = _episode_seeds(args.seed, condition_index, fault_index, args.episodes)
+            for episode_seed in episode_seeds:
+                for plant_model in plants:
+                    result = run_phase7_episode(
+                        episode_seed,
+                        condition,
+                        temporal_calibrator,
+                        component_calibrator,
+                        fault_scenario=fault,
+                        plant_model=plant_model,
+                        severity=args.severity,
+                    )
+                    rows.append(result.to_dict())
 
     raw = pd.DataFrame(rows)
     summary = summarize(raw)
+    plant_effects = paired_plant_effects(raw)
     args.out.mkdir(parents=True, exist_ok=True)
     raw.to_csv(args.out / "episodes.csv", index=False)
     summary.to_csv(args.out / "summary.csv", index=False)
+    plant_effects.to_csv(args.out / "paired_plant_effects.csv", index=False)
     (args.out / "run_metadata.json").write_text(
         json.dumps({
-            "run_role": "development_external_validity",
+            "run_role": "development_external_validity_factorial",
             "episode_seed": args.seed,
             "calibration_seed": args.calibration_seed,
-            "episodes_per_condition_fault": args.episodes,
+            "episodes_per_condition_fault_plant": args.episodes,
             "conditions": list(conditions),
             "fault_scenarios": [f.value for f in faults],
+            "plant_models": list(plants),
+            "paired_plant_episode_seeds": True,
             "severity": args.severity,
             "sensor_stack": asdict(Phase7SensorStackConfig()),
             "historical_phase6b_frozen_commit": "b4e9838555e935a5ec42690495315473629b58f6",
             "scope": "simulation-only external-validity stress study; not physical-flight validation",
-            "interpretation": "Phase 7 intentionally changes the sensing and plant assumptions, so direct percentage comparisons to frozen Phase 6B are distribution-shift diagnostics rather than a rerun of the frozen experiment.",
+            "interpretation": "The legacy-vs-Phase7 plant pairing isolates plant-model sensitivity while holding the new sensing/fault assumptions and episode seed fixed. This remains development evidence and does not overwrite frozen Phase 6B.",
         }, indent=2),
         encoding="utf-8",
     )
     (args.out / "summary.md").write_text(
         "# Phase 7 external-validity development benchmark\n\n"
-        "This benchmark changes the simulated sensing and plant assumptions. It does not overwrite the frozen Phase 6B result.\n\n"
+        "The same sensor/fault episode seeds are paired across the historical and stronger Phase 7 plant models so sensing/fault robustness can be separated from plant-model sensitivity. This is development evidence only.\n\n"
         + summary.to_markdown(index=False)
+        + "\n\n## Paired plant effects\n\n"
+        + plant_effects.to_markdown(index=False)
         + "\n",
         encoding="utf-8",
     )
 
     print(summary.to_string(index=False))
+    if not plant_effects.empty:
+        print("\nPaired plant effects:\n")
+        print(plant_effects.to_string(index=False))
     print(f"\nSaved Phase 7 development benchmark to {args.out.resolve()}")
 
 
