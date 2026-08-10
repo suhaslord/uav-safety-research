@@ -28,7 +28,7 @@ jobs:
       - name: Unit tests
         run: pytest -q
 
-      - name: Run paired Phase 6 velocity-hardened development study
+      - name: Run paired Phase 6 integrity-gated development study
         run: |
           python scripts/run_phase6_image_landing.py \
             --episodes 30 \
@@ -36,15 +36,27 @@ jobs:
             --calibration-seed 616161 \
             --calibration-samples 180 \
             --severity 1.0 \
-            --out results/phase6_development_velocity
+            --out results/phase6_development_integrity
 
       - name: Decompose unsafe touchdowns
-        run: python scripts/analyze_phase6_failures.py --results results/phase6_development_velocity
+        run: python scripts/analyze_phase6_failures.py --results results/phase6_development_integrity
 
-      - name: Upload Phase 6 velocity-hardened development artifact
+      - name: Run selective-perception development study
+        run: |
+          python scripts/run_phase6_selective_perception.py \
+            --sequences 20 \
+            --frames 100 \
+            --seed 636363 \
+            --calibration-seed 616161 \
+            --calibration-samples 180 \
+            --out results/phase6_selective_development
+
+      - name: Upload Phase 6 development artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: phase6-development-velocity-results
-          path: results/phase6_development_velocity
+          name: phase6-development-integrity-results
+          path: |
+            results/phase6_development_integrity
+            results/phase6_selective_development
           if-no-files-found: error
           retention-days: 30
