@@ -22,10 +22,13 @@ async def wait_for_connection(drone: System, timeout_s: float) -> None:
 async def wait_for_health(drone: System, timeout_s: float) -> None:
     deadline = time.monotonic() + timeout_s
     async for health in drone.telemetry.health():
-        if health.is_global_position_ok and health.is_home_position_ok:
+        # gz_x500_vision is intentionally a local/vision-oriented SITL vehicle.
+        # This mission commands only local NED setpoints, so requiring global GPS
+        # or a global home fix would add an unrelated readiness dependency.
+        if health.is_local_position_ok:
             return
         if time.monotonic() > deadline:
-            raise TimeoutError("PX4 estimator/home did not become ready")
+            raise TimeoutError("PX4 local-position estimator did not become ready")
 
 
 async def hold(drone: System, north: float, east: float, down: float, seconds: float) -> None:
@@ -42,6 +45,7 @@ async def mission(connection: str, metadata_out: Path) -> None:
     metadata = {
         "mission": "phase8_px4_gazebo_lateral_descent_v1",
         "connection": connection,
+        "readiness_requirement": "local_position_ok",
         "segments": [],
     }
 
