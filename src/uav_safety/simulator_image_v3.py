@@ -14,9 +14,10 @@ from .image_temporal import (
     Phase6LandingPadRenderer,
     TemporalImageConfig,
 )
+from .phase6_fusion import Phase6FusionConfig, Phase6RedundantFusionAdapter
 from .reference_estimator import IndependentReferenceEstimator, ReferenceEstimatorConfig
 from .simulator import _wind_sample
-from .supervisor_v3 import DecisionV3, RedundantSafetySupervisorV3, RedundantStateFusion, SupervisorV3Config
+from .supervisor_v3 import DecisionV3, RedundantSafetySupervisorV3, SupervisorV3Config
 
 
 @dataclass
@@ -60,14 +61,15 @@ def run_image_episode(
     ctrl_cfg: ControllerConfig | None = None,
     image_cfg: TemporalImageConfig | None = None,
     sup_cfg: SupervisorV3Config | None = None,
+    phase6_fusion_cfg: Phase6FusionConfig | None = None,
     ref_cfg: ReferenceEstimatorConfig | None = None,
     return_trace: bool = False,
 ):
     """Run a landing episode whose primary perception comes from rendered pixels.
 
-    ``image_temporal`` uses only the calibrated temporal image observation.
-    ``image_aegis_v3`` feeds that same observation into frozen V3 redundant fusion
-    and supervision. Environment, image, and reference RNG streams are isolated.
+    ``image_temporal`` uses only calibrated temporal image perception.
+    ``image_aegis_v3`` uses a Phase-6-only adapter around frozen V3 bias and
+    safety logic. Environment, image, and reference RNG streams are isolated.
     """
 
     if condition not in IMAGE_CONDITIONS:
@@ -102,7 +104,7 @@ def run_image_episode(
     supervisor = None
     if architecture == "image_aegis_v3":
         reference = IndependentReferenceEstimator(reference_rng, sim_cfg.dt, ref_cfg)
-        fusion = RedundantStateFusion(sup_cfg)
+        fusion = Phase6RedundantFusionAdapter(sup_cfg, phase6_fusion_cfg)
         supervisor = RedundantSafetySupervisorV3(sup_cfg)
 
     frame_count = 0
@@ -120,6 +122,7 @@ def run_image_episode(
     steps = int(sim_cfg.max_time / sim_cfg.dt)
     for i in range(steps):
         t = i * sim_cfg.dt
+        pre_state = state
         frame = renderer.render(
             x_offset_m=state.x,
             altitude_m=max(0.08, state.z),
@@ -137,17 +140,15 @@ def run_image_episode(
         descent_rate = sim_cfg.target_descent_rate
         risk = 0.0
         decision_value = "proceed"
-        reference_fresh = False
+        ref_obs = None
+        fused = None
 
         if architecture == "image_aegis_v3":
             assert reference is not None and fusion is not None and supervisor is not None
             ref_obs = reference.observe(state)
             reference_updates += int(ref_obs.fresh)
-            reference_fresh = bool(ref_obs.fresh)
 
-            # The image pipeline already performs temporal filtering, so this is
-            # the visual state used by V3 without an abstract PerceptionModel.
-            fused = fusion.update(image_obs, image_obs, ref_obs)
+            fused = fusion.update(image_obs, ref_obs)
             last_fusion = fused
             decision = supervisor.assess(image_obs, fused, ref_obs)
             risk = float(decision.risk)
@@ -159,7 +160,10 @@ def run_image_episode(
                 aborted = True
                 outcome = "safe_abort"
                 if return_trace:
-                    trace.append(_trace_row(t, state, image_obs, diag, fused.control_obs.x, risk, decision_value, reference_fresh))
+                    trace.append(_trace_row(
+                        t, pre_state, pre_state, image_obs, diag, fused, ref_obs,
+                        risk, decision_value,
+                    ))
                 break
             if decision.decision == DecisionV3.HOLD:
                 descent_rate = -0.30
@@ -173,7 +177,11 @@ def run_image_episode(
         state = step_dynamics(state, cmd.ax, cmd.az, wind_ax, wind_az, sim_cfg)
 
         if return_trace:
-            trace.append(_trace_row(t, state, image_obs, diag, control_obs.x, risk, decision_value, reference_fresh))
+            trace.append(_trace_row(
+                t, pre_state, state, image_obs, diag, fused, ref_obs,
+                risk, decision_value,
+                control_obs=control_obs,
+            ))
 
         if state.z <= 0.0:
             safe_x = abs(state.x) <= sim_cfg.touchdown_x_tolerance
@@ -210,11 +218,32 @@ def run_image_episode(
     return (result, trace) if return_trace else result
 
 
-def _trace_row(t, state, image_obs, diag, control_x, risk, decision, reference_fresh) -> dict:
+def _trace_row(
+    t,
+    pre_state,
+    post_state,
+    image_obs,
+    diag,
+    fused,
+    ref_obs,
+    risk,
+    decision,
+    control_obs=None,
+) -> dict:
+    if control_obs is None:
+        control_obs = fused.control_obs if fused is not None else image_obs
     return {
         "t": float(t),
-        "true_x": float(state.x),
-        "true_z": float(state.z),
+        "true_x_before": float(pre_state.x),
+        "true_z_before": float(pre_state.z),
+        "true_vx_before": float(pre_state.vx),
+        "true_vz_before": float(pre_state.vz),
+        "true_x": float(post_state.x),
+        "true_z": float(post_state.z),
+        "true_vx": float(post_state.vx),
+        "true_vz": float(post_state.vz),
+        "measured_image_x": float(diag.measured_x_m),
+        "measured_image_z": float(diag.measured_z_m),
         "image_x": float(image_obs.x),
         "image_z": float(image_obs.z),
         "image_vx": float(image_obs.vx),
@@ -224,10 +253,24 @@ def _trace_row(t, state, image_obs, diag, control_x, risk, decision, reference_f
         "calibrated_confidence": float(diag.calibrated_confidence),
         "geometry_score": float(diag.geometry_score),
         "abstained": bool(diag.abstained),
+        "reacquired": bool(diag.reacquired),
         "abstain_reason": diag.reason,
         "innovation_score": float(diag.innovation_score),
-        "control_x": float(control_x),
-        "reference_fresh": bool(reference_fresh),
+        "control_x": float(control_obs.x),
+        "control_z": float(control_obs.z),
+        "control_vx": float(control_obs.vx),
+        "control_vz": float(control_obs.vz),
+        "reference_x": float(ref_obs.x) if ref_obs is not None else np.nan,
+        "reference_z": float(ref_obs.z) if ref_obs is not None else np.nan,
+        "reference_vx": float(ref_obs.vx) if ref_obs is not None else np.nan,
+        "reference_vz": float(ref_obs.vz) if ref_obs is not None else np.nan,
+        "reference_fresh": bool(ref_obs.fresh) if ref_obs is not None else False,
+        "reference_age_steps": int(ref_obs.age_steps) if ref_obs is not None else -1,
+        "reference_weight": float(fused.reference_weight) if fused is not None else 0.0,
+        "bias_estimate_x": float(fused.bias_estimate_x) if fused is not None else 0.0,
+        "bias_confidence": float(fused.bias_confidence) if fused is not None else 0.0,
+        "applied_bias_correction": float(fused.applied_bias_correction) if fused is not None else 0.0,
+        "unexplained_disagreement": float(fused.unexplained_disagreement) if fused is not None else 0.0,
         "risk": float(risk),
         "decision": decision,
     }
