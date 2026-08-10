@@ -6,7 +6,7 @@ import numpy as np
 from .config import ControllerConfig, SimConfig
 from .controller import LandingController
 from .dynamics import State, step_dynamics
-from .perception import PerceptionModel
+from .perception import PerceptionModel, PerceptionProfile
 from .reference_estimator import IndependentReferenceEstimator, ReferenceEstimatorConfig
 from .simulator import _wind_sample
 from .supervisor_v2 import TemporalObservationFilter
@@ -54,13 +54,16 @@ def run_episode_v3(
     ctrl_cfg: ControllerConfig | None = None,
     sup_cfg: SupervisorV3Config | None = None,
     ref_cfg: ReferenceEstimatorConfig | None = None,
+    perception_profile: PerceptionProfile | None = None,
     return_trace: bool = False,
 ):
     """Run one simulation-only Aegis V3 landing episode.
 
-    The legacy environment RNG remains seeded exactly as in V1/V2. The new
-    redundant estimator uses an independent RNG stream, so adding V3 cannot
-    perturb vision noise, dropout draws, or the disturbance sequence.
+    The environment RNG remains seeded exactly as in V1/V2. The redundant
+    estimator uses an independent RNG stream, so adding V3 cannot perturb vision
+    noise, dropout draws, or the disturbance sequence. Robustness experiments may
+    provide an explicit perception profile while preserving the frozen named
+    profiles used in historical evaluations.
     """
 
     sim_cfg = sim_cfg or SimConfig()
@@ -77,7 +80,11 @@ def run_episode_v3(
         vz=0.0,
     )
 
-    perception = PerceptionModel(profile, env_rng)
+    perception = PerceptionModel(
+        perception_profile if perception_profile is not None else profile,
+        env_rng,
+        profile_name=profile if perception_profile is not None else None,
+    )
     reference = IndependentReferenceEstimator(reference_rng, sim_cfg.dt, ref_cfg)
     vision_filter = TemporalObservationFilter(dt=sim_cfg.dt)
     fusion = RedundantStateFusion(sup_cfg)
@@ -127,8 +134,7 @@ def run_episode_v3(
 
         descent_rate = sim_cfg.target_descent_rate
         if decision.decision == DecisionV3.HOLD:
-            # A hold slows the simulated descent while state evidence settles;
-            # it does not command a physical aircraft or expose flight settings.
+            # Simulation-only cautious descent while redundant evidence settles.
             descent_rate = -0.30
             interventions += 1
 

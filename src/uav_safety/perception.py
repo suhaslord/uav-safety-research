@@ -38,19 +38,31 @@ class Observation:
 
 
 class PerceptionModel:
-    """
-    Synthetic perception-corruption model.
+    """Synthetic perception-corruption model.
 
-    Important: profiles are abstract stress-test surrogates, not calibrated camera
-    physics. They let us study downstream safety behavior before adding a real
-    computer-vision front end.
+    Named profiles are the fixed historical experiment definitions. Robustness
+    experiments may pass an explicit :class:`PerceptionProfile` instead. This
+    keeps the frozen V1-V3 profiles unchanged while allowing out-of-distribution
+    stress tests to be fully recorded in experiment metadata.
+
+    Profiles are abstract stress-test surrogates, not calibrated camera physics.
     """
 
-    def __init__(self, profile: str, rng: np.random.Generator):
-        if profile not in PROFILES:
-            raise ValueError(f"Unknown perception profile: {profile}")
-        self.profile_name = profile
-        self.profile = PROFILES[profile]
+    def __init__(
+        self,
+        profile: str | PerceptionProfile,
+        rng: np.random.Generator,
+        profile_name: str | None = None,
+    ):
+        if isinstance(profile, str):
+            if profile not in PROFILES:
+                raise ValueError(f"Unknown perception profile: {profile}")
+            self.profile_name = profile
+            self.profile = PROFILES[profile]
+        else:
+            self.profile_name = profile_name or "custom"
+            self.profile = profile
+
         self.rng = rng
         self._last: Observation | None = None
 
@@ -59,7 +71,7 @@ class PerceptionModel:
         dropped = bool(self.rng.random() < p.dropout_prob)
 
         if dropped and self._last is not None:
-            # stale observation, with confidence penalty
+            # Stale observation with an explicit confidence penalty.
             obs = Observation(
                 x=self._last.x,
                 z=self._last.z,
@@ -78,7 +90,7 @@ class PerceptionModel:
         nvz = self.rng.normal(0.0, p.sigma_vz)
 
         sigma_pos = float(np.hypot(p.sigma_x, p.sigma_z))
-        # Confidence intentionally imperfect so calibration itself can be studied.
+        # Confidence intentionally remains imperfect so calibration can be studied.
         uncertainty_penalty = min(0.85, sigma_pos / 1.1)
         confidence = float(np.clip(
             p.confidence_scale * (1.0 - uncertainty_penalty)

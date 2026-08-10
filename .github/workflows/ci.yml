@@ -20,3 +20,7 @@ jobs:
         run: pytest -q
       - name: V3 smoke benchmark
         run: python scripts/run_v3_comparison.py --episodes 2 --seed 12345 --profiles clean mixed --out /tmp/aegis-v3-smoke
+      - name: Robustness smoke benchmark
+        run: python scripts/run_robustness_suite.py --axis bias_magnitude --episodes 1 --seed 24680 --out /tmp/aegis-robustness-smoke
+      - name: Image perception smoke benchmark
+        run: python scripts/run_image_perception_benchmark.py --samples 3 --seed 13579 --out /tmp/aegis-image-smoke

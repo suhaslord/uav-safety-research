@@ -6,7 +6,7 @@ import numpy as np
 from .config import ControllerConfig, SimConfig, SupervisorConfig
 from .controller import LandingController
 from .dynamics import State, step_dynamics
-from .perception import PerceptionModel
+from .perception import PerceptionModel, PerceptionProfile
 from .supervisor import Decision, SafetySupervisor
 
 
@@ -50,6 +50,7 @@ def run_episode(
     sim_cfg: SimConfig | None = None,
     ctrl_cfg: ControllerConfig | None = None,
     sup_cfg: SupervisorConfig | None = None,
+    perception_profile: PerceptionProfile | None = None,
     return_trace: bool = False,
 ):
     sim_cfg = sim_cfg or SimConfig()
@@ -64,7 +65,11 @@ def run_episode(
         vz=0.0,
     )
 
-    perception = PerceptionModel(profile, rng)
+    perception = PerceptionModel(
+        perception_profile if perception_profile is not None else profile,
+        rng,
+        profile_name=profile if perception_profile is not None else None,
+    )
     controller = LandingController(ctrl_cfg, sim_cfg)
     supervisor = SafetySupervisor(sup_cfg)
 
@@ -88,7 +93,6 @@ def run_episode(
         else:
             # Still record an observational risk proxy for fair comparison.
             proxy = SafetySupervisor(sup_cfg).assess(obs)
-            decision = proxy
             risk = proxy.risk
             decision = type(proxy)(Decision.PROCEED, risk, "baseline ignores supervisor")
 
