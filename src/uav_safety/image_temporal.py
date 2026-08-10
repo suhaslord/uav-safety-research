@@ -64,8 +64,15 @@ class Phase6PadEstimator:
         median = float(np.median(image))
         std = float(np.std(image))
         p90 = float(np.percentile(image, 90))
+
+        # Reject frames with essentially no visual information before thresholding.
+        # Without this guard a uniform zero-valued frame has threshold==0 and the
+        # whole image would incorrectly become one giant foreground component.
+        if std < 1e-4 or (p90 - median) < 0.008:
+            return FrameMeasurement(0.0, 0.0, 0.0, False, 0, 0, 0.0)
+
         threshold = max(median + 1.30 * std, 0.72 * p90 + 0.28 * median)
-        mask = image >= threshold
+        mask = image > threshold
 
         component = _largest_component(mask)
         if len(component) < self.min_component_pixels:
@@ -86,13 +93,16 @@ class Phase6PadEstimator:
         horizontal_span_m = 6.0
         x_m = -(centroid_x - center) / n * horizontal_span_m
 
-        # Renderer uses half ~= 30 / (z + 0.8), clipped to [4, 18].  A robust
+        # Renderer uses half ~= 30 / (z + 0.8), clipped to [4, 18]. A robust
         # apparent half-size estimate uses the geometric mean of component width
         # and height, then inverts that relation.
         apparent_half = max(2.0, 0.5 * np.sqrt(max(1.0, width * height)))
         z_m = float(np.clip(30.0 / apparent_half - 0.8, 0.35, 7.5))
 
         contrast = max(0.0, float(image[yy, xx].mean()) - median)
+        if contrast < 0.01:
+            return FrameMeasurement(0.0, 0.0, 0.0, False, len(component), width, contrast)
+
         contrast_score = contrast / (contrast + 0.10)
         support_score = float(np.clip(len(component) / 110.0, 0.0, 1.0))
         aspect = min(width, height) / max(width, height)
@@ -165,11 +175,11 @@ class EmpiricalConfidenceCalibrator:
             mean_x[i] = float(np.mean(xerr[idx]))
             mean_z[i] = float(np.mean(zerr[idx]))
 
-        # Confidence calibration should be monotone in the raw confidence score.
-        # Enforce that property without using evaluation data.
+        # Confidence calibration should become more optimistic as raw confidence
+        # rises, while expected error should not rise with confidence.
         probs = np.maximum.accumulate(probs)
-        mean_x = np.minimum.accumulate(mean_x[::-1])[::-1]
-        mean_z = np.minimum.accumulate(mean_z[::-1])[::-1]
+        mean_x = np.maximum.accumulate(mean_x[::-1])[::-1]
+        mean_z = np.maximum.accumulate(mean_z[::-1])[::-1]
 
         return cls(
             bin_edges=edges,
