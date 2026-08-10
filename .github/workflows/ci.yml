@@ -28,3 +28,7 @@ jobs:
         run: python scripts/run_image_perception_benchmark.py --samples 3 --seed 13579 --out /tmp/aegis-image-smoke
       - name: Phase 6 image-to-Aegis smoke benchmark
         run: python scripts/run_phase6_image_landing.py --episodes 2 --seed 626262 --calibration-seed 616161 --calibration-samples 12 --out /tmp/aegis-phase6-smoke
+      - name: Phase 6 clean abstention diagnostic
+        run: python scripts/diagnose_phase6_episode.py --condition clean --episodes 1 --calibration-samples 30
+      - name: Phase 6 occlusion abstention diagnostic
+        run: python scripts/diagnose_phase6_episode.py --condition occlusion --episodes 1 --calibration-samples 30
