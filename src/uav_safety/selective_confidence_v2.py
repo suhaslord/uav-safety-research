@@ -260,12 +260,22 @@ def fit_component_calibrator(
     xerr: list[float] = []
     zerr: list[float] = []
 
-    # Fit on condition-balanced synthetic frames. Runtime never receives a
-    # condition label, so the model must infer reliability only from image cues.
+    # Fit on condition-balanced frames spanning the full simulated landing
+    # envelope. Altitude is stratified so near-ground, middle, and initial
+    # 5-8 m regimes cannot be underrepresented by chance. Runtime never receives
+    # a condition or altitude-band label; both are used only to construct the
+    # offline calibration dataset.
+    altitude_bands = (
+        (0.25, 2.0),
+        (2.0, 4.0),
+        (4.0, 6.0),
+        (6.0, 8.0),
+    )
     for condition in IMAGE_CONDITIONS:
-        for _ in range(samples_per_condition):
-            x_true = float(rng.uniform(-2.8, 2.8))
-            z_true = float(rng.uniform(0.25, 5.8))
+        for sample_index in range(samples_per_condition):
+            z_low, z_high = altitude_bands[sample_index % len(altitude_bands)]
+            x_true = float(rng.uniform(-3.0, 3.0))
+            z_true = float(rng.uniform(z_low, z_high))
             severity = float(rng.uniform(0.70, 1.40))
             frame_seed = int(rng.integers(0, 2**31 - 1))
             frame = renderer.render(
