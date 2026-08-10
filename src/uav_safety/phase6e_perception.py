@@ -113,10 +113,15 @@ class Phase6ERobustPadEstimator:
 def fit_phase6e_component_calibrator(
     *,
     seed: int = 616161,
-    samples_per_condition: int = 280,
+    samples_per_condition: int = 300,
     cfg: ComponentCalibrationConfig | None = None,
 ) -> ComponentConfidenceCalibrator:
-    """Fit the existing component-confidence model on Phase 6E measurements."""
+    """Fit component confidence on the full Phase 6E observable envelope.
+
+    Phase 6E explicitly includes the near-ground 0.08-0.50 m regime that exposed
+    the historical foreground-dominated threshold failure. The remaining bands
+    preserve coverage through the 8 m simulated initial-altitude envelope.
+    """
 
     if samples_per_condition < 30:
         raise ValueError("samples_per_condition must be >= 30")
@@ -128,7 +133,8 @@ def fit_phase6e_component_calibrator(
     xerr: list[float] = []
     zerr: list[float] = []
     altitude_bands = (
-        (0.25, 2.0),
+        (0.08, 0.50),
+        (0.50, 2.0),
         (2.0, 4.0),
         (4.0, 6.0),
         (6.0, 8.0),
