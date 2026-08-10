@@ -28,7 +28,7 @@ jobs:
       - name: Unit tests
         run: pytest -q
 
-      - name: Run paired Phase 6 development study
+      - name: Run paired Phase 6 velocity-hardened development study
         run: |
           python scripts/run_phase6_image_landing.py \
             --episodes 30 \
@@ -36,15 +36,15 @@ jobs:
             --calibration-seed 616161 \
             --calibration-samples 180 \
             --severity 1.0 \
-            --out results/phase6_development
+            --out results/phase6_development_velocity
 
       - name: Decompose unsafe touchdowns
-        run: python scripts/analyze_phase6_failures.py --results results/phase6_development
+        run: python scripts/analyze_phase6_failures.py --results results/phase6_development_velocity
 
-      - name: Upload Phase 6 development artifact
+      - name: Upload Phase 6 velocity-hardened development artifact
         uses: actions/upload-artifact@v4
         with:
-          name: phase6-development-results
-          path: results/phase6_development
+          name: phase6-development-velocity-results
+          path: results/phase6_development_velocity
           if-no-files-found: error
           retention-days: 30
