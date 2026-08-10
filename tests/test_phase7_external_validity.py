@@ -99,19 +99,28 @@ def test_latency_burst_holds_stale_reference_without_redelivering_old_packet_as_
     for _ in range(6):
         est.observe(state, neutral)
 
-    first_obs, first_diag = est.observe(state, burst)
-    second_obs, second_diag = est.observe(state, burst)
+    transition_obs, transition_diag = est.observe(state, burst)
+    first_stale_obs, first_stale_diag = est.observe(state, burst)
+    second_stale_obs, second_stale_diag = est.observe(state, burst)
 
-    assert first_obs.available and second_obs.available
-    assert first_diag.applied_latency_steps == 4
-    assert second_diag.applied_latency_steps == 4
-    assert first_diag.delivered_transport_latency_steps == 1
-    assert second_diag.delivered_transport_latency_steps == 1
-    assert not first_diag.new_delivery
-    assert not second_diag.new_delivery
-    assert not first_obs.fresh
-    assert not second_obs.fresh
-    assert second_obs.age_steps > first_obs.age_steps
+    # The last pre-burst one-step packet is legitimately delivered at the
+    # transition. After that, the reference is held stale until burst packets
+    # reach their scheduled four-step delivery time.
+    assert transition_obs.available
+    assert transition_diag.applied_latency_steps == 4
+    assert transition_diag.new_delivery
+    assert transition_diag.delivered_transport_latency_steps == 1
+
+    assert first_stale_obs.available and second_stale_obs.available
+    assert first_stale_diag.applied_latency_steps == 4
+    assert second_stale_diag.applied_latency_steps == 4
+    assert first_stale_diag.delivered_transport_latency_steps == 1
+    assert second_stale_diag.delivered_transport_latency_steps == 1
+    assert not first_stale_diag.new_delivery
+    assert not second_stale_diag.new_delivery
+    assert not first_stale_obs.fresh
+    assert not second_stale_obs.fresh
+    assert second_stale_obs.age_steps > first_stale_obs.age_steps
 
 
 def test_latency_burst_packet_is_fresh_when_it_reaches_delivery_time():
