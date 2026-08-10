@@ -14,4 +14,9 @@ jobs:
           python-version: "3.11"
       - run: python -m pip install --upgrade pip
       - run: pip install -e ".[dev]"
-      - run: pytest -q
+      - name: Compile package and scripts
+        run: python -m compileall -q src scripts tests
+      - name: Unit tests
+        run: pytest -q
+      - name: V3 smoke benchmark
+        run: python scripts/run_v3_comparison.py --episodes 2 --seed 12345 --profiles clean mixed --out /tmp/aegis-v3-smoke
