@@ -162,15 +162,28 @@ def paired_effects(raw: pd.DataFrame) -> pd.DataFrame:
 
 
 def aggregate_seed_families(summary: pd.DataFrame) -> pd.DataFrame:
+    """Aggregate seed-family summaries across independent random families.
+
+    Keep the grouping index during the multi-column aggregation and reset it
+    afterward. This is compatible with pandas 2.x/3.x and avoids an IndexError
+    triggered by combining ``as_index=False`` with a pre-selected multi-column
+    GroupBy object.
+    """
     if summary.empty or summary["axis"].iloc[0] != "seed_families":
         return pd.DataFrame()
 
     cols = ["success_rate", "unsafe_touchdown_rate", "abort_rate", "mean_interventions"]
     agg = (
-        summary.groupby(["scenario", "architecture"], as_index=False)[cols]
+        summary.groupby(["scenario", "architecture"], sort=True)[cols]
         .agg(["mean", "std", "min", "max"])
+        .reset_index()
     )
-    agg.columns = ["_".join(col).strip("_") for col in agg.columns.to_flat_index()]
+    agg.columns = [
+        "_".join(str(part) for part in col if str(part)).strip("_")
+        if isinstance(col, tuple)
+        else str(col)
+        for col in agg.columns.to_flat_index()
+    ]
     return agg
 
 
