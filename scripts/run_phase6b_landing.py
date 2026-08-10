@@ -91,13 +91,22 @@ def summarize(raw: pd.DataFrame) -> pd.DataFrame:
         success_n = int(group["success"].sum())
         unsafe_n = int(group["unsafe_touchdown"].sum())
         abort_n = int(group["aborted"].sum())
+        timeout_n = int((group["outcome"] == "timeout").sum())
         success_ci = wilson_interval(success_n, n)
         unsafe_ci = wilson_interval(unsafe_n, n)
         abort_ci = wilson_interval(abort_n, n)
+        timeout_ci = wilson_interval(timeout_n, n)
 
         def mean_or_nan(column: str) -> float:
             values = pd.to_numeric(group[column], errors="coerce")
             return float(values.mean()) if values.notna().any() else np.nan
+
+        def per_frame_or_nan(count_column: str) -> float:
+            counts = pd.to_numeric(group[count_column], errors="coerce")
+            frames = pd.to_numeric(group["frames"], errors="coerce")
+            valid = counts.notna() & frames.notna()
+            denominator = float(frames[valid].sum())
+            return float(counts[valid].sum() / denominator) if valid.any() and denominator > 0 else np.nan
 
         rows.append({
             "condition": condition,
@@ -112,9 +121,14 @@ def summarize(raw: pd.DataFrame) -> pd.DataFrame:
             "abort_rate": abort_n / n,
             "abort_ci_low": abort_ci[0],
             "abort_ci_high": abort_ci[1],
+            "timeout_rate": timeout_n / n,
+            "timeout_ci_low": timeout_ci[0],
+            "timeout_ci_high": timeout_ci[1],
             "mean_image_abstention_rate": float(group["image_abstention_rate"].mean()),
             "mean_lateral_component_abstention_rate": mean_or_nan("lateral_component_abstention_rate"),
             "mean_altitude_component_abstention_rate": mean_or_nan("altitude_component_abstention_rate"),
+            "lateral_reference_takeover_frame_rate": per_frame_or_nan("lateral_reference_takeovers"),
+            "altitude_reference_takeover_frame_rate": per_frame_or_nan("altitude_reference_takeovers"),
             "mean_lateral_reference_takeovers": mean_or_nan("lateral_reference_takeovers"),
             "mean_altitude_reference_takeovers": mean_or_nan("altitude_reference_takeovers"),
             "mean_unresolved_component_frames": mean_or_nan("unresolved_component_frames"),
@@ -151,9 +165,11 @@ def paired_effects(raw: pd.DataFrame) -> pd.DataFrame:
                 "paired_episodes": len(common),
                 "candidate_minus_reference_success_pp": 100 * float(candidate["success"].mean() - reference["success"].mean()),
                 "candidate_minus_reference_unsafe_pp": 100 * float(candidate["unsafe_touchdown"].mean() - reference["unsafe_touchdown"].mean()),
+                "candidate_minus_reference_timeout_pp": 100 * float((candidate["outcome"] == "timeout").mean() - (reference["outcome"] == "timeout").mean()),
                 "reference_unsafe_rescued_to_candidate_success": int((reference["unsafe_touchdown"] & candidate["success"]).sum()),
                 "reference_success_became_candidate_unsafe": int((reference["success"] & candidate["unsafe_touchdown"]).sum()),
                 "reference_success_became_candidate_abort": int((reference["success"] & candidate["aborted"]).sum()),
+                "reference_success_became_candidate_timeout": int((reference["success"] & (candidate["outcome"] == "timeout")).sum()),
                 "reference_abort_became_candidate_success": int((reference["aborted"] & candidate["success"]).sum()),
             })
     return pd.DataFrame(rows)
@@ -191,6 +207,7 @@ def save_results(
         "conditions": list(IMAGE_CONDITIONS),
         "paired_episode_seeds": True,
         "phase6b_component_gate": asdict(gate_cfg),
+        "component_confidence": "learned component probabilities with simulation-specific altitude scale-observability cap",
         "threshold_selection": "0.80/0.80 selected from predeclared Phase 6B development risk-coverage grid before Phase 6B landing runs",
         "historical_phase6_frozen_landing_seed": 747474,
         "historical_phase6_frozen_selective_seed": 757575,
