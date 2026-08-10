@@ -81,7 +81,7 @@ def render_report(bundle: dict, *, title: str = "AegisLand Phase 7 Development R
         f"<td>{_pct(row.get('mean_shared_dropout_event_rate'))}</td>"
         f"<td>{_pct(row.get('mean_image_drop_rate'))}</td>"
         f"<td>{_pct(row.get('mean_reference_available_rate'))}</td>"
-        f"<td>{html.escape(f\"{float(row.get('mean_reference_age_steps', 0.0)):.2f}\")}</td>"
+        f"<td>{float(row.get('mean_reference_age_steps', 0.0)):.2f}</td>"
         "</tr>"
         for row in summary
     )
