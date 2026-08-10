@@ -8,8 +8,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from uav_safety.image_perception import IMAGE_CONDITIONS, SyntheticLandingPadRenderer
-from uav_safety.image_temporal import Phase6PadEstimator, fit_synthetic_calibrator
+from uav_safety.image_perception import IMAGE_CONDITIONS
+from uav_safety.image_temporal import Phase6LandingPadRenderer, Phase6PadEstimator, fit_synthetic_calibrator
 from uav_safety.simulator_image_v3 import run_image_episode
 
 
@@ -92,14 +92,14 @@ def paired_effects(raw: pd.DataFrame) -> pd.DataFrame:
 
 def calibration_audit(calibrator, *, seed: int, samples_per_condition: int = 120) -> pd.DataFrame:
     rng = np.random.default_rng(seed)
-    renderer = SyntheticLandingPadRenderer()
+    renderer = Phase6LandingPadRenderer()
     estimator = Phase6PadEstimator()
     rows: list[dict] = []
 
     for condition in IMAGE_CONDITIONS:
         for _ in range(samples_per_condition):
             x_true = float(rng.uniform(-2.1, 2.1))
-            z_true = float(rng.uniform(0.8, 5.3))
+            z_true = float(rng.uniform(0.25, 5.3))
             severity = float(rng.uniform(0.75, 1.35))
             frame_seed = int(rng.integers(0, 2**31 - 1))
             image = renderer.render(
@@ -118,6 +118,7 @@ def calibration_audit(calibrator, *, seed: int, samples_per_condition: int = 120
                 "condition": condition,
                 "raw_confidence": m.raw_confidence,
                 "calibrated_confidence": calibrated,
+                "geometry_score": m.geometry_score,
                 "good": good,
                 "abs_x_error_m": xerr,
                 "abs_z_error_m": zerr,
@@ -161,6 +162,7 @@ def save_results(raw, summary, paired, reliability, calibrator, out: Path, args)
         "paired_episode_seeds": True,
         "image_rng_isolated": True,
         "reference_rng_isolated": True,
+        "renderer": "phase6 perspective synthetic landing-pad renderer",
         "scope": "simulation-only synthetic image sequences",
     }, indent=2), encoding="utf-8")
 
