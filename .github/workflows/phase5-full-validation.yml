@@ -1,0 +1,73 @@
+name: Phase 5 Full Validation
+
+on:
+  push:
+    paths:
+      - '.github/workflows/phase5-full-validation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  phase5-validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Compile all Python
+        run: python -m compileall -q src scripts tests
+
+      - name: Full unit test suite
+        run: pytest -q
+
+      - name: Unseen seed families
+        run: python scripts/run_robustness_suite.py --axis seed_families --episodes 100 --out results/robustness
+
+      - name: Degradation-strength sweep
+        run: python scripts/run_robustness_suite.py --axis degradation_strength --episodes 100 --out results/robustness
+
+      - name: Reference-quality sweep
+        run: python scripts/run_robustness_suite.py --axis reference_quality --episodes 100 --out results/robustness
+
+      - name: Reference-dropout sweep
+        run: python scripts/run_robustness_suite.py --axis reference_dropout --episodes 100 --out results/robustness
+
+      - name: Persistent-bias sweep
+        run: python scripts/run_robustness_suite.py --axis bias_magnitude --episodes 100 --out results/robustness
+
+      - name: Synthetic image perception benchmark
+        run: python scripts/run_image_perception_benchmark.py --samples 300 --seed 606060 --out results/image_perception
+
+      - name: Inventory outputs
+        run: |
+          echo '=== robustness files ==='
+          find results/robustness -maxdepth 2 -type f | sort
+          echo '=== image perception files ==='
+          find results/image_perception -maxdepth 2 -type f | sort
+
+      - name: Upload Phase 5 results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase5-full-results
+          path: |
+            results/robustness
+            results/image_perception
+          if-no-files-found: warn
+          retention-days: 30
