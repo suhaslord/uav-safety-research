@@ -24,7 +24,7 @@ jobs:
           pip install -e ".[dev]"
       - name: Unit tests
         run: pytest -q
-      - name: Run Phase 6B full-domain component calibration benchmark
+      - name: Run Phase 6B scale-observability component benchmark
         run: |
           python scripts/run_phase6_component_calibration.py \
             --sequences 20 \
@@ -36,7 +36,7 @@ jobs:
       - name: Upload component calibration artifact
         uses: actions/upload-artifact@v4
         with:
-          name: phase6b-component-calibration-full-domain
+          name: phase6b-component-calibration-scale-observability
           path: results/phase6b_component_calibration
           if-no-files-found: error
           retention-days: 30
