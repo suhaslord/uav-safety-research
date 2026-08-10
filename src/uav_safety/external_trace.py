@@ -48,6 +48,11 @@ class ExternalTraceValidation:
     max_abs_truth_x_m: float
     min_truth_z_m: float
     max_truth_z_m: float
+    image_lateral_mae_m: float
+    reference_lateral_mae_m: float
+    mean_abs_lateral_disagreement_m: float
+    paired_lateral_samples: int
+    lateral_error_correlation: float | None
 
     def to_dict(self) -> dict:
         return {
@@ -60,6 +65,11 @@ class ExternalTraceValidation:
             "max_abs_truth_x_m": self.max_abs_truth_x_m,
             "min_truth_z_m": self.min_truth_z_m,
             "max_truth_z_m": self.max_truth_z_m,
+            "image_lateral_mae_m": self.image_lateral_mae_m,
+            "reference_lateral_mae_m": self.reference_lateral_mae_m,
+            "mean_abs_lateral_disagreement_m": self.mean_abs_lateral_disagreement_m,
+            "paired_lateral_samples": self.paired_lateral_samples,
+            "lateral_error_correlation": self.lateral_error_correlation,
         }
 
 
@@ -82,12 +92,26 @@ def _coerce_bool(series: pd.Series, column: str) -> pd.Series:
     return normalized.map(mapping).astype(bool)
 
 
+def _safe_correlation(a: np.ndarray, b: np.ndarray) -> float | None:
+    if len(a) < 3:
+        return None
+    if float(np.std(a)) < 1e-12 or float(np.std(b)) < 1e-12:
+        return None
+    value = float(np.corrcoef(a, b)[0, 1])
+    return value if np.isfinite(value) else None
+
+
 def validate_external_trace(frame: pd.DataFrame) -> tuple[pd.DataFrame, ExternalTraceValidation]:
     """Validate and normalize an offline simulator trace.
 
     The schema is intentionally simulator-agnostic. It stores ground truth only
     for evaluation; downstream Aegis logic must not consume the truth columns as
     controller inputs.
+
+    The report also measures lateral error structure. In particular, correlation
+    between simultaneous image and reference errors is useful for checking the
+    independence assumption before an external trace is used as validation
+    evidence.
     """
 
     missing = [column for column in REQUIRED_EXTERNAL_TRACE_COLUMNS if column not in frame.columns]
@@ -122,6 +146,26 @@ def validate_external_trace(frame: pd.DataFrame) -> tuple[pd.DataFrame, External
     if (normalized["truth_z_m"] < 0).any():
         raise ValueError("truth_z_m must be non-negative in the landing-frame convention")
 
+    image_valid = ~normalized["image_dropped"]
+    reference_valid = normalized["reference_available"]
+    paired = image_valid & reference_valid
+
+    image_error = (
+        normalized.loc[image_valid, "image_x_m"] - normalized.loc[image_valid, "truth_x_m"]
+    ).to_numpy(dtype=float)
+    reference_error = (
+        normalized.loc[reference_valid, "reference_x_m"] - normalized.loc[reference_valid, "truth_x_m"]
+    ).to_numpy(dtype=float)
+    paired_image_error = (
+        normalized.loc[paired, "image_x_m"] - normalized.loc[paired, "truth_x_m"]
+    ).to_numpy(dtype=float)
+    paired_reference_error = (
+        normalized.loc[paired, "reference_x_m"] - normalized.loc[paired, "truth_x_m"]
+    ).to_numpy(dtype=float)
+    paired_disagreement = (
+        normalized.loc[paired, "image_x_m"] - normalized.loc[paired, "reference_x_m"]
+    ).to_numpy(dtype=float)
+
     report = ExternalTraceValidation(
         rows=int(len(normalized)),
         duration_s=float(t[-1] - t[0]),
@@ -132,6 +176,13 @@ def validate_external_trace(frame: pd.DataFrame) -> tuple[pd.DataFrame, External
         max_abs_truth_x_m=float(normalized["truth_x_m"].abs().max()),
         min_truth_z_m=float(normalized["truth_z_m"].min()),
         max_truth_z_m=float(normalized["truth_z_m"].max()),
+        image_lateral_mae_m=float(np.mean(np.abs(image_error))) if len(image_error) else float("nan"),
+        reference_lateral_mae_m=float(np.mean(np.abs(reference_error))) if len(reference_error) else float("nan"),
+        mean_abs_lateral_disagreement_m=(
+            float(np.mean(np.abs(paired_disagreement))) if len(paired_disagreement) else float("nan")
+        ),
+        paired_lateral_samples=int(len(paired_image_error)),
+        lateral_error_correlation=_safe_correlation(paired_image_error, paired_reference_error),
     )
     return normalized, report
 
