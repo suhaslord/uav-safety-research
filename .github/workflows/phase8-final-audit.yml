@@ -5,12 +5,15 @@ on:
   push:
     branches:
       - phase8-trace-validation
+      - phase8-px4-gazebo-evidence
 
 jobs:
   phase8-final-audit:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -19,6 +22,26 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e ".[dev]"
+
+      - name: Verify frozen Phase 8 and Phase 6B evidence boundaries
+        run: |
+          if [ "$GITHUB_REF_NAME" = "phase8-px4-gazebo-evidence" ]; then
+            PHASE8_FROZEN=bd62e3b31431306fd9d897f560be7325d711d21a
+            PHASE6B_FROZEN=b4e9838555e935a5ec42690495315473629b58f6
+            git merge-base --is-ancestor "$PHASE8_FROZEN" HEAD
+            git merge-base --is-ancestor "$PHASE6B_FROZEN" HEAD
+            git diff --exit-code "$PHASE8_FROZEN" -- \
+              src/uav_safety/trace_validation.py \
+              src/uav_safety/external_trace.py \
+              scripts/run_phase8_trace_validation.py
+            git diff --exit-code "$PHASE8_FROZEN" -- \
+              src/uav_safety/phase6b_fusion.py \
+              src/uav_safety/simulator_image_phase6b.py \
+              scripts/run_phase6b_landing.py \
+              docs/phase6b_freeze_manifest.md \
+              results/phase6b_frozen_landing \
+              results/phase6b_frozen_selective
+          fi
 
       - name: Compile Python
         run: python -m compileall -q src scripts tests
