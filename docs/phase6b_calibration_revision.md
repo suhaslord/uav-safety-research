@@ -44,37 +44,83 @@ That model:
 
 It was rejected and was never promoted into the Aegis landing architecture.
 
-## Phase 6B change
+## Phase 6B component confidence
 
 Phase 6B separates image reliability into two calibrated components:
 
 - `p_x_good`: probability that lateral error is within 0.30 m;
 - `p_z_good`: probability that altitude error is within 0.85 m.
 
-The image estimator also exposes a blur-sensitive sharpness statistic. Sharpness is used only as an observable confidence feature; it does not directly change the x/z measurement.
+The image estimator exposes a blur-sensitive sharpness statistic. Sharpness is used only as a confidence feature; it does not directly change the x/z measurement.
 
 The component models use runtime image-derived features only. Synthetic ground truth is used during offline calibration fitting and evaluation labels, not during a landing episode.
 
+## Full-domain calibration correction
+
+A pre-freeze high-altitude audit found that the first Phase 6B calibration dataset underrepresented the simulator's 5.8–8.0 m initial altitude region. The calibration dataset was therefore revised **before held-out Phase 6B evaluation** to use condition-balanced samples stratified across four altitude bands:
+
+- 0.25–2.0 m;
+- 2.0–4.0 m;
+- 4.0–6.0 m;
+- 6.0–8.0 m.
+
+The runtime feature set still receives no ground-truth altitude band or degradation-condition label.
+
+Full-domain training alone did not solve the high-altitude problem. Clean and occlusion frames could look sharp and geometrically valid while apparent marker scale was too coarse to resolve the 0.85 m altitude tolerance.
+
+## Analytic scale observability
+
+The Phase 6 renderer quantizes apparent marker half-size using approximately:
+
+`half = int(35 / (z + 0.60))`
+
+while the estimator approximately inverts scale using:
+
+`z_hat = 35 / apparent_half - 0.60`.
+
+At small apparent sizes, one adjacent integer scale bin can span more than the altitude-accuracy target. For an inferred half-size `h`, Phase 6B therefore computes the synthetic scale-bin width:
+
+`delta_z_bin = 35/h - 35/(h+1)`.
+
+This quantity is added as an interpretable confidence feature. Final altitude confidence is additionally capped by:
+
+`p_z_good <= min(1, 0.85 / delta_z_bin)`.
+
+The cap does not change the altitude measurement. It prevents a confidence model from claiming greater reliability than the synthetic pixel geometry can resolve. This is deliberately simulation-specific and is not a real-camera uncertainty formula.
+
 ## Development-only component benchmark
 
-The Phase 6B calibration-development benchmark used:
+The calibration-development benchmark uses:
 
 - benchmark seed: `656565`
 - calibration seed: `616161`
 - 2,000 frames per image condition
 - fixed risk/coverage thresholds: 0.40, 0.50, 0.60, 0.70, 0.80, 0.90
 
-The 0.80 lateral and altitude gates were selected from that predeclared grid **before any Phase 6B landing outcome was run**.
+The 0.80 lateral and altitude gates were selected from that predeclared grid **before any Phase 6B landing outcome was run** and were not changed by later audits.
 
-At threshold 0.80 in the development benchmark:
+With the full-domain, scale-observability revision, the fixed 0.80 operating point produced:
 
-- clean: 100% lateral and altitude coverage with no selected bad estimates;
-- blur: 100% lateral coverage with no lateral failures; altitude retained 18.7% coverage and rejected 100% of bad altitude estimates;
-- low light: 100% lateral coverage; altitude coverage 69.55%, with 52.02% bad-altitude rejection recall;
-- mixed: lateral coverage 87.85%; altitude coverage 10.30%, with 97.34% bad-altitude rejection recall;
-- occlusion: 100% lateral and altitude coverage, with 0.65% selected lateral bad rate and zero altitude failures in this benchmark.
+- clean: 100% lateral and altitude coverage with 0% selected bad estimates in the normal sequence benchmark;
+- blur: 100% lateral coverage with 0% lateral failures; 18.7% altitude coverage with 0% selected bad altitude estimates and 100% bad-altitude rejection recall;
+- low light: 100% lateral coverage; 30.25% altitude coverage, 0.165% selected bad altitude rate, and 99.42% bad-altitude rejection recall;
+- mixed: 94.75% lateral coverage with 5.33% selected lateral bad rate; 0.90% altitude coverage with 0% selected bad altitude estimates and 100% bad-altitude rejection recall;
+- occlusion: 100% lateral and altitude coverage, 0.65% selected lateral bad rate, and 0% selected altitude bad rate in the normal sequence benchmark.
 
-Calibration is not perfect. Altitude ECE remained larger under blur and mixed degradation, so Phase 6B reporting must include calibration error and risk/coverage rather than presenting probabilities as perfectly calibrated.
+Calibration is not perfect. Report calibration error and risk/coverage together rather than presenting the probabilities as exact guarantees.
+
+## High-altitude stress audit
+
+A separate development-only audit uses seed `666666` and restricts synthetic frames to 5.8–8.0 m.
+
+Before the analytic observability correction, bad-altitude rejection recall was 0% for both clean and occlusion high-altitude frames. After the scale-observability revision, at the same fixed 0.80 gate:
+
+- clean: 25.75% altitude coverage, 11.65% selected bad altitude rate, 86.52% bad-altitude rejection recall;
+- occlusion: 31.0% altitude coverage, 12.10% selected bad altitude rate, 81.71% bad-altitude rejection recall;
+- blur, low light, and mixed: 0% high-altitude altitude coverage and 100% bad-altitude rejection recall in this audit;
+- lateral coverage remains approximately 100% across all five conditions, with zero selected lateral failures in this high-altitude audit.
+
+The residual ~12% selected bad-altitude rate for clean/occlusion high-altitude frames is a documented limitation rather than something hidden by further threshold tuning.
 
 ## Aegis integration rule
 
@@ -89,6 +135,12 @@ When a component is above its fixed confidence threshold, the established Phase 
 
 The frozen V3 safety supervisor remains unchanged.
 
+## Development landing history
+
+A 30-episode-per-cell Phase 6B development run was completed before the full-domain scale-observability correction. It reached 96.7% success in both mixed and occlusion conditions, but introduced one mixed regression relative to the established Phase 6 Aegis path and one low-light non-success. That run remains development evidence and is not the Phase 6B frozen result.
+
+The scale-observability revision must therefore be rerun on the same development seed before final freezing.
+
 ## Seed ledger
 
 The following seeds are now considered **seen** and must not be used as final Phase 6B validation seeds:
@@ -98,10 +150,16 @@ The following seeds are now considered **seen** and must not be used as final Ph
 - `636363` — Phase 6 selective smoke/development use
 - `646464` — failed contextual-confidence ablation
 - `656565` — Phase 6B component calibration benchmark
+- `666666` — Phase 6B high-altitude audit
 - `747474` — historical frozen Phase 6 landing
 - `757575` — historical frozen Phase 6 selective-perception audit
 
-A future Phase 6B frozen evaluation must declare new landing and selective-calibration audit seeds before running and must not tune the architecture after observing those results.
+Already preregistered and still unused for Phase 6B final validation:
+
+- `868686` — held-out landing seed
+- `878787` — held-out selective-perception seed
+
+Any future Phase 6B algorithm change after those held-out seeds are run must become a new named revision with new held-out seeds.
 
 ## Safety scope
 
