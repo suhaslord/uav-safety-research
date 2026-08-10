@@ -27,7 +27,7 @@ jobs:
       - name: Full test suite
         run: pytest -q
 
-      - name: Run paired Phase 6B development comparison
+      - name: Run paired Phase 6B scale-observability development comparison
         run: |
           python scripts/run_phase6b_landing.py \
             --episodes 30 \
@@ -38,15 +38,15 @@ jobs:
             --lateral-threshold 0.80 \
             --altitude-threshold 0.80 \
             --run-role development \
-            --out results/phase6b_development
+            --out results/phase6b_development_scale_observability
 
       - name: Decompose touchdown failures
-        run: python scripts/analyze_phase6_failures.py --results results/phase6b_development
+        run: python scripts/analyze_phase6_failures.py --results results/phase6b_development_scale_observability
 
-      - name: Upload Phase 6B development results
+      - name: Upload Phase 6B scale-observability development results
         uses: actions/upload-artifact@v4
         with:
-          name: phase6b-development-results
-          path: results/phase6b_development
+          name: phase6b-development-scale-observability
+          path: results/phase6b_development_scale_observability
           if-no-files-found: error
           retention-days: 45
