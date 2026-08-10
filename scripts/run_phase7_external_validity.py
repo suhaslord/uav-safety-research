@@ -198,6 +198,18 @@ def main() -> None:
         + "\n",
         encoding="utf-8",
     )
+
+    dashboard_bundle = {
+        "schema": "aegisland.phase7.dashboard-bundle.v1",
+        "metadata": metadata,
+        "summary": summary.to_dict(orient="records"),
+        "paired_plant_effects": plant_effects.to_dict(orient="records"),
+    }
+    (args.out / "dashboard_bundle.json").write_text(
+        json.dumps(dashboard_bundle, indent=2),
+        encoding="utf-8",
+    )
+
     write_result_manifest(
         args.out,
         [
@@ -206,6 +218,7 @@ def main() -> None:
             "paired_plant_effects.csv",
             "run_metadata.json",
             "summary.md",
+            "dashboard_bundle.json",
         ],
         schema="aegisland.phase7.result-bundle.v1",
         extra={
