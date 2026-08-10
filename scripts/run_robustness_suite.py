@@ -26,11 +26,7 @@ def _episode_seeds(family_seed: int, scenario_index: int, episodes: int) -> list
     return [int(rng.integers(0, 2**31 - 1)) for _ in range(episodes)]
 
 
-def _run_one(
-    architecture: str,
-    episode_seed: int,
-    scenario: RobustnessScenario,
-) -> dict:
+def _run_one(architecture: str, episode_seed: int, scenario: RobustnessScenario) -> dict:
     label = scenario.name
     if architecture == "baseline":
         result = run_episode(
@@ -75,16 +71,17 @@ def run_axis(
 
     for family_seed in families:
         for scenario_index, scenario in enumerate(scenarios):
-            seeds = _episode_seeds(family_seed, scenario_index, episodes)
-            for episode_seed in seeds:
+            for episode_seed in _episode_seeds(family_seed, scenario_index, episodes):
                 for architecture in ARCHITECTURES:
                     row = _run_one(architecture, episode_seed, scenario)
-                    row.update({
-                        "axis": axis,
-                        "scenario": scenario.name,
-                        "level": scenario.level,
-                        "family_seed": family_seed,
-                    })
+                    row.update(
+                        {
+                            "axis": axis,
+                            "scenario": scenario.name,
+                            "level": scenario.level,
+                            "family_seed": family_seed,
+                        }
+                    )
                     rows.append(row)
 
     return pd.DataFrame(rows)
@@ -104,26 +101,28 @@ def summarize(raw: pd.DataFrame) -> pd.DataFrame:
         unsafe_ci = wilson_interval(unsafe, n)
         abort_ci = wilson_interval(aborts, n)
 
-        rows.append({
-            "axis": axis,
-            "scenario": scenario,
-            "level": level,
-            "family_seed": int(family_seed),
-            "architecture": architecture,
-            "episodes": n,
-            "success_rate": successes / n,
-            "success_ci_low": success_ci[0],
-            "success_ci_high": success_ci[1],
-            "unsafe_touchdown_rate": unsafe / n,
-            "unsafe_ci_low": unsafe_ci[0],
-            "unsafe_ci_high": unsafe_ci[1],
-            "abort_rate": aborts / n,
-            "abort_ci_low": abort_ci[0],
-            "abort_ci_high": abort_ci[1],
-            "timeout_rate": float((group["outcome"] == "timeout").mean()),
-            "mean_final_x_error": float(group["final_x_error"].mean()),
-            "mean_interventions": float(group["interventions"].mean()),
-        })
+        rows.append(
+            {
+                "axis": axis,
+                "scenario": scenario,
+                "level": level,
+                "family_seed": int(family_seed),
+                "architecture": architecture,
+                "episodes": n,
+                "success_rate": successes / n,
+                "success_ci_low": success_ci[0],
+                "success_ci_high": success_ci[1],
+                "unsafe_touchdown_rate": unsafe / n,
+                "unsafe_ci_low": unsafe_ci[0],
+                "unsafe_ci_high": unsafe_ci[1],
+                "abort_rate": aborts / n,
+                "abort_ci_low": abort_ci[0],
+                "abort_ci_high": abort_ci[1],
+                "timeout_rate": float((group["outcome"] == "timeout").mean()),
+                "mean_final_x_error": float(group["final_x_error"].mean()),
+                "mean_interventions": float(group["interventions"].mean()),
+            }
+        )
 
     return pd.DataFrame(rows)
 
@@ -142,49 +141,70 @@ def paired_effects(raw: pd.DataFrame) -> pd.DataFrame:
         v2 = v2.loc[common]
         v3 = v3.loc[common]
 
-        rows.append({
-            "axis": axis,
-            "scenario": scenario,
-            "level": level,
-            "family_seed": int(family_seed),
-            "episodes": len(common),
-            "v3_minus_baseline_success_pp": 100 * float(v3["success"].mean() - baseline["success"].mean()),
-            "v3_minus_baseline_unsafe_pp": 100 * float(v3["unsafe_touchdown"].mean() - baseline["unsafe_touchdown"].mean()),
-            "v3_minus_v2_success_pp": 100 * float(v3["success"].mean() - v2["success"].mean()),
-            "v3_minus_v2_unsafe_pp": 100 * float(v3["unsafe_touchdown"].mean() - v2["unsafe_touchdown"].mean()),
-            "baseline_unsafe_rescued_to_v3_success": int((baseline["unsafe_touchdown"] & v3["success"]).sum()),
-            "baseline_success_became_v3_unsafe": int((baseline["success"] & v3["unsafe_touchdown"]).sum()),
-            "v2_unsafe_rescued_to_v3_success": int((v2["unsafe_touchdown"] & v3["success"]).sum()),
-            "v2_success_became_v3_unsafe": int((v2["success"] & v3["unsafe_touchdown"]).sum()),
-        })
+        rows.append(
+            {
+                "axis": axis,
+                "scenario": scenario,
+                "level": level,
+                "family_seed": int(family_seed),
+                "episodes": len(common),
+                "v3_minus_baseline_success_pp": 100
+                * float(v3["success"].mean() - baseline["success"].mean()),
+                "v3_minus_baseline_unsafe_pp": 100
+                * float(v3["unsafe_touchdown"].mean() - baseline["unsafe_touchdown"].mean()),
+                "v3_minus_v2_success_pp": 100
+                * float(v3["success"].mean() - v2["success"].mean()),
+                "v3_minus_v2_unsafe_pp": 100
+                * float(v3["unsafe_touchdown"].mean() - v2["unsafe_touchdown"].mean()),
+                "baseline_unsafe_rescued_to_v3_success": int(
+                    (baseline["unsafe_touchdown"] & v3["success"]).sum()
+                ),
+                "baseline_success_became_v3_unsafe": int(
+                    (baseline["success"] & v3["unsafe_touchdown"]).sum()
+                ),
+                "v2_unsafe_rescued_to_v3_success": int(
+                    (v2["unsafe_touchdown"] & v3["success"]).sum()
+                ),
+                "v2_success_became_v3_unsafe": int(
+                    (v2["success"] & v3["unsafe_touchdown"]).sum()
+                ),
+            }
+        )
 
     return pd.DataFrame(rows)
 
 
 def aggregate_seed_families(summary: pd.DataFrame) -> pd.DataFrame:
-    """Aggregate seed-family summaries across independent random families.
+    """Aggregate independent seed-family results without pandas multi-select agg.
 
-    Keep the grouping index during the multi-column aggregation and reset it
-    afterward. This is compatible with pandas 2.x/3.x and avoids an IndexError
-    triggered by combining ``as_index=False`` with a pre-selected multi-column
-    GroupBy object.
+    pandas 3.0 can raise ``Column(s) ... already selected`` when a multi-column
+    GroupBy selection is followed by list-style aggregation. Named aggregation
+    avoids that code path and also gives stable, explicit output columns.
     """
-    if summary.empty or summary["axis"].iloc[0] != "seed_families":
+    if summary.empty or not (summary["axis"] == "seed_families").all():
         return pd.DataFrame()
 
-    cols = ["success_rate", "unsafe_touchdown_rate", "abort_rate", "mean_interventions"]
-    agg = (
-        summary.groupby(["scenario", "architecture"], sort=True)[cols]
-        .agg(["mean", "std", "min", "max"])
-        .reset_index()
+    return (
+        summary.groupby(["scenario", "architecture"], sort=True, as_index=False)
+        .agg(
+            success_rate_mean=("success_rate", "mean"),
+            success_rate_std=("success_rate", "std"),
+            success_rate_min=("success_rate", "min"),
+            success_rate_max=("success_rate", "max"),
+            unsafe_touchdown_rate_mean=("unsafe_touchdown_rate", "mean"),
+            unsafe_touchdown_rate_std=("unsafe_touchdown_rate", "std"),
+            unsafe_touchdown_rate_min=("unsafe_touchdown_rate", "min"),
+            unsafe_touchdown_rate_max=("unsafe_touchdown_rate", "max"),
+            abort_rate_mean=("abort_rate", "mean"),
+            abort_rate_std=("abort_rate", "std"),
+            abort_rate_min=("abort_rate", "min"),
+            abort_rate_max=("abort_rate", "max"),
+            mean_interventions_mean=("mean_interventions", "mean"),
+            mean_interventions_std=("mean_interventions", "std"),
+            mean_interventions_min=("mean_interventions", "min"),
+            mean_interventions_max=("mean_interventions", "max"),
+        )
     )
-    agg.columns = [
-        "_".join(str(part) for part in col if str(part)).strip("_")
-        if isinstance(col, tuple)
-        else str(col)
-        for col in agg.columns.to_flat_index()
-    ]
-    return agg
 
 
 def save_axis(
@@ -216,8 +236,15 @@ def save_axis(
     (out / "run_metadata.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
 
     display_cols = [
-        "scenario", "level", "family_seed", "architecture", "episodes",
-        "success_rate", "unsafe_touchdown_rate", "abort_rate", "mean_interventions",
+        "scenario",
+        "level",
+        "family_seed",
+        "architecture",
+        "episodes",
+        "success_rate",
+        "unsafe_touchdown_rate",
+        "abort_rate",
+        "mean_interventions",
     ]
     (out / "summary.md").write_text(
         f"# Aegis V3 robustness: {axis}\n\n"
@@ -231,8 +258,7 @@ def save_axis(
     )
 
     if axis == "seed_families":
-        aggregate = aggregate_seed_families(summary)
-        aggregate.to_csv(out / "family_aggregate.csv", index=False)
+        aggregate_seed_families(summary).to_csv(out / "family_aggregate.csv", index=False)
 
     _plot(summary, "unsafe_touchdown_rate", "Unsafe touchdown rate", out / "unsafe_rate.png")
     _plot(summary, "success_rate", "Success rate", out / "success_rate.png")
@@ -243,9 +269,9 @@ def _plot(summary: pd.DataFrame, metric: str, ylabel: str, path: Path) -> None:
     data = summary.copy()
     if data["axis"].iloc[0] == "seed_families":
         plot_data = (
-            data.groupby(["family_seed", "architecture"], as_index=False)[metric]
-            .mean()
-            .pivot(index="family_seed", columns="architecture", values=metric)
+            data.groupby(["family_seed", "architecture"], as_index=False)
+            .agg(metric_value=(metric, "mean"))
+            .pivot(index="family_seed", columns="architecture", values="metric_value")
         )
         xlabel = "Unseen seed family"
     else:
@@ -264,8 +290,15 @@ def _plot(summary: pd.DataFrame, metric: str, ylabel: str, path: Path) -> None:
 
 def print_compact(summary: pd.DataFrame, paired: pd.DataFrame) -> None:
     cols = [
-        "scenario", "level", "family_seed", "architecture", "episodes",
-        "success_rate", "unsafe_touchdown_rate", "abort_rate", "mean_interventions",
+        "scenario",
+        "level",
+        "family_seed",
+        "architecture",
+        "episodes",
+        "success_rate",
+        "unsafe_touchdown_rate",
+        "abort_rate",
+        "mean_interventions",
     ]
     print(summary[cols].to_string(index=False))
     print("\nPaired V3 effects (percentage points):")
