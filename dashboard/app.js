@@ -34,6 +34,8 @@ const els = {
   evidenceText: document.getElementById('evidenceText'),
   matrix: document.getElementById('matrix'),
   matrixPlantLabel: document.getElementById('matrixPlantLabel'),
+  weaknessList: document.getElementById('weaknessList'),
+  rankingPlantLabel: document.getElementById('rankingPlantLabel'),
   provenanceMeta: document.getElementById('provenanceMeta'),
 };
 
@@ -96,6 +98,10 @@ function ci(low, high) {
   return `95% CI ${pct(low)} – ${pct(high)}`;
 }
 
+function human(value) {
+  return String(value ?? '').replaceAll('_', ' ');
+}
+
 function unique(key) {
   return [...new Set(state.summary.map(r => r[key]).filter(Boolean))].sort();
 }
@@ -105,7 +111,7 @@ function fillSelect(select, values) {
   for (const value of values) {
     const option = document.createElement('option');
     option.value = value;
-    option.textContent = String(value).replaceAll('_', ' ');
+    option.textContent = human(value);
     select.appendChild(option);
   }
   select.disabled = values.length === 0;
@@ -143,10 +149,12 @@ function renderProvenance() {
   }
   const m = state.metadata;
   const seed = m.episode_seed ?? 'unknown';
-  const role = String(m.run_role ?? 'unknown').replaceAll('_', ' ');
+  const role = human(m.run_role ?? 'unknown');
   const count = m.episodes_per_condition_fault_plant ?? 'unknown';
-  const seedStatus = String(m.episode_seed_status ?? 'unknown').replaceAll('_', ' ');
-  els.provenanceMeta.textContent = `Run role: ${role} · episode seed ${seed} (${seedStatus}) · ${count} episodes per condition/fault/plant cell.`;
+  const seedStatus = human(m.episode_seed_status ?? 'unknown');
+  const sha = String(m.git_sha ?? 'unknown');
+  const shortSha = sha === 'unknown' ? sha : sha.slice(0, 12);
+  els.provenanceMeta.textContent = `Run role: ${role} · commit ${shortSha} · episode seed ${seed} (${seedStatus}) · ${count} episodes per condition/fault/plant cell.`;
 }
 
 function initializeFilters() {
@@ -163,7 +171,7 @@ function renderMetrics(row) {
     els.successCI.textContent = '95% CI';
     els.unsafeCI.textContent = '95% CI';
     els.abortCI.textContent = '95% CI';
-    els.latency.textContent = 'Latency —';
+    els.latency.textContent = 'Transport —';
     return;
   }
   els.success.textContent = pct(row.success_rate);
@@ -173,8 +181,17 @@ function renderMetrics(row) {
   els.abort.textContent = pct(row.abort_rate);
   els.abortCI.textContent = ci(row.abort_ci_low, row.abort_ci_high);
   els.reference.textContent = pct(row.mean_reference_available_rate);
-  const latency = num(row.mean_reference_latency_steps);
-  els.latency.textContent = latency === null ? 'Latency —' : `Mean latency ${latency.toFixed(2)} steps`;
+
+  const delivery = num(row.mean_reference_delivery_rate);
+  const configured = num(row.mean_reference_latency_steps);
+  const delivered = num(row.mean_delivered_transport_latency_steps);
+  const age = num(row.mean_reference_age_steps);
+  const parts = [];
+  if (delivery !== null) parts.push(`delivery ${pct(delivery)}`);
+  if (configured !== null) parts.push(`configured ${configured.toFixed(2)} steps`);
+  if (delivered !== null) parts.push(`delivered ${delivered.toFixed(2)}`);
+  if (age !== null) parts.push(`state age ${age.toFixed(2)}`);
+  els.latency.textContent = parts.length ? parts.join(' · ') : 'Transport diagnostics unavailable';
 }
 
 function findPairedRow() {
@@ -216,7 +233,7 @@ function renderEvidence() {
   }
 
   const unsafe = num(selected.unsafe_touchdown_rate) ?? 0;
-  const fault = els.fault.value.replaceAll('_', ' ');
+  const fault = human(els.fault.value);
   const plant = els.plant.value;
   const delta = legacy && stronger
     ? 100 * ((num(stronger.unsafe_touchdown_rate) ?? 0) - (num(legacy.unsafe_touchdown_rate) ?? 0))
@@ -249,7 +266,7 @@ function renderMatrix() {
   const plant = els.plant.value;
   const conditions = unique('condition');
   const faults = unique('fault_scenario');
-  els.matrixPlantLabel.textContent = `${plant.replaceAll('_', ' ')} plant`;
+  els.matrixPlantLabel.textContent = `${human(plant)} plant`;
 
   const table = document.createElement('table');
   table.className = 'matrix-table';
@@ -258,7 +275,7 @@ function renderMatrix() {
   headRow.appendChild(document.createElement('th'));
   faults.forEach(fault => {
     const th = document.createElement('th');
-    th.textContent = fault.replaceAll('_', ' ');
+    th.textContent = human(fault);
     headRow.appendChild(th);
   });
   thead.appendChild(headRow);
@@ -268,7 +285,7 @@ function renderMatrix() {
   conditions.forEach(condition => {
     const tr = document.createElement('tr');
     const label = document.createElement('th');
-    label.textContent = condition.replaceAll('_', ' ');
+    label.textContent = human(condition);
     tr.appendChild(label);
     faults.forEach(fault => {
       const row = state.summary.find(r => r.condition === condition && r.fault_scenario === fault && r.plant_model === plant);
@@ -294,11 +311,73 @@ function renderMatrix() {
   els.matrix.appendChild(table);
 }
 
+function renderWeaknesses() {
+  if (!state.summary.length) return;
+  const plant = els.plant.value;
+  els.rankingPlantLabel.textContent = `${human(plant)} plant`;
+
+  const rows = state.summary
+    .filter(row => row.plant_model === plant)
+    .slice()
+    .sort((a, b) => {
+      const unsafeDiff = (num(b.unsafe_touchdown_rate) ?? -1) - (num(a.unsafe_touchdown_rate) ?? -1);
+      if (unsafeDiff !== 0) return unsafeDiff;
+      const successDiff = (num(a.success_rate) ?? 1) - (num(b.success_rate) ?? 1);
+      if (successDiff !== 0) return successDiff;
+      return `${a.condition}/${a.fault_scenario}`.localeCompare(`${b.condition}/${b.fault_scenario}`);
+    })
+    .slice(0, 6);
+
+  els.weaknessList.className = 'weakness-list';
+  els.weaknessList.innerHTML = '';
+  rows.forEach(row => {
+    const card = document.createElement('div');
+    card.className = 'weakness-row';
+    card.tabIndex = 0;
+    card.setAttribute('role', 'button');
+    card.setAttribute('aria-label', `Inspect ${human(row.condition)} ${human(row.fault_scenario)}`);
+
+    const label = document.createElement('div');
+    label.className = 'weakness-label';
+    const title = document.createElement('strong');
+    title.textContent = `${human(row.condition)} · ${human(row.fault_scenario)}`;
+    const note = document.createElement('span');
+    note.textContent = `n=${row.episodes ?? '—'} · success ${pct(row.success_rate)} · abort ${pct(row.abort_rate)}`;
+    label.append(title, note);
+
+    const rate = document.createElement('div');
+    rate.className = 'weakness-rate';
+    const strong = document.createElement('strong');
+    strong.textContent = pct(row.unsafe_touchdown_rate);
+    const interval = document.createElement('span');
+    interval.textContent = ci(row.unsafe_ci_low, row.unsafe_ci_high);
+    rate.append(strong, interval);
+
+    const selectCell = () => {
+      els.condition.value = row.condition;
+      els.fault.value = row.fault_scenario;
+      render();
+      window.scrollTo({ top: document.querySelector('.controls').offsetTop - 20, behavior: 'smooth' });
+    };
+    card.addEventListener('click', selectCell);
+    card.addEventListener('keydown', event => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        selectCell();
+      }
+    });
+
+    card.append(label, rate);
+    els.weaknessList.appendChild(card);
+  });
+}
+
 function render() {
   renderMetrics(currentRow());
   renderComparison();
   renderEvidence();
   renderMatrix();
+  renderWeaknesses();
   renderProvenance();
 }
 
