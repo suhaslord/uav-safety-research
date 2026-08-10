@@ -1,6 +1,7 @@
 name: Phase 7 External Validity Development
 
 on:
+  workflow_dispatch:
   push:
     paths:
       - '.github/workflows/phase7-development.yml'
@@ -17,7 +18,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e ".[dev]"
-      - name: Run Phase 7 factorial development benchmark
+      - name: Run audited Phase 7 factorial development benchmark
         run: |
           python scripts/run_phase7_external_validity.py \
             --episodes 5 \
@@ -29,7 +30,25 @@ jobs:
             --faults independent reference_drift shared_lateral_bias shared_dropout latency_burst \
             --plants legacy phase7 \
             --out results/phase7_factorial_development
-          printf '%s\n' "$GITHUB_SHA" > results/phase7_factorial_development/git_sha.txt
+      - name: Verify result-bundle provenance
+        run: |
+          python scripts/validate_result_manifest.py results/phase7_factorial_development/result_manifest.json
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          out = Path('results/phase7_factorial_development')
+          bundle = json.loads((out / 'dashboard_bundle.json').read_text(encoding='utf-8'))
+          metadata = json.loads((out / 'run_metadata.json').read_text(encoding='utf-8'))
+          recorded = (out / 'git_sha.txt').read_text(encoding='utf-8').strip()
+          expected = os.environ['GITHUB_SHA']
+          assert recorded == expected
+          assert metadata['git_sha'] == expected
+          assert bundle['metadata']['git_sha'] == expected
+          assert bundle['schema'] == 'aegisland.phase7.dashboard-bundle.v1'
+          print(f'Provenance verified for {expected}')
+          PY
       - name: Upload Phase 7 development artifact
         uses: actions/upload-artifact@v4
         with:
