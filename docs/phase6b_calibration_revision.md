@@ -137,9 +137,25 @@ The frozen V3 safety supervisor remains unchanged.
 
 ## Development landing history
 
-A 30-episode-per-cell Phase 6B development run was completed before the full-domain scale-observability correction. It reached 96.7% success in both mixed and occlusion conditions, but introduced one mixed regression relative to the established Phase 6 Aegis path and one low-light non-success. That run remains development evidence and is not the Phase 6B frozen result.
+The first 30-episode-per-cell Phase 6B development run preceded the full-domain scale-observability correction. It reached 96.7% success in both mixed and occlusion conditions, but introduced one mixed regression relative to the established Phase 6 Aegis path and one low-light non-success. That run remains development evidence and is not the Phase 6B frozen result.
 
-The scale-observability revision must therefore be rerun on the same development seed before final freezing.
+The corrected full-domain scale-observability revision was then rerun on the same development seed `626262`, with 30 paired episodes per condition and architecture. The fixed `0.80 / 0.80` component gates were unchanged.
+
+Corrected Phase 6B development outcomes were:
+
+- clean: **100% success, 0% unsafe touchdown**;
+- blur: **100% success, 0% unsafe touchdown**;
+- low light: **96.7% success, 0% unsafe touchdown**, with one timeout;
+- mixed: **96.7% success, 3.3% unsafe touchdown**;
+- occlusion: **96.7% success, 3.3% unsafe touchdown**.
+
+Against image-only temporal perception, Phase 6B improved mixed success by 40 percentage points and reduced mixed unsafe touchdowns by 40 percentage points; it improved occlusion success by 16.7 points and reduced unsafe touchdowns by 16.7 points.
+
+Against the established Phase 6 Aegis path on this small development set, Phase 6B matched blur, clean, and occlusion outcome rates, while showing one low-light timeout and one mixed unsafe regression. The mixed failure was a vertical touchdown-speed miss of about `0.815 m/s` against the frozen `0.80 m/s` limit; lateral position and horizontal speed were within limits. This result is preserved rather than tuned away.
+
+The component layer also behaved as an actual abstaining perception system. For example, in mixed degradation the mean altitude-component abstention rate was about 70.9%, with the independent reference taking over the rejected altitude component on most of those frames. In blur the altitude-component abstention rate was about 56.8%. The established Phase 6 scalar confidence layer did not provide comparable selective behavior.
+
+These development results are considered technically stable enough to freeze because the component calibration now exposes the intended uncertainty behavior, the architecture remains strong relative to image-only perception, all tests pass, and no further landing-outcome-driven tuning is justified before the preregistered held-out evaluation.
 
 ## Seed ledger
 
