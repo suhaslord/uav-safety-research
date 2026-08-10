@@ -22,9 +22,8 @@ class SharpFrameMeasurement(FrameMeasurement):
 class SharpnessAwarePadEstimator(Phase6PadEstimator):
     """Preserve the Phase 6 geometric estimate and add a blur-sensitive feature.
 
-    The sharpness score is not used to alter x or z. It is exposed only to the
-    offline-fitted confidence model, keeping measurement and calibration roles
-    separate.
+    Sharpness is used only by confidence calibration. It never directly edits
+    the x/z measurement.
     """
 
     def estimate(self, image: np.ndarray) -> SharpFrameMeasurement:
@@ -133,7 +132,14 @@ class ComponentConfidenceCalibrator:
 
     `p_x_good` estimates P(|x_hat-x| <= tolerance_x_m).
     `p_z_good` estimates P(|z_hat-z| <= tolerance_z_m).
-    No condition label is available at runtime; all predictors are image-derived.
+
+    Altitude confidence additionally receives a simulation-specific analytic
+    observability cap. The Phase 6 renderer quantizes apparent marker half-size
+    to integer pixels before drawing. At small apparent sizes, one adjacent
+    scale bin can represent more than the 0.85 m altitude tolerance. A learned
+    image-quality score alone cannot infer that hidden sub-pixel position, so the
+    cap prevents the model from claiming more confidence than the synthetic
+    camera geometry can resolve.
     """
 
     x_model: _BinaryCalibrator
@@ -149,6 +155,7 @@ class ComponentConfidenceCalibrator:
         "component_support_log_normalized",
         "contrast_normalized",
         "sharpness_score",
+        "scale_quantization_bin_width_normalized",
         "raw_x_measured_z",
         "geometry_x_measured_z",
         "sharpness_x_measured_z",
@@ -197,15 +204,16 @@ class ComponentConfidenceCalibrator:
     @staticmethod
     def feature_vector(m: SharpFrameMeasurement) -> np.ndarray:
         if not m.valid:
-            return np.zeros(12, dtype=float)
+            return np.zeros(13, dtype=float)
 
         raw = float(np.clip(m.raw_confidence, 0.0, 1.0))
         geometry = float(np.clip(m.geometry_score, 0.0, 1.0))
-        z_norm = float(np.clip(m.z_m / 6.5, 0.0, 1.25))
+        z_norm = float(np.clip(m.z_m / 8.0, 0.0, 1.05))
         width_norm = float(np.clip(m.bbox_width_px / 96.0, 0.0, 1.0))
         support_norm = float(np.clip(np.log1p(m.selected_pixels) / np.log(2500.0), 0.0, 1.2))
         contrast_norm = float(np.clip(m.contrast / 0.70, 0.0, 1.4))
         sharp = float(np.clip(m.sharpness_score, 0.0, 1.5))
+        scale_bin_norm = float(np.clip(altitude_scale_bin_width_m(m) / 1.75, 0.0, 1.5))
 
         return np.asarray([
             raw,
@@ -215,6 +223,7 @@ class ComponentConfidenceCalibrator:
             support_norm,
             contrast_norm,
             sharp,
+            scale_bin_norm,
             raw * z_norm,
             geometry * z_norm,
             sharp * z_norm,
@@ -222,23 +231,30 @@ class ComponentConfidenceCalibrator:
             contrast_norm * sharp,
         ], dtype=float)
 
-    def probabilities(self, m: SharpFrameMeasurement) -> tuple[float, float]:
+    def learned_probabilities(self, m: SharpFrameMeasurement) -> tuple[float, float]:
         if not m.valid:
             return 0.0, 0.0
         f = self.feature_vector(m)
         return self.x_model.probability(f), self.z_model.probability(f)
 
+    def probabilities(self, m: SharpFrameMeasurement) -> tuple[float, float]:
+        if not m.valid:
+            return 0.0, 0.0
+        p_x, p_z_learned = self.learned_probabilities(m)
+        p_z_cap = altitude_observability_cap(m, self.tolerance_z_m)
+        return float(p_x), float(min(p_z_learned, p_z_cap))
+
     def joint_probability_lower_bound(self, m: SharpFrameMeasurement) -> float:
         px, pz = self.probabilities(m)
-        # Fréchet lower bound avoids assuming independence between x and z errors.
         return float(max(0.0, px + pz - 1.0))
 
     def to_dict(self) -> dict:
         return {
-            "model": "sharpness_aware_component_logistic_plus_heldout_platt",
+            "model": "sharpness_scale_observability_component_logistic_plus_heldout_platt",
             "feature_names": list(self.FEATURE_NAMES),
             "tolerance_x_m": self.tolerance_x_m,
             "tolerance_z_m": self.tolerance_z_m,
+            "altitude_observability_cap": "min(1, tolerance_z_m / adjacent_renderer_scale_bin_width_m)",
             "x_model": self.x_model.to_dict(),
             "z_model": self.z_model.to_dict(),
         }
@@ -260,11 +276,9 @@ def fit_component_calibrator(
     xerr: list[float] = []
     zerr: list[float] = []
 
-    # Fit on condition-balanced frames spanning the full simulated landing
-    # envelope. Altitude is stratified so near-ground, middle, and initial
-    # 5-8 m regimes cannot be underrepresented by chance. Runtime never receives
-    # a condition or altitude-band label; both are used only to construct the
-    # offline calibration dataset.
+    # Condition-balanced and altitude-stratified across the full simulated
+    # landing envelope. Runtime never receives a condition or altitude-band
+    # label; those variables only construct the offline calibration dataset.
     altitude_bands = (
         (0.25, 2.0),
         (2.0, 4.0),
@@ -303,6 +317,33 @@ def fit_component_calibrator(
     )
 
 
+def altitude_scale_bin_width_m(m: SharpFrameMeasurement) -> float:
+    """Approximate altitude span represented by one renderer half-size bin.
+
+    The renderer uses ``int(35 / (z + 0.60))`` for apparent half-size. If the
+    observed estimate implies half-size h, adjacent true altitudes that map into
+    that integer bin span approximately 35/h - 35/(h+1). This is a synthetic
+    camera-resolution diagnostic, not a real-camera uncertainty formula.
+    """
+
+    if not m.valid:
+        return float("inf")
+    implied_half = float(np.clip(35.0 / max(0.61, m.z_m + 0.60), 2.0, 70.0))
+    width = 35.0 / implied_half - 35.0 / (implied_half + 1.0)
+    return float(max(0.0, width))
+
+
+def altitude_observability_cap(m: SharpFrameMeasurement, tolerance_z_m: float = 0.85) -> float:
+    """Conservative confidence ceiling imposed by synthetic scale quantization."""
+
+    if not m.valid:
+        return 0.0
+    bin_width = altitude_scale_bin_width_m(m)
+    if not np.isfinite(bin_width) or bin_width <= 1e-9:
+        return 0.0
+    return float(np.clip(tolerance_z_m / bin_width, 0.0, 1.0))
+
+
 def _sharpness_score(image: np.ndarray) -> float:
     """Robust normalized high-frequency energy; higher means crisper edges."""
 
@@ -317,8 +358,6 @@ def _sharpness_score(image: np.ndarray) -> float:
     gradients = np.concatenate([gx, gy])
     q99 = float(np.percentile(gradients, 99))
     q90 = float(np.percentile(gradients, 90))
-    # Strong clean edges create a high upper-tail gradient concentration. Blur
-    # spreads the same contrast across pixels, reducing this statistic.
     concentration = max(0.0, q99 - 0.35 * q90) / dynamic
     return float(np.clip(1.8 * concentration, 0.0, 1.5))
 
