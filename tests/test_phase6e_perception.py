@@ -28,15 +28,15 @@ def test_phase6e_fixes_known_clean_near_ground_alias_frame():
     assert abs(new.z_m - true_z) < 0.20
 
 
-def test_phase6e_fixes_known_occlusion_near_ground_alias_class():
+def test_phase6e_fixes_archived_occlusion_near_ground_alias_frame():
     renderer = Phase6LandingPadRenderer()
     historical = SharpnessAwarePadEstimator()
     candidate = Phase6ERobustPadEstimator()
-    true_z = 0.18
+    true_z = 0.08
     frame = renderer.render(
-        x_offset_m=-1.035,
+        x_offset_m=-0.454723,
         altitude_m=true_z,
-        rng=np.random.default_rng(1996405819),
+        rng=np.random.default_rng(1514818703),
         condition="occlusion",
         severity=1.0,
     )
@@ -44,8 +44,8 @@ def test_phase6e_fixes_known_occlusion_near_ground_alias_class():
     old = historical.estimate(frame)
     new = candidate.estimate(frame)
     assert old.valid and new.valid
-    # The candidate must move the estimate toward the true near-ground regime.
-    assert abs(new.z_m - true_z) < abs(old.z_m - true_z)
+    assert abs(old.z_m - true_z) > 4.0
+    assert abs(new.z_m - true_z) < 0.20
 
 
 def test_phase6e_mid_altitude_clean_estimate_remains_accurate():
