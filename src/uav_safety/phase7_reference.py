@@ -232,13 +232,16 @@ class Phase7SensorStackReferenceEstimator:
         delayed = list(self._history)[-(latency + 1)]
         delayed_obs = delayed.observation
         if delayed_obs.available:
+            # ``fresh`` means a newly delivered sensor update, not zero transport
+            # delay. A delayed acquisition can still be new information when it
+            # reaches the estimator on this timestep.
             delayed_obs = ReferenceObservation(
                 x=delayed_obs.x,
                 z=delayed_obs.z,
                 vx=delayed_obs.vx,
                 vz=delayed_obs.vz,
                 sigma_pos=float(min(c.max_sigma_pos_m, delayed_obs.sigma_pos + latency * c.stale_sigma_growth_per_step)),
-                fresh=bool(delayed_obs.fresh and latency == 0),
+                fresh=bool(delayed_obs.fresh),
                 available=True,
                 age_steps=int(delayed_obs.age_steps + latency),
             )
