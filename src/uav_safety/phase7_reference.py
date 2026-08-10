@@ -80,8 +80,14 @@ class Phase7SensorStackReferenceEstimator:
     is discarded once it is obsolete; no acquisition is re-delivered as fresh.
 
     GNSS-like, barometric-like, and range-like measurements use isolated RNG
-    streams. A plant-dependent range-sensor activation therefore cannot shift the
-    later GNSS or barometer noise sequence in paired plant experiments.
+    streams. Scheduled draws are consumed even when a measurement is dropped or a
+    range reading is out of range, keeping each sensor stream indexed by time.
+
+    ``ReferenceObservation.fresh`` intentionally means **fresh lateral/GNSS
+    evidence**, because the historical V3 bias estimator uses that scalar flag to
+    decide when to add a new lateral disagreement sample. Vertical-only updates
+    remain visible through diagnostics without being miscounted as new lateral
+    evidence.
     """
 
     def __init__(
@@ -134,44 +140,45 @@ class Phase7SensorStackReferenceEstimator:
         self._z_age += 1
 
         if step % c.gnss_update_every_steps == 0:
+            # Consume a fixed draw pattern every scheduled GNSS update. Bias
+            # state evolves independently of whether this particular packet is
+            # observable, which avoids dropout changing all later GNSS noise.
+            drop_draw = float(self._gnss_rng.random())
+            bias_walk = float(self._gnss_rng.normal(0.0, c.gnss_bias_walk_sigma_m))
+            x_noise = float(self._gnss_rng.normal(0.0, c.gnss_sigma_x_m))
+            vx_noise = float(self._gnss_rng.normal(0.0, c.gnss_sigma_vx_mps))
+            self._gnss_bias += bias_walk
             p_drop = float(np.clip(c.gnss_dropout_prob + f.reference_dropout_boost, 0.0, 0.98))
-            if self._gnss_rng.random() >= p_drop:
-                self._gnss_bias += float(self._gnss_rng.normal(0.0, c.gnss_bias_walk_sigma_m))
-                self._x = float(
-                    state.x
-                    + self._gnss_bias
-                    + f.reference_x_bias_m
-                    + self._gnss_rng.normal(0.0, c.gnss_sigma_x_m)
-                )
-                self._vx = float(state.vx + self._gnss_rng.normal(0.0, c.gnss_sigma_vx_mps))
+            if not f.shared_dropout_event and drop_draw >= p_drop:
+                self._x = float(state.x + self._gnss_bias + f.reference_x_bias_m + x_noise)
+                self._vx = float(state.vx + vx_noise)
                 self._x_age = 0
                 gnss_fresh = True
 
         vertical_candidates: list[tuple[float, float]] = []
         if step % c.baro_update_every_steps == 0:
+            drop_draw = float(self._baro_rng.random())
+            bias_walk = float(self._baro_rng.normal(0.0, c.baro_bias_walk_sigma_m))
+            z_noise = float(self._baro_rng.normal(0.0, c.baro_sigma_z_m))
+            self._baro_bias += bias_walk
             p_drop = float(np.clip(c.baro_dropout_prob + f.reference_dropout_boost, 0.0, 0.98))
-            if self._baro_rng.random() >= p_drop:
-                self._baro_bias += float(self._baro_rng.normal(0.0, c.baro_bias_walk_sigma_m))
-                z_baro = float(
-                    max(
-                        0.0,
-                        state.z
-                        + self._baro_bias
-                        + f.reference_z_bias_m
-                        + self._baro_rng.normal(0.0, c.baro_sigma_z_m),
-                    )
-                )
+            if not f.shared_dropout_event and drop_draw >= p_drop:
+                z_baro = float(max(0.0, state.z + self._baro_bias + f.reference_z_bias_m + z_noise))
                 vertical_candidates.append((z_baro, c.baro_sigma_z_m))
                 baro_fresh = True
 
         if step % c.range_update_every_steps == 0:
-            # Draw every scheduled range step, even while out of range, so the
-            # range RNG is indexed by time rather than by a plant-dependent
-            # altitude crossing.
+            # Draw every scheduled range step, even while out of range or during
+            # a shared outage, so the range RNG is indexed by time rather than by
+            # a plant-dependent altitude crossing.
             range_drop_draw = float(self._range_rng.random())
             range_noise = float(self._range_rng.normal(0.0, c.range_sigma_z_m))
             p_drop = float(np.clip(c.range_dropout_prob + f.reference_dropout_boost, 0.0, 0.98))
-            if state.z <= c.range_max_altitude_m and range_drop_draw >= p_drop:
+            if (
+                not f.shared_dropout_event
+                and state.z <= c.range_max_altitude_m
+                and range_drop_draw >= p_drop
+            ):
                 z_range = float(max(0.0, state.z + range_noise))
                 vertical_candidates.append((z_range, c.range_sigma_z_m))
                 range_fresh = True
@@ -209,7 +216,7 @@ class Phase7SensorStackReferenceEstimator:
                 vx=float(self._vx),
                 vz=float(self._vz),
                 sigma_pos=sigma_pos,
-                fresh=bool(gnss_fresh or baro_fresh or range_fresh),
+                fresh=bool(gnss_fresh),
                 available=True,
                 age_steps=int(max(self._x_age, self._z_age)),
             )
@@ -234,33 +241,55 @@ class Phase7SensorStackReferenceEstimator:
             delivered_age_steps=int(acquired_obs.age_steps),
             new_delivery=False,
         )
-        snapshot = _ReferenceSnapshot(
-            acquisition_step=step,
-            scheduled_latency_steps=latency,
-            observation=acquired_obs,
-            diagnostics=acquisition_diag,
-        )
-        self._pending.append((step + latency, snapshot))
 
-        due: list[_ReferenceSnapshot] = []
-        still_pending: list[tuple[int, _ReferenceSnapshot]] = []
-        for delivery_step, pending_snapshot in self._pending:
-            if delivery_step <= step:
-                due.append(pending_snapshot)
-            else:
-                still_pending.append((delivery_step, pending_snapshot))
-        self._pending = still_pending
+        # A common-mode dropout represents an observation-layer blackout. No new
+        # reference packet is acquired or delivered on that frame. Already
+        # queued packets remain queued and can arrive after the outage clears.
+        if not f.shared_dropout_event:
+            snapshot = _ReferenceSnapshot(
+                acquisition_step=step,
+                scheduled_latency_steps=latency,
+                observation=acquired_obs,
+                diagnostics=acquisition_diag,
+            )
+            self._pending.append((step + latency, snapshot))
 
-        new_delivery = False
-        candidates = [
-            item for item in due
-            if item.acquisition_step > self._last_delivered_acquisition_step
-        ]
-        if candidates:
-            newest = max(candidates, key=lambda item: item.acquisition_step)
-            self._last_delivered = newest
-            self._last_delivered_acquisition_step = newest.acquisition_step
-            new_delivery = True
+            due: list[_ReferenceSnapshot] = []
+            still_pending: list[tuple[int, _ReferenceSnapshot]] = []
+            for delivery_step, pending_snapshot in self._pending:
+                if delivery_step <= step:
+                    due.append(pending_snapshot)
+                else:
+                    still_pending.append((delivery_step, pending_snapshot))
+            self._pending = still_pending
+
+            candidates = [
+                item for item in due
+                if item.acquisition_step > self._last_delivered_acquisition_step
+            ]
+            new_delivery = bool(candidates)
+            if candidates:
+                newest = max(candidates, key=lambda item: item.acquisition_step)
+                self._last_delivered = newest
+                self._last_delivered_acquisition_step = newest.acquisition_step
+        else:
+            new_delivery = False
+
+        if f.shared_dropout_event:
+            diag = Phase7ReferenceDiagnostics(
+                gnss_fresh=False,
+                baro_fresh=False,
+                range_fresh=False,
+                gnss_age_steps=int(self._x_age),
+                vertical_age_steps=int(self._z_age),
+                applied_latency_steps=latency,
+                gnss_bias_m=float(self._gnss_bias + f.reference_x_bias_m),
+                baro_bias_m=float(self._baro_bias + f.reference_z_bias_m),
+                delivered_transport_latency_steps=0,
+                delivered_age_steps=10**6,
+                new_delivery=False,
+            )
+            return self._unavailable(), diag
 
         if self._last_delivered is None:
             diag = Phase7ReferenceDiagnostics(
@@ -311,7 +340,7 @@ class Phase7SensorStackReferenceEstimator:
             applied_latency_steps=latency,
             gnss_bias_m=source_diag.gnss_bias_m,
             baro_bias_m=source_diag.baro_bias_m,
-            delivered_transport_latency_steps=int(delivered.scheduled_latency_steps),
+            delivered_transport_latency_steps=int(transport_age),
             delivered_age_steps=delivered_age,
             new_delivery=new_delivery,
         )
