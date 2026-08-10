@@ -4,6 +4,9 @@ on:
   push:
     paths:
       - '.github/workflows/phase6-altitude-response.yml'
+      - 'scripts/benchmark_phase6_altitude_response.py'
+      - 'src/uav_safety/selective_confidence_v2.py'
+      - 'src/uav_safety/image_temporal.py'
   workflow_dispatch:
 
 permissions:
