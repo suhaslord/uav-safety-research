@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import asdict
 from pathlib import Path
 import argparse
 import json
@@ -8,13 +9,25 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+from uav_safety.config import ControllerConfig, SimConfig
 from uav_safety.image_perception import IMAGE_CONDITIONS
-from uav_safety.image_temporal import Phase6LandingPadRenderer, Phase6PadEstimator, fit_synthetic_calibrator
+from uav_safety.image_temporal import (
+    PHASE6_HORIZONTAL_SPAN_M,
+    Phase6LandingPadRenderer,
+    Phase6PadEstimator,
+    TemporalImageConfig,
+    fit_synthetic_calibrator,
+)
 from uav_safety.metrics import wilson_interval
+from uav_safety.phase6_fusion import Phase6FusionConfig
+from uav_safety.phase6_velocity import RobustVelocityConfig
+from uav_safety.reference_estimator import ReferenceEstimatorConfig
 from uav_safety.simulator_image_v3 import run_image_episode
+from uav_safety.supervisor_v3 import SupervisorV3Config
 
 
 ARCHITECTURES = ("image_temporal", "image_aegis_v3")
+PHASE6_ALGORITHM_FREEZE_COMMIT = "9cddd41b76302ecc04492ef89fa56de0ea70bc21"
 
 
 def _episode_seeds(seed: int, condition_index: int, episodes: int) -> list[int]:
@@ -167,6 +180,23 @@ def expected_calibration_error(reliability: pd.DataFrame) -> float:
     return float((weights * reliability["absolute_calibration_gap"]).sum())
 
 
+def _config_snapshot() -> dict:
+    return {
+        "simulation": asdict(SimConfig()),
+        "controller": asdict(ControllerConfig()),
+        "temporal_image": asdict(TemporalImageConfig()),
+        "robust_velocity": asdict(RobustVelocityConfig()),
+        "phase6_fusion": asdict(Phase6FusionConfig()),
+        "frozen_v3_supervisor": asdict(SupervisorV3Config()),
+        "reference_estimator": asdict(ReferenceEstimatorConfig()),
+        "renderer": {
+            "class": "Phase6LandingPadRenderer",
+            "horizontal_span_m": PHASE6_HORIZONTAL_SPAN_M,
+            "perspective_half_size_formula": "clip(35 / (max(0.05, z) + 0.60), 4, floor(0.46 * image_size))",
+        },
+    }
+
+
 def save_results(raw, summary, paired, reliability, calibrator, out: Path, args) -> None:
     out.mkdir(parents=True, exist_ok=True)
     raw.to_csv(out / "episodes.csv", index=False)
@@ -176,8 +206,11 @@ def save_results(raw, summary, paired, reliability, calibrator, out: Path, args)
     ece = expected_calibration_error(reliability)
     (out / "calibrator.json").write_text(json.dumps(calibrator.to_dict(), indent=2), encoding="utf-8")
     (out / "run_metadata.json").write_text(json.dumps({
+        "run_role": args.run_role,
+        "phase6_algorithm_freeze_commit": PHASE6_ALGORITHM_FREEZE_COMMIT,
         "evaluation_seed": args.seed,
         "calibration_seed": args.calibration_seed,
+        "calibration_audit_seed": args.seed + 9090,
         "episodes_per_condition_architecture": args.episodes,
         "calibration_samples_per_condition": args.calibration_samples,
         "severity": args.severity,
@@ -188,15 +221,15 @@ def save_results(raw, summary, paired, reliability, calibrator, out: Path, args)
         "reference_rng_isolated": True,
         "confidence_intervals": "95% Wilson intervals for success/unsafe/abort rates",
         "calibration_ece": ece,
-        "renderer": "phase6 perspective synthetic landing-pad renderer",
+        "configuration": _config_snapshot(),
         "scope": "simulation-only synthetic image sequences",
     }, indent=2), encoding="utf-8")
 
     (out / "summary.md").write_text(
         "# Phase 6: pixel-sequence landing comparison\n\n"
-        "The calibration set and evaluation episode seeds are separate. Runtime "
-        "Aegis receives image-derived observations plus the intentionally imperfect "
-        "independent reference estimator used by V3.\n\n"
+        f"Run role: **{args.run_role}**. Calibration and evaluation seeds are separate. "
+        "Runtime Aegis receives image-derived observations plus the intentionally "
+        "imperfect independent reference estimator used by V3.\n\n"
         f"Calibration expected calibration error (ECE): **{ece:.4f}**.\n\n"
         + summary.to_markdown(index=False)
         + "\n\n## Paired effects\n\n"
@@ -230,6 +263,7 @@ def main() -> None:
     parser.add_argument("--calibration-seed", type=int, default=616161)
     parser.add_argument("--calibration-samples", type=int, default=180)
     parser.add_argument("--severity", type=float, default=1.0)
+    parser.add_argument("--run-role", choices=("development", "frozen", "exploratory"), default="development")
     parser.add_argument("--out", type=Path, default=Path("results/phase6_image_landing"))
     args = parser.parse_args()
 
