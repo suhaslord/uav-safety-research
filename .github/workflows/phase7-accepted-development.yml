@@ -1,0 +1,114 @@
+name: Phase 7 Accepted Development
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/phase7-accepted-development.yml'
+
+jobs:
+  accepted-development:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Compile all Python
+        run: python -m compileall -q src scripts tests
+      - name: Check Research Cockpit JavaScript
+        run: node --check dashboard/app.js
+      - name: Full test suite
+        run: pytest -q
+      - name: Run accepted current-architecture development factorial
+        run: |
+          python scripts/run_phase7_external_validity.py \
+            --episodes 5 \
+            --seed 979797 \
+            --calibration-seed 616161 \
+            --temporal-calibration-samples 180 \
+            --component-calibration-samples 280 \
+            --conditions clean low_light occlusion mixed \
+            --faults independent reference_drift shared_lateral_bias shared_dropout latency_burst \
+            --plants legacy phase7 \
+            --out results/phase7_accepted_development
+      - name: Stamp exact audited architecture
+        run: |
+          python scripts/stamp_phase7_bundle.py \
+            results/phase7_accepted_development \
+            --git-sha "$GITHUB_SHA"
+      - name: Verify provenance, structure, and audited semantics
+        run: |
+          python scripts/validate_result_manifest.py results/phase7_accepted_development/result_manifest.json
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          out = Path('results/phase7_accepted_development')
+          metadata = json.loads((out / 'run_metadata.json').read_text(encoding='utf-8'))
+          bundle = json.loads((out / 'dashboard_bundle.json').read_text(encoding='utf-8'))
+          manifest = json.loads((out / 'result_manifest.json').read_text(encoding='utf-8'))
+          expected = os.environ['GITHUB_SHA']
+
+          expected_semantics = {
+              'image_rng_model': 'frame_indexed_v1',
+              'sensor_transport_model': 'scheduled_delivery_queue_v1',
+              'sensor_rng_model': 'channel_isolated_time_indexed_v1',
+              'reference_lateral_freshness_model': 'gnss_delivery_only_v1',
+              'component_reference_freshness_model': 'per_component_delivered_v1',
+              'shared_dropout_model': 'single_common_event_blackout_v1',
+              'phase7_architecture_status': 'current_development_architecture',
+          }
+
+          assert metadata['git_sha'] == expected
+          assert bundle['metadata']['git_sha'] == expected
+          assert manifest['extra']['git_sha'] == expected
+          assert metadata['episode_seed'] == 979797
+          assert metadata['episode_seed_status'] == 'development_seen'
+          assert metadata['episodes_per_condition_fault_plant'] == 5
+          assert metadata['paired_plant_episode_seeds'] is True
+          assert metadata['historical_phase6b_frozen_commit'] == 'b4e9838555e935a5ec42690495315473629b58f6'
+
+          for key, value in expected_semantics.items():
+              assert metadata[key] == value
+              assert bundle['metadata'][key] == value
+              assert manifest['extra'][key] == value
+
+          assert bundle['schema'] == 'aegisland.phase7.dashboard-bundle.v1'
+          assert len(bundle['summary']) == 40
+          assert len(bundle['paired_plant_effects']) == 20
+
+          required_summary_fields = {
+              'mean_shared_dropout_event_rate',
+              'mean_image_drop_rate',
+              'mean_reference_available_rate',
+              'mean_reference_delivery_rate',
+              'mean_reference_latency_steps',
+              'mean_delivered_transport_latency_steps',
+              'mean_reference_age_steps',
+              'mean_max_reference_age_steps',
+          }
+          for row in bundle['summary']:
+              assert required_summary_fields.issubset(row)
+              assert row['episodes'] == 5
+              assert row['plant_model'] in {'legacy', 'phase7'}
+
+          assert {row['fault_scenario'] for row in bundle['summary']} == {
+              'independent', 'reference_drift', 'shared_lateral_bias', 'shared_dropout', 'latency_burst'
+          }
+          assert {row['condition'] for row in bundle['summary']} == {
+              'clean', 'low_light', 'occlusion', 'mixed'
+          }
+          print(f'Current Phase 7 development artifact accepted structurally at {expected}')
+          PY
+      - name: Upload accepted Phase 7 development artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase7-accepted-development
+          path: results/phase7_accepted_development
+          retention-days: 30
