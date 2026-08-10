@@ -77,7 +77,9 @@ def main() -> None:
         "episodes": args.episodes,
         "component_thresholds": {"lateral": 0.80, "altitude": 0.80},
         "altitude_consistency": {"sigma_threshold": 3.0, "min_combined_sigma_m": 0.20},
-        "reserved_unseen_seeds_not_used": [868686, 878787],
+        "historical_seen_heldout_seeds_do_not_reuse": [868686, 878787],
+        "replacement_reserved_unseen_seeds_not_used": [918271, 928271],
+        "integrity_note": "docs/research_integrity_recovery.md",
     }, indent=2), encoding="utf-8")
 
     print(summary.to_string(index=False))
