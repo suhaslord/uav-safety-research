@@ -1,0 +1,52 @@
+name: Phase 6B Landing Development
+
+on:
+  push:
+    paths:
+      - '.github/workflows/phase6b-development.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  phase6b-development:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Full test suite
+        run: pytest -q
+
+      - name: Run paired Phase 6B development comparison
+        run: |
+          python scripts/run_phase6b_landing.py \
+            --episodes 30 \
+            --seed 626262 \
+            --calibration-seed 616161 \
+            --temporal-calibration-samples 180 \
+            --component-calibration-samples 280 \
+            --lateral-threshold 0.80 \
+            --altitude-threshold 0.80 \
+            --run-role development \
+            --out results/phase6b_development
+
+      - name: Decompose touchdown failures
+        run: python scripts/analyze_phase6_failures.py --results results/phase6b_development
+
+      - name: Upload Phase 6B development results
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase6b-development-results
+          path: results/phase6b_development
+          if-no-files-found: error
+          retention-days: 45
