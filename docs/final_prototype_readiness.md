@@ -4,6 +4,14 @@ This checklist defines what must be true before the current research branch is d
 
 It is intentionally stricter than "the code runs." AegisLand is a simulation-only research prototype, and a passing software test or simulator run is not a physical-aircraft safety claim.
 
+## Current refinement snapshot
+
+- camera world-pose provenance correction: `fae622cfa448e4945174e8c03982686c7b1b0e3a`
+- one-command prototype smoke test: `33c5c73768757b508f5c613b2fba73f94e3fd5a6`
+- heavy evidence-workflow path scoping: `ec79bcb944226450ee0c4ed7b0d6a050e36d4a45`
+
+Documentation commits after these implementation changes do not redefine the scientific experiment.
+
 ## Release-candidate gates
 
 ### 1. Historical research boundaries remain frozen
@@ -50,7 +58,8 @@ It is intentionally stricter than "the code runs." AegisLand is a simulation-onl
 ### 6. Prototype presentation
 
 - [x] Heavy Gazebo evidence CI is limited to evidence-relevant source changes and remains manually dispatchable.
-- [ ] Synchronize README and external-review packet with the final exact evidence status.
+- [x] README exposes a one-command prototype smoke path and states the camera-pose provenance correction honestly.
+- [ ] Synchronize the external-review packet with the final exact evidence status.
 - [ ] Add the final exact commit SHA, workflow run ID, artifact ID/digest, and limitations to the release checkpoint.
 - [ ] Keep PR #13 draft and unmerged until the final audit is complete.
 
