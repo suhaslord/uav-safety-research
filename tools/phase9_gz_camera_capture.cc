@@ -4,6 +4,7 @@
 
 #include <atomic>
 #include <chrono>
+#include <cmath>
 #include <csignal>
 #include <filesystem>
 #include <fstream>
@@ -12,6 +13,7 @@
 #include <mutex>
 #include <optional>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <thread>
 
@@ -38,6 +40,92 @@ struct PoseSample {
   double qw{1.0};
 };
 
+struct Quaternion {
+  double x{0.0};
+  double y{0.0};
+  double z{0.0};
+  double w{1.0};
+};
+
+Quaternion Normalize(Quaternion q) {
+  const double norm = std::sqrt(q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w);
+  if (norm < 1e-12) {
+    throw std::runtime_error("Gazebo pose quaternion has zero norm");
+  }
+  q.x /= norm;
+  q.y /= norm;
+  q.z /= norm;
+  q.w /= norm;
+  return q;
+}
+
+Quaternion Multiply(const Quaternion &a, const Quaternion &b) {
+  return Normalize({
+      a.w * b.x + a.x * b.w + a.y * b.z - a.z * b.y,
+      a.w * b.y - a.x * b.z + a.y * b.w + a.z * b.x,
+      a.w * b.z + a.x * b.y - a.y * b.x + a.z * b.w,
+      a.w * b.w - a.x * b.x - a.y * b.y - a.z * b.z,
+  });
+}
+
+void RotateVector(const Quaternion &raw_q, double x, double y, double z,
+                  double &out_x, double &out_y, double &out_z) {
+  const Quaternion q = Normalize(raw_q);
+  const double tx = 2.0 * (q.y * z - q.z * y);
+  const double ty = 2.0 * (q.z * x - q.x * z);
+  const double tz = 2.0 * (q.x * y - q.y * x);
+  out_x = x + q.w * tx + (q.y * tz - q.z * ty);
+  out_y = y + q.w * ty + (q.z * tx - q.x * tz);
+  out_z = z + q.w * tz + (q.x * ty - q.y * tx);
+}
+
+std::string ExtractModelName(const std::string &image_topic) {
+  const std::string marker = "/model/";
+  const std::size_t begin = image_topic.find(marker);
+  if (begin == std::string::npos) {
+    throw std::runtime_error("camera topic does not contain /model/: " + image_topic);
+  }
+  const std::size_t name_begin = begin + marker.size();
+  const std::size_t end = image_topic.find('/', name_begin);
+  if (end == std::string::npos || end == name_begin) {
+    throw std::runtime_error("camera topic does not expose a model name: " + image_topic);
+  }
+  return image_topic.substr(name_begin, end - name_begin);
+}
+
+bool ModelNameMatches(const std::string &pose_name, const std::string &model_name) {
+  if (pose_name == model_name) {
+    return true;
+  }
+  const std::string scoped_suffix = "::" + model_name;
+  return pose_name.size() > scoped_suffix.size() &&
+         pose_name.compare(pose_name.size() - scoped_suffix.size(), scoped_suffix.size(), scoped_suffix) == 0;
+}
+
+PoseSample ComposeWorldCamera(const PoseSample &world_model, const PoseSample &model_camera,
+                              const std::string &model_name, double receive_elapsed_s) {
+  const Quaternion q_world_model{world_model.qx, world_model.qy, world_model.qz, world_model.qw};
+  const Quaternion q_model_camera{model_camera.qx, model_camera.qy, model_camera.qz, model_camera.qw};
+  double rx = 0.0;
+  double ry = 0.0;
+  double rz = 0.0;
+  RotateVector(q_world_model, model_camera.x, model_camera.y, model_camera.z, rx, ry, rz);
+  const Quaternion q_world_camera = Multiply(q_world_model, q_model_camera);
+
+  PoseSample sample;
+  sample.valid = true;
+  sample.name = model_name + "::" + model_camera.name;
+  sample.receive_elapsed_s = receive_elapsed_s;
+  sample.x = world_model.x + rx;
+  sample.y = world_model.y + ry;
+  sample.z = world_model.z + rz;
+  sample.qx = q_world_camera.x;
+  sample.qy = q_world_camera.y;
+  sample.qz = q_world_camera.z;
+  sample.qw = q_world_camera.w;
+  return sample;
+}
+
 std::string CsvEscape(const std::string &value) {
   if (value.find_first_of(",\"\n\r") == std::string::npos) {
     return value;
@@ -60,6 +148,7 @@ class CameraCapture {
                 std::size_t save_every, std::size_t max_frames)
       : image_topic_(std::move(image_topic)),
         pose_topic_(std::move(pose_topic)),
+        model_name_(ExtractModelName(image_topic_)),
         out_dir_(std::move(out_dir)),
         save_every_(save_every),
         max_frames_(max_frames),
@@ -105,20 +194,36 @@ class CameraCapture {
     return static_cast<double>(stamp.sec()) + static_cast<double>(stamp.nsec()) * 1e-9;
   }
 
+  static PoseSample FromPoseMessage(const gz::msgs::Pose &pose, double now) {
+    PoseSample sample;
+    sample.valid = true;
+    sample.name = pose.name();
+    sample.receive_elapsed_s = now;
+    sample.x = pose.position().x();
+    sample.y = pose.position().y();
+    sample.z = pose.position().z();
+    sample.qx = pose.orientation().x();
+    sample.qy = pose.orientation().y();
+    sample.qz = pose.orientation().z();
+    sample.qw = pose.orientation().w();
+    return sample;
+  }
+
   void OnPose(const gz::msgs::Pose_V &msg) {
     const double now = ElapsedSeconds();
-    std::optional<PoseSample> best;
-    int best_score = -1;
+    std::optional<PoseSample> model_pose;
+    std::optional<PoseSample> camera_local_pose;
+    int camera_best_score = -1;
+
     for (const auto &pose : msg.pose()) {
       const std::string &name = pose.name();
+      if (ModelNameMatches(name, model_name_)) {
+        model_pose = FromPoseMessage(pose, now);
+      }
+
       if (name.find("camera_link") == std::string::npos) {
         continue;
       }
-
-      // The exact scoped camera-link name is simulator-generated. Prefer the
-      // X500 mono-camera entity when present, but do not require a brittle
-      // hard-coded scope prefix. The workflow independently discovers the
-      // camera topic from the live Gazebo graph.
       int score = 1;
       if (name.find("mono_cam") != std::string::npos) {
         score += 10;
@@ -126,34 +231,31 @@ class CameraCapture {
       if (name.find("x500") != std::string::npos) {
         score += 20;
       }
-      if (score <= best_score) {
-        continue;
+      if (score > camera_best_score) {
+        camera_local_pose = FromPoseMessage(pose, now);
+        camera_best_score = score;
       }
-
-      PoseSample sample;
-      sample.valid = true;
-      sample.name = name;
-      sample.receive_elapsed_s = now;
-      sample.x = pose.position().x();
-      sample.y = pose.position().y();
-      sample.z = pose.position().z();
-      sample.qx = pose.orientation().x();
-      sample.qy = pose.orientation().y();
-      sample.qz = pose.orientation().z();
-      sample.qw = pose.orientation().w();
-      best = sample;
-      best_score = score;
     }
-    if (best) {
-      bool first_pose = false;
-      {
-        std::lock_guard<std::mutex> lock(pose_mutex_);
-        first_pose = !latest_pose_.valid;
-        latest_pose_ = *best;
-      }
-      if (first_pose) {
-        std::cout << "Phase 9 camera pose matched entity=" << best->name << std::endl;
-      }
+
+    // The regular Gazebo PosePublisher stream contains a moving model pose and
+    // fixed child-link transforms. Earlier Phase 9 diagnostics incorrectly
+    // stored the fixed camera_link transform as a world pose. Fail closed until
+    // both pieces are present, then explicitly compose world_T_model * model_T_camera.
+    if (!model_pose || !camera_local_pose) {
+      return;
+    }
+
+    const PoseSample composed = ComposeWorldCamera(*model_pose, *camera_local_pose, model_name_, now);
+    bool first_pose = false;
+    {
+      std::lock_guard<std::mutex> lock(pose_mutex_);
+      first_pose = !latest_pose_.valid;
+      latest_pose_ = composed;
+    }
+    if (first_pose) {
+      std::cout << "Phase 9 camera world pose composed from model=" << model_pose->name
+                << " link=" << camera_local_pose->name
+                << " scoped_camera=" << composed.name << std::endl;
     }
   }
 
@@ -214,6 +316,7 @@ class CameraCapture {
   gz::transport::Node node_;
   std::string image_topic_;
   std::string pose_topic_;
+  std::string model_name_;
   fs::path out_dir_;
   std::size_t save_every_;
   std::size_t max_frames_;
