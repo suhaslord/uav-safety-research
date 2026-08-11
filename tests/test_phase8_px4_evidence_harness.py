@@ -5,6 +5,7 @@ ROOT = Path(__file__).resolve().parents[1]
 EVIDENCE_WORKFLOW = ROOT / ".github/workflows/phase8-px4-gazebo-evidence.yml"
 FINAL_AUDIT_WORKFLOW = ROOT / ".github/workflows/phase8-final-audit.yml"
 MISSION_SCRIPT = ROOT / "scripts/run_px4_gazebo_mission.py"
+CONVERTER_SCRIPT = ROOT / "scripts/px4_ulog_to_phase8_trace.py"
 
 
 def test_px4_evidence_workflow_installs_requirements_in_active_python() -> None:
@@ -24,6 +25,8 @@ def test_px4_evidence_ulog_discovery_is_run_scoped() -> None:
     assert "mission.get('completed') is True" in text
     assert "takeoff_time" in text
     assert "groundtruth_duration_s" in text
+    assert "gps_samples" in text
+    assert "image_channel_available" in text
 
 
 def test_px4_evidence_preserves_frozen_research_boundaries() -> None:
@@ -47,6 +50,7 @@ def test_px4_evidence_provenance_identifies_simulator_and_actions_run() -> None:
     assert "GITHUB_RUN_ATTEMPT" in text
     assert "raw_ulog_sha256" in text
     assert "comparison_manifest_sha256" in text
+    assert "external_trace_metadata_sha256" in text
 
 
 def test_px4_mission_waits_for_local_position_and_armability() -> None:
@@ -54,6 +58,24 @@ def test_px4_mission_waits_for_local_position_and_armability() -> None:
     assert "health.is_local_position_ok and health.is_armable" in text
     assert '"readiness_requirement": "local_position_ok_and_armable"' in text
     assert "PX4 local-position estimator/armability did not become ready" in text
+
+
+def test_px4_converter_does_not_invent_missing_visual_odometry() -> None:
+    text = CONVERTER_SCRIPT.read_text(encoding="utf-8")
+    assert '_optional_dataset(ulog, "vehicle_visual_odometry")' in text
+    assert "image_drop = np.ones(len(grid), dtype=bool)" in text
+    assert "image_channel_available" in text
+    assert "zero sentinels" in text
+    assert "no PX4 or Aegis measurement is invented" in text
+    assert "allow_nan=False" in text
+
+
+def test_px4_ulog_gate_requires_navigation_but_not_visual_odometry() -> None:
+    text = EVIDENCE_WORKFLOW.read_text(encoding="utf-8")
+    assert "'vehicle_gps_position'," in text
+    assert "visual = datasets.get('vehicle_visual_odometry')" in text
+    required_block = text.split("required = {", 1)[1].split("}", 1)[0]
+    assert "vehicle_visual_odometry" not in required_block
 
 
 def test_phase8_final_audit_runs_on_evidence_branch_and_checks_freeze() -> None:
