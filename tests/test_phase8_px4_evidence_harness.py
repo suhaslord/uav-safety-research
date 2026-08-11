@@ -4,6 +4,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 EVIDENCE_WORKFLOW = ROOT / ".github/workflows/phase8-px4-gazebo-evidence.yml"
 FINAL_AUDIT_WORKFLOW = ROOT / ".github/workflows/phase8-final-audit.yml"
+MISSION_SCRIPT = ROOT / "scripts/run_px4_gazebo_mission.py"
 
 
 def test_px4_evidence_workflow_installs_requirements_in_active_python() -> None:
@@ -46,6 +47,13 @@ def test_px4_evidence_provenance_identifies_simulator_and_actions_run() -> None:
     assert "GITHUB_RUN_ATTEMPT" in text
     assert "raw_ulog_sha256" in text
     assert "comparison_manifest_sha256" in text
+
+
+def test_px4_mission_waits_for_local_position_and_armability() -> None:
+    text = MISSION_SCRIPT.read_text(encoding="utf-8")
+    assert "health.is_local_position_ok and health.is_armable" in text
+    assert '"readiness_requirement": "local_position_ok_and_armable"' in text
+    assert "PX4 local-position estimator/armability did not become ready" in text
 
 
 def test_phase8_final_audit_runs_on_evidence_branch_and_checks_freeze() -> None:
