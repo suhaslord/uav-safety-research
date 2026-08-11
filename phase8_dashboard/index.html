@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AegisLand Phase 8 Trace Lab</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main>
+    <header class="hero">
+      <div class="eyebrow">AEGISLAND · PHASE 8 · TRACE LAB</div>
+      <div class="hero-grid">
+        <div>
+          <h1>Does the surrogate resemble an independent simulator?</h1>
+          <p class="lede">Inspect offline trace-distribution differences without changing controller thresholds, fusion gates, or the audited Phase 7 baseline.</p>
+        </div>
+        <div class="load-card">
+          <label for="bundleFile">Load <code>trace_comparison.json</code></label>
+          <input id="bundleFile" type="file" accept="application/json,.json">
+          <p id="loadStatus">No bundle loaded.</p>
+        </div>
+      </div>
+      <div id="evidenceBanner" class="evidence-banner">Evidence status will appear here after a bundle is loaded.</div>
+    </header>
+
+    <section class="meta-grid" aria-label="Comparison summary">
+      <article><span>Diagnostic</span><strong id="diagnostic">—</strong></article>
+      <article><span>Close</span><strong id="closeCount">—</strong></article>
+      <article><span>Watch</span><strong id="watchCount">—</strong></article>
+      <article><span>Mismatch</span><strong id="mismatchCount">—</strong></article>
+      <article><span>Insufficient</span><strong id="insufficientCount">—</strong></article>
+      <article><span>Claim level</span><strong id="claimLevel">—</strong></article>
+    </section>
+
+    <section class="panel">
+      <div class="section-heading">
+        <div>
+          <div class="eyebrow">PROVENANCE</div>
+          <h2>Evidence boundary</h2>
+        </div>
+      </div>
+      <div class="provenance-grid">
+        <div><span>Executable commit</span><code id="gitSha">—</code></div>
+        <div><span>Phase 7 audited baseline</span><code id="phase7Sha">—</code></div>
+        <div><span>Frozen Phase 6B</span><code id="phase6bSha">—</code></div>
+        <div><span>External source</span><strong id="externalSource">—</strong></div>
+        <div><span>External evidence status</span><strong id="externalStatus">—</strong></div>
+        <div><span>Threshold policy</span><strong id="thresholdPolicy">—</strong></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="section-heading">
+        <div>
+          <div class="eyebrow">RESEMBLANCE DIAGNOSTICS</div>
+          <h2>Weakest assumptions first</h2>
+        </div>
+        <div class="filters">
+          <label>Status
+            <select id="statusFilter">
+              <option value="all">All</option>
+              <option value="mismatch">Mismatch</option>
+              <option value="watch">Watch</option>
+              <option value="insufficient">Insufficient</option>
+              <option value="close">Close</option>
+            </select>
+          </label>
+          <label>Family
+            <select id="familyFilter">
+              <option value="all">All</option>
+              <option value="distribution">Distribution</option>
+              <option value="scalar">Scalar</option>
+            </select>
+          </label>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Metric</th><th>Status</th><th>Surrogate</th><th>External</th><th>KS</th><th>Normalized W1</th><th>Delta</th></tr>
+          </thead>
+          <tbody id="metricRows"><tr><td colspan="7" class="empty">Load a Phase 8 comparison bundle.</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel boundary">
+      <div class="eyebrow">INTERPRETATION BOUNDARY</div>
+      <h2>Mismatch is evidence, not a tuning instruction.</h2>
+      <p>This dashboard reports whether modeled sensor/error behavior resembles the supplied trace. It does not produce a real-world safety rate, authorize physical flight, or expose controls for retuning the frozen Phase 6B gates.</p>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

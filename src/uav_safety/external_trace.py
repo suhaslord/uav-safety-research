@@ -29,6 +29,22 @@ REQUIRED_EXTERNAL_TRACE_COLUMNS = (
     "reference_fresh",
 )
 
+# Phase 8 can consume richer timing diagnostics when a simulator exposes them,
+# but these columns remain optional so the Phase 7 simulator-agnostic schema is
+# backward compatible.
+OPTIONAL_EXTERNAL_TRACE_NUMERIC_COLUMNS = (
+    "image_transport_latency_s",
+    "reference_transport_latency_s",
+    "reference_state_age_s",
+)
+OPTIONAL_EXTERNAL_TRACE_BOOLEAN_COLUMNS = (
+    "reference_delivery",
+)
+OPTIONAL_EXTERNAL_TRACE_COLUMNS = (
+    *OPTIONAL_EXTERNAL_TRACE_NUMERIC_COLUMNS,
+    *OPTIONAL_EXTERNAL_TRACE_BOOLEAN_COLUMNS,
+)
+
 NUMERIC_COLUMNS = tuple(
     column
     for column in REQUIRED_EXTERNAL_TRACE_COLUMNS
@@ -104,14 +120,13 @@ def _safe_correlation(a: np.ndarray, b: np.ndarray) -> float | None:
 def validate_external_trace(frame: pd.DataFrame) -> tuple[pd.DataFrame, ExternalTraceValidation]:
     """Validate and normalize an offline simulator trace.
 
-    The schema is intentionally simulator-agnostic. It stores ground truth only
-    for evaluation; downstream Aegis logic must not consume the truth columns as
-    controller inputs.
+    The required schema is intentionally simulator-agnostic. It stores ground
+    truth only for evaluation; downstream Aegis logic must not consume the truth
+    columns as controller inputs.
 
-    The report also measures lateral error structure. In particular, correlation
-    between simultaneous image and reference errors is useful for checking the
-    independence assumption before an external trace is used as validation
-    evidence.
+    Phase 8 optionally retains transport-latency/state-age fields when they are
+    provided by a higher-fidelity simulator. Their absence is recorded later as
+    unavailable evidence rather than silently replaced with zeros.
     """
 
     missing = [column for column in REQUIRED_EXTERNAL_TRACE_COLUMNS if column not in frame.columns]
@@ -120,7 +135,9 @@ def validate_external_trace(frame: pd.DataFrame) -> tuple[pd.DataFrame, External
     if len(frame) < 2:
         raise ValueError("external trace must contain at least two rows")
 
-    normalized = frame.loc[:, REQUIRED_EXTERNAL_TRACE_COLUMNS].copy()
+    present_optional = tuple(column for column in OPTIONAL_EXTERNAL_TRACE_COLUMNS if column in frame.columns)
+    normalized = frame.loc[:, (*REQUIRED_EXTERNAL_TRACE_COLUMNS, *present_optional)].copy()
+
     for column in NUMERIC_COLUMNS:
         normalized[column] = pd.to_numeric(normalized[column], errors="coerce")
         if normalized[column].isna().any():
@@ -129,8 +146,23 @@ def validate_external_trace(frame: pd.DataFrame) -> tuple[pd.DataFrame, External
         if not np.isfinite(values).all():
             raise ValueError(f"{column} contains non-finite values")
 
+    for column in OPTIONAL_EXTERNAL_TRACE_NUMERIC_COLUMNS:
+        if column not in normalized.columns:
+            continue
+        normalized[column] = pd.to_numeric(normalized[column], errors="coerce")
+        if normalized[column].isna().any():
+            raise ValueError(f"{column} contains missing or non-numeric values")
+        values = normalized[column].to_numpy(dtype=float)
+        if not np.isfinite(values).all():
+            raise ValueError(f"{column} contains non-finite values")
+        if np.any(values < 0):
+            raise ValueError(f"{column} must be non-negative")
+
     for column in BOOLEAN_COLUMNS:
         normalized[column] = _coerce_bool(normalized[column], column)
+    for column in OPTIONAL_EXTERNAL_TRACE_BOOLEAN_COLUMNS:
+        if column in normalized.columns:
+            normalized[column] = _coerce_bool(normalized[column], column)
 
     t = normalized["t_s"].to_numpy(dtype=float)
     dt = np.diff(t)
@@ -190,5 +222,5 @@ def validate_external_trace(frame: pd.DataFrame) -> tuple[pd.DataFrame, External
 def load_external_trace(path: str | Path) -> tuple[pd.DataFrame, ExternalTraceValidation]:
     path = Path(path)
     if path.suffix.lower() != ".csv":
-        raise ValueError("Phase 7 external trace loader currently accepts CSV only")
+        raise ValueError("external trace loader currently accepts CSV only")
     return validate_external_trace(pd.read_csv(path))

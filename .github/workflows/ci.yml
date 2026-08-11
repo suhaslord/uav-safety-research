@@ -18,6 +18,8 @@ jobs:
         run: python -m compileall -q src scripts tests
       - name: Check Research Cockpit JavaScript
         run: node --check dashboard/app.js
+      - name: Check Phase 8 Trace Lab JavaScript
+        run: node --check phase8_dashboard/app.js
       - name: Unit tests
         run: pytest -q
       - name: V3 smoke benchmark
@@ -38,6 +40,18 @@ jobs:
         run: |
           python scripts/run_phase7_external_validity.py --episodes 1 --seed 979797 --calibration-seed 616161 --temporal-calibration-samples 12 --component-calibration-samples 32 --conditions clean mixed --faults independent shared_lateral_bias --plants legacy phase7 --out /tmp/aegis-phase7-smoke
           python scripts/validate_result_manifest.py /tmp/aegis-phase7-smoke/result_manifest.json
+      - name: Phase 8 trace-validation smoke pipeline
+        run: |
+          python scripts/generate_phase8_fixture_traces.py --rows 60 --out /tmp/aegis-phase8-inputs
+          python scripts/run_phase8_trace_validation.py \
+            /tmp/aegis-phase8-inputs/phase7_surrogate_fixture.csv \
+            /tmp/aegis-phase8-inputs/external_simulator_fixture.csv \
+            --out /tmp/aegis-phase8-smoke \
+            --git-sha "$GITHUB_SHA" \
+            --external-evidence-status fixture_non_authoritative
+          python scripts/validate_result_manifest.py \
+            /tmp/aegis-phase8-smoke/result_manifest.json \
+            --schema aegisland.phase8.result-bundle.v1
       - name: Phase 6 clean abstention diagnostic
         run: python scripts/diagnose_phase6_episode.py --condition clean --episodes 1 --calibration-samples 30
       - name: Phase 6 occlusion abstention diagnostic

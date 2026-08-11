@@ -57,6 +57,25 @@ def test_external_trace_reports_common_mode_error_correlation():
     assert report.lateral_error_correlation == pytest.approx(1.0)
 
 
+def test_external_trace_keeps_phase8_optional_timing_fields_when_present():
+    frame = valid_trace()
+    frame["image_transport_latency_s"] = [0.01, 0.02, 0.01, 0.02]
+    frame["reference_transport_latency_s"] = [0.04, 0.05, 0.04, 0.05]
+    frame["reference_state_age_s"] = [0.0, 0.05, 0.0, 0.05]
+    frame["reference_delivery"] = [True, False, True, False]
+
+    normalized, _ = validate_external_trace(frame)
+    assert normalized["reference_transport_latency_s"].tolist() == [0.04, 0.05, 0.04, 0.05]
+    assert normalized["reference_delivery"].tolist() == [True, False, True, False]
+
+
+def test_external_trace_rejects_negative_phase8_latency():
+    frame = valid_trace()
+    frame["reference_transport_latency_s"] = [0.04, -0.01, 0.04, 0.05]
+    with pytest.raises(ValueError, match="must be non-negative"):
+        validate_external_trace(frame)
+
+
 def test_external_trace_rejects_nonmonotonic_time():
     frame = valid_trace()
     frame.loc[2, "t_s"] = frame.loc[1, "t_s"]
@@ -67,5 +86,5 @@ def test_external_trace_rejects_nonmonotonic_time():
 def test_external_trace_rejects_out_of_range_confidence():
     frame = valid_trace()
     frame.loc[1, "image_confidence"] = 1.2
-    with pytest.raises(ValueError, match="\[0,1\]"):
+    with pytest.raises(ValueError, match=r"\[0,1\]"):
         validate_external_trace(frame)
