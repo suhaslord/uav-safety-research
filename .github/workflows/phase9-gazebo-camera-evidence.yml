@@ -5,6 +5,15 @@ on:
   push:
     branches:
       - phase9-external-perception-validation
+    paths:
+      - ".github/workflows/phase9-gazebo-camera-evidence.yml"
+      - "tools/phase9_gz_camera_capture.cc"
+      - "scripts/run_phase9_gazebo_camera_evidence.sh"
+      - "scripts/run_phase9_gazebo_camera_mission.py"
+      - "scripts/analyze_phase9_gazebo_camera_evidence.py"
+      - "scripts/validate_phase9_perception_trace.py"
+      - "src/uav_safety/perception_trace.py"
+      - "pyproject.toml"
 
 jobs:
   phase9-gazebo-camera-evidence:
