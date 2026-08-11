@@ -211,6 +211,7 @@ The main rule is simple: a favorable number is less valuable than an evidence tr
 ```bash
 git clone https://github.com/suhaslord/uav-safety-research.git
 cd uav-safety-research
+git checkout phase9-external-perception-validation
 python -m venv .venv
 pip install -e ".[dev]"
 bash scripts/final_prototype_smoke.sh
