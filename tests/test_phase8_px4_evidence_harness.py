@@ -39,7 +39,9 @@ def test_px4_evidence_preserves_frozen_research_boundaries() -> None:
 def test_px4_evidence_provenance_identifies_simulator_and_actions_run() -> None:
     text = EVIDENCE_WORKFLOW.read_text(encoding="utf-8")
     assert "PX4_RELEASE: v1.17.0" in text
-    assert "PX4_SIMULATOR_MODEL: gz_x500_vision" in text
+    assert "PX4_SIMULATOR_MODEL: gz_x500" in text
+    assert "PX4_SIMULATOR_MODEL: gz_x500_vision" not in text
+    assert 'test "$PX4_SIMULATOR_MODEL" = "gz_x500"' in text
     assert "GITHUB_RUN_ID" in text
     assert "GITHUB_RUN_ATTEMPT" in text
     assert "raw_ulog_sha256" in text
