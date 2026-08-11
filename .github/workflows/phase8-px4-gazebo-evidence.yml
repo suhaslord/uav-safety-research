@@ -276,7 +276,7 @@ jobs:
               'claim_level': comparison['claim_level'],
               'overall_diagnostic': comparison['overall_diagnostic'],
               'status_counts': comparison['status_counts'],
-              'comparison_input_hashes': comparison['input_hashes'],
+              'comparison_input_provenance': comparison['input_provenance'],
               'safety_acceptance': comparison['safety_acceptance'],
               'controller_tuning_allowed': comparison['controller_tuning_allowed'],
               'simulation_only': True,
@@ -286,6 +286,8 @@ jobs:
           assert receipt['aegis_evidence_branch_sha'] == os.environ['GITHUB_SHA']
           assert receipt['mission_completed'] is True
           assert receipt['external_evidence_status'] == 'external_simulator_seen'
+          assert receipt['comparison_input_provenance']['external']['sha256'] == receipt['external_trace_sha256']
+          assert receipt['comparison_input_provenance']['surrogate']['sha256'] == receipt['surrogate_trace_sha256']
           assert receipt['safety_acceptance'] is False
           assert receipt['controller_tuning_allowed'] is False
           assert receipt['simulation_only'] is True
