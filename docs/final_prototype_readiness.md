@@ -61,7 +61,7 @@ Documentation commits after these implementation changes do not redefine the sci
 - [x] README exposes a one-command prototype smoke path and states the camera-pose provenance correction honestly.
 - [ ] Synchronize the external-review packet with the final exact evidence status.
 - [ ] Add the final exact commit SHA, workflow run ID, artifact ID/digest, and limitations to the release checkpoint.
-- [ ] Keep PR #13 draft and unmerged until the final audit is complete.
+- [x] PR #13 remains draft and unmerged while the final audit is incomplete.
 
 ## Definition of done
 
