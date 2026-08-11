@@ -10,9 +10,9 @@ The project now has three distinct evidence layers:
 
 1. a frozen synthetic-image result (Phase 6B),
 2. a higher-fidelity external-model comparison against PX4/Gazebo (Phase 8), and
-3. an in-progress raw-camera external-perception path (Phase 9).
+3. a raw-camera external-perception result from PX4/Gazebo (Phase 9).
 
-The detailed audit trail is in [`research_checkpoint_2026-08-10.md`](research_checkpoint_2026-08-10.md).
+The full current Phase 9 evidence record is in [`phase9_gazebo_camera_seen_result.md`](phase9_gazebo_camera_seen_result.md).
 
 ## Thirty-second summary
 
@@ -30,15 +30,31 @@ Phase 7 stopped optimizing the frozen percentage and attacked the assumptions ar
 
 Phase 8 froze a simulator-agnostic trace-resemblance method before applying it to genuine PX4/Gazebo evidence. The frozen method classified the external trace as `diagnostic_mismatch` (`1 close / 2 watch / 9 mismatch / 14 insufficient`). The mismatch was preserved; no controller or threshold was changed to erase it.
 
-This is the most important current external result: several internal surrogate distributions did not closely reproduce the PX4/Gazebo trace.
+This remains an important negative external result: several internal surrogate distributions did not closely reproduce the PX4/Gazebo trace.
 
-### Raw-camera evidence path
+### Raw-camera evidence
 
-Phase 9 adds raw-frame preservation, per-frame SHA-256, timestamps, camera-pose association, explicit observation-missing semantics, and a descriptive external-perception trace format.
+Phase 9 adds raw-frame preservation, per-frame SHA-256, timestamps, corrected camera world-pose provenance, explicit observation-missing semantics, and a descriptive external-perception trace format.
 
-The current genuine Gazebo-camera run captured 56 raw 1280×960 frames, with 55 matched camera poses. However, the run **did not pass its predeclared evidence-completeness gate**: the relevant ground-truth ULog stream spans about 19.248 seconds while the gate requires at least 20.0 seconds.
+Earlier genuine-camera attempts were rejected before scientific interpretation. One failed the unchanged 20.0-second ULog ground-truth completeness gate. A separate audit then found that the collector was recording a fixed local camera-link transform as though it were the moving camera world pose. That provenance defect was fixed without changing the detector, visibility definition, or descriptive analysis.
 
-The gate has not been weakened after seeing the result. Therefore Phase 9 currently has **no completed scientific external-perception result**. The failed attempt is retained as diagnostic evidence.
+A fresh run at evidence head `33c5c73768757b508f5c613b2fba73f94e3fd5a6` passed the frozen gates and completed the unchanged analysis:
+
+- workflow run: `31523496671`
+- artifact ID: `9114281248`
+- artifact digest: `sha256:bd2387f9518c7feb0bb5b8d7d02ccc7cbf416a73cd13e150ebeab06551b041a6`
+- selected raw frames: 68
+- analyzed pose-linked frames: 67
+- independently reverified raw-frame hashes: 67/67
+- ULog ground-truth stream: 1,237 samples / 24.684 s
+- evidence role: `external_perception_seen`
+- safety acceptance: false
+- controller tuning allowed: false
+- Phase 9 resemblance verdict: none declared
+
+On this one seen trace, the detector had 25 true positives, 0 false negatives, 0 false positives, and 42 true negatives under the preregistered truth-visibility definition. However, the metric geometry was much weaker: lateral MAE was about **0.998 m** and altitude MAE about **1.520 m**, with large p95 errors. The uncertainty proxies were also too small relative to observed residuals.
+
+That distinction is central: **strong target detection on this trace did not imply accurate geometry estimation or end-to-end safety.**
 
 ## Evidence status
 
@@ -49,7 +65,7 @@ The gate has not been weakened after seeing the result. Therefore Phase 9 curren
 | Phase 8 deterministic fixture | pipeline validation only | software/provenance machinery works |
 | Phase 8 PX4/Gazebo trace | external simulator seen | frozen model-resemblance diagnostic = mismatch |
 | Phase 9 deterministic camera fixture | pipeline validation only | raw-frame schema/hash machinery works |
-| Phase 9 genuine Gazebo camera attempt | incomplete seen evidence | raw capture worked; completeness gate failed |
+| Phase 9 valid Gazebo camera trace | external perception seen | descriptive detection/localization/geometry evidence for one seen simulator trace |
 | Physical flight | not performed | no claim |
 
 ## What I would most value feedback on
@@ -57,21 +73,25 @@ The gate has not been weakened after seeing the result. Therefore Phase 9 curren
 Please be critical. In particular:
 
 1. Is the frozen/development-seen/external-seen/fixture separation clear enough to prevent accidental overclaiming?
-2. Are the Phase 8 empirical distribution and temporal diagnostics a reasonable first resemblance test?
-3. Is it scientifically appropriate to preserve the Phase 8 mismatch and treat it as evidence against parts of the internal surrogate?
-4. For Phase 9, is raw frame + timestamp + camera pose + per-frame hash a sufficient minimum provenance set?
-5. Is the current decision **not** to relax the 20-second gate after observing 19.248 seconds the right research-integrity choice?
-6. What would you preregister before collecting a later unseen external-perception evaluation?
-7. Is there any wording in the project that sounds stronger than the evidence supports?
+2. Is preserving the Phase 8 `diagnostic_mismatch` the right interpretation rather than retuning against it?
+3. Is raw frame + image timestamp + corrected camera world pose + per-frame hash a sufficient minimum provenance set for this Phase 9 stage?
+4. Is using the latest received pose with a measured ~63 ms median association offset acceptable for this descriptive first trace, or should a later protocol require timestamp interpolation before unseen evaluation?
+5. Does the Phase 9 result correctly separate target detection from metric geometry accuracy?
+6. Are the large PnP residuals and under-dispersed uncertainty proxies being interpreted conservatively enough?
+7. Is withholding Phase 7 KS/Wasserstein comparison because the coordinate definitions differ the right decision?
+8. What should be preregistered before collecting any future unseen external-perception evaluation?
+9. Is there any wording in the project that sounds stronger than the evidence supports?
 
 ## Useful entry points
 
-- Repository README: project motivation, frozen historical results, reproducibility, and limitations
-- [`research_checkpoint_2026-08-10.md`](research_checkpoint_2026-08-10.md): current phase-by-phase audit
+- Repository README: project motivation, current evidence status, reproducibility, and limitations
+- [`phase9_gazebo_camera_seen_result.md`](phase9_gazebo_camera_seen_result.md): exact valid Phase 9 result and provenance
+- [`final_prototype_readiness.md`](final_prototype_readiness.md): release-candidate audit checklist
+- [`research_checkpoint_2026-08-10.md`](research_checkpoint_2026-08-10.md): phase-by-phase history before the valid camera rerun
 - PR #13: current Phase 9 implementation and CI history
-- `docs/phase8_trace_validation.md`: frozen external-trace comparison protocol
-- `docs/phase9_external_perception_protocol.md`: Phase 9 evidence roles and raw-frame protocol
+- `phase8_trace_validation.md`: frozen external-trace comparison protocol
+- `phase9_external_perception_protocol.md`: Phase 9 evidence roles and raw-frame protocol
 
 ## Scope boundary
 
-AegisLand is **simulation-only**. No physical aircraft, hardware test, or real-flight safety claim is part of this review packet. Passing a CI job, a deterministic fixture, or even a simulator resemblance test should not be interpreted as safety acceptance for a real UAV.
+AegisLand is **simulation-only**. No physical aircraft, hardware-camera test, or real-flight safety claim is part of this review packet. Passing CI or obtaining a valid simulator trace is not safety acceptance for a real UAV.
