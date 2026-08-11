@@ -1,0 +1,303 @@
+name: Phase 8 PX4 Gazebo Evidence
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - phase8-px4-gazebo-evidence
+
+jobs:
+  px4-gazebo-evidence:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      PX4_RELEASE: v1.17.0
+      PX4_SIMULATOR_MODEL: gz_x500
+      PHASE8_FROZEN_HEAD: bd62e3b31431306fd9d897f560be7325d711d21a
+      PHASE6B_FROZEN_HEAD: b4e9838555e935a5ec42690495315473629b58f6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install AegisLand evidence dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]" pyulog mavsdk
+
+      - name: Verify frozen Phase 8 and Phase 6B integrity
+        run: |
+          test "$PX4_SIMULATOR_MODEL" = "gz_x500"
+          git merge-base --is-ancestor "$PHASE8_FROZEN_HEAD" HEAD
+          git merge-base --is-ancestor "$PHASE6B_FROZEN_HEAD" HEAD
+          git diff --exit-code "$PHASE8_FROZEN_HEAD" -- \
+            src/uav_safety/trace_validation.py \
+            src/uav_safety/external_trace.py \
+            scripts/run_phase8_trace_validation.py
+          git diff --exit-code "$PHASE8_FROZEN_HEAD" -- \
+            src/uav_safety/phase6b_fusion.py \
+            src/uav_safety/simulator_image_phase6b.py \
+            scripts/run_phase6b_landing.py \
+            docs/phase6b_freeze_manifest.md \
+            results/phase6b_frozen_landing \
+            results/phase6b_frozen_selective
+
+      - name: Export genuine frozen Phase 7 surrogate trace
+        run: |
+          mkdir -p /tmp/phase8-evidence
+          python scripts/export_phase7_surrogate_trace.py \
+            --seed 979797 \
+            --calibration-seed 616161 \
+            --condition clean \
+            --out /tmp/phase8-evidence/phase7_surrogate.csv \
+            --metadata-out /tmp/phase8-evidence/phase7_surrogate_metadata.json
+
+      - name: Clone pinned PX4 stable release
+        run: |
+          git clone --branch "$PX4_RELEASE" --depth 1 --recursive https://github.com/PX4/PX4-Autopilot.git /tmp/PX4-Autopilot
+          git -C /tmp/PX4-Autopilot rev-parse HEAD | tee /tmp/phase8-evidence/px4_git_sha.txt
+
+      - name: Install PX4 SITL and Gazebo dependencies
+        run: |
+          sudo env DEBIAN_FRONTEND=noninteractive bash /tmp/PX4-Autopilot/Tools/setup/ubuntu.sh --no-nuttx
+          python -m pip install -r /tmp/PX4-Autopilot/Tools/setup/requirements.txt
+          python - <<'PY'
+          import kconfiglib
+          print(f"kconfiglib active interpreter OK: {kconfiglib.__file__}")
+          PY
+
+      - name: Start PX4 SITL with Gazebo and require launch readiness
+        run: |
+          touch /tmp/phase8-evidence/px4_run_started
+          cd /tmp/PX4-Autopilot
+          export HEADLESS=1
+          export PX4_SIM_SPEED_FACTOR=1
+          export PX4_PARAM_SDLOG_PROFILE=129
+          export PX4_PARAM_COM_RCL_EXCEPT=4
+          (make px4_sitl "$PX4_SIMULATOR_MODEL" </dev/null > /tmp/phase8-evidence/px4_gazebo.log 2>&1) &
+          echo $! > /tmp/phase8-evidence/px4_make.pid
+
+          ready=0
+          for _ in $(seq 1 480); do
+            pid="$(cat /tmp/phase8-evidence/px4_make.pid)"
+            if ! kill -0 "$pid" 2>/dev/null; then
+              echo "PX4 SITL launch process exited before readiness"
+              tail -n 300 /tmp/phase8-evidence/px4_gazebo.log || true
+              exit 1
+            fi
+            if grep -q "Startup script returned successfully" /tmp/phase8-evidence/px4_gazebo.log; then
+              ready=1
+              break
+            fi
+            sleep 1
+          done
+          if [ "$ready" -ne 1 ]; then
+            echo "PX4 SITL did not report startup readiness within 480 seconds"
+            tail -n 300 /tmp/phase8-evidence/px4_gazebo.log || true
+            exit 1
+          fi
+          echo "PX4 SITL launch readiness confirmed for $PX4_SIMULATOR_MODEL"
+
+      - name: Run reproducible PX4/Gazebo mission
+        run: |
+          set +e
+          timeout --signal=TERM --kill-after=15s 240s \
+            python scripts/run_px4_gazebo_mission.py \
+              --connection udpin://0.0.0.0:14550 \
+              --metadata-out /tmp/phase8-evidence/px4_mission_metadata.json
+          status=$?
+          if [ "$status" -ne 0 ]; then
+            echo "PX4/Gazebo mission failed or timed out with status $status"
+            echo "--- tail of PX4/Gazebo log ---"
+            tail -n 300 /tmp/phase8-evidence/px4_gazebo.log || true
+            exit "$status"
+          fi
+
+      - name: Stop simulator and locate run-scoped raw ULog
+        if: always()
+        run: |
+          sleep 5
+          if [ -f /tmp/phase8-evidence/px4_make.pid ]; then
+            kill "$(cat /tmp/phase8-evidence/px4_make.pid)" || true
+            wait "$(cat /tmp/phase8-evidence/px4_make.pid)" 2>/dev/null || true
+          fi
+          sleep 2
+
+          LOG_ROOT=/tmp/PX4-Autopilot/build/px4_sitl_default/rootfs/log
+          if [ -d "$LOG_ROOT" ] && [ -f /tmp/phase8-evidence/px4_run_started ]; then
+            find "$LOG_ROOT" -type f -name '*.ulg' -newer /tmp/phase8-evidence/px4_run_started -print | sort | tee /tmp/phase8-evidence/ulog_candidates.txt
+            ULOG="$(find "$LOG_ROOT" -type f -name '*.ulg' -newer /tmp/phase8-evidence/px4_run_started -printf '%T@ %p\n' | sort -n | tail -1 | cut -d' ' -f2-)"
+            if [ -n "$ULOG" ] && [ -f "$ULOG" ]; then
+              printf '%s\n' "$ULOG" > /tmp/phase8-evidence/px4_ulog_source_path.txt
+              cp "$ULOG" /tmp/phase8-evidence/px4_gazebo_raw.ulg
+            fi
+          else
+            echo "PX4 SITL log root was not created" | tee /tmp/phase8-evidence/ulog_candidates.txt
+          fi
+
+      - name: Require completed mission and validate genuine PX4 ULog
+        run: |
+          test -s /tmp/phase8-evidence/px4_mission_metadata.json
+          test -s /tmp/phase8-evidence/px4_gazebo_raw.ulg
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import numpy as np
+          from pyulog import ULog
+
+          root = Path('/tmp/phase8-evidence')
+          mission = json.loads((root / 'px4_mission_metadata.json').read_text())
+          assert mission.get('completed') is True, 'mission metadata does not show a completed mission'
+          assert len(mission.get('segments', [])) >= 8, 'mission did not record all planned segments'
+
+          ulog = ULog(str(root / 'px4_gazebo_raw.ulg'))
+          datasets = {d.name: d for d in ulog.data_list}
+          required = {
+              'vehicle_status',
+              'vehicle_local_position_groundtruth',
+              'vehicle_local_position',
+              'vehicle_gps_position',
+          }
+          missing = sorted(required - datasets.keys())
+          assert not missing, f'mission ULog missing required topics: {missing}'
+
+          status = datasets['vehicle_status'].data
+          armed_time = np.asarray(status.get('armed_time', []), dtype=np.int64)
+          takeoff_time = np.asarray(status.get('takeoff_time', []), dtype=np.int64)
+          arming_state = np.asarray(status.get('arming_state', []), dtype=np.int64)
+          assert armed_time.size and int(armed_time.max()) > 0, 'ULog has no real arming timestamp'
+          assert takeoff_time.size and int(takeoff_time.max()) > 0, 'ULog has no real takeoff timestamp'
+          assert arming_state.size and np.any(arming_state == 2), 'ULog never entered armed state'
+
+          truth = datasets['vehicle_local_position_groundtruth'].data
+          ts = np.asarray(truth['timestamp'], dtype=float) * 1e-6
+          x = np.asarray(truth['x'], dtype=float)
+          z = np.asarray(truth['z'], dtype=float)
+          assert ts.size >= 100, 'too few ground-truth samples for completed evidence mission'
+          duration = float(ts[-1] - ts[0])
+          vertical_span = float(np.nanmax(z) - np.nanmin(z))
+          lateral_span = float(np.nanmax(x) - np.nanmin(x))
+          assert duration >= 20.0, f'ULog flight duration too short: {duration:.2f}s'
+          assert vertical_span >= 1.0, f'ULog does not show meaningful vertical flight: span={vertical_span:.3f}m'
+          assert lateral_span >= 0.5, f'ULog does not show planned lateral motion: span={lateral_span:.3f}m'
+
+          reference = datasets['vehicle_local_position'].data
+          reference_samples = len(np.asarray(reference.get('timestamp', [])))
+          assert reference_samples >= 100, f'too few PX4 local-position samples: {reference_samples}'
+
+          gps = datasets['vehicle_gps_position'].data
+          gps_samples = len(np.asarray(gps.get('timestamp', [])))
+          assert gps_samples >= 20, f'too few PX4 GPS samples: {gps_samples}'
+
+          visual = datasets.get('vehicle_visual_odometry')
+          visual_samples = 0 if visual is None else len(np.asarray(visual.data.get('timestamp', [])))
+
+          sanity = {
+              'mission_completed': True,
+              'required_topics': sorted(required),
+              'armed_time_us': int(armed_time.max()),
+              'takeoff_time_us': int(takeoff_time.max()),
+              'groundtruth_duration_s': duration,
+              'groundtruth_vertical_span_m': vertical_span,
+              'groundtruth_lateral_span_m': lateral_span,
+              'reference_samples': int(reference_samples),
+              'gps_samples': int(gps_samples),
+              'image_channel_available': bool(visual_samples >= 2),
+              'visual_odometry_samples': int(visual_samples),
+              'ulog_start_timestamp_us': int(ulog.start_timestamp),
+              'ulog_last_timestamp_us': int(ulog.last_timestamp),
+          }
+          (root / 'px4_ulog_sanity.json').write_text(json.dumps(sanity, indent=2, sort_keys=True) + '\n')
+          print(json.dumps(sanity, indent=2))
+          PY
+
+      - name: Convert genuine PX4 ULog
+        run: |
+          python scripts/px4_ulog_to_phase8_trace.py \
+            /tmp/phase8-evidence/px4_gazebo_raw.ulg \
+            --out /tmp/phase8-evidence/px4_gazebo_external.csv \
+            --metadata-out /tmp/phase8-evidence/px4_trace_metadata.json \
+            --rate-hz 20
+
+      - name: Run frozen Phase 8 comparison on real external simulator trace
+        run: |
+          python scripts/run_phase8_trace_validation.py \
+            /tmp/phase8-evidence/phase7_surrogate.csv \
+            /tmp/phase8-evidence/px4_gazebo_external.csv \
+            --out /tmp/phase8-evidence/comparison \
+            --git-sha "$GITHUB_SHA" \
+            --external-evidence-status external_simulator_seen \
+            --surrogate-source "frozen Phase 7 simulator at $PHASE8_FROZEN_HEAD" \
+            --external-source "PX4 $PX4_RELEASE SITL + Gazebo $PX4_SIMULATOR_MODEL; raw run-scoped ULog preserved"
+          python scripts/validate_result_manifest.py \
+            /tmp/phase8-evidence/comparison/result_manifest.json \
+            --schema aegisland.phase8.result-bundle.v1
+
+      - name: Write evidence provenance receipt
+        run: |
+          python - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          root = Path('/tmp/phase8-evidence')
+          def h(path):
+              p = root / path
+              return hashlib.sha256(p.read_bytes()).hexdigest()
+          comparison = json.loads((root/'comparison/trace_comparison.json').read_text())
+          mission = json.loads((root/'px4_mission_metadata.json').read_text())
+          sanity = json.loads((root/'px4_ulog_sanity.json').read_text())
+          trace_metadata = json.loads((root/'px4_trace_metadata.json').read_text())
+          receipt = {
+              'aegis_evidence_branch_sha': os.environ['GITHUB_SHA'],
+              'frozen_phase8_head': os.environ['PHASE8_FROZEN_HEAD'],
+              'historical_phase6b_frozen_commit': os.environ['PHASE6B_FROZEN_HEAD'],
+              'github_workflow': os.environ['GITHUB_WORKFLOW'],
+              'github_run_id': os.environ['GITHUB_RUN_ID'],
+              'github_run_attempt': os.environ['GITHUB_RUN_ATTEMPT'],
+              'px4_release': os.environ['PX4_RELEASE'],
+              'px4_git_sha': (root/'px4_git_sha.txt').read_text().strip(),
+              'simulator_model': os.environ['PX4_SIMULATOR_MODEL'],
+              'mission_completed': mission.get('completed') is True,
+              'ulog_sanity': sanity,
+              'image_channel_available': trace_metadata['image_channel_available'],
+              'image_semantics': trace_metadata['image_semantics'],
+              'comparison_scope': trace_metadata['comparison_scope'],
+              'raw_ulog_sha256': h('px4_gazebo_raw.ulg'),
+              'mission_metadata_sha256': h('px4_mission_metadata.json'),
+              'external_trace_sha256': h('px4_gazebo_external.csv'),
+              'external_trace_metadata_sha256': h('px4_trace_metadata.json'),
+              'surrogate_trace_sha256': h('phase7_surrogate.csv'),
+              'comparison_manifest_sha256': h('comparison/result_manifest.json'),
+              'comparison_bundle_sha256': h('comparison/trace_comparison.json'),
+              'external_evidence_status': comparison['external_evidence_status'],
+              'claim_level': comparison['claim_level'],
+              'overall_diagnostic': comparison['overall_diagnostic'],
+              'status_counts': comparison['status_counts'],
+              'comparison_input_provenance': comparison['input_provenance'],
+              'safety_acceptance': comparison['safety_acceptance'],
+              'controller_tuning_allowed': comparison['controller_tuning_allowed'],
+              'simulation_only': True,
+          }
+          (root/'evidence_receipt.json').write_text(json.dumps(receipt, indent=2, sort_keys=True)+'\n')
+          print(json.dumps(receipt, indent=2))
+          assert receipt['aegis_evidence_branch_sha'] == os.environ['GITHUB_SHA']
+          assert receipt['mission_completed'] is True
+          assert receipt['external_evidence_status'] == 'external_simulator_seen'
+          assert receipt['comparison_input_provenance']['external']['sha256'] == receipt['external_trace_sha256']
+          assert receipt['comparison_input_provenance']['surrogate']['sha256'] == receipt['surrogate_trace_sha256']
+          assert receipt['safety_acceptance'] is False
+          assert receipt['controller_tuning_allowed'] is False
+          assert receipt['simulation_only'] is True
+          PY
+
+      - name: Upload genuine PX4/Gazebo evidence bundle
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase8-px4-gazebo-evidence
+          path: /tmp/phase8-evidence
+          if-no-files-found: error
+          retention-days: 30
