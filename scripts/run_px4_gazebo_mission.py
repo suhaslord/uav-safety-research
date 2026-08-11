@@ -20,6 +20,11 @@ async def _first_matching(stream, predicate, timeout_s: float, description: str)
         raise TimeoutError(description) from exc
 
 
+def _health_ready_for_local_offboard(health) -> bool:
+    """Require both a usable local estimate and PX4's own armability verdict."""
+    return bool(health.is_local_position_ok and health.is_armable)
+
+
 async def wait_for_connection(drone: System, timeout_s: float) -> None:
     await _first_matching(
         drone.core.connection_state(),
@@ -32,9 +37,9 @@ async def wait_for_connection(drone: System, timeout_s: float) -> None:
 async def wait_for_health(drone: System, timeout_s: float) -> None:
     await _first_matching(
         drone.telemetry.health(),
-        lambda health: health.is_local_position_ok,
+        _health_ready_for_local_offboard,
         timeout_s,
-        "PX4 local-position estimator did not become ready",
+        "PX4 local-position estimator/armability did not become ready",
     )
 
 
@@ -47,7 +52,7 @@ def _stop_embedded_mavsdk_server(drone: System) -> None:
     """Stop the exact MAVSDK server process spawned by this System instance.
 
     MAVSDK-Python starts an embedded ``mavsdk_server`` when ``System`` is used
-    without an externally managed server address.  Explicit cleanup keeps the
+    without an externally managed server address. Explicit cleanup keeps the
     evidence command bounded after a completed or failed simulated mission and
     avoids leaving a helper process holding the GitHub Actions step open.
     """
@@ -65,16 +70,16 @@ async def mission(connection: str, metadata_out: Path) -> None:
         await wait_for_health(drone, 120.0)
 
         metadata = {
-            "mission": "phase8_px4_gazebo_lateral_descent_v2",
+            "mission": "phase8_px4_gazebo_lateral_descent_v3",
             "connection": connection,
-            "readiness_requirement": "local_position_ok",
+            "readiness_requirement": "local_position_ok_and_armable",
             "control_frame": "local NED only",
             "segments": [],
         }
 
-        # Prime a zero/local setpoint before arming and entering offboard mode.
-        # This keeps the evidence trajectory in the same local frame used by
-        # the logged PX4/Gazebo state and avoids a global-navigation dependency.
+        # PX4's own armability state is now part of the readiness gate. Prime a
+        # local setpoint immediately before arming/offboard so this harness does
+        # not race transient preflight checks during simulator startup.
         await drone.offboard.set_position_ned(PositionNedYaw(0.0, 0.0, 0.0, 0.0))
         await drone.action.arm()
         try:
