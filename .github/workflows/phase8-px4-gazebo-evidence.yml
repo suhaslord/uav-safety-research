@@ -159,8 +159,8 @@ jobs:
           required = {
               'vehicle_status',
               'vehicle_local_position_groundtruth',
-              'vehicle_visual_odometry',
               'vehicle_local_position',
+              'vehicle_gps_position',
           }
           missing = sorted(required - datasets.keys())
           assert not missing, f'mission ULog missing required topics: {missing}'
@@ -185,6 +185,17 @@ jobs:
           assert vertical_span >= 1.0, f'ULog does not show meaningful vertical flight: span={vertical_span:.3f}m'
           assert lateral_span >= 0.5, f'ULog does not show planned lateral motion: span={lateral_span:.3f}m'
 
+          reference = datasets['vehicle_local_position'].data
+          reference_samples = len(np.asarray(reference.get('timestamp', [])))
+          assert reference_samples >= 100, f'too few PX4 local-position samples: {reference_samples}'
+
+          gps = datasets['vehicle_gps_position'].data
+          gps_samples = len(np.asarray(gps.get('timestamp', [])))
+          assert gps_samples >= 20, f'too few PX4 GPS samples: {gps_samples}'
+
+          visual = datasets.get('vehicle_visual_odometry')
+          visual_samples = 0 if visual is None else len(np.asarray(visual.data.get('timestamp', [])))
+
           sanity = {
               'mission_completed': True,
               'required_topics': sorted(required),
@@ -193,6 +204,10 @@ jobs:
               'groundtruth_duration_s': duration,
               'groundtruth_vertical_span_m': vertical_span,
               'groundtruth_lateral_span_m': lateral_span,
+              'reference_samples': int(reference_samples),
+              'gps_samples': int(gps_samples),
+              'image_channel_available': bool(visual_samples >= 2),
+              'visual_odometry_samples': int(visual_samples),
               'ulog_start_timestamp_us': int(ulog.start_timestamp),
               'ulog_last_timestamp_us': int(ulog.last_timestamp),
           }
@@ -234,6 +249,7 @@ jobs:
           comparison = json.loads((root/'comparison/trace_comparison.json').read_text())
           mission = json.loads((root/'px4_mission_metadata.json').read_text())
           sanity = json.loads((root/'px4_ulog_sanity.json').read_text())
+          trace_metadata = json.loads((root/'px4_trace_metadata.json').read_text())
           receipt = {
               'aegis_evidence_branch_sha': os.environ['GITHUB_SHA'],
               'frozen_phase8_head': os.environ['PHASE8_FROZEN_HEAD'],
@@ -246,9 +262,13 @@ jobs:
               'simulator_model': os.environ['PX4_SIMULATOR_MODEL'],
               'mission_completed': mission.get('completed') is True,
               'ulog_sanity': sanity,
+              'image_channel_available': trace_metadata['image_channel_available'],
+              'image_semantics': trace_metadata['image_semantics'],
+              'comparison_scope': trace_metadata['comparison_scope'],
               'raw_ulog_sha256': h('px4_gazebo_raw.ulg'),
               'mission_metadata_sha256': h('px4_mission_metadata.json'),
               'external_trace_sha256': h('px4_gazebo_external.csv'),
+              'external_trace_metadata_sha256': h('px4_trace_metadata.json'),
               'surrogate_trace_sha256': h('phase7_surrogate.csv'),
               'comparison_manifest_sha256': h('comparison/result_manifest.json'),
               'comparison_bundle_sha256': h('comparison/trace_comparison.json'),
