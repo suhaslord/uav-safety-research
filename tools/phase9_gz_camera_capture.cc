@@ -108,13 +108,28 @@ class CameraCapture {
   void OnPose(const gz::msgs::Pose_V &msg) {
     const double now = ElapsedSeconds();
     std::optional<PoseSample> best;
+    int best_score = -1;
     for (const auto &pose : msg.pose()) {
       const std::string &name = pose.name();
-      const bool is_camera = name.find("camera_link") != std::string::npos;
-      const bool is_x500 = name.find("x500") != std::string::npos;
-      if (!is_camera || !is_x500) {
+      if (name.find("camera_link") == std::string::npos) {
         continue;
       }
+
+      // The exact scoped camera-link name is simulator-generated. Prefer the
+      // X500 mono-camera entity when present, but do not require a brittle
+      // hard-coded scope prefix. The workflow independently discovers the
+      // camera topic from the live Gazebo graph.
+      int score = 1;
+      if (name.find("mono_cam") != std::string::npos) {
+        score += 10;
+      }
+      if (name.find("x500") != std::string::npos) {
+        score += 20;
+      }
+      if (score <= best_score) {
+        continue;
+      }
+
       PoseSample sample;
       sample.valid = true;
       sample.name = name;
@@ -127,11 +142,18 @@ class CameraCapture {
       sample.qz = pose.orientation().z();
       sample.qw = pose.orientation().w();
       best = sample;
-      break;
+      best_score = score;
     }
     if (best) {
-      std::lock_guard<std::mutex> lock(pose_mutex_);
-      latest_pose_ = *best;
+      bool first_pose = false;
+      {
+        std::lock_guard<std::mutex> lock(pose_mutex_);
+        first_pose = !latest_pose_.valid;
+        latest_pose_ = *best;
+      }
+      if (first_pose) {
+        std::cout << "Phase 9 camera pose matched entity=" << best->name << std::endl;
+      }
     }
   }
 
