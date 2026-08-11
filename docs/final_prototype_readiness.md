@@ -1,10 +1,10 @@
 # AegisLand Final Prototype Readiness
 
-This checklist defines what must be true before the current research branch is described as a final prototype candidate.
+This checklist defines what must be true before the current research branch is described as a final research-prototype candidate.
 
 It is intentionally stricter than “the code runs.” AegisLand is a simulation-only research prototype, and a passing software test or simulator run is not a physical-aircraft safety claim.
 
-## Current refinement snapshot
+## Final refinement snapshot
 
 - camera world-pose provenance correction: `fae622cfa448e4945174e8c03982686c7b1b0e3a`
 - one-command prototype smoke test: `33c5c73768757b508f5c613b2fba73f94e3fd5a6`
@@ -13,6 +13,9 @@ It is intentionally stricter than “the code runs.” AegisLand is a simulation
 - successful genuine-camera workflow run: `31523496671`
 - artifact ID: `9114281248`
 - artifact digest: `sha256:bd2387f9518c7feb0bb5b8d7d02ccc7cbf416a73cd13e150ebeab06551b041a6`
+- synchronized public README head: `8799b396fd784556d3077c433d0343a9a9a71917`
+- CI on synchronized README head: run `31546010695` — **success**
+- Phase 9 fixture/provenance validation on synchronized README head: run `31546010704` — **success**
 - exact result record: [`phase9_gazebo_camera_seen_result.md`](phase9_gazebo_camera_seen_result.md)
 
 Documentation commits after the evidence head do not redefine the scientific experiment.
@@ -65,33 +68,34 @@ Documentation commits after the evidence head do not redefine the scientific exp
 ### 6. Prototype presentation
 
 - [x] Heavy Gazebo evidence CI is limited to evidence-relevant source changes and remains manually dispatchable.
+- [x] Documentation-only presentation changes no longer trigger the expensive genuine-camera workflow.
 - [x] README exposes a one-command prototype smoke path and states the camera-pose provenance history honestly.
-- [ ] Synchronize the README and external-review packet with the valid Phase 9 result.
+- [x] README and external-review packet are synchronized with the valid Phase 9 result.
 - [x] The exact evidence head, workflow run ID, artifact ID/digest, hashes, and limitations are preserved in the Phase 9 result record.
-- [x] PR #13 remains draft and unmerged while final presentation/documentation is being synchronized.
+- [x] PR #13 description is synchronized with the result and remains draft/unmerged.
 
 ## Scientific interpretation of the valid Phase 9 result
 
 The valid 67-frame seen trace produced 25 truth-visible/detected frames, zero misses while truth-visible, and zero detections while truth-not-visible. Those counts are descriptive for this trace only.
 
-The same result also exposed weak metric geometry: lateral MAE was approximately **0.998 m** and altitude MAE approximately **1.520 m**, with much larger p95 errors. The uncertainty proxies were under-dispersed relative to the observed residuals. Strong detection availability must therefore not be presented as accurate pose estimation or end-to-end safety.
+The same result exposed weak metric geometry: lateral MAE was approximately **0.998 m** and altitude MAE approximately **1.520 m**, with much larger p95 errors. The uncertainty proxies were under-dispersed relative to the observed residuals. Strong detection availability must therefore not be presented as accurate pose estimation or end-to-end safety.
 
 A direct Phase 7 KS/Wasserstein comparison remains withheld because the lateral-coordinate definitions are not directly compatible.
 
-## Branch policy during refinement
+## Branch policy
 
-Do not merge PR #13 simply because software CI and simulator evidence pass. The branch remains the audit workspace while final public-facing documentation is synchronized and external review is still welcome.
+PR #13 remains draft and unmerged. Reaching a research-prototype candidate does not automatically mean the branch should be merged, and external technical review can still motivate a later revision.
 
 ## Definition of done
 
-The **research prototype candidate** is reached when:
+The **research-prototype candidate** requires:
 
-1. normal CI is green;
-2. Phase 9 schema/provenance validation is green;
-3. genuine-camera pose provenance is demonstrably correct;
-4. the genuine-camera evidence path reaches the unchanged descriptive Phase 9 analysis;
-5. the full evidence/hash chain is independently checked;
-6. all public-facing documentation states the favorable and unfavorable findings accurately;
-7. no simulator result is represented as physical-aircraft validation.
+1. normal CI green;
+2. Phase 9 schema/provenance validation green;
+3. demonstrably correct genuine-camera pose provenance;
+4. the genuine-camera evidence path reaching the unchanged descriptive Phase 9 analysis;
+5. independent verification of the evidence/hash chain;
+6. public documentation that states both favorable and unfavorable findings accurately;
+7. no simulator result represented as physical-aircraft validation.
 
-Gates 1–5 are now satisfied. The remaining work is presentation/documentation synchronization and one final exact-head software audit. A negative scientific metric does not prevent the software from being a final research prototype; it limits the claim that can accompany it.
+All seven gates are satisfied for the current prototype checkpoint. This means the software and research evidence package are ready to be treated as a **final research-prototype candidate for external review**. It does **not** mean AegisLand is validated flight-control software or safe for physical aircraft.
