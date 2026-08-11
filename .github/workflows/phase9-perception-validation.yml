@@ -1,0 +1,95 @@
+name: Phase 9 Perception Validation
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - phase9-external-perception-validation
+
+jobs:
+  phase9-perception-validation:
+    runs-on: ubuntu-latest
+    env:
+      PHASE9_PARENT_MAIN: babd4d9849c4792ff1cc002c51cc5dbbc6ed0221
+      PHASE8_FROZEN_HEAD: bd62e3b31431306fd9d897f560be7325d711d21a
+      PHASE6B_FROZEN_HEAD: b4e9838555e935a5ec42690495315473629b58f6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Verify frozen ancestry and research boundaries
+        run: |
+          git merge-base --is-ancestor "$PHASE9_PARENT_MAIN" HEAD
+          git merge-base --is-ancestor "$PHASE8_FROZEN_HEAD" HEAD
+          git merge-base --is-ancestor "$PHASE6B_FROZEN_HEAD" HEAD
+          git diff --exit-code "$PHASE9_PARENT_MAIN" -- \
+            src/uav_safety/trace_validation.py \
+            src/uav_safety/external_trace.py \
+            scripts/run_phase8_trace_validation.py \
+            src/uav_safety/phase6b_fusion.py \
+            src/uav_safety/simulator_image_phase6b.py \
+            scripts/run_phase6b_landing.py \
+            docs/phase6b_freeze_manifest.md \
+            results/phase6b_frozen_landing \
+            results/phase6b_frozen_selective
+
+      - name: Compile Python
+        run: python -m compileall -q src scripts tests
+
+      - name: Run full pytest suite
+        run: pytest -q
+
+      - name: Generate hash-verifiable Phase 9 fixture frames
+        run: |
+          rm -rf /tmp/phase9-fixture
+          python scripts/generate_phase9_perception_fixture.py \
+            --rows 40 \
+            --seed 909090 \
+            --out /tmp/phase9-fixture
+
+      - name: Validate trace and every raw frame hash
+        run: |
+          python scripts/validate_phase9_perception_trace.py \
+            /tmp/phase9-fixture/perception_trace.csv \
+            --frame-root /tmp/phase9-fixture \
+            --verify-frame-hashes \
+            --summary-out /tmp/phase9-fixture/validation_summary.json
+
+      - name: Assert non-authoritative evidence labeling
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+
+          root = Path('/tmp/phase9-fixture')
+          metadata = json.loads((root / 'fixture_metadata.json').read_text())
+          summary = json.loads((root / 'validation_summary.json').read_text())
+          assert metadata['external_perception_evidence_status'] == 'fixture_non_authoritative'
+          assert metadata['claim_level'] == 'pipeline_validation_only'
+          assert metadata['controller_tuning_allowed'] is False
+          assert metadata['safety_acceptance'] is False
+          assert metadata['simulation_only'] is True
+          assert metadata['raw_frames_preserved'] is True
+          assert metadata['frame_hashes_verified'] == metadata['rows'] == 40
+          assert summary['verify_frame_hashes'] is True
+          assert summary['validation']['verified_frame_hashes'] == 40
+          (root / 'git_sha.txt').write_text(os.environ['GITHUB_SHA'] + '\n', encoding='utf-8')
+          PY
+
+      - name: Upload Phase 9 non-authoritative fixture evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase9-perception-pipeline-fixture
+          path: /tmp/phase9-fixture
+          if-no-files-found: error
+          retention-days: 30
