@@ -78,6 +78,15 @@ def test_px4_ulog_gate_requires_navigation_but_not_visual_odometry() -> None:
     assert "vehicle_visual_odometry" not in required_block
 
 
+def test_evidence_receipt_uses_frozen_comparison_input_provenance() -> None:
+    text = EVIDENCE_WORKFLOW.read_text(encoding="utf-8")
+    assert "comparison['input_provenance']" in text
+    assert "comparison['input_hashes']" not in text
+    assert "comparison_input_provenance" in text
+    assert "receipt['comparison_input_provenance']['external']['sha256']" in text
+    assert "receipt['comparison_input_provenance']['surrogate']['sha256']" in text
+
+
 def test_phase8_final_audit_runs_on_evidence_branch_and_checks_freeze() -> None:
     text = FINAL_AUDIT_WORKFLOW.read_text(encoding="utf-8")
     assert "phase8-px4-gazebo-evidence" in text
