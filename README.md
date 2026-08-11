@@ -10,7 +10,7 @@
 ![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)
 ![Phase 6B](https://img.shields.io/badge/Phase%206B-frozen-success)
 ![Phase 8](https://img.shields.io/badge/Phase%208-external%20mismatch-orange)
-![Phase 9](https://img.shields.io/badge/Phase%209-review%20checkpoint-yellow)
+![Phase 9](https://img.shields.io/badge/Phase%209-revalidation%20pending-yellow)
 ![Scope](https://img.shields.io/badge/scope-simulation--only-blueviolet)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
@@ -22,11 +22,13 @@
 
 ## Current research status
 
-AegisLand is deliberately paused at an external-review checkpoint.
+AegisLand is in final-prototype refinement while its scientific boundaries remain frozen.
 
 The strongest synthetic result remains the frozen **Phase 6B** evaluation. Later phases were designed to attack that result rather than keep tuning the same simulator. **Phase 8 produced a genuine PX4/Gazebo external-simulator trace and the frozen resemblance method classified it as `diagnostic_mismatch`.** That negative result is preserved.
 
-**Phase 9 is not complete.** Its schema, fixture, hashing, tests, and raw Gazebo camera capture path work, but the latest genuine camera-evidence attempt stopped at a predeclared evidence-completeness gate before scientific analysis: the relevant ULog ground-truth stream spans about **19.248 s**, below the required **20.0 s**. The gate has not been weakened after seeing the result.
+**Phase 9 does not yet have a valid scientific external-perception result.** Its schema, deterministic fixtures, hashing, raw Gazebo image capture, tests, and descriptive-analysis machinery are implemented. Earlier genuine-camera attempts stopped before scientific analysis at a predeclared evidence-completeness gate; one preserved ULog ground-truth stream spanned about **19.248 s**, below the required **20.0 s**.
+
+A later audit also found a separate provenance defect: the camera collector had been recording Gazebo's fixed local `camera_link` transform as though it were the camera's moving world pose. That would have made projected-truth geometry invalid if analysis had proceeded. The collector has now been corrected to compose the moving model world pose with the camera-link transform. **Fresh genuine-camera evidence is required before any Phase 9 scientific result is claimed.** Neither the detector nor the preregistered visibility/analysis rules were changed to make that correction.
 
 So the defensible current summary is:
 
@@ -37,11 +39,12 @@ So the defensible current summary is:
 | Phase 8 deterministic fixture | **pipeline validation only** | trace/provenance machinery works |
 | Phase 8 genuine PX4/Gazebo trace | **external simulator seen** | frozen model-resemblance diagnostic = `diagnostic_mismatch` |
 | Phase 9 deterministic camera fixture | **pipeline validation only** | raw-frame schema/hash machinery works |
-| Phase 9 genuine Gazebo camera attempt | **incomplete seen evidence** | raw capture worked; completeness gate failed |
+| Phase 9 genuine Gazebo camera evidence | **revalidation pending** | raw capture demonstrated; corrected world-pose provenance still requires a fresh artifact |
 | Physical aircraft | **not tested** | no claim |
 
 For the full audit trail, exact commits, run IDs, evidence hashes, limitations, and review questions, start with:
 
+- **[Final prototype readiness](docs/final_prototype_readiness.md)**
 - **[Research checkpoint — 2026-08-10](docs/research_checkpoint_2026-08-10.md)**
 - **[External review packet](docs/external_review_packet.md)**
 - [Phase 8 trace-validation protocol](docs/phase8_trace_validation.md)
@@ -64,7 +67,7 @@ AegisLand was built by preserving measured failures rather than deleting old res
 | **Phase 6B** | component confidence + selective fusion | unreliable altitude can be rejected without discarding useful lateral image information |
 | **Phase 7** | external-validity stress program | timing, common-mode faults, and stronger plant dynamics expose new weak cells |
 | **Phase 8** | frozen higher-fidelity trace comparison | several internal surrogate distributions do not closely reproduce PX4/Gazebo evidence |
-| **Phase 9** | raw external-perception evidence | raw camera provenance works; the first full evidence attempt remains incomplete |
+| **Phase 9** | raw external-perception evidence | raw camera evidence exposed both completeness and pose-provenance problems that must be resolved before interpretation |
 
 ---
 
@@ -165,19 +168,19 @@ Phase 9 adds:
 - explicit observation availability rather than synthetic zero-fill;
 - frame-path traversal protection and hash verification;
 - deterministic non-authoritative fixtures;
-- raw Gazebo camera capture and camera-pose association;
+- raw Gazebo camera capture;
+- explicit camera world-pose provenance;
 - tests and CI evidence-role assertions;
 - descriptive analysis machinery with no Phase 9 resemblance threshold declared yet.
 
-At implementation head `353bf45bc8dcad5c7875570b91011d062014ab59`:
+The software/fixture path is green in CI. Genuine-camera evidence remains a revalidation target because two independent issues were found before a scientific Phase 9 result was accepted:
 
-- normal CI: **pass**
-- Phase 9 Perception Validation: **pass**
-- genuine Gazebo Camera Evidence: **fail at completeness gate**
+1. a predeclared ULog completeness requirement was not met by an earlier preserved run;
+2. a later provenance audit showed the collector was treating a fixed local camera-link transform as a world pose.
 
-The failed genuine attempt still preserved **56 raw 1280×960 frames**, with **55 matched camera poses**, but it did not reach frozen scientific analysis because the ground-truth ULog stream was shorter than the predeclared minimum duration.
+The second issue is corrected in the implementation by composing the model world pose with the link transform and failing closed when either component is unavailable. A fresh artifact must demonstrate the corrected behavior before the unchanged preregistered analyzer is interpreted.
 
-No Phase 9 scientific resemblance result is claimed from that run.
+No Phase 9 scientific resemblance or safety result is claimed from the rejected attempts.
 
 ---
 
@@ -210,8 +213,10 @@ git clone https://github.com/suhaslord/uav-safety-research.git
 cd uav-safety-research
 python -m venv .venv
 pip install -e ".[dev]"
-pytest -q
+bash scripts/final_prototype_smoke.sh
 ```
+
+The final-prototype smoke test compiles the Python sources, runs the full regression suite, generates the deterministic non-authoritative Phase 9 fixture, verifies every raw fixture-frame SHA-256, and checks the fixture evidence-role boundaries. It does **not** substitute for genuine-camera evidence or physical validation.
 
 Historical experiment commands and frozen protocols are kept in the phase-specific documentation rather than presented as current safety guidance.
 
@@ -228,8 +233,9 @@ The project should be read with these constraints in mind:
 - Phase 8 is one short PX4/Gazebo external-simulator comparison, not broad multi-scenario validation;
 - Phase 8 produced a genuine overall `diagnostic_mismatch`;
 - the Phase 8 run did not provide image/visual-odometry evidence;
-- the first Phase 9 genuine raw-camera attempt failed its predeclared evidence-completeness gate before analysis;
-- the first Phase 9 external camera trace is seen evidence, not a hidden holdout;
+- an earlier Phase 9 genuine-camera attempt failed its predeclared evidence-completeness gate before analysis;
+- a separate Phase 9 camera-pose provenance defect was found and corrected, but the correction still requires fresh genuine-camera evidence before scientific interpretation;
+- the first valid Phase 9 external camera trace will be seen evidence, not a hidden holdout;
 - PX4 local-position outputs are estimator products and are not statistically independent of every aiding source;
 - passing CI or a simulator test does not imply safety acceptance for a physical UAV.
 
@@ -237,6 +243,7 @@ The project should be read with these constraints in mind:
 
 ## Evidence and paper workspace
 
+- [Final prototype readiness](docs/final_prototype_readiness.md)
 - [Research checkpoint — 2026-08-10](docs/research_checkpoint_2026-08-10.md)
 - [External review packet](docs/external_review_packet.md)
 - [Phase 6B results](docs/phase6b_results.md)
