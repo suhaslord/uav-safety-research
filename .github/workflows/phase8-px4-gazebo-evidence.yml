@@ -12,7 +12,7 @@ jobs:
     timeout-minutes: 45
     env:
       PX4_RELEASE: v1.17.0
-      PX4_SIMULATOR_MODEL: gz_x500_vision
+      PX4_SIMULATOR_MODEL: gz_x500
       PHASE8_FROZEN_HEAD: bd62e3b31431306fd9d897f560be7325d711d21a
       PHASE6B_FROZEN_HEAD: b4e9838555e935a5ec42690495315473629b58f6
     steps:
@@ -31,6 +31,7 @@ jobs:
 
       - name: Verify frozen Phase 8 and Phase 6B integrity
         run: |
+          test "$PX4_SIMULATOR_MODEL" = "gz_x500"
           git merge-base --is-ancestor "$PHASE8_FROZEN_HEAD" HEAD
           git merge-base --is-ancestor "$PHASE6B_FROZEN_HEAD" HEAD
           git diff --exit-code "$PHASE8_FROZEN_HEAD" -- \
@@ -63,11 +64,6 @@ jobs:
       - name: Install PX4 SITL and Gazebo dependencies
         run: |
           sudo env DEBIAN_FRONTEND=noninteractive bash /tmp/PX4-Autopilot/Tools/setup/ubuntu.sh --no-nuttx
-          # PX4's setup script may install its Python requirements into the
-          # system interpreter when invoked through sudo, while CMake resolves
-          # the actions/setup-python interpreter. Install the same pinned PX4
-          # requirements into the active interpreter and prove kconfiglib is
-          # importable before launching SITL.
           python -m pip install -r /tmp/PX4-Autopilot/Tools/setup/requirements.txt
           python - <<'PY'
           import kconfiglib
@@ -131,9 +127,6 @@ jobs:
           fi
           sleep 2
 
-          # PX4 POSIX SITL runs from build/px4_sitl_default/rootfs and the
-          # logger writes relative ./log/... paths there. Restrict discovery to
-          # that runtime log directory and to files created by this run.
           LOG_ROOT=/tmp/PX4-Autopilot/build/px4_sitl_default/rootfs/log
           if [ -d "$LOG_ROOT" ] && [ -f /tmp/phase8-evidence/px4_run_started ]; then
             find "$LOG_ROOT" -type f -name '*.ulg' -newer /tmp/phase8-evidence/px4_run_started -print | sort | tee /tmp/phase8-evidence/ulog_candidates.txt
