@@ -63,6 +63,10 @@ Documentation commits after these implementation changes do not redefine the sci
 - [ ] Add the final exact commit SHA, workflow run ID, artifact ID/digest, and limitations to the release checkpoint.
 - [x] PR #13 remains draft and unmerged while the final audit is incomplete.
 
+## Branch policy during refinement
+
+Do not merge PR #13 simply because software CI passes. The branch remains the audit workspace until the genuine-camera evidence status is resolved and the exact final result or blocker is documented.
+
 ## Definition of done
 
 The final prototype candidate is reached when:
