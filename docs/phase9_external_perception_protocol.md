@@ -42,7 +42,7 @@ Each row in `aegisland.phase9.perception-trace.v1` represents one captured camer
 
 - monotonic frame timestamp and frame index;
 - safe relative raw-frame path;
-- SHA-256 of the exact raw frame bytes;
+- SHA-256 of the exact captured Gazebo image pixel payload bytes;
 - image width and height;
 - simulator truth for target visibility, target pixel center/area when visible, lateral offset, and altitude;
 - perception observation availability;
@@ -53,20 +53,50 @@ Ground truth is evaluation-only. It must never be passed into the estimator/cont
 
 Missing estimator observations remain missing. Numeric zero sentinels are forbidden for an unavailable observation because they can be mistaken for measurements.
 
+## Genuine-camera truth geometry — frozen before first capture
+
+For the initial seen PX4/Gazebo camera run:
+
+- the ArUco target center is the fixed world point `(0, 0, 0.001)` from the simulator model;
+- the target footprint is the documented `0.5 m × 0.5 m` plane;
+- camera pose is taken from Gazebo pose transport for the spawned X500 camera link;
+- the camera model uses the documented `1280 × 960` image and horizontal FOV `1.74 rad`;
+- simulator camera convention is treated as `+X` optical-forward, `-Y` image-right, `-Z` image-down;
+- `truth_lateral_x_m` is the target displacement along the camera image-horizontal/right axis;
+- `truth_altitude_m` is target optical-forward depth from the camera;
+- `truth_target_visible=true` when target center depth is beyond the near clip, projected center lies inside the image, and the projected target footprint is non-degenerate.
+
+These definitions are fixed before inspecting the first genuine camera trace. They are intentionally camera-relative rather than silently equated with PX4 NED north/east coordinates.
+
+## Genuine-camera observation algorithm — frozen before first capture
+
+The first seen trace uses a deterministic, pixel-only fiducial observation pipeline committed before the run:
+
+1. decode each exact captured Gazebo pixel payload to grayscale without assuming RGB versus BGR channel ordering;
+2. try the standard OpenCV ArUco predefined dictionaries and accept the largest decoded marker candidate;
+3. if no standard ArUco candidate decodes, apply a generic high-contrast convex quadrilateral fallback with fixed geometry filters;
+4. estimate marker translation from the detected corners, the fixed 0.5 m marker size, and the documented camera intrinsics using planar PnP;
+5. derive confidence from detected footprint and reprojection residual only;
+6. derive reported sigma values as image/reprojection geometry proxies only, not calibrated probability guarantees.
+
+Simulator truth is not used to choose a candidate, tune detector thresholds, or construct an observation. Truth enters only after detection for evaluation.
+
+The dictionary search is metadata discovery, not result tuning: the same fixed dictionary list is applied to every frame and is committed before the genuine run.
+
 ## Raw-frame provenance requirements
 
 A genuine Phase 9 evidence bundle must preserve, at minimum:
 
-- every raw camera frame used in analysis;
-- SHA-256 for every frame;
-- exact frame timestamps/order;
+- every selected raw Gazebo image pixel payload used in analysis;
+- SHA-256 for every selected frame payload;
+- exact frame timestamps/order when published by Gazebo, with collector receive time as an explicit fallback;
 - raw PX4 ULog from the same run when available;
 - simulator log;
 - PX4 release and exact Git SHA;
 - Gazebo model and world;
-- discovered camera topic;
+- discovered camera topic and discovered pose topic;
 - image dimensions and camera calibration/intrinsics when available;
-- exact AegisLand Git SHA used for any perception analysis;
+- exact AegisLand Git SHA used for perception analysis;
 - evidence role (`external_perception_seen` or later `external_perception_unseen`);
 - workflow/run identifier;
 - hashes for produced trace/report/manifest files.
@@ -98,6 +128,8 @@ The first genuine seen trace will be analyzed with raw descriptive discrepancy m
 
 Dimensions that are not actually observable are reported as `insufficient`/unavailable rather than reconstructed from unrelated signals.
 
+For the first seen trace, Phase 7 distribution comparison must be withheld if the coordinate definitions are not directly compatible. A camera-optical horizontal error must not be mislabeled as the same quantity as a state-level Phase 7 lateral coordinate merely to produce a KS/Wasserstein number.
+
 ## Threshold policy
 
 **No Phase 9 external-perception resemblance thresholds are declared in this initial protocol.**
@@ -118,7 +150,7 @@ The first genuine simulator camera trace therefore produces descriptive discrepa
 
 Allowed:
 
-> We independently generated camera evidence in a higher-fidelity simulator and measured how its perception/error behavior differs from the Phase 7 camera surrogate using a predeclared analysis.
+> We independently generated camera evidence in a higher-fidelity simulator and measured its camera/fiducial observation behavior using a predeclared, truth-separated analysis.
 
 Not allowed from Phase 9 alone:
 
@@ -127,6 +159,7 @@ Not allowed from Phase 9 alone:
 - a real-world failure probability;
 - a held-out claim for a trace inspected during development;
 - a claim that unavailable perception dimensions matched;
+- a claim that the fiducial detector is the deployed Aegis image estimator;
 - tuning Phase 6B/Phase 7/Phase 8 thresholds to improve the reported resemblance.
 
 ## Initial completion gate
@@ -140,4 +173,4 @@ The Phase 9 infrastructure milestone is complete only when:
 - normal repository CI remains green;
 - a Phase 9-specific workflow verifies the frozen ancestry and uploads a non-authoritative fixture artifact.
 
-A genuine camera evidence milestone is separate and requires a real simulator camera capture.
+A genuine camera evidence milestone is separate and requires a real simulator camera capture, verified raw-frame hashes, PX4/Gazebo provenance, and a descriptive `external_perception_seen` result with no post-hoc resemblance threshold.
