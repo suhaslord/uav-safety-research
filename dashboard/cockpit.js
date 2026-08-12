@@ -134,7 +134,7 @@ function renderPoseChart() {
   }
 
   ctx.font = "11px -apple-system, BlinkMacSystemFont, Segoe UI, Arial, sans-serif";
-  ctx.fillStyle = "#8e8e8e";
+  ctx.fillStyle = "#5c5e62";
   [minT, (minT + maxT) / 2, maxT].forEach(t => ctx.fillText(`${t.toFixed(1)}s`, px(t) - 12, height - 7));
 }
 
