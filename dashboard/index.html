@@ -7,6 +7,7 @@
   <meta name="theme-color" content="#ffffff" />
   <title>AegisLand — Research Cockpit</title>
   <link rel="stylesheet" href="cockpit.css" />
+  <link rel="stylesheet" href="cockpit-extension.css" />
 </head>
 <body>
   <header class="site-header" id="siteHeader">
@@ -16,12 +17,14 @@
       <a href="#result">Result</a>
       <a href="#telemetry">Telemetry</a>
       <a href="#geometry">Geometry</a>
-      <a href="#timeline">Timeline</a>
+      <a href="#timeline">Lineage</a>
       <a href="#provenance">Provenance</a>
     </nav>
-    <div class="header-actions">
-      <a href="phase7.html">Phase 7</a>
-      <button id="refreshStatus" type="button">Status</button>
+    <div class="header-actions" aria-label="Research links">
+      <a class="phase-link" href="phase7.html">Phase 7</a>
+      <a class="header-social" href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub</a>
+      <a class="header-social" href="https://www.linkedin.com/in/suhas-beemineni-1984763b8/" target="_blank" rel="noreferrer">LinkedIn</a>
+      <button id="refreshStatus" type="button" title="Refresh current GitHub CI status">Status</button>
     </div>
   </header>
 
@@ -117,28 +120,70 @@
       <div class="section-copy centered-copy narrow-copy">
         <p class="kicker dark">derived trace views</p>
         <h2>One trace. Three different lenses.</h2>
-        <p class="lead">These visualizations are derived from the same 67 frame states and corrected camera-pose samples already shown in the audited Phase 9 evidence.</p>
+        <p class="lead">Motion changes only how the evidence is revealed. The values below stay tied to the archived Phase 9 trace and corrected camera-pose capture.</p>
       </div>
       <div class="telemetry-grid">
         <article class="telemetry-panel">
           <div class="panel-heading"><span>Observation accumulation</span><strong>25 / 67</strong></div>
           <canvas id="coverageChart" aria-label="Cumulative observed frame count by analyzed frame index"></canvas>
           <p>Cumulative observed frames across the analyzed trace.</p>
+          <div class="panel-source">source · analysis/perception_trace.csv · exact observation_available flags</div>
         </article>
         <article class="telemetry-panel telemetry-panel-map">
           <div class="panel-heading"><span>Camera XY path</span><strong>world pose</strong></div>
-          <canvas id="xyChart" aria-label="Camera XY world path from corrected pose samples"></canvas>
-          <p>Corrected camera world-pose path from the sampled trace.</p>
+          <canvas id="xyChart" aria-label="Camera XY world path from audited capture pose samples"></canvas>
+          <p>Corrected camera world-pose path using audited pose-valid capture rows.</p>
+          <div class="panel-source">source · capture/capture_frames.csv · 18-row display subset of pose-valid captures</div>
         </article>
         <article class="telemetry-panel">
           <div class="panel-heading"><span>Observation cadence</span><strong>7 bins</strong></div>
           <canvas id="cadenceChart" aria-label="Observed frame counts grouped across the analyzed trace"></canvas>
           <p>Observed-frame concentration grouped across frame-index windows.</p>
+          <div class="panel-source">source · analysis/perception_trace.csv · derived only from audited observed indices</div>
         </article>
       </div>
+
+      <aside class="source-audit" aria-label="Visualization source audit">
+        <div class="source-audit-head">
+          <strong>Visualization source audit</strong>
+          <span class="source-audit-status">checked against archived Phase 9 artifact</span>
+        </div>
+        <div class="source-audit-grid">
+          <div class="source-audit-item">
+            <span>Evidence artifact</span>
+            <strong>#9114281248</strong>
+            <small>workflow 31523496671 · external_perception_seen</small>
+            <code>sha256:bd2387f9518c…</code>
+          </div>
+          <div class="source-audit-item">
+            <span>Perception trace</span>
+            <strong>67 analyzed rows</strong>
+            <small>25 truth-visible · 25 observations · 42 not visible</small>
+            <code>analysis/perception_trace.csv</code>
+          </div>
+          <div class="source-audit-item">
+            <span>Camera capture</span>
+            <strong>68 capture rows</strong>
+            <small>first row pose-invalid · 67 pose-linked rows retained for analysis</small>
+            <code>capture/capture_frames.csv</code>
+          </div>
+          <div class="source-audit-item">
+            <span>Animated pose display</span>
+            <strong>18 audited pose rows</strong>
+            <small>exact capture timestamps; coordinates shown with display rounding</small>
+            <code>camera_x_m · camera_y_m · camera_z_m</code>
+          </div>
+        </div>
+        <div class="source-audit-links">
+          <a href="https://github.com/suhaslord/uav-safety-research/actions/runs/31523496671" target="_blank" rel="noreferrer">Audited workflow ↗</a>
+          <a href="https://github.com/suhaslord/uav-safety-research/commit/33c5c73768757b508f5c613b2fba73f94e3fd5a6" target="_blank" rel="noreferrer">Evidence commit ↗</a>
+          <a href="https://github.com/suhaslord/uav-safety-research/pull/13" target="_blank" rel="noreferrer">Phase 9 PR ↗</a>
+        </div>
+      </aside>
+
       <div class="telemetry-note">
         <span class="telemetry-pulse" aria-hidden="true"></span>
-        <span>Derived display only · no new classification threshold or safety claim.</span>
+        <span>Derived display only · animations do not create new evidence rows, thresholds, or safety claims.</span>
       </div>
       <a class="text-link down-link" href="#geometry">Continue to geometry ↓</a>
     </section>
@@ -158,26 +203,88 @@
         <div><strong id="pixelMae">41.0 px</strong><span>pixel-center MAE</span></div>
       </div>
       <div class="chart-frame">
-        <canvas id="poseChart" aria-label="Camera world pose over simulator time"></canvas>
+        <canvas id="poseChart" aria-label="Camera world pose over selected audited Gazebo image timestamps"></canvas>
       </div>
-      <p class="caption centered">Corrected camera world pose moves with the simulated vehicle; the earlier near-static local-transform provenance failure was rejected.</p>
+      <p class="caption centered">The animated pose chart uses audited pose-valid capture timestamps; animation reveals the fixed samples rather than changing the underlying coordinates.</p>
     </section>
 
     <section id="timeline" class="viewport-section dark timeline-section">
       <div class="timeline-signal" id="timelineSignal" aria-hidden="true"><span></span></div>
-      <div class="section-copy centered-copy inverse">
-        <p class="kicker">research timeline</p>
-        <h2>Each phase tried to break the previous story.</h2>
-        <p class="lead">Negative results stay visible. Later evidence never rewrites the frozen earlier result.</p>
+      <div class="section-copy centered-copy inverse lineage-intro">
+        <p class="kicker">research lineage</p>
+        <h2>Every version stays reachable.</h2>
+        <p class="lead">The project history is deliberately inspectable: protocols, earlier Aegis versions, frozen benchmarks, development stress tests, external-simulator evidence, and the current Phase 9 draft all remain linked to their GitHub record.</p>
+        <div class="lineage-social">
+          <a class="social-button" href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub repository <span>↗</span></a>
+          <a class="social-button" href="https://www.linkedin.com/in/suhas-beemineni-1984763b8/" target="_blank" rel="noreferrer">LinkedIn <span>↗</span></a>
+        </div>
       </div>
-      <ol class="timeline-list">
-        <li><span>01</span><div><h3>Baseline → V3</h3><p>Confidence-aware redundant estimation concept established.</p></div></li>
-        <li><span>02</span><div><h3>Phase 6B</h3><p>Frozen held-out synthetic benchmark: mixed result, 99% success and 1% unsafe.</p></div></li>
-        <li><span>03</span><div><h3>Phase 7</h3><p>External-validity stress exposed weak cells under stronger dynamics and faults.</p></div></li>
-        <li><span>04</span><div><h3>Phase 8</h3><p>Genuine PX4/Gazebo comparison returned diagnostic_mismatch. Preserved unchanged.</p></div></li>
-        <li><span>05</span><div><h3>Phase 9A</h3><p>Early camera runs exposed completeness and world-pose provenance defects. Rejected.</p></div></li>
-        <li><span>06</span><div><h3>Phase 9B</h3><p>Valid seen trace: complete ULog evidence, corrected world pose, verified raw-frame hashes.</p></div></li>
+
+      <ol class="timeline-list lineage-list">
+        <li>
+          <a class="lineage-card-main" href="https://github.com/suhaslord/uav-safety-research/commit/eb222ad2d8a048381d05f9405812f4ff448d8802" target="_blank" rel="noreferrer">
+            <span class="lineage-index">01</span><div class="lineage-body"><p class="lineage-eyebrow">Protocol</p><h3>Phase 1</h3><p>Preregistered experiment protocol established before the later version sequence.</p><div class="lineage-meta"><span>eb222ad2</span><span class="lineage-open">View commit ↗</span></div></div>
+          </a>
+        </li>
+        <li>
+          <a class="lineage-card-main" href="https://github.com/suhaslord/uav-safety-research/commit/e9886308d531f4aa0f58a9a5a46217fde2b82884" target="_blank" rel="noreferrer">
+            <span class="lineage-index">02</span><div class="lineage-body"><p class="lineage-eyebrow">Historical version</p><h3>Aegis V1</h3><p>V1 findings were documented explicitly rather than rewritten when the next supervisor design began.</p><div class="lineage-meta"><span>e9886308</span><span class="lineage-open">View findings ↗</span></div></div>
+          </a>
+        </li>
+        <li>
+          <a class="lineage-card-main" href="https://github.com/suhaslord/uav-safety-research/commit/3f0c7aa95078f63f0605da48da8cb7e42c7cc1f5" target="_blank" rel="noreferrer">
+            <span class="lineage-index">03</span><div class="lineage-body"><p class="lineage-eyebrow">Historical version</p><h3>Aegis V2</h3><p>Temporal safety supervisor added, then evaluated in a paired Baseline/V1/V2 benchmark.</p><div class="lineage-meta"><span>3f0c7aa9</span><span class="lineage-open">View supervisor ↗</span></div></div>
+          </a>
+          <div class="lineage-secondary"><a href="https://github.com/suhaslord/uav-safety-research/commit/941d23f51befbee44d09058da63513a986e7dc5b" target="_blank" rel="noreferrer">paired benchmark ↗</a></div>
+        </li>
+        <li>
+          <a class="lineage-card-main" href="https://github.com/suhaslord/uav-safety-research/pull/6" target="_blank" rel="noreferrer">
+            <span class="lineage-index">04</span><div class="lineage-body"><p class="lineage-eyebrow">Research hardening</p><h3>Aegis V3</h3><p>Redundant estimation, bias correction, and safety-supervisor hardening extended the earlier V1/V2 history.</p><div class="lineage-meta"><span>PR #6</span><span class="lineage-open">View PR ↗</span></div></div>
+          </a>
+          <div class="lineage-secondary"><a href="https://github.com/suhaslord/uav-safety-research/commit/bb6180c7ea21c7ba05ea512c54c3e917c97503d2" target="_blank" rel="noreferrer">V1–V3 frozen evaluation ↗</a></div>
+        </li>
+        <li>
+          <a class="lineage-card-main" href="https://github.com/suhaslord/uav-safety-research/pull/7" target="_blank" rel="noreferrer">
+            <span class="lineage-index">05</span><div class="lineage-body"><p class="lineage-eyebrow">Post-freeze robustness</p><h3>Phase 5</h3><p>Robustness suite and synthetic image-perception work tested the frozen V3 story under broader stress.</p><div class="lineage-meta"><span>PR #7</span><span class="lineage-open">View PR ↗</span></div></div>
+          </a>
+        </li>
+        <li>
+          <a class="lineage-card-main" href="https://github.com/suhaslord/uav-safety-research/pull/8" target="_blank" rel="noreferrer">
+            <span class="lineage-index">06</span><div class="lineage-body"><p class="lineage-eyebrow">Image perception</p><h3>Phase 6</h3><p>Temporal image perception was integrated into Aegis without modifying the earlier frozen V3 result.</p><div class="lineage-meta"><span>PR #8</span><span class="lineage-open">View PR ↗</span></div></div>
+          </a>
+        </li>
+        <li>
+          <a class="lineage-card-main" href="https://github.com/suhaslord/uav-safety-research/pull/9" target="_blank" rel="noreferrer">
+            <span class="lineage-index">07</span><div class="lineage-body"><p class="lineage-eyebrow">Frozen held-out study</p><h3>Phase 6B</h3><p>Component-selective synthetic-image evaluation was frozen before the held-out seeds were exposed.</p><div class="lineage-meta"><span>b4e98385</span><span class="lineage-open">View PR ↗</span></div></div>
+          </a>
+          <div class="lineage-secondary"><a href="https://github.com/suhaslord/uav-safety-research/commit/b4e9838555e935a5ec42690495315473629b58f6" target="_blank" rel="noreferrer">frozen algorithm ↗</a></div>
+        </li>
+        <li>
+          <a class="lineage-card-main" href="https://github.com/suhaslord/uav-safety-research/pull/10" target="_blank" rel="noreferrer">
+            <span class="lineage-index">08</span><div class="lineage-body"><p class="lineage-eyebrow">Audited development</p><h3>Phase 7</h3><p>External-validity stress added stronger dynamics, separated reference sensing, faults, and latency without retuning Phase 6B.</p><div class="lineage-meta"><span>7354eeda</span><span class="lineage-open">View PR ↗</span></div></div>
+          </a>
+          <div class="lineage-secondary"><a href="phase7.html">open Phase 7 cockpit ↗</a><a href="https://github.com/suhaslord/uav-safety-research/commit/7354eeda8b975f45b659ce4f3f86c82501e6321d" target="_blank" rel="noreferrer">audited head ↗</a></div>
+        </li>
+        <li>
+          <a class="lineage-card-main" href="https://github.com/suhaslord/uav-safety-research/pull/11" target="_blank" rel="noreferrer">
+            <span class="lineage-index">09</span><div class="lineage-body"><p class="lineage-eyebrow">Frozen comparison tooling</p><h3>Phase 8 · Trace validation</h3><p>Higher-fidelity trace comparison infrastructure was frozen before genuine external-simulator evidence was evaluated.</p><div class="lineage-meta"><span>bd62e3b3</span><span class="lineage-open">View PR ↗</span></div></div>
+          </a>
+          <div class="lineage-secondary"><a href="https://github.com/suhaslord/uav-safety-research/commit/bd62e3b31431306fd9d897f560be7325d711d21a" target="_blank" rel="noreferrer">frozen comparison ↗</a></div>
+        </li>
+        <li>
+          <a class="lineage-card-main" href="https://github.com/suhaslord/uav-safety-research/pull/12" target="_blank" rel="noreferrer">
+            <span class="lineage-index">10</span><div class="lineage-body"><p class="lineage-eyebrow">External simulator evidence</p><h3>Phase 8 · PX4/Gazebo</h3><p>Genuine PX4/Gazebo evidence produced the preserved <code>diagnostic_mismatch</code> result rather than a tuned pass.</p><div class="lineage-meta"><span>b9df03e1</span><span class="lineage-open">View PR ↗</span></div></div>
+          </a>
+          <div class="lineage-secondary"><a href="https://github.com/suhaslord/uav-safety-research/commit/b9df03e111f3a796e50df440becc587c48ee7643" target="_blank" rel="noreferrer">audited evidence ↗</a></div>
+        </li>
+        <li>
+          <a class="lineage-card-main" href="https://github.com/suhaslord/uav-safety-research/pull/13" target="_blank" rel="noreferrer">
+            <span class="lineage-index">11</span><div class="lineage-body"><p class="lineage-eyebrow">Current draft · camera evidence</p><h3>Phase 9</h3><p>Raw Gazebo camera evidence, corrected moving world-pose provenance, frame hashes, and the mixed detection/geometry result shown in this cockpit.</p><div class="lineage-meta"><span>33c5c737</span><span class="lineage-open">View draft PR ↗</span></div></div>
+          </a>
+          <div class="lineage-secondary"><a href="https://github.com/suhaslord/uav-safety-research/commit/33c5c73768757b508f5c613b2fba73f94e3fd5a6" target="_blank" rel="noreferrer">audited camera evidence ↗</a></div>
+        </li>
       </ol>
+      <p class="lineage-note">Historical links are intentionally pinned to the relevant commit or PR. Experimental/future branches are not presented as validated milestones.</p>
     </section>
 
     <section id="provenance" class="viewport-section light provenance-section">
@@ -200,6 +307,10 @@
       <div class="cta-row provenance-actions">
         <a class="button primary" href="https://github.com/suhaslord/uav-safety-research/blob/phase9-external-perception-validation/docs/external_review_packet.md" target="_blank" rel="noreferrer">Open review packet</a>
         <a class="button outline" href="https://github.com/suhaslord/uav-safety-research/pull/13" target="_blank" rel="noreferrer">Draft PR #13</a>
+      </div>
+      <div class="project-link-strip" aria-label="Project profiles">
+        <a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer"><strong>GitHub repository</strong><span>source, branches, PRs ↗</span></a>
+        <a href="https://www.linkedin.com/in/suhas-beemineni-1984763b8/" target="_blank" rel="noreferrer"><strong>LinkedIn</strong><span>project / author profile ↗</span></a>
       </div>
     </section>
 
@@ -228,5 +339,6 @@
   </footer>
 
   <script src="cockpit.js"></script>
+  <script src="cockpit-extension.js"></script>
 </body>
 </html>
