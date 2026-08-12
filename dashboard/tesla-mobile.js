@@ -1,6 +1,8 @@
 (() => {
   const header = document.querySelector('.top');
-  if (!header || document.querySelector('.archive-menu-toggle')) return;
+  if (!header) return;
+  document.body.classList.add('archive-shell');
+  if (document.querySelector('.archive-menu-toggle')) return;
 
   const toggle = document.createElement('button');
   toggle.className = 'archive-menu-toggle';
