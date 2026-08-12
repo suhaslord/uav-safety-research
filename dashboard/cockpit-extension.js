@@ -132,10 +132,10 @@
         <a href="#provenance">Provenance</a>
       </div>
       <div class="mobile-menu-secondary">
-        <a href="phase7.html">Phase 7</a>
-        <button type="button" data-mobile-status>Status</button>
         <a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub</a>
         <a href="https://www.linkedin.com/in/suhas-beemineni-1984763b8/" target="_blank" rel="noreferrer">LinkedIn</a>
+        <a href="phase7.html">Phase 7</a>
+        <button type="button" data-mobile-status>Status</button>
       </div>`;
     document.body.appendChild(sheet);
 
