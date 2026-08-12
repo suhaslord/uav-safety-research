@@ -1,1 +1,131 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#ffffff"><meta name="description" content="AegisLand research phase archive"><title>AegisLand Research Archive</title><link rel="stylesheet" href="/phase-archive.css"></head><body><div class="boot" id="archiveBoot" role="status" aria-live="polite"><div class="boot-inner"><div class="lock"><span class="mark" aria-hidden="true">A</span><strong>AEGISLAND</strong></div><small>Opening research phase…</small></div></div><div class="progress" id="archiveProgress"></div><header class="top"><a class="word" href="/">AEGISLAND</a><nav class="nav" aria-label="Research archive"><a href="/phases/">All phases</a><a href="#changes">Changes</a><a href="#evidence">Evidence</a><a href="#finding">Finding</a></nav><div class="top-end"><a class="top-btn" href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub ↗</a><a class="top-btn primary" href="/phases/">Archive</a></div></header><main><section class="hero" id="phaseHero"></section><section class="section ash" id="changes"><div class="section-head" data-reveal><p class="kicker">What changed</p><h2>Each phase exists because the previous one exposed a specific limitation.</h2></div><div class="changes" id="changeList" data-reveal></div></section><section class="section dark"><div class="shift" id="phaseShift" data-reveal></div></section><section class="section" id="evidence"><div class="section-head" data-reveal><p class="kicker">Evidence snapshot</p><h2>The numbers stay attached to their original scope.</h2></div><div class="metrics" id="phaseMetrics" data-reveal></div></section><section class="section dark" id="finding"><div class="finding" data-reveal><p class="kicker">What this phase taught us</p><blockquote id="phaseFinding"></blockquote><a class="source" id="phaseSource" href="#" target="_blank" rel="noreferrer"><span>Primary source</span><strong>Open source</strong><i>↗</i></a></div></section><section class="switcher"><nav class="switch-nav"><a id="prevPhase" href="#">Previous phase</a><a href="/phases/">View all phases</a></nav><a class="next" id="nextPhase" href="#"></a></section></main><script src="/phase-data.js"></script><script src="/phase-runtime.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#ffffff" />
+  <meta name="description" content="AegisLand research phase case study" />
+  <title>AegisLand Research Archive</title>
+  <link rel="stylesheet" href="/phase-archive.css" />
+</head>
+<body>
+  <div class="boot" id="archiveBoot" role="status" aria-live="polite">
+    <div class="boot-inner">
+      <div class="lock"><span class="mark" aria-hidden="true">A</span><strong>AEGISLAND</strong></div>
+      <small>Opening research phase…</small>
+    </div>
+  </div>
+
+  <div class="progress" id="archiveProgress" aria-hidden="true"></div>
+
+  <header class="top">
+    <a class="word" href="/">AEGISLAND</a>
+    <nav class="nav" aria-label="Research phase sections">
+      <a href="#snapshot">Snapshot</a>
+      <a href="#system">System</a>
+      <a href="#evidence">Evidence</a>
+      <a href="#limits">Limits</a>
+      <a href="#finding">Finding</a>
+    </nav>
+    <div class="top-end">
+      <a class="top-btn" href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub ↗</a>
+      <a class="top-btn primary" href="/phases/">All phases</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" id="phaseHero"></section>
+
+    <section class="phase-rail-section" aria-label="Research progression">
+      <div class="phase-rail" id="phaseRail"></div>
+    </section>
+
+    <section class="section snapshot-section" id="snapshot">
+      <div class="section-head" data-reveal>
+        <p class="kicker">Phase snapshot</p>
+        <h2 id="snapshotTitle">What problem was this phase actually trying to solve?</h2>
+      </div>
+      <div class="snapshot-grid">
+        <div class="story-pair" data-reveal>
+          <article>
+            <span class="story-label">Problem</span>
+            <p id="phaseProblem"></p>
+          </article>
+          <article>
+            <span class="story-label">Research goal</span>
+            <p id="phaseGoal"></p>
+          </article>
+        </div>
+        <figure class="phase-visual" id="phaseOverviewVisual" data-reveal></figure>
+      </div>
+      <div class="metrics metric-cards" id="phaseMetrics" data-reveal></div>
+    </section>
+
+    <section class="section ash" id="changes">
+      <div class="section-head" data-reveal>
+        <p class="kicker">What changed from the previous phase</p>
+        <h2>Each revision adds one capability because the previous architecture exposed a specific weakness.</h2>
+      </div>
+      <div class="changes" id="changeList" data-reveal></div>
+      <div class="shift" id="phaseShift" data-reveal></div>
+    </section>
+
+    <section class="section dark system-section" id="system">
+      <div class="section-head inverse-head" data-reveal>
+        <p class="kicker">Core system</p>
+        <h2>How information moves through this version.</h2>
+        <p class="section-intro" id="systemIntro"></p>
+      </div>
+      <div class="architecture" id="phaseArchitecture" data-reveal></div>
+      <p class="architecture-note" id="architectureNote" data-reveal></p>
+    </section>
+
+    <section class="section evidence-section" id="evidence">
+      <div class="section-head" data-reveal>
+        <p class="kicker">Evidence / results</p>
+        <h2>The visual is derived from the phase’s recorded evidence, not invented decoration.</h2>
+      </div>
+      <div class="evidence-layout">
+        <figure class="phase-visual evidence-visual" id="phaseEvidenceVisual" data-reveal></figure>
+        <div class="evidence-story" data-reveal>
+          <p class="evidence-copy" id="phaseEvidenceStory"></p>
+          <div class="evidence-facts" id="evidenceFacts"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section ash limits-section" id="limits">
+      <div class="section-head" data-reveal>
+        <p class="kicker">What failed / limitations</p>
+        <h2>The phase is only useful if the remaining weakness stays visible.</h2>
+      </div>
+      <ol class="limits-list" id="phaseLimitations" data-reveal></ol>
+    </section>
+
+    <section class="section dark" id="finding">
+      <div class="finding" data-reveal>
+        <p class="kicker">Key takeaway</p>
+        <blockquote id="phaseFinding"></blockquote>
+        <div class="next-reason">
+          <span>Why the next phase was needed</span>
+          <p id="phaseNextReason"></p>
+        </div>
+        <a class="source" id="phaseSource" href="#" target="_blank" rel="noreferrer">
+          <span>Primary source</span><strong>Open source</strong><i>↗</i>
+        </a>
+      </div>
+    </section>
+
+    <section class="switcher">
+      <nav class="switch-nav">
+        <a id="prevPhase" href="#">Previous phase</a>
+        <a href="/phases/">View all phases</a>
+      </nav>
+      <a class="next" id="nextPhase" href="#"></a>
+    </section>
+  </main>
+
+  <script src="/phase-data.js"></script>
+  <script src="/phase-runtime.js"></script>
+</body>
+</html>
