@@ -1,0 +1,232 @@
+/* AegisLand mobile discipline layer
+   Source of truth: DESIGN-tesla.md
+   - radical subtraction
+   - no gradients / shadows / decorative patterns
+   - Electric Blue only for primary actions
+   - 4px controls
+   - mobile navigation collapses to a drawer
+   - generous viewport rhythm; desktop layouts reflow rather than shrink
+*/
+
+:root{
+  --tesla-ink:#171a20;
+  --tesla-body:#393c41;
+  --tesla-muted:#5c5e62;
+  --tesla-ash:#f4f4f4;
+  --tesla-blue:#3e6ae1;
+  --tesla-ease:cubic-bezier(.5,0,0,.75);
+}
+
+/* Remove visual drift from the Tesla brief. */
+.progress,.scroll-progress{display:none!important}
+.hero::after{display:none!important;background:none!important;mask-image:none!important}
+.rail-step.gap>i{background:none!important;border-top:1px dashed rgba(23,26,32,.22)!important}
+[data-signature-phase] .sig-bar-row.accent>i b,
+[data-signature-phase] .sig-stress .stress-line,
+[data-signature-phase] .sig-confidence-lane>i em,
+[data-signature-phase] .sig-matrix-cell:nth-child(13),
+[data-signature-phase] .sig-matrix-cell:nth-child(18),
+[data-signature-phase] .mini-target b,
+[data-signature-phase] .frontier-ring.r2:after{background:var(--tesla-ink)!important;border-color:var(--tesla-ink)!important;stroke:var(--tesla-ink)!important;color:var(--tesla-ink)!important}
+[data-signature-phase] .sig-outcome-board .major strong,
+[data-signature-phase] .frontier-badge span,
+.frontier-link:after{color:var(--tesla-muted)!important}
+[data-signature-phase] .sig-fused,
+.frontier-link{border-top-color:rgba(23,26,32,.22)!important}
+[data-signature-phase] .sig-outcome-board .major i{background:#e7e7e7!important}
+[data-signature-phase] .frontier-ring.r2{border-color:rgba(255,255,255,.28)!important}
+
+/* Blue is an action, not decoration. */
+.button.blue,.top-btn.primary,.button.primary,.social-button:first-child{background:var(--tesla-blue)!important;color:#fff!important}
+.button,.top-btn,.archive-menu-toggle,.archive-menu-close{border-radius:4px!important;box-shadow:none!important}
+
+/* Weight restraint from the design file. */
+.word,.kicker,.lock strong,.story-label,.sig-head,.frontier-topline{font-weight:500!important}
+
+/* Archive mobile drawer. Hidden until the runtime adds it. */
+.archive-menu-toggle,.archive-menu-sheet{display:none}
+
+@media(max-width:767px){
+  html{scroll-padding-top:52px}
+  body{overflow-x:hidden}
+
+  /* Tesla mobile navigation: wordmark + Menu, then a full-screen sheet. */
+  .top{
+    min-height:52px!important;
+    height:52px!important;
+    padding:0 20px!important;
+    display:grid!important;
+    grid-template-columns:1fr auto!important;
+    align-items:center!important;
+    background:rgba(255,255,255,.82)!important;
+    backdrop-filter:blur(16px)!important;
+    -webkit-backdrop-filter:blur(16px)!important;
+    border:0!important;
+    box-shadow:none!important;
+  }
+  .top .nav,.top .top-end{display:none!important}
+  .word{font-size:12px!important;font-weight:500!important;letter-spacing:.22em!important}
+  .archive-menu-toggle{
+    display:inline-flex;
+    min-width:64px;
+    height:32px;
+    align-items:center;
+    justify-content:center;
+    padding:0 12px;
+    border:0;
+    background:rgba(255,255,255,.82);
+    color:var(--tesla-ink);
+    font:500 14px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+    transition:background-color .33s var(--tesla-ease),color .33s var(--tesla-ease);
+  }
+  .archive-menu-sheet{
+    position:fixed;
+    inset:0;
+    z-index:1200;
+    display:flex;
+    flex-direction:column;
+    padding:18px 20px 28px;
+    background:#fff;
+    color:var(--tesla-ink);
+    transform:translateX(100%);
+    visibility:hidden;
+    transition:transform .33s var(--tesla-ease),visibility .33s;
+  }
+  .archive-menu-sheet.open{transform:none;visibility:visible}
+  .archive-menu-sheet-head{height:36px;display:flex;align-items:center;justify-content:space-between}
+  .archive-menu-sheet-head strong{font-size:12px;font-weight:500;letter-spacing:.22em}
+  .archive-menu-close{height:32px;min-width:64px;padding:0 12px;border:0;background:var(--tesla-ash);color:var(--tesla-ink);font-weight:500}
+  .archive-menu-links{margin:auto 0;display:grid}
+  .archive-menu-links a{padding:15px 0;font-size:22px;line-height:1.2;font-weight:500;border:0}
+  .archive-menu-links a.primary{margin-top:20px;height:40px;padding:0 18px;display:flex;align-items:center;justify-content:center;background:var(--tesla-blue);color:#fff;font-size:14px;border-radius:4px}
+  .archive-menu-meta{display:flex;gap:22px;font-size:12px;color:var(--tesla-muted)}
+  body.archive-menu-open{overflow:hidden}
+
+  /* Do not shrink the desktop hero into a backdrop. Reflow it. */
+  .hero{
+    min-height:100svh!important;
+    padding:86px 20px 40px!important;
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    grid-template-rows:auto auto auto!important;
+    gap:36px!important;
+    align-content:start!important;
+    overflow:visible!important;
+    background:#fff!important;
+  }
+  .hero-copy{grid-column:1!important;max-width:100%!important}
+  .hero h1,.index-hero h1{font-size:36px!important;line-height:43px!important;font-weight:500!important;letter-spacing:normal!important}
+  .deck{font-size:22px!important;line-height:1.25!important;letter-spacing:normal!important;max-width:100%!important}
+  .lede{font-size:14px!important;line-height:20px!important;color:var(--tesla-body)!important}
+  .actions{display:grid!important;grid-template-columns:1fr!important;gap:8px!important;margin-top:28px!important}
+  .actions .button{width:100%!important;min-width:0!important;height:40px!important}
+
+  /* Signature visual becomes the product image for the phase, not faded decoration. */
+  .object.signature-visual,
+  .signature-visual{
+    position:relative!important;
+    inset:auto!important;
+    right:auto!important;
+    bottom:auto!important;
+    grid-column:1!important;
+    width:100%!important;
+    max-width:none!important;
+    min-height:280px!important;
+    aspect-ratio:auto!important;
+    opacity:1!important;
+    margin:0!important;
+    padding:10px 0 4px!important;
+    transform:none!important;
+    overflow:hidden!important;
+    pointer-events:auto!important;
+  }
+  .signature-phase10{padding:18px!important;min-height:520px!important;background:#171a20!important;border-radius:4px!important}
+  .frontier-hero{padding-bottom:40px!important}
+  .frontier-badge{margin-bottom:20px!important;border-left:0!important;padding-left:0!important}
+  .frontier-core{height:220px!important}
+  .frontier-ring.r1{width:190px!important;height:190px!important}
+  .frontier-ring.r2{width:145px!important;height:145px!important}
+  .frontier-ring.r3{width:98px!important;height:98px!important}
+  .frontier-trace{width:205px!important;height:205px!important}
+  .frontier-center{width:76px!important;height:76px!important}
+  .frontier-metrics{grid-template-columns:1fr 1fr!important}
+  .frontier-metrics>div{padding:12px 10px 12px 0!important}
+  .frontier-metrics>div:nth-child(even){padding-left:10px!important}
+  .frontier-foot{grid-template-columns:1fr!important;gap:6px!important}
+
+  /* Phase-specific diagrams recompose instead of scaling. */
+  .sig-head{font-size:9px!important;gap:10px!important}
+  .sig-statline{grid-template-columns:1fr!important;gap:4px!important}
+  .sig-statline strong{text-align:left!important;font-size:20px!important}
+  .sig-bar-row{grid-template-columns:94px 1fr 44px!important;gap:9px!important}
+  .sig-fusion{grid-template-columns:1fr 1fr!important;grid-template-rows:auto auto!important;gap:14px!important}
+  .sig-source.visual{grid-column:1!important;grid-row:1!important}.sig-source.reference{grid-column:2!important;grid-row:1!important}
+  .sig-disagreement{grid-column:1!important;grid-row:2!important;border-left:0!important;border-right:0!important;border-top:1px solid rgba(23,26,32,.14)!important}
+  .sig-fused{grid-column:2!important;grid-row:2!important}
+  .sig-fusion-lines{display:none!important}
+  .sig-camera-pipeline{grid-template-columns:1fr!important;gap:12px!important}
+  .sig-camera-pipeline .sig-arrow{display:none!important}
+  .sig-camera-pipeline .sig-controller{grid-column:1!important;min-height:84px!important}
+  .sig-camera-frame{height:160px!important}
+  .sig-confidence-lane{grid-template-columns:94px 1fr 52px!important;gap:8px!important}
+  .sig-matrix-wrap{grid-template-columns:48px 1fr!important;gap:7px!important}
+  .sig-matrix-cell{min-height:34px!important}
+  .sig-outcome-board{gap:8px!important}.sig-outcome-board>div{height:150px!important}.sig-outcome-board strong{font-size:24px!important}
+  .sig-camera-geometry{grid-template-columns:1fr!important;gap:18px!important}
+  .sig-camera-result,.sig-geometry-result{min-height:auto!important}
+  .sig-divider{width:100%!important;height:1px!important}
+  .mini-target{width:92px!important;height:92px!important}
+
+  /* Hero metadata becomes normal document flow on mobile. */
+  .hero-meta{position:static!important;grid-column:1!important;left:auto!important;right:auto!important;bottom:auto!important;padding-top:16px!important;margin-top:0!important;display:grid!important;grid-template-columns:1fr!important;gap:5px!important;border-top:1px solid rgba(23,26,32,.14)!important;font-size:11px!important}
+  .hero-meta span:last-child{text-align:left!important}
+
+  /* One message per screen, generous horizontal breathing room. */
+  .program-goal,.section{min-height:100svh!important;padding:82px 20px!important}
+  .program-goal{grid-template-columns:1fr!important;gap:48px!important;border:0!important}
+  .program-goal-copy h2{font-size:32px!important;line-height:38px!important;letter-spacing:normal!important}
+  .program-goal-copy>p:last-child{font-size:14px!important;line-height:20px!important;color:var(--tesla-body)!important}
+  .program-pillars{grid-template-columns:1fr!important;border:0!important;gap:0!important}
+  .program-pillars>div,.program-pillars>div:nth-child(even),.program-pillars>div:nth-child(n+3){min-height:72px!important;padding:14px 0!important;border:0!important}
+  .program-pillars>div+div{border-top:1px solid rgba(23,26,32,.12)!important}
+  .program-pillars strong{font-size:14px!important;font-weight:500!important}
+
+  .section-head{margin-bottom:42px!important}.section h2{font-size:30px!important;line-height:36px!important;letter-spacing:normal!important;font-weight:500!important}
+  .snapshot-grid,.evidence-layout,.story-pair,.shift{grid-template-columns:1fr!important;gap:36px!important}
+  .metrics{grid-template-columns:1fr!important;margin-top:44px!important;border:0!important}
+  .metric-card,.metric-card+article{min-height:112px!important;padding:20px 0!important;border:0!important}
+  .metric-card+article{border-top:1px solid rgba(23,26,32,.12)!important}
+  .changes{grid-template-columns:1fr!important;gap:34px!important}.changes article{border-top:0!important;padding-top:0!important}
+  .phase-visual,.evidence-story{border:0!important}.evidence-visual{min-height:320px!important}
+  .limits-list{grid-template-columns:1fr!important}
+  .architecture{margin-right:-20px!important;padding-right:20px!important;scroll-snap-type:x proximity!important}
+  .arch-step{min-width:78vw!important;scroll-snap-align:start!important}
+
+  /* Research rail remains swipeable but becomes quiet and readable. */
+  .phase-rail-section{padding:0!important}
+  .phase-rail{grid-template-columns:repeat(11,88px)!important;overflow-x:auto!important;padding:0 14px!important;border:0!important;border-bottom:1px solid rgba(23,26,32,.12)!important;scroll-snap-type:x mandatory!important;scrollbar-width:none!important}
+  .phase-rail::-webkit-scrollbar{display:none}
+  .rail-step{padding:18px 4px!important;scroll-snap-align:center!important}
+  .rail-step.active>i,.rail-step.active>i::after{background:var(--tesla-ink)!important}
+
+  /* Archive index: one clear item at a time. */
+  .index-hero{min-height:100svh!important;padding:96px 20px 52px!important;align-content:end!important}
+  .index-hero .big{font-size:20px!important;line-height:28px!important;color:var(--tesla-body)!important}
+  .map{padding:0 20px 84px!important}
+  .era{grid-template-columns:1fr!important;gap:22px!important;padding:54px 0!important}
+  .phase-link{grid-template-columns:1fr 20px!important;gap:7px 14px!important;padding:22px 0!important}
+  .phase-link>span,.phase-link strong,.phase-link small{grid-column:1!important}.phase-link i{grid-column:2!important;grid-row:1/4!important}
+}
+
+@media(max-width:390px){
+  .hero{padding-inline:18px!important}.program-goal,.section{padding-inline:18px!important}.map{padding-inline:18px!important}
+  .hero h1,.index-hero h1{font-size:32px!important;line-height:38px!important}
+  .deck{font-size:20px!important}
+  .sig-bar-row{grid-template-columns:82px 1fr 40px!important}.sig-bar-row>span{font-size:10px!important}
+  .frontier-metrics{grid-template-columns:1fr!important}.frontier-metrics>div:nth-child(even){border-left:0!important;padding-left:0!important}.frontier-metrics>div+div{border-top:1px solid rgba(255,255,255,.16)!important}
+}
+
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto!important}
+  .archive-menu-sheet{transition:none!important}
+}
