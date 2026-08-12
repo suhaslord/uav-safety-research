@@ -25,19 +25,34 @@
 
   <main id="top">
     <section class="hero viewport-section" aria-labelledby="heroTitle">
-      <img class="hero-image" src="hero-frame.svg" alt="Gazebo downward-camera frame showing the ArUco landing target used in Phase 9 validation." />
-      <div class="hero-copy">
-        <p class="kicker">simulation-only research prototype</p>
-        <h1 id="heroTitle">AegisLand</h1>
-        <p class="hero-subtitle">External perception evidence you can inspect, not just trust.</p>
-        <div class="cta-row">
-          <a class="button primary" href="#result">Explore the result</a>
-          <a class="button secondary" href="https://github.com/suhaslord/uav-safety-research/blob/phase9-external-perception-validation/docs/phase9_external_perception_protocol.md" target="_blank" rel="noreferrer">Read protocol</a>
+      <div class="hero-intro">
+        <div>
+          <p class="kicker dark">simulation-only research prototype</p>
+          <h1 id="heroTitle">AegisLand</h1>
+          <p class="hero-subtitle">External perception evidence you can inspect, not just trust.</p>
+          <div class="cta-row hero-actions">
+            <a class="button primary" href="#result">Explore the result</a>
+            <a class="button secondary" href="https://github.com/suhaslord/uav-safety-research/blob/phase9-external-perception-validation/docs/phase9_external_perception_protocol.md" target="_blank" rel="noreferrer">Read protocol</a>
+          </div>
+        </div>
+        <div class="hero-meta" aria-label="Current evidence role">
+          <span>Phase 9</span>
+          <span>external_perception_seen</span>
+          <span>safety acceptance: false</span>
         </div>
       </div>
+
+      <figure class="hero-media">
+        <img class="hero-image" src="hero-frame.svg" alt="Stylized ArUco landing target used in Phase 9 camera validation." />
+        <figcaption>
+          <span>Phase 9 camera target</span>
+          <span>visual motif · raw evidence remains traceable below</span>
+        </figcaption>
+      </figure>
+
       <div class="hero-foot">
-        <span>Phase 9 · external_perception_seen</span>
-        <span id="liveLabel">Audited snapshot</span>
+        <span>seen evidence · no safety verdict</span>
+        <span id="liveLabel">Audited evidence · checking current CI…</span>
       </div>
     </section>
 
@@ -150,7 +165,7 @@
 
   <footer class="site-footer">
     <span>AegisLand · simulation-only research prototype</span>
-    <span id="liveMeta">Frozen evidence snapshot</span>
+    <span id="liveMeta">Audited Phase 9 evidence snapshot</span>
   </footer>
 
   <script src="cockpit.js"></script>
