@@ -92,12 +92,12 @@
       <div class="sig-statline"><span>Mixed success</span><strong>63 → 92%</strong><span>image-only → image+Aegis</span></div>`,
 
     phase6b: () => `
-      <div class="sig-head"><span>COMPONENT CONFIDENCE</span><strong>Trust geometry separately</strong></div>
+      <div class="sig-head"><span>COMPONENT CONFIDENCE</span><strong>Mixed held-out selective audit</strong></div>
       <div class="sig-split">
-        <div class="sig-confidence-lane"><span>Lateral</span><i><b style="--v:86%"></b><em style="--gate:80%"></em></i><strong>keep / substitute</strong></div>
-        <div class="sig-confidence-lane"><span>Altitude</span><i><b style="--v:38%"></b><em style="--gate:80%"></em></i><strong>keep / substitute</strong></div>
+        <div class="sig-confidence-lane"><span>Lateral coverage</span><i><b style="--v:96.6%"></b><em style="--gate:80%"></em></i><strong>96.6%</strong></div>
+        <div class="sig-confidence-lane"><span>Altitude coverage</span><i><b style="--v:.85%"></b><em style="--gate:80%"></em></i><strong>0.85%</strong></div>
       </div>
-      <div class="sig-gate"><span>Frozen component gate</span><strong>0.80 / 0.80</strong></div>
+      <div class="sig-gate"><span>Frozen component-confidence gate</span><strong>0.80 / 0.80</strong></div>
       <div class="sig-statline"><span>Mixed success</span><strong>57 → 94 → 99%</strong><span>image-only · P6 · P6B</span></div>`,
 
     phase7: () => `
@@ -204,7 +204,7 @@
     const hero = document.querySelector(".index-hero");
     if (!hero) return false;
     insertGoalAfter(hero);
-    document.querySelectorAll('a[href="/phases/phase10/"]').forEach(link => link.classList.add("frontier-link"));
+    document.querySelectorAll('.phase-link[href="/phases/phase10/"]').forEach(link => link.classList.add("frontier-link"));
     return true;
   }
 
