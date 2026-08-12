@@ -1,7 +1,6 @@
 /* AegisLand cockpit extension: header islands, source audit, social links, lineage. */
 
-/* Remove the full-width fixed-header slab. The controls become intentional floating islands,
-   so a light header can never create a white bar across a dark research section. */
+/* Desktop header: three deliberate floating islands rather than one full-width slab. */
 .site-header,
 .site-header.scrolled,
 .site-header.on-dark,
@@ -58,7 +57,7 @@
 .site-header.on-dark .header-actions:hover {
   background: rgba(23,26,32,.95);
 }
-.header-actions { gap: 0; }
+.header-actions { gap: 0; flex-wrap: nowrap; width: max-content; }
 .header-actions .header-social { color: var(--pewter); }
 .site-header.on-dark .header-actions .header-social { color: rgba(255,255,255,.7); }
 .header-actions .header-social:hover { color: inherit; }
@@ -159,8 +158,14 @@
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
-/* Research lineage */
-.timeline-section { padding-top: 112px; padding-bottom: 110px; }
+/* Research lineage — arranged as four visual eras rather than eleven identical cards. */
+.timeline-section {
+  padding-top: 112px;
+  padding-bottom: 118px;
+  background:
+    radial-gradient(circle at 50% 8%, rgba(62,106,225,.10), transparent 30%),
+    var(--carbon);
+}
 .lineage-intro { max-width: 760px; }
 .lineage-social {
   margin: 28px auto 0;
@@ -176,7 +181,7 @@
   align-items: center;
   gap: 14px;
   border: 1px solid rgba(255,255,255,.18);
-  border-radius: 4px;
+  border-radius: 999px;
   color: var(--white);
   background: rgba(255,255,255,.04);
   text-decoration: none;
@@ -192,58 +197,125 @@
   background: rgba(255,255,255,.08);
   border-color: rgba(139,168,255,.5);
 }
+
 .lineage-list {
-  width: min(1180px, 100%);
-  margin-top: 58px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  width: min(1220px, 100%);
+  margin-top: 82px;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 14px;
   position: relative;
   z-index: 3;
 }
 .lineage-list li {
+  --era-accent: #8ba8ff;
   display: block;
   padding: 0;
-  border: 1px solid rgba(255,255,255,.13);
-  background: rgba(255,255,255,.025);
+  border: 1px solid rgba(255,255,255,.12);
+  border-top: 2px solid color-mix(in srgb, var(--era-accent) 72%, transparent);
+  border-radius: 10px;
+  background: linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.018));
   min-width: 0;
+  min-height: 100%;
+  overflow: visible;
+  position: relative;
+  box-shadow: 0 16px 40px rgba(0,0,0,.08);
   transition:
     border-color .3s var(--ease-soft),
     background-color .3s var(--ease-soft),
-    transform .35s var(--ease-fluid);
+    transform .35s var(--ease-fluid),
+    box-shadow .35s var(--ease-fluid);
 }
 .lineage-list li:hover {
-  transform: translateY(-5px);
-  border-color: rgba(139,168,255,.55);
-  background: rgba(255,255,255,.055);
+  transform: translateY(-7px);
+  border-color: rgba(139,168,255,.54);
+  background: linear-gradient(180deg, rgba(255,255,255,.085), rgba(255,255,255,.025));
+  box-shadow: 0 24px 54px rgba(0,0,0,.16);
 }
+
+/* Era 1 — foundation: Phase 1 + V1/V2/V3 */
+.lineage-list li:nth-child(-n+4) {
+  grid-column: span 3;
+  --era-accent: #8ba8ff;
+}
+/* Era 2 — robustness and perception */
+.lineage-list li:nth-child(n+5):nth-child(-n+7) {
+  grid-column: span 4;
+  margin-top: 48px;
+  --era-accent: #88c6b2;
+}
+/* Era 3 — external validity */
+.lineage-list li:nth-child(n+8):nth-child(-n+10) {
+  grid-column: span 4;
+  margin-top: 48px;
+  --era-accent: #d9b77a;
+}
+/* Era 4 — current frontier */
+.lineage-list li:nth-child(11) {
+  grid-column: 1 / -1;
+  margin-top: 54px;
+  --era-accent: #6f96ff;
+  border-color: rgba(111,150,255,.52);
+  background:
+    linear-gradient(100deg, rgba(62,106,225,.16), rgba(255,255,255,.035) 38%, rgba(255,255,255,.018));
+}
+
+.lineage-list li:nth-child(1)::before,
+.lineage-list li:nth-child(5)::before,
+.lineage-list li:nth-child(8)::before,
+.lineage-list li:nth-child(11)::before {
+  position: absolute;
+  left: 0;
+  top: -27px;
+  color: rgba(255,255,255,.42);
+  font-size: 10px;
+  line-height: 14px;
+  letter-spacing: .14em;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+.lineage-list li:nth-child(1)::before { content: "01 · FOUNDATION"; }
+.lineage-list li:nth-child(5)::before { content: "02 · PERCEPTION + ROBUSTNESS"; }
+.lineage-list li:nth-child(8)::before { content: "03 · EXTERNAL VALIDATION"; }
+.lineage-list li:nth-child(11)::before { content: "04 · CURRENT FRONTIER"; color: #8ba8ff; }
+
 .lineage-card-main {
-  min-height: 176px;
-  padding: 20px 22px;
+  min-height: 190px;
+  padding: 22px 22px 20px;
   display: grid;
-  grid-template-columns: 44px 1fr;
+  grid-template-columns: 42px 1fr;
   gap: 14px;
   color: inherit;
   text-decoration: none;
 }
 .lineage-index {
-  color: rgba(255,255,255,.38);
-  font-size: 12px;
+  color: color-mix(in srgb, var(--era-accent) 74%, rgba(255,255,255,.3));
+  font-size: 11px;
   line-height: 18px;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 .lineage-body { min-width: 0; }
 .lineage-eyebrow {
-  margin: 0 0 7px;
-  color: #8ba8ff;
-  font-size: 10px;
+  margin: 0 0 8px;
+  color: var(--era-accent);
+  font-size: 9px;
   line-height: 14px;
-  letter-spacing: .08em;
+  letter-spacing: .11em;
   text-transform: uppercase;
 }
-.lineage-list h3 { margin-bottom: 8px; }
-.lineage-list p { max-width: 460px; }
+.lineage-list h3 {
+  margin: 0 0 9px;
+  font-size: 19px;
+  line-height: 24px;
+  font-weight: 500;
+  letter-spacing: -.01em;
+}
+.lineage-list p {
+  max-width: 460px;
+  font-size: 12px;
+  line-height: 18px;
+}
 .lineage-meta {
-  margin-top: 18px;
+  margin-top: 19px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -259,21 +331,58 @@
   white-space: nowrap;
 }
 .lineage-secondary {
-  padding: 0 22px 17px 80px;
+  padding: 0 22px 18px 78px;
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
 }
 .lineage-secondary a {
-  color: rgba(255,255,255,.55);
+  color: rgba(255,255,255,.54);
   font-size: 11px;
   text-decoration: none;
   border-bottom: 1px solid transparent;
 }
 .lineage-secondary a:hover { color: var(--white); border-bottom-color: rgba(255,255,255,.45); }
+
+/* Make current Phase 9 feel like the destination, not just card eleven. */
+.lineage-list li:nth-child(11) .lineage-card-main {
+  min-height: 176px;
+  grid-template-columns: 72px minmax(0, 1fr);
+  align-items: center;
+  padding: 28px 34px;
+}
+.lineage-list li:nth-child(11) .lineage-index {
+  font-size: 30px;
+  line-height: 36px;
+  color: rgba(139,168,255,.9);
+}
+.lineage-list li:nth-child(11) h3 {
+  font-size: 30px;
+  line-height: 36px;
+  margin-bottom: 8px;
+}
+.lineage-list li:nth-child(11) p {
+  max-width: 800px;
+  font-size: 13px;
+  line-height: 20px;
+}
+.lineage-list li:nth-child(11)::after {
+  content: "DRAFT · EXTERNAL PERCEPTION SEEN";
+  position: absolute;
+  right: 26px;
+  top: 24px;
+  padding: 7px 10px;
+  border: 1px solid rgba(139,168,255,.34);
+  border-radius: 999px;
+  color: #a9beff;
+  background: rgba(62,106,225,.08);
+  font-size: 9px;
+  letter-spacing: .08em;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
 .lineage-note {
-  width: min(1180px, 100%);
-  margin: 20px auto 0;
+  width: min(1220px, 100%);
+  margin: 22px auto 0;
   color: rgba(255,255,255,.48);
   font-size: 11px;
   line-height: 18px;
@@ -314,15 +423,101 @@
 @media (max-width: 1024px) {
   .wordmark,
   .header-actions { min-height: 38px; }
-  .lineage-list { grid-template-columns: 1fr; }
+  .lineage-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 70px; }
+  .lineage-list li,
+  .lineage-list li:nth-child(-n+4),
+  .lineage-list li:nth-child(n+5):nth-child(-n+7),
+  .lineage-list li:nth-child(n+8):nth-child(-n+10),
+  .lineage-list li:nth-child(11) {
+    grid-column: auto;
+    margin-top: 0;
+  }
+  .lineage-list li:nth-child(11) { grid-column: 1 / -1; margin-top: 30px; }
+  .lineage-list li:nth-child(1)::before,
+  .lineage-list li:nth-child(5)::before,
+  .lineage-list li:nth-child(8)::before { display: none; }
+  .lineage-list li:nth-child(11)::before { top: -27px; }
 }
 
 @media (max-width: 767px) {
-  .site-header { padding-left: 10px !important; padding-right: 12px !important; }
-  .wordmark { padding-inline: 10px; }
-  .header-actions { gap: 0; }
-  .header-actions a,
-  .header-actions button { padding-inline: 9px !important; font-size: 12px !important; }
+  /* True mobile header: no scaled desktop islands, no shared right-side container, no wrapping. */
+  .site-header {
+    height: 52px !important;
+    display: grid !important;
+    grid-template-columns: auto 1fr auto !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 0 12px !important;
+  }
+  .site-header .wordmark {
+    grid-column: 1 !important;
+    min-height: 32px !important;
+    height: 32px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: none !important;
+    font-size: 10px !important;
+    letter-spacing: .22em !important;
+    white-space: nowrap;
+  }
+  .site-header .header-actions {
+    grid-column: 3 !important;
+    justify-self: end !important;
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    width: max-content !important;
+    min-width: 0 !important;
+    min-height: 32px !important;
+    height: 32px !important;
+    padding: 0 !important;
+    gap: 6px !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: none !important;
+  }
+  .site-header .header-actions .phase-link,
+  .site-header #refreshStatus {
+    display: inline-flex !important;
+    flex: 0 0 auto !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: auto !important;
+    min-width: 0 !important;
+    min-height: 32px !important;
+    height: 32px !important;
+    margin: 0 !important;
+    padding: 0 10px !important;
+    border: 1px solid rgba(23,26,32,.10) !important;
+    border-radius: 999px !important;
+    background: rgba(255,255,255,.90) !important;
+    color: var(--carbon) !important;
+    font-size: 10px !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+  .site-header.on-dark .header-actions .phase-link,
+  .site-header.on-dark #refreshStatus {
+    color: var(--white) !important;
+    background: rgba(23,26,32,.88) !important;
+    border-color: rgba(255,255,255,.14) !important;
+  }
+  #refreshStatus::after {
+    width: 5px !important;
+    height: 5px !important;
+    margin-left: 6px !important;
+    vertical-align: 0 !important;
+  }
+
   .source-audit { width: calc(100% - 40px); }
   .source-audit-head { align-items: flex-start; flex-direction: column; justify-content: center; padding: 12px 0; gap: 5px; }
   .source-audit-grid { grid-template-columns: 1fr; }
@@ -334,8 +529,98 @@
   }
   .source-audit-item:first-child { border-top: 0; }
   .source-audit-links { flex-wrap: wrap; padding: 12px 0; gap: 10px 18px; }
-  .lineage-card-main { min-height: 0; padding: 18px; grid-template-columns: 32px 1fr; }
-  .lineage-secondary { padding: 0 18px 16px 64px; }
+
+  /* Mobile lineage becomes a clean vertical research rail with era labels. */
+  .timeline-section { padding-top: 96px; }
+  .lineage-list {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-top: 64px;
+    padding-left: 18px;
+  }
+  .lineage-list::before {
+    content: "";
+    position: absolute;
+    left: 3px;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: linear-gradient(180deg, #8ba8ff, rgba(136,198,178,.65) 38%, rgba(217,183,122,.65) 70%, #6f96ff);
+    opacity: .45;
+  }
+  .lineage-list li,
+  .lineage-list li:nth-child(-n+4),
+  .lineage-list li:nth-child(n+5):nth-child(-n+7),
+  .lineage-list li:nth-child(n+8):nth-child(-n+10),
+  .lineage-list li:nth-child(11) {
+    grid-column: 1 !important;
+    margin-top: 0;
+    border-radius: 8px;
+  }
+  .lineage-list li::marker { display: none; }
+  .lineage-list li::before {
+    display: block !important;
+    left: -22px !important;
+    top: 22px !important;
+    width: 8px;
+    height: 8px;
+    padding: 0;
+    border-radius: 50%;
+    background: var(--era-accent);
+    color: transparent !important;
+    font-size: 0 !important;
+    box-shadow: 0 0 0 5px rgba(23,26,32,.98);
+    content: "" !important;
+  }
+  .lineage-list li:nth-child(1),
+  .lineage-list li:nth-child(5),
+  .lineage-list li:nth-child(8),
+  .lineage-list li:nth-child(11) { margin-top: 40px; }
+  .lineage-list li:nth-child(1)::after,
+  .lineage-list li:nth-child(5)::after,
+  .lineage-list li:nth-child(8)::after,
+  .lineage-list li:nth-child(11)::after {
+    position: absolute;
+    left: 0;
+    right: auto;
+    top: -28px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: rgba(255,255,255,.46);
+    font-size: 9px;
+    letter-spacing: .12em;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  .lineage-list li:nth-child(1)::after { content: "FOUNDATION"; }
+  .lineage-list li:nth-child(5)::after { content: "PERCEPTION + ROBUSTNESS"; }
+  .lineage-list li:nth-child(8)::after { content: "EXTERNAL VALIDATION"; }
+  .lineage-list li:nth-child(11)::after { content: "CURRENT FRONTIER"; color: #8ba8ff; }
+  .lineage-card-main,
+  .lineage-list li:nth-child(11) .lineage-card-main {
+    min-height: 0;
+    padding: 18px;
+    grid-template-columns: 30px 1fr;
+    align-items: start;
+  }
+  .lineage-list li:nth-child(11) .lineage-index {
+    font-size: 12px;
+    line-height: 18px;
+  }
+  .lineage-list li:nth-child(11) h3 {
+    font-size: 21px;
+    line-height: 26px;
+  }
+  .lineage-list li:nth-child(11) p { font-size: 12px; line-height: 18px; }
+  .lineage-secondary { padding: 0 18px 16px 62px; }
   .lineage-meta { align-items: flex-start; flex-direction: column; gap: 5px; }
   .project-link-strip { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 390px) {
+  .site-header { padding-inline: 10px !important; gap: 5px !important; }
+  .site-header .wordmark { font-size: 9px !important; letter-spacing: .18em !important; }
+  .site-header .header-actions { gap: 4px !important; }
+  .site-header .header-actions .phase-link,
+  .site-header #refreshStatus { height: 30px !important; min-height: 30px !important; padding-inline: 8px !important; font-size: 9px !important; }
 }
