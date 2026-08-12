@@ -21,6 +21,8 @@ jobs:
           node --check dashboard/cockpit.js
           node --check dashboard/cockpit-extension.js
           node --check dashboard/app.js
+          node --check dashboard/phase-data.js
+          node --check dashboard/phase-runtime.js
       - name: Check Phase 8 Trace Lab JavaScript
         run: node --check phase8_dashboard/app.js
       - name: Unit tests
