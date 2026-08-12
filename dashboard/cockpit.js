@@ -38,7 +38,10 @@ const evidence = {
 };
 
 const pct = (v, digits = 1) => `${(v * 100).toFixed(digits)}%`;
+const clamp = (v, min = 0, max = 1) => Math.min(max, Math.max(min, v));
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+const chartState = new Map();
+let scrollTicking = false;
 
 function populate() {
   const p = evidence.phase9;
@@ -94,57 +97,224 @@ function renderDetectionTrack() {
   }
 }
 
-function renderPoseChart() {
-  const canvas = document.getElementById("poseChart");
-  if (!canvas) return;
+function fitCanvas(canvas) {
   const dpr = Math.max(1, window.devicePixelRatio || 1);
   const rect = canvas.getBoundingClientRect();
-  const width = Math.max(320, rect.width);
-  const height = Math.max(180, rect.height);
-  canvas.width = width * dpr;
-  canvas.height = height * dpr;
+  const width = Math.max(260, rect.width);
+  const height = Math.max(160, rect.height);
+  canvas.width = Math.round(width * dpr);
+  canvas.height = Math.round(height * dpr);
   const ctx = canvas.getContext("2d");
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.clearRect(0, 0, width, height);
+  return {ctx, width, height};
+}
 
+function drawGrid(ctx, width, height, pad, rows = 4, cols = 4) {
+  ctx.strokeStyle = "#e8e9ec";
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= rows; i += 1) {
+    const y = pad.t + (height - pad.t - pad.b) * i / rows;
+    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(width - pad.r, y); ctx.stroke();
+  }
+  for (let i = 0; i <= cols; i += 1) {
+    const x = pad.l + (width - pad.l - pad.r) * i / cols;
+    ctx.beginPath(); ctx.moveTo(x, pad.t); ctx.lineTo(x, height - pad.b); ctx.stroke();
+  }
+}
+
+function strokePartial(ctx, points, progress, xFn, yFn) {
+  if (!points.length || progress <= 0) return;
+  const scaled = clamp(progress) * Math.max(0, points.length - 1);
+  const whole = Math.floor(scaled);
+  const frac = scaled - whole;
+  ctx.beginPath();
+  ctx.moveTo(xFn(points[0]), yFn(points[0]));
+  for (let i = 1; i <= whole; i += 1) ctx.lineTo(xFn(points[i]), yFn(points[i]));
+  if (whole < points.length - 1 && frac > 0) {
+    const a = points[whole];
+    const b = points[whole + 1];
+    const partial = {};
+    Object.keys(a).forEach(key => {
+      if (typeof a[key] === "number" && typeof b[key] === "number") partial[key] = a[key] + (b[key] - a[key]) * frac;
+    });
+    ctx.lineTo(xFn(partial), yFn(partial));
+  }
+  ctx.stroke();
+}
+
+function renderPoseChart(progress = 1) {
+  const canvas = document.getElementById("poseChart");
+  if (!canvas) return;
+  const {ctx, width, height} = fitCanvas(canvas);
   const pad = {l: 38, r: 14, t: 12, b: 26};
-  const iw = width - pad.l - pad.r;
-  const ih = height - pad.t - pad.b;
+  drawGrid(ctx, width, height, pad, 4, 0);
   const ts = evidence.pose.map(p => p.t);
   const minT = Math.min(...ts);
   const maxT = Math.max(...ts);
   const minV = -1.2;
   const maxV = 2.8;
-  const px = t => pad.l + (t - minT) / (maxT - minT) * iw;
-  const py = v => pad.t + (maxV - v) / (maxV - minV) * ih;
+  const px = p => pad.l + (p.t - minT) / (maxT - minT) * (width - pad.l - pad.r);
+  const pyFor = key => p => pad.t + (maxV - p[key]) / (maxV - minV) * (height - pad.t - pad.b);
 
-  ctx.strokeStyle = "#eeeeee";
-  ctx.lineWidth = 1;
-  for (let i = 0; i <= 4; i += 1) {
-    const y = pad.t + ih * i / 4;
-    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(width - pad.r, y); ctx.stroke();
-  }
-
-  const series = [["x", "#171a20"], ["y", "#5c5e62"], ["z", "#3e6ae1"]];
-  for (const [key, color] of series) {
+  [["x", "#171a20"], ["y", "#5c5e62"], ["z", "#3e6ae1"]].forEach(([key, color]) => {
     ctx.strokeStyle = color;
     ctx.lineWidth = 2;
-    ctx.beginPath();
-    evidence.pose.forEach((p, i) => {
-      const x = px(p.t), y = py(p[key]);
-      if (i) ctx.lineTo(x, y); else ctx.moveTo(x, y);
-    });
-    ctx.stroke();
-  }
+    strokePartial(ctx, evidence.pose, progress, px, pyFor(key));
+  });
 
   ctx.font = "11px -apple-system, BlinkMacSystemFont, Segoe UI, Arial, sans-serif";
   ctx.fillStyle = "#5c5e62";
-  [minT, (minT + maxT) / 2, maxT].forEach(t => ctx.fillText(`${t.toFixed(1)}s`, px(t) - 12, height - 7));
+  [minT, (minT + maxT) / 2, maxT].forEach(t => {
+    const x = pad.l + (t - minT) / (maxT - minT) * (width - pad.l - pad.r);
+    ctx.fillText(`${t.toFixed(1)}s`, x - 12, height - 7);
+  });
+  document.querySelector(".chart-frame")?.style.setProperty("--chart-dot-x", `${clamp(progress) * 100}%`);
+}
+
+function coveragePoints() {
+  const seen = new Set(evidence.visible);
+  let total = 0;
+  return Array.from({length: evidence.phase9.rows}, (_, frame) => {
+    if (seen.has(frame)) total += 1;
+    return {frame, total};
+  });
+}
+
+function renderCoverageChart(progress = 1) {
+  const canvas = document.getElementById("coverageChart");
+  if (!canvas) return;
+  const {ctx, width, height} = fitCanvas(canvas);
+  const pad = {l: 32, r: 12, t: 12, b: 24};
+  drawGrid(ctx, width, height, pad, 4, 4);
+  const points = coveragePoints();
+  const px = p => pad.l + p.frame / (evidence.phase9.rows - 1) * (width - pad.l - pad.r);
+  const py = p => pad.t + (evidence.phase9.paired - p.total) / evidence.phase9.paired * (height - pad.t - pad.b);
+  ctx.strokeStyle = "#3e6ae1";
+  ctx.lineWidth = 2.2;
+  strokePartial(ctx, points, progress, px, py);
+  ctx.font = "10px -apple-system, BlinkMacSystemFont, Segoe UI, Arial, sans-serif";
+  ctx.fillStyle = "#5c5e62";
+  ctx.fillText("0", pad.l - 3, height - 6);
+  ctx.fillText("66", width - pad.r - 12, height - 6);
+  ctx.fillText("25", 4, pad.t + 4);
+}
+
+function renderXYChart(progress = 1) {
+  const canvas = document.getElementById("xyChart");
+  if (!canvas) return;
+  const {ctx, width, height} = fitCanvas(canvas);
+  const pad = {l: 28, r: 16, t: 14, b: 24};
+  drawGrid(ctx, width, height, pad, 4, 4);
+  const xs = evidence.pose.map(p => p.x);
+  const ys = evidence.pose.map(p => p.y);
+  const minX = Math.min(...xs) - .15;
+  const maxX = Math.max(...xs) + .15;
+  const minY = Math.min(...ys) - .15;
+  const maxY = Math.max(...ys) + .15;
+  const px = p => pad.l + (p.x - minX) / (maxX - minX) * (width - pad.l - pad.r);
+  const py = p => pad.t + (maxY - p.y) / (maxY - minY) * (height - pad.t - pad.b);
+  ctx.strokeStyle = "#171a20";
+  ctx.lineWidth = 2;
+  strokePartial(ctx, evidence.pose, progress, px, py);
+  const lastIndex = Math.max(0, Math.min(evidence.pose.length - 1, Math.floor(clamp(progress) * (evidence.pose.length - 1))));
+  if (progress > 0) {
+    const p = evidence.pose[lastIndex];
+    ctx.fillStyle = "#3e6ae1";
+    ctx.beginPath(); ctx.arc(px(p), py(p), 4, 0, Math.PI * 2); ctx.fill();
+  }
+  ctx.font = "10px -apple-system, BlinkMacSystemFont, Segoe UI, Arial, sans-serif";
+  ctx.fillStyle = "#5c5e62";
+  ctx.fillText("x", width - 14, height - 7);
+  ctx.fillText("y", 7, 12);
+}
+
+function cadenceBins() {
+  const seen = new Set(evidence.visible);
+  return Array.from({length: 7}, (_, bin) => {
+    const start = bin * 10;
+    const end = Math.min(evidence.phase9.rows, start + 10);
+    let count = 0;
+    for (let i = start; i < end; i += 1) if (seen.has(i)) count += 1;
+    return {start, end: end - 1, count};
+  });
+}
+
+function renderCadenceChart(progress = 1) {
+  const canvas = document.getElementById("cadenceChart");
+  if (!canvas) return;
+  const {ctx, width, height} = fitCanvas(canvas);
+  const pad = {l: 22, r: 10, t: 12, b: 26};
+  drawGrid(ctx, width, height, pad, 4, 0);
+  const bins = cadenceBins();
+  const innerW = width - pad.l - pad.r;
+  const gap = 7;
+  const barW = (innerW - gap * (bins.length - 1)) / bins.length;
+  const maxCount = Math.max(1, ...bins.map(b => b.count));
+  bins.forEach((bin, i) => {
+    const h = (height - pad.t - pad.b) * (bin.count / maxCount) * clamp(progress);
+    const x = pad.l + i * (barW + gap);
+    const y = height - pad.b - h;
+    ctx.fillStyle = bin.count ? "#3e6ae1" : "#d8dadd";
+    ctx.fillRect(x, y, barW, h || 1);
+    ctx.fillStyle = "#5c5e62";
+    ctx.font = "9px -apple-system, BlinkMacSystemFont, Segoe UI, Arial, sans-serif";
+    ctx.fillText(`${bin.start}`, x, height - 7);
+  });
+}
+
+const chartRenderers = {
+  poseChart: renderPoseChart,
+  coverageChart: renderCoverageChart,
+  xyChart: renderXYChart,
+  cadenceChart: renderCadenceChart
+};
+
+function animateChart(id, renderer, duration = 900) {
+  if (chartState.get(id) === 1) return;
+  if (reducedMotion.matches) {
+    chartState.set(id, 1);
+    renderer(1);
+    return;
+  }
+  const started = performance.now();
+  const tick = now => {
+    const raw = clamp((now - started) / duration);
+    const eased = 1 - Math.pow(1 - raw, 3);
+    chartState.set(id, eased);
+    renderer(eased);
+    if (raw < 1) requestAnimationFrame(tick);
+    else chartState.set(id, 1);
+  };
+  requestAnimationFrame(tick);
+}
+
+function setupChartAnimations() {
+  Object.entries(chartRenderers).forEach(([id, renderer]) => {
+    chartState.set(id, 0);
+    renderer(0);
+  });
+  if (reducedMotion.matches || !("IntersectionObserver" in window)) {
+    Object.entries(chartRenderers).forEach(([id, renderer]) => animateChart(id, renderer, 1));
+    return;
+  }
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const canvas = entry.target.querySelector("canvas") || entry.target;
+      const renderer = chartRenderers[canvas.id];
+      if (renderer) animateChart(canvas.id, renderer, canvas.id === "poseChart" ? 1150 : 900);
+      observer.unobserve(entry.target);
+    });
+  }, {threshold: .28, rootMargin: "0px 0px -8% 0px"});
+  document.querySelectorAll(".telemetry-panel, .chart-frame").forEach(el => observer.observe(el));
 }
 
 async function refreshGithubStatus() {
   const label = document.getElementById("liveLabel");
   const meta = document.getElementById("liveMeta");
+  const button = document.getElementById("refreshStatus");
+  button?.classList.add("is-loading");
   if (label) label.textContent = "Audited evidence · checking current CI…";
   try {
     const res = await fetch("https://api.github.com/repos/suhaslord/uav-safety-research/actions/runs?branch=phase9-external-perception-validation&per_page=20", {headers: {Accept: "application/vnd.github+json"}});
@@ -157,11 +327,69 @@ async function refreshGithubStatus() {
   } catch {
     if (label) label.textContent = "Audited evidence snapshot";
     if (meta) meta.textContent = `Live CI unavailable · audited Phase 9 evidence: run #${evidence.phase9.runId}`;
+  } finally {
+    button?.classList.remove("is-loading");
   }
 }
 
-function updateHeader() {
-  document.getElementById("siteHeader")?.classList.toggle("scrolled", window.scrollY > 24);
+function updateScrollEffects() {
+  scrollTicking = false;
+  const header = document.getElementById("siteHeader");
+  if (header) {
+    header.classList.toggle("scrolled", window.scrollY > 24);
+    const sampleY = Math.min(window.innerHeight - 1, header.offsetHeight + 8);
+    const sample = document.elementFromPoint(Math.max(1, Math.min(window.innerWidth / 2, window.innerWidth - 2)), sampleY);
+    const section = sample?.closest?.(".viewport-section");
+    header.classList.toggle("on-dark", Boolean(section?.classList.contains("dark")));
+  }
+
+  const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+  document.documentElement.style.setProperty("--scroll-progress", `${clamp(window.scrollY / maxScroll) * 100}%`);
+
+  const result = document.getElementById("result");
+  if (result) {
+    const rect = result.getBoundingClientRect();
+    const local = clamp((window.innerHeight - rect.top) / (window.innerHeight + rect.height));
+    document.getElementById("resultOrbit")?.style.setProperty("--orbit-angle", `${-28 + local * 118}deg`);
+  }
+
+  const timeline = document.getElementById("timeline");
+  if (timeline) {
+    const rect = timeline.getBoundingClientRect();
+    const local = clamp((window.innerHeight * .55 - rect.top) / Math.max(1, rect.height));
+    document.getElementById("timelineSignal")?.style.setProperty("--timeline-dot", `${local * 100}%`);
+  }
+
+  const geometry = document.getElementById("geometry");
+  if (geometry) {
+    const rect = geometry.getBoundingClientRect();
+    const local = clamp((window.innerHeight - rect.top) / (window.innerHeight + rect.height));
+    const beacon = document.getElementById("geometryBeacon");
+    if (beacon) beacon.style.transform = `rotate(${local * 120}deg) translateY(${(local - .5) * 8}px)`;
+  }
+}
+
+function requestScrollEffects() {
+  if (scrollTicking) return;
+  scrollTicking = true;
+  requestAnimationFrame(updateScrollEffects);
+}
+
+function setupHeroParallax() {
+  const media = document.getElementById("heroMedia");
+  if (!media || reducedMotion.matches) return;
+  media.addEventListener("pointermove", event => {
+    if (event.pointerType === "touch") return;
+    const rect = media.getBoundingClientRect();
+    const nx = (event.clientX - rect.left) / rect.width - .5;
+    const ny = (event.clientY - rect.top) / rect.height - .5;
+    media.style.setProperty("--hero-x", `${nx * 18}px`);
+    media.style.setProperty("--hero-y", `${ny * 18}px`);
+  });
+  media.addEventListener("pointerleave", () => {
+    media.style.setProperty("--hero-x", "0px");
+    media.style.setProperty("--hero-y", "0px");
+  });
 }
 
 function addReveal(selector, baseDelay = 0, step = 0, extraClass = "") {
@@ -181,6 +409,9 @@ function setupMotion() {
   addReveal("#result .metric-item", 80, 70);
   addReveal("#availability .section-copy", 0, 0);
   addReveal("#availability .frame-visual", 100, 0);
+  addReveal("#telemetry .section-copy", 0, 0);
+  addReveal("#telemetry .telemetry-panel", 70, 75);
+  addReveal("#telemetry .telemetry-note", 190, 0);
   addReveal("#geometry .section-copy", 0, 0);
   addReveal("#geometry .geometry-numbers > div", 70, 70);
   addReveal("#geometry .chart-frame", 170, 0);
@@ -214,15 +445,12 @@ function setupMotion() {
 function setupSectionNav() {
   const links = [...document.querySelectorAll(".site-nav a[href^='#']")];
   if (!links.length || !("IntersectionObserver" in window)) return;
-
   const targets = links
     .map(link => ({link, section: document.querySelector(link.getAttribute("href"))}))
     .filter(item => item.section);
 
   const observer = new IntersectionObserver(entries => {
-    const visible = entries
-      .filter(entry => entry.isIntersecting)
-      .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+    const visible = entries.filter(entry => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
     if (!visible) return;
     targets.forEach(({link, section}) => {
       const active = section === visible.target;
@@ -235,15 +463,23 @@ function setupSectionNav() {
   targets.forEach(({section}) => observer.observe(section));
 }
 
-window.addEventListener("scroll", updateHeader, {passive: true});
-window.addEventListener("resize", () => { clearTimeout(window.__poseTimer); window.__poseTimer = setTimeout(renderPoseChart, 90); });
+window.addEventListener("scroll", requestScrollEffects, {passive: true});
+window.addEventListener("resize", () => {
+  clearTimeout(window.__chartTimer);
+  window.__chartTimer = setTimeout(() => {
+    Object.entries(chartRenderers).forEach(([id, renderer]) => renderer(chartState.get(id) || 0));
+    requestScrollEffects();
+  }, 100);
+});
+
 window.addEventListener("DOMContentLoaded", () => {
   populate();
   renderDetectionTrack();
-  renderPoseChart();
   refreshGithubStatus();
-  updateHeader();
   setupMotion();
+  setupChartAnimations();
   setupSectionNav();
+  setupHeroParallax();
+  updateScrollEffects();
   document.getElementById("refreshStatus")?.addEventListener("click", refreshGithubStatus);
 });
