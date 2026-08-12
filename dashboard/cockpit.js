@@ -14,17 +14,12 @@ const evidence = {
     traceDuration: 21.78,
     paired: 25,
     visibleRate: 0.373134328358209,
-    observationRate: 0.373134328358209,
     missRate: 0,
     fpRate: 0,
     lateralMae: 0.99761451215501,
     altitudeMae: 1.5202676288532118,
     pixelMae: 40.989067717870654,
     pixelP95: 113.79846544893583,
-    lateralP95: 5.087426538465901,
-    altitudeP95: 6.596767930593084,
-    frameDt: 0.33,
-    confidenceErrorCorr: -0.8514727635415066,
     aruco: 18,
     quad: 7
   },
@@ -40,8 +35,41 @@ const evidence = {
   ]
 };
 
-function pct(v, digits = 1) { return `${(v * 100).toFixed(digits)}%`; }
-function shortSha(v) { return `${v.slice(0, 8)}…${v.slice(-6)}`; }
+const pct = (v, digits = 1) => `${(v * 100).toFixed(digits)}%`;
+
+function populate() {
+  const p = evidence.phase9;
+  const values = {
+    pairedFrames: `${p.paired}`,
+    visibleRate: pct(p.visibleRate),
+    missRate: pct(p.missRate),
+    fpRate: pct(p.fpRate),
+    lateralMae: `${p.lateralMae.toFixed(3)} m`,
+    altitudeMae: `${p.altitudeMae.toFixed(3)} m`,
+    pixelMae: `${p.pixelMae.toFixed(1)} px`,
+    detectorMix: `${p.aruco} ArUco · ${p.quad} fixed quad fallback`,
+    runRef: `#${p.runId}`,
+    artifactRef: `#${p.artifactId}`
+  };
+  Object.entries(values).forEach(([id, value]) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value;
+  });
+
+  const hashes = {
+    headSha: p.headSha,
+    artifactDigest: p.artifactDigest,
+    px4Sha: p.px4Sha,
+    traceSha: p.traceSha,
+    resultSha: p.resultSha,
+    rawUlogSha: p.rawUlogSha,
+    rawCaptureSha: p.rawCaptureSha
+  };
+  Object.entries(hashes).forEach(([id, value]) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value;
+  });
+}
 
 function renderDetectionTrack() {
   const root = document.getElementById("detectionTrack");
@@ -49,13 +77,14 @@ function renderDetectionTrack() {
   const visible = new Set(evidence.visible);
   const aruco = new Set(evidence.aruco);
   const quad = new Set(evidence.quad);
-  for (let i = 0; i < evidence.phase9.rows; i++) {
+  root.replaceChildren();
+  for (let i = 0; i < evidence.phase9.rows; i += 1) {
     const cell = document.createElement("div");
     cell.className = "det-cell";
     let state = "target not projected visible";
     if (visible.has(i)) { cell.classList.add("visible"); state = "visible + observed"; }
     if (aruco.has(i)) { cell.classList.add("aruco"); state = "visible · ArUco detector"; }
-    if (quad.has(i)) { cell.classList.add("quad"); state = "visible · quad fallback"; }
+    if (quad.has(i)) { cell.classList.add("quad"); state = "visible · fixed quad fallback"; }
     cell.dataset.tip = `Frame ${i}: ${state}`;
     root.appendChild(cell);
   }
@@ -66,71 +95,81 @@ function renderPoseChart() {
   if (!canvas) return;
   const dpr = Math.max(1, window.devicePixelRatio || 1);
   const rect = canvas.getBoundingClientRect();
-  canvas.width = Math.max(600, rect.width * dpr);
-  canvas.height = Math.max(250, rect.height * dpr);
+  const width = Math.max(320, rect.width);
+  const height = Math.max(180, rect.height);
+  canvas.width = width * dpr;
+  canvas.height = height * dpr;
   const ctx = canvas.getContext("2d");
-  ctx.scale(dpr, dpr);
-  const w = canvas.width / dpr, h = canvas.height / dpr;
-  const pad = {l:38,r:15,t:14,b:28};
-  const iw = w-pad.l-pad.r, ih = h-pad.t-pad.b;
-  ctx.clearRect(0,0,w,h);
-  ctx.strokeStyle = "rgba(255,255,255,.07)"; ctx.lineWidth = 1;
-  for (let i=0;i<=4;i++) { const y=pad.t+ih*i/4; ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(w-pad.r,y); ctx.stroke(); }
-  const ts=evidence.pose.map(p=>p.t), minT=Math.min(...ts), maxT=Math.max(...ts);
-  const all=evidence.pose.flatMap(p=>[p.x,p.y,p.z]); const minV=Math.min(-1.2,...all), maxV=Math.max(2.8,...all);
-  const px=t=>pad.l+(t-minT)/(maxT-minT)*iw; const py=v=>pad.t+(maxV-v)/(maxV-minV)*ih;
-  ctx.font='10px ui-sans-serif, system-ui'; ctx.fillStyle='rgba(190,200,215,.55)';
-  [maxV,(maxV+minV)/2,minV].forEach(v=>ctx.fillText(`${v.toFixed(1)} m`,3,py(v)+3));
-  [minT,(minT+maxT)/2,maxT].forEach(t=>ctx.fillText(`${t.toFixed(1)}s`,px(t)-12,h-7));
-  const series=[['x','#7aa7ff'],['y','#78d8e8'],['z','#b19aff']];
-  for (const [key,color] of series) {
-    ctx.strokeStyle=color; ctx.lineWidth=2; ctx.beginPath();
-    evidence.pose.forEach((p,i)=>{ const x=px(p.t), y=py(p[key]); i?ctx.lineTo(x,y):ctx.moveTo(x,y); }); ctx.stroke();
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, width, height);
+
+  const pad = {l: 38, r: 14, t: 12, b: 26};
+  const iw = width - pad.l - pad.r;
+  const ih = height - pad.t - pad.b;
+  const ts = evidence.pose.map(p => p.t);
+  const minT = Math.min(...ts);
+  const maxT = Math.max(...ts);
+  const minV = -1.2;
+  const maxV = 2.8;
+  const px = t => pad.l + (t - minT) / (maxT - minT) * iw;
+  const py = v => pad.t + (maxV - v) / (maxV - minV) * ih;
+
+  ctx.strokeStyle = "#eeeeee";
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i += 1) {
+    const y = pad.t + ih * i / 4;
+    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(width - pad.r, y); ctx.stroke();
   }
+
+  const series = [["x", "#171a20"], ["y", "#5c5e62"], ["z", "#3e6ae1"]];
+  for (const [key, color] of series) {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    evidence.pose.forEach((p, i) => {
+      const x = px(p.t), y = py(p[key]);
+      if (i) ctx.lineTo(x, y); else ctx.moveTo(x, y);
+    });
+    ctx.stroke();
+  }
+
+  ctx.font = "11px -apple-system, BlinkMacSystemFont, Segoe UI, Arial, sans-serif";
+  ctx.fillStyle = "#8e8e8e";
+  [minT, (minT + maxT) / 2, maxT].forEach(t => ctx.fillText(`${t.toFixed(1)}s`, px(t) - 12, height - 7));
 }
 
 async function refreshGithubStatus() {
-  const dot=document.getElementById('liveDot'); const label=document.getElementById('liveLabel'); const meta=document.getElementById('liveMeta');
-  if (!label) return;
-  label.textContent='Checking GitHub…';
+  const label = document.getElementById("liveLabel");
+  const meta = document.getElementById("liveMeta");
+  if (label) label.textContent = "Checking GitHub…";
   try {
-    const res=await fetch('https://api.github.com/repos/suhaslord/uav-safety-research/actions/runs?branch=phase9-external-perception-validation&per_page=30', {headers:{Accept:'application/vnd.github+json'}});
-    if(!res.ok) throw new Error(`GitHub ${res.status}`);
-    const data=await res.json();
-    const wanted=['CI','Phase 9 Perception Validation','Phase 9 Gazebo Camera Evidence'];
-    const latest={};
-    for(const run of data.workflow_runs||[]) if(wanted.includes(run.name)&&!latest[run.name]) latest[run.name]=run;
-    const vals=Object.values(latest); const allGreen=vals.length===3&&vals.every(r=>r.conclusion==='success');
-    if(dot) dot.classList.toggle('good',allGreen);
-    label.textContent=allGreen?'Latest workflows green':'Mixed workflow status';
-    if(meta) meta.textContent=vals.map(r=>`${r.name.replace('Phase 9 ','P9 ')}: ${r.conclusion||r.status}`).join(' · ');
-  } catch (err) {
-    label.textContent='Audited snapshot loaded'; if(meta) meta.textContent='Live GitHub refresh unavailable; showing frozen dashboard data.';
+    const res = await fetch("https://api.github.com/repos/suhaslord/uav-safety-research/actions/runs?branch=phase9-external-perception-validation&per_page=30", {headers: {Accept: "application/vnd.github+json"}});
+    if (!res.ok) throw new Error(`GitHub ${res.status}`);
+    const data = await res.json();
+    const wanted = ["CI", "Phase 9 Perception Validation", "Phase 9 Gazebo Camera Evidence"];
+    const latest = {};
+    for (const run of data.workflow_runs || []) if (wanted.includes(run.name) && !latest[run.name]) latest[run.name] = run;
+    const vals = Object.values(latest);
+    const allGreen = vals.length === 3 && vals.every(r => r.conclusion === "success");
+    if (label) label.textContent = allGreen ? "Latest workflows green" : "Mixed workflow status";
+    if (meta) meta.textContent = vals.length ? vals.map(r => `${r.name.replace("Phase 9 ", "P9 ")}: ${r.conclusion || r.status}`).join(" · ") : "Audited snapshot";
+  } catch {
+    if (label) label.textContent = "Audited snapshot";
+    if (meta) meta.textContent = "Live GitHub refresh unavailable · frozen evidence shown";
   }
 }
 
-function populate() {
-  const p=evidence.phase9;
-  const map={
-    phase9Frames:`${p.rows}`,
-    ulogDuration:`${p.ulogDuration.toFixed(3)} s`,
-    pairedFrames:`${p.paired}`,
-    visibleRate:pct(p.visibleRate),
-    missRate:pct(p.missRate),
-    fpRate:pct(p.fpRate),
-    lateralMae:`${p.lateralMae.toFixed(3)} m`,
-    altitudeMae:`${p.altitudeMae.toFixed(3)} m`,
-    pixelMae:`${p.pixelMae.toFixed(1)} px`,
-    pixelP95:`${p.pixelP95.toFixed(1)} px`,
-    detectorMix:`${p.aruco} ArUco · ${p.quad} fallback`,
-    artifactRef:`#${p.artifactId}`,
-    runRef:`#${p.runId}`,
-    headShort:shortSha(p.headSha)
-  };
-  for(const [id,value] of Object.entries(map)){ const el=document.getElementById(id); if(el) el.textContent=value; }
-  const hashes={headSha:p.headSha,artifactDigest:p.artifactDigest,px4Sha:p.px4Sha,traceSha:p.traceSha,resultSha:p.resultSha,rawUlogSha:p.rawUlogSha,rawCaptureSha:p.rawCaptureSha};
-  for(const [id,value] of Object.entries(hashes)){ const el=document.getElementById(id); if(el) el.textContent=value; }
+function updateHeader() {
+  document.getElementById("siteHeader")?.classList.toggle("scrolled", window.scrollY > 24);
 }
 
-window.addEventListener('resize',()=>{ clearTimeout(window.__poseTimer); window.__poseTimer=setTimeout(renderPoseChart,90); });
-window.addEventListener('DOMContentLoaded',()=>{ populate(); renderDetectionTrack(); renderPoseChart(); refreshGithubStatus(); document.getElementById('refreshStatus')?.addEventListener('click', refreshGithubStatus); });
+window.addEventListener("scroll", updateHeader, {passive: true});
+window.addEventListener("resize", () => { clearTimeout(window.__poseTimer); window.__poseTimer = setTimeout(renderPoseChart, 90); });
+window.addEventListener("DOMContentLoaded", () => {
+  populate();
+  renderDetectionTrack();
+  renderPoseChart();
+  refreshGithubStatus();
+  updateHeader();
+  document.getElementById("refreshStatus")?.addEventListener("click", refreshGithubStatus);
+});
