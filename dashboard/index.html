@@ -3,164 +3,156 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="AegisLand research cockpit — simulation evidence, validation history, provenance, and current prototype status." />
-  <meta name="theme-color" content="#07090d" />
+  <meta name="description" content="AegisLand research cockpit — simulation evidence, provenance, and external perception validation." />
+  <meta name="theme-color" content="#ffffff" />
   <title>AegisLand — Research Cockpit</title>
   <link rel="stylesheet" href="cockpit.css" />
 </head>
 <body>
-  <div class="shell">
-    <header class="topbar">
-      <a class="brand" href="#top" aria-label="AegisLand cockpit home">
-        <span class="brand-mark" aria-hidden="true">A</span>
-        <div><div class="eyebrow">AEGISLAND</div><div class="brand-title">Research Cockpit</div></div>
-      </a>
-      <nav class="nav" aria-label="Primary">
-        <a href="#timeline">Timeline</a>
-        <a href="#phase9">Phase 9</a>
-        <a href="#provenance">Provenance</a>
-        <a class="keep" href="phase7.html">Phase 7 explorer</a>
-        <button id="refreshStatus" type="button">Refresh status</button>
-      </nav>
-      <div class="live-pill" title="Live GitHub workflow status">
-        <span id="liveDot" class="live-dot"></span><span id="liveLabel">Audited snapshot</span>
-      </div>
-    </header>
+  <header class="site-header" id="siteHeader">
+    <a class="wordmark" href="#top" aria-label="AegisLand home">AEGISLAND</a>
+    <nav class="site-nav" aria-label="Primary navigation">
+      <a href="#result">Result</a>
+      <a href="#geometry">Geometry</a>
+      <a href="#timeline">Timeline</a>
+      <a href="#provenance">Provenance</a>
+    </nav>
+    <div class="header-actions">
+      <a href="phase7.html">Phase 7</a>
+      <button id="refreshStatus" type="button">Status</button>
+    </div>
+  </header>
 
-    <main id="top">
-      <section class="hero panel">
-        <div class="hero-copy">
-          <div class="eyebrow">FINAL PROTOTYPE · SIMULATION-ONLY</div>
-          <h1>Evidence you can inspect, not just trust.</h1>
-          <p>A browser view of the full AegisLand research story: frozen synthetic results, external-model mismatch, genuine Gazebo camera evidence, exact provenance, and the limits that remain. This is an analysis cockpit—not a vehicle-control surface.</p>
-          <div class="chips">
-            <span class="chip good">Phase 9 pipeline reached analysis</span>
-            <span class="chip warn">Seen evidence · no safety verdict</span>
-            <span class="chip">Phase 8 mismatch preserved</span>
-            <span class="chip">Physical flight out of scope</span>
-          </div>
+  <main id="top">
+    <section class="hero viewport-section" aria-labelledby="heroTitle">
+      <img class="hero-image" src="hero-frame.svg" alt="Gazebo downward-camera frame showing the ArUco landing target used in Phase 9 validation." />
+      <div class="hero-copy">
+        <p class="kicker">simulation-only research prototype</p>
+        <h1 id="heroTitle">AegisLand</h1>
+        <p class="hero-subtitle">External perception evidence you can inspect, not just trust.</p>
+        <div class="cta-row">
+          <a class="button primary" href="#result">Explore the result</a>
+          <a class="button secondary" href="https://github.com/suhaslord/uav-safety-research/blob/phase9-external-perception-validation/docs/phase9_external_perception_protocol.md" target="_blank" rel="noreferrer">Read protocol</a>
         </div>
-        <aside class="hero-side">
-          <div>
-            <div class="eyebrow">CURRENT SNAPSHOT</div>
-            <div class="hero-status">
-              <div class="status-line"><span>Prototype branch</span><strong>phase9-external-perception-validation</strong></div>
-              <div class="status-line"><span>Scientific role</span><strong>external_perception_seen</strong></div>
-              <div class="status-line"><span>Phase 9 verdict</span><strong>none declared</strong></div>
-              <div class="status-line"><span>Safety acceptance</span><strong>false</strong></div>
-              <div class="status-line"><span>Analyzed raw frames</span><strong id="phase9Frames">67</strong></div>
-            </div>
-          </div>
-          <div class="hero-callout">
-            <strong>The result is mixed—and useful.</strong>
-            <p>Every projected-visible target frame was detected in this seen trace, but geometric estimation errors remained large. The cockpit keeps both facts visible instead of collapsing them into a pass/fail badge.</p>
-          </div>
-        </aside>
-      </section>
-
-      <div class="section-head">
-        <div><div class="eyebrow">AT A GLANCE</div><h2>The three numbers that frame the project</h2></div>
-        <p id="liveMeta">The cards below are from frozen or independently verified evidence, not live estimates.</p>
       </div>
-      <section class="metric-grid">
-        <article class="metric panel"><span class="label">Phase 6B · mixed synthetic</span><strong class="accent-good">99%</strong><small>success, 1% unsafe · frozen held-out benchmark, not physical validation</small></article>
-        <article class="metric panel"><span class="label">Phase 8 · PX4/Gazebo</span><strong class="accent-red" style="font-size:31px">mismatch</strong><small>frozen model-resemblance diagnostic · 1 close / 2 watch / 9 mismatch / 14 insufficient</small></article>
-        <article class="metric panel"><span class="label">Phase 9 · visible detections</span><strong class="accent-good">25/25</strong><small>seen Gazebo trace · 0 missed detections when projected visible</small></article>
-        <article class="metric panel"><span class="label">Phase 9 · geometric error</span><strong class="accent-warn">0.998 m</strong><small>lateral MAE · depth/altitude MAE is 1.520 m</small></article>
-      </section>
-
-      <div id="timeline" class="section-head">
-        <div><div class="eyebrow">RESEARCH TIMELINE</div><h2>Each phase tried to break the previous story</h2></div>
-        <p>Negative results are retained. Later evidence never retroactively rewrites the frozen earlier result.</p>
+      <div class="hero-foot">
+        <span>Phase 9 · external_perception_seen</span>
+        <span id="liveLabel">Audited snapshot</span>
       </div>
-      <section class="timeline">
-        <article class="phase-card panel good"><span class="phase-num">01 · BASELINE → V3</span><h3>Redundant perception concept</h3><p>Moved from trusting a primary estimate to confidence-aware redundant estimation under persistent bias.</p><span class="phase-state">concept established</span></article>
-        <article class="phase-card panel good"><span class="phase-num">02 · PHASE 6B</span><h3>Frozen synthetic benchmark</h3><p>Component confidence and selective fusion reached strong mixed-condition synthetic performance while retaining known weaknesses.</p><span class="phase-state">frozen held-out result</span></article>
-        <article class="phase-card panel warn"><span class="phase-num">03 · PHASE 7</span><h3>External-validity stress</h3><p>Common-mode faults, timing, reference quality, and stronger plant dynamics exposed weak cells.</p><span class="phase-state">audited development evidence</span></article>
-        <article class="phase-card panel mismatch"><span class="phase-num">04 · PHASE 8</span><h3>PX4/Gazebo resemblance</h3><p>The unchanged comparison classified the genuine external-simulator trace as diagnostic_mismatch.</p><span class="phase-state">negative result preserved</span></article>
-        <article class="phase-card panel warn"><span class="phase-num">05 · PHASE 9A</span><h3>Camera provenance failures</h3><p>Early runs exposed completeness and world-pose provenance defects. Both were treated as blockers, not tuned around.</p><span class="phase-state">rejected diagnostics</span></article>
-        <article class="phase-card panel good"><span class="phase-num">06 · PHASE 9B</span><h3>Valid seen camera trace</h3><p>Corrected world-pose provenance, complete ULog evidence, verified frame hashes, and unchanged descriptive analysis.</p><span class="phase-state">external_perception_seen</span></article>
-      </section>
+    </section>
 
-      <div id="phase9" class="section-head">
-        <div><div class="eyebrow">PHASE 9 · GENUINE GAZEBO CAMERA EVIDENCE</div><h2>What the camera run actually showed</h2></div>
-        <p>No resemblance threshold or safety verdict was applied. The first valid camera trace is explicitly seen evidence.</p>
+    <section id="result" class="viewport-section light result-section">
+      <div class="section-copy centered-copy">
+        <p class="kicker dark">Phase 9 · genuine Gazebo camera evidence</p>
+        <h2>25 visible frames.<br />25 observations.</h2>
+        <p class="lead">On this seen trace, every projected-visible target frame produced an observation. That is useful evidence. It is not a safety verdict.</p>
       </div>
-      <section class="metric-grid">
-        <article class="metric panel"><span class="label">Ground-truth duration</span><strong id="ulogDuration">24.684 s</strong><small>predeclared minimum remained 20.0 s</small></article>
-        <article class="metric panel"><span class="label">Target visible / observed</span><strong id="visibleRate">37.3%</strong><small><span id="pairedFrames">25</span> paired visible + observed frames</small></article>
-        <article class="metric panel"><span class="label">Miss / false-positive rate</span><strong class="accent-good"><span id="missRate">0.0%</span></strong><small>false positives when not visible: <span id="fpRate">0.0%</span></small></article>
-        <article class="metric panel"><span class="label">Pixel center MAE</span><strong id="pixelMae">41.0 px</strong><small>p95 <span id="pixelP95">113.8 px</span> · descriptive localization error</small></article>
-      </section>
-
-      <section class="split section">
-        <article class="chart-card panel">
-          <div class="card-head"><div><div class="eyebrow">WORLD-POSE PROVENANCE CHECK</div><h3>Corrected camera pose moves with the simulated vehicle</h3><p>The earlier local-transform bug produced a near-static camera pose. The valid rerun spans meaningful world motion.</p></div><span class="badge">67 pose-linked frames</span></div>
-          <div class="canvas-wrap"><canvas id="poseChart" aria-label="Camera world pose over simulator time"></canvas></div>
-          <div class="legend"><span><i></i>X position</span><span><i class="y"></i>Y position</span><span><i class="z"></i>Z position</span></div>
-          <div class="result-insight">
-            <div class="insight"><strong>Observed motion range</strong><span>~2.23 m in X, ~1.70 m in Y, and ~2.55 m in Z across the valid pose-linked frames.</span></div>
-            <div class="insight"><strong>Why it matters</strong><span>This confirms the analyzer is no longer projecting truth from the fixed local camera-link transform that invalidated earlier attempts.</span></div>
-          </div>
-        </article>
-
-        <article class="evidence-card panel">
-          <div class="card-head"><div><div class="eyebrow">FRAME-LEVEL AVAILABILITY</div><h3>Detection timeline</h3><p>Dark = not projected visible · green = ArUco · blue = fixed quad fallback.</p></div><span id="detectorMix" class="badge">18 ArUco · 7 fallback</span></div>
-          <div id="detectionTrack" class="detection-track" aria-label="Frame detection timeline"></div>
-          <div class="result-insight">
-            <div class="insight"><strong>Availability was not the main weakness here.</strong><span>All 25 projected-visible frames produced an observation; no observation appeared on the 42 projected-not-visible frames.</span></div>
-            <div class="insight"><strong>Geometry was.</strong><span>Lateral MAE: <b id="lateralMae">0.998 m</b>. Depth/altitude MAE: <b id="altitudeMae">1.520 m</b>. These errors are too large to hide behind a perfect detection count.</span></div>
-            <div class="insight"><strong>Phase 7 comparison withheld.</strong><span>The Phase 9 camera optical-horizontal error axis is not definitionally equivalent to the Phase 7 state-level lateral coordinate, so direct KS/Wasserstein comparison was intentionally not forced.</span></div>
-          </div>
-        </article>
-      </section>
-
-      <div id="provenance" class="section-head">
-        <div><div class="eyebrow">PROVENANCE</div><h2>From workflow run to raw bytes to result</h2></div>
-        <p>These identifiers let an outside reviewer trace the exact seen result without trusting a screenshot or summary.</p>
+      <div class="metric-strip" aria-label="Phase 9 summary metrics">
+        <div class="metric-item"><strong id="pairedFrames">25</strong><span>visible + observed</span></div>
+        <div class="metric-item"><strong id="missRate">0.0%</strong><span>miss rate when visible</span></div>
+        <div class="metric-item"><strong id="fpRate">0.0%</strong><span>false positives</span></div>
+        <div class="metric-item"><strong id="visibleRate">37.3%</strong><span>trace visibility</span></div>
       </div>
-      <section class="split">
-        <article class="provenance-card panel">
-          <div class="card-head"><div><div class="eyebrow">EVIDENCE CHAIN</div><h3>Exact identifiers</h3></div><span class="badge">SHA-256 verified</span></div>
-          <div class="provenance-grid">
-            <div class="hash-row"><span>Evidence head</span><code id="headSha"></code></div>
-            <div class="hash-row"><span>GitHub run</span><code id="runRef"></code></div>
-            <div class="hash-row"><span>Artifact</span><code id="artifactRef"></code></div>
-            <div class="hash-row"><span>Artifact digest</span><code id="artifactDigest"></code></div>
-            <div class="hash-row"><span>PX4 source SHA</span><code id="px4Sha"></code></div>
-            <div class="hash-row"><span>Perception trace SHA</span><code id="traceSha"></code></div>
-            <div class="hash-row"><span>Scientific result SHA</span><code id="resultSha"></code></div>
-            <div class="hash-row"><span>Raw ULog SHA</span><code id="rawUlogSha"></code></div>
-            <div class="hash-row"><span>Capture CSV SHA</span><code id="rawCaptureSha"></code></div>
-          </div>
-          <div class="guardrail"><strong>Independent integrity check completed</strong><p>The downloaded artifact ZIP digest matched GitHub's recorded digest; all 67 trace-referenced raw frame hashes matched; every result-manifest file hash/size matched; and receipt hashes matched the mission metadata, capture metadata, raw ULog, trace, manifest, and scientific result.</p></div>
-        </article>
+      <a class="text-link down-link" href="#availability">See frame-level evidence ↓</a>
+    </section>
 
-        <article class="limits-card panel">
-          <div class="card-head"><div><div class="eyebrow">INTERPRETATION GUARDRAILS</div><h3>What this prototype does not prove</h3></div><span class="badge">simulation only</span></div>
-          <div class="limit-list">
-            <div class="limit-item"><b>01</b><span>This is a seen development trace, not held-out camera evidence.</span></div>
-            <div class="limit-item"><b>02</b><span>Perfect visible-frame detection on this trace is not a safety guarantee or a general camera-performance rate.</span></div>
-            <div class="limit-item"><b>03</b><span>Geometric uncertainty values are image/reprojection-derived proxies, not calibrated probabilistic guarantees.</span></div>
-            <div class="limit-item"><b>04</b><span>Phase 8's diagnostic_mismatch remains unchanged and is not repaired by the Phase 9 camera result.</span></div>
-            <div class="limit-item"><b>05</b><span>No physical aircraft, real camera, or hardware flight system has been validated.</span></div>
-          </div>
-          <div class="action-row">
-            <a class="action primary" href="https://github.com/suhaslord/uav-safety-research/blob/phase9-external-perception-validation/docs/phase9_external_perception_protocol.md" target="_blank" rel="noreferrer">Phase 9 protocol</a>
-            <a class="action" href="https://github.com/suhaslord/uav-safety-research/blob/phase9-external-perception-validation/docs/final_prototype_readiness.md" target="_blank" rel="noreferrer">Readiness checklist</a>
-            <a class="action" href="https://github.com/suhaslord/uav-safety-research/blob/phase9-external-perception-validation/docs/external_review_packet.md" target="_blank" rel="noreferrer">Review packet</a>
-            <a class="action" href="phase7.html">Open Phase 7 explorer</a>
-            <a class="action" href="https://github.com/suhaslord/uav-safety-research/pull/13" target="_blank" rel="noreferrer">Draft PR #13 ↗</a>
-          </div>
-        </article>
-      </section>
-    </main>
+    <section id="availability" class="viewport-section ash evidence-section">
+      <div class="evidence-layout">
+        <div class="section-copy left-copy">
+          <p class="kicker dark">frame-level availability</p>
+          <h2>Detection was not the weak point.</h2>
+          <p class="lead">The target was projected visible in 25 of 67 analyzed pose-linked frames. All 25 were observed. No observation appeared in the 42 projected-not-visible frames.</p>
+          <p class="caption"><span id="detectorMix">18 ArUco · 7 fixed quad fallback</span></p>
+        </div>
+        <div class="frame-visual">
+          <div class="detection-track" id="detectionTrack" aria-label="Frame-level detection timeline"></div>
+          <div class="track-labels"><span>frame 0</span><span>frame 66</span></div>
+          <div class="track-legend"><span><i class="idle"></i>not projected visible</span><span><i class="seen"></i>observed</span></div>
+        </div>
+      </div>
+      <a class="text-link down-link" href="#geometry">The harder result ↓</a>
+    </section>
 
-    <footer class="footer">
-      <span>AegisLand · simulation-only research prototype · no physical-flight validation.</span>
-      <span>Dashboard snapshot is descriptive; exact claims are governed by the frozen protocols and evidence manifests.</span>
-    </footer>
-  </div>
+    <section id="geometry" class="viewport-section light geometry-section">
+      <div class="section-copy centered-copy narrow-copy">
+        <p class="kicker dark">geometry</p>
+        <h2>The easy narrative breaks here.</h2>
+        <p class="lead">Perfect visible-frame detection did not translate into precise geometry. The estimation residuals remained large enough that the cockpit keeps them beside the detection result instead of hiding them behind a pass badge.</p>
+      </div>
+      <div class="geometry-numbers">
+        <div><strong id="lateralMae">0.998 m</strong><span>lateral MAE</span></div>
+        <div><strong id="altitudeMae">1.520 m</strong><span>altitude / depth MAE</span></div>
+        <div><strong id="pixelMae">41.0 px</strong><span>pixel-center MAE</span></div>
+      </div>
+      <div class="chart-frame">
+        <canvas id="poseChart" aria-label="Camera world pose over simulator time"></canvas>
+      </div>
+      <p class="caption centered">Corrected camera world pose moves with the simulated vehicle; the earlier near-static local-transform provenance failure was rejected.</p>
+    </section>
+
+    <section id="timeline" class="viewport-section dark timeline-section">
+      <div class="section-copy centered-copy inverse">
+        <p class="kicker">research timeline</p>
+        <h2>Each phase tried to break the previous story.</h2>
+        <p class="lead">Negative results stay visible. Later evidence never rewrites the frozen earlier result.</p>
+      </div>
+      <ol class="timeline-list">
+        <li><span>01</span><div><h3>Baseline → V3</h3><p>Confidence-aware redundant estimation concept established.</p></div></li>
+        <li><span>02</span><div><h3>Phase 6B</h3><p>Frozen held-out synthetic benchmark: mixed result, 99% success and 1% unsafe.</p></div></li>
+        <li><span>03</span><div><h3>Phase 7</h3><p>External-validity stress exposed weak cells under stronger dynamics and faults.</p></div></li>
+        <li><span>04</span><div><h3>Phase 8</h3><p>Genuine PX4/Gazebo comparison returned diagnostic_mismatch. Preserved unchanged.</p></div></li>
+        <li><span>05</span><div><h3>Phase 9A</h3><p>Early camera runs exposed completeness and world-pose provenance defects. Rejected.</p></div></li>
+        <li><span>06</span><div><h3>Phase 9B</h3><p>Valid seen trace: complete ULog evidence, corrected world pose, verified raw-frame hashes.</p></div></li>
+      </ol>
+    </section>
+
+    <section id="provenance" class="viewport-section light provenance-section">
+      <div class="section-copy centered-copy narrow-copy">
+        <p class="kicker dark">provenance</p>
+        <h2>Trace the result back to the bytes.</h2>
+        <p class="lead">The cockpit exposes the exact evidence head, workflow run, artifact, source revision, and integrity hashes behind the seen result.</p>
+      </div>
+      <div class="provenance-table" role="table" aria-label="Evidence provenance">
+        <div role="row"><span role="cell">Evidence head</span><code id="headSha"></code></div>
+        <div role="row"><span role="cell">GitHub run</span><code id="runRef"></code></div>
+        <div role="row"><span role="cell">Artifact</span><code id="artifactRef"></code></div>
+        <div role="row"><span role="cell">Artifact digest</span><code id="artifactDigest"></code></div>
+        <div role="row"><span role="cell">PX4 source SHA</span><code id="px4Sha"></code></div>
+        <div role="row"><span role="cell">Perception trace SHA</span><code id="traceSha"></code></div>
+        <div role="row"><span role="cell">Scientific result SHA</span><code id="resultSha"></code></div>
+        <div role="row"><span role="cell">Raw ULog SHA</span><code id="rawUlogSha"></code></div>
+        <div role="row"><span role="cell">Capture CSV SHA</span><code id="rawCaptureSha"></code></div>
+      </div>
+      <div class="cta-row provenance-actions">
+        <a class="button primary" href="https://github.com/suhaslord/uav-safety-research/blob/phase9-external-perception-validation/docs/external_review_packet.md" target="_blank" rel="noreferrer">Open review packet</a>
+        <a class="button outline" href="https://github.com/suhaslord/uav-safety-research/pull/13" target="_blank" rel="noreferrer">Draft PR #13</a>
+      </div>
+    </section>
+
+    <section class="viewport-section dark boundaries-section">
+      <div class="boundary-copy">
+        <p class="kicker">claim boundaries</p>
+        <h2>Seen evidence.<br />No safety verdict.</h2>
+      </div>
+      <div class="boundary-list">
+        <p>This is a seen development trace, not held-out camera evidence.</p>
+        <p>Perfect detection on this trace is not a general camera-performance rate.</p>
+        <p>Phase 8 <code>diagnostic_mismatch</code> remains unchanged.</p>
+        <p>No physical aircraft, real camera, or hardware flight system has been validated.</p>
+        <p><strong>Safety acceptance: false.</strong> Controller tuning remains disallowed.</p>
+      </div>
+      <div class="cta-row boundary-actions">
+        <a class="button primary" href="https://github.com/suhaslord/uav-safety-research/blob/phase9-external-perception-validation/docs/final_prototype_readiness.md" target="_blank" rel="noreferrer">Read readiness</a>
+        <a class="button dark-secondary" href="#top">Back to top</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <span>AegisLand · simulation-only research prototype</span>
+    <span id="liveMeta">Frozen evidence snapshot</span>
+  </footer>
+
   <script src="cockpit.js"></script>
 </body>
 </html>
