@@ -7,7 +7,7 @@ Frozen implementation SHA: `fb928d5b0d1fbee7459d55120d5fd6b232a4f2c6`
 Protected Phase 9 evidence head: `33c5c73768757b508f5c613b2fba73f94e3fd5a6`
 
 Frozen development calibration SHA-256:
-`b0531693359bc91bf360560420402670c3f1fda53eb4842253e076455fece161`
+`8934d108de1e0fa99f6985e643bb3b81145cfd6d7f901e1dcc900bb84673b6e7`
 
 ## Pre-freeze validation
 

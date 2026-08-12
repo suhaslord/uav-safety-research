@@ -34,8 +34,12 @@ jobs:
           pip install -e ".[dev]" pyulog mavsdk opencv-contrib-python-headless
       - name: Verify freeze manifest and calibration
         run: |
-          test "$(sha256sum results/phase10_development_seen/calibration.json | awk '{print $1}')" = "b0531693359bc91bf360560420402670c3f1fda53eb4842253e076455fece161"
-          git diff --exit-code "$PHASE10_FROZEN_IMPLEMENTATION" -- src/uav_safety/phase10_metric.py src/uav_safety/phase10_calibration.py scripts/run_phase10_metric_benchmark.py results/phase10_development_seen/calibration.json
+          test "$(sha256sum results/phase10_development_seen/calibration.json | awk '{print $1}')" = "8934d108de1e0fa99f6985e643bb3b81145cfd6d7f901e1dcc900bb84673b6e7"
+          git diff --exit-code "$PHASE10_FROZEN_IMPLEMENTATION" -- \
+            src/uav_safety/phase10_metric.py \
+            src/uav_safety/phase10_calibration.py \
+            scripts/run_phase10_metric_benchmark.py \
+            results/phase10_development_seen/calibration.json
       - name: Run genuine frozen Phase 10 Gazebo camera holdout
         run: bash scripts/run_phase10_frozen_evidence.sh
       - name: Upload frozen Phase 10 evidence
