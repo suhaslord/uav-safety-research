@@ -67,5 +67,5 @@ def test_external_trace_rejects_nonmonotonic_time():
 def test_external_trace_rejects_out_of_range_confidence():
     frame = valid_trace()
     frame.loc[1, "image_confidence"] = 1.2
-    with pytest.raises(ValueError, match="\[0,1\]"):
+    with pytest.raises(ValueError, match=r"\[0,1\]"):
         validate_external_trace(frame)
