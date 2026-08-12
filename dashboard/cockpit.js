@@ -1,3 +1,5 @@
+document.documentElement.classList.add("motion-ready");
+
 const evidence = {
   phase9: {
     headSha: "33c5c73768757b508f5c613b2fba73f94e3fd5a6",
@@ -36,6 +38,7 @@ const evidence = {
 };
 
 const pct = (v, digits = 1) => `${(v * 100).toFixed(digits)}%`;
+const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
 function populate() {
   const p = evidence.phase9;
@@ -81,6 +84,7 @@ function renderDetectionTrack() {
   for (let i = 0; i < evidence.phase9.rows; i += 1) {
     const cell = document.createElement("div");
     cell.className = "det-cell";
+    cell.style.setProperty("--cell-delay", `${Math.min(i * 8, 420)}ms`);
     let state = "target not projected visible";
     if (visible.has(i)) { cell.classList.add("visible"); state = "visible + observed"; }
     if (aruco.has(i)) { cell.classList.add("aruco"); state = "visible · ArUco detector"; }
@@ -160,6 +164,77 @@ function updateHeader() {
   document.getElementById("siteHeader")?.classList.toggle("scrolled", window.scrollY > 24);
 }
 
+function addReveal(selector, baseDelay = 0, step = 0, extraClass = "") {
+  document.querySelectorAll(selector).forEach((el, index) => {
+    el.classList.add("reveal");
+    if (extraClass) el.classList.add(extraClass);
+    el.style.setProperty("--reveal-delay", `${baseDelay + index * step}ms`);
+  });
+}
+
+function setupMotion() {
+  addReveal(".hero-intro > div:first-child", 60, 0);
+  addReveal(".hero-meta", 170, 0);
+  addReveal(".hero-media", 90, 0, "reveal-media");
+  addReveal(".hero-foot", 230, 0);
+  addReveal("#result .section-copy", 0, 0);
+  addReveal("#result .metric-item", 80, 70);
+  addReveal("#availability .section-copy", 0, 0);
+  addReveal("#availability .frame-visual", 100, 0);
+  addReveal("#geometry .section-copy", 0, 0);
+  addReveal("#geometry .geometry-numbers > div", 70, 70);
+  addReveal("#geometry .chart-frame", 170, 0);
+  addReveal("#geometry > .caption", 210, 0);
+  addReveal("#timeline .section-copy", 0, 0);
+  addReveal("#timeline .timeline-list li", 60, 55);
+  addReveal("#provenance .section-copy", 0, 0);
+  addReveal("#provenance .provenance-table > div", 40, 35);
+  addReveal("#provenance .provenance-actions", 130, 0);
+  addReveal(".boundaries-section .boundary-copy", 0, 0);
+  addReveal(".boundaries-section .boundary-list p", 70, 45);
+  addReveal(".boundaries-section .boundary-actions", 160, 0);
+
+  const items = [...document.querySelectorAll(".reveal")];
+  if (reducedMotion.matches || !("IntersectionObserver" in window)) {
+    items.forEach(el => el.classList.add("is-visible"));
+    return;
+  }
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add("is-visible");
+      observer.unobserve(entry.target);
+    });
+  }, {threshold: 0.14, rootMargin: "0px 0px -7% 0px"});
+
+  items.forEach(el => observer.observe(el));
+}
+
+function setupSectionNav() {
+  const links = [...document.querySelectorAll(".site-nav a[href^='#']")];
+  if (!links.length || !("IntersectionObserver" in window)) return;
+
+  const targets = links
+    .map(link => ({link, section: document.querySelector(link.getAttribute("href"))}))
+    .filter(item => item.section);
+
+  const observer = new IntersectionObserver(entries => {
+    const visible = entries
+      .filter(entry => entry.isIntersecting)
+      .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+    if (!visible) return;
+    targets.forEach(({link, section}) => {
+      const active = section === visible.target;
+      link.classList.toggle("is-active", active);
+      if (active) link.setAttribute("aria-current", "location");
+      else link.removeAttribute("aria-current");
+    });
+  }, {threshold: [0.24, 0.45, 0.7], rootMargin: "-18% 0px -55% 0px"});
+
+  targets.forEach(({section}) => observer.observe(section));
+}
+
 window.addEventListener("scroll", updateHeader, {passive: true});
 window.addEventListener("resize", () => { clearTimeout(window.__poseTimer); window.__poseTimer = setTimeout(renderPoseChart, 90); });
 window.addEventListener("DOMContentLoaded", () => {
@@ -168,5 +243,7 @@ window.addEventListener("DOMContentLoaded", () => {
   renderPoseChart();
   refreshGithubStatus();
   updateHeader();
+  setupMotion();
+  setupSectionNav();
   document.getElementById("refreshStatus")?.addEventListener("click", refreshGithubStatus);
 });
