@@ -1,0 +1,42 @@
+{
+  "schema": "aegisland.phase10.frozen-holdout-summary.v1",
+  "evidence_role": "phase10_holdout_unseen",
+  "workflow_run": 31565714654,
+  "artifact_id": 9129527772,
+  "artifact_digest": "sha256:ca47dd023ebb295c7318d5907ad725a88d3721c8f6d855d4490af9b77c7ee88d",
+  "frozen_implementation_sha": "fb928d5b0d1fbee7459d55120d5fd6b232a4f2c6",
+  "freeze_evidence_sha": "5bd6be00a9f81d144170cb7950091518f54f83e7",
+  "simulation_only": true,
+  "safety_acceptance": false,
+  "controller_tuning_allowed": false,
+  "holdout": {
+    "raw_frames": 65,
+    "truth_visible_frames": 20,
+    "phase9_observations_on_visible": 15,
+    "missed_visible_frames": 5,
+    "false_positive_observations": 0,
+    "detectors": {"aruco": 15, "quad_fallback": 0}
+  },
+  "phase9_baseline": {
+    "lateral_mae_m": 0.0277245715173463,
+    "lateral_p95_abs_error_m": 0.055880959561029835,
+    "altitude_mae_m": 0.015732511765058736,
+    "altitude_p95_abs_error_m": 0.029288057327731418,
+    "median_abs_lateral_residual_over_sigma": 13.16721349873132,
+    "median_abs_altitude_residual_over_sigma": 5.1056495635839125
+  },
+  "aegist10": {
+    "lateral_mae_m": 0.027724571517346308,
+    "lateral_p95_abs_error_m": 0.055880959561029835,
+    "altitude_mae_m": 0.015732511765058736,
+    "altitude_p95_abs_error_m": 0.029288057327731418,
+    "median_norm_lateral_residual": 0.646205346780986,
+    "median_norm_altitude_residual": 0.520929575975974,
+    "lateral_1sigma_coverage": 0.6,
+    "lateral_2sigma_coverage": 0.9333333333333333,
+    "altitude_1sigma_coverage": 0.9333333333333333,
+    "altitude_2sigma_coverage": 1.0
+  },
+  "minimum_substantial_win_gate_all": false,
+  "interpretation": "AegisT10 matched the already-accurate ArUco-only Phase 9 point estimates on this frozen holdout; the predeclared point-error improvement gate failed, while frozen uncertainty calibration generalized substantially better."
+}
