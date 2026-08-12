@@ -141,21 +141,18 @@ function renderPoseChart() {
 async function refreshGithubStatus() {
   const label = document.getElementById("liveLabel");
   const meta = document.getElementById("liveMeta");
-  if (label) label.textContent = "Checking GitHub…";
+  if (label) label.textContent = "Audited evidence · checking current CI…";
   try {
-    const res = await fetch("https://api.github.com/repos/suhaslord/uav-safety-research/actions/runs?branch=phase9-external-perception-validation&per_page=30", {headers: {Accept: "application/vnd.github+json"}});
+    const res = await fetch("https://api.github.com/repos/suhaslord/uav-safety-research/actions/runs?branch=phase9-external-perception-validation&per_page=20", {headers: {Accept: "application/vnd.github+json"}});
     if (!res.ok) throw new Error(`GitHub ${res.status}`);
     const data = await res.json();
-    const wanted = ["CI", "Phase 9 Perception Validation", "Phase 9 Gazebo Camera Evidence"];
-    const latest = {};
-    for (const run of data.workflow_runs || []) if (wanted.includes(run.name) && !latest[run.name]) latest[run.name] = run;
-    const vals = Object.values(latest);
-    const allGreen = vals.length === 3 && vals.every(r => r.conclusion === "success");
-    if (label) label.textContent = allGreen ? "Latest workflows green" : "Mixed workflow status";
-    if (meta) meta.textContent = vals.length ? vals.map(r => `${r.name.replace("Phase 9 ", "P9 ")}: ${r.conclusion || r.status}`).join(" · ") : "Audited snapshot";
+    const ci = (data.workflow_runs || []).find(run => run.name === "CI");
+    const ciState = ci ? (ci.conclusion || ci.status) : "unavailable";
+    if (label) label.textContent = ciState === "success" ? "Current CI green · evidence frozen" : `Current CI ${ciState} · evidence frozen`;
+    if (meta) meta.textContent = `Current UI/analysis CI: ${ciState} · audited Phase 9 evidence: run #${evidence.phase9.runId}`;
   } catch {
-    if (label) label.textContent = "Audited snapshot";
-    if (meta) meta.textContent = "Live GitHub refresh unavailable · frozen evidence shown";
+    if (label) label.textContent = "Audited evidence snapshot";
+    if (meta) meta.textContent = `Live CI unavailable · audited Phase 9 evidence: run #${evidence.phase9.runId}`;
   }
 }
 
