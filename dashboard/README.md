@@ -41,8 +41,10 @@ Recommended project settings:
 - Framework Preset: **Other**
 - Build Command: **none**
 - Install Command: **none**
-- Root Directory: use the repository root if you want the cockpit's links to repository documentation available in the same deployment; otherwise `dashboard` is sufficient for the cockpit pages themselves
+- Root Directory: **`dashboard`**
 - Production Branch: choose the branch you intentionally want to publish; the current Phase 9 work remains a draft review branch
+
+The cockpit's research-document links point back to the corresponding files on GitHub so they remain valid when `dashboard` is deployed as the Vercel project root.
 
 Do not expose secrets or add backend credentials for this dashboard. The current interface needs none.
 
