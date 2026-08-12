@@ -177,7 +177,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .det-cell { background: #d6d6d6; position: relative; }
 .det-cell.visible, .det-cell.aruco, .det-cell.quad { background: var(--blue); }
 .det-cell:hover::after { content: attr(data-tip); position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); white-space: nowrap; padding: 7px 9px; background: var(--carbon); color: var(--white); font-size: 11px; z-index: 3; border-radius: 4px; }
-.track-labels { display: flex; justify-content: space-between; margin-top: 8px; color: var(--silver); font-size: 12px; }
+.track-labels { display: flex; justify-content: space-between; margin-top: 8px; color: var(--pewter); font-size: 12px; }
 .track-legend { display: flex; gap: 24px; margin-top: 24px; color: var(--pewter); font-size: 12px; }
 .track-legend span { display: flex; align-items: center; gap: 8px; }
 .track-legend i { width: 24px; height: 4px; background: #d6d6d6; display: block; }
@@ -237,9 +237,9 @@ button, a { -webkit-tap-highlight-color: transparent; }
 @media (max-width: 767px) {
   :root { --header-h: 52px; }
   .site-header { padding: 0 16px; }
-  .wordmark { font-size: 12px; letter-spacing: .2em; }
-  .header-actions a { display: none; }
-  .header-actions button { padding-inline: 10px; }
+  .wordmark { font-size: 12px; letter-spacing: .2em; min-height: 44px; display: flex; align-items: center; }
+  .header-actions a { display: flex; }
+  .header-actions a, .header-actions button { min-height: 44px; padding-inline: 8px; }
   .hero-intro { padding: 86px 20px 38px; }
   .hero h1, .section-copy h2, .boundary-copy h2 { font-size: 28px; line-height: 34px; }
   .hero-subtitle { max-width: 320px; }
@@ -249,7 +249,8 @@ button, a { -webkit-tap-highlight-color: transparent; }
   .hero-foot { padding: 10px 16px; min-height: 50px; align-items: flex-start; flex-direction: column; gap: 3px; font-size: 10px; }
   .cta-row { flex-direction: column; align-items: stretch; gap: 10px; }
   .hero-actions { align-items: flex-start; }
-  .button { width: min(320px, 100%); }
+  .button { width: min(320px, 100%); min-height: 44px; }
+  .down-link { min-height: 44px; display: flex; align-items: center; justify-content: center; padding: 0 8px; bottom: 10px; }
   .result-section, .evidence-section, .geometry-section, .timeline-section, .provenance-section, .boundaries-section { padding-left: 20px; padding-right: 20px; }
   .metric-strip { margin-top: 56px; grid-template-columns: 1fr 1fr; }
   .metric-item strong, .geometry-numbers strong { font-size: 28px; line-height: 34px; }
