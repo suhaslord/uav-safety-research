@@ -3,183 +3,164 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="AegisLand Phase 7 external-validity research cockpit." />
+  <meta name="description" content="AegisLand research cockpit — simulation evidence, validation history, provenance, and current prototype status." />
+  <meta name="theme-color" content="#07090d" />
   <title>AegisLand — Research Cockpit</title>
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="cockpit.css" />
 </head>
 <body>
   <div class="shell">
     <header class="topbar">
-      <div class="brand">
+      <a class="brand" href="#top" aria-label="AegisLand cockpit home">
         <span class="brand-mark" aria-hidden="true">A</span>
-        <div>
-          <div class="eyebrow">AEGISLAND</div>
-          <div class="brand-title">Research Cockpit</div>
-        </div>
-      </div>
-      <div class="scope-badges" aria-label="research scope">
-        <span class="badge">Phase 7</span>
-        <span class="badge muted">Simulation only</span>
-        <span class="badge warning">Development evidence</span>
+        <div><div class="eyebrow">AEGISLAND</div><div class="brand-title">Research Cockpit</div></div>
+      </a>
+      <nav class="nav" aria-label="Primary">
+        <a href="#timeline">Timeline</a>
+        <a href="#phase9">Phase 9</a>
+        <a href="#provenance">Provenance</a>
+        <a class="keep" href="phase7.html">Phase 7 explorer</a>
+        <button id="refreshStatus" type="button">Refresh status</button>
+      </nav>
+      <div class="live-pill" title="Live GitHub workflow status">
+        <span id="liveDot" class="live-dot"></span><span id="liveLabel">Audited snapshot</span>
       </div>
     </header>
 
-    <main>
+    <main id="top">
       <section class="hero panel">
         <div class="hero-copy">
-          <div class="eyebrow">EXTERNAL VALIDITY</div>
-          <h1>Find where the safety claim stops generalizing.</h1>
-          <p>
-            Inspect realistic reference sensing, common-mode faults, and plant-model sensitivity without
-            overwriting the frozen Phase 6B result.
-          </p>
-        </div>
-        <div class="hero-stat">
-          <span class="hero-stat-label">Analysis mode</span>
-          <strong id="analysisMode">Waiting for data</strong>
-          <span id="loadedSource">Load dashboard_bundle.json or summary.csv to begin.</span>
-        </div>
-      </section>
-
-      <section class="upload-grid">
-        <label class="dropzone panel primary-drop" id="bundleDropzone">
-          <input id="bundleFile" type="file" accept=".json,application/json" />
-          <span class="drop-icon">00</span>
-          <span class="drop-title">Load dashboard_bundle.json</span>
-          <span class="drop-subtitle">Recommended · summary + paired effects + metadata</span>
-        </label>
-        <label class="dropzone panel" id="summaryDropzone">
-          <input id="summaryFile" type="file" accept=".csv,text/csv" />
-          <span class="drop-icon">01</span>
-          <span class="drop-title">Load summary.csv</span>
-          <span class="drop-subtitle">Fallback · condition/fault/plant outcome table</span>
-        </label>
-        <label class="dropzone panel" id="pairedDropzone">
-          <input id="pairedFile" type="file" accept=".csv,text/csv" />
-          <span class="drop-icon">02</span>
-          <span class="drop-title">Load paired_plant_effects.csv</span>
-          <span class="drop-subtitle">Optional with CSV mode · paired plant deltas</span>
-        </label>
-      </section>
-
-      <section class="controls panel" aria-label="analysis filters">
-        <div class="control">
-          <label for="conditionFilter">Image condition</label>
-          <select id="conditionFilter" disabled></select>
-        </div>
-        <div class="control">
-          <label for="faultFilter">Fault scenario</label>
-          <select id="faultFilter" disabled></select>
-        </div>
-        <div class="control">
-          <label for="plantFilter">Plant model</label>
-          <select id="plantFilter" disabled></select>
-        </div>
-        <button id="resetButton" class="button" type="button" disabled>Reset view</button>
-      </section>
-
-      <section class="metric-grid" aria-label="selected experiment metrics">
-        <article class="metric panel">
-          <span class="metric-label">Success</span>
-          <strong id="successMetric">—</strong>
-          <span id="successCI" class="metric-note">95% CI</span>
-        </article>
-        <article class="metric panel danger-card">
-          <span class="metric-label">Unsafe touchdown</span>
-          <strong id="unsafeMetric">—</strong>
-          <span id="unsafeCI" class="metric-note">95% CI</span>
-        </article>
-        <article class="metric panel">
-          <span class="metric-label">Abort</span>
-          <strong id="abortMetric">—</strong>
-          <span id="abortCI" class="metric-note">95% CI</span>
-        </article>
-        <article class="metric panel">
-          <span class="metric-label">Reference available</span>
-          <strong id="referenceMetric">—</strong>
-          <span id="latencyMetric" class="metric-note">Transport —</span>
-        </article>
-      </section>
-
-      <section class="comparison-grid">
-        <article class="panel comparison-card">
-          <div class="section-heading">
-            <div>
-              <div class="eyebrow">PLANT SENSITIVITY</div>
-              <h2>Legacy vs stronger dynamics</h2>
-            </div>
-            <span id="pairedStatus" class="status">Summary comparison</span>
+          <div class="eyebrow">FINAL PROTOTYPE · SIMULATION-ONLY</div>
+          <h1>Evidence you can inspect, not just trust.</h1>
+          <p>A browser view of the full AegisLand research story: frozen synthetic results, external-model mismatch, genuine Gazebo camera evidence, exact provenance, and the limits that remain. This is an analysis cockpit—not a vehicle-control surface.</p>
+          <div class="chips">
+            <span class="chip good">Phase 9 pipeline reached analysis</span>
+            <span class="chip warn">Seen evidence · no safety verdict</span>
+            <span class="chip">Phase 8 mismatch preserved</span>
+            <span class="chip">Physical flight out of scope</span>
           </div>
-          <div class="plant-columns">
-            <div class="plant-block">
-              <span class="plant-name">Legacy plant</span>
-              <strong id="legacyUnsafe">—</strong>
-              <span>unsafe touchdown</span>
-            </div>
-            <div class="delta-block">
-              <span>Δ unsafe</span>
-              <strong id="unsafeDelta">—</strong>
-              <span id="successDelta">Δ success —</span>
-            </div>
-            <div class="plant-block">
-              <span class="plant-name">Phase 7 plant</span>
-              <strong id="phase7Unsafe">—</strong>
-              <span>unsafe touchdown</span>
-            </div>
-          </div>
-        </article>
-
-        <article class="panel evidence-card">
-          <div class="eyebrow">EVIDENCE CHECK</div>
-          <h2 id="evidenceTitle">No result selected</h2>
-          <p id="evidenceText">
-            Load a result bundle to inspect whether the failure is primarily associated with sensing/fault assumptions,
-            stronger dynamics, or both.
-          </p>
-        </article>
-      </section>
-
-      <section class="panel matrix-panel">
-        <div class="section-heading">
+        </div>
+        <aside class="hero-side">
           <div>
-            <div class="eyebrow">FAILURE SURFACE</div>
-            <h2>Unsafe touchdown matrix</h2>
+            <div class="eyebrow">CURRENT SNAPSHOT</div>
+            <div class="hero-status">
+              <div class="status-line"><span>Prototype branch</span><strong>phase9-external-perception-validation</strong></div>
+              <div class="status-line"><span>Scientific role</span><strong>external_perception_seen</strong></div>
+              <div class="status-line"><span>Phase 9 verdict</span><strong>none declared</strong></div>
+              <div class="status-line"><span>Safety acceptance</span><strong>false</strong></div>
+              <div class="status-line"><span>Analyzed raw frames</span><strong id="phase9Frames">67</strong></div>
+            </div>
           </div>
-          <span id="matrixPlantLabel" class="status">No plant selected</span>
-        </div>
-        <div id="matrix" class="matrix empty-state">
-          Load a Phase 7 result bundle to render the condition × fault surface.
-        </div>
+          <div class="hero-callout">
+            <strong>The result is mixed—and useful.</strong>
+            <p>Every projected-visible target frame was detected in this seen trace, but geometric estimation errors remained large. The cockpit keeps both facts visible instead of collapsing them into a pass/fail badge.</p>
+          </div>
+        </aside>
       </section>
 
-      <section class="panel ranking-panel">
-        <div class="section-heading">
-          <div>
-            <div class="eyebrow">WEAKEST CELLS FIRST</div>
-            <h2>Highest observed unsafe-touchdown rates</h2>
-          </div>
-          <span id="rankingPlantLabel" class="status">No plant selected</span>
-        </div>
-        <div id="weaknessList" class="weakness-list empty-state">
-          Load a result bundle to rank the observed failure cells.
-        </div>
+      <div class="section-head">
+        <div><div class="eyebrow">AT A GLANCE</div><h2>The three numbers that frame the project</h2></div>
+        <p id="liveMeta">The cards below are from frozen or independently verified evidence, not live estimates.</p>
+      </div>
+      <section class="metric-grid">
+        <article class="metric panel"><span class="label">Phase 6B · mixed synthetic</span><strong class="accent-good">99%</strong><small>success, 1% unsafe · frozen held-out benchmark, not physical validation</small></article>
+        <article class="metric panel"><span class="label">Phase 8 · PX4/Gazebo</span><strong class="accent-red" style="font-size:31px">mismatch</strong><small>frozen model-resemblance diagnostic · 1 close / 2 watch / 9 mismatch / 14 insufficient</small></article>
+        <article class="metric panel"><span class="label">Phase 9 · visible detections</span><strong class="accent-good">25/25</strong><small>seen Gazebo trace · 0 missed detections when projected visible</small></article>
+        <article class="metric panel"><span class="label">Phase 9 · geometric error</span><strong class="accent-warn">0.998 m</strong><small>lateral MAE · depth/altitude MAE is 1.520 m</small></article>
       </section>
 
-      <section class="panel provenance-panel">
-        <div>
-          <div class="eyebrow">PROVENANCE</div>
-          <h2>Interpretation guardrails</h2>
-          <p class="provenance-meta" id="provenanceMeta">No run metadata loaded.</p>
-        </div>
-        <div class="guardrails">
-          <p><strong>Do not:</strong> treat Phase 7 development numbers as a frozen claim.</p>
-          <p><strong>Do:</strong> use this view to identify distribution shift, common-mode failure, and plant sensitivity.</p>
-          <p><strong>Scope:</strong> simulation research only; this interface is not a vehicle-control surface.</p>
-        </div>
+      <div id="timeline" class="section-head">
+        <div><div class="eyebrow">RESEARCH TIMELINE</div><h2>Each phase tried to break the previous story</h2></div>
+        <p>Negative results are retained. Later evidence never retroactively rewrites the frozen earlier result.</p>
+      </div>
+      <section class="timeline">
+        <article class="phase-card panel good"><span class="phase-num">01 · BASELINE → V3</span><h3>Redundant perception concept</h3><p>Moved from trusting a primary estimate to confidence-aware redundant estimation under persistent bias.</p><span class="phase-state">concept established</span></article>
+        <article class="phase-card panel good"><span class="phase-num">02 · PHASE 6B</span><h3>Frozen synthetic benchmark</h3><p>Component confidence and selective fusion reached strong mixed-condition synthetic performance while retaining known weaknesses.</p><span class="phase-state">frozen held-out result</span></article>
+        <article class="phase-card panel warn"><span class="phase-num">03 · PHASE 7</span><h3>External-validity stress</h3><p>Common-mode faults, timing, reference quality, and stronger plant dynamics exposed weak cells.</p><span class="phase-state">audited development evidence</span></article>
+        <article class="phase-card panel mismatch"><span class="phase-num">04 · PHASE 8</span><h3>PX4/Gazebo resemblance</h3><p>The unchanged comparison classified the genuine external-simulator trace as diagnostic_mismatch.</p><span class="phase-state">negative result preserved</span></article>
+        <article class="phase-card panel warn"><span class="phase-num">05 · PHASE 9A</span><h3>Camera provenance failures</h3><p>Early runs exposed completeness and world-pose provenance defects. Both were treated as blockers, not tuned around.</p><span class="phase-state">rejected diagnostics</span></article>
+        <article class="phase-card panel good"><span class="phase-num">06 · PHASE 9B</span><h3>Valid seen camera trace</h3><p>Corrected world-pose provenance, complete ULog evidence, verified frame hashes, and unchanged descriptive analysis.</p><span class="phase-state">external_perception_seen</span></article>
+      </section>
+
+      <div id="phase9" class="section-head">
+        <div><div class="eyebrow">PHASE 9 · GENUINE GAZEBO CAMERA EVIDENCE</div><h2>What the camera run actually showed</h2></div>
+        <p>No resemblance threshold or safety verdict was applied. The first valid camera trace is explicitly seen evidence.</p>
+      </div>
+      <section class="metric-grid">
+        <article class="metric panel"><span class="label">Ground-truth duration</span><strong id="ulogDuration">24.684 s</strong><small>predeclared minimum remained 20.0 s</small></article>
+        <article class="metric panel"><span class="label">Target visible / observed</span><strong id="visibleRate">37.3%</strong><small><span id="pairedFrames">25</span> paired visible + observed frames</small></article>
+        <article class="metric panel"><span class="label">Miss / false-positive rate</span><strong class="accent-good"><span id="missRate">0.0%</span></strong><small>false positives when not visible: <span id="fpRate">0.0%</span></small></article>
+        <article class="metric panel"><span class="label">Pixel center MAE</span><strong id="pixelMae">41.0 px</strong><small>p95 <span id="pixelP95">113.8 px</span> · descriptive localization error</small></article>
+      </section>
+
+      <section class="split section">
+        <article class="chart-card panel">
+          <div class="card-head"><div><div class="eyebrow">WORLD-POSE PROVENANCE CHECK</div><h3>Corrected camera pose moves with the simulated vehicle</h3><p>The earlier local-transform bug produced a near-static camera pose. The valid rerun spans meaningful world motion.</p></div><span class="badge">67 pose-linked frames</span></div>
+          <div class="canvas-wrap"><canvas id="poseChart" aria-label="Camera world pose over simulator time"></canvas></div>
+          <div class="legend"><span><i></i>X position</span><span><i class="y"></i>Y position</span><span><i class="z"></i>Z position</span></div>
+          <div class="result-insight">
+            <div class="insight"><strong>Observed motion range</strong><span>~2.23 m in X, ~1.70 m in Y, and ~2.55 m in Z across the valid pose-linked frames.</span></div>
+            <div class="insight"><strong>Why it matters</strong><span>This confirms the analyzer is no longer projecting truth from the fixed local camera-link transform that invalidated earlier attempts.</span></div>
+          </div>
+        </article>
+
+        <article class="evidence-card panel">
+          <div class="card-head"><div><div class="eyebrow">FRAME-LEVEL AVAILABILITY</div><h3>Detection timeline</h3><p>Dark = not projected visible · green = ArUco · blue = fixed quad fallback.</p></div><span id="detectorMix" class="badge">18 ArUco · 7 fallback</span></div>
+          <div id="detectionTrack" class="detection-track" aria-label="Frame detection timeline"></div>
+          <div class="result-insight">
+            <div class="insight"><strong>Availability was not the main weakness here.</strong><span>All 25 projected-visible frames produced an observation; no observation appeared on the 42 projected-not-visible frames.</span></div>
+            <div class="insight"><strong>Geometry was.</strong><span>Lateral MAE: <b id="lateralMae">0.998 m</b>. Depth/altitude MAE: <b id="altitudeMae">1.520 m</b>. These errors are too large to hide behind a perfect detection count.</span></div>
+            <div class="insight"><strong>Phase 7 comparison withheld.</strong><span>The Phase 9 camera optical-horizontal error axis is not definitionally equivalent to the Phase 7 state-level lateral coordinate, so direct KS/Wasserstein comparison was intentionally not forced.</span></div>
+          </div>
+        </article>
+      </section>
+
+      <div id="provenance" class="section-head">
+        <div><div class="eyebrow">PROVENANCE</div><h2>From workflow run to raw bytes to result</h2></div>
+        <p>These identifiers let an outside reviewer trace the exact seen result without trusting a screenshot or summary.</p>
+      </div>
+      <section class="split">
+        <article class="provenance-card panel">
+          <div class="card-head"><div><div class="eyebrow">EVIDENCE CHAIN</div><h3>Exact identifiers</h3></div><span class="badge">SHA-256 verified</span></div>
+          <div class="provenance-grid">
+            <div class="hash-row"><span>Evidence head</span><code id="headSha"></code></div>
+            <div class="hash-row"><span>GitHub run</span><code id="runRef"></code></div>
+            <div class="hash-row"><span>Artifact</span><code id="artifactRef"></code></div>
+            <div class="hash-row"><span>Artifact digest</span><code id="artifactDigest"></code></div>
+            <div class="hash-row"><span>PX4 source SHA</span><code id="px4Sha"></code></div>
+            <div class="hash-row"><span>Perception trace SHA</span><code id="traceSha"></code></div>
+            <div class="hash-row"><span>Scientific result SHA</span><code id="resultSha"></code></div>
+            <div class="hash-row"><span>Raw ULog SHA</span><code id="rawUlogSha"></code></div>
+            <div class="hash-row"><span>Capture CSV SHA</span><code id="rawCaptureSha"></code></div>
+          </div>
+          <div class="guardrail"><strong>Independent integrity check completed</strong><p>The downloaded artifact ZIP digest matched GitHub's recorded digest; all 67 trace-referenced raw frame hashes matched; every result-manifest file hash/size matched; and receipt hashes matched the mission metadata, capture metadata, raw ULog, trace, manifest, and scientific result.</p></div>
+        </article>
+
+        <article class="limits-card panel">
+          <div class="card-head"><div><div class="eyebrow">INTERPRETATION GUARDRAILS</div><h3>What this prototype does not prove</h3></div><span class="badge">simulation only</span></div>
+          <div class="limit-list">
+            <div class="limit-item"><b>01</b><span>This is a seen development trace, not held-out camera evidence.</span></div>
+            <div class="limit-item"><b>02</b><span>Perfect visible-frame detection on this trace is not a safety guarantee or a general camera-performance rate.</span></div>
+            <div class="limit-item"><b>03</b><span>Geometric uncertainty values are image/reprojection-derived proxies, not calibrated probabilistic guarantees.</span></div>
+            <div class="limit-item"><b>04</b><span>Phase 8's diagnostic_mismatch remains unchanged and is not repaired by the Phase 9 camera result.</span></div>
+            <div class="limit-item"><b>05</b><span>No physical aircraft, real camera, or hardware flight system has been validated.</span></div>
+          </div>
+          <div class="action-row">
+            <a class="action primary" href="../docs/phase9_external_perception_protocol.md">Phase 9 protocol</a>
+            <a class="action" href="../docs/final_prototype_readiness.md">Readiness checklist</a>
+            <a class="action" href="../docs/external_review_packet.md">Review packet</a>
+            <a class="action" href="phase7.html">Open Phase 7 explorer</a>
+            <a class="action" href="https://github.com/suhaslord/uav-safety-research/pull/13" target="_blank" rel="noreferrer">Draft PR #13 ↗</a>
+          </div>
+        </article>
       </section>
     </main>
-  </div>
 
-  <script src="app.js"></script>
+    <footer class="footer">
+      <span>AegisLand · simulation-only research prototype · no physical-flight validation.</span>
+      <span>Dashboard snapshot is descriptive; exact claims are governed by the frozen protocols and evidence manifests.</span>
+    </footer>
+  </div>
+  <script src="cockpit.js"></script>
 </body>
 </html>
