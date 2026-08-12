@@ -59,6 +59,17 @@ A touchdown is marked unsafe in the simulator if any of these exceed the predefi
 
 The thresholds are simulation study parameters, not certification standards.
 
+## Secondary safety outcomes
+
+The benchmark also reports two predeclared secondary outcomes motivated by external methodological feedback:
+
+- **failure probability:** fraction of episodes that end in an unsafe touchdown or another predefined terminal failure state.
+- **recovery time:** elapsed simulated time from the first degraded/unsafe condition to return to the predefined nominal envelope. Episodes that never recover are reported separately rather than assigned an arbitrary finite recovery time.
+
+These metrics are reported across the full uncertainty sweep and are not used to retune supervisor thresholds after observing the main-run results.
+
+Additional descriptive quantities may be reported when useful (for example abort rate, hold duration, terminal position error, and descent-rate error), but they are secondary and must not replace the preregistered headline endpoint after results are observed.
+
 ## Reproducibility
 
 Run:
