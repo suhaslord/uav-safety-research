@@ -3,6 +3,141 @@
   if (!header) return;
 
   let queued = false;
+  let loaderStartedAt = performance.now();
+
+  function installBrandPolish() {
+    if (!document.getElementById("aegisBrandPolish")) {
+      const style = document.createElement("style");
+      style.id = "aegisBrandPolish";
+      style.textContent = `
+        .aegis-boot {
+          position: fixed;
+          inset: 0;
+          z-index: 9999;
+          display: grid;
+          place-items: center;
+          background: #ffffff;
+          color: #171a20;
+          opacity: 1;
+          visibility: visible;
+          transition: opacity .33s cubic-bezier(.5,0,0,.75), visibility .33s;
+        }
+        .aegis-boot.is-leaving { opacity: 0; visibility: hidden; }
+        .aegis-boot-inner {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 18px;
+        }
+        .aegis-boot-brand,
+        .hero-brand-lockup {
+          display: inline-flex;
+          align-items: center;
+          gap: 12px;
+        }
+        .aegis-boot-mark,
+        .hero-brand-mark {
+          width: 40px;
+          height: 40px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 4px;
+          background: #171a20;
+          color: #ffffff;
+          font-size: 18px;
+          line-height: 1;
+          font-weight: 500;
+        }
+        .aegis-boot-word,
+        .hero-brand-word {
+          color: #171a20;
+          font-size: 14px;
+          line-height: 20px;
+          font-weight: 500;
+          letter-spacing: .26em;
+        }
+        .aegis-boot-status {
+          margin: 0;
+          color: #5c5e62;
+          font-size: 12px;
+          line-height: 18px;
+        }
+        .hero-intro > div:first-child {
+          position: relative;
+          max-width: 500px !important;
+          padding: 28px 30px 30px;
+          border-radius: 4px;
+          background: rgba(255,255,255,.90);
+          color: #171a20;
+        }
+        .hero-brand-lockup { margin: 2px 0 18px; }
+        .hero-brand-mark { width: 36px; height: 36px; font-size: 16px; }
+        .hero-brand-word { font-size: 13px; }
+        .hero-intro h1,
+        .hero-intro .kicker,
+        .hero-intro .hero-subtitle { color: #171a20 !important; }
+        .hero-intro .hero-subtitle { opacity: .88; }
+        .hero-intro .kicker { color: #5c5e62 !important; }
+        @media (max-width: 767px) {
+          .hero-intro > div:first-child {
+            padding: 22px 22px 24px;
+            background: rgba(255,255,255,.94);
+          }
+          .hero-brand-mark { width: 32px; height: 32px; font-size: 15px; }
+          .hero-brand-word { font-size: 11px; letter-spacing: .22em; }
+          .aegis-boot-mark { width: 38px; height: 38px; }
+          .aegis-boot-word { font-size: 13px; letter-spacing: .22em; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .aegis-boot { transition-duration: .01ms !important; }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
+    if (!document.querySelector(".aegis-boot")) {
+      const loader = document.createElement("div");
+      loader.className = "aegis-boot";
+      loader.setAttribute("role", "status");
+      loader.setAttribute("aria-live", "polite");
+      loader.innerHTML = `
+        <div class="aegis-boot-inner">
+          <div class="aegis-boot-brand" aria-label="AegisLand">
+            <span class="aegis-boot-mark" aria-hidden="true">A</span>
+            <span class="aegis-boot-word">AEGISLAND</span>
+          </div>
+          <p class="aegis-boot-status">Loading audited research cockpit…</p>
+        </div>`;
+      document.body.prepend(loader);
+      loaderStartedAt = performance.now();
+    }
+
+    const heroContent = document.querySelector(".hero-intro > div:first-child");
+    if (heroContent && !heroContent.querySelector(".hero-brand-lockup")) {
+      const lockup = document.createElement("div");
+      lockup.className = "hero-brand-lockup";
+      lockup.setAttribute("aria-label", "AegisLand brand mark");
+      lockup.innerHTML = `<span class="hero-brand-mark" aria-hidden="true">A</span><span class="hero-brand-word">AEGISLAND</span>`;
+      const title = heroContent.querySelector("h1");
+      if (title) heroContent.insertBefore(lockup, title);
+      else heroContent.prepend(lockup);
+    }
+  }
+
+  function releaseLoader() {
+    const loader = document.querySelector(".aegis-boot");
+    if (!loader || loader.dataset.releaseScheduled === "true") return;
+    loader.dataset.releaseScheduled = "true";
+    const elapsed = performance.now() - loaderStartedAt;
+    const wait = Math.max(0, 900 - elapsed);
+    window.setTimeout(() => {
+      loader.classList.add("is-leaving");
+      window.setTimeout(() => loader.remove(), 360);
+    }, wait);
+  }
+
+  installBrandPolish();
 
   function sectionUnderHeader() {
     const sections = [...document.querySelectorAll("main .viewport-section")];
@@ -171,11 +306,15 @@
 
   window.addEventListener("scroll", scheduleHeaderSync, {passive: true});
   window.addEventListener("resize", scheduleHeaderSync, {passive: true});
-  window.addEventListener("load", syncHeaderSurface, {once: true});
+  window.addEventListener("load", () => {
+    syncHeaderSurface();
+    releaseLoader();
+  }, {once: true});
   document.addEventListener("DOMContentLoaded", () => {
     syncHeaderSurface();
     enhanceLineage();
     buildMobileMenu();
+    releaseLoader();
     setTimeout(syncHeaderSurface, 0);
     setTimeout(syncHeaderSurface, 120);
   }, {once: true});
