@@ -17,7 +17,9 @@ jobs:
       - name: Compile package and scripts
         run: python -m compileall -q src scripts tests
       - name: Check Research Cockpit JavaScript
-        run: node --check dashboard/app.js
+        run: |
+          node --check dashboard/cockpit.js
+          node --check dashboard/app.js
       - name: Check Phase 8 Trace Lab JavaScript
         run: node --check phase8_dashboard/app.js
       - name: Unit tests
