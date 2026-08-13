@@ -12,6 +12,7 @@ CASE_DIR="$OUT_ROOT/$CASE_ID"
 TRIGGER="$CASE_DIR/fault.trigger"
 RECEIPT="$CASE_DIR/fault_receipt.csv"
 MARKER="$CASE_DIR/run_started"
+PX4_BIN="$PX4_ROOT/build/px4_sitl_default/bin/px4"
 mkdir -p "$CASE_DIR"
 rm -f "$TRIGGER" "$RECEIPT"
 touch "$MARKER"
@@ -26,17 +27,47 @@ export AEGIS_MODEL_THRUST_SCALE="$MODEL_THRUST_SCALE"
 export AEGIS_FAULT_TRIGGER_FILE="$TRIGGER"
 export AEGIS_FAULT_RECEIPT_FILE="$RECEIPT"
 
-cleanup() {
+terminate_simulator_processes() {
+  # PX4's `make px4_sitl gz_x500` target launches a long-lived PX4 daemon as a
+  # child. Killing only the make wrapper leaves instance 0 alive, which makes
+  # the next frozen benchmark case refuse to start. This teardown is purely
+  # infrastructure: it does not change the fault config, controller, or data.
   set +e
   if [ -f "$CASE_DIR/px4_make.pid" ]; then
-    kill "$(cat "$CASE_DIR/px4_make.pid")" 2>/dev/null || true
+    make_pid="$(cat "$CASE_DIR/px4_make.pid")"
+    kill -TERM "$make_pid" 2>/dev/null || true
+  fi
+
+  pkill -TERM -x px4 2>/dev/null || true
+  pkill -TERM -f "$PX4_BIN" 2>/dev/null || true
+  pkill -TERM -f mavsdk_server 2>/dev/null || true
+  pkill -TERM -f 'gz sim' 2>/dev/null || true
+  sleep 3
+
+  pkill -KILL -x px4 2>/dev/null || true
+  pkill -KILL -f "$PX4_BIN" 2>/dev/null || true
+  pkill -KILL -f mavsdk_server 2>/dev/null || true
+  pkill -KILL -f 'gz sim' 2>/dev/null || true
+
+  if [ -f "$CASE_DIR/px4_make.pid" ]; then
     wait "$(cat "$CASE_DIR/px4_make.pid")" 2>/dev/null || true
   fi
-  pkill -f mavsdk_server 2>/dev/null || true
-  pkill -f 'gz sim' 2>/dev/null || true
   set -e
 }
+
+cleanup() {
+  terminate_simulator_processes
+}
 trap cleanup EXIT
+
+# A previous failed infrastructure run must not silently contaminate this case.
+# The GitHub runner is dedicated to this job, so any surviving PX4/Gazebo
+# process here is stale by definition.
+terminate_simulator_processes
+if pgrep -x px4 >/dev/null 2>&1 || pgrep -f "$PX4_BIN" >/dev/null 2>&1; then
+  echo "Stale PX4 process remains before $CASE_ID; refusing to run mixed evidence" >&2
+  exit 1
+fi
 
 (
   cd "$PX4_ROOT"
@@ -75,7 +106,7 @@ python "$REPO_ROOT/scripts/run_ornik_px4_mission.py" \
   --metadata-out "$CASE_DIR/mission_metadata.json"
 
 sleep 3
-cleanup
+terminate_simulator_processes
 trap - EXIT
 
 LOG_ROOT="$PX4_ROOT/build/px4_sitl_default/rootfs/log"
