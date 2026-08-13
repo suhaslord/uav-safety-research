@@ -52,6 +52,23 @@ AegisLand already contains work on:
 - a planned reproduction of model-free neural fault detection and isolation under actuator degradation;
 - explicit separation between simulator evidence and real-world safety claims.
 
+## AIEA Task 2 substitution proposal
+
+The standard Robustifying AVs Task 2 asks for a locally running autonomous-vehicle simulator, a documented setup, a baseline experiment, and a recording. Rather than duplicate that work in CARLA, I propose using **PX4 SITL + Gazebo** as the allowed "simulator of your choice" and submitting the existing AegisLand simulation as the Task 2 foundation.
+
+The AIEA-facing packet will contain:
+
+- environment and simulator versions;
+- setup/reproduction commands already used by the repository;
+- one nominal run with no injected fault;
+- one controlled fault case;
+- configuration and seed/parameter records;
+- log locations and result summaries;
+- a short screen recording of the baseline/fault run;
+- a one-page write-up explaining setup, limitations, and evidence boundaries.
+
+The only element that cannot be generated from repository evidence alone is a fresh screen recording; that will be captured manually from the local simulator.
+
 ## What I want to confirm with AIEA
 
 At the next meeting, I would like to confirm whether AegisLand should be treated as:
@@ -72,3 +89,11 @@ Create a concise AIEA-facing baseline packet containing:
 - failure probability / recovery time definitions;
 - a short evidence-boundary statement;
 - links to the relevant AegisLand code, logs, and evaluation artifacts.
+
+## Meeting agenda for Professor Gilpin
+
+1. Confirm whether AegisLand can serve as my K-12 independent project or as a UAV adaptation of Robustifying Autonomous Vehicles.
+2. Confirm that PX4/Gazebo can substitute for CARLA for the simulator-onboarding deliverable.
+3. Review the evidence-boundary approach: simulator evidence, failed-run retention, and claims that explicitly stop short of real-world safety.
+4. Agree on the first formal AIEA milestone: baseline packet plus controlled fault benchmark.
+5. Clarify the remaining administrative onboarding items: Discord role, member database, website profile, calendar/mailing list, and submission location for K-12 deliverables.
