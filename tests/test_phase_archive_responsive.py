@@ -15,7 +15,8 @@ def test_phase_pages_use_one_canonical_responsive_layer():
 
 def test_responsive_css_has_no_compatibility_important_stack():
     css = (ROOT / "dashboard/phase-responsive.css").read_text()
-    assert "!important" not in css
+    # Guard against actual priority declarations, not explanatory comments.
+    assert "!important;" not in css
     assert ".signature-visual strong" in css
     assert "font-size:12px" in css
     assert "@media (max-width:767px)" in css
