@@ -1,0 +1,93 @@
+{
+  "schema": "aegisland.nakahira.uncertainty-benchmark-config.v1",
+  "study": "Nakahira uncertainty-safety follow-through",
+  "frozen_before_heldout": true,
+  "base_aegis_commit": "51ecc8cb12892714e2ba81c6028b62aea93dd7a7",
+  "simulation_only": true,
+  "safety_acceptance": false,
+  "controller_tuning_allowed": false,
+  "no_posthoc_threshold_tuning": true,
+  "historical_components": {
+    "plant_model": "phase7",
+    "temporal_calibration_seed": 616161,
+    "temporal_calibration_samples_per_condition": 180,
+    "component_calibration_seed": 616161,
+    "component_calibration_samples_per_condition": 280,
+    "supervisor": "SupervisorV3Config defaults",
+    "controller": "ControllerConfig defaults",
+    "phase6b_frozen_commit": "b4e9838555e935a5ec42690495315473629b58f6"
+  },
+  "evidence": {
+    "development_role": "development_seen",
+    "heldout_role": "heldout_unseen",
+    "development_seeds": [81001, 81002, 81003, 81004],
+    "heldout_seeds": [92001, 92002, 92003, 92004, 92005, 92006, 92007, 92008, 92009, 92010, 92011, 92012, 92013, 92014, 92015, 92016],
+    "paired_seeds_across_conditions": true
+  },
+  "primary_metrics": ["failure_probability", "recovery_time_s"],
+  "mandatory_separate_outcome": "non_recovery_probability",
+  "supporting_metrics": [
+    "hold_rate",
+    "abstention_rate",
+    "safety_envelope_violation_rate",
+    "unsafe_touchdown_rate",
+    "timeout_rate",
+    "abort_rate",
+    "degradation_latency_s",
+    "terminal_position_error_m",
+    "terminal_descent_rate_error_mps",
+    "control_confidence_at_failure",
+    "control_sigma_at_failure_m",
+    "control_confidence_at_recovery",
+    "control_sigma_at_recovery_m"
+  ],
+  "failure_definition": {
+    "terminal_failure_outcomes": ["unsafe_touchdown", "timeout"],
+    "safe_abort_is_failure": false,
+    "note": "Safe abort is reported separately as an abstention/termination behavior, not reclassified as unsafe failure."
+  },
+  "degraded_envelope": {
+    "decision_not_proceed": true,
+    "risk_gte": 0.68,
+    "max_abs_vx_mps": 1.2,
+    "max_abs_vz_mps": 1.25
+  },
+  "recovery_envelope": {
+    "decision": "proceed",
+    "risk_lte": 0.52,
+    "max_abs_vx_mps": 0.8,
+    "max_abs_vz_mps": 0.8,
+    "sustained_s": 1.0
+  },
+  "safety_envelope_violation": {
+    "risk_gte": 0.9,
+    "max_abs_vx_mps": 2.0,
+    "max_abs_vz_mps": 2.0
+  },
+  "analysis": {
+    "failure_ci": "Wilson 95%",
+    "non_recovery_ci": "Wilson 95%",
+    "recovery_summary": "median, q25, q75 among finite recovered episodes only",
+    "non_recovery_censoring": "reported separately; recovery_time_s is null, never replaced by a finite sentinel",
+    "combinations_in_final_sweep": false
+  },
+  "latency_fault_window": {
+    "onset_fraction": 0.1,
+    "duration_fraction": 0.2
+  },
+  "cells": [
+    {"dimension": "nominal", "severity_level": 0, "condition": "clean", "image_severity": 1.0, "fault_scenario": "independent", "latency_extra_steps": 0, "sensor_updates": {"gnss": 4, "baro": 2, "range": 1}},
+    {"dimension": "pose_perception_noise", "severity_level": 1, "condition": "clean", "image_severity": 1.5, "fault_scenario": "independent", "latency_extra_steps": 0, "sensor_updates": {"gnss": 4, "baro": 2, "range": 1}},
+    {"dimension": "pose_perception_noise", "severity_level": 2, "condition": "clean", "image_severity": 2.25, "fault_scenario": "independent", "latency_extra_steps": 0, "sensor_updates": {"gnss": 4, "baro": 2, "range": 1}},
+    {"dimension": "pose_perception_noise", "severity_level": 3, "condition": "clean", "image_severity": 3.0, "fault_scenario": "independent", "latency_extra_steps": 0, "sensor_updates": {"gnss": 4, "baro": 2, "range": 1}},
+    {"dimension": "partial_observability", "severity_level": 1, "condition": "occlusion", "image_severity": 1.0, "fault_scenario": "independent", "latency_extra_steps": 0, "sensor_updates": {"gnss": 4, "baro": 2, "range": 1}},
+    {"dimension": "partial_observability", "severity_level": 2, "condition": "occlusion", "image_severity": 1.4, "fault_scenario": "independent", "latency_extra_steps": 0, "sensor_updates": {"gnss": 4, "baro": 2, "range": 1}},
+    {"dimension": "partial_observability", "severity_level": 3, "condition": "occlusion", "image_severity": 1.8, "fault_scenario": "independent", "latency_extra_steps": 0, "sensor_updates": {"gnss": 4, "baro": 2, "range": 1}},
+    {"dimension": "sensor_latency", "severity_level": 1, "condition": "clean", "image_severity": 1.0, "fault_scenario": "latency_burst", "latency_extra_steps": 4, "sensor_updates": {"gnss": 4, "baro": 2, "range": 1}},
+    {"dimension": "sensor_latency", "severity_level": 2, "condition": "clean", "image_severity": 1.0, "fault_scenario": "latency_burst", "latency_extra_steps": 8, "sensor_updates": {"gnss": 4, "baro": 2, "range": 1}},
+    {"dimension": "sensor_latency", "severity_level": 3, "condition": "clean", "image_severity": 1.0, "fault_scenario": "latency_burst", "latency_extra_steps": 14, "sensor_updates": {"gnss": 4, "baro": 2, "range": 1}},
+    {"dimension": "stale_reference", "severity_level": 1, "condition": "clean", "image_severity": 1.0, "fault_scenario": "independent", "latency_extra_steps": 0, "sensor_updates": {"gnss": 8, "baro": 4, "range": 2}},
+    {"dimension": "stale_reference", "severity_level": 2, "condition": "clean", "image_severity": 1.0, "fault_scenario": "independent", "latency_extra_steps": 0, "sensor_updates": {"gnss": 12, "baro": 6, "range": 3}},
+    {"dimension": "stale_reference", "severity_level": 3, "condition": "clean", "image_severity": 1.0, "fault_scenario": "independent", "latency_extra_steps": 0, "sensor_updates": {"gnss": 20, "baro": 10, "range": 5}}
+  ]
+}

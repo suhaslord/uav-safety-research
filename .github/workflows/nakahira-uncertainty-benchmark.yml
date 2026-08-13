@@ -1,0 +1,107 @@
+name: Nakahira Uncertainty Safety Benchmark
+
+on:
+  push:
+    branches:
+      - nakahira-uncertainty-safety-benchmark
+  pull_request:
+    paths:
+      - "configs/nakahira_uncertainty_frozen_v1.json"
+      - "src/uav_safety/nakahira_*.py"
+      - "scripts/run_nakahira_uncertainty_benchmark.py"
+      - "tests/test_nakahira_uncertainty.py"
+      - "docs/nakahira_uncertainty_preregistration.md"
+      - ".github/workflows/nakahira-uncertainty-benchmark.yml"
+  workflow_dispatch:
+
+jobs:
+  frozen-benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install benchmark dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]" matplotlib
+
+      - name: Verify frozen contract before any held-out result
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          p = Path("configs/nakahira_uncertainty_frozen_v1.json")
+          cfg = json.loads(p.read_text())
+          assert cfg["frozen_before_heldout"] is True
+          assert cfg["simulation_only"] is True
+          assert cfg["safety_acceptance"] is False
+          assert cfg["controller_tuning_allowed"] is False
+          assert cfg["no_posthoc_threshold_tuning"] is True
+          assert cfg["analysis"]["combinations_in_final_sweep"] is False
+          assert set(cfg["evidence"]["development_seeds"]).isdisjoint(cfg["evidence"]["heldout_seeds"])
+          assert len(cfg["cells"]) == 13
+          assert cfg["failure_definition"]["safe_abort_is_failure"] is False
+          assert cfg["mandatory_separate_outcome"] == "non_recovery_probability"
+          print("frozen contract verified")
+          PY
+          sha256sum configs/nakahira_uncertainty_frozen_v1.json | tee /tmp/nakahira_config_sha256.txt
+
+      - name: Compile and metric edge-case tests
+        run: |
+          python -m compileall -q src scripts tests
+          pytest -q tests/test_nakahira_uncertainty.py
+
+      - name: Development evidence smoke
+        run: |
+          rm -rf /tmp/nakahira-development
+          python scripts/run_nakahira_uncertainty_benchmark.py \
+            --role development_seen \
+            --out /tmp/nakahira-development \
+            --git-sha "$GITHUB_SHA"
+
+      - name: Freeze boundary recheck
+        run: |
+          git diff --exit-code
+          test "$(sha256sum configs/nakahira_uncertainty_frozen_v1.json | awk '{print $1}')" = \
+               "$(awk '{print $1}' /tmp/nakahira_config_sha256.txt)"
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          meta = json.loads(Path("/tmp/nakahira-development/run_metadata.json").read_text())
+          assert meta["evidence_role"] == "development_seen"
+          assert meta["safety_acceptance"] is False
+          PY
+
+      - name: Untouched held-out uncertainty sweep
+        run: |
+          rm -rf /tmp/nakahira-heldout
+          python scripts/run_nakahira_uncertainty_benchmark.py \
+            --role heldout_unseen \
+            --out /tmp/nakahira-heldout \
+            --git-sha "$GITHUB_SHA"
+
+      - name: Write evidence receipt
+        run: |
+          mkdir -p /tmp/nakahira-evidence
+          cp -r /tmp/nakahira-development /tmp/nakahira-evidence/development_seen
+          cp -r /tmp/nakahira-heldout /tmp/nakahira-evidence/heldout_unseen
+          cp configs/nakahira_uncertainty_frozen_v1.json /tmp/nakahira-evidence/
+          cp docs/nakahira_uncertainty_preregistration.md /tmp/nakahira-evidence/
+          cp /tmp/nakahira_config_sha256.txt /tmp/nakahira-evidence/config_sha256.txt
+          printf '%s\n' "$GITHUB_SHA" > /tmp/nakahira-evidence/git_sha.txt
+          (
+            cd /tmp/nakahira-evidence
+            find . -type f ! -name evidence_receipt.sha256 -print0 | sort -z | xargs -0 sha256sum
+          ) > /tmp/nakahira-evidence/evidence_receipt.sha256
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nakahira-uncertainty-safety-frozen
+          path: /tmp/nakahira-evidence
+          retention-days: 30
