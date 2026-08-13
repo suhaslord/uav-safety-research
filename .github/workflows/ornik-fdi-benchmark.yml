@@ -1,0 +1,158 @@
+name: Ornik Model-Free FDI Benchmark
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ornik-model-free-fdi-benchmark]
+
+jobs:
+  reference-reproduction:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install --upgrade pip
+      - run: |
+          pip install -e ".[dev]"
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+      - name: Verify frozen benchmark contract
+        run: |
+          python -m json.tool configs/ornik_fdi_frozen_v1.json >/dev/null
+          python - <<'PY'
+          import json
+          c=json.load(open('configs/ornik_fdi_frozen_v1.json'))
+          assert c['paper']['window_samples']==100
+          assert c['paper']['health_threshold']==0.1
+          assert c['integrity']=={'simulation_only':True,'safety_acceptance':False,'controller_tuning_allowed':False,'no_posthoc_threshold_tuning':True,'preserve_unsuccessful_runs':True}
+          dev=c['px4']['development_cases']; held=c['px4']['heldout_cases']
+          assert len(dev)==5 and len(held)==24
+          assert not ({x['case_id'] for x in dev}&{x['case_id'] for x in held})
+          assert all(x['effectiveness'] in (0.0,1.0) and x['model_thrust_scale']==1.0 for x in dev)
+          PY
+          pytest -q tests/test_ornik_benchmark.py
+      - name: Run resource-bounded method reproduction
+        run: |
+          python scripts/run_ornik_reference_reproduction.py \
+            --out /tmp/ornik-reference \
+            --training-windows 2500 \
+            --epochs 40 \
+            --training-seed 23031 \
+            --test-seed 23032 \
+            --trajectories-per-class 200
+      - name: Stamp reference provenance
+        run: |
+          cp configs/ornik_fdi_frozen_v1.json /tmp/ornik-reference/frozen_config.json
+          git rev-parse HEAD > /tmp/ornik-reference/aegis_git_sha.txt
+          sha256sum configs/ornik_fdi_frozen_v1.json > /tmp/ornik-reference/frozen_config.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ornik-reference-reproduction
+          path: /tmp/ornik-reference
+
+  px4-gazebo-benchmark:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 150
+    env:
+      PX4_RELEASE: v1.17.0
+      PX4_SIMULATOR_MODEL: gz_x500
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install benchmark dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]" pyulog mavsdk
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+      - name: Freeze check before simulator evidence
+        run: |
+          git merge-base --is-ancestor 51ecc8cb12892714e2ba81c6028b62aea93dd7a7 HEAD
+          python -m json.tool configs/ornik_fdi_frozen_v1.json >/dev/null
+          pytest -q tests/test_ornik_benchmark.py
+          mkdir -p /tmp/ornik-px4/{development,heldout,results,provenance}
+          cp configs/ornik_fdi_frozen_v1.json /tmp/ornik-px4/provenance/frozen_config.json
+          sha256sum configs/ornik_fdi_frozen_v1.json > /tmp/ornik-px4/provenance/frozen_config.sha256
+          git rev-parse HEAD | tee /tmp/ornik-px4/provenance/aegis_git_sha.txt
+      - name: Clone pinned PX4 and apply simulator-only actuator hook
+        run: |
+          git clone --branch "$PX4_RELEASE" --depth 1 --recursive https://github.com/PX4/PX4-Autopilot.git /tmp/PX4-Autopilot
+          git -C /tmp/PX4-Autopilot rev-parse HEAD | tee /tmp/ornik-px4/provenance/px4_git_sha.txt
+          python scripts/patch_px4_ornik_fault_injection.py \
+            /tmp/PX4-Autopilot/src/modules/simulation/gz_bridge/GZMixingInterfaceESC.cpp \
+            --receipt /tmp/ornik-px4/provenance/px4_fault_patch_receipt.txt
+      - name: Install PX4 SITL and Gazebo dependencies
+        run: |
+          sudo env DEBIAN_FRONTEND=noninteractive bash /tmp/PX4-Autopilot/Tools/setup/ubuntu.sh --no-nuttx
+          python -m pip install -r /tmp/PX4-Autopilot/Tools/setup/requirements.txt
+      - name: Generate development-only PX4 traces
+        run: |
+          python - <<'PY' > /tmp/ornik-dev.tsv
+          import json
+          c=json.load(open('configs/ornik_fdi_frozen_v1.json'))
+          for x in c['px4']['development_cases']:
+              print(x['case_id'],x['fault_motor'],x['effectiveness'],x['onset_s'],x['path_seed'],x['model_thrust_scale'],sep='\t')
+          PY
+          while IFS=$'\t' read -r case motor eff onset seed scale; do
+            bash scripts/run_ornik_px4_case.sh /tmp/PX4-Autopilot /tmp/ornik-px4/development "$case" "$motor" "$eff" "$onset" "$seed" "$scale"
+          done < /tmp/ornik-dev.tsv
+      - name: Train and freeze PX4-adapted detector on seen evidence only
+        run: |
+          args=()
+          while IFS= read -r -d '' summary; do
+            d="$(dirname "$summary")"; args+=(--trace "$d/trace.csv" --summary "$summary")
+          done < <(find /tmp/ornik-px4/development -name trace_summary.json -print0 | sort -z)
+          python scripts/train_ornik_px4_detector.py \
+            "${args[@]}" --seed 73193 --epochs 40 \
+            --model-out /tmp/ornik-px4/provenance/frozen_px4_detector.pt \
+            --standardizer-out /tmp/ornik-px4/provenance/frozen_px4_standardizer.json \
+            --report-out /tmp/ornik-px4/provenance/px4_detector_development_report.json
+          sha256sum /tmp/ornik-px4/provenance/frozen_px4_detector.pt /tmp/ornik-px4/provenance/frozen_px4_standardizer.json > /tmp/ornik-px4/provenance/frozen_detector.sha256
+      - name: Generate untouched held-out PX4/Gazebo sweep
+        run: |
+          python - <<'PY' > /tmp/ornik-held.tsv
+          import json
+          c=json.load(open('configs/ornik_fdi_frozen_v1.json'))
+          for x in c['px4']['heldout_cases']:
+              print(x['case_id'],x['fault_motor'],x['effectiveness'],x['onset_s'],x['path_seed'],x['model_thrust_scale'],sep='\t')
+          PY
+          while IFS=$'\t' read -r case motor eff onset seed scale; do
+            bash scripts/run_ornik_px4_case.sh /tmp/PX4-Autopilot /tmp/ornik-px4/heldout "$case" "$motor" "$eff" "$onset" "$seed" "$scale"
+          done < /tmp/ornik-held.tsv
+      - name: Evaluate frozen detector and outcomes
+        run: |
+          args=()
+          while IFS= read -r -d '' summary; do
+            d="$(dirname "$summary")"; args+=(--trace "$d/trace.csv" --summary "$summary")
+          done < <(find /tmp/ornik-px4/heldout -name trace_summary.json -print0 | sort -z)
+          test "${#args[@]}" -eq 48
+          python scripts/evaluate_ornik_px4_benchmark.py \
+            --model /tmp/ornik-px4/provenance/frozen_px4_detector.pt \
+            --standardizer /tmp/ornik-px4/provenance/frozen_px4_standardizer.json \
+            "${args[@]}" \
+            --git-sha "$GITHUB_SHA" \
+            --px4-sha "$(cat /tmp/ornik-px4/provenance/px4_git_sha.txt)" \
+            --out /tmp/ornik-px4/results
+      - name: Write evidence receipt
+        if: always()
+        run: |
+          python - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          root=Path('/tmp/ornik-px4'); files={}
+          for p in sorted(root.rglob('*')):
+              if p.is_file(): files[str(p.relative_to(root))]={'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'bytes':p.stat().st_size}
+          receipt={'schema':'aegisland.ornik.evidence-receipt.v1','github_run_id':os.environ.get('GITHUB_RUN_ID'),'aegis_git_sha':os.environ.get('GITHUB_SHA'),'px4_release':os.environ.get('PX4_RELEASE'),'px4_git_sha':(root/'provenance/px4_git_sha.txt').read_text().strip() if (root/'provenance/px4_git_sha.txt').exists() else None,'files':files,'simulation_only':True,'safety_acceptance':False,'controller_tuning_allowed':False}
+          (root/'evidence_receipt.json').write_text(json.dumps(receipt,indent=2,sort_keys=True)+'\n')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ornik-px4-gazebo-benchmark
+          path: /tmp/ornik-px4

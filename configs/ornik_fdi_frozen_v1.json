@@ -1,0 +1,82 @@
+{
+  "schema": "aegisland.ornik.fdi-benchmark-config.v1",
+  "frozen_before_heldout": true,
+  "base_aegis_commit": "51ecc8cb12892714e2ba81c6028b62aea93dd7a7",
+  "paper": {
+    "title": "Model-Free Neural Fault Detection and Isolation for Safe Control",
+    "window_samples": 100,
+    "health_threshold": 0.1,
+    "output_signal": ["position_x", "position_y", "position_z", "roll_rate", "pitch_rate", "yaw_rate"],
+    "command_signal": ["motor_0_command", "motor_1_command", "motor_2_command", "motor_3_command"],
+    "single_complete_fault_training": true
+  },
+  "training_assumptions": {
+    "optimizer": "SGD",
+    "learning_rate": 0.02,
+    "hinge_epsilon": 0.05,
+    "batch_size": 256,
+    "epochs": 40,
+    "activation_between_linear_layers": "ReLU",
+    "output_activation": "none"
+  },
+  "reference_reproduction": {
+    "training_seed": 23031,
+    "test_seed": 23032,
+    "training_windows": 2500,
+    "trajectories_per_class": 200,
+    "fault_sample": 100,
+    "trajectory_samples": 200,
+    "mismatch_parameter_scale": 1.45
+  },
+  "px4": {
+    "release": "v1.17.0",
+    "simulator": "Gazebo",
+    "model": "gz_x500",
+    "sample_rate_hz": 50.0,
+    "evaluation_horizon_s": 8.0,
+    "detector_training_seed": 73193,
+    "fault_injection": "scale only simulator-bound motor speed; target thrust effectiveness e maps to speed scale sqrt(e)",
+    "development_cases": [
+      {"case_id":"dev_nominal","fault_motor":-1,"effectiveness":1.0,"onset_s":8.0,"path_seed":6100,"model_thrust_scale":1.0},
+      {"case_id":"dev_full_m0","fault_motor":0,"effectiveness":0.0,"onset_s":8.0,"path_seed":6110,"model_thrust_scale":1.0},
+      {"case_id":"dev_full_m1","fault_motor":1,"effectiveness":0.0,"onset_s":8.0,"path_seed":6111,"model_thrust_scale":1.0},
+      {"case_id":"dev_full_m2","fault_motor":2,"effectiveness":0.0,"onset_s":8.0,"path_seed":6112,"model_thrust_scale":1.0},
+      {"case_id":"dev_full_m3","fault_motor":3,"effectiveness":0.0,"onset_s":8.0,"path_seed":6113,"model_thrust_scale":1.0}
+    ],
+    "heldout_cases": [
+      {"case_id":"held_nominal_0","fault_motor":-1,"effectiveness":1.0,"onset_s":8.0,"path_seed":7200,"model_thrust_scale":1.0},
+      {"case_id":"held_nominal_1","fault_motor":-1,"effectiveness":1.0,"onset_s":8.0,"path_seed":7201,"model_thrust_scale":1.0},
+      {"case_id":"held_nominal_2","fault_motor":-1,"effectiveness":1.0,"onset_s":8.0,"path_seed":7202,"model_thrust_scale":1.0},
+      {"case_id":"held_nominal_3","fault_motor":-1,"effectiveness":1.0,"onset_s":8.0,"path_seed":7203,"model_thrust_scale":1.0},
+      {"case_id":"held_e75_m0_t8","fault_motor":0,"effectiveness":0.75,"onset_s":8.0,"path_seed":7300,"model_thrust_scale":1.0},
+      {"case_id":"held_e75_m1_t12","fault_motor":1,"effectiveness":0.75,"onset_s":12.0,"path_seed":7301,"model_thrust_scale":1.0},
+      {"case_id":"held_e75_m2_t8","fault_motor":2,"effectiveness":0.75,"onset_s":8.0,"path_seed":7302,"model_thrust_scale":1.0},
+      {"case_id":"held_e75_m3_t12","fault_motor":3,"effectiveness":0.75,"onset_s":12.0,"path_seed":7303,"model_thrust_scale":1.0},
+      {"case_id":"held_e50_m0_t12","fault_motor":0,"effectiveness":0.5,"onset_s":12.0,"path_seed":7400,"model_thrust_scale":1.0},
+      {"case_id":"held_e50_m1_t8","fault_motor":1,"effectiveness":0.5,"onset_s":8.0,"path_seed":7401,"model_thrust_scale":1.0},
+      {"case_id":"held_e50_m2_t12","fault_motor":2,"effectiveness":0.5,"onset_s":12.0,"path_seed":7402,"model_thrust_scale":1.0},
+      {"case_id":"held_e50_m3_t8","fault_motor":3,"effectiveness":0.5,"onset_s":8.0,"path_seed":7403,"model_thrust_scale":1.0},
+      {"case_id":"held_e25_m0_t8","fault_motor":0,"effectiveness":0.25,"onset_s":8.0,"path_seed":7500,"model_thrust_scale":1.0},
+      {"case_id":"held_e25_m1_t12","fault_motor":1,"effectiveness":0.25,"onset_s":12.0,"path_seed":7501,"model_thrust_scale":1.0},
+      {"case_id":"held_e25_m2_t8","fault_motor":2,"effectiveness":0.25,"onset_s":8.0,"path_seed":7502,"model_thrust_scale":1.0},
+      {"case_id":"held_e25_m3_t12","fault_motor":3,"effectiveness":0.25,"onset_s":12.0,"path_seed":7503,"model_thrust_scale":1.0},
+      {"case_id":"held_e0_m0_t12","fault_motor":0,"effectiveness":0.0,"onset_s":12.0,"path_seed":7600,"model_thrust_scale":1.0},
+      {"case_id":"held_e0_m1_t12","fault_motor":1,"effectiveness":0.0,"onset_s":12.0,"path_seed":7601,"model_thrust_scale":1.0},
+      {"case_id":"held_e0_m2_t12","fault_motor":2,"effectiveness":0.0,"onset_s":12.0,"path_seed":7602,"model_thrust_scale":1.0},
+      {"case_id":"held_e0_m3_t12","fault_motor":3,"effectiveness":0.0,"onset_s":12.0,"path_seed":7603,"model_thrust_scale":1.0},
+      {"case_id":"held_mismatch_e50_m0","fault_motor":0,"effectiveness":0.5,"onset_s":10.0,"path_seed":7700,"model_thrust_scale":1.45},
+      {"case_id":"held_mismatch_e50_m1","fault_motor":1,"effectiveness":0.5,"onset_s":10.0,"path_seed":7701,"model_thrust_scale":1.45},
+      {"case_id":"held_mismatch_e50_m2","fault_motor":2,"effectiveness":0.5,"onset_s":10.0,"path_seed":7702,"model_thrust_scale":1.45},
+      {"case_id":"held_mismatch_e50_m3","fault_motor":3,"effectiveness":0.5,"onset_s":10.0,"path_seed":7703,"model_thrust_scale":1.45}
+    ]
+  },
+  "outcomes": {
+    "primary": ["failure_probability", "recovery_time"],
+    "failure": "within 8 s after analysis/fault onset: NED z > -0.35 m, tilt > 60 deg, |vertical speed| > 5 m/s, horizontal setpoint error > 4 m, altitude setpoint error > 3 m; incomplete fault mission also counts as failure",
+    "degraded_envelope": "horizontal error > 0.75 m OR altitude error > 0.75 m OR tilt > 20 deg OR |vertical speed| > 1.2 m/s",
+    "recovery_envelope": "horizontal error <= 0.50 m AND altitude error <= 0.50 m AND tilt <= 12 deg AND |vertical speed| <= 0.8 m/s sustained for 1.0 s",
+    "non_recovery": "reported separately; recovery_time is null and never replaced with a finite sentinel",
+    "supporting": ["detection_latency", "isolation_accuracy", "false_positive", "false_negative", "safety_envelope_violation_rate", "mission_completion"]
+  },
+  "integrity": {"simulation_only":true,"safety_acceptance":false,"controller_tuning_allowed":false,"no_posthoc_threshold_tuning":true,"preserve_unsuccessful_runs":true}
+}
