@@ -63,19 +63,156 @@ AegisT10 **did not beat** Phase 9 point estimates on the holdout — because eve
 
 <img src="docs/assets/readme/chart_uncertainty_light.png" alt="Uncertainty honesty: Phase 9 vs AegisT10" width="100%"/>
 
-| | Phase 9 | AegisT10 |
-|---|---:|---:|
-| Lateral MAE | 2.77 cm | 2.77 cm |
-| Altitude MAE | 1.57 cm | 1.57 cm |
-| Median \|residual\| / σ (lateral) | 13.17 | **0.65** |
-| Median \|residual\| / σ (altitude) | 5.11 | **0.52** |
-| 2σ coverage | — | **93% / 100%** |
+#### Point estimates — gate failed
 
-Holdout: 65 raw frames · 20 truth-visible · 15 observations · **15 ArUco / 0 quad-fallback** · 5 misses · 0 false positives.
+<table>
+  <thead>
+    <tr>
+      <th align="left">Metric</th>
+      <th align="right">Phase 9</th>
+      <th align="right">AegisT10</th>
+      <th align="center">Δ</th>
+      <th align="left">Verdict</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Lateral MAE</td>
+      <td align="right"><code>2.77 cm</code></td>
+      <td align="right"><code>2.77 cm</code></td>
+      <td align="center">0%</td>
+      <td>matched · no substantial win</td>
+    </tr>
+    <tr>
+      <td>Altitude MAE</td>
+      <td align="right"><code>1.57 cm</code></td>
+      <td align="right"><code>1.57 cm</code></td>
+      <td align="center">0%</td>
+      <td>matched · no substantial win</td>
+    </tr>
+    <tr>
+      <td>Lateral p95</td>
+      <td align="right"><code>5.59 cm</code></td>
+      <td align="right"><code>5.59 cm</code></td>
+      <td align="center">0%</td>
+      <td>matched · no substantial win</td>
+    </tr>
+    <tr>
+      <td>Altitude p95</td>
+      <td align="right"><code>2.93 cm</code></td>
+      <td align="right"><code>2.93 cm</code></td>
+      <td align="center">0%</td>
+      <td>matched · no substantial win</td>
+    </tr>
+  </tbody>
+</table>
 
-Phase 10R P0 starts with **read-only forensics** and a preregistration draft. No tuning from the five miss frames until approval.
+#### Uncertainty honesty — improved
 
-[Phase 10 result](docs/phase10_frozen_holdout_result.md) · [10R preregistration](docs/phase10r_preregistration.md) · [Forensics](docs/phase10r_holdout_forensics.md)
+<table>
+  <thead>
+    <tr>
+      <th align="left">Metric</th>
+      <th align="right">Phase 9</th>
+      <th align="right">AegisT10</th>
+      <th align="left">Reading</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Median |lateral residual| / σ</td>
+      <td align="right"><code>13.17</code></td>
+      <td align="right"><b><code>0.65</code></b></td>
+      <td>overconfident → near σ-honest</td>
+    </tr>
+    <tr>
+      <td>Median |altitude residual| / σ</td>
+      <td align="right"><code>5.11</code></td>
+      <td align="right"><b><code>0.52</code></b></td>
+      <td>overconfident → near σ-honest</td>
+    </tr>
+    <tr>
+      <td>2σ coverage (lat / alt)</td>
+      <td align="right">—</td>
+      <td align="right"><b><code>93% / 100%</code></b></td>
+      <td>calibrated uncertainty held</td>
+    </tr>
+  </tbody>
+</table>
+
+#### Holdout composition
+
+<table>
+  <thead>
+    <tr>
+      <th align="center">Raw frames</th>
+      <th align="center">Truth-visible</th>
+      <th align="center">Observations</th>
+      <th align="center">Misses</th>
+      <th align="center">False positives</th>
+      <th align="center">Detector mix</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td align="center"><b>65</b></td>
+      <td align="center"><b>20</b></td>
+      <td align="center"><b>15</b></td>
+      <td align="center"><b>5</b></td>
+      <td align="center"><b>0</b></td>
+      <td align="center"><b>15 ArUco · 0 fallback</b></td>
+    </tr>
+  </tbody>
+</table>
+
+#### Preregistered gate scorecard
+
+<table>
+  <thead>
+    <tr>
+      <th align="left">Gate</th>
+      <th align="center">Result</th>
+      <th align="left">Detail</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Metric availability drop ≤ 2 pp</td>
+      <td align="center">✅ pass</td>
+      <td>no availability loss vs Phase 9</td>
+    </tr>
+    <tr>
+      <td>No false-positive regression</td>
+      <td align="center">✅ pass</td>
+      <td>0 false positives on holdout</td>
+    </tr>
+    <tr>
+      <td>Median norm. residual &lt; 2 (both axes)</td>
+      <td align="center">✅ pass</td>
+      <td>0.65 lateral · 0.52 altitude</td>
+    </tr>
+    <tr>
+      <td>≥50% MAE reduction (lat / alt)</td>
+      <td align="center">❌ fail</td>
+      <td>ArUco-only holdout left no point-error to rescue</td>
+    </tr>
+    <tr>
+      <td>≥35% p95 reduction (lat / alt)</td>
+      <td align="center">❌ fail</td>
+      <td>same paired centimeter geometry retained</td>
+    </tr>
+  </tbody>
+</table>
+
+Phase 10R P0 starts with **read-only forensics** and a preregistration draft. No tuning from miss frames `27, 35, 36, 46, 47` until approval.
+
+<table>
+  <tr>
+    <td align="center"><a href="docs/phase10_frozen_holdout_result.md"><b>Phase 10 result</b></a></td>
+    <td align="center"><a href="docs/phase10r_preregistration.md"><b>10R preregistration</b></a></td>
+    <td align="center"><a href="docs/phase10r_holdout_forensics.md"><b>Forensics</b></a></td>
+  </tr>
+</table>
 
 ---
 
@@ -83,24 +220,100 @@ Phase 10R P0 starts with **read-only forensics** and a preregistration draft. No
 
 <table>
   <tr>
-    <td width="50%">
+    <td width="50%" valign="top">
       <a href="https://aegisland-research-cockpit.vercel.app/phases/phase9/">
         <img src="docs/assets/readme/frame_phase9.png" alt="Phase 9 case study"/>
       </a>
-      <p align="center"><b>Phase 9</b><br/><sub>Raw Gazebo camera · detection vs metric geometry</sub></p>
+      <p align="center">
+        <b>Phase 9 · Raw Gazebo camera</b><br/>
+        <sub>external perception seen</sub><br/>
+        <sub>Strong detection can coexist with poor metric geometry.</sub>
+      </p>
     </td>
-    <td width="50%">
+    <td width="50%" valign="top">
       <a href="https://aegisland-research-cockpit.vercel.app/phases/phase6b/">
         <img src="docs/assets/readme/frame_phase6b.png" alt="Phase 6B case study"/>
       </a>
-      <p align="center"><b>Phase 6B</b><br/><sub>Stop calling the whole image good or bad</sub></p>
+      <p align="center">
+        <b>Phase 6B · Selective confidence</b><br/>
+        <sub>frozen held-out</sub><br/>
+        <sub>Stop calling the whole image good or bad.</sub>
+      </p>
     </td>
   </tr>
 </table>
 
+### Phase 6B mixed degradation (held-out landings)
+
 <img src="docs/assets/readme/chart_phase6b_light.png" alt="Phase 6B mixed success versus unsafe" width="100%"/>
 
+<table>
+  <thead>
+    <tr>
+      <th align="left">Architecture</th>
+      <th align="right">Success</th>
+      <th align="right">Unsafe</th>
+      <th align="left">vs image-only</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Image-only temporal</td>
+      <td align="right"><code>57%</code></td>
+      <td align="right"><code>43%</code></td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td>Phase 6 Aegis</td>
+      <td align="right"><code>94%</code></td>
+      <td align="right"><code>6%</code></td>
+      <td>+37 pp success · −37 pp unsafe</td>
+    </tr>
+    <tr>
+      <td><b>Phase 6B selective</b></td>
+      <td align="right"><b><code>99%</code></b></td>
+      <td align="right"><b><code>1%</code></b></td>
+      <td>+42 pp success · −42 pp unsafe</td>
+    </tr>
+  </tbody>
+</table>
+
+<p align="center"><sub>Low-light Phase 6B retained a deliberate <b>3% timeout</b> cost — not erased after the fact.</sub></p>
+
+### V3 abstract mixed profile (10,000 episodes)
+
 <img src="docs/assets/readme/chart_v3_light.png" alt="V3 mixed unsafe touchdown rates" width="100%"/>
+
+<table>
+  <thead>
+    <tr>
+      <th align="left">Architecture</th>
+      <th align="right">Unsafe touchdown</th>
+      <th align="right">Success</th>
+      <th align="left">Lesson</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Baseline</td>
+      <td align="right"><code>84.2%</code></td>
+      <td align="right"><code>15.8%</code></td>
+      <td>persistent visual bias remains dangerous</td>
+    </tr>
+    <tr>
+      <td>V2 temporal</td>
+      <td align="right"><code>84.0%</code></td>
+      <td align="right"><code>16.0%</code></td>
+      <td>smoothing does not expose single-stream bias</td>
+    </tr>
+    <tr>
+      <td><b>V3 redundant</b></td>
+      <td align="right"><b><code>2.4%</code></b></td>
+      <td align="right"><b><code>97.6%</code></b></td>
+      <td>independent error structure can expose the bias</td>
+    </tr>
+  </tbody>
+</table>
 
 <p align="center">
   <img src="results/v3_frozen/unsafe_touchdown_rate.png" alt="V3 frozen unsafe rates by profile" width="48%"/>
@@ -111,16 +324,6 @@ Phase 10R P0 starts with **read-only forensics** and a preregistration draft. No
 
 ## Evidence ladder
 
-| Layer | Status | What it supports |
-|---|---|---|
-| Phase 6B synthetic landing | **frozen held-out** | selective confidence on the defined benchmark |
-| Phase 7 stress factorial | **audited / seen** | where redundancy assumptions break |
-| Phase 8 PX4/Gazebo traces | **external seen** | surrogate resemblance = `diagnostic_mismatch` |
-| Phase 9 Gazebo camera | **external perception seen** | strong detection ≠ trustworthy metric geometry |
-| Phase 10 temporal + σ | **frozen holdout** | uncertainty improved; point-error gate failed |
-| Phase 10R P0 | **forensics only** | miss decomposition + preregistration draft |
-| Physical aircraft | **not tested** | no claim |
-
 ```mermaid
 flowchart LR
   A["6B synthetic<br/>frozen"] --> B["7–8 stress<br/>+ mismatch"]
@@ -129,7 +332,71 @@ flowchart LR
   D --> E["10R forensics<br/>pending approval"]
 ```
 
-**Nothing in this repository is a physical-flight safety acceptance.**
+<table>
+  <thead>
+    <tr>
+      <th align="center">#</th>
+      <th align="left">Layer</th>
+      <th align="left">Status</th>
+      <th align="left">What it supports</th>
+      <th align="center">Safety claim?</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td align="center"><code>6B</code></td>
+      <td>Synthetic landing + selective confidence</td>
+      <td><code>frozen held-out</code></td>
+      <td>Result for the defined synthetic benchmark</td>
+      <td align="center">No</td>
+    </tr>
+    <tr>
+      <td align="center"><code>7</code></td>
+      <td>External-validity stress factorial</td>
+      <td><code>audited / seen</code></td>
+      <td>Where redundancy assumptions break</td>
+      <td align="center">No</td>
+    </tr>
+    <tr>
+      <td align="center"><code>8</code></td>
+      <td>PX4/Gazebo trace comparison</td>
+      <td><code>external seen</code></td>
+      <td>Surrogate resemblance = <code>diagnostic_mismatch</code></td>
+      <td align="center">No</td>
+    </tr>
+    <tr>
+      <td align="center"><code>9</code></td>
+      <td>Genuine Gazebo camera evidence</td>
+      <td><code>external perception seen</code></td>
+      <td>Detection can look strong while metric geometry fails</td>
+      <td align="center">No</td>
+    </tr>
+    <tr>
+      <td align="center"><code>10</code></td>
+      <td>Temporal metric + calibrated σ</td>
+      <td><code>frozen holdout</code></td>
+      <td>Uncertainty improved; point-error gate failed</td>
+      <td align="center">No</td>
+    </tr>
+    <tr>
+      <td align="center"><code>10R</code></td>
+      <td>Holdout forensics + preregistration</td>
+      <td><code>forensics only</code></td>
+      <td>Miss decomposition; approval gate before new data</td>
+      <td align="center">No</td>
+    </tr>
+    <tr>
+      <td align="center">—</td>
+      <td>Physical aircraft</td>
+      <td><code>not tested</code></td>
+      <td>No hardware or flight validation</td>
+      <td align="center"><b>No</b></td>
+    </tr>
+  </tbody>
+</table>
+
+**Nothing in this repository is a physical-flight safety acceptance.**  
+<code>safety_acceptance = false</code> · <code>controller_tuning_allowed = false</code> · simulation only.
 
 ---
 
@@ -158,11 +425,36 @@ node scripts/capture_readme_shots.mjs
 
 ## Limitations
 
-- Simulation only — no hardware-camera or physical-flight validation
-- Phase 10 holdout is small (**20** truth-visible / **15** paired observations)
-- That holdout is now **seen** for Phase 10R
-- Phase 8 is a short external trace with a genuine `diagnostic_mismatch`
-- Passing CI ≠ UAV safety acceptance
+<table>
+  <thead>
+    <tr>
+      <th align="left">Limit</th>
+      <th align="left">Why it matters</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Simulation only</td>
+      <td>No hardware-camera or physical-flight validation</td>
+    </tr>
+    <tr>
+      <td>Small Phase 10 holdout</td>
+      <td><b>20</b> truth-visible frames · <b>15</b> paired observations</td>
+    </tr>
+    <tr>
+      <td>Holdout now seen</td>
+      <td>Cannot be reused as a hidden Phase 10R test</td>
+    </tr>
+    <tr>
+      <td>Short Phase 8 external trace</td>
+      <td>Produced a genuine <code>diagnostic_mismatch</code>, not a pass</td>
+    </tr>
+    <tr>
+      <td>CI green ≠ flight-safe</td>
+      <td>Passing tests does not imply UAV safety acceptance</td>
+    </tr>
+  </tbody>
+</table>
 
 ---
 
