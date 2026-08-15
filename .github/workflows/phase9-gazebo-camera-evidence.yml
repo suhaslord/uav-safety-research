@@ -1,0 +1,53 @@
+name: Phase 9 Gazebo Camera Evidence
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - phase9-external-perception-validation
+    paths:
+      - ".github/workflows/phase9-gazebo-camera-evidence.yml"
+      - "tools/phase9_gz_camera_capture.cc"
+      - "scripts/run_phase9_gazebo_camera_evidence.sh"
+      - "scripts/run_phase9_gazebo_camera_mission.py"
+      - "scripts/analyze_phase9_gazebo_camera_evidence.py"
+      - "scripts/validate_phase9_perception_trace.py"
+      - "src/uav_safety/perception_trace.py"
+      - "pyproject.toml"
+
+jobs:
+  phase9-gazebo-camera-evidence:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 55
+    env:
+      PX4_RELEASE: v1.17.0
+      PX4_SIMULATOR_MODEL: gz_x500_mono_cam_down
+      PX4_GZ_WORLD: aruco
+      PHASE9_PARENT_MAIN: babd4d9849c4792ff1cc002c51cc5dbbc6ed0221
+      PHASE8_FROZEN_HEAD: bd62e3b31431306fd9d897f560be7325d711d21a
+      PHASE6B_FROZEN_HEAD: b4e9838555e935a5ec42690495315473629b58f6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Phase 9 analysis dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]" pyulog mavsdk opencv-contrib-python-headless
+
+      - name: Run genuine PX4 Gazebo camera evidence pipeline
+        run: bash scripts/run_phase9_gazebo_camera_evidence.sh
+
+      - name: Upload genuine Phase 9 Gazebo camera evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase9-gazebo-camera-evidence-seen
+          path: /tmp/phase9-evidence
+          if-no-files-found: warn
+          retention-days: 30

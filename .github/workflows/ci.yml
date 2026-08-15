@@ -17,7 +17,10 @@ jobs:
       - name: Compile package and scripts
         run: python -m compileall -q src scripts tests
       - name: Check Research Cockpit JavaScript
-        run: node --check dashboard/app.js
+        run: |
+          node --check dashboard/cockpit.js
+          node --check dashboard/cockpit-extension.js
+          node --check dashboard/app.js
       - name: Check Phase 8 Trace Lab JavaScript
         run: node --check phase8_dashboard/app.js
       - name: Unit tests
@@ -52,6 +55,18 @@ jobs:
           python scripts/validate_result_manifest.py \
             /tmp/aegis-phase8-smoke/result_manifest.json \
             --schema aegisland.phase8.result-bundle.v1
+      - name: Phase 9 perception-trace smoke pipeline
+        run: |
+          rm -rf /tmp/aegis-phase9-smoke
+          python scripts/generate_phase9_perception_fixture.py \
+            --rows 24 \
+            --seed 909090 \
+            --out /tmp/aegis-phase9-smoke
+          python scripts/validate_phase9_perception_trace.py \
+            /tmp/aegis-phase9-smoke/perception_trace.csv \
+            --frame-root /tmp/aegis-phase9-smoke \
+            --verify-frame-hashes \
+            --summary-out /tmp/aegis-phase9-smoke/validation_summary.json
       - name: Phase 6 clean abstention diagnostic
         run: python scripts/diagnose_phase6_episode.py --condition clean --episodes 1 --calibration-samples 30
       - name: Phase 6 occlusion abstention diagnostic

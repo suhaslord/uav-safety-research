@@ -8,317 +8,263 @@
 
 [![CI](https://github.com/suhaslord/uav-safety-research/actions/workflows/ci.yml/badge.svg)](https://github.com/suhaslord/uav-safety-research/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)
-![Research](https://img.shields.io/badge/status-Phase%206B%20frozen-success)
-![V3](https://img.shields.io/badge/V3%20evaluation-10%2C000%20episodes-blue)
-![Phase 6B](https://img.shields.io/badge/Phase%206B%20held--out-1%2C500%20landings-blue)
-![Phase 7](https://img.shields.io/badge/Phase%207-external%20validity-orange)
+![Phase 6B](https://img.shields.io/badge/Phase%206B-frozen-success)
+![Phase 8](https://img.shields.io/badge/Phase%208-external%20mismatch-orange)
+![Phase 9](https://img.shields.io/badge/Phase%209-valid%20seen%20camera%20trace-blue)
 ![Scope](https://img.shields.io/badge/scope-simulation--only-blueviolet)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-**A reproducible simulation study of persistent perception bias, temporal image perception, calibrated abstention, redundant estimation, safety–availability tradeoffs, and the limits of those conclusions under distribution shift.**
+**A reproducible simulation study of persistent perception bias, calibrated abstention, redundant estimation, external-model mismatch, and the limits of those conclusions under distribution shift.**
 
 </div>
 
 ---
 
-## Latest frozen result: Phase 6B
+## Current status
 
-AegisLand runs an end-to-end synthetic image path:
+AegisLand is now an **audited research-prototype candidate**. The code, deterministic fixtures, raw-evidence provenance path, and the first valid PX4/Gazebo downward-camera analysis are working end to end. The scientific findings are intentionally mixed rather than optimized into one favorable number.
 
-```mermaid
-flowchart LR
-    I["Synthetic camera frame"] --> P["Pixel estimator"]
-    P --> T["Temporal tracking + reacquisition"]
-    T --> V["Robust image velocity"]
-    P --> C["Component confidence"]
-    C --> X["p_x_good"]
-    C --> Z["p_z_good + scale observability"]
-    R["Imperfect surrogate reference sensor"] --> F["Component-selective fusion"]
-    X --> F
-    Z --> F
-    V --> F
-    F --> S["Frozen V3 supervisor"]
-    S --> L["Landing controller"]
-    L --> D["Planar simulated dynamics"]
-```
+The key evidence chain is:
 
-The key Phase 6B change is **component-wise abstention**. A frame is not forced into one global `good/bad` label. The system may keep a trustworthy lateral image estimate while rejecting an unreliable altitude estimate and temporarily using the independent reference for altitude only.
+| Evidence layer | Status | What it supports |
+|---|---|---|
+| Phase 6B synthetic landing | **frozen held-out** | result for the defined synthetic benchmark |
+| Phase 7 stress factorial | **audited development / seen** | failure discovery under stronger assumptions |
+| Phase 8 PX4/Gazebo trace | **external simulator seen** | frozen resemblance diagnostic = `diagnostic_mismatch` |
+| Phase 9 deterministic camera fixture | **pipeline validation only** | schema/hash/provenance software works |
+| Phase 9 valid Gazebo camera trace | **external perception seen** | descriptive detection/localization/geometry evidence for one simulator trace |
+| Physical aircraft | **not tested** | no claim |
 
-### Frozen held-out landing study
+**Nothing in this repository is a physical-flight safety acceptance.**
 
-Phase 6B was frozen before evaluation at executable commit:
+Start with:
+
+- **[Phase 9 valid camera result](docs/phase9_gazebo_camera_seen_result.md)**
+- **[Final prototype readiness](docs/final_prototype_readiness.md)**
+- **[External review packet](docs/external_review_packet.md)**
+- [Phase 9 preregistered protocol](docs/phase9_external_perception_protocol.md)
+- [Research checkpoint / historical audit](docs/research_checkpoint_2026-08-10.md)
+
+---
+
+## What the project is testing
+
+AegisLand asks whether an autonomous landing stack can recognize when a primary visual estimate is confidently wrong by combining:
+
+- component-wise confidence rather than one global confidence score;
+- selective rejection/abstention;
+- an independent reference estimate;
+- temporal and fault-stress testing;
+- explicit external-simulator comparison;
+- raw-camera evidence with provenance and hash verification.
+
+The project evolved by preserving failures instead of deleting them when later evidence became less favorable.
+
+| Stage | Main idea | Main lesson |
+|---|---|---|
+| Baseline | trust primary estimate | severe bias can remain dangerous |
+| V1 | fixed confidence/risk thresholds | safety can improve mainly by becoming too conservative |
+| V2 | temporal smoothing/persistence | availability improves, but persistent single-stream bias remains difficult |
+| V3 | independent redundant estimate | independent error structure can expose persistent bias in abstract simulation |
+| Phase 5 | robustness sweeps | reference quality and distribution shift matter |
+| Phase 6 | synthetic pixel sequences | image perception adds tracking/calibration/observability failures |
+| Phase 6B | component confidence + selective fusion | unreliable altitude can be rejected without discarding useful lateral information |
+| Phase 7 | external-validity stress | timing, common-mode faults, and stronger dynamics expose weak cells |
+| Phase 8 | frozen external-trace comparison | the internal surrogate does not closely resemble several PX4/Gazebo distributions |
+| Phase 9 | genuine raw camera evidence | strong detection on one trace can coexist with poor metric geometry |
+
+---
+
+## Phase 6B — frozen synthetic result
+
+Frozen head:
 
 `b4e9838555e935a5ec42690495315473629b58f6`
 
-The preflight suite passed **53 tests**. The held-out landing seed `868686` was then run once with 100 paired episodes for each of five image conditions and three architectures: **1,500 simulated landing episodes total**.
+Frozen component-confidence gates:
 
-| Condition | Image-only success / unsafe | Original Phase 6 Aegis | **Phase 6B success / unsafe** | Phase 6B timeout |
+- lateral: `0.80`
+- altitude: `0.80`
+
+The held-out landing seed `868686` produced 1,500 paired simulated landing episodes across five image conditions and three architectures.
+
+| Condition | Image-only success / unsafe | Original Phase 6 Aegis | Phase 6B success / unsafe | Phase 6B timeout |
 |---|---:|---:|---:|---:|
 | clean | 100% / 0% | 100% / 0% | **100% / 0%** | 0% |
 | blur | 100% / 0% | 100% / 0% | **100% / 0%** | 0% |
 | low light | 100% / 0% | 100% / 0% | **97% / 0%** | **3%** |
 | occlusion | 86% / 14% | 93% / 7% | **96% / 4%** | 0% |
-| **mixed** | **57% / 43%** | **94% / 6%** | **99% / 1%** | 0% |
+| mixed | 57% / 43% | 94% / 6% | **99% / 1%** | 0% |
 
-All Phase 6B abort rates were 0% in this held-out run.
+A separate held-out selective-perception seed `878787` evaluated 10,000 synthetic frames at the unchanged `0.80 / 0.80` gates. The low-light timeout and mixed-condition lateral-selectivity weaknesses are retained.
 
-For `mixed` degradation, Phase 6B improved success by **42 percentage points** and reduced unsafe touchdowns by **42 points** relative to image-only temporal perception. Relative to the established Phase 6 Aegis path on the same paired held-out episodes, Phase 6B improved success by **5 points** and reduced unsafe touchdowns by **5 points**.
-
-Paired mixed episodes showed:
-
-- **43** image-only unsafe touchdowns became Phase 6B successes;
-- **1** image-only success became a Phase 6B unsafe touchdown;
-- **6** original Phase 6 unsafe touchdowns became Phase 6B successes;
-- **1** original Phase 6 success became a Phase 6B unsafe touchdown.
-
-For Phase 6B mixed degradation, the 95% Wilson interval was **94.55%–99.82%** for success and **0.18%–5.45%** for unsafe touchdown.
-
-The low-light `97% success / 3% timeout` result is intentionally retained. Phase 6B is not presented as uniformly better: stronger selective substitution improved the hardest mixed/occlusion conditions while creating a measurable completion cost under low light.
-
-Full result: [`docs/phase6b_results.md`](docs/phase6b_results.md)
+This is evidence about the defined synthetic environment, not a real-aircraft rate.
 
 ---
 
-## Phase 7: attack external validity
+## Phase 7 — attack the assumptions
 
-Phase 7 is deliberately **not another threshold-tuning phase**. The frozen Phase 6B result above remains unchanged. Phase 7 changes the assumptions around it to find where the conclusion stops generalizing.
+Audited development head:
 
-The new stress program adds:
+`7354eeda8b975f45b659ce4f3f86c82501e6321d`
 
-- separated **GNSS-like lateral** and **barometric/range-like vertical** reference sensing;
-- mismatched update rates, transport latency, dropout, stale-data uncertainty growth, and sensor bias random walk;
-- explicit `reference_drift`, `shared_lateral_bias`, `shared_dropout`, and `latency_burst` fault families;
-- paired **legacy vs stronger plant** experiments so sensing failures are not conflated with dynamics sensitivity;
-- actuator lag, acceleration-rate limits, nonlinear drag, and colored disturbances in the stronger planar plant;
-- a simulator-agnostic offline trace schema for later higher-fidelity log replay;
-- error-correlation diagnostics that test whether image and reference errors are actually independent;
-- checksum manifests and complete configuration metadata for each result bundle.
+Phase 7 added separated sensor roles, mismatched rates, latency, dropout, stale-state uncertainty growth, bias drift, common-mode faults, and stronger plant dynamics.
 
-The important common-mode case is `shared_lateral_bias`: both sensing streams can agree while both are wrong. In that condition, cross-estimator agreement is no longer strong evidence of correctness. Phase 7 keeps those failures visible rather than retuning Phase 6B to hide them.
+Its paired factorial contains 200 development episodes across 40 cells, only five episodes per cell. It is therefore **failure-discovery evidence**, not a precise safety-rate estimate. Several stronger-plant/common-mode cells remained weak, and those failures were preserved rather than used to retune the frozen Phase 6B gates.
 
-**Phase 7 is currently development work. No Phase 7 held-out seed has been declared.** Small development cells are useful for finding failure modes and experiment bugs, but they are not frozen safety claims.
-
-Design and protocol: [`docs/phase7_external_validity_plan.md`](docs/phase7_external_validity_plan.md)
-
-### Research Cockpit
-
-Phase 7 includes a local, dependency-free analysis interface under [`dashboard/`](dashboard/). It is an **analysis surface, not a vehicle-control UI**.
-
-Run it locally:
-
-```bash
-python scripts/serve_dashboard.py
-```
-
-Then open `http://127.0.0.1:8765` and load a Phase 7 `dashboard_bundle.json`. The cockpit provides:
-
-- condition / fault / plant filtering;
-- success, unsafe-touchdown, abort, and reference-availability cards with confidence intervals;
-- paired legacy-vs-stronger-plant deltas;
-- a clickable condition × fault unsafe-touchdown matrix;
-- evidence-oriented interpretation notes;
-- run-role, seed-status, and sample-count provenance.
-
-The dashboard uses no external JavaScript libraries or telemetry. Loaded result data stays in the browser session.
+The dependency-free Research Cockpit under [`dashboard/`](dashboard/) is an analysis interface for these results, not a vehicle-control UI.
 
 ---
 
-## Held-out selective-perception audit
+## Phase 8 — genuine PX4/Gazebo model mismatch
 
-A separate frozen seed, `878787`, evaluated **10,000 synthetic frames** without changing the `0.80 / 0.80` component gates.
+Frozen comparison head:
 
-At the fixed altitude-confidence gate:
+`bd62e3b31431306fd9d897f560be7325d711d21a`
 
-| Condition | Altitude coverage | Selected bad-altitude rate | Bad-altitude rejection |
-|---|---:|---:|---:|
-| clean | 100% | 0% | n/a — no bad altitude cases |
-| blur | 20.95% | 0% | **100%** |
-| low light | 30.55% | **0.16%** | **99.35%** |
-| mixed | 0.85% | 0% | **100%** |
-| occlusion | 100% | 0% | n/a — no bad altitude cases |
+Audited PX4/Gazebo evidence head:
 
-This is a major improvement over the original Phase 6 scalar abstention behavior, but it also exposes a remaining limitation: under mixed degradation, lateral coverage was **96.6%** with a **3.99% selected bad-lateral rate**, and the gate rejected only about **10.5%** of bad lateral estimates.
+`b9df03e111f3a796e50df440becc587c48ee7643`
 
-So the claim is deliberately narrow: **Phase 6B makes altitude/scale confidence strongly selective in this synthetic benchmark; lateral selective confidence remains imperfect.**
+PX4 `v1.17.0` source SHA:
 
----
+`d6f12ad1c4f70ad3230afd7d86e971421e02fef4`
 
-## Why the observability cap exists
+The frozen trace-resemblance method compared empirical distributions and temporal structure without retuning after seeing the external trace. Its genuine PX4/Gazebo result was:
 
-The synthetic renderer represents apparent landing-marker size with integer pixels. At high altitude, one pixel of apparent-size change can correspond to a large change in inferred altitude. A frame can therefore be sharp and well detected while still lacking enough scale resolution for a precise altitude estimate.
+- overall: **`diagnostic_mismatch`**
+- close: **1**
+- watch: **2**
+- mismatch: **9**
+- insufficient: **14**
+- `safety_acceptance = false`
+- `controller_tuning_allowed = false`
 
-Phase 6B computes the adjacent scale-bin altitude width and caps `p_z_good` so the confidence model cannot claim more altitude precision than the rendered pixel geometry supports.
-
-This cap is **specific to the synthetic renderer**. It is an experimental observability check, not a real-camera uncertainty formula.
+The correct interpretation is negative but useful: several internal surrogate navigation/timing distributions did **not** closely reproduce the PX4/Gazebo evidence.
 
 ---
 
-## Research progression
+## Phase 9 — valid genuine camera trace
 
-AegisLand was developed through measured failures rather than deleting old results when they looked bad.
+Earlier Phase 9 attempts were deliberately rejected before scientific interpretation. One failed the unchanged 20.0 s ground-truth completeness gate. A later audit discovered a separate provenance bug: a fixed local `camera_link` transform was being treated as though it were a moving world pose.
 
-| Stage | Main idea | What it taught us |
-|---|---|---|
-| **Baseline** | trust the primary estimate | easy cases are fine; severe bias can cause unsafe touchdowns |
-| **V1** | static confidence/risk thresholds | safety can improve by becoming unusably conservative |
-| **V2** | temporal smoothing + persistence | availability returns, but persistent bias remains hard to detect from one stream |
-| **V3** | independent redundant estimate + bias-aware fusion | independent error structure exposes persistent visual bias in abstract-perception simulation |
-| **Phase 5** | robustness sweeps | V3 generalizes across multiple stress axes, but reference quality matters |
-| **Phase 6** | actual synthetic pixel sequences | pixel perception introduces tracking, velocity, calibration, and observability failures |
-| **Phase 6B** | component confidence + selective fusion | unreliable altitude can be rejected without discarding still-useful lateral image information |
-| **Phase 7** | external-validity stress program | realistic timing, common-mode failures, and plant-model changes test whether the earlier conclusion survives assumption shift |
+That implementation bug was corrected at:
 
-Frozen historical results remain separate from later development branches. Phase 7 does not rewrite Phase 6B.
+`fae622cfa448e4945174e8c03982686c7b1b0e3a`
 
----
+The detector, target-visibility definition, descriptive metrics, Phase 8 logic, and Phase 6B logic were **not** changed to make the rerun pass.
 
-## Earlier frozen V3 result
+### Exact valid evidence
 
-Before the image front end, V3 was evaluated with 500 paired episode seeds per profile/architecture cell for **10,000 simulated episodes**.
+- evidence head: `33c5c73768757b508f5c613b2fba73f94e3fd5a6`
+- workflow run: `31523496671`
+- artifact ID: `9114281248`
+- artifact digest: `sha256:bd2387f9518c7feb0bb5b8d7d02ccc7cbf416a73cd13e150ebeab06551b041a6`
+- selected raw frames: **68**
+- analyzed pose-linked frames: **67**
+- independently reverified raw-frame hashes: **67 / 67**
+- ULog ground-truth coverage: **1,237 samples / 24.684 s**
+- trace duration: **21.78 s**
+- evidence role: **`external_perception_seen`**
+- Phase 9 acceptance threshold: **none declared**
+- resemblance verdict: **none declared**
+- safety acceptance: **false**
 
-| Profile | Baseline unsafe | V2 unsafe | **V3 unsafe** | **V3 success** |
-|---|---:|---:|---:|---:|
-| clean | 0.0% | 0.0% | **0.0%** | **100.0%** |
-| blur | 0.0% | 0.0% | **0.0%** | **100.0%** |
-| low light | 0.0% | 0.2% | **0.0%** | **100.0%** |
-| occlusion | 34.6% | 33.6% | **1.4%** | **98.6%** |
-| **mixed** | **84.2%** | **84.0%** | **2.4%** | **97.6%** |
+The frozen analyzer file is byte-identical between implementation head `353bf45bc8dcad5c7875570b91011d062014ab59` and the successful evidence head.
 
-Full V3 result: [`docs/v3_results.md`](docs/v3_results.md)
+### Detection result
+
+Under the preregistered truth-visibility definition:
+
+- true positives: **25**
+- false negatives: **0**
+- false positives: **0**
+- true negatives: **42**
+- ArUco detections: **18**
+- fixed quad-fallback detections: **7**
+
+These are descriptive counts from one **seen** trace, not a general detector rate.
+
+### The important negative result: geometry is weak
+
+For the 25 paired truth-visible/detected frames:
+
+- pixel-center MAE: **40.99 px**
+- pixel-center p95 error: **113.80 px**
+- lateral MAE: **0.998 m**
+- lateral p95 absolute error: **5.087 m**
+- altitude MAE: **1.520 m**
+- altitude p95 absolute error: **6.597 m**
+- median `|lateral residual| / sigma`: **8.11**
+- median `|altitude residual| / sigma`: **5.89**
+
+So the camera detector found the target reliably on this trace, but the PnP-derived metric geometry was not correspondingly accurate and its uncertainty proxies were under-dispersed. **Detection availability is not the same thing as accurate localization or safe landing.**
+
+A direct Phase 7 KS/Wasserstein comparison is intentionally withheld because the Phase 7 state-level lateral axis and the Phase 9 camera optical-horizontal error are not directly compatible.
+
+Full result and provenance: [`docs/phase9_gazebo_camera_seen_result.md`](docs/phase9_gazebo_camera_seen_result.md).
 
 ---
 
 ## Reproducibility
 
-The project includes:
-
-- deterministic top-level seeds;
-- paired architecture and paired plant comparisons;
-- isolated environment/image/reference/fault/dynamics RNG streams;
-- separate calibration, development, and frozen seeds;
-- explicit freeze protocols before held-out evaluation;
-- 95% Wilson intervals;
-- paired rescue/regression counts;
-- touchdown failure decomposition;
-- calibration ECE and risk/coverage audits;
-- high-altitude observability audits;
-- automated tests and GitHub Actions;
-- retained negative/intermediate results;
-- permanent compressed archives of the final Phase 6B raw evidence;
-- Phase 7 result manifests with SHA-256 checksums;
-- serialized sensor, fault, dynamics, gate, and supervisor configuration in Phase 7 metadata;
-- a single `dashboard_bundle.json` for reproducible visual inspection of a Phase 7 run.
-
-Frozen Phase 6B evidence:
-
-- [`results/phase6b_frozen_landing/`](results/phase6b_frozen_landing/)
-- [`results/phase6b_frozen_selective/`](results/phase6b_frozen_selective/)
-
-The large `episodes.csv` and `frames.csv` files are committed as `.csv.gz`; only compression was applied after the frozen Actions artifacts were downloaded.
-
----
-
-## Reproduce key experiments
+Local software/fixture verification:
 
 ```bash
 git clone https://github.com/suhaslord/uav-safety-research.git
 cd uav-safety-research
+git checkout phase9-external-perception-validation
 python -m venv .venv
 pip install -e ".[dev]"
-pytest -q
+bash scripts/final_prototype_smoke.sh
 ```
 
-### Frozen V3
+The smoke test compiles Python sources, runs the full test suite, generates the deterministic non-authoritative Phase 9 fixture, verifies every raw fixture-frame SHA-256, and checks evidence-role boundaries.
 
-```bash
-python scripts/run_v3_comparison.py --episodes 500 --seed 424242 --out results/v3_frozen
-python scripts/validate_v3_frozen.py --out results/v3_frozen --seed 424242 --episodes 500
-```
+A passing smoke test does not substitute for the genuine-camera artifact and does not establish physical safety.
 
-### Frozen Phase 6B landing comparison
-
-```bash
-python scripts/run_phase6b_landing.py \
-  --episodes 100 \
-  --seed 868686 \
-  --calibration-seed 616161 \
-  --temporal-calibration-samples 180 \
-  --component-calibration-samples 280 \
-  --lateral-threshold 0.80 \
-  --altitude-threshold 0.80 \
-  --run-role frozen \
-  --out results/phase6b_frozen_landing
-```
-
-### Frozen Phase 6B selective audit
-
-```bash
-python scripts/run_phase6_component_calibration.py \
-  --sequences 20 \
-  --frames 100 \
-  --seed 878787 \
-  --calibration-seed 616161 \
-  --calibration-samples 280 \
-  --out results/phase6b_frozen_selective
-```
-
-Do not reuse `868686` or `878787` as unseen evaluation seeds; both have now been observed.
-
-### Phase 7 development factorial
-
-Phase 7 uses development seeds only until a future configuration is deliberately frozen. A compact local mechanics/attribution run is:
-
-```bash
-python scripts/run_phase7_external_validity.py \
-  --episodes 5 \
-  --seed 979797 \
-  --conditions clean low_light occlusion mixed \
-  --faults independent reference_drift shared_lateral_bias shared_dropout latency_burst \
-  --plants legacy phase7 \
-  --out results/phase7_factorial_development
-```
-
-Seed `979797` is already a **seen development seed** and must not later be presented as an unseen Phase 7 evaluation seed.
+The research audit trail includes deterministic seeds, separate development/calibration/held-out roles where applicable, frozen heads, machine-readable metadata, SHA-256 manifests, exact PX4 source identity, preserved negative results, and raw external-simulator evidence.
 
 ---
 
 ## Current limitations
 
-The strongest frozen results are still **simulation evidence**, not real-flight validation.
-
-Important limitations include:
-
-- both the historical and stronger Phase 7 plants remain planar rather than full 6-DOF aircraft models;
-- imagery and image degradation remain synthetic;
-- Phase 7's GNSS-like / barometric / range-like sensor stack is a generic simulation stress model, not calibrated hardware;
-- sensor measurements are synthesized from simulator truth inside the sensor model, while truth remains excluded from downstream fusion/control inputs;
-- Phase 7 common-mode faults are explicit measurement-space stress cases, not validated models of a named physical failure mechanism;
-- the altitude observability rule remains renderer-specific;
-- mixed lateral confidence remains weakly selective in the frozen Phase 6B audit;
-- low-light Phase 6B introduced a 3% timeout rate in the final held-out run;
-- higher-fidelity PX4/Gazebo evidence has not yet been collected in this repository;
-- no hardware or physical-flight validation exists.
-
-The next external-validity milestone is **offline higher-fidelity trace comparison**: ingest simulator logs, measure their real error/latency/dropout/correlation distributions, and compare those distributions with the Phase 7 surrogate before considering simulation-in-the-loop experiments.
+- **Simulation only; no physical-flight validation.**
+- No hardware-camera validation.
+- Internal plant models remain simplified relative to a full aircraft.
+- Synthetic image degradation is not a calibrated real-camera model.
+- Phase 7 cells are small development samples, not safety-rate estimates.
+- Phase 8 is one short external-simulator trace and produced a genuine `diagnostic_mismatch`.
+- Phase 9 is one short **seen** downward-camera trace, not a hidden holdout.
+- Only 25 paired truth-visible/detected samples drive the Phase 9 geometry metrics.
+- The fiducial/quad task is simpler than broad real-world landing perception.
+- Phase 9 pose association uses the latest received pose; measured median association offset was about 63 ms and p95 about 110 ms.
+- Phase 9 geometric uncertainty proxies are not calibrated guarantees and were too small relative to observed residuals.
+- Passing CI or simulator tests does not imply safety acceptance for a physical UAV.
 
 ---
 
-## Paper workspace
+## Evidence workspace
 
-- [`paper/abstract.md`](paper/abstract.md)
-- [`docs/phase6b_results.md`](docs/phase6b_results.md)
-- [`docs/phase6b_calibration_revision.md`](docs/phase6b_calibration_revision.md)
-- [`docs/phase6b_evaluation_protocol.md`](docs/phase6b_evaluation_protocol.md)
-- [`docs/phase6b_freeze_manifest.md`](docs/phase6b_freeze_manifest.md)
-- [`docs/phase7_external_validity_plan.md`](docs/phase7_external_validity_plan.md)
+- [Phase 9 valid camera result](docs/phase9_gazebo_camera_seen_result.md)
+- [Final prototype readiness](docs/final_prototype_readiness.md)
+- [External review packet](docs/external_review_packet.md)
+- [Research checkpoint — 2026-08-10](docs/research_checkpoint_2026-08-10.md)
+- [Phase 6B results](docs/phase6b_results.md)
+- [Phase 6B evaluation protocol](docs/phase6b_evaluation_protocol.md)
+- [Phase 6B freeze manifest](docs/phase6b_freeze_manifest.md)
+- [Phase 7 external-validity plan](docs/phase7_external_validity_plan.md)
+- [Phase 8 trace-validation protocol](docs/phase8_trace_validation.md)
+- [Phase 9 external-perception protocol](docs/phase9_external_perception_protocol.md)
+- [Paper abstract workspace](paper/abstract.md)
 
 ---
 
 ## Safety scope
 
-**AegisLand is not flight-control software.**
+**AegisLand is not validated flight-control software.**
 
-It is an educational, simulation-only research project. It is not validated for physical aircraft and should not be used to operate one.
+It is a simulation-only research project. It has not been validated for physical aircraft and should not be used to operate one.
 
 ---
 
