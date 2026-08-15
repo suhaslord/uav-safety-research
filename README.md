@@ -11,314 +11,70 @@
 ![Scope](https://img.shields.io/badge/simulation%20only-6B7280)
 ![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)
 
-Simulation research on perception overconfidence, calibrated abstention, redundant estimation, and what those claims mean after PX4/Gazebo camera evidence.
-
-<br/>
-
-[![Open the live research archive](https://img.shields.io/badge/Open%20live%20archive-aegisland--research--cockpit-2F6FED?style=for-the-badge&logo=vercel&logoColor=white)](https://aegisland-research-cockpit.vercel.app/)
-
-</div>
-
-<br/>
-
-<a href="https://aegisland-research-cockpit.vercel.app/">
-  <img src="docs/assets/readme/frame_home.png" alt="AegisLand research cockpit homepage" width="100%"/>
-</a>
-
-<p align="center"><sub>Live cockpit · Phase 9/10 evidence path · <code>safety_acceptance = false</code></sub></p>
-
----
-
-## The product is the archive
-
-AegisLand is not a “landing demo.” It is a **phase-by-phase research archive** with frozen results, mismatches, and negative findings kept visible.
-
-<a href="https://aegisland-research-cockpit.vercel.app/phases/">
-  <img src="docs/assets/readme/frame_phases.png" alt="Complete research lineage archive page" width="100%"/>
-</a>
-
-<p align="center"><sub>Every phase. Nothing rewritten.</sub></p>
-
-<p align="center">
-  <img src="docs/assets/readme/collage_desktop_mobile.png" alt="Desktop and mobile archive views" width="100%"/>
-</p>
-
-<p align="center"><sub>Desktop cockpit + mobile archive shell</sub></p>
-
----
-
-## Current frontier — Phase 10 / 10R
-
-<a href="https://aegisland-research-cockpit.vercel.app/phases/phase10/">
-  <img src="docs/assets/readme/frame_phase10.png" alt="Phase 10 AegisT10 case study hero" width="100%"/>
-</a>
-
-**Research question**
+Simulation research on perception overconfidence, calibrated abstention, redundant estimation, and PX4/Gazebo camera evidence limits.
 
 > If visual perception is internally consistent but systematically wrong, can independent evidence expose the error without making landing unusably conservative?
 
-### Frozen mixed result
+| [Live archive](https://aegisland-research-cockpit.vercel.app/) | [Phase 10 result](docs/phase10_frozen_holdout_result.md) | [10R preregistration](docs/phase10r_preregistration.md) | [Local cockpit](dashboard/README.md) |
+| :---: | :---: | :---: | :---: |
 
-AegisT10 **did not beat** Phase 9 point estimates on the holdout — because every usable observation was already clean ArUco geometry at centimeter scale. Uncertainty honesty improved sharply on the same rows.
-
-<img src="docs/assets/readme/chart_uncertainty_light.png" alt="Uncertainty honesty: Phase 9 vs AegisT10" width="100%"/>
-
-#### Point estimates — gate failed
-
-<table>
-  <thead>
-    <tr>
-      <th align="left">Metric</th>
-      <th align="right">Phase 9</th>
-      <th align="right">AegisT10</th>
-      <th align="center">Δ</th>
-      <th align="left">Verdict</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Lateral MAE</td>
-      <td align="right"><code>2.77 cm</code></td>
-      <td align="right"><code>2.77 cm</code></td>
-      <td align="center">0%</td>
-      <td>matched · no substantial win</td>
-    </tr>
-    <tr>
-      <td>Altitude MAE</td>
-      <td align="right"><code>1.57 cm</code></td>
-      <td align="right"><code>1.57 cm</code></td>
-      <td align="center">0%</td>
-      <td>matched · no substantial win</td>
-    </tr>
-    <tr>
-      <td>Lateral p95</td>
-      <td align="right"><code>5.59 cm</code></td>
-      <td align="right"><code>5.59 cm</code></td>
-      <td align="center">0%</td>
-      <td>matched · no substantial win</td>
-    </tr>
-    <tr>
-      <td>Altitude p95</td>
-      <td align="right"><code>2.93 cm</code></td>
-      <td align="right"><code>2.93 cm</code></td>
-      <td align="center">0%</td>
-      <td>matched · no substantial win</td>
-    </tr>
-  </tbody>
-</table>
-
-#### Uncertainty honesty — improved
-
-<table>
-  <thead>
-    <tr>
-      <th align="left">Metric</th>
-      <th align="right">Phase 9</th>
-      <th align="right">AegisT10</th>
-      <th align="left">Reading</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Median |lateral residual| / σ</td>
-      <td align="right"><code>13.17</code></td>
-      <td align="right"><b><code>0.65</code></b></td>
-      <td>overconfident → near σ-honest</td>
-    </tr>
-    <tr>
-      <td>Median |altitude residual| / σ</td>
-      <td align="right"><code>5.11</code></td>
-      <td align="right"><b><code>0.52</code></b></td>
-      <td>overconfident → near σ-honest</td>
-    </tr>
-    <tr>
-      <td>2σ coverage (lat / alt)</td>
-      <td align="right">—</td>
-      <td align="right"><b><code>93% / 100%</code></b></td>
-      <td>calibrated uncertainty held</td>
-    </tr>
-  </tbody>
-</table>
-
-#### Holdout composition
-
-<table>
-  <thead>
-    <tr>
-      <th align="center">Raw frames</th>
-      <th align="center">Truth-visible</th>
-      <th align="center">Observations</th>
-      <th align="center">Misses</th>
-      <th align="center">False positives</th>
-      <th align="center">Detector mix</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td align="center"><b>65</b></td>
-      <td align="center"><b>20</b></td>
-      <td align="center"><b>15</b></td>
-      <td align="center"><b>5</b></td>
-      <td align="center"><b>0</b></td>
-      <td align="center"><b>15 ArUco · 0 fallback</b></td>
-    </tr>
-  </tbody>
-</table>
-
-#### Preregistered gate scorecard
-
-<table>
-  <thead>
-    <tr>
-      <th align="left">Gate</th>
-      <th align="center">Result</th>
-      <th align="left">Detail</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Metric availability drop ≤ 2 pp</td>
-      <td align="center">✅ pass</td>
-      <td>no availability loss vs Phase 9</td>
-    </tr>
-    <tr>
-      <td>No false-positive regression</td>
-      <td align="center">✅ pass</td>
-      <td>0 false positives on holdout</td>
-    </tr>
-    <tr>
-      <td>Median norm. residual &lt; 2 (both axes)</td>
-      <td align="center">✅ pass</td>
-      <td>0.65 lateral · 0.52 altitude</td>
-    </tr>
-    <tr>
-      <td>≥50% MAE reduction (lat / alt)</td>
-      <td align="center">❌ fail</td>
-      <td>ArUco-only holdout left no point-error to rescue</td>
-    </tr>
-    <tr>
-      <td>≥35% p95 reduction (lat / alt)</td>
-      <td align="center">❌ fail</td>
-      <td>same paired centimeter geometry retained</td>
-    </tr>
-  </tbody>
-</table>
-
-Phase 10R P0 starts with **read-only forensics** and a preregistration draft. No tuning from miss frames `27, 35, 36, 46, 47` until approval.
-
-<table>
-  <tr>
-    <td align="center"><a href="docs/phase10_frozen_holdout_result.md"><b>Phase 10 result</b></a></td>
-    <td align="center"><a href="docs/phase10r_preregistration.md"><b>10R preregistration</b></a></td>
-    <td align="center"><a href="docs/phase10r_holdout_forensics.md"><b>Forensics</b></a></td>
-  </tr>
-</table>
+</div>
 
 ---
 
-## Case studies in the archive
+## Headline — Phase 10 frozen mixed result
 
-<table>
-  <tr>
-    <td width="50%" valign="top">
-      <a href="https://aegisland-research-cockpit.vercel.app/phases/phase9/">
-        <img src="docs/assets/readme/frame_phase9.png" alt="Phase 9 case study"/>
-      </a>
-      <p align="center">
-        <b>Phase 9 · Raw Gazebo camera</b><br/>
-        <sub>external perception seen</sub><br/>
-        <sub>Strong detection can coexist with poor metric geometry.</sub>
-      </p>
-    </td>
-    <td width="50%" valign="top">
-      <a href="https://aegisland-research-cockpit.vercel.app/phases/phase6b/">
-        <img src="docs/assets/readme/frame_phase6b.png" alt="Phase 6B case study"/>
-      </a>
-      <p align="center">
-        <b>Phase 6B · Selective confidence</b><br/>
-        <sub>frozen held-out</sub><br/>
-        <sub>Stop calling the whole image good or bad.</sub>
-      </p>
-    </td>
-  </tr>
-</table>
+AegisT10 **did not beat** Phase 9 point estimates on the Gazebo-camera holdout. Every usable observation was already clean ArUco geometry at centimeter scale, so temporal filtering had nothing catastrophic to rescue. **Uncertainty honesty improved sharply** on the same paired rows. The mixed result was frozen; nothing was retuned after exposure.
 
-### Phase 6B mixed degradation (held-out landings)
+<img src="docs/assets/readme/chart_uncertainty_light.png" alt="Uncertainty honesty: Phase 9 vs AegisT10" width="100%"/>
+
+| Metric | Phase 9 | AegisT10 | Reading |
+|---|---:|---:|---|
+| Lateral / altitude MAE | `2.77 / 1.57 cm` | `2.77 / 1.57 cm` | matched · point-error gate `FAIL` |
+| Median \|residual\| / σ (lat / alt) | `13.17 / 5.11` | **`0.65 / 0.52`** | overconfident → near σ-honest |
+| 2σ coverage (lat / alt) | — | **`93% / 100%`** | calibrated uncertainty held |
+| Holdout | 65 raw · 20 visible · 15 obs · 5 misses · 0 FP | **15 ArUco · 0 fallback** | why the temporal win did not transfer |
+
+| Gate | Result | Detail |
+|---|:---:|---|
+| Metric availability drop ≤ 2 pp | `PASS` | no availability loss vs Phase 9 |
+| No false-positive regression | `PASS` | 0 false positives |
+| Median norm. residual < 2 (both axes) | `PASS` | 0.65 lateral · 0.52 altitude |
+| ≥50% MAE / ≥35% p95 reduction | `FAIL` | ArUco-only holdout left no point-error to rescue |
+
+**Phase 10R P0** is read-only forensics + a preregistration draft. No tuning from miss frames `27, 35, 36, 46, 47` until [approval](docs/phase10r_preregistration.md).
+
+<a href="https://aegisland-research-cockpit.vercel.app/">
+  <img src="docs/assets/readme/frame_home.png" alt="AegisLand research cockpit" width="100%"/>
+</a>
+
+<p align="center"><sub>Live cockpit · <code>safety_acceptance = false</code></sub></p>
+
+---
+
+## Earlier frozen milestones
+
+### Phase 6B — selective confidence
 
 <img src="docs/assets/readme/chart_phase6b_light.png" alt="Phase 6B mixed success versus unsafe" width="100%"/>
 
-<table>
-  <thead>
-    <tr>
-      <th align="left">Architecture</th>
-      <th align="right">Success</th>
-      <th align="right">Unsafe</th>
-      <th align="left">vs image-only</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Image-only temporal</td>
-      <td align="right"><code>57%</code></td>
-      <td align="right"><code>43%</code></td>
-      <td>—</td>
-    </tr>
-    <tr>
-      <td>Phase 6 Aegis</td>
-      <td align="right"><code>94%</code></td>
-      <td align="right"><code>6%</code></td>
-      <td>+37 pp success · −37 pp unsafe</td>
-    </tr>
-    <tr>
-      <td><b>Phase 6B selective</b></td>
-      <td align="right"><b><code>99%</code></b></td>
-      <td align="right"><b><code>1%</code></b></td>
-      <td>+42 pp success · −42 pp unsafe</td>
-    </tr>
-  </tbody>
-</table>
+| Architecture | Success | Unsafe | vs image-only |
+|---|---:|---:|---|
+| Image-only temporal | `57%` | `43%` | — |
+| Phase 6 Aegis | `94%` | `6%` | +37 pp success · −37 pp unsafe |
+| **Phase 6B selective** | **`99%`** | **`1%`** | +42 pp success · −42 pp unsafe |
 
-<p align="center"><sub>Low-light Phase 6B retained a deliberate <b>3% timeout</b> cost — not erased after the fact.</sub></p>
+Low-light Phase 6B kept a deliberate **3% timeout** cost.
 
-### V3 abstract mixed profile (10,000 episodes)
+### V3 — abstract redundant perception
 
 <img src="docs/assets/readme/chart_v3_light.png" alt="V3 mixed unsafe touchdown rates" width="100%"/>
 
-<table>
-  <thead>
-    <tr>
-      <th align="left">Architecture</th>
-      <th align="right">Unsafe touchdown</th>
-      <th align="right">Success</th>
-      <th align="left">Lesson</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Baseline</td>
-      <td align="right"><code>84.2%</code></td>
-      <td align="right"><code>15.8%</code></td>
-      <td>persistent visual bias remains dangerous</td>
-    </tr>
-    <tr>
-      <td>V2 temporal</td>
-      <td align="right"><code>84.0%</code></td>
-      <td align="right"><code>16.0%</code></td>
-      <td>smoothing does not expose single-stream bias</td>
-    </tr>
-    <tr>
-      <td><b>V3 redundant</b></td>
-      <td align="right"><b><code>2.4%</code></b></td>
-      <td align="right"><b><code>97.6%</code></b></td>
-      <td>independent error structure can expose the bias</td>
-    </tr>
-  </tbody>
-</table>
-
-<p align="center">
-  <img src="results/v3_frozen/unsafe_touchdown_rate.png" alt="V3 frozen unsafe rates by profile" width="48%"/>
-  <img src="results/v3_frozen/success_rate.png" alt="V3 frozen success rates by profile" width="48%"/>
-</p>
+| Architecture | Unsafe | Success | Lesson |
+|---|---:|---:|---|
+| Baseline | `84.2%` | `15.8%` | persistent visual bias remains dangerous |
+| V2 temporal | `84.0%` | `16.0%` | smoothing does not expose single-stream bias |
+| **V3 redundant** | **`2.4%`** | **`97.6%`** | independent error structure can expose the bias |
 
 ---
 
@@ -332,71 +88,18 @@ flowchart LR
   D --> E["10R forensics<br/>pending approval"]
 ```
 
-<table>
-  <thead>
-    <tr>
-      <th align="center">#</th>
-      <th align="left">Layer</th>
-      <th align="left">Status</th>
-      <th align="left">What it supports</th>
-      <th align="center">Safety claim?</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td align="center"><code>6B</code></td>
-      <td>Synthetic landing + selective confidence</td>
-      <td><code>frozen held-out</code></td>
-      <td>Result for the defined synthetic benchmark</td>
-      <td align="center">No</td>
-    </tr>
-    <tr>
-      <td align="center"><code>7</code></td>
-      <td>External-validity stress factorial</td>
-      <td><code>audited / seen</code></td>
-      <td>Where redundancy assumptions break</td>
-      <td align="center">No</td>
-    </tr>
-    <tr>
-      <td align="center"><code>8</code></td>
-      <td>PX4/Gazebo trace comparison</td>
-      <td><code>external seen</code></td>
-      <td>Surrogate resemblance = <code>diagnostic_mismatch</code></td>
-      <td align="center">No</td>
-    </tr>
-    <tr>
-      <td align="center"><code>9</code></td>
-      <td>Genuine Gazebo camera evidence</td>
-      <td><code>external perception seen</code></td>
-      <td>Detection can look strong while metric geometry fails</td>
-      <td align="center">No</td>
-    </tr>
-    <tr>
-      <td align="center"><code>10</code></td>
-      <td>Temporal metric + calibrated σ</td>
-      <td><code>frozen holdout</code></td>
-      <td>Uncertainty improved; point-error gate failed</td>
-      <td align="center">No</td>
-    </tr>
-    <tr>
-      <td align="center"><code>10R</code></td>
-      <td>Holdout forensics + preregistration</td>
-      <td><code>forensics only</code></td>
-      <td>Miss decomposition; approval gate before new data</td>
-      <td align="center">No</td>
-    </tr>
-    <tr>
-      <td align="center">—</td>
-      <td>Physical aircraft</td>
-      <td><code>not tested</code></td>
-      <td>No hardware or flight validation</td>
-      <td align="center"><b>No</b></td>
-    </tr>
-  </tbody>
-</table>
+| # | Layer | Status | What it supports |
+|:---:|---|---|---|
+| `6B` | Synthetic landing + selective confidence | `frozen held-out` | defined synthetic benchmark result |
+| `7` | External-validity stress factorial | `audited / seen` | where redundancy assumptions break |
+| `8` | PX4/Gazebo trace comparison | `external seen` | resemblance = `diagnostic_mismatch` |
+| `9` | Genuine Gazebo camera evidence | `external perception seen` | strong detection ≠ trustworthy metric geometry |
+| `10` | Temporal metric + calibrated σ | `frozen holdout` | uncertainty improved; point-error gate failed |
+| `10R` | Holdout forensics + preregistration | `forensics only` | approval gate before new data |
+| — | Physical aircraft | `not tested` | no hardware or flight validation |
 
-**Nothing in this repository is a physical-flight safety acceptance.**  
-<code>safety_acceptance = false</code> · <code>controller_tuning_allowed = false</code> · simulation only.
+**Nothing here is a physical-flight safety acceptance.**  
+`safety_acceptance = false` · `controller_tuning_allowed = false` · simulation only.
 
 ---
 
@@ -405,56 +108,25 @@ flowchart LR
 ```bash
 git clone https://github.com/suhaslord/uav-safety-research.git
 cd uav-safety-research
-git checkout phase10r1-p0-forensics-infrastructure
 python -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
 pytest
 python scripts/serve_dashboard.py   # http://127.0.0.1:8765
 ```
 
-Or open the hosted archive: **[aegisland-research-cockpit.vercel.app](https://aegisland-research-cockpit.vercel.app/)**
-
-Regenerate README screenshots after UI changes:
-
-```bash
-python3 scripts/serve_dashboard.py &
-node scripts/capture_readme_shots.mjs
-```
+Live archive: [aegisland-research-cockpit.vercel.app](https://aegisland-research-cockpit.vercel.app/)
 
 ---
 
 ## Limitations
 
-<table>
-  <thead>
-    <tr>
-      <th align="left">Limit</th>
-      <th align="left">Why it matters</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Simulation only</td>
-      <td>No hardware-camera or physical-flight validation</td>
-    </tr>
-    <tr>
-      <td>Small Phase 10 holdout</td>
-      <td><b>20</b> truth-visible frames · <b>15</b> paired observations</td>
-    </tr>
-    <tr>
-      <td>Holdout now seen</td>
-      <td>Cannot be reused as a hidden Phase 10R test</td>
-    </tr>
-    <tr>
-      <td>Short Phase 8 external trace</td>
-      <td>Produced a genuine <code>diagnostic_mismatch</code>, not a pass</td>
-    </tr>
-    <tr>
-      <td>CI green ≠ flight-safe</td>
-      <td>Passing tests does not imply UAV safety acceptance</td>
-    </tr>
-  </tbody>
-</table>
+| Limit | Why it matters |
+|---|---|
+| Simulation only | No hardware-camera or physical-flight validation |
+| Small Phase 10 holdout | **20** truth-visible · **15** paired observations |
+| Holdout now seen | Cannot be a hidden Phase 10R test |
+| Short Phase 8 external trace | Genuine `diagnostic_mismatch`, not a pass |
+| CI green ≠ flight-safe | Passing tests ≠ UAV safety acceptance |
 
 ---
 
