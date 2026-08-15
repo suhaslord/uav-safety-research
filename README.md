@@ -108,9 +108,9 @@ The negative/mixed result remains part of the record. No estimator threshold, mo
 
 Primary Phase 10 documents:
 
-- [Phase 10 protocol](docs/phase10_temporal_metric_protocol.md)
-- [Phase 10 frozen result](docs/phase10_frozen_result.md)
-- [Phase 10 freeze manifest](docs/phase10_freeze_manifest.json)
+- [Phase 10 protocol](docs/phase10_temporal_metric_perception_protocol.md)
+- [Phase 10 frozen result](docs/phase10_frozen_holdout_result.md)
+- [Phase 10 freeze manifest](docs/phase10_freeze_manifest.md)
 - [Research archive](dashboard/phases/phase.html)
 
 ---
@@ -149,7 +149,7 @@ The Phase 10R preregistration remains pending approval. Until that gate is recor
 Start here:
 
 - [Phase 10R preregistration draft](docs/phase10r_preregistration.md)
-- [Phase 10 frozen-holdout forensic report](docs/phase10_frozen_holdout_forensics.md)
+- [Phase 10 frozen-holdout forensic report](docs/phase10r_holdout_forensics.md)
 - [Phase 10R P0 analyzer](scripts/analyze_phase10_frozen_holdout.py)
 
 ---
