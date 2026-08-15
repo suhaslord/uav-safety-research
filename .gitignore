@@ -9,3 +9,5 @@ build/
 results/latest/
 results/demo/
 .DS_Store
+
+node_modules/
