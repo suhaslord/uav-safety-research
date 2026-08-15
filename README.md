@@ -1,6 +1,6 @@
 <div align="center">
 
-# AegisLand
+<img src="docs/assets/readme/banner.svg" alt="AegisLand research banner" width="100%"/>
 
 ### When vision looks right — and still is wrong
 
@@ -12,29 +12,48 @@
 ![Safety](https://img.shields.io/badge/safety%20acceptance-false-B42318)
 ![License](https://img.shields.io/badge/license-MIT-2F6F4E)
 
-A simulation research program on **perception overconfidence**, **calibrated abstention**, **redundant estimation**, and the limits of those ideas under real simulator evidence.
-
-**Research question**
+**A simulation research program on perception overconfidence, calibrated abstention, redundant estimation, and the limits of those ideas under real simulator evidence.**
 
 > If visual perception is internally consistent but systematically wrong, can independent evidence expose the error without making landing unusably conservative?
 
 <br/>
 
-[**Open the live research archive →**](https://aegisland-research-cockpit.vercel.app/)
-&nbsp;·&nbsp;
+[![Open live archive](https://img.shields.io/badge/Live%20archive-aegisland--research--cockpit-2DD4BF?style=for-the-badge&logo=vercel&logoColor=white)](https://aegisland-research-cockpit.vercel.app/)
+
 [Protocol](docs/phase10_temporal_metric_perception_protocol.md)
-&nbsp;·&nbsp;
+·
+[Frozen Phase 10 result](docs/phase10_frozen_holdout_result.md)
+·
 [Phase 10R gate](docs/phase10r_preregistration.md)
+·
+[Forensics](docs/phase10r_holdout_forensics.md)
 
 </div>
 
 ---
 
-## Headline result
+## Visual tour
 
-Phase 10 froze a **mixed** Gazebo-camera holdout result — and kept it.
+| | |
+|:---:|:---:|
+| <img src="docs/assets/readme/aruco_motif.svg" alt="ArUco landing target motif" width="420"/> | <img src="docs/assets/readme/perception_stack.svg" alt="Perception stack diagram" width="520"/> |
+| **Landing-target motif** used across the Gazebo camera path | **Current stack** from raw camera → freeze gates |
 
-| | Phase 9 | AegisT10 | Gate |
+<img src="docs/assets/readme/evidence_ladder.svg" alt="Evidence ladder from Phase 6B through Phase 10R" width="100%"/>
+
+---
+
+## Headline result — Phase 10 frozen holdout
+
+Phase 10 froze a **mixed** Gazebo-camera result and left it alone.
+
+<img src="docs/assets/readme/phase10_uncertainty_honesty.png" alt="Uncertainty honesty chart comparing Phase 9 and AegisT10" width="100%"/>
+
+<img src="docs/assets/readme/phase10_point_estimates.png" alt="Point estimate errors in centimeters" width="100%"/>
+
+<img src="docs/assets/readme/phase10_gate_scorecard.svg" alt="Phase 10 passed and failed gate scorecard" width="100%"/>
+
+| Metric | Phase 9 | AegisT10 | Gate |
 |---|---:|---:|:---|
 | Lateral MAE | **2.77 cm** | **2.77 cm** | point-error win **failed** |
 | Altitude MAE | **1.57 cm** | **1.57 cm** | point-error win **failed** |
@@ -42,10 +61,16 @@ Phase 10 froze a **mixed** Gazebo-camera holdout result — and kept it.
 | Median \|residual\| / σ (altitude) | 5.11 | **0.52** | uncertainty honesty **improved** |
 | 2σ coverage | — | **93% / 100%** | calibrated uncertainty held |
 
-**Why the point estimates matched:** the holdout produced **15/15 ArUco** observations and **0** quad-fallback cases. Phase 9 geometry was already centimeter-accurate there, so temporal filtering had nothing catastrophic to rescue. The development win did not transfer — and that finding stayed in the record.
+### Why the temporal point-error win did not transfer
+
+<img src="docs/assets/readme/phase10_holdout_composition.png" alt="Holdout composition pie and detector mix" width="100%"/>
+
+The holdout produced **15/15 ArUco** observations and **0** quad-fallback cases. Phase 9 geometry was already centimeter-accurate there, so temporal filtering had nothing catastrophic to rescue. The development win did not transfer — and that finding stayed in the record.
+
+<img src="docs/assets/readme/phase10_coverage.png" alt="Uncertainty coverage bars for AegisT10" width="100%"/>
 
 <details>
-<summary><strong>Holdout snapshot</strong></summary>
+<summary><strong>Holdout provenance</strong></summary>
 
 <br/>
 
@@ -59,19 +84,81 @@ Phase 10 froze a **mixed** Gazebo-camera holdout result — and kept it.
 
 ---
 
-## Where the frontier is
+## Phase 10R P0 — forensics without retuning
 
-**Phase 10R P0** does not retune Phase 10. It starts with read-only forensics and a preregistration draft.
+<img src="docs/assets/readme/miss_forensics.svg" alt="Read-only miss forensics visualization" width="100%"/>
 
-```text
-synthetic landing (6B) ──► stress & mismatch (7–8)
-        │
-        ▼
- Gazebo raw camera (9) ──► temporal metric + σ (10)  [frozen · mixed]
-        │
-        ▼
- read-only miss forensics (10R P0) ──► preregister generalization (pending approval)
+```mermaid
+flowchart LR
+  A["Phase 10 frozen<br/>mixed holdout"] --> B["P0 read-only<br/>forensics"]
+  B --> C["Preregistration draft"]
+  C --> D{"User approval?"}
+  D -->|no| E["Stop · no data gen<br/>no tuning"]
+  D -->|yes| F["New challenge set<br/>development / validation"]
+  F --> G["Later freeze gate<br/>new holdout once"]
+  style A fill:#0B1220,stroke:#2DD4BF,color:#E8EEF7
+  style B fill:#0B1220,stroke:#F59E0B,color:#E8EEF7
+  style C fill:#0B1220,stroke:#38BDF8,color:#E8EEF7
+  style E fill:#0B1220,stroke:#FB7185,color:#E8EEF7
+  style G fill:#0B1220,stroke:#34D399,color:#E8EEF7
 ```
+
+Until [`docs/phase10r_preregistration.md`](docs/phase10r_preregistration.md) is explicitly approved:
+
+- no detector / pose / filter / calibration selection from miss frames `27, 35, 36, 46, 47`
+- no challenge-development data generation
+- no Phase 10R model selection
+
+| Start here | Role |
+|---|---|
+| [Phase 10R preregistration](docs/phase10r_preregistration.md) | approval gate |
+| [Holdout forensics](docs/phase10r_holdout_forensics.md) | read-only analysis |
+| [Forensic analyzer](scripts/analyze_phase10_frozen_holdout.py) | hash-verified replay |
+| [Live archive](https://aegisland-research-cockpit.vercel.app/) | visual case studies |
+
+Current research branch: `phase10r1-p0-forensics-infrastructure`
+
+---
+
+## Earlier frozen milestones
+
+### Phase 6B — selective confidence on synthetic landings
+
+<img src="docs/assets/readme/phase6b_mixed_stack.png" alt="Phase 6B mixed success versus unsafe stacked bars" width="100%"/>
+
+```mermaid
+flowchart LR
+  I["Synthetic camera"] --> P["Pixel estimator"]
+  P --> T["Temporal track"]
+  P --> C["Component confidence"]
+  C --> X["p_x_good"]
+  C --> Z["p_z_good + observability"]
+  R["Surrogate reference"] --> F["Selective fusion"]
+  X --> F
+  Z --> F
+  T --> F
+  F --> S["Frozen supervisor"]
+  S --> L["Landing controller"]
+```
+
+On mixed degradation (held-out): image-only **57% / 43%** unsafe → Phase 6B **99% / 1%** unsafe. Low-light kept a deliberate **3% timeout** cost.
+
+### V3 — abstract redundant perception
+
+<img src="docs/assets/readme/v3_mixed_unsafe.png" alt="V3 mixed unsafe touchdown rate comparison" width="100%"/>
+
+<p align="center">
+  <img src="results/v3_frozen/unsafe_touchdown_rate.png" alt="V3 frozen unsafe touchdown rates by profile" width="48%"/>
+  <img src="results/v3_frozen/success_rate.png" alt="V3 frozen success rates by profile" width="48%"/>
+</p>
+
+<p align="center">
+  <img src="results/threshold_sweep/safety_availability_frontier.png" alt="Safety availability frontier from threshold sweep" width="70%"/>
+</p>
+
+---
+
+## Evidence chain
 
 | Layer | Status | Supports |
 |---|---|---|
@@ -79,7 +166,7 @@ synthetic landing (6B) ──► stress & mismatch (7–8)
 | Phase 7 external-validity stress | **audited / seen** | where redundancy assumptions break |
 | Phase 8 PX4/Gazebo traces | **external seen** | surrogate resemblance = `diagnostic_mismatch` |
 | Phase 9 Gazebo camera | **external perception seen** | detection can look strong while metric geometry fails |
-| Phase 10 temporal metric | **frozen holdout** | uncertainty improved; point-error gate did not pass |
+| Phase 10 temporal metric | **frozen holdout** | uncertainty improved; point-error gate failed |
 | Phase 10R P0 | **forensics only** | miss decomposition + preregistration draft |
 | Physical aircraft | **not tested** | no claim |
 
@@ -88,30 +175,7 @@ synthetic landing (6B) ──► stress & mismatch (7–8)
 
 ---
 
-## What Phase 10R is allowed to do next
-
-Forensics on the five truth-visible misses (`27, 35, 36, 46, 47`) suggest **edge / partial-view geometry** as a descriptive pattern — **not** a tuning rule.
-
-Until [`docs/phase10r_preregistration.md`](docs/phase10r_preregistration.md) is explicitly approved:
-
-- no detector / pose / filter / calibration selection from those frames
-- no challenge-development data generation
-- no Phase 10R model selection
-
-Current research branch: `phase10r1-p0-forensics-infrastructure`
-
-| Start here | |
-|---|---|
-| [Phase 10R preregistration](docs/phase10r_preregistration.md) | approval gate |
-| [Holdout forensics](docs/phase10r_holdout_forensics.md) | read-only analysis |
-| [Forensic analyzer](scripts/analyze_phase10_frozen_holdout.py) | hash-verified replay |
-| [Live archive](https://aegisland-research-cockpit.vercel.app/) | visual case studies |
-
----
-
 ## Research lineage
-
-Built by keeping failures visible instead of deleting them.
 
 | Stage | Idea | Lesson |
 |---|---|---|
@@ -139,18 +203,16 @@ pip install -e ".[dev]"
 pytest
 ```
 
-Optional local archive / cockpit:
-
 ```bash
 python scripts/serve_dashboard.py
 # → http://127.0.0.1:8765
 ```
 
-The repo keeps deterministic seeds, evidence-role labels, SHA-256 manifests, raw-simulator provenance, and unfavorable outcomes.
+Or open the hosted archive: [aegisland-research-cockpit.vercel.app](https://aegisland-research-cockpit.vercel.app/)
 
 ---
 
-## Limitations (read these)
+## Limitations
 
 - Simulation only — **no** hardware-camera or physical-flight validation
 - Phase 10 holdout is small: **20** truth-visible frames, **15** paired observations
@@ -169,10 +231,12 @@ It is an educational, simulation-only research project. It must not be used to o
 
 ---
 
-## Author
+<div align="center">
 
 **Suhas Beemineni** · River Islands High School
 
 Aerospace · autonomous systems · AI reliability · reproducible research
 
 Technical criticism and methodology review are welcome.
+
+</div>

@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 520" role="img">
+  <title>Evidence ladder</title>
+  <rect width="1200" height="520" fill="#0B1220"/>
+  <text x="40" y="48" fill="#E8EEF7" font-family="Georgia, serif" font-size="28" font-weight="700">Evidence ladder</text>
+  <text x="40" y="78" fill="#9AA8BC" font-family="ui-sans-serif, sans-serif" font-size="14">Each step changes what the claim is allowed to mean</text>
+
+  <rect x="40" y="120" width="170" height="150" rx="14" fill="#121A2B" stroke="#334155" stroke-width="2"/>
+  <text x="58" y="158" fill="#334155" font-family="ui-monospace, monospace" font-size="18">6B</text>
+  <text x="58" y="198" fill="#E8EEF7" font-family="ui-sans-serif, sans-serif" font-size="15" font-weight="700">Synthetic landing</text>
+  <text x="58" y="228" fill="#9AA8BC" font-family="ui-sans-serif, sans-serif" font-size="12">frozen held-out</text>
+
+  <rect x="230" y="120" width="170" height="150" rx="14" fill="#121A2B" stroke="#475569" stroke-width="2"/>
+  <text x="248" y="158" fill="#475569" font-family="ui-monospace, monospace" font-size="18">7</text>
+  <text x="248" y="198" fill="#E8EEF7" font-family="ui-sans-serif, sans-serif" font-size="15" font-weight="700">Assumption stress</text>
+  <text x="248" y="228" fill="#9AA8BC" font-family="ui-sans-serif, sans-serif" font-size="12">audited / seen</text>
+
+  <rect x="420" y="120" width="170" height="150" rx="14" fill="#121A2B" stroke="#F59E0B" stroke-width="2"/>
+  <text x="438" y="158" fill="#F59E0B" font-family="ui-monospace, monospace" font-size="18">8</text>
+  <text x="438" y="198" fill="#E8EEF7" font-family="ui-sans-serif, sans-serif" font-size="15" font-weight="700">PX4/Gazebo mismatch</text>
+  <text x="438" y="228" fill="#9AA8BC" font-family="ui-sans-serif, sans-serif" font-size="12">diagnostic_mismatch</text>
+
+  <rect x="610" y="120" width="170" height="150" rx="14" fill="#121A2B" stroke="#38BDF8" stroke-width="2"/>
+  <text x="628" y="158" fill="#38BDF8" font-family="ui-monospace, monospace" font-size="18">9</text>
+  <text x="628" y="198" fill="#E8EEF7" font-family="ui-sans-serif, sans-serif" font-size="15" font-weight="700">Raw camera geometry</text>
+  <text x="628" y="228" fill="#9AA8BC" font-family="ui-sans-serif, sans-serif" font-size="12">external seen</text>
+
+  <rect x="800" y="120" width="170" height="150" rx="14" fill="#121A2B" stroke="#2DD4BF" stroke-width="2"/>
+  <text x="818" y="158" fill="#2DD4BF" font-family="ui-monospace, monospace" font-size="18">10</text>
+  <text x="818" y="198" fill="#E8EEF7" font-family="ui-sans-serif, sans-serif" font-size="15" font-weight="700">Temporal + σ</text>
+  <text x="818" y="228" fill="#9AA8BC" font-family="ui-sans-serif, sans-serif" font-size="12">frozen mixed</text>
+
+  <rect x="990" y="120" width="170" height="150" rx="14" fill="#121A2B" stroke="#FB7185" stroke-width="2"/>
+  <text x="1008" y="158" fill="#FB7185" font-family="ui-monospace, monospace" font-size="18">10R</text>
+  <text x="1008" y="198" fill="#E8EEF7" font-family="ui-sans-serif, sans-serif" font-size="15" font-weight="700">Forensics / gate</text>
+  <text x="1008" y="228" fill="#9AA8BC" font-family="ui-sans-serif, sans-serif" font-size="12">P0 pending</text>
+<path d="M210 195 L228 195" stroke="#64748B" stroke-width="2" marker-end="url(#arrow)"/><path d="M400 195 L418 195" stroke="#64748B" stroke-width="2" marker-end="url(#arrow)"/><path d="M590 195 L608 195" stroke="#64748B" stroke-width="2" marker-end="url(#arrow)"/><path d="M780 195 L798 195" stroke="#64748B" stroke-width="2" marker-end="url(#arrow)"/><path d="M970 195 L988 195" stroke="#64748B" stroke-width="2" marker-end="url(#arrow)"/>
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6" fill="#64748B"/>
+    </marker>
+  </defs>
+  <rect x="40" y="320" width="1120" height="150" rx="16" fill="#121A2B" stroke="#1E2A3F"/>
+  <text x="70" y="365" fill="#2DD4BF" font-family="ui-monospace, monospace" font-size="14">CLAIM BOUNDARY</text>
+  <text x="70" y="400" fill="#E8EEF7" font-family="ui-sans-serif, sans-serif" font-size="18">Simulator evidence ≠ physical-flight safety acceptance</text>
+  <text x="70" y="432" fill="#9AA8BC" font-family="ui-sans-serif, sans-serif" font-size="14">Unfavorable outcomes, mismatches, and small-N limits are retained as first-class results.</text>
+</svg>

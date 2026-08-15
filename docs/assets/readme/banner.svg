@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 420" role="img" aria-labelledby="t d">
+  <title id="t">AegisLand research banner</title>
+  <desc id="d">Dark research banner with ArUco motif, evidence ladder, and Phase 10R frontier label.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#070B14"/>
+      <stop offset="55%" stop-color="#0E1A2E"/>
+      <stop offset="100%" stop-color="#12353A"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2DD4BF" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#2DD4BF" stop-opacity="0"/>
+    </linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1E2A3F" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1400" height="420" fill="url(#bg)"/>
+  <rect width="1400" height="420" fill="url(#grid)" opacity="0.55"/>
+  <ellipse cx="1080" cy="210" rx="320" ry="180" fill="url(#glow)"/>
+
+  <!-- reticle -->
+  <g transform="translate(1080 210)" fill="none" stroke="#2DD4BF" stroke-width="2" opacity="0.85">
+    <circle r="78" opacity="0.35"/>
+    <circle r="118" opacity="0.2"/>
+    <circle r="28"/>
+    <path d="M-140 0 H-95 M95 0 H140 M0 -140 V-95 M0 95 V140" stroke-width="1.5" opacity="0.7"/>
+  </g>
+
+  <!-- ArUco motif -->
+  <g transform="translate(1080 210) rotate(-18)">
+    <rect x="-70" y="-70" width="140" height="140" fill="#080808" stroke="#2DD4BF" stroke-width="2"/>
+    <rect x="-42" y="-42" width="36" height="36" fill="#D1D5DB"/>
+    <rect x="-4" y="-18" width="46" height="46" fill="#D1D5DB"/>
+    <rect x="22" y="-48" width="34" height="34" fill="#D1D5DB"/>
+    <rect x="8" y="18" width="28" height="36" fill="#D1D5DB"/>
+    <rect x="0" y="0" width="22" height="22" fill="#080808"/>
+  </g>
+
+  <text x="72" y="118" fill="#2DD4BF" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="18" letter-spacing="4">SIMULATION-ONLY RESEARCH</text>
+  <text x="72" y="188" fill="#E8EEF7" font-family="Georgia, 'Times New Roman', serif" font-size="64" font-weight="700">AegisLand</text>
+  <text x="72" y="236" fill="#9AA8BC" font-family="ui-sans-serif, system-ui, sans-serif" font-size="24">Confidence-aware perception under persistent visual bias</text>
+
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="14">
+    <rect x="72" y="280" width="168" height="36" rx="8" fill="#12263A" stroke="#2DD4BF"/>
+    <text x="92" y="303" fill="#2DD4BF">Phase 10 · mixed</text>
+    <rect x="252" y="280" width="170" height="36" rx="8" fill="#2A1A12" stroke="#F59E0B"/>
+    <text x="272" y="303" fill="#F59E0B">Phase 10R · P0</text>
+    <rect x="434" y="280" width="210" height="36" rx="8" fill="#2A1218" stroke="#FB7185"/>
+    <text x="454" y="303" fill="#FB7185">safety_acceptance=false</text>
+  </g>
+</svg>
