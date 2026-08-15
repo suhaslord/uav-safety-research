@@ -1,3 +1,9 @@
+/**
+ * Regenerate docs/assets/readme/shots/*.png from the local dashboard.
+ * Usage: python3 scripts/serve_dashboard.py &
+ *        node scripts/capture_readme_shots.mjs
+ * Then reframe/compress into frame_*.png if the README hero assets need refresh.
+ */
 import puppeteer from "puppeteer-core";
 import { mkdirSync } from "fs";
 import { resolve } from "path";
