@@ -20,7 +20,7 @@ Artifact digest: `sha256:6732711c70c52101b7eb8afe51cda024711b18cd97adf7aaca6d331
 
 Validation seed `77077` is now **permanently seen** and may not be reused as hidden/frozen evidence after any method change.
 
-The earlier workflow run `31968867982` failed before a job was created because of workflow-expression parsing. It did not execute the benchmark and did not expose the validation seed. The authoritative exposure is run `31968903756` above.
+The earlier workflow run `31968867982` failed before a job was created because of workflow-expression parsing. It did not execute the benchmark and did not expose the validation seed. The authoritative first exposure is run `31968903756` above. Later deterministic reruns after exposure are reproduction checks only; they do not create new unseen evidence or change the frozen result.
 
 ## Scope
 
