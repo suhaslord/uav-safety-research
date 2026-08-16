@@ -1,0 +1,133 @@
+/* Restore the classic AegisLand homepage hero while preserving the newer motion system. */
+
+/* Remove the later synthetic orbit/scan treatment and return to the original full-bleed hero. */
+.hero:not(.scene-hero){
+  background:#d0d0d0!important;
+  overflow:hidden!important;
+}
+.hero:not(.scene-hero) .hero-media{
+  position:absolute!important;
+  inset:0!important;
+  margin:0!important;
+  min-height:100vh!important;
+  background:#d0d0d0!important;
+  border:0!important;
+  box-shadow:none!important;
+  isolation:auto!important;
+  overflow:hidden!important;
+}
+.hero:not(.scene-hero) .hero-media::before,
+.hero:not(.scene-hero) .hero-media::after{
+  content:none!important;
+  display:none!important;
+}
+.hero:not(.scene-hero) .hero-image{
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100vh!important;
+  min-height:100vh!important;
+  padding:0!important;
+  opacity:1!important;
+  filter:none!important;
+  transform:none!important;
+  object-fit:cover!important;
+  object-position:68% 50%!important;
+  z-index:0!important;
+}
+.hero:not(.scene-hero) .hero-reticle{
+  z-index:1!important;
+  opacity:1!important;
+  transform:none!important;
+}
+.hero:not(.scene-hero) .hero-telemetry,
+.hero:not(.scene-hero) .hero-media figcaption{
+  z-index:2!important;
+}
+
+/* Undo the later white card/brand plate injected by cockpit-extension.js. */
+.hero:not(.scene-hero) .hero-intro>div:first-child{
+  position:relative!important;
+  max-width:470px!important;
+  padding:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+.hero:not(.scene-hero) .hero-brand-lockup{display:none!important}
+.hero:not(.scene-hero) .hero-intro h1,
+.hero:not(.scene-hero) .hero-intro .kicker,
+.hero:not(.scene-hero) .hero-intro .hero-subtitle{
+  text-shadow:0 1px 18px rgba(255,255,255,.38);
+}
+
+/* Cursor-reactive cube field. */
+.cursor-cube-field{
+  position:absolute;
+  inset:0;
+  z-index:2;
+  overflow:hidden;
+  pointer-events:none;
+  contain:layout paint style;
+}
+.cursor-cube{
+  --cube-size:12px;
+  position:absolute;
+  left:0;
+  top:0;
+  width:var(--cube-size);
+  height:var(--cube-size);
+  border:1px solid rgba(23,26,32,.32);
+  background:rgba(255,255,255,.12);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.16);
+  opacity:.62;
+  will-change:transform;
+  transform-origin:center;
+}
+.cursor-cube::before,
+.cursor-cube::after{
+  content:"";
+  position:absolute;
+  width:100%;
+  height:100%;
+  border:1px solid rgba(23,26,32,.18);
+  box-sizing:border-box;
+}
+.cursor-cube::before{transform:translate(4px,-4px)}
+.cursor-cube::after{
+  left:2px;
+  top:-2px;
+  width:calc(100% + 3px);
+  height:calc(100% + 3px);
+  border-color:rgba(62,106,225,.16);
+  transform:rotate(45deg) scale(.68);
+}
+.cursor-cube.is-near{
+  border-color:rgba(62,106,225,.58);
+  opacity:.92;
+}
+.cursor-cube-field::after{
+  content:"";
+  position:absolute;
+  width:220px;
+  height:220px;
+  left:var(--cursor-x,-500px);
+  top:var(--cursor-y,-500px);
+  transform:translate(-50%,-50%);
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(62,106,225,.07),rgba(62,106,225,.025) 42%,transparent 70%);
+  opacity:var(--cursor-active,0);
+  transition:opacity .25s ease;
+}
+
+@media(max-width:767px),(pointer:coarse){
+  .cursor-cube-field{display:none!important}
+  .hero:not(.scene-hero) .hero-intro>div:first-child{
+    padding:0!important;
+    background:transparent!important;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  .cursor-cube-field{display:none!important}
+}
