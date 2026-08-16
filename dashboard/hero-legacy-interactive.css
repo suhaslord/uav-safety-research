@@ -1,0 +1,86 @@
+/* Restore the pre-card AegisLand homepage hero while retaining the newer motion system. */
+
+/* The later brand-polish runtime wrapped the hero copy in a white card. Undo only
+   that presentation change; the underlying Phase 10R copy and actions remain. */
+.hero-intro > div:first-child{
+  max-width:470px!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+}
+.hero-brand-lockup{display:none!important}
+
+/* Restore the old full-bleed evidence hero instead of the pale target/ring field. */
+.hero-media{
+  background:#d0d0d0!important;
+  border:0!important;
+  box-shadow:none!important;
+  isolation:isolate!important;
+}
+.hero-media::before,
+.hero-media::after{display:none!important}
+.hero-media .hero-image{
+  opacity:1!important;
+  filter:none!important;
+  transform:none!important;
+  padding:0!important;
+  width:100%!important;
+  height:100vh!important;
+  min-height:100vh!important;
+  object-fit:cover!important;
+  object-position:68% 50%!important;
+}
+.hero-reticle{
+  opacity:.16!important;
+  mix-blend-mode:multiply;
+  transform:translate(calc(-50% + var(--hero-x)),calc(-50% + var(--hero-y)))!important;
+}
+
+/* Cursor-reactive cube field. It lives above the evidence image but below copy. */
+.cursor-cube-field{
+  position:absolute;
+  inset:0;
+  z-index:1;
+  overflow:hidden;
+  pointer-events:none;
+  contain:strict;
+}
+.cursor-cube{
+  position:absolute;
+  left:0;
+  top:0;
+  width:var(--cube-size,14px);
+  height:var(--cube-size,14px);
+  opacity:var(--cube-opacity,.22);
+  will-change:transform;
+  transform:translate3d(-100px,-100px,0) rotate(0deg);
+}
+.cursor-cube::before,
+.cursor-cube::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border:1px solid rgba(23,26,32,.42);
+  background:rgba(255,255,255,.08);
+}
+.cursor-cube::before{transform:rotate(45deg)}
+.cursor-cube::after{transform:scale(.62) rotate(45deg);border-color:rgba(62,106,225,.34)}
+.hero-intro,.hero-foot{z-index:4!important}
+.hero-media figcaption{z-index:3!important}
+
+@media(max-width:767px){
+  .hero-intro > div:first-child{
+    padding:0!important;
+    background:transparent!important;
+  }
+  .hero-media .hero-image{object-position:62% 50%!important}
+  .cursor-cube-field{display:none!important}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .cursor-cube-field{display:none!important}
+}
