@@ -1,8 +1,10 @@
 # Phase 10R preregistration — perception generalization
 
-> **APPROVAL STATUS: PENDING USER APPROVAL**
+> **APPROVAL STATUS: APPROVED AS WRITTEN**
 >
-> No Phase 10R challenge-development data may be generated, no detector/pose/filter/calibration parameter may be selected, and no Phase 10R model tuning may begin until this document is explicitly approved.
+> Explicit approval was recorded from the user's 2026-08-15 request to finish the preregistered Phase 10R edge/partial-view generalization experiment.
+>
+> This P0 approval authorizes challenge-development generation and development/validation ablations only. It does **not** authorize a new frozen holdout; the second approval gate in Section 7 remains required.
 
 ## 1. Research question
 
@@ -125,6 +127,6 @@ It does **not** authorize exposing a new frozen holdout. A second explicit appro
 
 ### Approval
 
-- [ ] **APPROVED AS WRITTEN**
+- [x] **APPROVED AS WRITTEN** — recorded 2026-08-15
 - [ ] **APPROVED WITH CHANGES** (changes must be committed before any challenge data generation)
 - [ ] **NOT APPROVED**
