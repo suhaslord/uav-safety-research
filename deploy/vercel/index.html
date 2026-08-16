@@ -14,12 +14,14 @@
 <div id="boot"><div class="inner"><div class="mark">A</div><div class="word">AEGISLAND</div><small>Loading research archive…</small></div></div>
 <script>
 (async()=>{
-  const rev='8f9ed1fd9d10230eef78e0bb106c3044d6f55a29';
+  const rev='2450c63a8f204d8ed68564680641e4ba39ef86b2';
   const base=`https://cdn.jsdelivr.net/gh/suhaslord/uav-safety-research@${rev}/dashboard/`;
   const favicon=`${base}aegis-mark.svg`;
   const motion=`${base}glass-ui.css`;
   const legacyHero=`${base}hero-legacy-interactive.css`;
   const cursorCubes=`${base}cursor-cubes.js`;
+  const interactionCss=`${base}global-interactions.css`;
+  const interactionJs=`${base}global-interactions.js`;
   const path=location.pathname;
   const isArchive=path.startsWith('/phases/');
   const source=isArchive?((path==='/phases/'||path==='/phases')?'phases/index.html':'phases/phase.html'):'index.html';
@@ -34,7 +36,7 @@
     const meta=q('main .hero .hero-meta');if(meta)meta.innerHTML='<span>Phase 10R</span><span>phase10r_frozen_holdout</span><span>mixed / failed overall</span><span>safety acceptance: false</span>';
     const tele=q('main .hero .hero-telemetry');if(tele)tele.innerHTML='<span><strong>1,440</strong><small>truth-visible frames</small></span><span><strong>36</strong><small>holdout sequences</small></span><span><strong>0.0%</strong><small>false positives</small></span>';
     const word=q('.site-header .wordmark');if(word)word.innerHTML='<span style="width:28px;height:28px;border-radius:9px;background:#171a20;color:#fff;display:inline-grid;place-items:center;margin-right:9px;font-size:12px">A</span><span>AEGISLAND</span>';
-    const hero=q('main .hero');if(hero&&!q('#homeModelRail')){const phases=['1','2','3','4','5','6','6b','7','8','9','10','10r'];const rail=document.createElement('section');rail.id='homeModelRail';rail.style.cssText='background:#fff;border-top:1px solid rgba(23,26,32,.08);border-bottom:1px solid rgba(23,26,32,.08);padding:22px clamp(20px,5vw,72px);overflow-x:auto';rail.innerHTML='<div style="display:flex;justify-content:space-between;gap:20px;margin-bottom:16px"><div><div style="font-size:10px;letter-spacing:.13em;color:#6b6d70;text-transform:uppercase">Research progression</div><strong style="font-size:13px">Every model stays reachable.</strong></div><a class="home-archive-link" href="/phases/" style="font-size:11px">Open full archive ↗</a></div><div class="home-rail-grid" style="display:grid;grid-template-columns:repeat(12,minmax(76px,1fr));min-width:980px;gap:6px">'+phases.map((p,i)=>'<a class="home-rail-step '+(p==='10r'?'active':'')+'" href="/phases/phase'+p+'/" style="text-align:center;padding:11px 6px;border-top:2px solid '+(p==='10r'?'#3e6ae1':'#d9dadd')+';font-size:10px;font-weight:'+(p==='10r'?'700':'500')+';border-radius:10px">'+String(i+1).padStart(2,'0')+'<br>Phase '+(p==='10r'?'10R':p.toUpperCase())+'</a>').join('')+'</div>';hero.insertAdjacentElement('afterend',rail)}
+    const hero=q('main .hero');if(hero&&!q('#homeModelRail')){const phases=['1','2','3','4','5','6','6b','7','8','9','10','10r'];const rail=document.createElement('section');rail.id='homeModelRail';rail.style.cssText='background:#fff;border-top:1px solid rgba(23,26,32,.08);border-bottom:1px solid rgba(23,26,32,.08);padding:22px clamp(20px,5vw,72px);overflow-x:auto';rail.innerHTML='<div style="display:flex;justify-content:space-between;gap:20px;margin-bottom:16px"><div><div style="font-size:10px;letter-spacing:.13em;color:#6b6d70;text-transform:uppercase">Research progression</div><strong style="font-size:13px">Every model stays reachable.</strong></div><a class="home-archive-link" href="/phases/" style="font-size:11px">Open full archive ↗</a></div><div class="home-rail-grid" style="display:grid;grid-template-columns:repeat(12,minmax(76px,1fr));min-width:980px;gap:0">'+phases.map((p,i)=>'<a class="home-rail-step '+(p==='10r'?'active':'')+'" href="/phases/phase'+p+'/" style="text-align:center;font-size:10px;font-weight:'+(p==='10r'?'700':'500')+'">'+String(i+1).padStart(2,'0')+'<br>Phase '+(p==='10r'?'10R':p.toUpperCase())+'</a>').join('')+'</div>';hero.insertAdjacentElement('afterend',rail)}
   })();<\/script>`;
   try{
     const r=await fetch(base+source,{cache:'no-store'});if(!r.ok)throw new Error('source '+r.status);let h=await r.text();
@@ -50,8 +52,8 @@
         .replaceAll('phase10r1-p0-forensics-infrastructure','main')
         .replaceAll('phase10r-generalization-validation','main')
         .replaceAll('phase10r-frozen-holdout','main')
-        .replace('</head>',`<link rel="stylesheet" href="${motion}"><link rel="stylesheet" href="${legacyHero}"><link rel="icon" type="image/svg+xml" href="${favicon}"></head>`)
-        .replace('</body>',`${homePatch}<script src="${cursorCubes}"><\/script></body>`);
+        .replace('</head>',`<link rel="stylesheet" href="${motion}"><link rel="stylesheet" href="${legacyHero}"><link rel="stylesheet" href="${interactionCss}"><link rel="icon" type="image/svg+xml" href="${favicon}"></head>`)
+        .replace('</body>',`${homePatch}<script src="${cursorCubes}"><\/script><script src="${interactionJs}"><\/script></body>`);
     }else{
       if(path==='/phases/phase10r/'||path==='/phases/phase10r')h=h.replace('<body class="archive-shell">','<body class="archive-shell" data-phase="phase10r">');
       const assets=['phase-archive.css','phase-signatures.css','phase-responsive.css','phase-hero-scenes.css','glass-ui.css'];
@@ -63,7 +65,8 @@
         .replaceAll('phase10r1-p0-forensics-infrastructure','main')
         .replaceAll('phase10r-generalization-validation','main')
         .replaceAll('phase10r-frozen-holdout','main')
-        .replace('</head>',`<link rel="icon" type="image/svg+xml" href="${favicon}"></head>`);
+        .replace('</head>',`<link rel="stylesheet" href="${interactionCss}"><link rel="icon" type="image/svg+xml" href="${favicon}"></head>`)
+        .replace('</body>',`<script src="${interactionJs}"><\/script></body>`);
     }
     document.open();document.write(h);document.close();
   }catch(e){const status=document.querySelector('small');if(status)status.textContent='AegisLand source could not be loaded.';console.error(e)}
