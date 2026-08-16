@@ -1,0 +1,13 @@
+{
+  "workflow_run_id": 31925087516,
+  "workflow_job_id": 95111282059,
+  "artifact_id": 9257643369,
+  "artifact_name": "phase10r-frozen-holdout",
+  "artifact_zip_sha256": "b7b4ac34f8c3fc86826fe1f017cabfbc8f1a413a3851021fa810c4d0bac860d1",
+  "generation_commit": "bdfcfe7bc263b3364c194b0ec8450c204be035bf",
+  "candidate_freeze_sha": "e1d566f8baa47bf10f9bdf39dd5988724208be80",
+  "holdout_seed": 1618033,
+  "evidence_role": "phase10r_frozen_holdout",
+  "manual_frame_inspection_before_evaluation": false,
+  "safety_acceptance": false
+}
