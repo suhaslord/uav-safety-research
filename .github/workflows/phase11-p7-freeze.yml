@@ -1,0 +1,18 @@
+name: Phase 11 P7 candidate freeze — retired
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  archived-stop:
+    runs-on: ubuntu-latest
+    steps:
+      - name: P7 is permanently stopped before protected validation
+        run: |
+          echo "P7 development stopped in workflow run 31973592964."
+          echo "Development seeds 297297, 308308, 319319, and 330330 are permanently seen."
+          echo "Protected validation seed 341341 was not exposed."
+          echo "Do not rerun P7 as unseen evidence."
