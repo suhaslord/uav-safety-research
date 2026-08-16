@@ -13,11 +13,11 @@
   </style>
 </head>
 <body>
-  <div id="boot"><div class="inner"><div class="lock"><span class="mark">A</span><span class="word">AEGISLAND</span></div><small>Loading frozen Phase 10R holdout archive…</small></div></div>
+  <div id="boot"><div class="inner"><div class="lock"><span class="mark">A</span><span class="word">AEGISLAND</span></div><small>Loading latest Phase 10R frozen frontier…</small></div></div>
   <script>
     (async()=>{
       const started=performance.now();
-      const commit='704d158ef1dc226115e00b7cab912b4b5ad26fd8';
+      const commit='a3d5bb60e2acf73cc64ed7a1ae42efd395f963d8';
       const base=`https://cdn.jsdelivr.net/gh/suhaslord/uav-safety-research@${commit}/dashboard/`;
       const path=location.pathname;
       let source='index.html',mode='home';
@@ -59,7 +59,8 @@
             .replaceAll('phase10-temporal-metric-perception','main')
             .replaceAll('phase10r1-p0-forensics-infrastructure','main')
             .replaceAll('phase10r-generalization-validation','main')
-            .replaceAll('phase10r-frozen-holdout','main');
+            .replaceAll('phase10r-frozen-holdout','main')
+            .replace('</body>',`<script src="${base}phase10r-archive.js"><\/script></body>`);
         }
         await new Promise(x=>setTimeout(x,Math.max(0,500-(performance.now()-started))));
         document.open();document.write(h);document.close();
