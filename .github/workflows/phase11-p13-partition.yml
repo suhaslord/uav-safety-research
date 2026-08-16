@@ -1,0 +1,55 @@
+name: Phase 11 P13 severity partition freeze
+
+on:
+  push:
+    branches:
+      - phase11-p13-severity-mondrian-conformal
+    paths:
+      - .github/workflows/phase11-p13-partition.yml
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  partition:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install project
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Run P13 preregistered invariants
+        run: pytest -q tests/test_phase11_p9_soft_update_direct_conformal.py tests/test_phase11_p13_severity_mondrian_conformal.py
+      - name: Freeze fit motion constants and severity partition only
+        run: |
+          rm -rf results/phase11_p13_partition
+          python scripts/run_phase11_p13_severity_mondrian_conformal.py \
+            --stage partition \
+            --out results/phase11_p13_partition \
+            --git-sha "${GITHUB_SHA}" | tee phase11-p13-partition.log
+          test -f results/phase11_p13_partition/fit_frames.csv
+          test -f results/phase11_p13_partition/partition_frames.csv
+          test -f results/phase11_p13_partition/partition_freeze.json
+          test ! -f results/phase11_p13_partition/calibration_frames.csv
+          test ! -f results/phase11_p13_partition/transfer_result.json
+          test ! -f results/phase11_p13_partition/validation_result.json
+      - name: Partition digest
+        run: |
+          sha256sum results/phase11_p13_partition/partition_freeze.json
+          sha256sum results/phase11_p13_partition/manifest.json
+          cat results/phase11_p13_partition/partition_freeze.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: phase11-p13-partition-freeze
+          path: |
+            results/phase11_p13_partition/
+            phase11-p13-partition.log
+          if-no-files-found: error
+          retention-days: 30
