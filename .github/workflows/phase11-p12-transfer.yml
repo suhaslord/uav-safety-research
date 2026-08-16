@@ -1,0 +1,80 @@
+name: Phase 11 P12 seen transfer
+
+on:
+  push:
+    branches:
+      - phase11-p12-event-stratified-direct-conformal
+    paths:
+      - .github/workflows/phase11-p12-transfer.yml
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  transfer:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install project
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Verify frozen P12 scientific code is unchanged
+        run: |
+          git fetch --depth=1 origin 38dc3c661083b1a9e4b4ae4a839e6fecc27dca41
+          git diff --exit-code 38dc3c661083b1a9e4b4ae4a839e6fecc27dca41 HEAD -- \
+            scripts/run_phase11_p12_event_stratified_direct_conformal.py \
+            tests/test_phase11_p12_event_stratified_direct_conformal.py \
+            docs/phase11_p12_event_stratified_direct_conformal_preregistration.md
+          pytest -q tests/test_phase11_p9_soft_update_direct_conformal.py tests/test_phase11_p12_event_stratified_direct_conformal.py
+      - uses: actions/download-artifact@v4
+        with:
+          name: phase11-p12-candidate-freeze
+          path: candidate_artifact
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: suhaslord/uav-safety-research
+          run-id: 31977243560
+      - name: Verify exact frozen candidate digest
+        run: |
+          CANDIDATE="candidate_artifact/results/phase11_p12_freeze/candidate_freeze.json"
+          test -f "$CANDIDATE"
+          echo "b9a4526565c6697fbba9c0736c55a96f46fb815f8ea5d945314ac5bece86c9f2  $CANDIDATE" | sha256sum -c -
+      - name: Expose seen transfer exactly once
+        run: |
+          rm -rf results/phase11_p12_transfer
+          python scripts/run_phase11_p12_event_stratified_direct_conformal.py \
+            --stage transfer \
+            --candidate candidate_artifact/results/phase11_p12_freeze/candidate_freeze.json \
+            --out results/phase11_p12_transfer \
+            --git-sha "${GITHUB_SHA}" | tee phase11-p12-transfer.log
+          test -f results/phase11_p12_transfer/transfer_event_stratified_frames.csv
+          test -f results/phase11_p12_transfer/transfer_natural_frames.csv
+          test -f results/phase11_p12_transfer/transfer_result.json
+          test -f results/phase11_p12_transfer/transfer_natural_diagnostic.json
+          test ! -f results/phase11_p12_transfer/validation_result.json
+      - name: Transfer result digest and eligibility
+        run: |
+          sha256sum results/phase11_p12_transfer/transfer_result.json
+          sha256sum results/phase11_p12_transfer/transfer_natural_diagnostic.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('results/phase11_p12_transfer/transfer_result.json').read_text())
+          print('P12_TRANSFER_POWER='+json.dumps(r['p12_event_power_margin'],sort_keys=True))
+          print('P12_TRANSFER_GATES='+json.dumps(r['gates'],sort_keys=True))
+          print('P12_VALIDATION_ELIGIBLE='+str(bool(r.get('p12_event_power_margin_pass') and r.get('all_primary_gates_pass'))).lower())
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: phase11-p12-seen-transfer
+          path: |
+            results/phase11_p12_transfer/
+            phase11-p12-transfer.log
+          if-no-files-found: error
+          retention-days: 30
