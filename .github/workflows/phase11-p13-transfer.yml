@@ -1,0 +1,79 @@
+name: Phase 11 P13 seen transfer
+
+on:
+  push:
+    branches:
+      - phase11-p13-severity-mondrian-conformal
+    paths:
+      - .github/workflows/phase11-p13-transfer.yml
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  transfer:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install project
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Verify exact P13 scientific freeze
+        run: |
+          git fetch --depth=1 origin 6f3539c06fbd2d906bc5b682ca7287c7c435e4e7
+          git diff --exit-code 6f3539c06fbd2d906bc5b682ca7287c7c435e4e7 HEAD -- \
+            scripts/run_phase11_p13_severity_mondrian_conformal.py \
+            tests/test_phase11_p13_severity_mondrian_conformal.py \
+            docs/phase11_p13_severity_mondrian_preregistration.md
+          pytest -q tests/test_phase11_p9_soft_update_direct_conformal.py tests/test_phase11_p13_severity_mondrian_conformal.py
+      - uses: actions/download-artifact@v4
+        with:
+          name: phase11-p13-candidate-freeze
+          path: candidate_artifact
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: suhaslord/uav-safety-research
+          run-id: 31977665287
+      - name: Verify exact candidate digest
+        run: |
+          CANDIDATE="candidate_artifact/results/phase11_p13_freeze/candidate_freeze.json"
+          test -f "$CANDIDATE"
+          echo "91795bf3502ccda6a1df623e81952f76d8adce28fc89350d7cc4a43c7a5e4f56  $CANDIDATE" | sha256sum -c -
+      - name: Expose seen transfer exactly once
+        run: |
+          rm -rf results/phase11_p13_transfer
+          python scripts/run_phase11_p13_severity_mondrian_conformal.py \
+            --stage transfer \
+            --candidate candidate_artifact/results/phase11_p13_freeze/candidate_freeze.json \
+            --out results/phase11_p13_transfer \
+            --git-sha "${GITHUB_SHA}" | tee phase11-p13-transfer.log
+          test -f results/phase11_p13_transfer/transfer_event_frames.csv
+          test -f results/phase11_p13_transfer/transfer_natural_frames.csv
+          test -f results/phase11_p13_transfer/transfer_result.json
+          test -f results/phase11_p13_transfer/transfer_natural_diagnostic.json
+          test ! -f results/phase11_p13_transfer/validation_result.json
+      - name: Transfer result digest and eligibility
+        run: |
+          sha256sum results/phase11_p13_transfer/transfer_result.json
+          sha256sum results/phase11_p13_transfer/transfer_natural_diagnostic.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('results/phase11_p13_transfer/transfer_result.json').read_text())
+          print('P13_TRANSFER_GATES='+json.dumps(r['gates'],sort_keys=True))
+          print('P13_VALIDATION_ELIGIBLE='+str(bool(r['all_primary_gates_pass'])).lower())
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: phase11-p13-seen-transfer
+          path: |
+            results/phase11_p13_transfer/
+            phase11-p13-transfer.log
+          if-no-files-found: error
+          retention-days: 30
