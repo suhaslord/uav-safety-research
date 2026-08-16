@@ -1,0 +1,52 @@
+name: Phase 11 P5 candidate freeze
+
+on:
+  push:
+    branches:
+      - phase11-p5-calibrated-continuity
+    paths:
+      - scripts/run_phase11_p5_calibrated_continuity.py
+      - tests/test_phase11_p5_calibrated_continuity.py
+      - docs/phase11_p5_calibrated_continuity_preregistration.md
+      - .github/workflows/phase11-p5-freeze.yml
+
+permissions:
+  contents: read
+
+jobs:
+  freeze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install project
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Guard P5 invariants
+        run: pytest -q tests/test_phase11_p5_calibrated_continuity.py
+      - name: Generate seen P5 candidate freeze inputs only
+        run: |
+          rm -rf results/phase11_p5_freeze
+          python scripts/run_phase11_p5_calibrated_continuity.py \
+            --stage freeze \
+            --out results/phase11_p5_freeze \
+            --git-sha "${GITHUB_SHA}" | tee phase11-p5-freeze.log
+          test ! -f results/phase11_p5_freeze/validation_frames.csv
+          test ! -f results/phase11_p5_freeze/validation_result.json
+      - name: Candidate freeze digest
+        run: |
+          sha256sum results/phase11_p5_freeze/candidate_freeze.json
+          sha256sum results/phase11_p5_freeze/transfer_result.json
+          cat results/phase11_p5_freeze/candidate_freeze.json
+          cat results/phase11_p5_freeze/transfer_result.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: phase11-p5-candidate-freeze
+          path: |
+            results/phase11_p5_freeze/
+            phase11-p5-freeze.log
+          if-no-files-found: error
+          retention-days: 30
