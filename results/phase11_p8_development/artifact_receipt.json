@@ -1,0 +1,19 @@
+{
+  "schema": "aegisland.phase11.p8.development-receipt.v1",
+  "workflow_run": 31973942401,
+  "freeze_head_sha": "5772f0b54d58c5f987eb96e61ce849e66516fd16",
+  "artifact_id": 9270540056,
+  "artifact_digest": "sha256:e6c841b02a7c95e3ecf44fc9770856ab5e51d5a262d5db9f9415f7292165f8fb",
+  "candidate_freeze_sha256": "871c625c7de47b7d06b7a4bac0b46bb658bbce1d180ab5ad42973ec1e00d4248",
+  "transfer_result_sha256": "4c956c4fe27c6a03750f7a92cf083ff6101690bdb9569925a9beff9dca6e9ca1",
+  "fit_seed_seen": 352352,
+  "calibration_seed_seen": 363363,
+  "adaptation_seed_seen": 374374,
+  "transfer_seed_seen": 385385,
+  "protected_validation_seed": 396396,
+  "validation_seed_exposed": false,
+  "all_primary_development_gates_pass": false,
+  "simulation_only": true,
+  "safety_acceptance": false,
+  "controller_tuning_allowed": false
+}
