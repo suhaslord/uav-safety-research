@@ -14,7 +14,7 @@ This preregistration is the exact development protocol authorized before any Pha
 
 **Can AegisLand detect when visual conditions move outside its calibrated reliability envelope and either widen uncertainty or abstain enough to recover honest coverage without making useful perception unavailable?**
 
-Phase 11 is not a new image-to-pose model. P0 isolates the reliability layer around the frozen Phase 10R perception candidate.
+Phase 11 is not a new image-to-pose model. P0 isolates the reliability layer around the frozen Phase 10R research question.
 
 ## Frozen starting point
 
@@ -31,7 +31,11 @@ The Phase 10R validation seed `271828`, the final Phase 10R holdout, and all oth
 
 ## Phase 11 P0 benchmark scope
 
-P0 is a new simulation-only controlled domain-shift benchmark around the frozen Phase 10R candidate. It evaluates uncertainty and abstention, not controller behavior.
+P0 is a new simulation-only controlled domain-shift benchmark for the **reliability layer**. It evaluates uncertainty and abstention, not controller behavior.
+
+P0 uses a deterministic procedural response generator to create fresh estimator-like traces under declared geometric, appearance, and temporal shifts. The generator is **non-authoritative synthetic development evidence**: it is intended to test calibration/abstention logic and benchmark mechanics, not to claim new pixel-level camera accuracy or external-simulator performance. New raw-camera external validation, if pursued, must be a later separately preregistered milestone.
+
+The frozen Phase 10R calibration radii may be applied as a historical reference method, but Phase 10R rows themselves are never copied into Phase 11 splits.
 
 ### Sequence unit
 
@@ -110,9 +114,9 @@ Truth labels, true error, domain name, trajectory family, and future frames are 
 
 Exactly four methods are compared in P0:
 
-1. **Frozen reference** — frozen Phase 10R point estimate with a source-independent development reference interval; no Phase 11 adaptation.
+1. **Frozen reference** — historical frozen Phase 10R source-conditional uncertainty radii applied unchanged to the fresh P0 traces; no Phase 11 adaptation.
 2. **Global conformal** — one split-conformal absolute-residual radius per axis fitted only on the Phase 11 calibration split.
-3. **Context-conditioned conformal** — predeclared low-capacity risk strata from inference-visible reliability features; one conformal radius per stratum with global fallback when a stratum has fewer than `40` calibration observations.
+3. **Context-conditioned conformal** — predeclared low-capacity conditioning on reliability-risk strata; one conformal radius per stratum with global fallback when a stratum has fewer than `40` calibration observations.
 4. **Shift-aware abstention** — context-conditioned conformal plus abstention above a calibration-frozen reliability-risk threshold.
 
 No learned image model, learned residual regressor, neural calibrator, or post-validation threshold tuning is allowed in P0.
@@ -140,31 +144,31 @@ The abstention threshold is the empirical `90th` percentile of the calibration-s
 
 ## Conformal rule
 
-For target coverage `q=0.95`, the split-conformal absolute-residual radius uses the finite-sample order statistic
+For each requested target coverage `q`, the split-conformal absolute-residual radius uses the finite-sample order statistic
 
 `ceil((n + 1) * q)`
 
 clipped to the available sorted residuals.
 
-Calibration uses accepted, truth-visible calibration observations only. Challenge labels are not used to derive radii or thresholds.
+Calibration uses available, truth-visible calibration observations only. Challenge labels are not used to derive radii or thresholds.
 
 ## Primary hypotheses and gates
 
 ### H1 — coverage transfer
 
-On the full compositional challenge split, accepted 95% intervals must achieve empirical coverage between **90% and 98%** on both lateral and altitude axes.
+For **context-conditioned conformal** on the full compositional challenge split, available 95% intervals must achieve empirical coverage between **90% and 98%** on both lateral and altitude axes.
 
 **Pass requires both axes.**
 
 ### H2 — useful sharpness
 
-For context-conditioned conformal, median full interval width on accepted challenge observations must be no more than **1.35x** the corresponding global-conformal median width on each axis.
+For context-conditioned conformal, median full interval width on available challenge observations must be no more than **1.35x** the corresponding global-conformal median width on each axis.
 
 **Pass requires both axes.**
 
 ### H3 — selective reliability
 
-For shift-aware abstention, compared with accepting all available frozen-candidate challenge observations:
+For shift-aware abstention, compared with accepting all available challenge observations:
 
 - accepted-observation lateral p95 absolute error improves by **>=25%**;
 - accepted-observation altitude p95 absolute error improves by **>=25%**;
@@ -187,7 +191,7 @@ Report without using them as tuning objectives:
 - median and p95 interval width;
 - MAE and p95 absolute point error;
 - availability and false-positive rate;
-- metrics by domain, risk stratum, detector source, and reacquisition state;
+- metrics by domain, risk stratum, source category, and reacquisition state;
 - worst three challenge domains by accepted p95 error;
 - error conditional on the system saying an observation is trustworthy.
 
@@ -207,8 +211,8 @@ A method that fails a preregistered gate cannot be described as passing because 
 After challenge seed `33033` is generated or evaluated:
 
 - it becomes permanently seen evidence;
-- no P0 weight, stratum, conformal rule, abstention quantile, or detector logic may be changed and then re-evaluated on the same challenge split as if it were unseen;
-- any follow-up model change requires a newly preregistered development/challenge split.
+- no P0 weight, stratum, conformal rule, abstention quantile, or response-generator rule may be changed and then re-evaluated on the same challenge split as if it were unseen;
+- any follow-up model or benchmark change requires a newly preregistered development/challenge split.
 
 A future protected Phase 11 frozen holdout is **not generated or exposed by this milestone**. It requires a separate exact-freeze approval after a candidate is frozen.
 
@@ -225,15 +229,17 @@ The benchmark run must emit:
 - `manifest.json` with SHA-256 hashes;
 - the exact benchmark config and code commit.
 
-Raw rendered frame bytes are optional for P0 because the benchmark is a reliability-layer development benchmark; if raw imagery is emitted, hashes must be preserved.
+Raw imagery is not part of P0 because this milestone is a controlled reliability-layer benchmark rather than pixel-level external evidence.
 
 ## Claim boundaries
 
 - `simulation_only = true`;
+- `evidence_role = phase11_p0_non_authoritative_synthetic_development`;
 - `safety_acceptance = false`;
 - `controller_tuning_allowed = false`;
 - no physical-flight validation claim;
 - no controller-performance claim;
+- no new raw-camera accuracy claim;
 - coverage statements apply only to the defined simulated benchmark distributions;
 - negative and mixed results must be preserved;
 - a future protected holdout cannot be exposed without a new explicit approval checkpoint.
