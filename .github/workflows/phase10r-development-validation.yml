@@ -8,6 +8,7 @@ on:
     paths:
       - ".github/workflows/phase10r-development-validation.yml"
       - "scripts/run_phase10r_generalization.py"
+      - "scripts/run_phase10r_generalization_entry.py"
       - "docs/phase10r_preregistration.md"
       - "docs/phase10r_development_validation_protocol.md"
 
@@ -38,11 +39,11 @@ jobs:
 
       - name: Compile candidate and run inherited regression tests
         run: |
-          python -m py_compile scripts/run_phase10r_generalization.py scripts/analyze_phase9_gazebo_camera_evidence.py
+          python -m py_compile scripts/run_phase10r_generalization.py scripts/run_phase10r_generalization_entry.py scripts/analyze_phase9_gazebo_camera_evidence.py
           pytest -q tests/test_phase10_metric.py tests/test_phase10_calibration.py tests/test_phase_archive_responsive.py
 
       - name: Run preregistered development and trajectory-held-out validation
-        run: python -m scripts.run_phase10r_generalization --out /tmp/phase10r-generalization
+        run: python -m scripts.run_phase10r_generalization_entry --out /tmp/phase10r-generalization
 
       - name: Validate result manifest and claim boundaries
         run: |
