@@ -1,0 +1,82 @@
+# SIMULATION-ONLY research benchmark. No physical aircraft or controller actions.
+name: Phase 11 P13 protected simulation validation
+
+on:
+  push:
+    branches:
+      - phase11-p13-two-stage-grouped-conformal
+    paths:
+      - .github/workflows/phase11-p13-validation.yml
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install project
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Guard P13 invariants
+        run: |
+          pytest -q \
+            tests/test_phase11_p9_soft_update_direct_conformal.py \
+            tests/test_phase11_p12_three_group_direct_conformal.py \
+            tests/test_phase11_p13_two_stage_grouped_conformal.py
+      - name: Reproduce exact frozen P13 candidate before protected split
+        run: |
+          rm -rf /tmp/phase11_p13_candidate /tmp/phase11_p13_challenge results/phase11_p13_validation
+          python scripts/run_phase11_p13_two_stage_grouped_conformal.py \
+            --stage freeze \
+            --out /tmp/phase11_p13_candidate \
+            --git-sha 0d3244191062ea13fd23c0bf8d461058106ede6d
+          echo "4198efff7d58c478efa6e173a7a1ad4a750540ced515a06fe1392f1429ce9a46  /tmp/phase11_p13_candidate/candidate_freeze.json" | sha256sum -c -
+      - name: Reproduce seen challenge eligibility without changing candidate
+        run: |
+          python scripts/run_phase11_p13_two_stage_grouped_conformal.py \
+            --stage challenge \
+            --candidate /tmp/phase11_p13_candidate/candidate_freeze.json \
+            --out /tmp/phase11_p13_challenge \
+            --git-sha 0d3244191062ea13fd23c0bf8d461058106ede6d
+          echo "6889d181689086eded9aa457df7c3be295ba1a5be131ba67ca2d04a41fa3b9f9  /tmp/phase11_p13_challenge/challenge_result.json" | sha256sum -c -
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r = json.loads(Path('/tmp/phase11_p13_challenge/challenge_result.json').read_text())
+          assert r['all_primary_gates_pass'] is True
+          for name in (
+              'h1_useful_availability',
+              'h2_overall_coverage',
+              'h3_calibration_curve',
+              'h4_overall_interval_efficiency',
+              'h5_continuity_specific_honesty',
+              'h6_base_output_honesty',
+          ):
+              assert r['gates'][name]['pass'] is True, name
+          PY
+      - name: Evaluate exact frozen candidate on protected validation exactly once
+        run: |
+          python scripts/run_phase11_p13_two_stage_grouped_conformal.py \
+            --stage validation \
+            --candidate /tmp/phase11_p13_candidate/candidate_freeze.json \
+            --out results/phase11_p13_validation \
+            --git-sha "${GITHUB_SHA}" | tee phase11-p13-validation.log
+      - name: Record protected validation digests and result
+        run: |
+          sha256sum results/phase11_p13_validation/validation_frames.csv
+          sha256sum results/phase11_p13_validation/validation_result.json
+          cat results/phase11_p13_validation/validation_result.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: phase11-p13-protected-validation
+          path: |
+            results/phase11_p13_validation/
+            phase11-p13-validation.log
+          if-no-files-found: error
+          retention-days: 30
