@@ -1,0 +1,76 @@
+{
+  "accepted_rows": 633,
+  "all_primary_gates_pass": false,
+  "benchmark_config": {
+    "calibration_seed": 55055,
+    "candidate_constants": {
+      "acceptance_threshold": 0.40078671864763,
+      "coactivation_threshold": 0.45,
+      "max_bridge_gap": 2,
+      "multiplier_bridge": 2.0,
+      "multiplier_coactivation": 3.0,
+      "multiplier_risk": 6.0,
+      "ridge_lambda": 1.0,
+      "severity_bridge_weight": 0.25,
+      "severity_coactivation_weight": 0.75
+    },
+    "evaluated_domains": [
+      "edge+blur_noise",
+      "small_scale+dim",
+      "oblique+temporal_dropout",
+      "blur_noise+low_contrast",
+      "edge+small_scale+oblique",
+      "dim+low_contrast+temporal_dropout",
+      "edge+oblique+blur_noise+low_contrast",
+      "small_scale+oblique+dim+temporal_dropout"
+    ],
+    "evaluated_seed": 77077,
+    "fit_domains": [
+      "nominal",
+      "edge",
+      "small_scale",
+      "oblique",
+      "dim",
+      "blur_noise",
+      "temporal_dropout",
+      "low_contrast"
+    ],
+    "fit_seed": 44044,
+    "frames_per_sequence": 60,
+    "git_sha": "1ee4ffaa426db03272f716fb7d9aba249d9295b8",
+    "stage": "validation"
+  },
+  "controller_tuning_allowed": false,
+  "coverage_curve": {
+    "altitude": {"0.50": 0.46445497630331756, "0.68": 0.660347551342812, "0.80": 0.7725118483412322, "0.90": 0.8562401263823065, "0.95": 0.8894154818325435},
+    "lateral": {"0.50": 0.3665086887835703, "0.68": 0.6145339652448657, "0.80": 0.7424960505529226, "0.90": 0.8372827804107424, "0.95": 0.8767772511848341}
+  },
+  "error_stats": {
+    "altitude_mae_accepted": 0.09746421611027885,
+    "altitude_p95_accepted": 0.2992926376059062,
+    "altitude_p95_all_available": 0.6128570374681968,
+    "altitude_p95_improvement": 0.5116436308827774,
+    "lateral_mae_accepted": 0.03589842208974063,
+    "lateral_p95_accepted": 0.1036565609668885,
+    "lateral_p95_all_available": 0.24232893283793797,
+    "lateral_p95_improvement": 0.5722485146410033
+  },
+  "evaluated_seed_seen_after_run": 77077,
+  "evidence_role": "phase11_p1_frozen_candidate_validation",
+  "gates": {
+    "h1_selective_coverage_transfer": {"altitude_95_coverage": 0.8894154818325435, "lateral_95_coverage": 0.8767772511848341, "pass": false},
+    "h2_interval_efficiency": {"altitude_efficiency_ratio": 0.851997781501996, "lateral_efficiency_ratio": 0.785155628027702, "pass": true},
+    "h3_useful_selective_reliability": {"altitude_p95_improvement": 0.5116436308827774, "lateral_p95_improvement": 0.5722485146410033, "pass": false, "usable_availability": 0.4395833333333333},
+    "h4_shift_discrimination": {"pass": true, "trajectory_level_auroc": 0.9722222222222222}
+  },
+  "interval_stats": {
+    "altitude": {"median_halfwidth_95": 0.25499666326011294, "median_halfwidth_over_accepted_p95_error": 0.851997781501996, "p95_halfwidth_95": 0.44861644003355733},
+    "lateral": {"median_halfwidth_95": 0.08138653222514912, "median_halfwidth_over_accepted_p95_error": 0.785155628027702, "p95_halfwidth_95": 0.15394635964634903}
+  },
+  "mean_absolute_coverage_error": 0.05794312796208534,
+  "preselection_available_rows": 1285,
+  "safety_acceptance": false,
+  "schema": "aegisland.phase11.p1.result.v1",
+  "simulation_only": true,
+  "total_rows": 1440
+}
