@@ -14,7 +14,7 @@
 <div id="boot"><div class="inner"><div class="mark">A</div><div class="word">AEGISLAND</div><small>Loading research archive…</small></div></div>
 <script>
 (async()=>{
-  const rev='14012ee06606f7ee4604832d06f9b9bd78b19339';
+  const rev='c49b370cc7be37f725d1161750d40ed426ed34c9';
   const base=`https://cdn.jsdelivr.net/gh/suhaslord/uav-safety-research@${rev}/dashboard/`;
   const favicon=`${base}aegis-mark.svg`;
   const motion=`${base}glass-ui.css`;
@@ -52,7 +52,7 @@
         .replaceAll('phase10r1-p0-forensics-infrastructure','main')
         .replaceAll('phase10r-generalization-validation','main')
         .replaceAll('phase10r-frozen-holdout','main')
-        .replace('</head>',`<link rel="stylesheet" href="${motion}"><link rel="stylesheet" href="${legacyHero}"><link rel="stylesheet" href="${interactionCss}"><link rel="icon" type="image/svg+xml" href="${favicon}"></head>`)
+        .replace('</head>',`<link rel="stylesheet" href="${motion}"><link rel="stylesheet" href="${legacyHero}"><link rel="stylesheet" href="${interactionCss}"><link rel="icon" type="image/svg+xml" href="${favicon}"><link rel="shortcut icon" href="${favicon}"></head>`)
         .replace('</body>',`${homePatch}<script src="${cursorCubes}"><\/script><script src="${interactionJs}"><\/script></body>`);
     }else{
       if(path==='/phases/phase10r/'||path==='/phases/phase10r')h=h.replace('<body class="archive-shell">','<body class="archive-shell" data-phase="phase10r">');
@@ -65,7 +65,7 @@
         .replaceAll('phase10r1-p0-forensics-infrastructure','main')
         .replaceAll('phase10r-generalization-validation','main')
         .replaceAll('phase10r-frozen-holdout','main')
-        .replace('</head>',`<link rel="stylesheet" href="${interactionCss}"><link rel="icon" type="image/svg+xml" href="${favicon}"></head>`)
+        .replace('</head>',`<link rel="stylesheet" href="${interactionCss}"><link rel="icon" type="image/svg+xml" href="${favicon}"><link rel="shortcut icon" href="${favicon}"></head>`)
         .replace('</body>',`<script src="${interactionJs}"><\/script></body>`);
     }
     document.open();document.write(h);document.close();
