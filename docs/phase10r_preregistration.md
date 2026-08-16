@@ -4,7 +4,7 @@
 >
 > Explicit approval was recorded from the user's 2026-08-15 request to finish the preregistered Phase 10R edge/partial-view generalization experiment.
 >
-> This P0 approval authorizes challenge-development generation and development/validation ablations only. It does **not** authorize a new frozen holdout; the second approval gate in Section 7 remains required.
+> The P0 development/validation approval has been completed. A second explicit approval for the exact frozen-holdout checkpoint was recorded on 2026-08-15 and is documented in Section 10.
 
 ## 1. Research question
 
@@ -118,15 +118,37 @@ A failed hypothesis is archived as a valid frozen result; the workflow must not 
 
 ## 9. P0 approval checkpoint
 
-Approval of this document authorizes only:
+Approval of this document authorized only:
 1. implementation of the predeclared challenge-development generator;
 2. generation of `phase10r_development` evidence;
 3. development/validation ablations under the rules above.
 
-It does **not** authorize exposing a new frozen holdout. A second explicit approval will be required at the freeze checkpoint.
+The development + trajectory-held-out validation milestone is complete and frozen as a mixed result. Validation seed `271828` is permanently seen and may not be used for further tuning.
 
-### Approval
+### P0 approval
 
 - [x] **APPROVED AS WRITTEN** — recorded 2026-08-15
-- [ ] **APPROVED WITH CHANGES** (changes must be committed before any challenge data generation)
+- [ ] **APPROVED WITH CHANGES**
 - [ ] **NOT APPROVED**
+
+## 10. Final frozen-holdout approval checkpoint
+
+The user explicitly approved the next-step plan to execute the protected Phase 10R frozen holdout with the instruction **"do all that"** on 2026-08-15.
+
+The exact frozen candidate/configuration approved for exposure is:
+
+- candidate implementation SHA: `e1d566f8baa47bf10f9bdf39dd5988724208be80`;
+- `MIN_VISIBLE = 0.66`;
+- development-frozen uncertainty calibration SHA-256: `3ffdf1e37c94361ac01d8175f902a0ae4fb8d831274bb7850c171e92d79c527b`;
+- validation seed `271828` is seen evidence and is not used for post-validation tuning;
+- frozen-holdout protocol: `docs/phase10r_frozen_holdout_protocol.md`;
+- protected holdout top-level seed: `1618033`;
+- one-time automated evaluation only; no manual frame inspection before result preservation.
+
+### Frozen-holdout approval
+
+- [x] **APPROVED FOR ONE-TIME FROZEN HOLDOUT EXPOSURE** — recorded 2026-08-15
+- [ ] **APPROVED WITH CHANGES**
+- [ ] **NOT APPROVED**
+
+After this holdout runs, its outcome is permanently seen evidence. No result-driven retuning may be presented as part of the same frozen Phase 10R result.

@@ -1,0 +1,93 @@
+name: Phase 10R Frozen Holdout
+
+on:
+  push:
+    branches:
+      - phase10r-frozen-holdout
+    paths:
+      - ".github/workflows/phase10r-frozen-holdout.yml"
+      - "scripts/run_phase10r_frozen_holdout.py"
+      - "docs/phase10r_frozen_holdout_protocol.md"
+      - "docs/phase10r_preregistration.md"
+      - "results/phase10r_validation/candidate_uncertainty_calibration.json"
+
+jobs:
+  frozen-holdout:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install frozen-holdout dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]" opencv-contrib-python-headless
+
+      - name: Verify explicit second approval and frozen configuration
+        run: |
+          grep -q "APPROVED FOR ONE-TIME FROZEN HOLDOUT EXPOSURE" docs/phase10r_preregistration.md
+          grep -q "e1d566f8baa47bf10f9bdf39dd5988724208be80" docs/phase10r_frozen_holdout_protocol.md
+          grep -q "1618033" docs/phase10r_frozen_holdout_protocol.md
+          test "$(sha256sum results/phase10r_validation/candidate_uncertainty_calibration.json | awk '{print $1}')" = "3ffdf1e37c94361ac01d8175f902a0ae4fb8d831274bb7850c171e92d79c527b"
+
+      - name: Compile evaluator and load frozen candidate without exposing holdout
+        run: |
+          python -m py_compile scripts/run_phase10r_frozen_holdout.py
+          python - <<'PY'
+          import tempfile
+          from pathlib import Path
+          from scripts.run_phase10r_frozen_holdout import _load_frozen_module, _load_calibration
+          with tempfile.TemporaryDirectory() as d:
+              mod = _load_frozen_module(Path(d))
+              assert mod.MIN_VISIBLE == 0.66
+          _load_calibration(Path('results/phase10r_validation/candidate_uncertainty_calibration.json'))
+          print('frozen candidate + calibration verified; holdout still ungenerated')
+          PY
+
+      - name: Run one-time protected Phase 10R frozen holdout
+        run: |
+          python -m scripts.run_phase10r_frozen_holdout \
+            --out /tmp/phase10r-frozen-holdout \
+            --calibration results/phase10r_validation/candidate_uncertainty_calibration.json
+
+      - name: Verify result integrity and claim boundaries
+        run: |
+          python - <<'PY'
+          from hashlib import sha256
+          import json
+          from pathlib import Path
+          root = Path('/tmp/phase10r-frozen-holdout')
+          result = json.loads((root / 'holdout_result.json').read_text())
+          manifest = json.loads((root / 'result_manifest.json').read_text())
+          assert result['evidence_role'] == 'phase10r_frozen_holdout'
+          assert result['candidate_freeze_sha'] == 'e1d566f8baa47bf10f9bdf39dd5988724208be80'
+          assert result['holdout_seed'] == 1618033
+          assert result['manual_frame_inspection_before_evaluation'] is False
+          assert result['historical_phase10_holdout_used_for_selection'] is False
+          assert result['validation_seed_used_for_retuning'] is False
+          assert result['safety_acceptance'] is False
+          assert result['controller_tuning_allowed'] is False
+          assert result['physical_flight_validation'] is False
+          assert result['metrics']['truth_visible_frames'] >= 250
+          assert result['metrics']['geometry_trajectory_ids'] >= 10
+          assert len(result['metrics']['appearances']) >= 2
+          for name, meta in manifest['files'].items():
+              payload = (root / name).read_bytes()
+              assert sha256(payload).hexdigest() == meta['sha256'], name
+              assert len(payload) == meta['bytes'], name
+          PY
+
+      - name: Upload immutable frozen-holdout evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase10r-frozen-holdout
+          path: /tmp/phase10r-frozen-holdout
+          if-no-files-found: error
+          retention-days: 90

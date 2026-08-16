@@ -1,0 +1,65 @@
+{
+  "all_preregistered_frozen_holdout_gates_pass": false,
+  "calibration_sha256": "3ffdf1e37c94361ac01d8175f902a0ae4fb8d831274bb7850c171e92d79c527b",
+  "candidate_freeze_sha": "e1d566f8baa47bf10f9bdf39dd5988724208be80",
+  "controller_tuning_allowed": false,
+  "evidence_role": "phase10r_frozen_holdout",
+  "gates": {
+    "altitude_95_coverage_90_to_98pct": false,
+    "ambiguous_altitude_mae_improvement_ge_30pct": true,
+    "ambiguous_altitude_p95_improvement_ge_25pct": false,
+    "ambiguous_lateral_mae_improvement_ge_30pct": true,
+    "ambiguous_lateral_p95_improvement_ge_25pct": false,
+    "clean_altitude_mae_le_1_10x": true,
+    "clean_lateral_mae_le_1_10x": true,
+    "false_positive_rate_le_1pct": true,
+    "lateral_95_coverage_90_to_98pct": false,
+    "truth_visible_miss_rate_le_10pct": false
+  },
+  "historical_phase10_holdout_used_for_selection": false,
+  "holdout_generation_commit": "bdfcfe7bc263b3364c194b0ec8450c204be035bf",
+  "holdout_seed": 1618033,
+  "manual_frame_inspection_before_evaluation": false,
+  "metrics": {
+    "appearances": ["nominal", "dim_contrast", "blur_noise"],
+    "axes": {
+      "altitude": {
+        "ambiguous_baseline_mae_m": 0.167991221973944,
+        "ambiguous_baseline_p95_m": 0.13546576310574876,
+        "ambiguous_candidate_mae_m": 0.0441047503953621,
+        "ambiguous_candidate_p95_m": 0.12564294630646664,
+        "ambiguous_mae_improvement": 0.7374580059772237,
+        "ambiguous_p95_improvement": 0.07251143443243391,
+        "clean_baseline_mae_m": 0.06022322002649347,
+        "clean_candidate_mae_m": 0.02508305972066479,
+        "clean_mae_ratio": 0.4165014708550991
+      },
+      "lateral": {
+        "ambiguous_baseline_mae_m": 0.05160837657121015,
+        "ambiguous_baseline_p95_m": 0.03342092275559316,
+        "ambiguous_candidate_mae_m": 0.010723285619352122,
+        "ambiguous_candidate_p95_m": 0.03377672872874885,
+        "ambiguous_mae_improvement": 0.7922181178368216,
+        "ambiguous_p95_improvement": -0.010646204348027545,
+        "clean_baseline_mae_m": 0.009345249986592715,
+        "clean_candidate_mae_m": 0.006575535625133061,
+        "clean_mae_ratio": 0.7036232989558052
+      }
+    },
+    "baseline_false_positive_rate": 0.0,
+    "baseline_miss_rate": 0.23750000000000004,
+    "candidate_false_positive_rate": 0.0,
+    "candidate_miss_rate": 0.19999999999999996,
+    "coverage": {
+      "altitude": {"0.50": 0.3663194444444444, "0.68": 0.5130208333333334, "0.80": 0.6354166666666666, "0.90": 0.7447916666666666, "0.95": 0.796875},
+      "lateral": {"0.50": 0.4010416666666667, "0.68": 0.5494791666666666, "0.80": 0.6605902777777778, "0.90": 0.7769097222222222, "0.95": 0.8428819444444444}
+    },
+    "geometry_trajectory_ids": 12,
+    "trajectories": 36,
+    "truth_visible_frames": 1440
+  },
+  "physical_flight_validation": false,
+  "safety_acceptance": false,
+  "schema": "aegisland.phase10r.frozen-holdout-result.v1",
+  "validation_seed_used_for_retuning": false
+}
