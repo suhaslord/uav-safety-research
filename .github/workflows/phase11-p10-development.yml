@@ -1,0 +1,68 @@
+name: Phase 11 P10 powered candidate freeze and seen transfer
+
+on:
+  push:
+    branches:
+      - phase11-p10-powered-direct-conformal
+    paths:
+      - scripts/run_phase11_p10_powered_direct_conformal.py
+      - tests/test_phase11_p10_powered_direct_conformal.py
+      - docs/phase11_p10_powered_direct_conformal_preregistration.md
+      - .github/workflows/phase11-p10-development.yml
+
+permissions:
+  contents: read
+
+jobs:
+  develop:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install project
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Guard P10 powered-replication invariants
+        run: pytest -q tests/test_phase11_p9_soft_update_direct_conformal.py tests/test_phase11_p10_powered_direct_conformal.py
+      - name: Freeze P10 candidate before transfer exposure
+        run: |
+          rm -rf results/phase11_p10_candidate results/phase11_p10_transfer
+          python scripts/run_phase11_p10_powered_direct_conformal.py \
+            --stage freeze \
+            --out results/phase11_p10_candidate \
+            --git-sha "${GITHUB_SHA}" | tee phase11-p10-freeze.log
+          test -f results/phase11_p10_candidate/candidate_freeze.json
+          test ! -f results/phase11_p10_candidate/transfer_result.json
+          test ! -f results/phase11_p10_candidate/validation_result.json
+      - name: Record immutable candidate digest
+        run: |
+          sha256sum results/phase11_p10_candidate/candidate_freeze.json | tee phase11-p10-candidate.sha256
+          cat results/phase11_p10_candidate/candidate_freeze.json
+      - name: Evaluate exact frozen candidate on seen transfer once
+        run: |
+          python scripts/run_phase11_p10_powered_direct_conformal.py \
+            --stage transfer \
+            --candidate results/phase11_p10_candidate/candidate_freeze.json \
+            --out results/phase11_p10_transfer \
+            --git-sha "${GITHUB_SHA}" | tee phase11-p10-transfer.log
+          test ! -f results/phase11_p10_transfer/validation_frames.csv
+          test ! -f results/phase11_p10_transfer/validation_result.json
+      - name: Transfer digests and result
+        run: |
+          sha256sum results/phase11_p10_transfer/transfer_frames.csv
+          sha256sum results/phase11_p10_transfer/transfer_result.json
+          cat results/phase11_p10_transfer/transfer_result.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: phase11-p10-development
+          path: |
+            results/phase11_p10_candidate/
+            results/phase11_p10_transfer/
+            phase11-p10-freeze.log
+            phase11-p10-transfer.log
+            phase11-p10-candidate.sha256
+          if-no-files-found: error
+          retention-days: 30
