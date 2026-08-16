@@ -1,76 +1,17 @@
-/* AegisLand shared glass UI + hero stability layer.
-   Presentation only: no research metrics, gates, or evidence semantics change. */
+/* AegisLand motion + hero stability layer.
+   Presentation only: keeps the animation work while removing the glass-material redesign. */
 :root{
-  --glass-bg:rgba(255,255,255,.46);
-  --glass-bg-strong:rgba(255,255,255,.68);
-  --glass-stroke:rgba(255,255,255,.70);
-  --glass-line:rgba(23,26,32,.10);
-  --glass-shadow:0 14px 40px rgba(17,24,39,.09);
-  --glass-shadow-strong:0 22px 58px rgba(17,24,39,.13);
-  --glass-blur:blur(20px) saturate(160%);
-  --glass-radius:20px;
-  --glass-ink:#171a20;
-  --glass-muted:#68707d;
-  --glass-accent:#4f6df5;
-  --glass-accent-soft:rgba(79,109,245,.13);
+  --motion-line:rgba(23,26,32,.12);
+  --motion-muted:#6b6d70;
+  --motion-ink:#171a20;
+  --motion-accent:#3e6ae1;
 }
 
-/* Shared glass controls / surfaces */
-.button,.top-btn,.rail-step,.metric-card,.frontier-badge,.archive-card,
-.archive-menu-sheet,.hero-meta span,.header-actions>a,.header-actions>button,
-.social-button,.source-audit-links a,.telemetry-panel,.source-audit,
-.lineage-card-main,.metric-item,.geometry-numbers>div,.switch-nav a,.next,.source,
-.archive-menu-toggle,.archive-menu-close,.archive-menu-links a{
-  border:1px solid var(--glass-stroke)!important;
-  background:var(--glass-bg)!important;
-  -webkit-backdrop-filter:var(--glass-blur)!important;
-  backdrop-filter:var(--glass-blur)!important;
-  box-shadow:var(--glass-shadow)!important;
-  border-radius:var(--glass-radius)!important;
-}
-.button,.top-btn,.header-actions>a,.header-actions>button,.social-button,.source-audit-links a,
-.switch-nav a,.next,.source,.archive-menu-toggle,.archive-menu-close,.archive-menu-links a{
-  min-height:42px!important;
-  padding-inline:16px!important;
-  display:inline-flex!important;
-  align-items:center!important;
-  justify-content:center!important;
-  font-weight:600!important;
-  letter-spacing:-.01em!important;
-  transition:transform .22s ease,box-shadow .22s ease,background .22s ease,border-color .22s ease!important;
-}
-.button:hover,.top-btn:hover,.header-actions>a:hover,.header-actions>button:hover,
-.social-button:hover,.source-audit-links a:hover,.rail-step:hover,.metric-card:hover,
-.archive-card:hover,.lineage-card-main:hover,.switch-nav a:hover,.next:hover,.source:hover,
-.archive-menu-links a:hover{
-  transform:translateY(-2px)!important;
-  background:rgba(255,255,255,.62)!important;
-  box-shadow:var(--glass-shadow-strong)!important;
-}
-.button.blue,.button.primary,.top-btn.primary,.rail-step.active,.rail-step.frontier,
-.header-actions .phase-link{
-  color:#2345b7!important;
-  background:rgba(79,109,245,.13)!important;
-  border-color:rgba(79,109,245,.25)!important;
-}
-.button.ash,.button.secondary{color:var(--glass-ink)!important}
-.site-header,.top{
-  background:rgba(255,255,255,.72)!important;
-  -webkit-backdrop-filter:blur(22px) saturate(165%)!important;
-  backdrop-filter:blur(22px) saturate(165%)!important;
-  border-bottom:1px solid rgba(23,26,32,.07)!important;
-  box-shadow:0 8px 34px rgba(17,24,39,.045)!important;
-}
-.site-header.on-dark .site-nav a,.site-header.on-dark .header-actions a,
-.site-header.on-dark .header-actions button,.dark .source,.dark .next,.section.dark .button,
-.section.dark .top-btn,.section.dark .social-button{
-  color:#fff!important;
-  background:rgba(255,255,255,.10)!important;
-  border-color:rgba(255,255,255,.18)!important;
-  box-shadow:none!important;
-}
+/* Keep the original solid UI language. This layer intentionally does NOT
+   override buttons, navigation, cards, headers, or menus with translucent
+   surfaces, backdrop blur, refraction, or frosted shadows. */
 
-/* Phase hero: stable two-column composition */
+/* Stable two-column phase hero composition. */
 .hero.scene-hero{
   grid-template-columns:minmax(320px,1.05fr) minmax(360px,.95fr)!important;
   gap:clamp(28px,5vw,72px)!important;
@@ -80,7 +21,11 @@
   padding-bottom:96px!important;
   overflow:hidden!important;
 }
-.scene-hero .hero-copy{max-width:650px!important;position:relative!important;z-index:4!important}
+.scene-hero .hero-copy{
+  max-width:650px!important;
+  position:relative!important;
+  z-index:4!important;
+}
 .scene-hero .hero-scene{
   width:min(100%,600px)!important;
   max-width:600px!important;
@@ -97,16 +42,6 @@
   isolation:isolate!important;
   contain:layout paint style!important;
   overflow:hidden!important;
-  border:1px solid rgba(255,255,255,.78)!important;
-  border-radius:28px!important;
-  color:var(--glass-ink)!important;
-  background:
-    radial-gradient(circle at 18% 18%,rgba(79,109,245,.11),transparent 30%),
-    radial-gradient(circle at 82% 12%,rgba(79,109,245,.07),transparent 26%),
-    linear-gradient(180deg,rgba(255,255,255,.77),rgba(249,250,253,.60))!important;
-  -webkit-backdrop-filter:blur(24px) saturate(165%)!important;
-  backdrop-filter:blur(24px) saturate(165%)!important;
-  box-shadow:0 28px 70px rgba(17,24,39,.105)!important;
   transform:none!important;
 }
 .scene-hero .scene-label,.scene-hero .scene-foot{
@@ -121,96 +56,247 @@
   align-items:start!important;
   pointer-events:none!important;
 }
-.scene-hero .scene-label{padding:0 0 12px!important;border-bottom:1px solid var(--glass-line)!important}
-.scene-hero .scene-foot{padding:12px 0 0!important;border-top:1px solid var(--glass-line)!important;align-items:end!important}
+.scene-hero .scene-label{
+  padding:0 0 12px!important;
+  border-bottom:1px solid var(--motion-line)!important;
+}
+.scene-hero .scene-foot{
+  padding:12px 0 0!important;
+  border-top:1px solid var(--motion-line)!important;
+  align-items:end!important;
+}
 .scene-hero .scene-label span,.scene-hero .scene-foot span{
-  position:static!important;transform:none!important;display:block!important;
-  font-size:9px!important;line-height:1.35!important;letter-spacing:.15em!important;
-  text-transform:uppercase!important;color:var(--glass-muted)!important;
+  position:static!important;
+  transform:none!important;
+  display:block!important;
+  font-size:9px!important;
+  line-height:1.35!important;
+  letter-spacing:.15em!important;
+  text-transform:uppercase!important;
+  color:var(--motion-muted)!important;
 }
 .scene-hero .scene-label strong,.scene-hero .scene-foot strong{
-  position:static!important;inset:auto!important;display:block!important;place-items:initial!important;
-  width:auto!important;height:auto!important;transform:none!important;margin:0!important;
-  font-size:11px!important;line-height:1.4!important;letter-spacing:0!important;
-  text-transform:none!important;text-align:right!important;font-weight:600!important;color:var(--glass-ink)!important;
+  position:static!important;
+  inset:auto!important;
+  display:block!important;
+  place-items:initial!important;
+  width:auto!important;
+  height:auto!important;
+  transform:none!important;
+  margin:0!important;
+  font-size:11px!important;
+  line-height:1.4!important;
+  letter-spacing:0!important;
+  text-transform:none!important;
+  text-align:right!important;
+  font-weight:600!important;
+  color:var(--motion-ink)!important;
 }
 .scene-hero .scene-svg{
-  display:block!important;width:100%!important;height:100%!important;max-width:100%!important;
-  min-height:0!important;overflow:hidden!important;align-self:stretch!important;position:relative!important;z-index:1!important;
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  max-width:100%!important;
+  min-height:0!important;
+  overflow:hidden!important;
+  align-self:stretch!important;
+  position:relative!important;
+  z-index:1!important;
 }
-/* Human-readable labels never live inside moving SVG geometry. */
+/* Human-readable labels stay outside moving SVG geometry. */
 .scene-hero .scene-svg text{display:none!important}
-.scene-hero .p7-stage{position:relative!important;min-height:0!important;height:100%!important;overflow:hidden!important}
-.scene-hero .p7-stage .scene-svg{position:absolute!important;inset:0!important}
-
-/* Quiet motion: keep one visual idea per phase without text collisions. */
-.p1-drone{animation-duration:6.8s!important}.p1-shield{animation-duration:5.2s!important}
-.p2-window{animation-duration:7.2s!important}.p3-pulse{animation-duration:4.8s!important}
-.p5-tunnel{animation-duration:7s!important}.p5-particles circle{animation-duration:5.2s!important}
-.p6-lock{animation-duration:4.6s!important}.p6-scan{animation-duration:5.4s!important}
-.p6b-lane .shutter{animation-duration:5.2s!important}
-.p7-cube{animation-duration:9s!important}.p7-hot circle{animation-duration:4.2s!important}
-.p8-deltas line{animation-duration:4.6s!important}.p8-word{display:none!important}
-.p9-lock{animation-duration:4.2s!important}.p9-geo .estimate{animation-duration:5.4s!important}
-.p10-band{animation-duration:5.6s!important}.p10-kalman rect{animation-duration:5.4s!important}
-.p10r-cloud.tail circle{animation-duration:5.6s!important}.p10r-arrow{animation-duration:5s!important}
-
-/* Individual scenes retain distinct visual identities. */
-.hero-scene-phase1{background:linear-gradient(180deg,rgba(255,255,255,.82),rgba(246,248,254,.64))!important}
-.hero-scene-phase1 .p1-bad{opacity:.50!important}.hero-scene-phase1 .p1-safe{stroke:var(--glass-accent)!important}.hero-scene-phase1 .p1-shield{fill:rgba(79,109,245,.07)!important;stroke:var(--glass-accent)!important}
-.hero-scene-phase7{background:radial-gradient(circle at 58% 42%,rgba(79,109,245,.10),transparent 38%),linear-gradient(180deg,rgba(255,255,255,.82),rgba(248,249,252,.62))!important;overflow:hidden!important}
-.hero-scene-phase7 .p7-cube path{stroke:rgba(23,26,32,.34)!important}.hero-scene-phase7 .p7-hot circle{fill:var(--glass-accent)!important}
-.hero-scene-phase10{background:radial-gradient(circle at 18% 18%,rgba(79,109,245,.15),transparent 28%),radial-gradient(circle at 78% 18%,rgba(79,109,245,.09),transparent 24%),linear-gradient(180deg,rgba(255,255,255,.80),rgba(247,249,255,.62))!important}
-.hero-scene-phase10 .p10-path{stroke:#252a35!important}.hero-scene-phase10 .p10-band{stroke:rgba(79,109,245,.64)!important}.hero-scene-phase10 .p10-state circle{fill:var(--glass-accent)!important}.hero-scene-phase10 .p10-kalman rect{fill:rgba(255,255,255,.60)!important;stroke:rgba(79,109,245,.28)!important}
-.hero-scene-phase10r{background:radial-gradient(circle at 22% 20%,rgba(79,109,245,.14),transparent 30%),radial-gradient(circle at 80% 16%,rgba(79,109,245,.07),transparent 25%),linear-gradient(180deg,rgba(255,255,255,.84),rgba(247,249,255,.64))!important}
-.hero-scene-phase10r .p10r-band{fill:rgba(79,109,245,.085)!important;stroke:rgba(79,109,245,.34)!important}.hero-scene-phase10r .p10r-mid{stroke:rgba(23,26,32,.14)!important}.hero-scene-phase10r .p10r-cloud.good circle{fill:rgba(79,109,245,.86)!important}.hero-scene-phase10r .p10r-cloud.tail circle{fill:rgba(255,255,255,.88)!important;stroke:#202631!important}.hero-scene-phase10r .p10r-shift{stroke:rgba(79,109,245,.66)!important}.hero-scene-phase10r .p10r-arrow{stroke:rgba(79,109,245,.72)!important}
-
-/* Phase rail: all 12 models stay reachable as one restrained glass control. */
-.phase-rail-section{overflow-x:auto!important;padding-top:18px!important;padding-bottom:18px!important;background:linear-gradient(180deg,#fff,rgba(248,249,252,.82))!important}
-.phase-rail{grid-template-columns:repeat(12,minmax(78px,1fr))!important;gap:8px!important;min-width:1040px!important;min-height:112px!important;border:0!important;padding:8px!important}
-.rail-step{padding:14px 12px!important;opacity:.76!important;box-shadow:none!important;border-color:rgba(23,26,32,.08)!important}
-.rail-step:hover,.rail-step.active{opacity:1!important;box-shadow:0 14px 32px rgba(17,24,39,.08)!important}
-.rail-step>i{background:rgba(23,26,32,.12)!important}.rail-step.active>i,.rail-step.frontier>i{background:var(--glass-accent)!important}
-
-/* Homepage: replace the giant cropped target with a quiet research-field effect. */
-.hero-media{
-  isolation:isolate!important;overflow:hidden!important;border-radius:32px!important;
-  border:1px solid rgba(255,255,255,.75)!important;
-  background:radial-gradient(circle at 28% 28%,rgba(79,109,245,.13),transparent 28%),radial-gradient(circle at 78% 22%,rgba(79,109,245,.065),transparent 24%),linear-gradient(145deg,rgba(255,255,255,.76),rgba(240,243,249,.68))!important;
-  box-shadow:0 30px 76px rgba(17,24,39,.10)!important;
+.scene-hero .p7-stage{
+  position:relative!important;
+  min-height:0!important;
+  height:100%!important;
+  overflow:hidden!important;
 }
-.hero-media::before,.hero-media::after{content:"";position:absolute;pointer-events:none;z-index:0}
-.hero-media::before{width:46%;aspect-ratio:1;border-radius:50%;right:8%;top:10%;border:1px solid rgba(79,109,245,.16);box-shadow:0 0 0 44px rgba(79,109,245,.025),0 0 0 88px rgba(79,109,245,.018)}
-.hero-media::after{left:10%;right:10%;bottom:18%;height:1px;background:linear-gradient(90deg,transparent,rgba(79,109,245,.34),transparent);animation:glassScan 10s ease-in-out infinite}
-.hero-media .hero-image{position:relative!important;z-index:1!important;opacity:.055!important;filter:grayscale(1) contrast(.78)!important;transform:scale(.70) rotate(-3deg)!important;transform-origin:center!important;object-fit:contain!important;padding:10%!important}
-.hero-reticle,.hero-telemetry,.hero-media figcaption{z-index:2!important}.hero-reticle{opacity:.48!important;transform:scale(.86)!important}
-.hero-telemetry span{border:1px solid rgba(255,255,255,.78)!important;border-left:1px solid rgba(255,255,255,.78)!important;border-radius:13px!important;background:rgba(255,255,255,.54)!important;box-shadow:var(--glass-shadow)!important;-webkit-backdrop-filter:blur(18px) saturate(145%)!important;backdrop-filter:blur(18px) saturate(145%)!important}
-.hero-media figcaption{padding:9px 12px!important;border-radius:12px!important;background:rgba(255,255,255,.45)!important;-webkit-backdrop-filter:blur(14px)!important;backdrop-filter:blur(14px)!important}
+.scene-hero .p7-stage .scene-svg{
+  position:absolute!important;
+  inset:0!important;
+}
 
-/* Homepage progression gets a minimal living field instead of an empty slab. */
-#homeModelRail{position:relative!important;isolation:isolate!important;overflow:hidden!important;background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(247,249,253,.88))!important;border-color:rgba(23,26,32,.08)!important}
-#homeModelRail::before{content:"";position:absolute;z-index:-1;width:38vw;height:38vw;min-width:360px;min-height:360px;border-radius:50%;right:-10vw;top:-28vw;background:radial-gradient(circle,rgba(79,109,245,.11),transparent 67%);filter:blur(8px);animation:glassFloat 12s ease-in-out infinite}
-#homeModelRail::after{content:"";position:absolute;z-index:-1;left:5%;right:5%;bottom:14px;height:1px;background:linear-gradient(90deg,transparent,rgba(79,109,245,.28),transparent);animation:glassScan 11s ease-in-out infinite}
-#homeModelRail a{border-radius:14px!important;transition:transform .22s ease,background .22s ease,box-shadow .22s ease!important}
-#homeModelRail a:hover{transform:translateY(-2px)!important;background:rgba(255,255,255,.56)!important;box-shadow:0 12px 28px rgba(17,24,39,.07)!important}
+/* Keep the animation pacing the user liked. */
+.p1-drone{animation-duration:6.8s!important}
+.p1-shield{animation-duration:5.2s!important}
+.p2-window{animation-duration:7.2s!important}
+.p3-pulse{animation-duration:4.8s!important}
+.p5-tunnel{animation-duration:7s!important}
+.p5-particles circle{animation-duration:5.2s!important}
+.p6-lock{animation-duration:4.6s!important}
+.p6-scan{animation-duration:5.4s!important}
+.p6b-lane .shutter{animation-duration:5.2s!important}
+.p7-cube{animation-duration:9s!important}
+.p7-hot circle{animation-duration:4.2s!important}
+.p8-deltas line{animation-duration:4.6s!important}
+.p8-word{display:none!important}
+.p9-lock{animation-duration:4.2s!important}
+.p9-geo .estimate{animation-duration:5.4s!important}
+.p10-band{animation-duration:5.6s!important}
+.p10-kalman rect{animation-duration:5.4s!important}
+.p10r-cloud.tail circle{animation-duration:5.6s!important}
+.p10r-arrow{animation-duration:5s!important}
 
-/* Content cards: glass is restrained, not a wall of chrome. */
-.telemetry-panel,.source-audit,.lineage-card-main,.metric-item,.geometry-numbers>div{padding:clamp(18px,2.2vw,28px)!important;border-color:rgba(23,26,32,.075)!important}
+/* Preserve distinct motion signatures without applying glass backgrounds. */
+.hero-scene-phase1 .p1-bad{opacity:.50!important}
+.hero-scene-phase1 .p1-safe{stroke:var(--motion-accent)!important}
+.hero-scene-phase1 .p1-shield{fill:rgba(62,106,225,.06)!important;stroke:var(--motion-accent)!important}
+.hero-scene-phase7{overflow:hidden!important}
+.hero-scene-phase7 .p7-cube path{stroke:rgba(23,26,32,.34)!important}
+.hero-scene-phase7 .p7-hot circle{fill:var(--motion-accent)!important}
+.hero-scene-phase10 .p10-path{stroke:#252a35!important}
+.hero-scene-phase10 .p10-band{stroke:rgba(62,106,225,.64)!important}
+.hero-scene-phase10 .p10-state circle{fill:var(--motion-accent)!important}
+.hero-scene-phase10 .p10-kalman rect{fill:#fff!important;stroke:rgba(62,106,225,.28)!important}
+.hero-scene-phase10r .p10r-band{fill:rgba(62,106,225,.06)!important;stroke:rgba(62,106,225,.34)!important}
+.hero-scene-phase10r .p10r-mid{stroke:rgba(23,26,32,.14)!important}
+.hero-scene-phase10r .p10r-cloud.good circle{fill:rgba(62,106,225,.86)!important}
+.hero-scene-phase10r .p10r-cloud.tail circle{fill:#fff!important;stroke:#202631!important}
+.hero-scene-phase10r .p10r-shift{stroke:rgba(62,106,225,.66)!important}
+.hero-scene-phase10r .p10r-arrow{stroke:rgba(62,106,225,.72)!important}
 
-@keyframes glassFloat{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(-18px,12px,0)}}
-@keyframes glassScan{0%,100%{opacity:.28;transform:translateX(-5%)}50%{opacity:.72;transform:translateX(5%)}}
+/* All 12 phases remain visible. Styling stays flat and solid. */
+.phase-rail-section{
+  overflow-x:auto!important;
+  padding-top:18px!important;
+  padding-bottom:18px!important;
+}
+.phase-rail{
+  grid-template-columns:repeat(12,minmax(78px,1fr))!important;
+  gap:8px!important;
+  min-width:1040px!important;
+  min-height:112px!important;
+  padding:8px!important;
+}
+.rail-step{
+  padding:14px 12px!important;
+  opacity:.76!important;
+}
+.rail-step:hover,.rail-step.active{opacity:1!important}
+.rail-step>i{background:rgba(23,26,32,.12)!important}
+.rail-step.active>i,.rail-step.frontier>i{background:var(--motion-accent)!important}
+
+/* Homepage: keep the restrained animated field that replaced the giant target,
+   but use an opaque, non-glass surface. */
+.hero-media{
+  isolation:isolate!important;
+  overflow:hidden!important;
+  background:#f4f5f7!important;
+  border:1px solid rgba(23,26,32,.08)!important;
+  box-shadow:none!important;
+}
+.hero-media::before,.hero-media::after{
+  content:"";
+  position:absolute;
+  pointer-events:none;
+  z-index:0;
+}
+.hero-media::before{
+  width:46%;
+  aspect-ratio:1;
+  border-radius:50%;
+  right:8%;
+  top:10%;
+  border:1px solid rgba(62,106,225,.18);
+  box-shadow:0 0 0 44px rgba(62,106,225,.025),0 0 0 88px rgba(62,106,225,.018);
+  animation:motionOrbit 14s linear infinite;
+}
+.hero-media::after{
+  left:10%;
+  right:10%;
+  bottom:18%;
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(62,106,225,.34),transparent);
+  animation:motionScan 10s ease-in-out infinite;
+}
+.hero-media .hero-image{
+  position:relative!important;
+  z-index:1!important;
+  opacity:.055!important;
+  filter:grayscale(1) contrast(.78)!important;
+  transform:scale(.70) rotate(-3deg)!important;
+  transform-origin:center!important;
+  object-fit:contain!important;
+  padding:10%!important;
+}
+.hero-reticle,.hero-telemetry,.hero-media figcaption{z-index:2!important}
+.hero-reticle{opacity:.48!important;transform:scale(.86)!important}
+
+/* Homepage progression keeps the subtle living animation, without blur/frosting. */
+#homeModelRail{
+  position:relative!important;
+  isolation:isolate!important;
+  overflow:hidden!important;
+  background:#fff!important;
+  border-color:rgba(23,26,32,.08)!important;
+}
+#homeModelRail::before{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  width:38vw;
+  height:38vw;
+  min-width:360px;
+  min-height:360px;
+  border-radius:50%;
+  right:-10vw;
+  top:-28vw;
+  background:radial-gradient(circle,rgba(62,106,225,.10),transparent 67%);
+  animation:motionFloat 12s ease-in-out infinite;
+}
+#homeModelRail::after{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  left:5%;
+  right:5%;
+  bottom:14px;
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(62,106,225,.28),transparent);
+  animation:motionScan 11s ease-in-out infinite;
+}
+#homeModelRail a{
+  transition:transform .22s ease,color .22s ease,background .22s ease!important;
+}
+#homeModelRail a:hover{
+  transform:translateY(-2px)!important;
+  color:#2345b7!important;
+}
+
+@keyframes motionFloat{
+  0%,100%{transform:translate3d(0,0,0)}
+  50%{transform:translate3d(-18px,12px,0)}
+}
+@keyframes motionScan{
+  0%,100%{opacity:.28;transform:translateX(-5%)}
+  50%{opacity:.72;transform:translateX(5%)}
+}
+@keyframes motionOrbit{
+  to{transform:rotate(360deg)}
+}
 
 @media(max-width:980px){
-  .hero.scene-hero{grid-template-columns:1fr!important;gap:32px!important;min-height:auto!important;padding-top:112px!important;padding-bottom:84px!important}
-  .scene-hero .hero-scene{justify-self:center!important;width:min(100%,650px)!important}
-  .scene-hero .scene-label,.scene-hero .scene-foot{grid-template-columns:1fr!important;gap:5px!important}
+  .hero.scene-hero{
+    grid-template-columns:1fr!important;
+    gap:32px!important;
+    min-height:auto!important;
+    padding-top:112px!important;
+    padding-bottom:84px!important;
+  }
+  .scene-hero .hero-scene{
+    justify-self:center!important;
+    width:min(100%,650px)!important;
+  }
+  .scene-hero .scene-label,.scene-hero .scene-foot{
+    grid-template-columns:1fr!important;
+    gap:5px!important;
+  }
   .scene-hero .scene-label strong,.scene-hero .scene-foot strong{text-align:left!important}
   .phase-rail{min-width:980px!important}
   .hero-media .hero-image{transform:scale(.62) rotate(-3deg)!important;padding:15%!important}
 }
 @media(max-width:640px){
-  .scene-hero .hero-scene{border-radius:22px!important;padding:18px!important;aspect-ratio:1.08!important}
-  .button,.top-btn,.header-actions>a,.header-actions>button{border-radius:14px!important}
+  .scene-hero .hero-scene{padding:18px!important;aspect-ratio:1.08!important}
   #homeModelRail{padding-inline:18px!important}
 }
 @media(prefers-reduced-motion:reduce){
