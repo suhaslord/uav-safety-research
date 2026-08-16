@@ -25,5 +25,11 @@
 .cursor-trail-cube::after{display:none!important;content:none!important}
 @keyframes cursorTrail{0%{opacity:.38;transform:translate3d(var(--x),var(--y),0) rotate(var(--rot,0deg)) scale(.9)}100%{opacity:0;transform:translate3d(calc(var(--x) + var(--dx)),calc(var(--y) + var(--dy)),0) rotate(calc(var(--rot,0deg) + var(--spin,20deg))) scale(.55)}}
 
+/* Phase 7 stress-space needs a real intrinsic stage height; its SVG must not be absolute-only. */
+.hero-scene-phase7 .scene-canvas{grid-template-rows:minmax(250px,1fr) auto!important}
+.hero-scene-phase7 .p7-stage{position:relative!important;height:100%!important;min-height:250px!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden!important}
+.hero-scene-phase7 .p7-stage .scene-svg{position:static!important;inset:auto!important;width:100%!important;height:100%!important;min-height:250px!important;max-height:100%!important;overflow:hidden!important}
+
 @media(pointer:coarse),(max-width:767px){.cursor-trail-layer{display:none!important}}
+@media(max-width:900px){.hero-scene-phase7 .scene-canvas{grid-template-rows:minmax(230px,1fr) auto!important}.hero-scene-phase7 .p7-stage,.hero-scene-phase7 .p7-stage .scene-svg{min-height:230px!important}}
 @media(prefers-reduced-motion:reduce){.cursor-trail-layer{display:none!important}.phase-rail-section.rail-enter,#homeModelRail.rail-enter,.rail-step.rail-child-enter,#homeModelRail .home-rail-step.rail-child-enter{opacity:1!important;transform:none!important}}
