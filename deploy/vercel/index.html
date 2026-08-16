@@ -41,7 +41,7 @@
     }else{
       if(path==='/phases/phase10r/'||path==='/phases/phase10r')h=h.replace('<body class="archive-shell">','<body class="archive-shell" data-phase="phase10r">');
       const assets=['phase-archive.css','phase-signatures.css','phase-responsive.css','phase-hero-scenes.css','glass-ui.css'];for(const a of assets)h=h.replaceAll(`href="/${a}"`,`href="${base}${a}"`);
-      const scripts=['phase-data.js','phase-runtime.js','phase-signatures.js','tesla-mobile.js','phase-hero-fix.js','phase10r-archive.js','phase-hero-scenes.js'];for(const a of scripts)h=h.replaceAll(`src="/${a}"`,`src="${base}${a}`);
+      const scripts=['phase-data.js','phase-runtime.js','phase-signatures.js','tesla-mobile.js','phase-hero-fix.js','phase10r-archive.js','phase-hero-scenes.js'];for(const a of scripts)h=h.replaceAll(`src="/${a}"`,`src="${base}${a}"`);
       h=h.replaceAll('phase9-external-perception-validation','main').replaceAll('phase10-temporal-metric-perception','main').replaceAll('phase10r1-p0-forensics-infrastructure','main').replaceAll('phase10r-generalization-validation','main').replaceAll('phase10r-frozen-holdout','main').replace('</head>',`<link rel="icon" type="image/svg+xml" href="${favicon}"></head>`);
     }
     document.open();document.write(h);document.close();
