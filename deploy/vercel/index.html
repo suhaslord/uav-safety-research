@@ -14,7 +14,7 @@
 <div id="boot"><div class="inner"><div class="mark">A</div><div class="word">AEGISLAND</div><small>Loading research archive…</small></div></div>
 <script>
 (async()=>{
-  const rev='e84688e0d62ef37b630e1f7e6921786ecca64154';
+  const rev='f452c8e97f2abf4f48008b956278405d135738e5';
   const base=`https://cdn.jsdelivr.net/gh/suhaslord/uav-safety-research@${rev}/dashboard/`;
   const favicon=`${base}aegis-mark.svg`;
   const path=location.pathname;
@@ -40,11 +40,11 @@
     }else{
       if(path==='/phases/phase10r/'||path==='/phases/phase10r')h=h.replace('<body class="archive-shell">','<body class="archive-shell" data-phase="phase10r">');
       const assets=['phase-archive.css','phase-signatures.css','phase-responsive.css','phase-hero-scenes.css'];for(const a of assets)h=h.replaceAll(`href="/${a}"`,`href="${base}${a}"`);
-      const scripts=['phase-data.js','phase-runtime.js','phase-signatures.js','tesla-mobile.js','phase-hero-fix.js','phase-hero-scenes.js'];for(const a of scripts)h=h.replaceAll(`src="/${a}"`,`src="${base}${a}"`);
-      h=h.replaceAll('phase9-external-perception-validation','main').replaceAll('phase10-temporal-metric-perception','main').replaceAll('phase10r1-p0-forensics-infrastructure','main').replaceAll('phase10r-generalization-validation','main').replaceAll('phase10r-frozen-holdout','main').replace('</head>',`<link rel="icon" type="image/svg+xml" href="${favicon}"></head>`).replace(`<script src="${base}phase-hero-scenes.js"></script>`,`<script src="${base}phase10r-archive.js"></script><script src="${base}phase-hero-scenes.js"></script>`);
+      const scripts=['phase-data.js','phase-runtime.js','phase-signatures.js','tesla-mobile.js','phase-hero-fix.js','phase10r-archive.js','phase-hero-scenes.js'];for(const a of scripts)h=h.replaceAll(`src="/${a}"`,`src="${base}${a}"`);
+      h=h.replaceAll('phase9-external-perception-validation','main').replaceAll('phase10-temporal-metric-perception','main').replaceAll('phase10r1-p0-forensics-infrastructure','main').replaceAll('phase10r-generalization-validation','main').replaceAll('phase10r-frozen-holdout','main').replace('</head>',`<link rel="icon" type="image/svg+xml" href="${favicon}"></head>`);
     }
     document.open();document.write(h);document.close();
-  }catch(e){document.querySelector('small').textContent='AegisLand source could not be loaded.';console.error(e)}
+  }catch(e){const status=document.querySelector('small');if(status)status.textContent='AegisLand source could not be loaded.';console.error(e)}
 })();
 </script>
 </body>
