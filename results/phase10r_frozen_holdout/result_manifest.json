@@ -1,0 +1,8 @@
+{
+  "files": {
+    "holdout_frames.csv": {"bytes": 678893, "sha256": "d480cda72538e97b120dddcb9bd11ef5f5522aa7ef57c079c6c25ddcdb9958fa"},
+    "holdout_result.json": {"bytes": 3080, "sha256": "f42a6bd6538a91f8a104bd9fcc7518047ff5770f0c5a16ca844d6d9f6aea8306"},
+    "summary.md": {"bytes": 445, "sha256": "fdbdcb947d3b67ddcb83c0cce8ac9d353ad7350389d84065e73fc5b721f6625d"}
+  },
+  "schema": "aegisland.phase10r.frozen-holdout-manifest.v1"
+}
