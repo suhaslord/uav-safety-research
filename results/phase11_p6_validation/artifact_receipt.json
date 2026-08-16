@@ -1,0 +1,20 @@
+{
+  "schema": "aegisland.phase11.p6.validation-receipt.v1",
+  "candidate_workflow_run": 31972988822,
+  "candidate_freeze_head_sha": "33e6ff85baa71f796bdcdb7dab2bc26f14b8f71a",
+  "candidate_artifact_id": 9270300062,
+  "candidate_artifact_digest": "sha256:09a5b14a6ab374007b3d577dfaab41a195a44f94d2058bd0b57bcbd3f6dac4ca",
+  "candidate_freeze_sha256": "2bbb91fd0cb45ef11ba4411b406f4b311eff8c5d24020a7e7a64df823ac68073",
+  "validation_workflow_run": 31973115295,
+  "validation_workflow_head_sha": "8c73d808d9042cced7f615194e777b842bb0cd34",
+  "validation_artifact_id": 9270332403,
+  "validation_artifact_digest": "sha256:7a40da228e9121dbb5be03d514b0db1c3ad51b78fe05795722fe27aefde1cbe3",
+  "validation_frames_sha256": "468746447fcd325fc5923b1a139e511e454f49854180d32fc00216a4fec14eee",
+  "validation_result_sha256": "f5c97f29c1d6c9613fcd2c4ba49c42e444703b2260271ec1cec8dc2392ce3254",
+  "protected_validation_seed": 286286,
+  "validation_seed_exposed": true,
+  "all_primary_validation_gates_pass": false,
+  "simulation_only": true,
+  "safety_acceptance": false,
+  "controller_tuning_allowed": false
+}

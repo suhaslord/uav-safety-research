@@ -1,0 +1,71 @@
+name: Phase 11 P6 protected validation
+
+on:
+  push:
+    branches:
+      - phase11-p6-source-conditional-calibration
+    paths:
+      - .github/workflows/phase11-p6-validation.yml
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install project
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Verify frozen scientific code is unchanged
+        run: |
+          git fetch --depth=1 origin 33e6ff85baa71f796bdcdb7dab2bc26f14b8f71a
+          git diff --exit-code 33e6ff85baa71f796bdcdb7dab2bc26f14b8f71a HEAD -- \
+            scripts/run_phase11_p6_source_conditional_calibration.py \
+            tests/test_phase11_p6_source_conditional_calibration.py \
+            docs/phase11_p6_source_conditional_preregistration.md
+          pytest -q tests/test_phase11_p6_source_conditional_calibration.py
+      - name: Download exact frozen candidate artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: phase11-p6-candidate-freeze
+          path: candidate_artifact
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: suhaslord/uav-safety-research
+          run-id: 31972988822
+      - name: Verify exact candidate digest
+        run: |
+          CANDIDATE="candidate_artifact/results/phase11_p6_freeze/candidate_freeze.json"
+          test -f "$CANDIDATE"
+          echo "2bbb91fd0cb45ef11ba4411b406f4b311eff8c5d24020a7e7a64df823ac68073  $CANDIDATE" | sha256sum -c -
+      - name: Expose protected validation exactly once
+        run: |
+          rm -rf results/phase11_p6_validation
+          python scripts/run_phase11_p6_source_conditional_calibration.py \
+            --stage validation \
+            --candidate candidate_artifact/results/phase11_p6_freeze/candidate_freeze.json \
+            --out results/phase11_p6_validation \
+            --git-sha "${GITHUB_SHA}" | tee phase11-p6-validation.log
+          test -f results/phase11_p6_validation/validation_frames.csv
+          test -f results/phase11_p6_validation/validation_result.json
+      - name: Validation digest
+        run: |
+          sha256sum results/phase11_p6_validation/validation_frames.csv
+          sha256sum results/phase11_p6_validation/validation_result.json
+          cat results/phase11_p6_validation/validation_result.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: phase11-p6-protected-validation
+          path: |
+            results/phase11_p6_validation/
+            phase11-p6-validation.log
+          if-no-files-found: error
+          retention-days: 30
