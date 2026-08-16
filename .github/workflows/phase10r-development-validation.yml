@@ -1,0 +1,75 @@
+name: Phase 10R Development Validation
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - phase10r-generalization-validation
+    paths:
+      - ".github/workflows/phase10r-development-validation.yml"
+      - "scripts/run_phase10r_generalization.py"
+      - "docs/phase10r_preregistration.md"
+      - "docs/phase10r_development_validation_protocol.md"
+
+jobs:
+  phase10r-development-validation:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Phase 10R dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]" opencv-contrib-python-headless
+
+      - name: Verify frozen historical boundaries and approval
+        run: |
+          test -f docs/phase10_frozen_holdout_result.md
+          test -f docs/phase10r_holdout_forensics.md
+          grep -q "APPROVAL STATUS: APPROVED AS WRITTEN" docs/phase10r_preregistration.md
+          grep -q "second approval" docs/phase10r_preregistration.md
+
+      - name: Compile candidate and run inherited regression tests
+        run: |
+          python -m py_compile scripts/run_phase10r_generalization.py scripts/analyze_phase9_gazebo_camera_evidence.py
+          pytest -q tests/test_phase10_metric.py tests/test_phase10_calibration.py tests/test_phase_archive_responsive.py
+
+      - name: Run preregistered development and trajectory-held-out validation
+        run: python -m scripts.run_phase10r_generalization --out /tmp/phase10r-generalization
+
+      - name: Validate result manifest and claim boundaries
+        run: |
+          python - <<'PY'
+          from hashlib import sha256
+          import json
+          from pathlib import Path
+          root = Path('/tmp/phase10r-generalization')
+          manifest = json.loads((root / 'result_manifest.json').read_text())
+          for name, meta in manifest['files'].items():
+              payload = (root / name).read_bytes()
+              assert sha256(payload).hexdigest() == meta['sha256'], name
+              assert len(payload) == meta['bytes'], name
+          result = json.loads((root / 'validation_result.json').read_text())
+          freeze = json.loads((root / 'candidate_freeze.json').read_text())
+          assert result['safety_acceptance'] is False
+          assert result['controller_tuning_allowed'] is False
+          assert result['evidence_role'] == 'phase10r_validation_seen_after_candidate_freeze'
+          assert freeze['historical_phase10_holdout_used_for_selection'] is False
+          assert freeze['git_sha'] == '${{ github.sha }}'
+          PY
+
+      - name: Upload Phase 10R development + validation evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase10r-development-validation
+          path: /tmp/phase10r-generalization
+          if-no-files-found: error
+          retention-days: 30
