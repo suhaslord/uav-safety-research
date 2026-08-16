@@ -1,0 +1,65 @@
+name: Phase 11 P7 independent development challenge
+
+on:
+  push:
+    branches:
+      - phase11-p7-powered-horizon-calibration
+    paths:
+      - .github/workflows/phase11-p7-development.yml
+
+permissions:
+  contents: read
+
+jobs:
+  develop:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install project
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Verify frozen P7 candidate
+        run: |
+          test -f results/phase11_p7/candidate_freeze.json
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          p = Path('results/phase11_p7/candidate_freeze.json')
+          c = json.loads(p.read_text())
+          assert c['schema'] == 'aegisland.phase11.p7.candidate-freeze.v1'
+          assert c['git_sha'] == '3be4423afa24dfa85af9ed36e4064b007fcc5e13'
+          assert c['development_seed_unseen_at_freeze'] == 341341
+          assert c['validation_seed_unseen_at_freeze'] == 352352
+          assert c['horizon_group_counts']['long'] >= 40
+          assert c['simulation_only'] is True
+          assert c['safety_acceptance'] is False
+          assert c['controller_tuning_allowed'] is False
+          print('committed_candidate_sha256=', hashlib.sha256(p.read_bytes()).hexdigest())
+          PY
+      - name: Run P7 development challenge exactly once
+        run: |
+          rm -rf results/phase11_p7_development
+          python scripts/run_phase11_p7_powered_horizon_calibration.py \
+            --stage development \
+            --candidate results/phase11_p7/candidate_freeze.json \
+            --out results/phase11_p7_development \
+            --git-sha "${GITHUB_SHA}" | tee phase11-p7-development.log
+          test ! -f results/phase11_p7_development/validation_frames.csv
+          test ! -f results/phase11_p7_development/validation_result.json
+      - name: Development digests
+        run: |
+          sha256sum results/phase11_p7_development/development_frames.csv
+          sha256sum results/phase11_p7_development/development_result.json
+          cat results/phase11_p7_development/development_result.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: phase11-p7-development-challenge
+          path: |
+            results/phase11_p7_development/
+            phase11-p7-development.log
+          if-no-files-found: error
+          retention-days: 30
