@@ -1,0 +1,148 @@
+:root{
+  --glass-bg:rgba(255,255,255,.58);
+  --glass-bg-strong:rgba(255,255,255,.78);
+  --glass-dark:rgba(18,20,24,.62);
+  --glass-line:rgba(255,255,255,.72);
+  --glass-shadow:0 14px 42px rgba(19,24,34,.08),inset 0 1px 0 rgba(255,255,255,.9);
+  --glass-shadow-hover:0 18px 50px rgba(19,24,34,.13),inset 0 1px 0 rgba(255,255,255,.95);
+  --glass-radius:16px;
+  --glass-blur:22px;
+}
+
+/* --- Glass controls: one quiet language across cockpit + archive --- */
+.button,.top-btn,.site-nav a,.header-actions a,.header-actions button,.social-button,.source-audit-links a,.switch-nav a,.next,.source,.archive-menu-toggle,.archive-menu-close,.archive-menu-links a{
+  border:1px solid rgba(255,255,255,.72)!important;
+  background:linear-gradient(145deg,rgba(255,255,255,.78),rgba(245,247,251,.48))!important;
+  color:#171a20!important;
+  border-radius:14px!important;
+  box-shadow:var(--glass-shadow)!important;
+  backdrop-filter:blur(var(--glass-blur)) saturate(150%)!important;
+  -webkit-backdrop-filter:blur(var(--glass-blur)) saturate(150%)!important;
+  transition:transform .28s cubic-bezier(.22,1,.36,1),box-shadow .28s ease,border-color .28s ease,background .28s ease!important;
+}
+.button:hover,.top-btn:hover,.site-nav a:hover,.header-actions a:hover,.header-actions button:hover,.social-button:hover,.source-audit-links a:hover,.switch-nav a:hover,.next:hover,.source:hover,.archive-menu-links a:hover{
+  transform:translateY(-2px)!important;
+  box-shadow:var(--glass-shadow-hover)!important;
+  border-color:rgba(255,255,255,.96)!important;
+}
+.button.primary,.button.blue,.top-btn.primary{
+  background:linear-gradient(145deg,rgba(62,106,225,.9),rgba(73,117,231,.72))!important;
+  color:#fff!important;
+  border-color:rgba(255,255,255,.42)!important;
+  box-shadow:0 14px 36px rgba(62,106,225,.22),inset 0 1px 0 rgba(255,255,255,.45)!important;
+}
+.site-header.on-dark .site-nav a,.site-header.on-dark .header-actions a,.site-header.on-dark .header-actions button,.dark .source,.dark .next{
+  background:linear-gradient(145deg,rgba(255,255,255,.14),rgba(255,255,255,.06))!important;
+  color:#fff!important;
+  border-color:rgba(255,255,255,.18)!important;
+  box-shadow:0 12px 34px rgba(0,0,0,.16),inset 0 1px 0 rgba(255,255,255,.12)!important;
+}
+
+.site-header,.top{
+  background:linear-gradient(180deg,rgba(255,255,255,.82),rgba(255,255,255,.62))!important;
+  backdrop-filter:blur(26px) saturate(155%)!important;
+  -webkit-backdrop-filter:blur(26px) saturate(155%)!important;
+  border-bottom:1px solid rgba(255,255,255,.8)!important;
+  box-shadow:0 8px 30px rgba(20,24,32,.045)!important;
+}
+
+/* Glass surfaces without turning the site into a pile of cards. */
+.telemetry-panel,.source-audit,.lineage-card-main,.metric-card,.story-pair article,.evidence-story,.changes article,.next-reason,.frontier-badge{
+  border-color:rgba(23,26,32,.09)!important;
+}
+.telemetry-panel,.source-audit,.lineage-card-main,.frontier-badge{
+  background:linear-gradient(145deg,rgba(255,255,255,.7),rgba(248,249,252,.46))!important;
+  border:1px solid rgba(255,255,255,.78)!important;
+  border-radius:18px!important;
+  box-shadow:var(--glass-shadow)!important;
+  backdrop-filter:blur(18px) saturate(145%)!important;
+  -webkit-backdrop-filter:blur(18px) saturate(145%)!important;
+}
+
+/* --- Fix the animation system collision from phase-archive.css .object strong --- */
+.hero-scene .scene-label strong,.hero-scene .scene-foot strong{
+  position:static!important;
+  inset:auto!important;
+  display:block!important;
+  place-items:initial!important;
+  width:auto!important;
+  height:auto!important;
+  transform:none!important;
+  margin:0!important;
+}
+.hero-scene .scene-label span,.hero-scene .scene-foot span{
+  position:static!important;
+  transform:none!important;
+}
+.hero-scene{
+  isolation:isolate!important;
+  min-width:0!important;
+  max-width:620px!important;
+  border:1px solid rgba(23,26,32,.07)!important;
+  border-radius:22px!important;
+  background:linear-gradient(145deg,rgba(255,255,255,.76),rgba(248,250,255,.48))!important;
+  box-shadow:0 24px 64px rgba(24,30,42,.07),inset 0 1px 0 rgba(255,255,255,.95)!important;
+  backdrop-filter:blur(20px) saturate(130%)!important;
+  -webkit-backdrop-filter:blur(20px) saturate(130%)!important;
+}
+.scene-label{min-height:34px!important;position:relative!important;z-index:4!important}
+.scene-label strong{max-width:55%!important;white-space:normal!important}
+.scene-foot{min-height:42px!important;position:relative!important;z-index:4!important}
+.scene-svg{overflow:hidden!important;position:relative!important;z-index:1!important}
+/* Keep explanation out of the drawing itself. SVG labels are the main source of visual collisions. */
+.scene-svg text{display:none!important}
+/* Phase 3 has white-on-dark SVG text in the original; hidden intentionally as part of the clean scene language. */
+.hero-scene svg{max-width:100%!important;max-height:100%!important}
+.hero-scene-phase7{contain:layout paint style!important}
+
+/* --- Homepage: turn the giant ArUco graphic into a restrained ambient motif --- */
+.hero-media{
+  background:
+    radial-gradient(circle at 55% 42%,rgba(62,106,225,.12),transparent 28%),
+    radial-gradient(circle at 78% 68%,rgba(23,26,32,.055),transparent 24%),
+    linear-gradient(145deg,#f7f8fb 0%,#eef1f6 48%,#f8f9fb 100%)!important;
+}
+.hero-media::before,.hero-media::after{
+  content:"";position:absolute;pointer-events:none;border-radius:50%;z-index:1;
+}
+.hero-media::before{
+  width:min(52vw,620px);aspect-ratio:1;left:50%;top:50%;transform:translate(-50%,-50%);
+  border:1px solid rgba(23,26,32,.09);box-shadow:inset 0 0 0 80px rgba(255,255,255,.09),inset 0 0 0 160px rgba(62,106,225,.025);
+  animation:glassOrbit 14s linear infinite;
+}
+.hero-media::after{
+  width:10px;height:10px;left:69%;top:31%;background:#3e6ae1;box-shadow:0 0 0 10px rgba(62,106,225,.07),0 0 32px rgba(62,106,225,.28);
+  animation:glassNode 4.2s ease-in-out infinite;
+}
+.hero-image{
+  object-fit:contain!important;
+  object-position:center!important;
+  padding:13%!important;
+  opacity:.10!important;
+  filter:grayscale(1) contrast(.72)!important;
+  transform:translate3d(calc(var(--hero-x) * -.12),calc(var(--hero-y) * -.12),0) scale(.78)!important;
+}
+.hero-reticle{opacity:.42!important;z-index:2!important;filter:drop-shadow(0 12px 22px rgba(62,106,225,.08))}
+.hero-telemetry span{
+  border:1px solid rgba(255,255,255,.78)!important;border-left:1px solid rgba(255,255,255,.78)!important;border-radius:13px!important;
+  background:linear-gradient(145deg,rgba(255,255,255,.72),rgba(255,255,255,.46))!important;
+  box-shadow:var(--glass-shadow)!important;backdrop-filter:blur(18px) saturate(145%)!important;-webkit-backdrop-filter:blur(18px) saturate(145%)!important;
+}
+.hero-media figcaption{z-index:3!important;padding:9px 12px!important;border-radius:12px!important;background:rgba(255,255,255,.45)!important;backdrop-filter:blur(14px)!important;-webkit-backdrop-filter:blur(14px)!important}
+
+/* Timeline gets glass only on hover/active so the progression stays minimal. */
+.rail-step{border-radius:12px!important;padding-left:10px!important;padding-right:10px!important}
+.rail-step:hover,.rail-step.active,.rail-step.frontier{
+  background:linear-gradient(145deg,rgba(255,255,255,.7),rgba(246,248,252,.4))!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 10px 28px rgba(20,24,32,.045)!important;
+}
+
+@keyframes glassOrbit{to{transform:translate(-50%,-50%) rotate(360deg)}}
+@keyframes glassNode{0%,100%{transform:translate(0,0) scale(.85);opacity:.55}50%{transform:translate(-22px,20px) scale(1.12);opacity:1}}
+@media(max-width:900px){
+  .hero-scene{width:min(92vw,620px)!important;border-radius:18px!important;padding:18px!important}
+  .scene-label{gap:10px!important}.scene-label strong{max-width:62%!important}
+  .hero-image{padding:18%!important;opacity:.08!important}
+  .hero-media::before{width:76vw}
+}
+@media(prefers-reduced-motion:reduce){.hero-media::before,.hero-media::after{animation:none!important}}
