@@ -4,76 +4,81 @@
 
 **DEVELOPMENT FROZEN — PROTECTED VALIDATION NOT EXPOSED**
 
-P5 preregistration: `docs/phase11_p5_perception_continuity_preregistration.md`
+P5 preregistration: `docs/phase11_p5_calibrated_continuity_preregistration.md`
 
 Freeze workflow:
 
-- run: `31972687836`
-- freeze head SHA: `c5927d208873417adce3ce78daf1c670b6a5fce1`
-- artifact ID: `9270220380`
-- artifact digest: `sha256:538a9876922f56016235c22775dc98a81431a5dfe87ea660b5951239f132b6bc`
-- candidate JSON SHA-256: `5bafa7ede17b026dea0dbaf16f20fb6c70f83137b3b48552727f6a9ac7d0cc4e`
-- transfer-result SHA-256: `590e8bdc01175d325a06ad9db526caebfb21a064f24d6709e9566d3502721172`
+- run: `31970927566`
+- freeze head: `40dd99da30434c70ee7127f0602063d636280515`
+- artifact ID: `9269762950`
+- artifact digest: `sha256:943406985c1abcb168b650d37665e588f3ec016b097dcec94a556cbbd3fae845`
+- candidate JSON SHA-256: `7b1d921240f3a78bcf2801e57550e7ffbe64096dd5feecd8a53b6ac7372b97a3`
+- transfer-result SHA-256: `7952797ff7c736b46ba42508fc034a32b72b1511acf48a542a4d6510ac937786`
 
-The freeze workflow's invariant tests passed and verified that protected validation seed `242242` was not generated.
+The freeze workflow passed all P5 invariant tests and verified that protected validation seed `242242` was **not generated**. No P5 validation frames or validation result were created.
+
+## Frozen continuity candidate
+
+- maximum bridge horizon: `5` missing frames;
+- bridged outputs never feed back into direct-observation velocity history;
+- fit-frozen lateral velocity cap: `0.10883070275429642 m/frame`;
+- fit-frozen altitude velocity cap: `0.1479663768591145 m/frame`;
+- ridge lambda: `4.0`;
+- no severity gate;
+- no interval-width gate in the primary result.
 
 ## Seen transfer-calibration result
 
 Evidence role: `phase11_p5_seen_transfer_calibration`
 
-P5 solved the P4 availability bottleneck on seen transfer data:
+P5 solved the P4 availability bottleneck on seen compositional development data while preserving strong overall calibration:
 
-- truth-visible availability: **`99.51%`** — PASS against `>=92%`;
-- lateral 95% coverage: `95.12%` — PASS;
-- altitude 95% coverage: `95.12%` — PASS;
-- calibration-curve MACE: `0.000783` — PASS;
-- lateral median / p95 interval-efficiency ratios: `0.611x` / `1.552x` — PASS;
-- altitude median / p95 interval-efficiency ratios: `0.632x` / `1.647x` — PASS;
-- trajectory-level shift AUROC: `0.9462` — diagnostic PASS.
+| Gate | Frozen development result | Verdict |
+|---|---:|---|
+| H1 estimator availability | `99.51%` | PASS |
+| H2 lateral 95% coverage | `95.12%` | PASS |
+| H2 altitude 95% coverage | `95.12%` | PASS |
+| H3 calibration-curve MACE | `0.000923` | PASS |
+| H4 lateral median half-width / p95 error | `0.652x` | PASS |
+| H4 altitude median ratio | `0.663x` | PASS |
+| H4 lateral p95 half-width / p95 error | `1.594x` | PASS |
+| H4 altitude p95 ratio | `1.453x` | PASS |
+| H6 shift AUROC | `0.96875` | PASS |
 
-The new bounded continuity extension produced `61` seen transfer rows (`4.24%` of truth-visible frames).
+### Long-bridge honesty gate
 
-Continuity-specific diagnostics:
+There were `42` available rows with bridge horizon `3..5`, sufficient to evaluate the preregistered long-bridge gate.
 
-- lateral 95% coverage: `91.80%`;
-- altitude 95% coverage: **`100.00%`**;
-- lateral p95 half-width / p95 error: `0.848x`;
-- altitude p95 half-width / p95 error: `1.535x`.
+- lateral 95% long-bridge coverage: `88.10%` — PASS against `>=88%`;
+- altitude 95% long-bridge coverage: `85.71%` — **FAIL** against `>=88%`;
+- lateral median half-width / median long-bridge error: `2.089x` — PASS;
+- altitude median half-width / median long-bridge error: `1.510x` — PASS.
 
-The preregistered H5 continuity-specific honesty gate requires 95% coverage in `[88%,99%]` on both axes. Altitude overcoverage therefore fails H5 and P5 fails overall before protected validation.
+Overall P5 development result: **MIXED / FAILED** solely because long-horizon altitude coverage missed the preregistered floor.
 
-## Decision before validation
+## Decision before protected validation
 
-Protected validation seed `242242` is intentionally **not exposed**.
+Protected validation seed `242242` is intentionally **not exposed** and is retired rather than recycled into a later benchmark.
 
-The candidate is not eligible for protected validation because a preregistered primary development gate failed. Spending unseen validation evidence would not add scientific value.
+The P5 preregistration explicitly required stopping before validation if H1–H5 failed on the seen transfer split. That condition occurred, so validation is not run.
+
+No bridge horizon, velocity-cap rule, uncertainty-model feature, ridge constant, conformal rule, transfer multiplier, or gate was changed after transfer exposure.
 
 ## Interpretation
 
-P5 establishes that the continuity mechanism itself can nearly eliminate short-gap availability loss without breaking the overall reliability layer. The remaining issue is calibration granularity rather than estimate production:
+P5 provides a clean next-step diagnosis:
 
-1. overall availability rises from P4's `83.13%` protected-validation result to `99.51%` on the new seen P5 transfer split;
-2. overall coverage and interval efficiency remain excellent;
-3. the continuity-extension subgroup is small and behaves differently from genuine/inherited-bridge outputs;
-4. global two-stage calibration makes altitude intervals too conservative specifically for that subgroup.
+1. A bounded direct-anchored five-frame continuity layer can restore estimator availability on difficult compositional shifts.
+2. Overall uncertainty remains well calibrated and efficient when those recovered frames are included.
+3. The remaining weakness is localized to **long bridge horizons**, especially altitude, rather than to the general uncertainty model.
 
-This supports a narrow P6 hypothesis: preserve the P5 continuity estimator unchanged and calibrate `continuity_extension` outputs separately from non-continuity outputs at the compositional transfer stage.
+The next revision should therefore preserve P5 point estimation and continuity behavior but calibrate uncertainty separately for short/direct versus long (`3..5`) bridge states on completely new evidence.
 
-## Next revision
+## Next scientific boundary
 
-P6 should make exactly one scientific change:
+Any P6 method must use new fit/calibration/transfer/development-challenge/protected-validation evidence. P5 transfer seed `231231` is permanently seen. P5 protected seed `242242` remains ungenerated and retired.
 
-- **source-conditional transfer calibration** with two preregistered groups: `continuity_extension` and `base_output`.
-
-All P5 continuity constants remain unchanged in P6:
-
-- max extension horizon `5`;
-- damping `0.85`;
-- fit-derived q99 velocity caps;
-- genuine-anchor-only history;
-- no recursive continuity anchors.
-
-P6 must use new fit/calibration/transfer/validation seeds and new trajectory families. P5 transfer seed `231231` is permanently seen and may not become hidden evidence.
+Passing a future P6 protected validation still does **not** authorize the final Phase 11 frozen holdout. That final holdout requires a separate explicit user approval checkpoint.
 
 ## Claim boundaries
 
