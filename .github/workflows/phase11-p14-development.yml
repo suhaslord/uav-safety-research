@@ -1,0 +1,59 @@
+# SIMULATION-ONLY research benchmark. No physical aircraft or controller actions.
+name: Phase 11 P14 simulation benchmark
+
+on:
+  push:
+    branches:
+      - phase11-p14-independent-coarse-fallback
+    paths:
+      - scripts/run_phase11_p14_independent_coarse_fallback.py
+      - tests/test_phase11_p14_independent_coarse_fallback.py
+      - docs/phase11_p14_independent_coarse_fallback_preregistration.md
+      - .github/workflows/phase11-p14-development.yml
+
+permissions:
+  contents: read
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install project
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Run P14 invariants before evidence generation
+        run: pytest -q tests/test_phase11_p9_soft_update_direct_conformal.py tests/test_phase11_p14_independent_coarse_fallback.py
+      - name: Freeze final P14 candidate from calibration splits only
+        run: |
+          rm -rf results/phase11_p14_candidate results/phase11_p14_challenge
+          python scripts/run_phase11_p14_independent_coarse_fallback.py --stage freeze --out results/phase11_p14_candidate --git-sha "${GITHUB_SHA}" | tee phase11-p14-freeze.log
+          test -f results/phase11_p14_candidate/candidate_freeze.json
+          test ! -f results/phase11_p14_candidate/challenge_result.json
+          test ! -f results/phase11_p14_candidate/validation_result.json
+      - name: Record candidate digest before challenge exposure
+        run: sha256sum results/phase11_p14_candidate/candidate_freeze.json | tee phase11-p14-candidate.sha256
+      - name: Evaluate exact candidate on preregistered seen challenge
+        run: |
+          python scripts/run_phase11_p14_independent_coarse_fallback.py --stage challenge --candidate results/phase11_p14_candidate/candidate_freeze.json --out results/phase11_p14_challenge --git-sha "${GITHUB_SHA}" | tee phase11-p14-challenge.log
+          test ! -f results/phase11_p14_challenge/validation_result.json
+      - name: Record challenge digests and result
+        run: |
+          sha256sum results/phase11_p14_challenge/challenge_frames.csv
+          sha256sum results/phase11_p14_challenge/challenge_result.json
+          cat results/phase11_p14_challenge/challenge_result.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: phase11-p14-simulation-development
+          path: |
+            results/phase11_p14_candidate/
+            results/phase11_p14_challenge/
+            phase11-p14-freeze.log
+            phase11-p14-challenge.log
+            phase11-p14-candidate.sha256
+          if-no-files-found: error
+          retention-days: 30
