@@ -7,6 +7,7 @@
      phase script has mounted. */
   if(/\/phases\/phase10r\/?$/i.test(location.pathname)){
     const normalize10r=()=>{
+      document.title='Phase 10R · Frozen holdout — AegisLand';
       const hero=document.getElementById('phaseHero');
       if(!hero)return;
       hero.classList.remove('frontier-hero');
