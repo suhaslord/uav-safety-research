@@ -1,0 +1,12 @@
+{
+  "artifact_id": 9269238508,
+  "artifact_name": "phase11-p1-frozen-validation",
+  "artifact_digest": "sha256:6732711c70c52101b7eb8afe51cda024711b18cd97adf7aaca6d33199caa6588",
+  "workflow_run_id": 31968903756,
+  "git_sha": "1ee4ffaa426db03272f716fb7d9aba249d9295b8",
+  "evidence_role": "phase11_p1_frozen_candidate_validation",
+  "validation_seed": 77077,
+  "simulation_only": true,
+  "safety_acceptance": false,
+  "controller_tuning_allowed": false
+}

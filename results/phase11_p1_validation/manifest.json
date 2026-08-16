@@ -1,0 +1,13 @@
+{
+  "artifacts": {
+    "calibration.json": "6aed5d69344ed499aab1bcd0e08b04848273632d831d75990d236ddb419488ba",
+    "calibration_frames.csv": "1509d7b08212dafa16499f4794809f35d7f0fe27c0e797e6e7324732f142b9c3",
+    "fit_frames.csv": "46908866e721f3ecfcf0217d97a27f967b2bce973c34a9366db390384cd7fd81",
+    "validation_frames.csv": "1537907f98c5c28df76c905fc115c57d382731fc4fc75cec4da8efc9a7d7bf9d",
+    "validation_result.json": "cdb5b3b6c77aa184b63635d1b492408c3c9865b55be1ea15eece4fec8673569b",
+    "validation_summary.md": "b04231179b1c43c04a544b1345b01359b62a0a43be2b6ce0bfe2ed70174a6c50"
+  },
+  "git_sha": "1ee4ffaa426db03272f716fb7d9aba249d9295b8",
+  "schema": "aegisland.phase11.p1.manifest.v1",
+  "stage": "validation"
+}

@@ -1,0 +1,60 @@
+name: Phase 11 P1 frozen validation
+
+on:
+  push:
+    branches:
+      - phase11-p1-adaptive-reliability
+
+jobs:
+  frozen-validation:
+    if: "${{ github.event.head_commit.message == 'ci phase11 expose P1 validation once' }}"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install --upgrade pip
+      - run: pip install -e '.[dev]'
+      - name: Verify frozen candidate constants
+        run: >-
+          python -c "from scripts import run_phase11_p1_adaptive_reliability as p1;
+          assert p1.VALIDATION_SEED == 77077;
+          assert p1.ACCEPTANCE_THRESHOLD == 0.40078671864763;
+          assert p1.MAX_BRIDGE_GAP == 2;
+          assert p1.RIDGE_LAMBDA == 1.0;
+          assert p1.MULTIPLIER_COACTIVATION == 3.0;
+          assert p1.MULTIPLIER_RISK == 6.0;
+          assert p1.MULTIPLIER_BRIDGE == 2.0;
+          assert abs(sum(p1.RISK_WEIGHTS.values()) - 1.0) < 1e-12;
+          print('Frozen P1 candidate verified; validation seed will now become permanently seen.')"
+      - name: Expose validation once
+        run: |
+          python scripts/run_phase11_p1_adaptive_reliability.py \
+            --stage validation \
+            --acknowledge-validation-exposure \
+            --out results/phase11_p1_validation \
+            --git-sha "$GITHUB_SHA"
+      - name: Record workflow receipt
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          p = Path('results/phase11_p1_validation/workflow_receipt.json')
+          p.write_text(json.dumps({
+            'schema': 'aegisland.phase11.p1.validation-workflow-receipt.v1',
+            'run_id': os.environ['GITHUB_RUN_ID'],
+            'git_sha': os.environ['GITHUB_SHA'],
+            'evidence_role': 'phase11_p1_frozen_candidate_validation',
+            'validation_seed': 77077,
+            'simulation_only': True,
+            'safety_acceptance': False,
+            'controller_tuning_allowed': False
+          }, indent=2, sort_keys=True) + '\n')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: phase11-p1-frozen-validation
+          path: results/phase11_p1_validation
+          if-no-files-found: error
+          retention-days: 90
