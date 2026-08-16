@@ -1,5 +1,5 @@
 (() => {
-  const RESULT_URL = "https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase10r_development_validation_result.md";
+  const RESULT_URL = "/phases/phase10r/";
 
   function install() {
     if (document.getElementById("phase10rFrontier")) return;
@@ -18,17 +18,17 @@
     const section = document.createElement("section");
     section.id = "phase10rFrontier";
     section.className = "phase10r-frontier";
-    section.setAttribute("aria-label", "Current Phase 10R validation frontier");
+    section.setAttribute("aria-label", "Frozen Phase 10R holdout frontier");
     section.innerHTML = `
       <div class="phase10r-frontier-copy">
-        <p class="phase10r-frontier-kicker">Current frontier · Phase 10R trajectory-held-out validation</p>
-        <strong>Availability and uncertainty improved. Lateral partial-view geometry still missed the preregistered gates.</strong>
-        <p>Mixed result frozen without post-validation retuning · <a href="${RESULT_URL}" target="_blank" rel="noreferrer">open the validation record ↗</a></p>
+        <p class="phase10r-frontier-kicker">Frozen frontier · Phase 10R protected holdout</p>
+        <strong>Average ambiguous-view error fell sharply. Tail risk, availability, and calibration under shift did not.</strong>
+        <p>Final all-gates verdict: mixed / failed overall · frozen without retuning · <a href="${RESULT_URL}">open Phase 10R ↗</a></p>
       </div>
-      <div class="phase10r-frontier-metrics" aria-label="Phase 10R headline validation metrics">
-        <span><b>66.0%</b><small>miss reduction</small></span>
-        <span><b>30.1%</b><small>lateral MAE gain</small></span>
-        <span><b>94.1%</b><small>95% coverage</small></span>
+      <div class="phase10r-frontier-metrics" aria-label="Phase 10R frozen holdout metrics">
+        <span><b>79.2%</b><small>lateral MAE gain</small></span>
+        <span><b>20.0%</b><small>miss rate</small></span>
+        <span><b>84.3%</b><small>95% lat coverage</small></span>
       </div>`;
     hero.insertAdjacentElement("afterend", section);
   }
