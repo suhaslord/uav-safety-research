@@ -1,10 +1,44 @@
 (() => {
   const RESULT_URL = "/phases/phase10r/";
   const RECORD_URL = "https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase10r_frozen_holdout_result.md";
+  const MODELS = [
+    ["01","Phase 1","/phases/phase1/"],
+    ["02","Phase 2","/phases/phase2/"],
+    ["03","Phase 3","/phases/phase3/"],
+    ["04","Phase 4","/phases/phase4/","gap"],
+    ["05","Phase 5","/phases/phase5/"],
+    ["06","Phase 6","/phases/phase6/"],
+    ["07","Phase 6B","/phases/phase6b/"],
+    ["08","Phase 7","/phases/phase7/"],
+    ["09","Phase 8","/phases/phase8/"],
+    ["10","Phase 9","/phases/phase9/"],
+    ["11","Phase 10","/phases/phase10/"],
+    ["12","Phase 10R","/phases/phase10r/","current"]
+  ];
 
   function setText(selector, text) {
     const node = document.querySelector(selector);
     if (node) node.textContent = text;
+  }
+
+  function installBrandStyle() {
+    if (document.getElementById("aegisBrandStyle")) return;
+    const style = document.createElement("style");
+    style.id = "aegisBrandStyle";
+    style.textContent = `
+      .wordmark{display:inline-flex!important;align-items:center;gap:9px;letter-spacing:.18em!important}
+      .aegis-mini-mark{width:28px;height:28px;border-radius:9px;background:#171a20;display:inline-grid;place-items:center;position:relative;box-shadow:0 7px 20px rgba(23,26,32,.17);flex:0 0 auto}
+      .aegis-mini-mark:before,.aegis-mini-mark:after{content:"";position:absolute;width:2px;height:15px;top:6px;background:#fff;border-radius:2px}.aegis-mini-mark:before{transform:rotate(25deg);left:9px}.aegis-mini-mark:after{transform:rotate(-25deg);right:9px}.aegis-mini-mark i{width:10px;height:2px;background:#fff;border-radius:2px;position:absolute;top:16px}.aegis-mini-mark b{position:absolute;width:5px;height:5px;border-radius:50%;background:#2f6fed;right:3px;top:3px;box-shadow:0 0 0 2px rgba(47,111,237,.22)}
+    `;
+    document.head.appendChild(style);
+  }
+
+  function decorateLogo() {
+    installBrandStyle();
+    const wordmark = document.querySelector(".site-header .wordmark");
+    if (wordmark && !wordmark.querySelector(".aegis-mini-mark")) {
+      wordmark.innerHTML = '<span class="aegis-mini-mark" aria-hidden="true"><i></i><b></b></span><span>AEGISLAND</span>';
+    }
   }
 
   function promoteHero() {
@@ -57,10 +91,41 @@
     setText("#timeline .lineage-intro .lead", "The complete project history stays inspectable through the current Phase 10R frozen holdout. Protocols, failures, mixed results, external-simulator evidence, and the final shift result remain linked instead of being rewritten after the fact.");
   }
 
-  function installFrontier() {
-    if (document.getElementById("phase10rFrontier")) return;
+  function installModelRail() {
+    if (document.getElementById("homeModelRail")) return;
     const hero = document.querySelector("main .hero");
     if (!hero) return;
+
+    const style = document.createElement("style");
+    style.id = "homeModelRailStyle";
+    style.textContent = `
+      .home-model-rail{background:#fff;border-top:1px solid #e5e5e7;border-bottom:1px solid #e5e5e7;padding:22px clamp(20px,5vw,72px) 18px;overflow:hidden}
+      .home-model-rail-head{display:flex;align-items:end;justify-content:space-between;gap:20px;margin-bottom:15px}.home-model-rail-head p{margin:0;color:#6b6d70;font-size:10px;font-weight:700;letter-spacing:.13em;text-transform:uppercase}.home-model-rail-head strong{font-size:13px;font-weight:600}.home-model-rail-head a{font-size:11px;color:#5c5e62;border-bottom:1px solid #bbb;padding-bottom:2px}
+      .home-model-track{display:grid;grid-template-columns:repeat(12,minmax(76px,1fr));position:relative;min-width:980px}.home-model-track:before{content:"";position:absolute;left:3%;right:3%;top:14px;height:1px;background:#c9cacc}.home-model-step{position:relative;display:grid;justify-items:center;gap:6px;padding:0 4px;text-align:center;color:#6b6d70;transition:transform .2s ease,color .2s ease}.home-model-step:hover{transform:translateY(-2px);color:#171a20}.home-model-step i{width:9px;height:9px;border:2px solid #9fa0a3;background:#fff;border-radius:50%;z-index:1;margin-top:10px}.home-model-step span{font-size:9px;letter-spacing:.08em}.home-model-step strong{font-size:10px;font-weight:600;line-height:1.15}.home-model-step.current{color:#171a20}.home-model-step.current i{width:13px;height:13px;margin-top:8px;background:#2f6fed;border-color:#2f6fed;box-shadow:0 0 0 5px rgba(47,111,237,.13)}.home-model-step.current strong{font-weight:750}.home-model-step.gap{opacity:.6}
+      .home-model-scroll{overflow-x:auto;scrollbar-width:thin;padding-bottom:5px}
+      @media(max-width:767px){.home-model-rail{padding-left:20px;padding-right:20px}.home-model-rail-head{align-items:flex-start}.home-model-track{min-width:900px}.home-model-step strong{font-size:9px}}
+    `;
+    document.head.appendChild(style);
+
+    const section = document.createElement("section");
+    section.id = "homeModelRail";
+    section.className = "home-model-rail";
+    section.setAttribute("aria-label", "AegisLand model and research phase timeline");
+    section.innerHTML = `
+      <div class="home-model-rail-head">
+        <div><p>Research progression</p><strong>Every model stays reachable.</strong></div>
+        <a href="/phases/">Open full archive ↗</a>
+      </div>
+      <div class="home-model-scroll"><div class="home-model-track">
+        ${MODELS.map(([number,label,url,state]) => `<a class="home-model-step ${state || ""}" href="${url}" ${state === "current" ? 'aria-current="page"' : ""}><i></i><span>${number}</span><strong>${label}</strong></a>`).join("")}
+      </div></div>`;
+    hero.insertAdjacentElement("afterend", section);
+  }
+
+  function installFrontier() {
+    if (document.getElementById("phase10rFrontier")) return;
+    const anchor = document.getElementById("homeModelRail") || document.querySelector("main .hero");
+    if (!anchor) return;
 
     const style = document.createElement("style");
     style.id = "phase10rFrontierStyle";
@@ -86,11 +151,13 @@
         <span><b>20.0%</b><small>miss rate</small></span>
         <span><b>84.3%</b><small>95% lat coverage</small></span>
       </div>`;
-    hero.insertAdjacentElement("afterend", section);
+    anchor.insertAdjacentElement("afterend", section);
   }
 
   function install() {
+    decorateLogo();
     promoteHero();
+    installModelRail();
     installFrontier();
   }
 

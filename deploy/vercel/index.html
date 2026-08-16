@@ -5,26 +5,25 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#fff">
   <title>AegisLand — Research Cockpit</title>
+  <link rel="icon" type="image/svg+xml" href="https://cdn.jsdelivr.net/gh/suhaslord/uav-safety-research@cc621c7ea3aec64be32c66626f33d79e46e363c0/dashboard/aegis-mark.svg">
   <style>
     html,body{margin:0;background:#fff;color:#171a20;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
     #boot{min-height:100vh;display:grid;place-items:center}.inner{display:grid;gap:18px;justify-items:center}
-    .lock{display:flex;align-items:center;gap:12px}.mark{width:42px;height:42px;display:grid;place-items:center;background:#171a20;color:#fff;border-radius:4px;font-size:20px;font-weight:500}
-    .word{font-size:15px;font-weight:500;letter-spacing:.26em}small{color:#5c5e62}
+    .lock{display:flex;align-items:center;gap:12px}.mark{width:44px;height:44px;display:grid;place-items:center;background:#171a20;color:#fff;border-radius:12px;box-shadow:0 10px 28px rgba(23,26,32,.18)}
+    .mark img{width:44px;height:44px;display:block}.word{font-size:15px;font-weight:600;letter-spacing:.24em}small{color:#5c5e62}
   </style>
 </head>
 <body>
-  <div id="boot"><div class="inner"><div class="lock"><span class="mark">A</span><span class="word">AEGISLAND</span></div><small>Loading latest Phase 10R frozen frontier…</small></div></div>
+  <div id="boot"><div class="inner"><div class="lock"><span class="mark"><img src="https://cdn.jsdelivr.net/gh/suhaslord/uav-safety-research@cc621c7ea3aec64be32c66626f33d79e46e363c0/dashboard/aegis-mark.svg" alt=""></span><span class="word">AEGISLAND</span></div><small>Loading AegisLand research archive…</small></div></div>
   <script>
     (async()=>{
       const started=performance.now();
-      const commit='953d4704daed501227f9df22bc519239315d3289';
+      const commit='cc621c7ea3aec64be32c66626f33d79e46e363c0';
       const base=`https://cdn.jsdelivr.net/gh/suhaslord/uav-safety-research@${commit}/dashboard/`;
+      const favicon=`${base}aegis-mark.svg`;
       const path=location.pathname;
       let source='index.html',mode='home';
-      if(path==='/phases/phase10r/'||path==='/phases/phase10r'){
-        mode='standalone';
-        source='phase10r.html';
-      }else if(path.startsWith('/phases/')){
+      if(path.startsWith('/phases/')){
         mode='archive';
         source=(path==='/phases/'||path==='/phases')?'phases/index.html':'phases/phase.html';
       }
@@ -44,9 +43,12 @@
             .replaceAll('phase10r1-p0-forensics-infrastructure','main')
             .replaceAll('phase10r-generalization-validation','main')
             .replaceAll('phase10r-frozen-holdout','main')
-            .replace('</head>',`<link rel="stylesheet" href="${base}phase-signatures.css"></head>`)
+            .replace('</head>',`<link rel="icon" type="image/svg+xml" href="${favicon}"><link rel="stylesheet" href="${base}phase-signatures.css"></head>`)
             .replace('</body>',`<script src="${base}phase-signatures.js"><\/script><script src="${base}phase10r-frontier.js"><\/script></body>`);
         }else if(mode==='archive'){
+          if(path==='/phases/phase10r/'||path==='/phases/phase10r'){
+            h=h.replace('<body class="archive-shell">','<body class="archive-shell" data-phase="phase10r">');
+          }
           h=h.replaceAll('href="/phase-archive.css"',`href="${base}phase-archive.css"`)
             .replaceAll('href="/phase-signatures.css"',`href="${base}phase-signatures.css"`)
             .replaceAll('href="/phase-responsive.css"',`href="${base}phase-responsive.css"`)
@@ -60,6 +62,7 @@
             .replaceAll('phase10r1-p0-forensics-infrastructure','main')
             .replaceAll('phase10r-generalization-validation','main')
             .replaceAll('phase10r-frozen-holdout','main')
+            .replace('</head>',`<link rel="icon" type="image/svg+xml" href="${favicon}"></head>`)
             .replace('</body>',`<script src="${base}phase10r-archive.js"><\/script></body>`);
         }
         await new Promise(x=>setTimeout(x,Math.max(0,500-(performance.now()-started))));
