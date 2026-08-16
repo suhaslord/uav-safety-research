@@ -13,15 +13,18 @@
   </style>
 </head>
 <body>
-  <div id="boot"><div class="inner"><div class="lock"><span class="mark">A</span><span class="word">AEGISLAND</span></div><small>Loading frozen Phase 10R validation archive…</small></div></div>
+  <div id="boot"><div class="inner"><div class="lock"><span class="mark">A</span><span class="word">AEGISLAND</span></div><small>Loading frozen Phase 10R holdout archive…</small></div></div>
   <script>
     (async()=>{
       const started=performance.now();
-      const commit='1d775453e855bce52d5dd5f7ab9d5dab6b694def';
+      const commit='704d158ef1dc226115e00b7cab912b4b5ad26fd8';
       const base=`https://cdn.jsdelivr.net/gh/suhaslord/uav-safety-research@${commit}/dashboard/`;
       const path=location.pathname;
       let source='index.html',mode='home';
-      if(path.startsWith('/phases/')){
+      if(path==='/phases/phase10r/'||path==='/phases/phase10r'){
+        mode='standalone';
+        source='phase10r.html';
+      }else if(path.startsWith('/phases/')){
         mode='archive';
         source=(path==='/phases/'||path==='/phases')?'phases/index.html':'phases/phase.html';
       }
@@ -40,9 +43,10 @@
             .replaceAll('phase10-temporal-metric-perception','main')
             .replaceAll('phase10r1-p0-forensics-infrastructure','main')
             .replaceAll('phase10r-generalization-validation','main')
+            .replaceAll('phase10r-frozen-holdout','main')
             .replace('</head>',`<link rel="stylesheet" href="${base}phase-signatures.css"></head>`)
             .replace('</body>',`<script src="${base}phase-signatures.js"><\/script><script src="${base}phase10r-frontier.js"><\/script></body>`);
-        }else{
+        }else if(mode==='archive'){
           h=h.replaceAll('href="/phase-archive.css"',`href="${base}phase-archive.css"`)
             .replaceAll('href="/phase-signatures.css"',`href="${base}phase-signatures.css"`)
             .replaceAll('href="/phase-responsive.css"',`href="${base}phase-responsive.css"`)
@@ -54,7 +58,8 @@
             .replaceAll('phase9-external-perception-validation','main')
             .replaceAll('phase10-temporal-metric-perception','main')
             .replaceAll('phase10r1-p0-forensics-infrastructure','main')
-            .replaceAll('phase10r-generalization-validation','main');
+            .replaceAll('phase10r-generalization-validation','main')
+            .replaceAll('phase10r-frozen-holdout','main');
         }
         await new Promise(x=>setTimeout(x,Math.max(0,500-(performance.now()-started))));
         document.open();document.write(h);document.close();
