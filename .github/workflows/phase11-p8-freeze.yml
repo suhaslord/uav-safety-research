@@ -1,51 +1,18 @@
-name: Phase 11 P8 candidate freeze
+name: Phase 11 P8 candidate freeze — retired
 
 on:
-  push:
-    branches:
-      - phase11-p8-innovation-clipped-continuity
-    paths:
-      - scripts/run_phase11_p8_innovation_clipped_continuity.py
-      - tests/test_phase11_p8_innovation_clipped_continuity.py
-      - docs/phase11_p8_innovation_clipped_preregistration.md
-      - .github/workflows/phase11-p8-freeze.yml
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  freeze:
+  archived-stop:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      - name: Install project
+      - name: P8 is permanently stopped before protected validation
         run: |
-          python -m pip install --upgrade pip
-          pip install -e ".[dev]"
-      - name: Guard pre-generation P8 invariants
-        run: pytest -q tests/test_phase11_p8_innovation_clipped_continuity.py
-      - name: Generate P8 development evidence only
-        run: |
-          rm -rf results/phase11_p8_freeze
-          python scripts/run_phase11_p8_innovation_clipped_continuity.py \
-            --stage freeze \
-            --out results/phase11_p8_freeze \
-            --git-sha "${GITHUB_SHA}" | tee phase11-p8-freeze.log
-          test ! -f results/phase11_p8_freeze/validation_frames.csv
-          test ! -f results/phase11_p8_freeze/validation_result.json
-      - name: Candidate freeze digest
-        run: |
-          sha256sum results/phase11_p8_freeze/candidate_freeze.json
-          sha256sum results/phase11_p8_freeze/transfer_result.json
-          cat results/phase11_p8_freeze/transfer_result.json
-      - uses: actions/upload-artifact@v4
-        with:
-          name: phase11-p8-candidate-freeze
-          path: |
-            results/phase11_p8_freeze/
-            phase11-p8-freeze.log
-          if-no-files-found: error
-          retention-days: 30
+          echo "P8 development completed in workflow run 31973942401 and failed preregistered efficiency gates."
+          echo "Seeds 352352, 363363, 374374, and 385385 are permanently seen."
+          echo "Protected validation seed 396396 was not exposed."
+          echo "Do not rerun P8 as unseen evidence."
