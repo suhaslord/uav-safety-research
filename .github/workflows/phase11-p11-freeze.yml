@@ -1,0 +1,64 @@
+name: Phase 11 P11 candidate freeze
+
+on:
+  push:
+    branches:
+      - phase11-p11-powered-direct-conformal-execution
+    paths:
+      - .github/workflows/phase11-p11-freeze.yml
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  freeze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install project
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Verify P11 preserves the preregistered P9 method
+        run: |
+          pytest -q tests/test_phase11_p9_soft_update_direct_conformal.py tests/test_phase11_p11_powered_direct_conformal.py
+      - name: Generate fit and powered grouped-calibration evidence only
+        run: |
+          rm -rf results/phase11_p11_freeze
+          python scripts/run_phase11_p11_powered_direct_conformal.py \
+            --stage freeze \
+            --out results/phase11_p11_freeze \
+            --git-sha "${GITHUB_SHA}" | tee phase11-p11-freeze.log
+          test -f results/phase11_p11_freeze/fit_frames.csv
+          test -f results/phase11_p11_freeze/calibration_frames.csv
+          test -f results/phase11_p11_freeze/candidate_freeze.json
+          test -f results/phase11_p11_freeze/manifest.json
+          test ! -f results/phase11_p11_freeze/transfer_frames.csv
+          test ! -f results/phase11_p11_freeze/transfer_result.json
+          test ! -f results/phase11_p11_freeze/validation_frames.csv
+          test ! -f results/phase11_p11_freeze/validation_result.json
+      - name: Candidate freeze digest and power margin
+        run: |
+          sha256sum results/phase11_p11_freeze/candidate_freeze.json
+          sha256sum results/phase11_p11_freeze/manifest.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('results/phase11_p11_freeze/candidate_freeze.json').read_text())
+          mins=p['calibration_minimums']; counts=p['calibration_group_rows']
+          print('P11_POWER_MARGIN='+json.dumps({g:{'rows':counts[g],'minimum':mins[g],'margin':counts[g]-mins[g],'ratio':counts[g]/mins[g]} for g in counts},sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: phase11-p11-candidate-freeze
+          path: |
+            results/phase11_p11_freeze/
+            phase11-p11-freeze.log
+          if-no-files-found: error
+          retention-days: 30

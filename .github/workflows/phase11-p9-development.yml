@@ -1,0 +1,70 @@
+name: Phase 11 P9 candidate freeze and seen transfer
+
+on:
+  push:
+    branches:
+      - phase11-p9-soft-update-direct-conformal
+    paths:
+      - scripts/run_phase11_p9_soft_update_direct_conformal.py
+      - tests/test_phase11_p9_soft_update_direct_conformal.py
+      - docs/phase11_p9_soft_update_direct_conformal_preregistration.md
+      - .github/workflows/phase11-p9-development.yml
+
+permissions:
+  contents: read
+
+jobs:
+  develop:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install project
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Guard P9 invariants before evidence generation
+        run: pytest -q tests/test_phase11_p9_soft_update_direct_conformal.py
+      - name: Freeze P9 candidate from fit and grouped calibration only
+        run: |
+          rm -rf results/phase11_p9_candidate results/phase11_p9_transfer
+          python scripts/run_phase11_p9_soft_update_direct_conformal.py \
+            --stage freeze \
+            --out results/phase11_p9_candidate \
+            --git-sha "${GITHUB_SHA}" | tee phase11-p9-freeze.log
+          test -f results/phase11_p9_candidate/candidate_freeze.json
+          test ! -f results/phase11_p9_candidate/transfer_frames.csv
+          test ! -f results/phase11_p9_candidate/transfer_result.json
+          test ! -f results/phase11_p9_candidate/validation_frames.csv
+          test ! -f results/phase11_p9_candidate/validation_result.json
+      - name: Record candidate digest before transfer exposure
+        run: |
+          sha256sum results/phase11_p9_candidate/candidate_freeze.json | tee phase11-p9-candidate.sha256
+          cat results/phase11_p9_candidate/candidate_freeze.json
+      - name: Evaluate frozen P9 candidate on seen transfer exactly once
+        run: |
+          python scripts/run_phase11_p9_soft_update_direct_conformal.py \
+            --stage transfer \
+            --candidate results/phase11_p9_candidate/candidate_freeze.json \
+            --out results/phase11_p9_transfer \
+            --git-sha "${GITHUB_SHA}" | tee phase11-p9-transfer.log
+          test ! -f results/phase11_p9_transfer/validation_frames.csv
+          test ! -f results/phase11_p9_transfer/validation_result.json
+      - name: Transfer digests
+        run: |
+          sha256sum results/phase11_p9_transfer/transfer_frames.csv
+          sha256sum results/phase11_p9_transfer/transfer_result.json
+          cat results/phase11_p9_transfer/transfer_result.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: phase11-p9-development
+          path: |
+            results/phase11_p9_candidate/
+            results/phase11_p9_transfer/
+            phase11-p9-freeze.log
+            phase11-p9-transfer.log
+            phase11-p9-candidate.sha256
+          if-no-files-found: error
+          retention-days: 30

@@ -1,0 +1,112 @@
+{
+  "all_primary_gates_pass": true,
+  "archive_note": "The transfer_result.json was generated and evaluated, but the following GitHub Actions output-formatting step failed before artifact upload. This receipt transcribes the exact gate values printed by the completed scientific evaluation. The transfer seed must not be rerun.",
+  "candidate_artifact_id": 9271909463,
+  "candidate_artifact_zip_sha256": "fa03951653efac6ec545987b293473d842c440afa985bdf6f948f8e4784fbe37",
+  "candidate_sha256": "bba1b7be7565b470af80db502e6fa5d969bc86c712e322557c06b30e49bd9c86",
+  "controller_tuning_allowed": false,
+  "evaluated_seed_seen_after_run": 847847,
+  "evidence_role": "phase11_p14r_seen_transfer",
+  "final_holdout_seed_unexposed_at_receipt": 869869,
+  "frozen_scientific_head_sha": "58b06089a621264afb886f6aee2acaacf8a8709c",
+  "gates": {
+    "group_minimums": {
+      "counts": {
+        "base_output": 5237,
+        "continuity_h3": 822,
+        "continuity_h45": 1167,
+        "continuity_h67": 808,
+        "independent_coarse_rescue": 6037
+      },
+      "pass": true,
+      "required": {
+        "base_output": 360,
+        "continuity_h3": 60,
+        "continuity_h45": 45,
+        "continuity_h67": 30,
+        "independent_coarse_rescue": 60
+      }
+    },
+    "h10_rescue_accuracy_floor": {
+      "altitude_mae": 0.16564154448163307,
+      "altitude_p95_error": 0.4073250781958478,
+      "lateral_mae": 0.08250190105724486,
+      "lateral_p95_error": 0.202082450166386,
+      "pass": true
+    },
+    "h11_rescue_effectiveness": {
+      "pass": true,
+      "primary_unavailable_rows": 6366,
+      "recovered_fraction": 0.9483191957273013,
+      "rescued_rows": 6037
+    },
+    "h1_useful_availability": {
+      "available_fraction": 0.9771527777777778,
+      "pass": true
+    },
+    "h2_overall_coverage": {
+      "altitude_95_coverage": 0.9479070428540971,
+      "lateral_95_coverage": 0.9475517020822969,
+      "pass": true
+    },
+    "h3_calibration_curve": {
+      "mean_absolute_coverage_error": 0.005115059341908856,
+      "pass": true
+    },
+    "h4_overall_interval_efficiency": {
+      "altitude_median_halfwidth_over_p95_error": 1.0981392009086997,
+      "altitude_p95_halfwidth_over_p95_error": 1.8084089629450195,
+      "lateral_median_halfwidth_over_p95_error": 0.7619075150700296,
+      "lateral_p95_halfwidth_over_p95_error": 2.169292077386318,
+      "pass": true
+    },
+    "h5_primary_continuity_honesty": {
+      "altitude_95_coverage": 0.9438684304612084,
+      "altitude_p95_halfwidth_over_p95_error": 1.044519530076116,
+      "lateral_95_coverage": 0.940293171254916,
+      "lateral_p95_halfwidth_over_p95_error": 1.0315946516289747,
+      "pass": true,
+      "rows": 2797
+    },
+    "h6_base_output_honesty": {
+      "altitude_95_coverage": 0.9474890204315448,
+      "altitude_p95_halfwidth_over_p95_error": 0.9880220072043597,
+      "lateral_95_coverage": 0.9478709184647699,
+      "lateral_p95_halfwidth_over_p95_error": 0.962290016736422,
+      "pass": true,
+      "rows": 5237
+    },
+    "h7_shift_discrimination": {
+      "diagnostic_only": true,
+      "pass": true,
+      "trajectory_level_auroc": 1.0
+    },
+    "h8_high_severity_honesty": {
+      "altitude_95_coverage": 0.9302925989672978,
+      "altitude_p95_halfwidth_over_p95_error": 1.237954145400409,
+      "lateral_95_coverage": 0.9264199655765921,
+      "lateral_p95_halfwidth_over_p95_error": 1.561704599616909,
+      "pass": true,
+      "rows": 4648
+    },
+    "h9_rescue_output_honesty": {
+      "altitude_95_coverage": 0.9501407984098061,
+      "altitude_p95_halfwidth_over_p95_error": 1.0018385236331597,
+      "lateral_95_coverage": 0.9506377339738281,
+      "lateral_p95_halfwidth_over_p95_error": 1.0045106685562604,
+      "pass": true,
+      "rows": 6037
+    }
+  },
+  "original_transfer_result_artifact_archived": false,
+  "post_evaluation_plumbing_error": "GitHub rejected a raw diagnostic JSON line written to GITHUB_OUTPUT; scientific generation and evaluation had already completed.",
+  "protected_validation_seed_unexposed_at_receipt": 858858,
+  "safety_acceptance": false,
+  "schema": "aegisland.phase11.p14r.transfer-receipt.v1",
+  "scientific_evaluation_completed": true,
+  "scientific_verdict": "PASS",
+  "simulation_only": true,
+  "workflow_head_sha": "359e8a5af27e9cd0d1a9908e8a249eee1d9d63b2",
+  "workflow_job_id": 95243501105,
+  "workflow_run_id": 31979250287
+}

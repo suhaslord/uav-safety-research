@@ -1,0 +1,80 @@
+name: Phase 11 P13 Mondrian candidate freeze
+
+on:
+  push:
+    branches:
+      - phase11-p13-severity-mondrian-conformal
+    paths:
+      - .github/workflows/phase11-p13-freeze.yml
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  freeze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install project
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Verify P13 scientific protocol unchanged since partition freeze
+        run: |
+          git fetch --depth=1 origin 5abb1d96b15dcbc2f3774d00815f73ed70cada8f
+          git diff --exit-code 5abb1d96b15dcbc2f3774d00815f73ed70cada8f HEAD -- \
+            scripts/run_phase11_p13_severity_mondrian_conformal.py \
+            tests/test_phase11_p13_severity_mondrian_conformal.py \
+            docs/phase11_p13_severity_mondrian_preregistration.md
+          pytest -q tests/test_phase11_p9_soft_update_direct_conformal.py tests/test_phase11_p13_severity_mondrian_conformal.py
+      - uses: actions/download-artifact@v4
+        with:
+          name: phase11-p13-partition-freeze
+          path: partition_artifact
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: suhaslord/uav-safety-research
+          run-id: 31977619169
+      - name: Verify exact partition freeze digest
+        run: |
+          PARTITION="partition_artifact/results/phase11_p13_partition/partition_freeze.json"
+          test -f "$PARTITION"
+          echo "5d74be1f335e2f3d28e9d089be822bcbdb24704bb23e170bc227e5802fb8abec  $PARTITION" | sha256sum -c -
+      - name: Generate separate calibration and freeze candidate
+        run: |
+          rm -rf results/phase11_p13_freeze
+          python scripts/run_phase11_p13_severity_mondrian_conformal.py \
+            --stage freeze \
+            --partition partition_artifact/results/phase11_p13_partition/partition_freeze.json \
+            --out results/phase11_p13_freeze \
+            --git-sha "${GITHUB_SHA}" | tee phase11-p13-freeze.log
+          test -f results/phase11_p13_freeze/calibration_frames.csv
+          test -f results/phase11_p13_freeze/candidate_freeze.json
+          test -f results/phase11_p13_freeze/partition_freeze.json
+          test -f results/phase11_p13_freeze/manifest.json
+          test ! -f results/phase11_p13_freeze/transfer_result.json
+          test ! -f results/phase11_p13_freeze/validation_result.json
+      - name: Candidate digest and cell counts
+        run: |
+          sha256sum results/phase11_p13_freeze/candidate_freeze.json
+          sha256sum results/phase11_p13_freeze/manifest.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          c=json.loads(Path('results/phase11_p13_freeze/candidate_freeze.json').read_text())
+          print('P13_CALIBRATION_CELLS='+json.dumps(c['calibration_cell_rows'],sort_keys=True))
+          print('P13_SEVERITY_CUTPOINTS='+json.dumps(c['severity_cutpoints'],sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: phase11-p13-candidate-freeze
+          path: |
+            results/phase11_p13_freeze/
+            phase11-p13-freeze.log
+          if-no-files-found: error
+          retention-days: 30

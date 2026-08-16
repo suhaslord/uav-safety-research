@@ -1,0 +1,203 @@
+name: Phase 11 P14R protected validation to P15 final
+
+on:
+  push:
+    branches: [phase11-p14r-final-robust-envelope]
+    paths:
+      - .github/workflows/phase11-p14r-final-continuation.yml
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  validation:
+    runs-on: ubuntu-24.04
+    outputs:
+      eligible: ${{ steps.gates.outputs.eligible }}
+      result_sha: ${{ steps.gates.outputs.result_sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install project
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Verify frozen scientific head is unchanged
+        run: |
+          git fetch --depth=1 origin 58b06089a621264afb886f6aee2acaacf8a8709c
+          git diff --exit-code 58b06089a621264afb886f6aee2acaacf8a8709c HEAD -- \
+            scripts/run_phase11_p14r_robust_group_envelope.py \
+            tests/test_phase11_p14r_robust_group_envelope.py \
+            docs/phase11_p14r_robust_group_envelope_preregistration.md \
+            docs/phase11_p15_final_holdout_v2_preregistration.md
+          pytest -q \
+            tests/test_phase11_p9_soft_update_direct_conformal.py \
+            tests/test_phase11_p14_bounded_independent_rescue.py \
+            tests/test_phase11_p14r_robust_group_envelope.py
+      - name: Verify archived seen-transfer PASS without rerunning transfer
+        run: |
+          echo "cf2d79a366f390be280f4639d6561ec39bf7f966bb82a802598935231e13db9e  results/phase11_p14r_seen_transfer_receipt.json" | sha256sum -c -
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('results/phase11_p14r_seen_transfer_receipt.json').read_text())
+          assert r['schema'] == 'aegisland.phase11.p14r.transfer-receipt.v1'
+          assert r['scientific_evaluation_completed'] is True
+          assert r['all_primary_gates_pass'] is True
+          assert r['evaluated_seed_seen_after_run'] == 847847
+          assert r['workflow_run_id'] == 31979250287
+          assert r['workflow_job_id'] == 95243501105
+          assert r['candidate_sha256'] == 'bba1b7be7565b470af80db502e6fa5d969bc86c712e322557c06b30e49bd9c86'
+          assert r['protected_validation_seed_unexposed_at_receipt'] == 858858
+          assert r['final_holdout_seed_unexposed_at_receipt'] == 869869
+          required=(
+            'group_minimums','h1_useful_availability','h2_overall_coverage','h3_calibration_curve',
+            'h4_overall_interval_efficiency','h5_primary_continuity_honesty','h6_base_output_honesty',
+            'h8_high_severity_honesty','h9_rescue_output_honesty','h10_rescue_accuracy_floor',
+            'h11_rescue_effectiveness'
+          )
+          assert all(r['gates'][k]['pass'] is True for k in required)
+          print('ARCHIVED_TRANSFER_PASS_VERIFIED=true')
+          PY
+      - uses: actions/download-artifact@v4
+        with:
+          name: phase11-p14r-candidate-freeze
+          path: candidate_artifact
+          github-token: ${{ github.token }}
+          repository: suhaslord/uav-safety-research
+          run-id: 31979250287
+      - name: Verify exact frozen candidate
+        run: |
+          CANDIDATE=$(find candidate_artifact -name candidate_freeze.json -print -quit)
+          test -n "$CANDIDATE"
+          echo "bba1b7be7565b470af80db502e6fa5d969bc86c712e322557c06b30e49bd9c86  $CANDIDATE" | sha256sum -c -
+          echo "CANDIDATE=$CANDIDATE" >> "$GITHUB_ENV"
+      - name: Expose protected validation seed 858858 exactly once
+        run: |
+          rm -rf results/phase11_p14r_validation
+          python scripts/run_phase11_p14r_robust_group_envelope.py \
+            --stage validation \
+            --candidate "$CANDIDATE" \
+            --out results/phase11_p14r_validation \
+            --git-sha "${GITHUB_SHA}" | tee phase11-p14r-validation.log
+          test -f results/phase11_p14r_validation/validation_result.json
+          test ! -e results/phase11_p15_final
+      - id: gates
+        name: Freeze protected-validation verdict
+        run: |
+          python - <<'PY'
+          import hashlib, json, pathlib, os
+          p=pathlib.Path('results/phase11_p14r_validation/validation_result.json')
+          r=json.loads(p.read_text())
+          sha=hashlib.sha256(p.read_bytes()).hexdigest()
+          with open(os.environ['GITHUB_OUTPUT'],'a',encoding='utf-8') as f:
+              f.write('eligible=' + str(bool(r['all_primary_gates_pass'])).lower() + '\n')
+              f.write('result_sha=' + sha + '\n')
+          print('VALIDATION_ALL_PRIMARY_GATES_PASS=' + str(bool(r['all_primary_gates_pass'])).lower())
+          print('VALIDATION_RESULT_SHA256=' + sha)
+          print(json.dumps(r['gates'], sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: phase11-p14r-protected-validation
+          path: |
+            results/phase11_p14r_validation/
+            phase11-p14r-validation.log
+          if-no-files-found: error
+          retention-days: 90
+
+  final:
+    needs: validation
+    if: needs.validation.outputs.eligible == 'true'
+    runs-on: ubuntu-24.04
+    outputs:
+      passed: ${{ steps.gates.outputs.passed }}
+      result_sha: ${{ steps.gates.outputs.result_sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install project
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Verify frozen scientific head and transfer receipt
+        run: |
+          git fetch --depth=1 origin 58b06089a621264afb886f6aee2acaacf8a8709c
+          git diff --exit-code 58b06089a621264afb886f6aee2acaacf8a8709c HEAD -- \
+            scripts/run_phase11_p14r_robust_group_envelope.py \
+            tests/test_phase11_p14r_robust_group_envelope.py \
+            docs/phase11_p14r_robust_group_envelope_preregistration.md \
+            docs/phase11_p15_final_holdout_v2_preregistration.md
+          echo "cf2d79a366f390be280f4639d6561ec39bf7f966bb82a802598935231e13db9e  results/phase11_p14r_seen_transfer_receipt.json" | sha256sum -c -
+      - uses: actions/download-artifact@v4
+        with:
+          name: phase11-p14r-candidate-freeze
+          path: candidate_artifact
+          github-token: ${{ github.token }}
+          repository: suhaslord/uav-safety-research
+          run-id: 31979250287
+      - uses: actions/download-artifact@v4
+        with:
+          name: phase11-p14r-protected-validation
+          path: validation_artifact
+      - name: Verify exact final-holdout preconditions
+        run: |
+          CANDIDATE=$(find candidate_artifact -name candidate_freeze.json -print -quit)
+          VALIDATION_CANDIDATE=$(find validation_artifact -name candidate_freeze.json -print -quit)
+          VALIDATION_RESULT=$(find validation_artifact -name validation_result.json -print -quit)
+          test -n "$CANDIDATE"
+          test -n "$VALIDATION_CANDIDATE"
+          test -n "$VALIDATION_RESULT"
+          echo "bba1b7be7565b470af80db502e6fa5d969bc86c712e322557c06b30e49bd9c86  $CANDIDATE" | sha256sum -c -
+          echo "bba1b7be7565b470af80db502e6fa5d969bc86c712e322557c06b30e49bd9c86  $VALIDATION_CANDIDATE" | sha256sum -c -
+          test "${{ needs.validation.outputs.eligible }}" = "true"
+          echo "${{ needs.validation.outputs.result_sha }}  $VALIDATION_RESULT" | sha256sum -c -
+          python - "$VALIDATION_RESULT" <<'PY'
+          import json, sys
+          r=json.load(open(sys.argv[1], encoding='utf-8'))
+          assert r['evaluated_seed_seen_after_run'] == 858858
+          assert r['all_primary_gates_pass'] is True
+          print('FINAL_HOLDOUT_PRECONDITIONS_VERIFIED=true')
+          PY
+          echo "CANDIDATE=$CANDIDATE" >> "$GITHUB_ENV"
+      - name: Expose P15-v2 final holdout seed 869869 exactly once
+        run: |
+          rm -rf results/phase11_p15_final
+          python scripts/run_phase11_p14r_robust_group_envelope.py \
+            --stage final \
+            --candidate "$CANDIDATE" \
+            --out results/phase11_p15_final \
+            --git-sha "${GITHUB_SHA}" | tee phase11-p15-final.log
+          test -f results/phase11_p15_final/final_result.json
+      - id: gates
+        name: Freeze Phase 11 final verdict
+        run: |
+          python - <<'PY'
+          import hashlib, json, pathlib, os
+          p=pathlib.Path('results/phase11_p15_final/final_result.json')
+          r=json.loads(p.read_text())
+          sha=hashlib.sha256(p.read_bytes()).hexdigest()
+          with open(os.environ['GITHUB_OUTPUT'],'a',encoding='utf-8') as f:
+              f.write('passed=' + str(bool(r['all_primary_gates_pass'])).lower() + '\n')
+              f.write('result_sha=' + sha + '\n')
+          print('PHASE11_FINAL_PASS=' + str(bool(r['all_primary_gates_pass'])).lower())
+          print('P15_FINAL_RESULT_SHA256=' + sha)
+          print(json.dumps(r['gates'], sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: phase11-p15-final-holdout
+          path: |
+            results/phase11_p15_final/
+            phase11-p15-final.log
+          if-no-files-found: error
+          retention-days: 180
