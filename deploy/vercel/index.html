@@ -14,10 +14,11 @@
 <div id="boot"><div class="inner"><div class="mark">A</div><div class="word">AEGISLAND</div><small>Loading research archive…</small></div></div>
 <script>
 (async()=>{
-  const rev='22f911961fe2bc4759100179b134e7598cac7ea4';
+  const rev='334425f737e2a20932716f4db97002abaf084071';
   const base=`https://cdn.jsdelivr.net/gh/suhaslord/uav-safety-research@${rev}/dashboard/`;
   const favicon=`${base}aegis-mark.svg`;
   const glass=`${base}glass-ui.css`;
+  const refraction=`${base}glass-refraction.css`;
   const path=location.pathname;
   const isArchive=path.startsWith('/phases/');
   const source=isArchive?((path==='/phases/'||path==='/phases')?'phases/index.html':'phases/phase.html'):'index.html';
@@ -37,12 +38,12 @@
   try{
     const r=await fetch(base+source,{cache:'no-store'});if(!r.ok)throw new Error('source '+r.status);let h=await r.text();
     if(!isArchive){
-      h=h.replaceAll('href="cockpit.css"',`href="${base}cockpit.css"`).replaceAll('href="cockpit-extension.css"',`href="${base}cockpit-extension.css"`).replaceAll('src="hero-frame.svg"',`src="${base}hero-frame.svg"`).replaceAll('src="cockpit.js"',`src="${base}cockpit.js"`).replaceAll('src="cockpit-extension.js"',`src="${base}cockpit-extension.js"`).replaceAll('href="phase7.html"','href="/phases/phase7/"').replaceAll('phase9-external-perception-validation','main').replaceAll('phase10-temporal-metric-perception','main').replaceAll('phase10r1-p0-forensics-infrastructure','main').replaceAll('phase10r-generalization-validation','main').replaceAll('phase10r-frozen-holdout','main').replace('</head>',`<link rel="stylesheet" href="${glass}"><link rel="icon" type="image/svg+xml" href="${favicon}"></head>`).replace('</body>',`${homePatch}</body>`);
+      h=h.replaceAll('href="cockpit.css"',`href="${base}cockpit.css"`).replaceAll('href="cockpit-extension.css"',`href="${base}cockpit-extension.css"`).replaceAll('src="hero-frame.svg"',`src="${base}hero-frame.svg"`).replaceAll('src="cockpit.js"',`src="${base}cockpit.js"`).replaceAll('src="cockpit-extension.js"',`src="${base}cockpit-extension.js"`).replaceAll('href="phase7.html"','href="/phases/phase7/"').replaceAll('phase9-external-perception-validation','main').replaceAll('phase10-temporal-metric-perception','main').replaceAll('phase10r1-p0-forensics-infrastructure','main').replaceAll('phase10r-generalization-validation','main').replaceAll('phase10r-frozen-holdout','main').replace('</head>',`<link rel="stylesheet" href="${glass}"><link rel="stylesheet" href="${refraction}"><link rel="icon" type="image/svg+xml" href="${favicon}"></head>`).replace('</body>',`${homePatch}</body>`);
     }else{
       if(path==='/phases/phase10r/'||path==='/phases/phase10r')h=h.replace('<body class="archive-shell">','<body class="archive-shell" data-phase="phase10r">');
       const assets=['phase-archive.css','phase-signatures.css','phase-responsive.css','phase-hero-scenes.css','glass-ui.css'];for(const a of assets)h=h.replaceAll(`href="/${a}"`,`href="${base}${a}"`);
       const scripts=['phase-data.js','phase-runtime.js','phase-signatures.js','tesla-mobile.js','phase-hero-fix.js','phase10r-archive.js','phase-hero-scenes.js'];for(const a of scripts)h=h.replaceAll(`src="/${a}"`,`src="${base}${a}"`);
-      h=h.replaceAll('phase9-external-perception-validation','main').replaceAll('phase10-temporal-metric-perception','main').replaceAll('phase10r1-p0-forensics-infrastructure','main').replaceAll('phase10r-generalization-validation','main').replaceAll('phase10r-frozen-holdout','main').replace('</head>',`<link rel="icon" type="image/svg+xml" href="${favicon}"></head>`);
+      h=h.replaceAll('phase9-external-perception-validation','main').replaceAll('phase10-temporal-metric-perception','main').replaceAll('phase10r1-p0-forensics-infrastructure','main').replaceAll('phase10r-generalization-validation','main').replaceAll('phase10r-frozen-holdout','main').replace('</head>',`<link rel="stylesheet" href="${refraction}"><link rel="icon" type="image/svg+xml" href="${favicon}"></head>`);
     }
     document.open();document.write(h);document.close();
   }catch(e){const status=document.querySelector('small');if(status)status.textContent='AegisLand source could not be loaded.';console.error(e)}
