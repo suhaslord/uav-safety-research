@@ -1,0 +1,83 @@
+/* Final refraction polish for the AegisLand glass system.
+   Intentionally restrained: makes frosted controls legible on white without adding visual noise. */
+:root{
+  --glass-control-bg:linear-gradient(145deg,rgba(255,255,255,.88) 0%,rgba(246,249,255,.64) 46%,rgba(225,234,255,.34) 100%);
+  --glass-control-hover:linear-gradient(145deg,rgba(255,255,255,.96) 0%,rgba(247,250,255,.78) 48%,rgba(228,236,255,.46) 100%);
+  --glass-control-border:rgba(255,255,255,.94);
+  --glass-control-shadow:0 10px 30px rgba(29,38,60,.085),inset 0 1px 0 rgba(255,255,255,.98),inset 0 -1px 0 rgba(79,109,245,.075);
+  --glass-control-shadow-hover:0 18px 44px rgba(29,38,60,.13),inset 0 1px 0 #fff,inset 0 -1px 0 rgba(79,109,245,.10);
+}
+
+.button,.top-btn,.rail-step,.metric-card,.frontier-badge,.archive-card,
+.archive-menu-sheet,.hero-meta span,.header-actions>a,.header-actions>button,
+.social-button,.source-audit-links a,.switch-nav a,.next,.source,
+.archive-menu-toggle,.archive-menu-close,.archive-menu-links a{
+  background:var(--glass-control-bg)!important;
+  border-color:var(--glass-control-border)!important;
+  box-shadow:var(--glass-control-shadow)!important;
+  -webkit-backdrop-filter:blur(22px) saturate(175%)!important;
+  backdrop-filter:blur(22px) saturate(175%)!important;
+}
+
+.button:hover,.top-btn:hover,.rail-step:hover,.metric-card:hover,.archive-card:hover,
+.header-actions>a:hover,.header-actions>button:hover,.social-button:hover,
+.source-audit-links a:hover,.switch-nav a:hover,.next:hover,.source:hover,
+.archive-menu-links a:hover{
+  background:var(--glass-control-hover)!important;
+  border-color:#fff!important;
+  box-shadow:var(--glass-control-shadow-hover)!important;
+}
+
+.button.blue,.button.primary,.top-btn.primary,.header-actions .phase-link,
+.rail-step.active,.rail-step.frontier{
+  background:linear-gradient(145deg,rgba(244,247,255,.94),rgba(211,222,255,.62))!important;
+  border-color:rgba(255,255,255,.98)!important;
+  color:#2647b9!important;
+  box-shadow:0 12px 34px rgba(79,109,245,.15),inset 0 1px 0 #fff,inset 0 -1px 0 rgba(79,109,245,.14)!important;
+}
+
+/* Give controls a thin refracted edge rather than a glossy pseudo-element. */
+.button,.top-btn,.header-actions>a,.header-actions>button,.social-button,
+.source-audit-links a,.switch-nav a,.next,.source,.archive-menu-toggle,
+.archive-menu-close,.archive-menu-links a{
+  outline:1px solid rgba(79,109,245,.035)!important;
+  outline-offset:-2px!important;
+}
+
+/* Glass cards remain quieter than controls so content stays primary. */
+.telemetry-panel,.source-audit,.lineage-card-main,.metric-item,.geometry-numbers>div{
+  background:linear-gradient(145deg,rgba(255,255,255,.72),rgba(242,246,253,.48))!important;
+  border-color:rgba(255,255,255,.84)!important;
+  box-shadow:0 16px 42px rgba(29,38,60,.075),inset 0 1px 0 rgba(255,255,255,.92)!important;
+}
+
+/* Dark sections use smoke glass rather than white frosting. */
+.site-header.on-dark .site-nav a,.site-header.on-dark .header-actions a,
+.site-header.on-dark .header-actions button,.dark .source,.dark .next,
+.section.dark .button,.section.dark .top-btn,.section.dark .social-button{
+  background:linear-gradient(145deg,rgba(255,255,255,.16),rgba(255,255,255,.065))!important;
+  color:#fff!important;
+  border-color:rgba(255,255,255,.22)!important;
+  outline-color:rgba(255,255,255,.06)!important;
+  box-shadow:0 12px 34px rgba(0,0,0,.16),inset 0 1px 0 rgba(255,255,255,.16)!important;
+}
+
+/* The model rail should read as a single calm glass instrument. */
+.phase-rail-section,#homeModelRail{
+  -webkit-backdrop-filter:blur(18px) saturate(145%)!important;
+  backdrop-filter:blur(18px) saturate(145%)!important;
+}
+#homeModelRail .home-rail-step{
+  background:linear-gradient(180deg,rgba(255,255,255,.44),rgba(248,250,255,.22))!important;
+  border:1px solid rgba(255,255,255,.64)!important;
+  border-top-width:2px!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.86)!important;
+}
+#homeModelRail .home-rail-step:hover,#homeModelRail .home-rail-step.active{
+  background:linear-gradient(180deg,rgba(255,255,255,.82),rgba(231,238,255,.46))!important;
+  box-shadow:0 12px 28px rgba(29,38,60,.08),inset 0 1px 0 #fff!important;
+}
+
+@media(prefers-reduced-motion:reduce){
+  .button,.top-btn,.rail-step,.metric-card,.archive-card,.header-actions>a,.header-actions>button{transition:none!important}
+}
