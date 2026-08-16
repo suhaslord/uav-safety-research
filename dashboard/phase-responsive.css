@@ -1,0 +1,331 @@
+/*
+AegisLand research archive — canonical responsive layer.
+Source of truth: DESIGN-tesla.md.
+
+This file replaces the former tesla-mobile.css + tesla-phase-mobile.css
+compatibility stack for /phases/. It is component-scoped, contains no
+!important rules, and reflows phase content instead of shrinking desktop UI.
+*/
+:root{
+  --archive-ink:#171a20;
+  --archive-body:#393c41;
+  --archive-muted:#5c5e62;
+  --archive-ash:#f4f4f4;
+  --archive-blue:#3e6ae1;
+  --archive-header-h:52px;
+  --archive-ease:cubic-bezier(.5,0,0,.75);
+}
+
+body.archive-shell .progress{display:none}
+body.archive-shell .hero::after{display:none;background:none;mask-image:none}
+body.archive-shell .rail-step.gap>i{background:none;border-top:1px dashed rgba(23,26,32,.22)}
+body.archive-shell .signature-visual strong{
+  position:static;
+  inset:auto;
+  display:inline;
+  width:auto;
+  height:auto;
+  transform:none;
+}
+body.archive-shell .button,
+body.archive-shell .top-btn,
+.archive-menu-toggle,
+.archive-menu-close{border-radius:4px;box-shadow:none}
+body.archive-shell .button.blue,
+body.archive-shell .top-btn.primary{background:var(--archive-blue);color:#fff}
+
+/* Research visuals are monochrome; Electric Blue remains an action color. */
+body.archive-shell[data-signature-phase] .sig-bar-row.accent>i b,
+body.archive-shell[data-signature-phase] .sig-stress .stress-line,
+body.archive-shell[data-signature-phase] .sig-confidence-lane>i em,
+body.archive-shell[data-signature-phase] .sig-matrix-cell:nth-child(13),
+body.archive-shell[data-signature-phase] .sig-matrix-cell:nth-child(18),
+body.archive-shell[data-signature-phase] .mini-target b{
+  background:var(--archive-ink);
+  border-color:var(--archive-ink);
+  color:var(--archive-ink);
+  stroke:var(--archive-ink);
+}
+body.archive-shell[data-signature-phase] .frontier-badge span{color:#a7a7aa}
+body.archive-shell[data-signature-phase] .frontier-ring.r2{border-color:rgba(255,255,255,.28)}
+body.archive-shell[data-signature-phase] .frontier-ring.r2::after{background:#fff}
+
+.archive-menu-toggle,
+.archive-menu-sheet{display:none}
+
+@media (max-width:767px){
+  html{scroll-padding-top:var(--archive-header-h)}
+  body.archive-shell{overflow-x:hidden}
+  body.archive-menu-open{overflow:hidden}
+
+  body.archive-shell .top{
+    min-height:var(--archive-header-h);
+    height:var(--archive-header-h);
+    padding:0 20px;
+    display:grid;
+    grid-template-columns:1fr auto;
+    align-items:center;
+    background:rgba(255,255,255,.86);
+    -webkit-backdrop-filter:blur(16px);
+    backdrop-filter:blur(16px);
+    border:0;
+    box-shadow:none;
+  }
+  body.archive-shell .top .nav,
+  body.archive-shell .top .top-end{display:none}
+  body.archive-shell .word{font-size:12px;font-weight:500;letter-spacing:.22em}
+
+  .archive-menu-toggle{
+    display:inline-flex;
+    min-width:64px;
+    height:32px;
+    align-items:center;
+    justify-content:center;
+    padding:0 12px;
+    border:0;
+    background:var(--archive-ash);
+    color:var(--archive-ink);
+    font:500 14px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+    transition:background-color .33s var(--archive-ease),color .33s var(--archive-ease);
+  }
+  .archive-menu-sheet{
+    position:fixed;
+    inset:0;
+    z-index:1200;
+    display:flex;
+    flex-direction:column;
+    padding:18px 20px 28px;
+    background:#fff;
+    color:var(--archive-ink);
+    transform:translateX(100%);
+    visibility:hidden;
+    transition:transform .33s var(--archive-ease),visibility .33s;
+  }
+  .archive-menu-sheet.open{transform:none;visibility:visible}
+  .archive-menu-sheet-head{height:36px;display:flex;align-items:center;justify-content:space-between}
+  .archive-menu-sheet-head strong{font-size:12px;font-weight:500;letter-spacing:.22em}
+  .archive-menu-close{height:32px;min-width:64px;padding:0 12px;border:0;background:var(--archive-ash);color:var(--archive-ink);font-weight:500}
+  .archive-menu-links{margin:auto 0;display:grid}
+  .archive-menu-links a{padding:15px 0;font-size:22px;line-height:1.2;font-weight:500}
+  .archive-menu-links a.primary{margin-top:20px;height:40px;padding:0 18px;display:flex;align-items:center;justify-content:center;background:var(--archive-blue);color:#fff;font-size:14px;border-radius:4px}
+  .archive-menu-meta{display:flex;gap:22px;font-size:12px;color:var(--archive-muted)}
+
+  body.archive-shell .hero{
+    min-height:100svh;
+    padding:calc(var(--archive-header-h) + 34px) 20px 40px;
+    display:grid;
+    grid-template-columns:1fr;
+    grid-template-rows:auto auto auto;
+    gap:36px;
+    align-content:start;
+    overflow:visible;
+    background:#fff;
+  }
+  body.archive-shell .hero-copy{grid-column:1;max-width:100%}
+  body.archive-shell .hero h1,
+  body.archive-shell .index-hero h1{font-size:36px;line-height:43px;font-weight:500;letter-spacing:normal}
+  body.archive-shell .deck{font-size:22px;line-height:1.25;letter-spacing:normal;max-width:100%}
+  body.archive-shell .lede{font-size:14px;line-height:20px;color:var(--archive-body)}
+  body.archive-shell .actions{display:grid;grid-template-columns:1fr;gap:8px;margin-top:28px}
+  body.archive-shell .actions .button{width:100%;min-width:0;height:40px}
+  body.archive-shell .hero-meta{
+    position:static;
+    grid-column:1;
+    padding-top:16px;
+    display:grid;
+    grid-template-columns:1fr;
+    gap:5px;
+    border-top:1px solid rgba(23,26,32,.14);
+    font-size:12px;
+  }
+  body.archive-shell .hero-meta span:last-child{text-align:left}
+
+  body.archive-shell .object.signature-visual,
+  body.archive-shell .signature-visual{
+    position:relative;
+    inset:auto;
+    right:auto;
+    bottom:auto;
+    grid-column:1;
+    width:100%;
+    max-width:none;
+    min-height:280px;
+    aspect-ratio:auto;
+    opacity:1;
+    margin:0;
+    padding:10px 0 4px;
+    transform:none;
+    overflow:hidden;
+    pointer-events:auto;
+  }
+
+  /* Phase 10 frontier: content-led, not a compressed desktop dashboard. */
+  body.archive-shell .signature-phase10{
+    display:grid;
+    grid-template-rows:auto auto auto auto;
+    gap:0;
+    min-height:0;
+    padding:18px;
+    background:var(--archive-ink);
+    color:#fff;
+    border-radius:4px;
+  }
+  body.archive-shell .signature-phase10 .frontier-topline{
+    position:relative;
+    inset:auto;
+    min-height:30px;
+    padding-bottom:10px;
+    font-size:12px;
+    letter-spacing:.12em;
+  }
+  body.archive-shell .signature-phase10 .frontier-core{
+    position:relative;
+    inset:auto;
+    height:180px;
+    min-height:180px;
+    overflow:hidden;
+  }
+  body.archive-shell .signature-phase10 .frontier-ring.r1{width:152px;height:152px}
+  body.archive-shell .signature-phase10 .frontier-ring.r2{width:112px;height:112px}
+  body.archive-shell .signature-phase10 .frontier-ring.r3{width:76px;height:76px}
+  body.archive-shell .signature-phase10 .frontier-trace{width:164px;height:164px}
+  body.archive-shell .signature-phase10 .frontier-center{width:64px;height:64px}
+  body.archive-shell .signature-phase10 .frontier-center small{font-size:12px;line-height:1}
+  body.archive-shell .signature-phase10 .frontier-center strong{display:block;font-size:22px;line-height:1}
+  body.archive-shell .signature-phase10 .frontier-metrics{
+    position:relative;
+    inset:auto;
+    display:grid;
+    grid-template-columns:1fr;
+    margin-top:4px;
+    border-top:1px solid rgba(255,255,255,.18);
+  }
+  body.archive-shell .signature-phase10 .frontier-metrics>div{
+    min-width:0;
+    min-height:72px;
+    padding:13px 0;
+    border-bottom:1px solid rgba(255,255,255,.14);
+  }
+  body.archive-shell .signature-phase10 .frontier-metrics span{
+    display:block;
+    font-size:12px;
+    line-height:1.35;
+    color:#a7a7aa;
+  }
+  body.archive-shell .signature-phase10 .frontier-metrics strong{
+    display:block;
+    margin-top:4px;
+    font-size:22px;
+    line-height:1.15;
+    font-weight:500;
+    overflow-wrap:anywhere;
+  }
+  body.archive-shell .signature-phase10 .frontier-foot{
+    position:relative;
+    inset:auto;
+    display:block;
+    padding-top:14px;
+    font-size:12px;
+    line-height:1.5;
+  }
+  body.archive-shell .signature-phase10 .frontier-foot span{display:block;color:#a7a7aa}
+  body.archive-shell .signature-phase10 .frontier-foot strong{display:block;margin-top:4px;color:#fff;font-size:13px;line-height:1.45}
+
+  body.archive-shell .sig-head{font-size:12px;gap:10px}
+  body.archive-shell .sig-statline{grid-template-columns:1fr;gap:4px}
+  body.archive-shell .sig-statline strong{text-align:left;font-size:20px}
+  body.archive-shell .sig-bar-row{grid-template-columns:94px 1fr 44px;gap:9px}
+  body.archive-shell .sig-fusion{grid-template-columns:1fr 1fr;grid-template-rows:auto auto;gap:14px}
+  body.archive-shell .sig-source.visual{grid-column:1;grid-row:1}
+  body.archive-shell .sig-source.reference{grid-column:2;grid-row:1}
+  body.archive-shell .sig-disagreement{grid-column:1;grid-row:2;border-left:0;border-right:0;border-top:1px solid rgba(23,26,32,.14)}
+  body.archive-shell .sig-fused{grid-column:2;grid-row:2}
+  body.archive-shell .sig-fusion-lines{display:none}
+  body.archive-shell .sig-camera-pipeline{grid-template-columns:1fr;gap:12px}
+  body.archive-shell .sig-camera-pipeline .sig-arrow{display:none}
+  body.archive-shell .sig-camera-pipeline .sig-controller{grid-column:1;min-height:84px}
+  body.archive-shell .sig-camera-frame{height:160px}
+  body.archive-shell .sig-confidence-lane{grid-template-columns:94px 1fr 52px;gap:8px}
+  body.archive-shell .sig-matrix-wrap{grid-template-columns:48px 1fr;gap:7px}
+  body.archive-shell .sig-matrix-cell{min-height:34px}
+  body.archive-shell .sig-outcome-board{gap:8px}
+  body.archive-shell .sig-outcome-board>div{height:150px}
+  body.archive-shell .sig-outcome-board strong{font-size:24px}
+  body.archive-shell .sig-camera-geometry{grid-template-columns:1fr;gap:18px}
+  body.archive-shell .sig-camera-result,
+  body.archive-shell .sig-geometry-result{min-height:auto}
+  body.archive-shell .sig-divider{width:100%;height:1px}
+  body.archive-shell .mini-target{width:92px;height:92px}
+
+  body.archive-shell .program-goal,
+  body.archive-shell .section{min-height:100svh;padding:82px 20px}
+  body.archive-shell .program-goal{grid-template-columns:1fr;gap:48px;border:0}
+  body.archive-shell .program-goal-copy h2{font-size:32px;line-height:38px;letter-spacing:normal}
+  body.archive-shell .program-goal-copy>p:last-child{font-size:14px;line-height:20px;color:var(--archive-body)}
+  body.archive-shell .program-pillars{grid-template-columns:1fr;border:0;gap:0}
+  body.archive-shell .program-pillars>div{min-height:72px;padding:14px 0;border:0}
+  body.archive-shell .program-pillars>div+div{border-top:1px solid rgba(23,26,32,.12)}
+  body.archive-shell .program-pillars strong{font-size:14px;font-weight:500}
+
+  body.archive-shell .section-head{margin-bottom:42px}
+  body.archive-shell .section h2{font-size:30px;line-height:36px;letter-spacing:normal;font-weight:500}
+  body.archive-shell .snapshot-grid,
+  body.archive-shell .evidence-layout,
+  body.archive-shell .story-pair,
+  body.archive-shell .shift{grid-template-columns:1fr;gap:36px}
+  body.archive-shell .metrics{grid-template-columns:1fr;margin-top:44px;border:0}
+  body.archive-shell .metric-card,
+  body.archive-shell .metric-card+article{min-height:112px;padding:20px 0;border:0}
+  body.archive-shell .metric-card+article{border-top:1px solid rgba(23,26,32,.12)}
+  body.archive-shell .changes{grid-template-columns:1fr;gap:34px}
+  body.archive-shell .changes article{border-top:0;padding-top:0}
+  body.archive-shell .phase-visual,
+  body.archive-shell .evidence-story{border:0}
+  body.archive-shell .evidence-visual{min-height:320px}
+  body.archive-shell .limits-list{grid-template-columns:1fr}
+  body.archive-shell .architecture{margin-right:-20px;padding-right:20px;scroll-snap-type:x proximity}
+  body.archive-shell .arch-step{min-width:78vw;scroll-snap-align:start}
+
+  body.archive-shell .phase-rail-section{padding:0}
+  body.archive-shell .phase-rail{
+    grid-template-columns:repeat(11,88px);
+    overflow-x:auto;
+    padding:0 14px;
+    border:0;
+    border-bottom:1px solid rgba(23,26,32,.12);
+    scroll-snap-type:x mandatory;
+    scrollbar-width:none;
+  }
+  body.archive-shell .phase-rail::-webkit-scrollbar{display:none}
+  body.archive-shell .rail-step{padding:18px 4px;scroll-snap-align:center}
+  body.archive-shell .rail-step.active>i,
+  body.archive-shell .rail-step.active>i::after{background:var(--archive-ink)}
+
+  body.archive-shell .index-hero{min-height:100svh;padding:96px 20px 52px;align-content:end}
+  body.archive-shell .index-hero .big{font-size:20px;line-height:28px;color:var(--archive-body)}
+  body.archive-shell .map{padding:0 20px 84px}
+  body.archive-shell .era{grid-template-columns:1fr;gap:22px;padding:54px 0}
+  body.archive-shell .phase-link{grid-template-columns:1fr 20px;gap:7px 14px;padding:22px 0}
+  body.archive-shell .phase-link>span,
+  body.archive-shell .phase-link strong,
+  body.archive-shell .phase-link small{grid-column:1}
+  body.archive-shell .phase-link i{grid-column:2;grid-row:1/4}
+}
+
+@media (max-width:390px){
+  body.archive-shell .hero,
+  body.archive-shell .program-goal,
+  body.archive-shell .section,
+  body.archive-shell .map{padding-inline:18px}
+  body.archive-shell .hero h1,
+  body.archive-shell .index-hero h1{font-size:32px;line-height:38px}
+  body.archive-shell .deck{font-size:20px;line-height:26px}
+  body.archive-shell .signature-phase10{padding:16px}
+}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  body.archive-shell *,
+  body.archive-shell *::before,
+  body.archive-shell *::after{animation-duration:.001ms;animation-iteration-count:1;transition-duration:.001ms}
+}
