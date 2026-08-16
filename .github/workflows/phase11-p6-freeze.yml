@@ -1,0 +1,52 @@
+name: Phase 11 P6 candidate freeze
+
+on:
+  push:
+    branches:
+      - phase11-p6-horizon-calibration
+    paths:
+      - scripts/run_phase11_p6_horizon_calibration.py
+      - tests/test_phase11_p6_horizon_calibration.py
+      - docs/phase11_p6_horizon_calibration_preregistration.md
+      - .github/workflows/phase11-p6-freeze.yml
+
+permissions:
+  contents: read
+
+jobs:
+  freeze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install project
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Guard P6 invariants
+        run: pytest -q tests/test_phase11_p6_horizon_calibration.py
+      - name: Generate P6 frozen candidate inputs only
+        run: |
+          rm -rf results/phase11_p6_freeze
+          python scripts/run_phase11_p6_horizon_calibration.py \
+            --stage freeze \
+            --out results/phase11_p6_freeze \
+            --git-sha "${GITHUB_SHA}" | tee phase11-p6-freeze.log
+          test ! -f results/phase11_p6_freeze/development_frames.csv
+          test ! -f results/phase11_p6_freeze/development_result.json
+          test ! -f results/phase11_p6_freeze/validation_frames.csv
+          test ! -f results/phase11_p6_freeze/validation_result.json
+      - name: Candidate freeze digest
+        run: |
+          sha256sum results/phase11_p6_freeze/candidate_freeze.json
+          cat results/phase11_p6_freeze/candidate_freeze.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: phase11-p6-candidate-freeze
+          path: |
+            results/phase11_p6_freeze/
+            phase11-p6-freeze.log
+          if-no-files-found: error
+          retention-days: 30
