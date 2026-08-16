@@ -1,81 +1,245 @@
-# Phase 11 preregistration draft — domain-shift-aware perception reliability
+# Phase 11 preregistration — domain-shift-aware perception reliability
 
 ## Status
 
-**NEXT PHASE DESIGN — NO PHASE 11 EVIDENCE GENERATED YET**
+**PREREGISTERED BEFORE PHASE 11 DATA GENERATION**
 
-Phase 11 is opened because the frozen Phase 10R holdout showed a specific failure: average ambiguous-view geometry improved while p95 tail error, target availability, and development-frozen uncertainty coverage degraded under combined appearance + geometry shift.
+Preregistration branch: `phase11-domain-shift-development`
 
-Phase 10R is closed for result-driven retuning. Phase 11 must be treated as a new research phase with new development evidence and a new freeze boundary.
+Public-site freeze point: `site-v1-frozen` at commit `04f8586cff06abfb7f3729c1b1802c8aa77f9f03`.
+
+This preregistration is the exact development protocol authorized before any Phase 11 benchmark rows are generated. Phase 10R remains closed for result-driven retuning.
 
 ## Research question
 
-**Can AegisLand detect when visual conditions have moved outside its calibrated reliability envelope and abstain or widen uncertainty enough to recover target coverage without making useful perception unavailable?**
+**Can AegisLand detect when visual conditions move outside its calibrated reliability envelope and either widen uncertainty or abstain enough to recover honest coverage without making useful perception unavailable?**
+
+Phase 11 is not a new image-to-pose model. P0 isolates the reliability layer around the frozen Phase 10R research question.
 
 ## Frozen starting point
 
-Phase 11 inherits, but does not rewrite:
+Phase 11 inherits without rewriting:
 
 - Phase 10R candidate SHA `e1d566f8baa47bf10f9bdf39dd5988724208be80`;
-- frozen Phase 10R holdout verdict: mixed / failed overall;
-- Phase 10R 95% coverage under final shift: `84.3%` lateral / `79.7%` altitude;
-- Phase 10R truth-visible miss rate: `20.0%`;
-- Phase 10R ambiguous-view MAE improvement: `79.2%` lateral / `73.7%` altitude;
-- Phase 10R ambiguous-view p95 improvement: `-1.1%` lateral / `7.3%` altitude.
+- Phase 10R frozen-holdout verdict: mixed / failed overall;
+- final Phase 10R 95% coverage: `84.3%` lateral / `79.7%` altitude;
+- final Phase 10R truth-visible miss rate: `20.0%`;
+- final Phase 10R ambiguous-view MAE improvement: `79.2%` lateral / `73.7%` altitude;
+- final Phase 10R ambiguous-view p95 improvement: `-1.1%` lateral / `7.3%` altitude.
 
-The Phase 10R frozen holdout is permanently seen and may be used only as motivation/diagnostic evidence, not for Phase 11 model selection.
+The Phase 10R validation seed `271828`, the final Phase 10R holdout, and all other exposed Phase 10R evidence are **permanently seen**. They may motivate Phase 11 but may not be used for fitting, calibration, threshold selection, validation, or any future hidden test.
 
-## Phase 11 development factors
+## Phase 11 P0 benchmark scope
 
-New development data should cross factors that are visible to the reliability layer at inference time:
+P0 is a new simulation-only controlled domain-shift benchmark for the **reliability layer**. It evaluates uncertainty and abstention, not controller behavior.
 
-- target edge margin / partial visibility;
-- projected target scale;
-- obliquity / projective distortion;
-- brightness and contrast;
-- blur/noise strength;
-- detector source and corner quality;
-- temporal innovation / reacquisition state;
-- recent track stability.
+P0 uses a deterministic procedural response generator to create fresh estimator-like traces under declared geometric, appearance, and temporal shifts. The generator is **non-authoritative synthetic development evidence**: it is intended to test calibration/abstention logic and benchmark mechanics, not to claim new pixel-level camera accuracy or external-simulator performance. New raw-camera external validation, if pursued, must be a later separately preregistered milestone.
 
-At least one development split must contain combinations absent from fitting trajectories so conditional reliability is tested compositionally rather than by random frame split.
+The frozen Phase 10R calibration radii may be applied as a historical reference method, but Phase 10R rows themselves are never copied into Phase 11 splits.
 
-## Candidate methods to compare
+### Sequence unit
 
-1. **Frozen Phase 10R uncertainty** — unchanged reference.
-2. **Global conformal calibration** — one calibration envelope with target empirical coverage.
-3. **Context-conditioned conformal calibration** — low-capacity conditioning on predeclared geometric/appearance reliability features.
-4. **Shift-aware abstention** — abstain when the inference-visible reliability state is outside the calibrated support region.
+- `60` frames per sequence;
+- full trajectories/sequences are the separation unit;
+- no random adjacent-frame splitting;
+- all benchmark seeds below are new to Phase 11.
 
-No learned image-to-pose replacement is required for Phase 11 P0; the first question is whether reliability can become more honest under shift.
+### Fixed split seeds
 
-## Primary endpoints
+- fit: `11011`;
+- calibration: `22022`;
+- compositional challenge validation: `33033`.
+
+These seeds are fixed before generation. Changing them after exposure constitutes a new benchmark version and must be documented as such.
+
+### Split families
+
+- fit trajectories: families `0..5`;
+- calibration trajectories: families `6..8`;
+- challenge-validation trajectories: families `9..11`.
+
+Families are disjoint by construction.
+
+## Domain design
+
+### Fit/calibration domains
+
+The fitting and calibration splits contain nominal conditions plus **single-factor shifts only**:
+
+1. `nominal`
+2. `edge`
+3. `small_scale`
+4. `oblique`
+5. `dim`
+6. `blur_noise`
+7. `temporal_dropout`
+8. `low_contrast`
+
+No multi-factor challenge composition listed below may appear in fit or calibration.
+
+### Compositional challenge domains
+
+Validation contains unseen combinations of individually familiar factors:
+
+1. `edge+dim`
+2. `edge+blur_noise`
+3. `small_scale+oblique`
+4. `dim+blur_noise`
+5. `edge+small_scale+oblique`
+6. `small_scale+blur_noise+temporal_dropout`
+7. `oblique+dim+temporal_dropout`
+8. `edge+oblique+dim+blur_noise`
+
+The purpose is compositional transfer, not random frame generalization.
+
+## Inference-visible reliability features
+
+Only features available causally at inference time may be used by the reliability layer:
+
+- estimated edge-margin ratio;
+- estimated visible-fraction proxy;
+- projected target scale in pixels;
+- projective/obliquity proxy;
+- frame brightness mean;
+- frame contrast standard deviation;
+- blur proxy from Laplacian variance;
+- temporal innovation magnitude;
+- recent track-stability score;
+- detector/candidate source category;
+- reacquisition flag.
+
+Truth labels, true error, domain name, trajectory family, and future frames are forbidden as inputs to the reliability score.
+
+## Candidate methods
+
+Exactly four methods are compared in P0:
+
+1. **Frozen reference** — historical frozen Phase 10R source-conditional uncertainty radii applied unchanged to the fresh P0 traces; no Phase 11 adaptation.
+2. **Global conformal** — one split-conformal absolute-residual radius per axis fitted only on the Phase 11 calibration split.
+3. **Context-conditioned conformal** — predeclared low-capacity conditioning on reliability-risk strata; one conformal radius per stratum with global fallback when a stratum has fewer than `40` calibration observations.
+4. **Shift-aware abstention** — context-conditioned conformal plus abstention above a calibration-frozen reliability-risk threshold.
+
+No learned image model, learned residual regressor, neural calibrator, or post-validation threshold tuning is allowed in P0.
+
+## Predeclared context score
+
+A scalar reliability-risk score in `[0,1]` is formed from six normalized components:
+
+- edge/visibility risk: weight `0.25`;
+- small-scale risk: `0.15`;
+- obliquity risk: `0.15`;
+- appearance risk (brightness/contrast/blur): `0.20`;
+- temporal innovation risk: `0.15`;
+- track-instability/reacquisition risk: `0.10`.
+
+The score is a fixed weighted average. Weights may not be changed after the challenge split is exposed.
+
+Context strata are fixed as:
+
+- `low`: score `<0.30`;
+- `medium`: `0.30 <= score < 0.60`;
+- `high`: score `>=0.60`.
+
+The abstention threshold is the empirical `90th` percentile of the calibration-split risk score, frozen before challenge validation.
+
+## Conformal rule
+
+For each requested target coverage `q`, the split-conformal absolute-residual radius uses the finite-sample order statistic
+
+`ceil((n + 1) * q)`
+
+clipped to the available sorted residuals.
+
+Calibration uses available, truth-visible calibration observations only. Challenge labels are not used to derive radii or thresholds.
+
+## Primary hypotheses and gates
 
 ### H1 — coverage transfer
-On held-out domain-shift trajectories, target 95% intervals should achieve empirical coverage between **90% and 98%** on both lateral and altitude axes.
+
+For **context-conditioned conformal** on the full compositional challenge split, available 95% intervals must achieve empirical coverage between **90% and 98%** on both lateral and altitude axes.
+
+**Pass requires both axes.**
 
 ### H2 — useful sharpness
-At matched coverage, median interval width should be no more than **1.35×** the frozen Phase 10R development-calibration width. A trivial always-wide interval is not considered a win.
+
+For context-conditioned conformal, median full interval width on available challenge observations must be no more than **1.35x** the corresponding global-conformal median width on each axis.
+
+**Pass requires both axes.**
 
 ### H3 — selective reliability
-Among accepted observations, p95 absolute error should improve by **≥25%** versus accepting all frozen Phase 10R observations, while truth-visible usable availability remains **≥70%**.
+
+For shift-aware abstention, compared with accepting all available challenge observations:
+
+- accepted-observation lateral p95 absolute error improves by **>=25%**;
+- accepted-observation altitude p95 absolute error improves by **>=25%**;
+- truth-visible usable availability remains **>=70%**.
+
+**Pass requires all three.**
 
 ### H4 — shift discrimination
-A preregistered reliability score should rank known shifted conditions above nominal conditions with trajectory-level AUROC **≥0.80** on validation. This is diagnostic and does not by itself establish safety.
 
-## Split policy
+The fixed reliability-risk score must distinguish nominal/single-factor calibration sequences from compositional challenge sequences at trajectory level with AUROC **>=0.80**.
 
-- separation unit: entire trajectory/sequence;
-- no random adjacent-frame split;
-- fitting trajectories, calibration trajectories, and validation trajectories are disjoint;
-- the Phase 10R final holdout is excluded from Phase 11 fitting/calibration/validation;
-- any future Phase 11 frozen holdout requires a separate exact-freeze approval checkpoint.
+This is diagnostic only; it does not establish safety.
 
-## Evidence and claim boundaries
+## Secondary diagnostics
 
-- simulation only;
+Report without using them as tuning objectives:
+
+- coverage at 50%, 68%, 80%, 90%, and 95%;
+- mean absolute coverage error across those levels;
+- median and p95 interval width;
+- MAE and p95 absolute point error;
+- availability and false-positive rate;
+- metrics by domain, risk stratum, source category, and reacquisition state;
+- worst three challenge domains by accepted p95 error;
+- error conditional on the system saying an observation is trustworthy.
+
+## Candidate selection rule
+
+P0 is not allowed to search arbitrary variants. The four methods above are evaluated exactly as specified. If multiple methods pass all applicable gates, prefer in order:
+
+1. higher minimum-axis 95% coverage closeness to `0.95`;
+2. smaller worst-axis median interval width;
+3. higher availability;
+4. simpler method (`global` before `context` before `abstention`) if still tied.
+
+A method that fails a preregistered gate cannot be described as passing because another secondary metric improved.
+
+## Exposure and retuning policy
+
+After challenge seed `33033` is generated or evaluated:
+
+- it becomes permanently seen evidence;
+- no P0 weight, stratum, conformal rule, abstention quantile, or response-generator rule may be changed and then re-evaluated on the same challenge split as if it were unseen;
+- any follow-up model or benchmark change requires a newly preregistered development/challenge split.
+
+A future protected Phase 11 frozen holdout is **not generated or exposed by this milestone**. It requires a separate exact-freeze approval after a candidate is frozen.
+
+## Required artifacts
+
+The benchmark run must emit:
+
+- `fit_frames.csv`;
+- `calibration_frames.csv`;
+- `challenge_frames.csv`;
+- `calibration.json`;
+- `benchmark_result.json`;
+- `benchmark_summary.md`;
+- `manifest.json` with SHA-256 hashes;
+- the exact benchmark config and code commit.
+
+Raw imagery is not part of P0 because this milestone is a controlled reliability-layer benchmark rather than pixel-level external evidence.
+
+## Claim boundaries
+
+- `simulation_only = true`;
+- `evidence_role = phase11_p0_non_authoritative_synthetic_development`;
 - `safety_acceptance = false`;
 - `controller_tuning_allowed = false`;
 - no physical-flight validation claim;
-- coverage claims apply only to the defined simulated distributions;
-- a failed or mixed Phase 11 result must be preserved rather than tuned away.
+- no controller-performance claim;
+- no new raw-camera accuracy claim;
+- coverage statements apply only to the defined simulated benchmark distributions;
+- negative and mixed results must be preserved;
+- a future protected holdout cannot be exposed without a new explicit approval checkpoint.
