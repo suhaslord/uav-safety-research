@@ -1,0 +1,33 @@
+{
+  "files": {
+    "baseline_uncertainty_calibration.json": {
+      "bytes": 1351,
+      "sha256": "39257a9f8406160e0345874eaece718adab748301b2b69623a2f8a188bf984bf"
+    },
+    "candidate_freeze.json": {
+      "bytes": 373,
+      "sha256": "2b0fdee12ff02b9b9346d42243a31c750b3f83ec3c2c00b5c763f57077fcbd4d"
+    },
+    "candidate_uncertainty_calibration.json": {
+      "bytes": 1841,
+      "sha256": "3ffdf1e37c94361ac01d8175f902a0ae4fb8d831274bb7850c171e92d79c527b"
+    },
+    "development_frames.csv": {
+      "bytes": 617981,
+      "sha256": "b8a2d39028b41ea75db1697deb2d22327c8b216d5181817b85b28c64a92a436f"
+    },
+    "summary.md": {
+      "bytes": 538,
+      "sha256": "fa6c277194f9056a8e3fcf67defa73960a49aab372efeffc036097274450bec5"
+    },
+    "validation_frames.csv": {
+      "bytes": 613692,
+      "sha256": "2b281859bd16663322acfb77974e76b9866e0edbbfc9719aff41ae2c43e4ec2c"
+    },
+    "validation_result.json": {
+      "bytes": 2875,
+      "sha256": "11848084a1af8cdca86b8ca07b8bbd2cfdd66acd4ec12eeeaaac105468bfa370"
+    }
+  },
+  "schema": "aegisland.phase10r.generalization.v1"
+}

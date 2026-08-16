@@ -1,0 +1,60 @@
+name: Phase 10 Development
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [phase10-temporal-metric-perception]
+    paths:
+      - ".github/workflows/phase10-development.yml"
+      - "src/uav_safety/phase10_metric.py"
+      - "src/uav_safety/phase10_calibration.py"
+      - "scripts/generate_phase10_fixture.py"
+      - "scripts/run_phase10_metric_benchmark.py"
+      - "tests/test_phase10_*.py"
+      - "docs/phase10_temporal_metric_perception_protocol.md"
+      - "results/phase10_development_seen/calibration.json"
+
+jobs:
+  phase10-development:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - name: Install project
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Exact-head compile
+        run: python -m compileall -q src scripts tests
+      - name: Full regression suite
+        run: pytest -q
+      - name: Deterministic non-authoritative Phase 10 fixture
+        run: |
+          rm -rf /tmp/phase10-fixture /tmp/phase10-fixture-result
+          python scripts/generate_phase10_fixture.py --out /tmp/phase10-fixture --seed 101010 --frames 72
+          python scripts/run_phase10_metric_benchmark.py /tmp/phase10-fixture/perception_trace.csv /tmp/phase10-fixture/detection_details.csv --out /tmp/phase10-fixture-result --evidence-role phase10_development_seen --fit-calibration
+      - name: Fixture integrity assertions
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          result=json.loads(Path('/tmp/phase10-fixture-result/result.json').read_text())
+          assert result['evidence_role']=='phase10_development_seen'
+          assert result['simulation_only'] is True
+          assert result['safety_acceptance'] is False
+          assert result['controller_tuning_allowed'] is False
+          assert result['phase10']['lateral']['mae'] < result['phase9_baseline']['lateral']['mae']
+          assert result['phase10']['altitude']['mae'] < result['phase9_baseline']['altitude']['mae']
+          assert result['availability']['phase10_metric_estimates_on_visible'] <= result['availability']['phase9_front_end_observations_on_visible']
+          calibration=json.loads(Path('results/phase10_development_seen/calibration.json').read_text())
+          assert calibration['schema']=='aegisland.phase10.uncertainty-calibration.v1'
+          PY
+      - name: Upload Phase 10 fixture artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase10-development-fixture
+          path: /tmp/phase10-fixture-result
+          retention-days: 30

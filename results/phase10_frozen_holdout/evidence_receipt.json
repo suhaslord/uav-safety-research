@@ -1,0 +1,19 @@
+{
+  "schema": "aegisland.phase10.frozen-evidence-receipt.v1",
+  "phase10_evidence_role": "phase10_holdout_unseen",
+  "phase10_freeze_marker_sha": "5bd6be00a9f81d144170cb7950091518f54f83e7",
+  "phase10_frozen_implementation_sha": "fb928d5b0d1fbee7459d55120d5fd6b232a4f2c6",
+  "frozen_calibration_sha256": "8934d108de1e0fa99f6985e643bb3b81145cfd6d7f901e1dcc900bb84673b6e7",
+  "mission_metadata_sha256": "f107ae18bdc9efe0ae0c1e76f2e3c1176583bed4087f1570e2d9254a18cfc09c",
+  "raw_capture_metadata_sha256": "9b259fb35100c64e7ea8ab8a800cd311450317e2bf032d42b7e95e1bdd829f8a",
+  "raw_ulog_sha256": "e919444c087aa68d2d307b5ef18b78d2af73c2500886c65b0a627be21c0db3ce",
+  "phase9_frontend_trace_sha256": "4a65b0c0ea50375213cd113b303d8745f8bb62200fcdafc85bfa3608a4162786",
+  "phase9_frontend_detection_details_sha256": "b6cb34f65b75bca54845fee70918db062381bbb4f86b9fa2cca829837ad07283",
+  "phase10_result_sha256": "4a8c3cecc505e136260e9652a6fe937881b6cda1504cf2379d8fa7dc4aad94d6",
+  "phase10_per_frame_sha256": "bac965f30dd249d271fb7faf3f8c2fc68bd6598957811ebe08eb51714af11486",
+  "phase10_result_manifest_sha256": "6549c3aa5b5da147775b1fc2916c219370b4c15b0a59c715f372ecc3fcffe2c7",
+  "minimum_substantial_win_gate_all": false,
+  "simulation_only": true,
+  "safety_acceptance": false,
+  "controller_tuning_allowed": false
+}

@@ -1,0 +1,52 @@
+name: Phase 10 Frozen Evaluation
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - phase10-temporal-metric-perception
+    paths:
+      - ".github/workflows/phase10-frozen-evaluation.yml"
+      - "docs/phase10_freeze_manifest.md"
+      - "scripts/run_phase10_gazebo_camera_mission.py"
+      - "scripts/run_phase10_frozen_evidence.sh"
+
+jobs:
+  phase10-frozen-evaluation:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 65
+    env:
+      PX4_RELEASE: v1.17.0
+      PX4_SIMULATOR_MODEL: gz_x500_mono_cam_down
+      PX4_GZ_WORLD: aruco
+      PHASE9_PARENT_MAIN: babd4d9849c4792ff1cc002c51cc5dbbc6ed0221
+      PHASE8_FROZEN_HEAD: bd62e3b31431306fd9d897f560be7325d711d21a
+      PHASE6B_FROZEN_HEAD: b4e9838555e935a5ec42690495315473629b58f6
+      PHASE10_FROZEN_IMPLEMENTATION: fb928d5b0d1fbee7459d55120d5fd6b232a4f2c6
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - name: Install Phase 10 evidence dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]" pyulog mavsdk opencv-contrib-python-headless
+      - name: Verify freeze manifest and calibration
+        run: |
+          test "$(sha256sum results/phase10_development_seen/calibration.json | awk '{print $1}')" = "8934d108de1e0fa99f6985e643bb3b81145cfd6d7f901e1dcc900bb84673b6e7"
+          git diff --exit-code "$PHASE10_FROZEN_IMPLEMENTATION" -- \
+            src/uav_safety/phase10_metric.py \
+            src/uav_safety/phase10_calibration.py \
+            scripts/run_phase10_metric_benchmark.py \
+            results/phase10_development_seen/calibration.json
+      - name: Run genuine frozen Phase 10 Gazebo camera holdout
+        run: bash scripts/run_phase10_frozen_evidence.sh
+      - name: Upload frozen Phase 10 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase10-gazebo-camera-holdout
+          path: /tmp/phase10-evidence
+          if-no-files-found: warn
+          retention-days: 30

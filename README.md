@@ -5,8 +5,8 @@
 **External perception evidence you can inspect — not just trust.**
 
 [![CI](https://github.com/suhaslord/uav-safety-research/actions/workflows/ci.yml/badge.svg)](https://github.com/suhaslord/uav-safety-research/actions/workflows/ci.yml)
-![Frontier](https://img.shields.io/badge/frontier-Phase%2010R%20P0-2F6FED)
-![Phase 10](https://img.shields.io/badge/Phase%2010-frozen%20mixed%20result-111111)
+![Frontier](https://img.shields.io/badge/frontier-Phase%2010R%20validation-2F6FED)
+![Phase 10R](https://img.shields.io/badge/Phase%2010R-mixed%20validation-111111)
 ![Safety](https://img.shields.io/badge/safety%20acceptance-false-C2410C)
 ![Scope](https://img.shields.io/badge/simulation%20only-6B7280)
 ![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)
@@ -15,14 +15,33 @@ Simulation research on perception overconfidence, calibrated abstention, redunda
 
 > If visual perception is internally consistent but systematically wrong, can independent evidence expose the error without making landing unusably conservative?
 
-| [Live archive](https://aegisland-research-cockpit.vercel.app/) | [Phase 10 result](docs/phase10_frozen_holdout_result.md) | [10R preregistration](docs/phase10r_preregistration.md) | [Local cockpit](dashboard/README.md) |
+| [Live archive](https://aegisland-research-cockpit.vercel.app/) | [Phase 10R validation](docs/phase10r_development_validation_result.md) | [Phase 10 result](docs/phase10_frozen_holdout_result.md) | [10R preregistration](docs/phase10r_preregistration.md) |
 | :---: | :---: | :---: | :---: |
 
 </div>
 
 ---
 
-## Headline — Phase 10 frozen mixed result
+## Current frontier — Phase 10R mixed validation result
+
+The preregistered Phase 10R candidate was frozen at `e1d566f8baa47bf10f9bdf39dd5988724208be80` **before** the trajectory-held-out validation seed was exposed. On 1,200 truth-visible validation frames, Phase 10R recovered difficult edge/partial/stressed observations much more often and retained strong uncertainty calibration, but its lateral pose improvement did not reach the preregistered magnitude gates. The mixed result is preserved without post-validation retuning.
+
+| Validation gate | Result | Reading |
+|---|:---:|---|
+| Difficult miss rate | **PASS** | `25.70% → 8.72%` · **66.0% relative reduction** |
+| False positives | **PASS** | `0.0%` |
+| Detected-center p95 ≤ 1.10× baseline | **FAIL** | `1.1265×` |
+| Lateral MAE improvement ≥ 40% | **FAIL** | **30.1%** improvement |
+| Lateral p95 improvement ≥ 30% | **FAIL** | **15.2%** improvement |
+| Altitude MAE / p95 improvement | **PASS** | **53.0% / 44.9%** improvement |
+| 95% uncertainty coverage | **PASS** | **94.1% lateral / 94.1% altitude** |
+| Mean absolute coverage error ≤ 5 pp | **PASS** | **0.84 pp** |
+
+The next protected `phase10r_frozen_holdout` is **not exposed**. The preregistration requires a second explicit approval at the exact freeze checkpoint before that can happen.
+
+---
+
+## Phase 10 frozen mixed result
 
 AegisT10 **did not beat** Phase 9 point estimates on the Gazebo-camera holdout. Every usable observation was already clean ArUco geometry at centimeter scale, so temporal filtering had nothing catastrophic to rescue. **Uncertainty honesty improved sharply** on the same paired rows. The mixed result was frozen; nothing was retuned after exposure.
 
@@ -42,7 +61,7 @@ AegisT10 **did not beat** Phase 9 point estimates on the Gazebo-camera holdout. 
 | Median norm. residual < 2 (both axes) | `PASS` | 0.65 lateral · 0.52 altitude |
 | ≥50% MAE / ≥35% p95 reduction | `FAIL` | ArUco-only holdout left no point-error to rescue |
 
-**Phase 10R P0** is read-only forensics + a preregistration draft. No tuning from miss frames `27, 35, 36, 46, 47` until [approval](docs/phase10r_preregistration.md).
+Phase 10R was motivated by the five truth-visible Phase 10 misses (`27, 35, 36, 46, 47`), but those historical frames were used only for descriptive forensics—not model selection. The new development/validation evidence is documented in [the frozen Phase 10R result](docs/phase10r_development_validation_result.md).
 
 <a href="https://aegisland-research-cockpit.vercel.app/">
   <img src="docs/assets/readme/frame_home.png" alt="AegisLand research cockpit" width="100%"/>
@@ -85,7 +104,7 @@ flowchart LR
   A["6B synthetic<br/>frozen"] --> B["7–8 stress<br/>+ mismatch"]
   B --> C["9 raw camera<br/>seen"]
   C --> D["10 temporal + σ<br/>frozen mixed"]
-  D --> E["10R forensics<br/>pending approval"]
+  D --> E["10R edge/partial<br/>validation mixed"]
 ```
 
 | # | Layer | Status | What it supports |
@@ -95,7 +114,8 @@ flowchart LR
 | `8` | PX4/Gazebo trace comparison | `external seen` | resemblance = `diagnostic_mismatch` |
 | `9` | Genuine Gazebo camera evidence | `external perception seen` | strong detection ≠ trustworthy metric geometry |
 | `10` | Temporal metric + calibrated σ | `frozen holdout` | uncertainty improved; point-error gate failed |
-| `10R` | Holdout forensics + preregistration | `forensics only` | approval gate before new data |
+| `10R` | Edge/partial-view generalization | `trajectory-held-out validation seen` | availability + altitude + uncertainty improved; lateral gates remained below target |
+| — | New 10R protected holdout | `not exposed` | second explicit approval required |
 | — | Physical aircraft | `not tested` | no hardware or flight validation |
 
 **Nothing here is a physical-flight safety acceptance.**  
@@ -108,7 +128,9 @@ flowchart LR
 ```bash
 git clone https://github.com/suhaslord/uav-safety-research.git
 cd uav-safety-research
-python -m venv .venv && source .venv/bin/activate
+python -m venv .venv
+# macOS / Linux: source .venv/bin/activate
+# Windows PowerShell: .\.venv\Scripts\Activate.ps1
 pip install -e ".[dev]"
 pytest
 python scripts/serve_dashboard.py   # http://127.0.0.1:8765
@@ -123,8 +145,10 @@ Live archive: [aegisland-research-cockpit.vercel.app](https://aegisland-research
 | Limit | Why it matters |
 |---|---|
 | Simulation only | No hardware-camera or physical-flight validation |
+| Phase 10R validation is now seen | Seed `271828` cannot be reused as a hidden test |
+| Lateral partial-view geometry missed gates | Availability gains did not translate into the preregistered lateral error reduction |
 | Small Phase 10 holdout | **20** truth-visible · **15** paired observations |
-| Holdout now seen | Cannot be a hidden Phase 10R test |
+| Historical Phase 10 holdout now seen | Cannot be a hidden Phase 10R test |
 | Short Phase 8 external trace | Genuine `diagnostic_mismatch`, not a pass |
 | CI green ≠ flight-safe | Passing tests ≠ UAV safety acceptance |
 

@@ -1,0 +1,261 @@
+/* AegisLand archive mobile discipline layer
+   Source of truth: DESIGN-tesla.md
+   - radical subtraction
+   - no gradients / shadows / decorative patterns
+   - Electric Blue only for primary actions
+   - 4px controls
+   - mobile navigation collapses to a drawer
+   - generous viewport rhythm; desktop layouts reflow rather than shrink
+*/
+
+:root{
+  --tesla-ink:#171a20;
+  --tesla-body:#393c41;
+  --tesla-muted:#5c5e62;
+  --tesla-ash:#f4f4f4;
+  --tesla-blue:#3e6ae1;
+  --tesla-ease:cubic-bezier(.5,0,0,.75);
+}
+
+/* Archive-only cleanup so the main cockpit keeps its own Tesla hero rules. */
+body.archive-shell .progress{display:none!important}
+body.archive-shell .hero::after{display:none!important;background:none!important;mask-image:none!important}
+body.archive-shell .rail-step.gap>i{background:none!important;border-top:1px dashed rgba(23,26,32,.22)!important}
+
+/* Blue is reserved for primary actions. Phase diagrams stay monochrome. */
+body.archive-shell [data-signature-phase] .sig-bar-row.accent>i b,
+body.archive-shell [data-signature-phase] .sig-stress .stress-line,
+body.archive-shell [data-signature-phase] .sig-confidence-lane>i em,
+body.archive-shell [data-signature-phase] .sig-matrix-cell:nth-child(13),
+body.archive-shell [data-signature-phase] .sig-matrix-cell:nth-child(18),
+body.archive-shell [data-signature-phase] .mini-target b,
+body.archive-shell [data-signature-phase] .frontier-ring.r2:after{background:var(--tesla-ink)!important;border-color:var(--tesla-ink)!important;stroke:var(--tesla-ink)!important;color:var(--tesla-ink)!important}
+body.archive-shell [data-signature-phase] .sig-outcome-board .major strong,
+body.archive-shell [data-signature-phase] .frontier-badge span,
+body.archive-shell .frontier-link:after{color:var(--tesla-muted)!important}
+body.archive-shell [data-signature-phase] .sig-fused,
+body.archive-shell .frontier-link{border-top-color:rgba(23,26,32,.22)!important}
+body.archive-shell [data-signature-phase] .sig-outcome-board .major i{background:#e7e7e7!important}
+body.archive-shell [data-signature-phase] .frontier-ring.r2{border-color:rgba(255,255,255,.28)!important}
+
+body.archive-shell .button.blue,
+body.archive-shell .top-btn.primary{background:var(--tesla-blue)!important;color:#fff!important}
+body.archive-shell .button,
+body.archive-shell .top-btn,
+.archive-menu-toggle,
+.archive-menu-close{border-radius:4px!important;box-shadow:none!important}
+body.archive-shell .word,
+body.archive-shell .kicker,
+body.archive-shell .lock strong,
+body.archive-shell .story-label,
+body.archive-shell .sig-head,
+body.archive-shell .frontier-topline{font-weight:500!important}
+
+.archive-menu-toggle,.archive-menu-sheet{display:none}
+
+@media(max-width:767px){
+  body.archive-shell{overflow-x:hidden}
+  body.archive-shell~*{box-sizing:border-box}
+  body.archive-shell .top{
+    min-height:52px!important;
+    height:52px!important;
+    padding:0 20px!important;
+    display:grid!important;
+    grid-template-columns:1fr auto!important;
+    align-items:center!important;
+    background:rgba(255,255,255,.82)!important;
+    backdrop-filter:blur(16px)!important;
+    -webkit-backdrop-filter:blur(16px)!important;
+    border:0!important;
+    box-shadow:none!important;
+  }
+  body.archive-shell .top .nav,
+  body.archive-shell .top .top-end{display:none!important}
+  body.archive-shell .word{font-size:12px!important;font-weight:500!important;letter-spacing:.22em!important}
+
+  .archive-menu-toggle{
+    display:inline-flex;
+    min-width:64px;
+    height:32px;
+    align-items:center;
+    justify-content:center;
+    padding:0 12px;
+    border:0;
+    background:rgba(255,255,255,.82);
+    color:var(--tesla-ink);
+    font:500 14px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+    transition:background-color .33s var(--tesla-ease),color .33s var(--tesla-ease);
+  }
+  .archive-menu-sheet{
+    position:fixed;
+    inset:0;
+    z-index:1200;
+    display:flex;
+    flex-direction:column;
+    padding:18px 20px 28px;
+    background:#fff;
+    color:var(--tesla-ink);
+    transform:translateX(100%);
+    visibility:hidden;
+    transition:transform .33s var(--tesla-ease),visibility .33s;
+  }
+  .archive-menu-sheet.open{transform:none;visibility:visible}
+  .archive-menu-sheet-head{height:36px;display:flex;align-items:center;justify-content:space-between}
+  .archive-menu-sheet-head strong{font-size:12px;font-weight:500;letter-spacing:.22em}
+  .archive-menu-close{height:32px;min-width:64px;padding:0 12px;border:0;background:var(--tesla-ash);color:var(--tesla-ink);font-weight:500}
+  .archive-menu-links{margin:auto 0;display:grid}
+  .archive-menu-links a{padding:15px 0;font-size:22px;line-height:1.2;font-weight:500;border:0}
+  .archive-menu-links a.primary{margin-top:20px;height:40px;padding:0 18px;display:flex;align-items:center;justify-content:center;background:var(--tesla-blue);color:#fff;font-size:14px;border-radius:4px}
+  .archive-menu-meta{display:flex;gap:22px;font-size:12px;color:var(--tesla-muted)}
+  body.archive-menu-open{overflow:hidden}
+
+  /* Reflow phase hero: copy, unique visual, metadata. Never fade desktop art behind text. */
+  body.archive-shell .hero{
+    min-height:100svh!important;
+    padding:86px 20px 40px!important;
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    grid-template-rows:auto auto auto!important;
+    gap:36px!important;
+    align-content:start!important;
+    overflow:visible!important;
+    background:#fff!important;
+  }
+  body.archive-shell .hero-copy{grid-column:1!important;max-width:100%!important}
+  body.archive-shell .hero h1,
+  body.archive-shell .index-hero h1{font-size:36px!important;line-height:43px!important;font-weight:500!important;letter-spacing:normal!important}
+  body.archive-shell .deck{font-size:22px!important;line-height:1.25!important;letter-spacing:normal!important;max-width:100%!important}
+  body.archive-shell .lede{font-size:14px!important;line-height:20px!important;color:var(--tesla-body)!important}
+  body.archive-shell .actions{display:grid!important;grid-template-columns:1fr!important;gap:8px!important;margin-top:28px!important}
+  body.archive-shell .actions .button{width:100%!important;min-width:0!important;height:40px!important}
+
+  body.archive-shell .object.signature-visual,
+  body.archive-shell .signature-visual{
+    position:relative!important;
+    inset:auto!important;
+    right:auto!important;
+    bottom:auto!important;
+    grid-column:1!important;
+    width:100%!important;
+    max-width:none!important;
+    min-height:280px!important;
+    aspect-ratio:auto!important;
+    opacity:1!important;
+    margin:0!important;
+    padding:10px 0 4px!important;
+    transform:none!important;
+    overflow:hidden!important;
+    pointer-events:auto!important;
+  }
+  body.archive-shell .signature-phase10{padding:18px!important;min-height:520px!important;background:#171a20!important;border-radius:4px!important}
+  body.archive-shell .frontier-hero{padding-bottom:40px!important}
+  body.archive-shell .frontier-badge{margin-bottom:20px!important;border-left:0!important;padding-left:0!important}
+  body.archive-shell .frontier-core{height:220px!important}
+  body.archive-shell .frontier-ring.r1{width:190px!important;height:190px!important}
+  body.archive-shell .frontier-ring.r2{width:145px!important;height:145px!important}
+  body.archive-shell .frontier-ring.r3{width:98px!important;height:98px!important}
+  body.archive-shell .frontier-trace{width:205px!important;height:205px!important}
+  body.archive-shell .frontier-center{width:76px!important;height:76px!important}
+  body.archive-shell .frontier-metrics{grid-template-columns:1fr 1fr!important}
+  body.archive-shell .frontier-metrics>div{padding:12px 10px 12px 0!important}
+  body.archive-shell .frontier-metrics>div:nth-child(even){padding-left:10px!important}
+  body.archive-shell .frontier-foot{grid-template-columns:1fr!important;gap:6px!important}
+
+  /* Phase-specific visuals recompose for a phone instead of scaling. */
+  body.archive-shell .sig-head{font-size:9px!important;gap:10px!important}
+  body.archive-shell .sig-statline{grid-template-columns:1fr!important;gap:4px!important}
+  body.archive-shell .sig-statline strong{text-align:left!important;font-size:20px!important}
+  body.archive-shell .sig-bar-row{grid-template-columns:94px 1fr 44px!important;gap:9px!important}
+  body.archive-shell .sig-fusion{grid-template-columns:1fr 1fr!important;grid-template-rows:auto auto!important;gap:14px!important}
+  body.archive-shell .sig-source.visual{grid-column:1!important;grid-row:1!important}
+  body.archive-shell .sig-source.reference{grid-column:2!important;grid-row:1!important}
+  body.archive-shell .sig-disagreement{grid-column:1!important;grid-row:2!important;border-left:0!important;border-right:0!important;border-top:1px solid rgba(23,26,32,.14)!important}
+  body.archive-shell .sig-fused{grid-column:2!important;grid-row:2!important}
+  body.archive-shell .sig-fusion-lines{display:none!important}
+  body.archive-shell .sig-camera-pipeline{grid-template-columns:1fr!important;gap:12px!important}
+  body.archive-shell .sig-camera-pipeline .sig-arrow{display:none!important}
+  body.archive-shell .sig-camera-pipeline .sig-controller{grid-column:1!important;min-height:84px!important}
+  body.archive-shell .sig-camera-frame{height:160px!important}
+  body.archive-shell .sig-confidence-lane{grid-template-columns:94px 1fr 52px!important;gap:8px!important}
+  body.archive-shell .sig-matrix-wrap{grid-template-columns:48px 1fr!important;gap:7px!important}
+  body.archive-shell .sig-matrix-cell{min-height:34px!important}
+  body.archive-shell .sig-outcome-board{gap:8px!important}
+  body.archive-shell .sig-outcome-board>div{height:150px!important}
+  body.archive-shell .sig-outcome-board strong{font-size:24px!important}
+  body.archive-shell .sig-camera-geometry{grid-template-columns:1fr!important;gap:18px!important}
+  body.archive-shell .sig-camera-result,
+  body.archive-shell .sig-geometry-result{min-height:auto!important}
+  body.archive-shell .sig-divider{width:100%!important;height:1px!important}
+  body.archive-shell .mini-target{width:92px!important;height:92px!important}
+
+  body.archive-shell .hero-meta{position:static!important;grid-column:1!important;left:auto!important;right:auto!important;bottom:auto!important;padding-top:16px!important;margin-top:0!important;display:grid!important;grid-template-columns:1fr!important;gap:5px!important;border-top:1px solid rgba(23,26,32,.14)!important;font-size:11px!important}
+  body.archive-shell .hero-meta span:last-child{text-align:left!important}
+
+  /* Tesla spacing: generous vertical rhythm and one message per major screen. */
+  body.archive-shell .program-goal,
+  body.archive-shell .section{min-height:100svh!important;padding:82px 20px!important}
+  body.archive-shell .program-goal{grid-template-columns:1fr!important;gap:48px!important;border:0!important}
+  body.archive-shell .program-goal-copy h2{font-size:32px!important;line-height:38px!important;letter-spacing:normal!important}
+  body.archive-shell .program-goal-copy>p:last-child{font-size:14px!important;line-height:20px!important;color:var(--tesla-body)!important}
+  body.archive-shell .program-pillars{grid-template-columns:1fr!important;border:0!important;gap:0!important}
+  body.archive-shell .program-pillars>div,
+  body.archive-shell .program-pillars>div:nth-child(even),
+  body.archive-shell .program-pillars>div:nth-child(n+3){min-height:72px!important;padding:14px 0!important;border:0!important}
+  body.archive-shell .program-pillars>div+div{border-top:1px solid rgba(23,26,32,.12)!important}
+  body.archive-shell .program-pillars strong{font-size:14px!important;font-weight:500!important}
+
+  body.archive-shell .section-head{margin-bottom:42px!important}
+  body.archive-shell .section h2{font-size:30px!important;line-height:36px!important;letter-spacing:normal!important;font-weight:500!important}
+  body.archive-shell .snapshot-grid,
+  body.archive-shell .evidence-layout,
+  body.archive-shell .story-pair,
+  body.archive-shell .shift{grid-template-columns:1fr!important;gap:36px!important}
+  body.archive-shell .metrics{grid-template-columns:1fr!important;margin-top:44px!important;border:0!important}
+  body.archive-shell .metric-card,
+  body.archive-shell .metric-card+article{min-height:112px!important;padding:20px 0!important;border:0!important}
+  body.archive-shell .metric-card+article{border-top:1px solid rgba(23,26,32,.12)!important}
+  body.archive-shell .changes{grid-template-columns:1fr!important;gap:34px!important}
+  body.archive-shell .changes article{border-top:0!important;padding-top:0!important}
+  body.archive-shell .phase-visual,
+  body.archive-shell .evidence-story{border:0!important}
+  body.archive-shell .evidence-visual{min-height:320px!important}
+  body.archive-shell .limits-list{grid-template-columns:1fr!important}
+  body.archive-shell .architecture{margin-right:-20px!important;padding-right:20px!important;scroll-snap-type:x proximity!important}
+  body.archive-shell .arch-step{min-width:78vw!important;scroll-snap-align:start!important}
+
+  body.archive-shell .phase-rail-section{padding:0!important}
+  body.archive-shell .phase-rail{grid-template-columns:repeat(11,88px)!important;overflow-x:auto!important;padding:0 14px!important;border:0!important;border-bottom:1px solid rgba(23,26,32,.12)!important;scroll-snap-type:x mandatory!important;scrollbar-width:none!important}
+  body.archive-shell .phase-rail::-webkit-scrollbar{display:none}
+  body.archive-shell .rail-step{padding:18px 4px!important;scroll-snap-align:center!important}
+  body.archive-shell .rail-step.active>i,
+  body.archive-shell .rail-step.active>i::after{background:var(--tesla-ink)!important}
+
+  body.archive-shell .index-hero{min-height:100svh!important;padding:96px 20px 52px!important;align-content:end!important}
+  body.archive-shell .index-hero .big{font-size:20px!important;line-height:28px!important;color:var(--tesla-body)!important}
+  body.archive-shell .map{padding:0 20px 84px!important}
+  body.archive-shell .era{grid-template-columns:1fr!important;gap:22px!important;padding:54px 0!important}
+  body.archive-shell .phase-link{grid-template-columns:1fr 20px!important;gap:7px 14px!important;padding:22px 0!important}
+  body.archive-shell .phase-link>span,
+  body.archive-shell .phase-link strong,
+  body.archive-shell .phase-link small{grid-column:1!important}
+  body.archive-shell .phase-link i{grid-column:2!important;grid-row:1/4!important}
+}
+
+@media(max-width:390px){
+  body.archive-shell .hero,
+  body.archive-shell .program-goal,
+  body.archive-shell .section,
+  body.archive-shell .map{padding-inline:18px!important}
+  body.archive-shell .hero h1,
+  body.archive-shell .index-hero h1{font-size:32px!important;line-height:38px!important}
+  body.archive-shell .deck{font-size:20px!important}
+  body.archive-shell .sig-bar-row{grid-template-columns:82px 1fr 40px!important}
+  body.archive-shell .sig-bar-row>span{font-size:10px!important}
+  body.archive-shell .frontier-metrics{grid-template-columns:1fr!important}
+  body.archive-shell .frontier-metrics>div:nth-child(even){border-left:0!important;padding-left:0!important}
+  body.archive-shell .frontier-metrics>div+div{border-top:1px solid rgba(255,255,255,.16)!important}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .archive-menu-sheet{transition:none!important}
+}

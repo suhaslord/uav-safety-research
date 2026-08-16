@@ -1,0 +1,78 @@
+{
+  "all_preregistered_validation_gates_pass": false,
+  "candidate_freeze": {
+    "controller_tuning_allowed": false,
+    "development_seed_seen": 12345,
+    "git_sha": "e1d566f8baa47bf10f9bdf39dd5988724208be80",
+    "historical_phase10_holdout_used_for_selection": false,
+    "partial_min_visible_fraction": 0.66,
+    "safety_acceptance": false,
+    "schema": "aegisland.phase10r.candidate-freeze.v1",
+    "validation_seed_unseen_at_candidate_selection": 271828
+  },
+  "controller_tuning_allowed": false,
+  "development_seed": 12345,
+  "evidence_role": "phase10r_validation_seen_after_candidate_freeze",
+  "gates": {
+    "h1_center_p95_ratio_le_1_10": false,
+    "h1_false_positive_rate_le_1pct": true,
+    "h1_miss_reduction_ge_40pct": true,
+    "h2_altitude_mae_improvement_ge_40pct": true,
+    "h2_altitude_p95_improvement_ge_30pct": true,
+    "h2_clean_altitude_regression_le_10pct": true,
+    "h2_clean_lateral_regression_le_10pct": true,
+    "h2_lateral_mae_improvement_ge_40pct": false,
+    "h2_lateral_p95_improvement_ge_30pct": false,
+    "h2_visible_availability_drop_le_2pp": true,
+    "h3_altitude_95_coverage_90_to_98pct": true,
+    "h3_altitude_width_ratio_le_1_20": true,
+    "h3_lateral_95_coverage_90_to_98pct": true,
+    "h3_lateral_width_ratio_le_1_20": true,
+    "h3_mean_abs_coverage_error_le_5pp": true
+  },
+  "h1": {
+    "baseline_center_p95_px": 0.43872079580777046,
+    "baseline_miss_rate": 0.2569511025886865,
+    "candidate_center_p95_px": 0.4942175966727944,
+    "candidate_miss_rate": 0.08724832214765099,
+    "center_p95_ratio": 1.1264968549367338,
+    "false_positive_rate": 0.0,
+    "relative_miss_reduction": 0.6604477611940299
+  },
+  "h2": {
+    "altitude_mae_relative_improvement": 0.5303721632312525,
+    "altitude_p95_relative_improvement": 0.449391769022914,
+    "availability_drop": -0.15000000000000002,
+    "clean_altitude_mae_regression": -0.5000977421092184,
+    "clean_lateral_mae_regression": -0.3547773111562632,
+    "lateral_mae_relative_improvement": 0.3009548026628904,
+    "lateral_p95_relative_improvement": 0.15229875245042931
+  },
+  "h3": {
+    "coverage": {
+      "altitude": {
+        "0.50": 0.48509485094850946,
+        "0.68": 0.6666666666666666,
+        "0.80": 0.7967479674796748,
+        "0.90": 0.8934056007226739,
+        "0.95": 0.941282746160795
+      },
+      "lateral": {
+        "0.50": 0.4950316169828365,
+        "0.68": 0.6729900632339657,
+        "0.80": 0.7886178861788617,
+        "0.90": 0.8952122854561879,
+        "0.95": 0.941282746160795
+      }
+    },
+    "mean_absolute_coverage_error": 0.008366757000903346,
+    "paired_95_interval_width_ratio": {
+      "altitude": 0.4983899093434852,
+      "lateral": 0.5606454933451309
+    }
+  },
+  "safety_acceptance": false,
+  "schema": "aegisland.phase10r.validation-result.v1",
+  "truth_visible_frames_validation": 1200,
+  "validation_seed": 271828
+}

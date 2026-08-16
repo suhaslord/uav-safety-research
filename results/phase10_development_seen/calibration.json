@@ -1,0 +1,12 @@
+{
+  "by_source": {
+    "aruco_update": {"samples": 18, "sigma_altitude_m": 0.03, "sigma_lateral_m": 0.03593726426460173},
+    "quad_bootstrap_untrusted": {"samples": 1, "sigma_altitude_m": 1.0091530617241182, "sigma_lateral_m": 0.9496073802481007},
+    "quad_rejected_temporal_prediction": {"samples": 6, "sigma_altitude_m": 0.153779686764379, "sigma_lateral_m": 0.5077960871562721}
+  },
+  "fallback": {"samples": 25, "sigma_altitude_m": 0.04643672358541059, "sigma_lateral_m": 0.04926354090195197},
+  "min_sigma_altitude_m": 0.03,
+  "min_sigma_lateral_m": 0.03,
+  "quantile": 0.68,
+  "schema": "aegisland.phase10.uncertainty-calibration.v1"
+}

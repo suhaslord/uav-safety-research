@@ -1,0 +1,10 @@
+{
+  "controller_tuning_allowed": false,
+  "development_seed_seen": 12345,
+  "git_sha": "e1d566f8baa47bf10f9bdf39dd5988724208be80",
+  "historical_phase10_holdout_used_for_selection": false,
+  "partial_min_visible_fraction": 0.66,
+  "safety_acceptance": false,
+  "schema": "aegisland.phase10r.candidate-freeze.v1",
+  "validation_seed_unseen_at_candidate_selection": 271828
+}
