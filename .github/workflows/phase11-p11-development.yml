@@ -1,0 +1,61 @@
+# SIMULATION-ONLY research benchmark. No physical aircraft or controller actions.
+name: Phase 11 P11 simulation benchmark
+
+on:
+  push:
+    branches:
+      - phase11-p11-powered-direct-conformal
+    paths:
+      - scripts/run_phase11_p11_powered_direct_conformal.py
+      - tests/test_phase11_p11_powered_direct_conformal.py
+      - docs/phase11_p11_powered_direct_conformal_preregistration.md
+      - .github/workflows/phase11-p11-development.yml
+
+permissions:
+  contents: read
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install project
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Run simulation-research invariant tests
+        run: |
+          pytest -q tests/test_phase11_p9_soft_update_direct_conformal.py tests/test_phase11_p10_powered_direct_conformal.py tests/test_phase11_p11_powered_direct_conformal.py
+      - name: Freeze simulation candidate from fit and calibration splits
+        run: |
+          rm -rf results/phase11_p11_candidate results/phase11_p11_transfer
+          python scripts/run_phase11_p11_powered_direct_conformal.py --stage freeze --out results/phase11_p11_candidate --git-sha "${GITHUB_SHA}" | tee phase11-p11-freeze.log
+          test -f results/phase11_p11_candidate/candidate_freeze.json
+          test ! -f results/phase11_p11_candidate/transfer_result.json
+          test ! -f results/phase11_p11_candidate/validation_result.json
+      - name: Record candidate digest
+        run: |
+          sha256sum results/phase11_p11_candidate/candidate_freeze.json | tee phase11-p11-candidate.sha256
+      - name: Evaluate frozen simulation candidate on preregistered seen transfer split
+        run: |
+          python scripts/run_phase11_p11_powered_direct_conformal.py --stage transfer --candidate results/phase11_p11_candidate/candidate_freeze.json --out results/phase11_p11_transfer --git-sha "${GITHUB_SHA}" | tee phase11-p11-transfer.log
+          test ! -f results/phase11_p11_transfer/validation_result.json
+      - name: Record simulation result digests
+        run: |
+          sha256sum results/phase11_p11_transfer/transfer_frames.csv
+          sha256sum results/phase11_p11_transfer/transfer_result.json
+          cat results/phase11_p11_transfer/transfer_result.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: phase11-p11-simulation-development
+          path: |
+            results/phase11_p11_candidate/
+            results/phase11_p11_transfer/
+            phase11-p11-freeze.log
+            phase11-p11-transfer.log
+            phase11-p11-candidate.sha256
+          if-no-files-found: error
+          retention-days: 30
