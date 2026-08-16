@@ -2,6 +2,27 @@
   const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const coarse=window.matchMedia('(pointer: coarse)').matches;
 
+  /* Phase 10R has older frontier decoration code for archive metadata. Keep that
+     data work, but make the shared research scene authoritative after every
+     phase script has mounted. */
+  if(/\/phases\/phase10r\/?$/i.test(location.pathname)){
+    const normalize10r=()=>{
+      const hero=document.getElementById('phaseHero');
+      if(!hero)return;
+      hero.classList.remove('frontier-hero');
+      hero.classList.add('scene-hero');
+      hero.querySelector('.frontier-badge')?.remove();
+      const object=hero.querySelector('.object');
+      if(object?.classList.contains('hero-scene-phase10r')){
+        object.style.removeProperty('position');
+        object.style.removeProperty('inset');
+        object.style.removeProperty('transform');
+      }
+    };
+    requestAnimationFrame(()=>requestAnimationFrame(normalize10r));
+    setTimeout(normalize10r,160);
+  }
+
   /* Scroll reveal only: keep the progression calm and readable. */
   const rails=[...document.querySelectorAll('#homeModelRail,.phase-rail-section')];
   for(const rail of rails){
