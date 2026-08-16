@@ -1,0 +1,62 @@
+name: Phase 11 P4 protected validation
+
+on:
+  push:
+    branches:
+      - phase11-p4-all-available-calibration
+    paths:
+      - .github/workflows/phase11-p4-validation.yml
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install project
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Verify frozen candidate boundary
+        run: |
+          test -f results/phase11_p4/candidate_freeze.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path('results/phase11_p4/candidate_freeze.json')
+          c = json.loads(p.read_text())
+          assert c['schema'] == 'aegisland.phase11.p4.candidate-freeze.v1'
+          assert c['git_sha'] == '79e85654516cfec27aaf017f4119e90820e6f9d7'
+          assert c['validation_seed_unseen_at_freeze'] == 198198
+          assert c['ridge_lambda'] == 4.0
+          assert c['simulation_only'] is True
+          assert c['safety_acceptance'] is False
+          assert c['controller_tuning_allowed'] is False
+          print('candidate_sha256=', __import__('hashlib').sha256(p.read_bytes()).hexdigest())
+          PY
+      - name: Run P4 protected validation exactly once
+        run: |
+          rm -rf results/phase11_p4_validation
+          python scripts/run_phase11_p4_all_available_calibration.py \
+            --stage validation \
+            --candidate results/phase11_p4/candidate_freeze.json \
+            --out results/phase11_p4_validation \
+            --git-sha "${GITHUB_SHA}" | tee phase11-p4-validation.log
+      - name: Validation digests
+        run: |
+          sha256sum results/phase11_p4_validation/validation_frames.csv
+          sha256sum results/phase11_p4_validation/validation_result.json
+          cat results/phase11_p4_validation/validation_result.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: phase11-p4-protected-validation
+          path: |
+            results/phase11_p4_validation/
+            phase11-p4-validation.log
+          if-no-files-found: error
+          retention-days: 30
