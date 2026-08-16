@@ -5,11 +5,11 @@
       "destination": "/favicon.svg"
     },
     {
-      "source": "/phases/:path*",
+      "source": "/phases",
       "destination": "/index.html"
     },
     {
-      "source": "/",
+      "source": "/phases/(.*)",
       "destination": "/index.html"
     }
   ],
