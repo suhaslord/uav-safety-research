@@ -27,8 +27,10 @@ try {
     await page.waitForTimeout(1800);
     const opacity = await page.locator('.hero-image').evaluate(el => Number(getComputedStyle(el).opacity));
     add('mobile-home-hero-image-deemphasized-for-contrast', opacity <= 0.3, { opacity });
-    const eraHeading = await page.locator('.lineage-era').filter({ hasText: 'Phase 9' }).locator('.lineage-era-heading h3').first().textContent().catch(() => '');
-    add('home-phase9-is-historical-not-current', /historical camera evidence/i.test(eraHeading || ''), { eraHeading });
+    const currentLegacyEraCount = await page.locator('.lineage-era-current').count();
+    add('home-no-legacy-current-era-marker', currentLegacyEraCount === 0, { currentLegacyEraCount });
+    const historicalHeading = await page.locator('.lineage-era-heading h3').filter({ hasText: 'Historical camera evidence' }).count();
+    add('home-phase9-is-historical-not-current', historicalHeading === 1, { historicalHeading });
     await page.close();
     await context.close();
   }
@@ -38,9 +40,10 @@ try {
     const page = await context.newPage();
     await page.goto(BASE + '/phases/', { waitUntil: 'domcontentloaded', timeout: 45000 });
     await page.waitForTimeout(1800);
-    const p10r = page.locator('#archiveMap .phase-link[href="/phases/phase10r/"]').first();
-    const oldHeading = await p10r.locator('xpath=ancestor::section[contains(@class,"era")]//h2').first().textContent().catch(() => '');
-    add('archive-phase10r-era-is-frozen-predecessor', /frozen predecessor/i.test(oldHeading || ''), { oldHeading });
+    const frozenPredecessorHeadings = await page.locator('#archiveMap .era h2').filter({ hasText: 'Frozen predecessor' }).count();
+    add('archive-legacy-frontier-is-frozen-predecessor', frozenPredecessorHeadings === 1, { frozenPredecessorHeadings });
+    const legacyCurrentHeadings = await page.locator('#archiveMap .era h2').filter({ hasText: /^Current frontier$/ }).count();
+    add('archive-no-legacy-current-frontier-heading', legacyCurrentHeadings === 0, { legacyCurrentHeadings });
     const phase11Heading = await page.locator('#phase11ArchiveEra h2').textContent().catch(() => '');
     add('archive-phase11-era-present', /phase 11 p14r/i.test(phase11Heading || ''), { phase11Heading });
     await page.goto(BASE + '/phases/phase10r/', { waitUntil: 'domcontentloaded', timeout: 45000 });
