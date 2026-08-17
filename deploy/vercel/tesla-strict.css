@@ -14,6 +14,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--tesla-blue);outline
 .scroll-progress{display:none!important}
 .site-header,.site-header.scrolled,.site-header.on-dark,.site-header.on-dark.scrolled{color:var(--tesla-carbon)!important;background:rgba(255,255,255,.82)!important;border:0!important;box-shadow:none!important;backdrop-filter:blur(16px)!important;-webkit-backdrop-filter:blur(16px)!important}
 .wordmark,.site-nav a,.header-actions a,.header-actions button{font-weight:500!important}
+.site-nav a,.header-actions a,.header-actions button{min-height:40px!important;display:inline-flex!important;align-items:center!important}
 #refreshStatus.is-loading::after{animation:none!important}
 .hero-image{transform:none!important;transition:opacity .33s cubic-bezier(.5,0,0,.75)!important}
 .hero-reticle{transform:translate(-50%,-50%)!important;transition:none!important}
@@ -38,6 +39,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--tesla-blue);outline
 .archive-shell:not(.p11) .progress{display:none!important}
 .archive-shell:not(.p11) .top{color:var(--tesla-carbon)!important;background:rgba(255,255,255,.82)!important;border:0!important;box-shadow:none!important;backdrop-filter:blur(16px)!important}
 .archive-shell:not(.p11) .word,.archive-shell:not(.p11) .nav,.archive-shell:not(.p11) .top-btn{font-size:14px!important;font-weight:500!important}
+.archive-shell:not(.p11) .word,.archive-shell:not(.p11) .nav a{min-height:40px!important;display:inline-flex!important;align-items:center!important}
 .archive-shell:not(.p11) .top-btn{height:40px!important;border-radius:4px!important;background:var(--tesla-ash)!important;color:var(--tesla-graphite)!important}
 .archive-shell:not(.p11) .top-btn.primary{background:var(--tesla-blue)!important;color:#fff!important}
 .archive-shell:not(.p11) .hero::after{display:none!important}
@@ -67,5 +69,18 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--tesla-blue);outline
 .archive-shell:not(.p11) .phase-rail{grid-template-columns:repeat(13,minmax(0,1fr))!important}
 @media(max-width:980px){.archive-shell:not(.p11) .phase-rail{grid-template-columns:repeat(13,92px)!important}}
 @media(max-width:430px){.archive-shell:not(.p11) .phase-rail{grid-template-columns:repeat(13,82px)!important}}
+
+/* The archive's desktop two-column era and four-column phase rows become too wide
+   before the old 800px breakpoint. Collapse them early so 820px tablets never
+   create body-level horizontal scroll. */
+@media(min-width:801px) and (max-width:900px){
+  .archive-shell:not(.p11) .map{padding-left:22px!important;padding-right:22px!important}
+  .archive-shell:not(.p11) .era{grid-template-columns:1fr!important;gap:14px!important}
+  .archive-shell:not(.p11) .phase-link{grid-template-columns:1fr 28px!important;gap:8px 20px!important}
+  .archive-shell:not(.p11) .phase-link>span,
+  .archive-shell:not(.p11) .phase-link>strong,
+  .archive-shell:not(.p11) .phase-link>small{grid-column:1!important}
+  .archive-shell:not(.p11) .phase-link>i{grid-column:2!important;grid-row:1/4!important}
+}
 
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
