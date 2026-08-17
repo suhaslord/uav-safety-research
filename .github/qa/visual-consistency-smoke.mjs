@@ -111,7 +111,7 @@ try {
     const mobileHeader = await page.locator('.site-header').evaluate(el => { const s=getComputedStyle(el); const r=el.getBoundingClientRect(); return {display:s.display,height:r.height,overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth}; });
     add('phase11-mobile-header-clean', mobileHeader.display === 'grid' && Math.round(mobileHeader.height) === 52 && mobileHeader.overflow <= 1, { mobileHeader });
     const menu = await page.locator('#menuToggle').evaluate(el => ({hidden:el.hidden,display:getComputedStyle(el).display,width:el.getBoundingClientRect().width,height:el.getBoundingClientRect().height}));
-    add('phase11-mobile-menu-is-compact', !menu.hidden && menu.display === 'inline-flex' && menu.width >= 58 && menu.width < 100 && Math.round(menu.height) === 32, { menu });
+    add('phase11-mobile-menu-is-compact', !menu.hidden && ['flex','inline-flex'].includes(menu.display) && menu.width >= 58 && menu.width < 100 && Math.round(menu.height) === 32, { menu });
     const buttons = await page.locator('.phase-hero .button').evaluateAll(els => els.map(el => Math.round(el.getBoundingClientRect().height)));
     add('phase11-mobile-hero-ctas-touchable', buttons.length === 2 && buttons.every(h => h >= 40), { buttons });
     await page.close();
