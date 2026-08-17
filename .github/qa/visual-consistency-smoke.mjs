@@ -13,6 +13,8 @@ try {
       const page = await context.newPage();
       await page.goto(BASE + route, { waitUntil: 'domcontentloaded', timeout: 45000 });
       await page.waitForTimeout(1800);
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+      add(`${viewport.name}-${route}-no-horizontal-overflow`, overflow <= 1, { overflow });
       const visibleToggle = await page.locator('.mobile-menu-toggle:visible,.archive-menu-toggle:visible').count();
       add(`${viewport.name}-${route}-mobile-menu-hidden`, visibleToggle === 0, { visibleToggle });
       await page.close();
@@ -21,16 +23,35 @@ try {
   }
 
   {
-    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, reducedMotion: 'reduce' });
+    const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'reduce' });
     const page = await context.newPage();
     await page.goto(BASE + '/', { waitUntil: 'domcontentloaded', timeout: 45000 });
     await page.waitForTimeout(1800);
-    const opacity = await page.locator('.hero-image').evaluate(el => Number(getComputedStyle(el).opacity));
-    add('mobile-home-hero-image-deemphasized-for-contrast', opacity <= 0.3, { opacity });
+    const duplicateSummaryVisible = await page.locator('#phase11Summary:visible').count();
+    add('home-no-duplicate-phase11-slab', duplicateSummaryVisible === 0, { duplicateSummaryVisible });
+    const hero = await page.locator('.hero').evaluate(el => { const r=el.getBoundingClientRect(); return {height:r.height,width:r.width}; });
+    add('home-hero-is-contained', hero.height >= 620 && hero.height <= 820, { hero });
+    const image = await page.locator('.hero-image').evaluate(el => { const r=el.getBoundingClientRect(); const p=el.parentElement.getBoundingClientRect(); return {width:r.width,parentWidth:p.width,ratio:r.width/p.width}; });
+    add('home-historical-visual-not-dominant', image.ratio <= 0.82, { image });
     const currentLegacyEraCount = await page.locator('.lineage-era-current').count();
     add('home-no-legacy-current-era-marker', currentLegacyEraCount === 0, { currentLegacyEraCount });
     const historicalHeading = await page.locator('.lineage-era-heading h3').filter({ hasText: 'Historical camera evidence' }).count();
     add('home-phase9-is-historical-not-current', historicalHeading === 1, { historicalHeading });
+    await page.close();
+    await context.close();
+  }
+
+  {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, reducedMotion: 'reduce' });
+    const page = await context.newPage();
+    await page.goto(BASE + '/', { waitUntil: 'domcontentloaded', timeout: 45000 });
+    await page.waitForTimeout(1800);
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    add('mobile-home-no-horizontal-overflow', overflow <= 1, { overflow });
+    const image = await page.locator('.hero-image').evaluate(el => { const r=el.getBoundingClientRect(); const p=el.parentElement.getBoundingClientRect(); return {width:r.width,parentWidth:p.width,ratio:r.width/p.width}; });
+    add('mobile-home-historical-visual-contained', image.ratio <= 0.75, { image });
+    const duplicateSummaryVisible = await page.locator('#phase11Summary:visible').count();
+    add('mobile-home-no-duplicate-phase11-slab', duplicateSummaryVisible === 0, { duplicateSummaryVisible });
     await page.close();
     await context.close();
   }
@@ -58,20 +79,17 @@ try {
 
     await page.goto(BASE + '/phases/phase11/', { waitUntil: 'domcontentloaded', timeout: 45000 });
     await page.waitForTimeout(500);
-    const header = await page.locator('.p11 .top').evaluate(el => {
-      const s = getComputedStyle(el);
-      const r = el.getBoundingClientRect();
-      return { display: s.display, position: s.position, height: r.height };
-    });
+    const header = await page.locator('.top').evaluate(el => { const s=getComputedStyle(el); const r=el.getBoundingClientRect(); return {display:s.display,position:s.position,height:r.height}; });
     add('phase11-header-has-explicit-layout', header.display === 'grid' && header.position === 'fixed' && Math.round(header.height) === 64, { header });
-    const brandStyle = await page.locator('.p11 .word').evaluate(el => {
-      const s = getComputedStyle(el);
-      return { color: s.color, decoration: s.textDecorationLine };
-    });
+    const brandStyle = await page.locator('.word').evaluate(el => { const s=getComputedStyle(el); return {color:s.color,decoration:s.textDecorationLine}; });
     add('phase11-brand-not-browser-default-link', brandStyle.decoration === 'none' && brandStyle.color === 'rgb(23, 26, 32)', { brandStyle });
-    const navStyles = await page.locator('.p11 .nav a').evaluateAll(els => els.map(el => { const s=getComputedStyle(el); const r=el.getBoundingClientRect(); return { color:s.color, decoration:s.textDecorationLine, top:r.top, height:r.height }; }));
+    const navStyles = await page.locator('.nav a').evaluateAll(els => els.map(el => { const s=getComputedStyle(el); const r=el.getBoundingClientRect(); return {color:s.color,decoration:s.textDecorationLine,top:r.top,height:r.height}; }));
     add('phase11-nav-not-browser-default-links', navStyles.length === 2 && navStyles.every(x => x.decoration === 'none' && x.color !== 'rgb(0, 0, 238)'), { navStyles });
     add('phase11-desktop-nav-one-row', navStyles.length === 2 && Math.abs(navStyles[0].top-navStyles[1].top) < 1, { navStyles });
+    const sectionHeights = await page.locator('main > section').evaluateAll(els => els.map(el => Math.round(el.getBoundingClientRect().height)));
+    add('phase11-no-empty-viewport-panels', sectionHeights.every(h => h < 900), { sectionHeights });
+    const phase11Overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    add('phase11-desktop-no-overflow', phase11Overflow <= 1, { phase11Overflow });
     await page.close();
     await context.close();
   }
@@ -81,12 +99,12 @@ try {
     const page = await context.newPage();
     await page.goto(BASE + '/phases/phase11/', { waitUntil: 'domcontentloaded', timeout: 45000 });
     await page.waitForTimeout(500);
-    const mobileHeader = await page.locator('.p11 .top').evaluate(el => {
-      const s=getComputedStyle(el); const r=el.getBoundingClientRect(); return { display:s.display, height:r.height, overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth };
-    });
+    const mobileHeader = await page.locator('.top').evaluate(el => { const s=getComputedStyle(el); const r=el.getBoundingClientRect(); return {display:s.display,height:r.height,overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth}; });
     add('phase11-mobile-header-clean', mobileHeader.display === 'grid' && Math.round(mobileHeader.height) === 60 && mobileHeader.overflow <= 1, { mobileHeader });
-    const mobileBrand = await page.locator('.p11 .word').evaluate(el => { const s=getComputedStyle(el); return { color:s.color, decoration:s.textDecorationLine }; });
+    const mobileBrand = await page.locator('.word').evaluate(el => { const s=getComputedStyle(el); return {color:s.color,decoration:s.textDecorationLine}; });
     add('phase11-mobile-brand-not-default-link', mobileBrand.decoration === 'none' && mobileBrand.color === 'rgb(23, 26, 32)', { mobileBrand });
+    const buttons = await page.locator('.hero .button').evaluateAll(els => els.map(el => Math.round(el.getBoundingClientRect().height)));
+    add('phase11-mobile-hero-ctas-touchable', buttons.length === 2 && buttons.every(h => h >= 40), { buttons });
     await page.close();
     await context.close();
   }
