@@ -6,11 +6,11 @@
     },
     {
       "source": "/phases/phase11/",
-      "destination": "https://cdn.jsdelivr.net/gh/suhaslord/uav-safety-research@c30cd39ba01ee5034797bbab778d2d30ade4773b/dashboard/phases/phase11.html"
+      "destination": "https://cdn.jsdelivr.net/gh/suhaslord/uav-safety-research@0dd936b5306893161c201dc8f81d527d31977c39/dashboard/phases/phase11.html"
     },
     {
       "source": "/phases/phase11",
-      "destination": "https://cdn.jsdelivr.net/gh/suhaslord/uav-safety-research@c30cd39ba01ee5034797bbab778d2d30ade4773b/dashboard/phases/phase11.html"
+      "destination": "https://cdn.jsdelivr.net/gh/suhaslord/uav-safety-research@0dd936b5306893161c201dc8f81d527d31977c39/dashboard/phases/phase11.html"
     },
     {
       "source": "/phase-archive.css",
