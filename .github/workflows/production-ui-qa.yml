@@ -1,0 +1,47 @@
+name: Production UI QA
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/qa/production-ui-qa.mjs'
+      - '.github/workflows/production-ui-qa.yml'
+      - 'dashboard/**'
+      - 'deploy/vercel/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  production-ui-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Playwright
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Run production browser QA
+        env:
+          QA_BASE_URL: https://aegisland-research-cockpit.vercel.app
+        run: node .github/qa/production-ui-qa.mjs
+
+      - name: Upload screenshots, video, and report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aegisland-production-ui-qa
+          path: qa-artifacts/
+          if-no-files-found: warn
+          retention-days: 14
