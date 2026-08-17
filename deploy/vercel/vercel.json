@@ -6,11 +6,11 @@
     },
     {
       "source": "/phases/phase11/",
-      "destination": "https://cdn.jsdelivr.net/gh/suhaslord/uav-safety-research@0dd936b5306893161c201dc8f81d527d31977c39/dashboard/phases/phase11.html"
+      "destination": "https://cdn.jsdelivr.net/gh/suhaslord/uav-safety-research@20a83daa75e55c09047916a31811608c052ceef1/dashboard/phases/phase11.html"
     },
     {
       "source": "/phases/phase11",
-      "destination": "https://cdn.jsdelivr.net/gh/suhaslord/uav-safety-research@0dd936b5306893161c201dc8f81d527d31977c39/dashboard/phases/phase11.html"
+      "destination": "https://cdn.jsdelivr.net/gh/suhaslord/uav-safety-research@20a83daa75e55c09047916a31811608c052ceef1/dashboard/phases/phase11.html"
     },
     {
       "source": "/phase-archive.css",
@@ -36,39 +36,19 @@
   "headers": [
     {
       "source": "/phases/phase11/",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "text/html; charset=utf-8"
-        }
-      ]
+      "headers": [{"key":"Content-Type","value":"text/html; charset=utf-8"}]
     },
     {
       "source": "/phases/phase11",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "text/html; charset=utf-8"
-        }
-      ]
+      "headers": [{"key":"Content-Type","value":"text/html; charset=utf-8"}]
     },
     {
       "source": "/favicon.svg",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=300, must-revalidate"
-        }
-      ]
+      "headers": [{"key":"Cache-Control","value":"public, max-age=300, must-revalidate"}]
     },
     {
       "source": "/favicon.ico",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=300, must-revalidate"
-        }
-      ]
+      "headers": [{"key":"Cache-Control","value":"public, max-age=300, must-revalidate"}]
     }
   ]
 }
