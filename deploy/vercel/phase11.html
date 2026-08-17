@@ -4,167 +4,141 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#ffffff">
-  <meta name="description" content="AegisLand Phase 11 P14R — the current AegisLand research frontier, with high availability, independent rescue, robust uncertainty coverage, and one protected tail-efficiency failure.">
+  <meta name="description" content="AegisLand Phase 11 P14R — current simulation-only research frontier with high availability, robust uncertainty coverage, and one protected tail-efficiency failure.">
   <title>Phase 11 · P14R — AegisLand</title>
   <style>
-    :root{--ink:#171a20;--body:#393c41;--muted:#5c5e62;--ash:#f4f4f4;--blue:#3e6ae1;--ease:cubic-bezier(.5,0,0,.75)}
+    :root{--ink:#171a20;--body:#393c41;--muted:#5c5e62;--ash:#f4f4f4;--blue:#3e6ae1;--line:#e2e3e3;--ease:cubic-bezier(.5,0,0,.75)}
     *{box-sizing:border-box}
     html{scroll-behavior:smooth;background:#fff}
-    body.p11{margin:0;background:#fff;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;font-size:14px;line-height:20px;overflow-x:hidden}
-    .p11 .top{position:fixed;inset:0 0 auto;z-index:60;width:100%;height:64px;padding:0 clamp(20px,4vw,56px);display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:28px;background:rgba(255,255,255,.86);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:0;box-shadow:none}
-    .p11 .word,.p11 .nav,.p11 .top-btn{font-size:14px;font-weight:500;letter-spacing:normal}
-    .p11 .word{min-height:40px;display:inline-flex;align-items:center;color:var(--ink);text-decoration:none;letter-spacing:.22em;white-space:nowrap}
-    .p11 .nav{display:flex;align-items:center;justify-content:center;gap:28px;min-width:0}
-    .p11 .nav a{min-height:40px;display:inline-flex;align-items:center;color:var(--body);text-decoration:none;opacity:.78;white-space:nowrap;transition:opacity .33s var(--ease)}
-    .p11 .nav a:hover{opacity:1}
-    .p11 .top-end{display:flex;align-items:center;justify-content:flex-end;gap:12px;min-width:0}
-    .p11 .top-btn{height:40px;padding:0 18px;border-radius:4px;background:var(--ash);color:var(--body);display:inline-flex;align-items:center;justify-content:center;text-decoration:none;white-space:nowrap;transition:background-color .33s var(--ease),color .33s var(--ease)}
-    .p11 .top-btn:hover{background:#e9e9e9}
-    .p11 .top-btn.primary{background:var(--blue);color:#fff}
-    .p11 .top-btn.primary:hover{background:#345fc7}
-    .p11 .word:focus-visible,.p11 .nav a:focus-visible,.p11 .top-btn:focus-visible,.p11-button:focus-visible,.p11-footer a:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
-    .p11 main{overflow:visible}
-    .p11-section{min-height:100svh;display:flex;align-items:center;justify-content:center;padding:112px 24px 80px;background:#fff}
-    .p11-section.ash{background:var(--ash)}
-    .p11-inner{width:min(1120px,100%)}
-    .p11-center{text-align:center;max-width:760px;margin:0 auto}
-    .p11-label{margin:0 0 16px;color:var(--muted);font-size:14px;font-weight:400;line-height:20px}
-    .p11 h1,.p11 h2{margin:0;color:var(--ink);font-size:40px;line-height:48px;font-weight:500;letter-spacing:normal}
-    .p11-lead{margin:18px auto 0;max-width:700px;color:var(--body);font-size:22px;line-height:28px;font-weight:400}
-    .p11-copy{margin:18px auto 0;max-width:660px;color:var(--body);font-size:14px;line-height:20px;font-weight:400}
-    .p11-actions{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:30px}
-    .p11-button{width:200px;min-height:40px;padding:0 18px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;font-size:14px;font-weight:500;line-height:16.8px;transition:background-color .33s var(--ease),color .33s var(--ease)}
-    .p11-button.primary{background:var(--blue);color:#fff}
-    .p11-button.secondary{background:var(--ash);color:var(--body)}
-    .p11-section.ash .p11-button.secondary{background:#fff}
-    .p11-button.primary:hover{background:#345fc7}
-    .p11-button.secondary:hover{background:#eeeeee}
-    .p11-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:48px;margin-top:64px;text-align:center}
-    .p11-metric span{display:block;color:var(--muted);font-size:14px;font-weight:400;line-height:20px}
-    .p11-metric strong{display:block;margin-top:8px;color:var(--ink);font-size:22px;font-weight:500;line-height:28px;letter-spacing:normal}
-    .p11-columns{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:56px;margin-top:64px}
-    .p11-column h3{margin:0;color:var(--ink);font-size:17px;line-height:22px;font-weight:500}
-    .p11-column p{margin:12px 0 0;color:var(--body);font-size:14px;line-height:20px;font-weight:400}
-    .p11-result{max-width:760px;margin:54px auto 0;text-align:center}
-    .p11-result strong{display:block;color:var(--ink);font-size:40px;line-height:48px;font-weight:500;letter-spacing:normal}
-    .p11-result p{margin:14px auto 0;max-width:620px;color:var(--body);font-size:14px;line-height:20px;font-weight:400}
-    .p11-note{margin:18px auto 0;max-width:660px;color:var(--muted);font-size:14px;line-height:20px;font-weight:400}
-    .p11-footer{padding:34px 24px;background:#fff;display:flex;justify-content:space-between;align-items:center;gap:24px}
-    .p11-footer a,.p11-footer p{margin:0;color:var(--muted);font-size:14px;line-height:20px;font-weight:400;text-decoration:none}
-    .p11-footer a{min-height:40px;display:inline-flex;align-items:center}
-    .p11-footer a:hover{text-decoration:underline}
+    body{margin:0;background:#fff;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;font-size:14px;line-height:20px;overflow-x:hidden}
+    a{color:inherit}
+    .top{position:fixed;inset:0 0 auto;z-index:60;height:64px;padding:0 clamp(22px,4vw,56px);display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:28px;background:rgba(255,255,255,.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+    .word{min-height:40px;display:inline-flex;align-items:center;color:var(--ink);text-decoration:none;font-size:13px;font-weight:500;letter-spacing:.2em;white-space:nowrap}
+    .nav{display:flex;justify-content:center;align-items:center;gap:28px}
+    .nav a{min-height:40px;display:inline-flex;align-items:center;color:var(--body);text-decoration:none;font-size:14px;font-weight:500;opacity:.78}
+    .nav a:hover{opacity:1}
+    .top-end{display:flex;align-items:center;gap:10px}
+    .top-btn,.button{min-height:40px;padding:0 18px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;font-size:14px;font-weight:500;transition:background-color .33s var(--ease),color .33s var(--ease)}
+    .top-btn{background:var(--ash);color:var(--body)}
+    .top-btn.primary,.button.primary{background:var(--blue);color:#fff}
+    .button.secondary{background:var(--ash);color:var(--body)}
+    .top-btn:hover,.button.secondary:hover{background:#e9e9e9}.top-btn.primary:hover,.button.primary:hover{background:#345fc7}
+    .word:focus-visible,.nav a:focus-visible,.top-btn:focus-visible,.button:focus-visible,.footer a:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
+    main{padding-top:64px}
+    .wrap{width:min(1120px,calc(100% - 48px));margin:0 auto}
+    .hero{padding:110px 0 86px;background:#fff}
+    .hero-grid{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(320px,.72fr);gap:clamp(56px,8vw,112px);align-items:end}
+    .eyebrow{margin:0 0 16px;color:var(--muted);font-size:14px;font-weight:400}
+    h1,h2{margin:0;color:var(--ink);font-size:40px;line-height:48px;font-weight:500;letter-spacing:normal}
+    .hero-lead{margin:18px 0 0;max-width:650px;color:var(--body);font-size:20px;line-height:28px;font-weight:400}
+    .copy{margin:16px 0 0;max-width:650px;color:var(--body);font-size:14px;line-height:21px;font-weight:400}
+    .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}.button{min-width:180px}
+    .status{padding-left:28px;border-left:1px solid var(--line)}
+    .status-label{margin:0;color:var(--muted)}
+    .status strong{display:block;margin-top:10px;font-size:22px;line-height:28px;font-weight:500}
+    .status p{margin:10px 0 0;color:var(--body)}
+    .status .boundary{margin-top:20px;padding-top:20px;border-top:1px solid var(--line)}
+    .metrics{background:var(--ash);padding:52px 0}
+    .metric-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:36px}
+    .metric{min-width:0}.metric span{display:block;color:var(--muted);font-size:14px}.metric strong{display:block;margin-top:7px;color:var(--ink);font-size:22px;line-height:28px;font-weight:500}
+    .section{padding:92px 0}.section.ash{background:var(--ash)}
+    .section-head{display:grid;grid-template-columns:minmax(220px,.55fr) minmax(0,1fr);gap:56px;align-items:start;margin-bottom:54px}
+    .section-head .eyebrow{margin-top:7px}.section-head .copy{margin-top:16px}
+    .columns{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:48px}
+    .columns article{padding-top:22px;border-top:1px solid var(--line)}
+    .columns h3{margin:0;font-size:17px;line-height:22px;font-weight:500}.columns p{margin:12px 0 0;color:var(--body)}
+    .transfer{display:grid;grid-template-columns:minmax(0,.95fr) minmax(380px,1.05fr);gap:72px;align-items:start}
+    .transfer-list{display:grid;grid-template-columns:1fr 1fr;gap:0 36px;border-top:1px solid var(--line)}
+    .transfer-item{padding:20px 0;border-bottom:1px solid var(--line)}
+    .transfer-item span{display:block;color:var(--muted)}.transfer-item strong{display:block;margin-top:5px;font-size:17px;line-height:22px;font-weight:500}
+    .boundary-section{padding:92px 0;background:#fff}
+    .boundary-grid{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:72px;align-items:center}
+    .boundary-number{padding-left:28px;border-left:1px solid var(--line)}
+    .boundary-number strong{display:block;font-size:40px;line-height:48px;font-weight:500}.boundary-number span{display:block;margin-top:8px;color:var(--body)}.boundary-number small{display:block;margin-top:18px;color:var(--muted);font-size:14px;line-height:20px}
+    .closing{padding:86px 0;background:var(--ash);text-align:center}.closing .inner{max-width:720px;margin:0 auto}.closing .copy{margin-left:auto;margin-right:auto}.closing .actions{justify-content:center}
+    .claim{margin-top:18px;color:var(--muted)}
+    .footer{padding:28px clamp(22px,4vw,56px);display:flex;justify-content:space-between;gap:24px;color:var(--muted);border-top:1px solid var(--line)}
+    .footer a{text-decoration:none}.footer a:hover{text-decoration:underline}.footer p{margin:0}
     @media(max-width:900px){
-      .p11 .top{grid-template-columns:1fr auto;gap:16px;padding:0 22px}
-      .p11 .nav{display:none}
-      .p11 .top-end .top-btn:first-child{display:none}
-      .p11-metrics{grid-template-columns:1fr 1fr;gap:36px 24px}
-      .p11-columns{grid-template-columns:1fr;gap:34px;max-width:620px;margin-left:auto;margin-right:auto}
-      .p11-section{padding-top:96px}
-      .p11-footer{flex-direction:column;align-items:flex-start}
+      .top{grid-template-columns:1fr auto;gap:14px;padding:0 22px}.nav{display:none}.top-end .top-btn:first-child{display:none}
+      .hero{padding:84px 0 68px}.hero-grid,.section-head,.transfer,.boundary-grid{grid-template-columns:1fr;gap:38px}.status,.boundary-number{padding-left:0;padding-top:22px;border-left:0;border-top:1px solid var(--line)}
+      .metric-grid{grid-template-columns:1fr 1fr}.columns{grid-template-columns:1fr;gap:28px}.columns article{padding-top:18px}.section{padding:72px 0}.section-head{margin-bottom:38px}.transfer-list{grid-template-columns:1fr 1fr}.boundary-section{padding:72px 0}
     }
     @media(max-width:560px){
-      .p11 .top{height:60px;padding:0 18px}
-      .p11 .word{font-size:12px;letter-spacing:.18em}
-      .p11 .top-btn{height:40px;padding:0 14px}
-      .p11 h1,.p11 h2{font-size:28px;line-height:34px}
-      .p11-lead{font-size:18px;line-height:24px}
-      .p11-actions{display:grid;grid-template-columns:1fr}
-      .p11-button{width:100%}
-      .p11-metrics{grid-template-columns:1fr;gap:28px}
-      .p11-section{min-height:auto;padding:110px 22px 84px}
-      .p11-result strong{font-size:28px;line-height:34px}
+      .top{height:60px;padding:0 18px}.word{font-size:12px;letter-spacing:.17em}.top-btn{padding:0 14px}main{padding-top:60px}.wrap{width:min(100% - 36px,1120px)}
+      .hero{padding:62px 0 54px}h1,h2{font-size:28px;line-height:34px}.hero-lead{font-size:18px;line-height:24px}.actions{display:grid;grid-template-columns:1fr}.button{width:100%;min-width:0}.metrics{padding:38px 0}.metric-grid,.transfer-list{grid-template-columns:1fr}.metric-grid{gap:24px}.metric strong{font-size:20px}.section{padding:58px 0}.section-head{gap:18px;margin-bottom:34px}.transfer{gap:34px}.boundary-section{padding:58px 0}.boundary-grid{gap:34px}.boundary-number strong{font-size:28px;line-height:34px}.closing{padding:62px 0}.footer{flex-direction:column;align-items:flex-start}
     }
-    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.p11-button,.p11 .nav a,.p11 .top-btn{transition:none}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.top-btn,.button{transition:none}}
   </style>
 </head>
-<body class="archive-shell p11">
+<body>
   <header class="top">
     <a class="word" href="/">AEGISLAND</a>
     <nav class="nav" aria-label="Phase 11 navigation"><a href="/">Research cockpit</a><a href="/phases/">Research archive</a></nav>
-    <div class="top-end">
-      <a class="top-btn" href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase11_final_report.md" target="_blank" rel="noreferrer">Final report</a>
-      <a class="top-btn primary" href="#evidence">Phase 11</a>
-    </div>
+    <div class="top-end"><a class="top-btn" href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase11_final_report.md" target="_blank" rel="noreferrer">Final report</a><a class="top-btn primary" href="#evidence">Phase 11</a></div>
   </header>
 
   <main>
-    <section class="p11-section">
-      <div class="p11-inner p11-center">
-        <p class="p11-label">Phase 11 · P14R · simulation-only research</p>
-        <h1>Phase 11 P14R</h1>
-        <p class="p11-lead">High availability and robust uncertainty coverage, with one protected failure kept visible.</p>
-        <p class="p11-copy">P14R passed every required seen-transfer gate. On protected validation it maintained 98.53% availability, about 96% 95%-coverage, and 94.63% rescue recovery. One locked lateral tail-efficiency gate still failed, so final unseen confirmation was withheld.</p>
-        <div class="p11-actions">
-          <a class="p11-button primary" href="#evidence">View the evidence</a>
-          <a class="p11-button secondary" href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase11_final_report.md" target="_blank" rel="noreferrer">Read final report</a>
+    <section class="hero">
+      <div class="wrap hero-grid">
+        <div>
+          <p class="eyebrow">Phase 11 · P14R · simulation-only research</p>
+          <h1>Phase 11 P14R</h1>
+          <p class="hero-lead">High availability and robust uncertainty coverage, with one protected failure kept visible.</p>
+          <p class="copy">P14R passed every required seen-transfer gate. Protected validation maintained 98.53% useful availability, 96.17% lateral coverage, 95.82% altitude coverage, and 94.63% rescue recovery.</p>
+          <div class="actions"><a class="button primary" href="#evidence">View the evidence</a><a class="button secondary" href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase11_final_report.md" target="_blank" rel="noreferrer">Read final report</a></div>
+        </div>
+        <aside class="status" aria-label="Phase 11 protected result">
+          <p class="status-label">Protected result</p><strong>Mixed final gate</strong><p>10 of 11 required gate families passed. The preregistered lateral tail-efficiency component stopped final confirmation.</p>
+          <div class="boundary"><p class="status-label">Safety status</p><strong>Not accepted</strong><p>simulation_only=true · safety_acceptance=false</p></div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="metrics" id="evidence">
+      <div class="wrap metric-grid" aria-label="Phase 11 protected validation metrics">
+        <div class="metric"><span>Useful availability</span><strong>98.53%</strong></div>
+        <div class="metric"><span>Lateral 95% coverage</span><strong>96.17%</strong></div>
+        <div class="metric"><span>Altitude 95% coverage</span><strong>95.82%</strong></div>
+        <div class="metric"><span>Rescue recovery</span><strong>94.63%</strong></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head"><p class="eyebrow">What changed</p><div><h2>Three changes define P14R.</h2><p class="copy">The candidate keeps the bounded primary estimator intact while adding an independent rescue path and a robust uncertainty envelope for compound shift.</p></div></div>
+        <div class="columns">
+          <article><h3>Bounded primary path</h3><p>The trusted continuity estimator stays capped at seven frames and nonrecursive, preserving the bounded behavior established earlier in the lineage.</p></article>
+          <article><h3>Independent rescue</h3><p>Primary-unavailable observations can be recovered without allowing rescue outputs to become future primary anchors.</p></article>
+          <article><h3>Robust uncertainty envelope</h3><p>Groupwise conformal uncertainty is calibrated for compound shift instead of depending on one brittle severity partition.</p></article>
         </div>
       </div>
     </section>
 
-    <section class="p11-section ash" id="evidence">
-      <div class="p11-inner">
-        <div class="p11-center">
-          <p class="p11-label">Protected validation</p>
-          <h2>The current result</h2>
-          <p class="p11-copy">The evidence is intentionally presented without a victory-state treatment: the model is the strongest AegisLand result so far, but the protected gate set remained mixed.</p>
-        </div>
-        <div class="p11-metrics" aria-label="Phase 11 protected validation metrics">
-          <div class="p11-metric"><span>Availability</span><strong>98.53%</strong></div>
-          <div class="p11-metric"><span>Lateral 95% coverage</span><strong>96.17%</strong></div>
-          <div class="p11-metric"><span>Altitude 95% coverage</span><strong>95.82%</strong></div>
-          <div class="p11-metric"><span>Rescue recovery</span><strong>94.63%</strong></div>
+    <section class="section ash">
+      <div class="wrap transfer">
+        <div><p class="eyebrow">Fresh seen transfer</p><h2>The redesign recovered availability without giving up coverage.</h2><p class="copy">Every required seen-transfer gate passed before protected validation. The transfer result is evidence for robustness, not a safety verdict.</p></div>
+        <div class="transfer-list" aria-label="Fresh seen transfer metrics">
+          <div class="transfer-item"><span>Lateral 95% coverage</span><strong>94.76%</strong></div>
+          <div class="transfer-item"><span>Altitude 95% coverage</span><strong>94.79%</strong></div>
+          <div class="transfer-item"><span>Calibration MACE</span><strong>0.00512</strong></div>
+          <div class="transfer-item"><span>Required gate families</span><strong>Passed</strong></div>
         </div>
       </div>
     </section>
 
-    <section class="p11-section">
-      <div class="p11-inner">
-        <div class="p11-center">
-          <p class="p11-label">What changed</p>
-          <h2>Three changes define P14R.</h2>
-        </div>
-        <div class="p11-columns">
-          <article class="p11-column"><h3>Bounded primary path</h3><p>The trusted continuity estimator remains capped at seven frames and nonrecursive, preserving the bounded behavior established earlier in the research lineage.</p></article>
-          <article class="p11-column"><h3>Independent rescue</h3><p>Primary-unavailable observations can be recovered without allowing rescue outputs to become future primary anchors.</p></article>
-          <article class="p11-column"><h3>Robust uncertainty envelope</h3><p>Groupwise conformal uncertainty is calibrated for compound shift rather than depending on one brittle severity partition.</p></article>
-        </div>
+    <section class="boundary-section">
+      <div class="wrap boundary-grid">
+        <div><p class="eyebrow">The boundary</p><h2>One locked tail-efficiency component stopped final confirmation.</h2><p class="copy">Protected validation passed every required family except the preregistered H4 lateral tail-efficiency component. The threshold was not loosened, and the final unseen holdout was not exposed.</p></div>
+        <div class="boundary-number"><strong>2.435×</strong><span>Lateral p95 interval width / p95 error</span><small>Frozen maximum: 2.25×.<br>Final P15 seed 869869 remained untouched.</small></div>
       </div>
     </section>
 
-    <section class="p11-section ash">
-      <div class="p11-inner">
-        <div class="p11-center"><p class="p11-label">Fresh seen transfer</p><h2>The redesign fixed the earlier availability problem without weakening coverage.</h2></div>
-        <div class="p11-metrics">
-          <div class="p11-metric"><span>Lateral 95% coverage</span><strong>94.76%</strong></div>
-          <div class="p11-metric"><span>Altitude 95% coverage</span><strong>94.79%</strong></div>
-          <div class="p11-metric"><span>Calibration MACE</span><strong>0.00512</strong></div>
-          <div class="p11-metric"><span>Seen-transfer gate families</span><strong>Passed</strong></div>
-        </div>
-      </div>
-    </section>
-
-    <section class="p11-section">
-      <div class="p11-inner">
-        <div class="p11-center">
-          <p class="p11-label">The boundary</p>
-          <h2>One locked tail-efficiency component stopped final confirmation.</h2>
-          <p class="p11-copy">Protected validation passed every required family except the preregistered H4 lateral tail-efficiency component. The threshold was not loosened and the final unseen holdout was not exposed.</p>
-        </div>
-        <div class="p11-result"><strong>2.435×</strong><p>Lateral p95 interval width / p95 error. Frozen maximum: 2.25×.</p><p class="p11-note">Final P15 seed 869869 remained untouched and is retired without an unseen-replication claim.</p></div>
-      </div>
-    </section>
-
-    <section class="p11-section ash">
-      <div class="p11-inner p11-center">
-        <p class="p11-label">Evidence-backed claim</p>
-        <h2>Strongest so far does not mean safety accepted.</h2>
-        <p class="p11-copy">Phase 11 supports a narrower claim: bounded continuity plus independent rescue achieved high availability and robust coverage across fresh transfer and protected validation, while protected shift still exposed excessive lateral tail width.</p>
-        <p class="p11-note">simulation_only=true · safety_acceptance=false · controller_tuning_allowed=false</p>
-        <div class="p11-actions"><a class="p11-button primary" href="/phases/">Research archive</a><a class="p11-button secondary" href="/">Research cockpit</a></div>
-      </div>
+    <section class="closing">
+      <div class="wrap inner"><p class="eyebrow">Evidence-backed claim</p><h2>Strongest so far does not mean safety accepted.</h2><p class="copy">Phase 11 supports a narrower claim: bounded continuity plus independent rescue achieved high availability and robust coverage across fresh transfer and protected validation, while protected shift still exposed excessive lateral tail width.</p><p class="claim">simulation_only=true · safety_acceptance=false · controller_tuning_allowed=false</p><div class="actions"><a class="button primary" href="/phases/">Research archive</a><a class="button secondary" href="/">Research cockpit</a></div></div>
     </section>
   </main>
 
-  <footer class="p11-footer"><a href="/">← Research cockpit</a><p>Phase 11 P14R · study closed · no final unseen-replication claim</p></footer>
+  <footer class="footer"><a href="/">← Research cockpit</a><p>Phase 11 P14R · study closed · no final unseen-replication claim</p></footer>
 </body>
 </html>
