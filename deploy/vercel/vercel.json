@@ -5,6 +5,22 @@
       "destination": "/favicon.svg"
     },
     {
+      "source": "/phases/phase11",
+      "destination": "https://cdn.jsdelivr.net/gh/suhaslord/uav-safety-research@c30cd39ba01ee5034797bbab778d2d30ade4773b/dashboard/phases/phase11.html"
+    },
+    {
+      "source": "/phase-archive.css",
+      "destination": "https://cdn.jsdelivr.net/gh/suhaslord/uav-safety-research@c30cd39ba01ee5034797bbab778d2d30ade4773b/dashboard/phase-archive.css"
+    },
+    {
+      "source": "/phase-responsive.css",
+      "destination": "https://cdn.jsdelivr.net/gh/suhaslord/uav-safety-research@c30cd39ba01ee5034797bbab778d2d30ade4773b/dashboard/phase-responsive.css"
+    },
+    {
+      "source": "/glass-ui.css",
+      "destination": "https://cdn.jsdelivr.net/gh/suhaslord/uav-safety-research@c30cd39ba01ee5034797bbab778d2d30ade4773b/dashboard/glass-ui.css"
+    },
+    {
       "source": "/phases",
       "destination": "/index.html"
     },
