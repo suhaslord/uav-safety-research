@@ -2,84 +2,343 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="description" content="AegisLand Phase 11 P14R research cockpit — the latest AegisLand model, with protected validation, independent rescue, robust uncertainty coverage, and frozen scientific boundaries." />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="AegisLand research cockpit — simulation evidence, provenance, and external perception validation." />
   <meta name="theme-color" content="#ffffff" />
-  <title>AegisLand — Phase 11 · Latest Model</title>
-  <style>
-    :root{--ink:#171a20;--muted:#62666d;--line:rgba(23,26,32,.12);--blue:#3e6ae1;--ash:#f4f5f7;--soft:#eef2fb}*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:72px}body{margin:0;background:#fff;color:var(--ink);font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}a{color:inherit;text-decoration:none}.site-header{position:sticky;top:0;z-index:1000;height:64px;padding:0 clamp(20px,4vw,68px);display:grid;grid-template-columns:1fr auto 1fr;align-items:center;background:rgba(255,255,255,.94);border-bottom:1px solid var(--line);backdrop-filter:blur(12px)}.wordmark{justify-self:start;font-size:13px;font-weight:700;letter-spacing:.22em;display:flex;align-items:center}.site-nav{display:flex;gap:24px;font-size:12px;color:var(--muted)}.site-nav a:hover{color:var(--ink)}.header-actions{justify-self:end;display:flex;align-items:center;gap:10px}.phase-link,.header-link{height:36px;padding:0 15px;display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:4px;font-size:12px;font-weight:650}.phase-link{background:var(--ink);color:#fff;border-color:var(--ink)}.hero{min-height:calc(100svh - 64px);display:grid;grid-template-columns:minmax(0,1.03fr) minmax(360px,.97fr);gap:clamp(36px,7vw,94px);align-items:center;padding:clamp(72px,9vw,128px) clamp(22px,6vw,88px) 54px;position:relative;overflow:hidden;border-bottom:1px solid var(--line)}.hero-intro{position:relative;z-index:3}.kicker{margin:0 0 18px;color:var(--blue);font-size:11px;letter-spacing:.145em;text-transform:uppercase;font-weight:700}.hero h1{font-size:clamp(62px,9vw,132px);line-height:.82;letter-spacing:-.072em;margin:0 0 24px;font-weight:650}.hero-subtitle{font-size:clamp(22px,2.8vw,40px);line-height:1.08;letter-spacing:-.035em;max-width:820px;margin:0}.hero-copy{max-width:760px;margin:24px 0 0;color:var(--muted);font-size:16px;line-height:1.7}.hero-actions{display:flex;justify-content:flex-start;gap:12px;flex-wrap:wrap;margin-top:30px}.button{min-width:168px;height:44px;padding:0 24px;display:inline-flex;align-items:center;justify-content:center;border-radius:4px;font-weight:700;font-size:13px;border:1px solid var(--line)}.button.primary{background:var(--blue);border-color:var(--blue);color:#fff}.button.secondary{background:#f0f1f3}.hero-meta{display:flex;gap:18px;flex-wrap:wrap;margin-top:28px;padding-top:18px;border-top:1px solid var(--line);font-size:11px;color:var(--muted)}.hero-media{position:relative;min-height:520px;margin:0;display:grid;place-items:center}.model-stack{width:min(100%,520px);display:grid;gap:12px;position:relative}.model-card{position:relative;z-index:2;padding:22px 24px;border:1px solid var(--line);background:#fff;box-shadow:0 18px 50px rgba(23,26,32,.07);display:grid;grid-template-columns:46px 1fr auto;gap:14px;align-items:center;animation:float 6s ease-in-out infinite}.model-card:nth-child(2){margin-left:34px;animation-delay:-1.5s}.model-card:nth-child(3){margin-left:68px;animation-delay:-3s}.model-card:nth-child(4){margin-left:102px;animation-delay:-4.5s}.model-card b{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:var(--soft);color:var(--blue);font-size:12px}.model-card strong{font-size:15px}.model-card small{display:block;color:var(--muted);margin-top:4px}.model-card em{font-style:normal;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}.hero-telemetry{position:absolute;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line);background:#fff}.hero-telemetry span{padding:18px 16px;border-right:1px solid var(--line)}.hero-telemetry span:last-child{border-right:0}.hero-telemetry strong{display:block;font-size:24px;letter-spacing:-.04em}.hero-telemetry small{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.09em}.band{padding:26px clamp(22px,6vw,88px);display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid var(--line)}.band div{padding:16px 24px;border-right:1px solid var(--line)}.band div:last-child{border-right:0}.band span,.eyebrow{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.12em;margin-bottom:9px}.band strong{font-size:clamp(24px,3vw,42px);letter-spacing:-.045em}.section{padding:clamp(76px,9vw,122px) clamp(22px,6vw,88px);border-bottom:1px solid var(--line)}.section.ash{background:var(--ash)}.section.dark{background:var(--ink);color:#fff}.section-head{max-width:980px;margin-bottom:42px}.section h2{font-size:clamp(38px,5vw,76px);line-height:.98;letter-spacing:-.052em;margin:0}.section p.lead{max-width:820px;color:var(--muted);font-size:16px;line-height:1.7;margin:24px 0 0}.dark p.lead,.dark .eyebrow{color:#aeb3bb}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line)}.card{background:#fff;padding:28px;min-height:190px}.card span{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.1em;margin-bottom:16px}.card strong{display:block;font-size:30px;letter-spacing:-.04em;margin-bottom:12px}.card p{margin:0;color:var(--muted);line-height:1.6}.evidence-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:48px}.evidence-list{display:grid;border-top:1px solid var(--line)}.evidence-row{display:grid;grid-template-columns:180px 1fr auto;gap:22px;padding:20px 0;border-bottom:1px solid var(--line);align-items:center}.evidence-row span{color:var(--muted)}.evidence-row strong{font-size:16px}.pass{color:#147a43}.fail{color:#a94c2a}.boundary{padding:28px;border-left:3px solid var(--blue);background:#fff}.boundary strong{display:block;font-size:clamp(44px,5vw,72px);letter-spacing:-.055em;margin:8px 0}.boundary p{margin:0;color:var(--muted);line-height:1.6}.lineage{display:grid;grid-template-columns:repeat(7,minmax(120px,1fr));gap:0;overflow-x:auto;border-top:1px solid rgba(255,255,255,.18);border-bottom:1px solid rgba(255,255,255,.18)}.lineage a{min-width:130px;padding:24px 18px;border-right:1px solid rgba(255,255,255,.14);opacity:.58}.lineage a:hover,.lineage a.current{opacity:1}.lineage span{display:block;font-size:9px;color:#9ba0a8;margin-bottom:24px}.lineage strong{display:block;font-size:14px}.lineage small{display:block;color:#9ba0a8;margin-top:8px}.lineage .current{background:#20242b}.provenance{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start}.provenance-note{padding:24px;border:1px solid var(--line);background:#fff}.provenance-note code{display:block;margin-top:14px;color:var(--muted);font-size:12px}.footer{padding:34px clamp(22px,6vw,88px);display:flex;justify-content:space-between;gap:24px;color:var(--muted);font-size:12px}.footer a{color:var(--ink);font-weight:700}@keyframes float{50%{transform:translateY(-8px)}}@media(max-width:900px){.site-nav{display:none}.site-header{grid-template-columns:1fr auto}.header-actions{grid-column:2}.hero{grid-template-columns:1fr;min-height:auto;padding-top:78px}.hero-media{min-height:430px}.model-card:nth-child(n){margin-left:0}.band{grid-template-columns:1fr 1fr}.grid3{grid-template-columns:1fr}.evidence-grid,.provenance{grid-template-columns:1fr}.footer{flex-direction:column}.hero-telemetry{position:static;margin-top:18px}}@media(max-width:560px){.header-link{display:none}.hero h1{font-size:64px}.hero-actions{display:grid;grid-template-columns:1fr}.button{width:100%}.band{grid-template-columns:1fr}.band div{border-right:0;border-bottom:1px solid var(--line)}.evidence-row{grid-template-columns:1fr;gap:6px}.hero-telemetry{grid-template-columns:1fr}.hero-telemetry span{border-right:0;border-bottom:1px solid var(--line)}}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.model-card{animation:none}}
-  </style>
+  <title>AegisLand — Research Cockpit</title>
+  <link rel="stylesheet" href="cockpit.css" />
+  <link rel="stylesheet" href="cockpit-extension.css" />
 </head>
-<body data-current-model="phase11">
+<body>
   <header class="site-header" id="siteHeader">
-    <a class="wordmark" href="#top" aria-label="AegisLand home"><span style="width:28px;height:28px;border-radius:9px;background:#171a20;color:#fff;display:inline-grid;place-items:center;margin-right:9px;font-size:12px;letter-spacing:0">A</span><span>AEGISLAND</span></a>
-    <nav class="site-nav" aria-label="Primary navigation"><a href="#result">Latest model</a><a href="#telemetry">Evidence</a><a href="#timeline">Lineage</a><a href="#provenance">Boundaries</a></nav>
-    <div class="header-actions"><a class="header-link" href="/phases/">Archive</a><a class="phase-link" href="/phases/phase11/">Phase 11 · Latest</a></div>
+    <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
+    <a class="wordmark" href="#top" aria-label="AegisLand home">AEGISLAND</a>
+    <nav class="site-nav" aria-label="Primary navigation">
+      <a href="#result">Result</a>
+      <a href="#telemetry">Telemetry</a>
+      <a href="#geometry">Geometry</a>
+      <a href="#timeline">Lineage</a>
+      <a href="#provenance">Provenance</a>
+    </nav>
+    <div class="header-actions" aria-label="Research links">
+      <a class="phase-link" href="phase7.html">Phase 7</a>
+      <a class="header-social" href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub</a>
+      <a class="header-social" href="https://www.linkedin.com/in/suhas-beemineni-1984763b8/" target="_blank" rel="noreferrer">LinkedIn</a>
+      <button id="refreshStatus" type="button" title="Refresh current GitHub CI status">Status</button>
+    </div>
   </header>
 
   <main id="top">
-    <section class="hero" aria-labelledby="heroTitle">
+    <section class="hero viewport-section" aria-labelledby="heroTitle">
       <div class="hero-intro">
-        <p class="kicker">Phase 11 · P14R · latest AegisLand model</p>
-        <h1 id="heroTitle">AegisLand</h1>
-        <p class="hero-subtitle">The strongest AegisLand model yet.</p>
-        <p class="hero-copy">P14R combines bounded continuity, independent rescue, and a robust groupwise conformal uncertainty envelope. It passed every required seen-transfer gate and retained high protected coverage and availability under fresh compound shift. One locked lateral tail-efficiency component prevented final unseen confirmation.</p>
-        <div class="hero-actions"><a class="button primary" href="/phases/phase11/">Open Phase 11</a><a class="button secondary" href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase11_final_report.md" target="_blank" rel="noreferrer">Read final report</a></div>
-        <div class="hero-meta"><span>latest model · Phase 11 P14R</span><span>simulation-only</span><span>safety_acceptance=false</span><span>controller_tuning_allowed=false</span></div>
-      </div>
-      <figure class="hero-media" aria-label="Phase 11 P14R model stack">
-        <div class="model-stack">
-          <div class="model-card"><b>01</b><div><strong>Bounded primary continuity</strong><small>seven-frame nonrecursive trusted path</small></div><em>frozen</em></div>
-          <div class="model-card"><b>02</b><div><strong>Independent rescue</strong><small>recovers unavailable rows without becoming a primary anchor</small></div><em>94.63%</em></div>
-          <div class="model-card"><b>03</b><div><strong>Robust conformal envelope</strong><small>groupwise uncertainty under compound visual shift</small></div><em>~96%</em></div>
-          <div class="model-card"><b>04</b><div><strong>Protected validation</strong><small>10 of 11 required gate families passed</small></div><em>mixed</em></div>
+        <div>
+          <p class="kicker dark">simulation-only research prototype</p>
+          <h1 id="heroTitle">AegisLand</h1>
+          <p class="hero-subtitle">External perception evidence you can inspect, not just trust.</p>
+          <div class="cta-row hero-actions">
+            <a class="button primary" href="#result">Explore the result</a>
+            <a class="button secondary" href="https://github.com/suhaslord/uav-safety-research/blob/phase9-external-perception-validation/docs/phase9_external_perception_protocol.md" target="_blank" rel="noreferrer">Read protocol</a>
+          </div>
         </div>
-        <div class="hero-telemetry"><span><strong>98.53%</strong><small>protected availability</small></span><span><strong>96.17%</strong><small>lateral 95% coverage</small></span><span><strong>94.63%</strong><small>rescue recovery</small></span></div>
+        <div class="hero-meta" aria-label="Current evidence role">
+          <span>Phase 9</span>
+          <span>external_perception_seen</span>
+          <span>safety acceptance: false</span>
+        </div>
+      </div>
+
+      <figure class="hero-media" id="heroMedia">
+        <img class="hero-image" src="hero-frame.svg" alt="Stylized ArUco landing target used in Phase 9 camera validation." />
+        <div class="hero-reticle" id="heroReticle" aria-hidden="true">
+          <span class="reticle-ring reticle-ring-a"></span>
+          <span class="reticle-ring reticle-ring-b"></span>
+          <span class="reticle-axis reticle-axis-x"></span>
+          <span class="reticle-axis reticle-axis-y"></span>
+          <span class="reticle-sweep"></span>
+          <span class="reticle-node reticle-node-a"></span>
+          <span class="reticle-node reticle-node-b"></span>
+        </div>
+        <div class="hero-telemetry" aria-label="Audited trace summary">
+          <span><strong>67</strong><small>pose-linked frames</small></span>
+          <span><strong>24.684 s</strong><small>groundtruth stream</small></span>
+          <span><strong>1,237</strong><small>groundtruth samples</small></span>
+        </div>
+        <figcaption>
+          <span>Phase 9 camera target</span>
+          <span>visual motif · raw evidence remains traceable below</span>
+        </figcaption>
       </figure>
-    </section>
 
-    <section class="band" aria-label="Phase 11 summary"><div><span>Seen transfer</span><strong>PASS</strong></div><div><span>Protected gate families</span><strong>10 / 11</strong></div><div><span>Altitude 95% coverage</span><strong>95.82%</strong></div><div><span>Final P15 holdout</span><strong>Unexposed</strong></div></section>
-
-    <section id="result" class="section">
-      <div class="section-head"><span class="eyebrow">Latest model · what changed</span><h2>Phase 11 moved the bottleneck from availability to one narrow tail-efficiency boundary.</h2><p class="lead">Earlier Phase 11 revisions exposed underpowered rare-gap sampling, undercoverage under compositional shift, and continuity availability collapse. P14R preserved the bounded estimator, added independent rescue, and used a robust groupwise conformal envelope to recover availability and uncertainty honesty without erasing failed gates.</p></div>
-      <div class="grid3">
-        <article class="card"><span>Availability</span><strong>98.53%</strong><p>Protected useful availability after independent rescue, compared with the earlier Phase 13 availability bottleneck.</p></article>
-        <article class="card"><span>Coverage honesty</span><strong>96.17 / 95.82%</strong><p>Protected lateral / altitude 95% coverage remained strong under fresh compound shift.</p></article>
-        <article class="card"><span>Independent evidence</span><strong>94.63%</strong><p>Recovery of primary-unavailable rows without recursively extending the seven-frame primary path.</p></article>
+      <div class="hero-foot">
+        <span>seen evidence · no safety verdict</span>
+        <span id="liveLabel">Audited evidence · checking current CI…</span>
       </div>
     </section>
 
-    <section id="telemetry" class="section ash">
-      <div class="section-head"><span class="eyebrow">Frozen evidence</span><h2>The latest model passed transfer, then nearly cleared protected validation.</h2></div>
-      <div class="evidence-grid">
-        <div class="evidence-list">
-          <div class="evidence-row"><span>Seen transfer</span><strong>All required P14R gates</strong><b class="pass">PASS</b></div>
-          <div class="evidence-row"><span>Protected availability</span><strong>98.53%</strong><b class="pass">PASS</b></div>
-          <div class="evidence-row"><span>Protected lateral coverage</span><strong>96.17%</strong><b class="pass">PASS</b></div>
-          <div class="evidence-row"><span>Protected altitude coverage</span><strong>95.82%</strong><b class="pass">PASS</b></div>
-          <div class="evidence-row"><span>Protected rescue recovery</span><strong>94.63%</strong><b class="pass">PASS</b></div>
-          <div class="evidence-row"><span>H4 lateral tail efficiency</span><strong>2.435× vs ≤2.25×</strong><b class="fail">FAIL</b></div>
+    <section id="result" class="viewport-section light result-section">
+      <div class="result-orbit" id="resultOrbit" aria-hidden="true">
+        <span class="orbit-ring orbit-ring-a"></span>
+        <span class="orbit-ring orbit-ring-b"></span>
+        <span class="orbit-axis orbit-axis-x"></span>
+        <span class="orbit-axis orbit-axis-y"></span>
+        <span class="orbit-node orbit-node-a"></span>
+        <span class="orbit-node orbit-node-b"></span>
+        <span class="orbit-node orbit-node-c"></span>
+      </div>
+      <div class="section-copy centered-copy">
+        <p class="kicker dark">Phase 9 · genuine Gazebo camera evidence</p>
+        <h2>25 visible frames.<br />25 observations.</h2>
+        <p class="lead">On this seen trace, every projected-visible target frame produced an observation. That is useful evidence. It is not a safety verdict.</p>
+      </div>
+      <div class="metric-strip" aria-label="Phase 9 summary metrics">
+        <div class="metric-item"><strong id="pairedFrames">25</strong><span>visible + observed</span></div>
+        <div class="metric-item"><strong id="missRate">0.0%</strong><span>miss rate when visible</span></div>
+        <div class="metric-item"><strong id="fpRate">0.0%</strong><span>false positives</span></div>
+        <div class="metric-item"><strong id="visibleRate">37.3%</strong><span>trace visibility</span></div>
+      </div>
+      <a class="text-link down-link" href="#availability">See frame-level evidence ↓</a>
+    </section>
+
+    <section id="availability" class="viewport-section ash evidence-section">
+      <div class="evidence-layout">
+        <div class="section-copy left-copy">
+          <p class="kicker dark">frame-level availability</p>
+          <h2>Detection was not the weak point.</h2>
+          <p class="lead">The target was projected visible in 25 of 67 analyzed pose-linked frames. All 25 were observed. No observation appeared in the 42 projected-not-visible frames.</p>
+          <p class="caption"><span id="detectorMix">18 ArUco · 7 fixed quad fallback</span></p>
         </div>
-        <aside class="boundary"><span class="eyebrow">Why the final holdout stayed closed</span><strong>2.435×</strong><p>The preregistered lateral p95 interval-width / p95-error ceiling was 2.25×. Because protected validation missed that one component, P15 was not exposed. The result is frozen instead of being tuned into a pass.</p></aside>
+        <div class="frame-visual">
+          <div class="detection-track" id="detectionTrack" aria-label="Frame-level detection timeline"></div>
+          <div class="track-labels"><span>frame 0</span><span>frame 66</span></div>
+          <div class="track-legend"><span><i class="idle"></i>not projected visible</span><span><i class="seen"></i>observed</span></div>
+        </div>
+      </div>
+      <a class="text-link down-link" href="#telemetry">Open trace views ↓</a>
+    </section>
+
+    <section id="telemetry" class="viewport-section light telemetry-section">
+      <div class="section-copy centered-copy narrow-copy">
+        <p class="kicker dark">derived trace views</p>
+        <h2>One trace. Three different lenses.</h2>
+        <p class="lead">Motion changes only how the evidence is revealed. The values below stay tied to the archived Phase 9 trace and corrected camera-pose capture.</p>
+      </div>
+      <div class="telemetry-grid">
+        <article class="telemetry-panel">
+          <div class="panel-heading"><span>Observation accumulation</span><strong>25 / 67</strong></div>
+          <canvas id="coverageChart" aria-label="Cumulative observed frame count by analyzed frame index"></canvas>
+          <p>Cumulative observed frames across the analyzed trace.</p>
+          <div class="panel-source">source · analysis/perception_trace.csv · exact observation_available flags</div>
+        </article>
+        <article class="telemetry-panel telemetry-panel-map">
+          <div class="panel-heading"><span>Camera XY path</span><strong>world pose</strong></div>
+          <canvas id="xyChart" aria-label="Camera XY world path from audited capture pose samples"></canvas>
+          <p>Corrected camera world-pose path using audited pose-valid capture rows.</p>
+          <div class="panel-source">source · capture/capture_frames.csv · 18-row display subset of pose-valid captures</div>
+        </article>
+        <article class="telemetry-panel">
+          <div class="panel-heading"><span>Observation cadence</span><strong>7 bins</strong></div>
+          <canvas id="cadenceChart" aria-label="Observed frame counts grouped across the analyzed trace"></canvas>
+          <p>Observed-frame concentration grouped across frame-index windows.</p>
+          <div class="panel-source">source · analysis/perception_trace.csv · derived only from audited observed indices</div>
+        </article>
+      </div>
+
+      <aside class="source-audit" aria-label="Visualization source audit">
+        <div class="source-audit-head">
+          <strong>Visualization source audit</strong>
+          <span class="source-audit-status">checked against archived Phase 9 artifact</span>
+        </div>
+        <div class="source-audit-grid">
+          <div class="source-audit-item">
+            <span>Evidence artifact</span>
+            <strong>#9114281248</strong>
+            <small>workflow 31523496671 · external_perception_seen</small>
+            <code>sha256:bd2387f9518c…</code>
+          </div>
+          <div class="source-audit-item">
+            <span>Perception trace</span>
+            <strong>67 analyzed rows</strong>
+            <small>25 truth-visible · 25 observations · 42 not visible</small>
+            <code>analysis/perception_trace.csv</code>
+          </div>
+          <div class="source-audit-item">
+            <span>Camera capture</span>
+            <strong>68 capture rows</strong>
+            <small>first row pose-invalid · 67 pose-linked rows retained for analysis</small>
+            <code>capture/capture_frames.csv</code>
+          </div>
+          <div class="source-audit-item">
+            <span>Animated pose display</span>
+            <strong>18 audited pose rows</strong>
+            <small>exact capture timestamps; coordinates shown with display rounding</small>
+            <code>camera_x_m · camera_y_m · camera_z_m</code>
+          </div>
+        </div>
+        <div class="source-audit-links">
+          <a href="https://github.com/suhaslord/uav-safety-research/actions/runs/31523496671" target="_blank" rel="noreferrer">Audited workflow ↗</a>
+          <a href="https://github.com/suhaslord/uav-safety-research/commit/33c5c73768757b508f5c613b2fba73f94e3fd5a6" target="_blank" rel="noreferrer">Evidence commit ↗</a>
+          <a href="https://github.com/suhaslord/uav-safety-research/pull/13" target="_blank" rel="noreferrer">Phase 9 PR ↗</a>
+        </div>
+      </aside>
+
+      <div class="telemetry-note">
+        <span class="telemetry-pulse" aria-hidden="true"></span>
+        <span>Derived display only · animations do not create new evidence rows, thresholds, or safety claims.</span>
+      </div>
+      <a class="text-link down-link" href="#geometry">Continue to geometry ↓</a>
+    </section>
+
+    <section id="geometry" class="viewport-section light geometry-section">
+      <div class="geometry-beacon" id="geometryBeacon" aria-hidden="true">
+        <span></span><span></span><span></span>
+      </div>
+      <div class="section-copy centered-copy narrow-copy">
+        <p class="kicker dark">geometry</p>
+        <h2>The easy narrative breaks here.</h2>
+        <p class="lead">Perfect visible-frame detection did not translate into precise geometry. The estimation residuals remained large enough that the cockpit keeps them beside the detection result instead of hiding them behind a pass badge.</p>
+      </div>
+      <div class="geometry-numbers">
+        <div><strong id="lateralMae">0.998 m</strong><span>lateral MAE</span></div>
+        <div><strong id="altitudeMae">1.520 m</strong><span>altitude / depth MAE</span></div>
+        <div><strong id="pixelMae">41.0 px</strong><span>pixel-center MAE</span></div>
+      </div>
+      <div class="chart-frame">
+        <canvas id="poseChart" aria-label="Camera world pose over selected audited Gazebo image timestamps"></canvas>
+      </div>
+      <p class="caption centered">The animated pose chart uses audited pose-valid capture timestamps; animation reveals the fixed samples rather than changing the underlying coordinates.</p>
+    </section>
+
+    <section id="timeline" class="viewport-section dark timeline-section">
+      <div class="timeline-signal" id="timelineSignal" aria-hidden="true"><span></span></div>
+      <div class="section-copy centered-copy inverse lineage-intro">
+        <p class="kicker">research lineage</p>
+        <h2>Every version stays reachable.</h2>
+        <p class="lead">The project history is deliberately inspectable: protocols, earlier Aegis versions, frozen benchmarks, development stress tests, external-simulator evidence, and the current Phase 9 draft all remain linked to their GitHub record.</p>
+        <div class="lineage-social">
+          <a class="social-button" href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub repository <span>↗</span></a>
+          <a class="social-button" href="https://www.linkedin.com/in/suhas-beemineni-1984763b8/" target="_blank" rel="noreferrer">LinkedIn <span>↗</span></a>
+        </div>
+      </div>
+
+      <ol class="timeline-list lineage-list">
+        <li>
+          <a class="lineage-card-main" href="https://github.com/suhaslord/uav-safety-research/commit/eb222ad2d8a048381d05f9405812f4ff448d8802" target="_blank" rel="noreferrer">
+            <span class="lineage-index">01</span><div class="lineage-body"><p class="lineage-eyebrow">Protocol</p><h3>Phase 1</h3><p>Preregistered experiment protocol established before the later version sequence.</p><div class="lineage-meta"><span>eb222ad2</span><span class="lineage-open">View commit ↗</span></div></div>
+          </a>
+        </li>
+        <li>
+          <a class="lineage-card-main" href="https://github.com/suhaslord/uav-safety-research/commit/e9886308d531f4aa0f58a9a5a46217fde2b82884" target="_blank" rel="noreferrer">
+            <span class="lineage-index">02</span><div class="lineage-body"><p class="lineage-eyebrow">Historical version</p><h3>Aegis V1</h3><p>V1 findings were documented explicitly rather than rewritten when the next supervisor design began.</p><div class="lineage-meta"><span>e9886308</span><span class="lineage-open">View findings ↗</span></div></div>
+          </a>
+        </li>
+        <li>
+          <a class="lineage-card-main" href="https://github.com/suhaslord/uav-safety-research/commit/3f0c7aa95078f63f0605da48da8cb7e42c7cc1f5" target="_blank" rel="noreferrer">
+            <span class="lineage-index">03</span><div class="lineage-body"><p class="lineage-eyebrow">Historical version</p><h3>Aegis V2</h3><p>Temporal safety supervisor added, then evaluated in a paired Baseline/V1/V2 benchmark.</p><div class="lineage-meta"><span>3f0c7aa9</span><span class="lineage-open">View supervisor ↗</span></div></div>
+          </a>
+          <div class="lineage-secondary"><a href="https://github.com/suhaslord/uav-safety-research/commit/941d23f51befbee44d09058da63513a986e7dc5b" target="_blank" rel="noreferrer">paired benchmark ↗</a></div>
+        </li>
+        <li>
+          <a class="lineage-card-main" href="https://github.com/suhaslord/uav-safety-research/pull/6" target="_blank" rel="noreferrer">
+            <span class="lineage-index">04</span><div class="lineage-body"><p class="lineage-eyebrow">Research hardening</p><h3>Aegis V3</h3><p>Redundant estimation, bias correction, and safety-supervisor hardening extended the earlier V1/V2 history.</p><div class="lineage-meta"><span>PR #6</span><span class="lineage-open">View PR ↗</span></div></div>
+          </a>
+          <div class="lineage-secondary"><a href="https://github.com/suhaslord/uav-safety-research/commit/bb6180c7ea21c7ba05ea512c54c3e917c97503d2" target="_blank" rel="noreferrer">V1–V3 frozen evaluation ↗</a></div>
+        </li>
+        <li>
+          <a class="lineage-card-main" href="https://github.com/suhaslord/uav-safety-research/pull/7" target="_blank" rel="noreferrer">
+            <span class="lineage-index">05</span><div class="lineage-body"><p class="lineage-eyebrow">Post-freeze robustness</p><h3>Phase 5</h3><p>Robustness suite and synthetic image-perception work tested the frozen V3 story under broader stress.</p><div class="lineage-meta"><span>PR #7</span><span class="lineage-open">View PR ↗</span></div></div>
+          </a>
+        </li>
+        <li>
+          <a class="lineage-card-main" href="https://github.com/suhaslord/uav-safety-research/pull/8" target="_blank" rel="noreferrer">
+            <span class="lineage-index">06</span><div class="lineage-body"><p class="lineage-eyebrow">Image perception</p><h3>Phase 6</h3><p>Temporal image perception was integrated into Aegis without modifying the earlier frozen V3 result.</p><div class="lineage-meta"><span>PR #8</span><span class="lineage-open">View PR ↗</span></div></div>
+          </a>
+        </li>
+        <li>
+          <a class="lineage-card-main" href="https://github.com/suhaslord/uav-safety-research/pull/9" target="_blank" rel="noreferrer">
+            <span class="lineage-index">07</span><div class="lineage-body"><p class="lineage-eyebrow">Frozen held-out study</p><h3>Phase 6B</h3><p>Component-selective synthetic-image evaluation was frozen before the held-out seeds were exposed.</p><div class="lineage-meta"><span>b4e98385</span><span class="lineage-open">View PR ↗</span></div></div>
+          </a>
+          <div class="lineage-secondary"><a href="https://github.com/suhaslord/uav-safety-research/commit/b4e9838555e935a5ec42690495315473629b58f6" target="_blank" rel="noreferrer">frozen algorithm ↗</a></div>
+        </li>
+        <li>
+          <a class="lineage-card-main" href="https://github.com/suhaslord/uav-safety-research/pull/10" target="_blank" rel="noreferrer">
+            <span class="lineage-index">08</span><div class="lineage-body"><p class="lineage-eyebrow">Audited development</p><h3>Phase 7</h3><p>External-validity stress added stronger dynamics, separated reference sensing, faults, and latency without retuning Phase 6B.</p><div class="lineage-meta"><span>7354eeda</span><span class="lineage-open">View PR ↗</span></div></div>
+          </a>
+          <div class="lineage-secondary"><a href="phase7.html">open Phase 7 cockpit ↗</a><a href="https://github.com/suhaslord/uav-safety-research/commit/7354eeda8b975f45b659ce4f3f86c82501e6321d" target="_blank" rel="noreferrer">audited head ↗</a></div>
+        </li>
+        <li>
+          <a class="lineage-card-main" href="https://github.com/suhaslord/uav-safety-research/pull/11" target="_blank" rel="noreferrer">
+            <span class="lineage-index">09</span><div class="lineage-body"><p class="lineage-eyebrow">Frozen comparison tooling</p><h3>Phase 8 · Trace validation</h3><p>Higher-fidelity trace comparison infrastructure was frozen before genuine external-simulator evidence was evaluated.</p><div class="lineage-meta"><span>bd62e3b3</span><span class="lineage-open">View PR ↗</span></div></div>
+          </a>
+          <div class="lineage-secondary"><a href="https://github.com/suhaslord/uav-safety-research/commit/bd62e3b31431306fd9d897f560be7325d711d21a" target="_blank" rel="noreferrer">frozen comparison ↗</a></div>
+        </li>
+        <li>
+          <a class="lineage-card-main" href="https://github.com/suhaslord/uav-safety-research/pull/12" target="_blank" rel="noreferrer">
+            <span class="lineage-index">10</span><div class="lineage-body"><p class="lineage-eyebrow">External simulator evidence</p><h3>Phase 8 · PX4/Gazebo</h3><p>Genuine PX4/Gazebo evidence produced the preserved <code>diagnostic_mismatch</code> result rather than a tuned pass.</p><div class="lineage-meta"><span>b9df03e1</span><span class="lineage-open">View PR ↗</span></div></div>
+          </a>
+          <div class="lineage-secondary"><a href="https://github.com/suhaslord/uav-safety-research/commit/b9df03e111f3a796e50df440becc587c48ee7643" target="_blank" rel="noreferrer">audited evidence ↗</a></div>
+        </li>
+        <li>
+          <a class="lineage-card-main" href="https://github.com/suhaslord/uav-safety-research/pull/13" target="_blank" rel="noreferrer">
+            <span class="lineage-index">11</span><div class="lineage-body"><p class="lineage-eyebrow">Current draft · camera evidence</p><h3>Phase 9</h3><p>Raw Gazebo camera evidence, corrected moving world-pose provenance, frame hashes, and the mixed detection/geometry result shown in this cockpit.</p><div class="lineage-meta"><span>33c5c737</span><span class="lineage-open">View draft PR ↗</span></div></div>
+          </a>
+          <div class="lineage-secondary"><a href="https://github.com/suhaslord/uav-safety-research/commit/33c5c73768757b508f5c613b2fba73f94e3fd5a6" target="_blank" rel="noreferrer">audited camera evidence ↗</a></div>
+        </li>
+      </ol>
+      <p class="lineage-note">Historical links are intentionally pinned to the relevant commit or PR. Experimental/future branches are not presented as validated milestones.</p>
+    </section>
+
+    <section id="provenance" class="viewport-section light provenance-section">
+      <div class="section-copy centered-copy narrow-copy">
+        <p class="kicker dark">provenance</p>
+        <h2>Trace the result back to the bytes.</h2>
+        <p class="lead">The cockpit exposes the exact evidence head, workflow run, artifact, source revision, and integrity hashes behind the seen result.</p>
+      </div>
+      <div class="provenance-table" role="table" aria-label="Evidence provenance">
+        <div role="row"><span role="cell">Evidence head</span><code id="headSha"></code></div>
+        <div role="row"><span role="cell">GitHub run</span><code id="runRef"></code></div>
+        <div role="row"><span role="cell">Artifact</span><code id="artifactRef"></code></div>
+        <div role="row"><span role="cell">Artifact digest</span><code id="artifactDigest"></code></div>
+        <div role="row"><span role="cell">PX4 source SHA</span><code id="px4Sha"></code></div>
+        <div role="row"><span role="cell">Perception trace SHA</span><code id="traceSha"></code></div>
+        <div role="row"><span role="cell">Scientific result SHA</span><code id="resultSha"></code></div>
+        <div role="row"><span role="cell">Raw ULog SHA</span><code id="rawUlogSha"></code></div>
+        <div role="row"><span role="cell">Capture CSV SHA</span><code id="rawCaptureSha"></code></div>
+      </div>
+      <div class="cta-row provenance-actions">
+        <a class="button primary" href="https://github.com/suhaslord/uav-safety-research/blob/phase9-external-perception-validation/docs/external_review_packet.md" target="_blank" rel="noreferrer">Open review packet</a>
+        <a class="button outline" href="https://github.com/suhaslord/uav-safety-research/pull/13" target="_blank" rel="noreferrer">Draft PR #13</a>
+      </div>
+      <div class="project-link-strip" aria-label="Project profiles">
+        <a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer"><strong>GitHub repository</strong><span>source, branches, PRs ↗</span></a>
+        <a href="https://www.linkedin.com/in/suhas-beemineni-1984763b8/" target="_blank" rel="noreferrer"><strong>LinkedIn</strong><span>project / author profile ↗</span></a>
       </div>
     </section>
 
-    <section id="geometry" class="section">
-      <div class="section-head"><span class="eyebrow">Current interpretation</span><h2>Strong coverage and availability are real results. Final unseen replication is not claimed.</h2><p class="lead">The current model is the strongest evidence-backed AegisLand system so far, but it remains simulation-only research. The protected result is mixed, the final P15 seed was retired untouched, and there is no physical-flight validation or safety acceptance.</p></div>
-      <div class="grid3"><article class="card"><span>Claim we can make</span><strong>Strongest AegisLand yet</strong><p>Within this project lineage, P14R has the best combined availability, rescue, and uncertainty evidence.</p></article><article class="card"><span>Claim we do not make</span><strong>Final unseen confirmation</strong><p>The final holdout was never exposed because the protected prerequisite did not fully pass.</p></article><article class="card"><span>Deployment scope</span><strong>Simulation only</strong><p>No physical-flight validation, no controller tuning authorization, and no safety acceptance.</p></article></div>
-    </section>
-
-    <section id="timeline" class="section dark">
-      <div class="section-head"><span class="eyebrow">Research lineage · current frontier highlighted</span><h2>Every major generation stays reachable.</h2><p class="lead">The cockpit now treats Phase 11 as the current model while keeping earlier breakthroughs and negative results visible instead of rewriting the history.</p></div>
-      <div class="lineage" id="homeModelRail"><a href="/phases/phase1/"><span>01</span><strong>Phase 1</strong><small>supervisor</small></a><a href="/phases/phase3/"><span>03</span><strong>Phase 3</strong><small>independent evidence</small></a><a href="/phases/phase6b/"><span>06B</span><strong>Phase 6B</strong><small>selective confidence</small></a><a href="/phases/phase8/"><span>08</span><strong>Phase 8</strong><small>external simulator</small></a><a href="/phases/phase10/"><span>10</span><strong>Phase 10</strong><small>temporal metric</small></a><a href="/phases/phase10r/"><span>10R</span><strong>Phase 10R</strong><small>shift holdout</small></a><a class="current active" href="/phases/phase11/"><span>11</span><strong>Phase 11 · P14R</strong><small>latest model</small></a></div>
-      <p style="margin:34px 0 0"><a class="button secondary" href="/phases/" style="background:#fff">Open the complete research archive</a></p>
-    </section>
-
-    <section id="provenance" class="section ash">
-      <div class="provenance"><div class="section-head" style="margin:0"><span class="eyebrow">Scientific boundary</span><h2>The cockpit is current without rewriting the frozen record.</h2><p class="lead">Phase 11 is closed as a rigorous mixed protected-validation result. Any future attempt to beat the final tail-efficiency boundary must begin as a new preregistered phase with fresh evidence.</p></div><div class="provenance-note"><strong>Current evidence contract</strong><code>simulation_only=true</code><code>safety_acceptance=false</code><code>controller_tuning_allowed=false</code><code>final_unseen_replication=false</code><p style="margin:18px 0 0;color:var(--muted)">Source of truth: the frozen Phase 11 final report on <code>main</code>.</p></div></div>
+    <section class="viewport-section dark boundaries-section">
+      <div class="boundary-copy">
+        <p class="kicker">claim boundaries</p>
+        <h2>Seen evidence.<br />No safety verdict.</h2>
+      </div>
+      <div class="boundary-list">
+        <p>This is a seen development trace, not held-out camera evidence.</p>
+        <p>Perfect detection on this trace is not a general camera-performance rate.</p>
+        <p>Phase 8 <code>diagnostic_mismatch</code> remains unchanged.</p>
+        <p>No physical aircraft, real camera, or hardware flight system has been validated.</p>
+        <p><strong>Safety acceptance: false.</strong> Controller tuning remains disallowed.</p>
+      </div>
+      <div class="cta-row boundary-actions">
+        <a class="button primary" href="https://github.com/suhaslord/uav-safety-research/blob/phase9-external-perception-validation/docs/final_prototype_readiness.md" target="_blank" rel="noreferrer">Read readiness</a>
+        <a class="button dark-secondary" href="#top">Back to top</a>
+      </div>
     </section>
   </main>
 
-  <footer class="footer"><span>AegisLand · Phase 11 P14R · latest model</span><span><a href="/phases/phase11/">Phase 11 case study</a> · <a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub</a></span></footer>
+  <footer class="site-footer">
+    <span>AegisLand · simulation-only research prototype</span>
+    <span id="liveMeta">Audited Phase 9 evidence snapshot</span>
+  </footer>
+
+  <script src="cockpit.js"></script>
+  <script src="cockpit-extension.js"></script>
 </body>
 </html>
