@@ -2,11 +2,6 @@ name: Emergency Vercel production deploy
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/emergency-vercel-deploy.yml'
-      - 'deploy/vercel/**'
 
 permissions:
   contents: read
