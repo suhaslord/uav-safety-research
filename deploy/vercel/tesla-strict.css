@@ -1,32 +1,57 @@
-/* AegisLand Tesla strictness layer.
-   Preserves the original research structure and evidence visuals while removing
-   decorative UI treatments that conflict with DESIGN-tesla.md. */
-
-:root{--tesla-blue:#3e6ae1;--tesla-white:#fff;--tesla-ash:#f4f4f4;--tesla-carbon:#171a20;--tesla-graphite:#393c41;--tesla-pewter:#5c5e62}
-
+/* AegisLand Tesla visual system.
+   Keeps the original research cockpit structure while removing decorative noise,
+   duplicate Phase 11 framing, oversized motifs, and responsive regressions. */
+:root{--tesla-blue:#3e6ae1;--tesla-white:#fff;--tesla-ash:#f4f4f4;--tesla-carbon:#171a20;--tesla-graphite:#393c41;--tesla-pewter:#5c5e62;--tesla-line:#e2e3e3}
+*{box-sizing:border-box}
 a:focus-visible,button:focus-visible{outline:2px solid var(--tesla-blue);outline-offset:3px}
-.mobile-menu-toggle,.archive-menu-toggle,.archive-menu-close{min-height:40px!important;height:40px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important}
-
-.button,.social-button,.text-link,.site-nav a,.header-actions a,.header-actions button,
-.archive-shell:not(.p11) a,.archive-shell:not(.p11) button{transform:none!important;box-shadow:none!important;transition:background-color .33s cubic-bezier(.5,0,0,.75),color .33s cubic-bezier(.5,0,0,.75),border-color .33s cubic-bezier(.5,0,0,.75),opacity .33s cubic-bezier(.5,0,0,.75)!important}
-.button:hover,.button:active,.social-button:hover,.text-link:hover,.text-link:active,.site-nav a:hover,.site-nav a:active,.header-actions a:hover,.header-actions a:active,.header-actions button:hover,.header-actions button:active{transform:none!important}
-.metric-item,.metric-item:hover,.geometry-numbers>div,.geometry-numbers>div:hover,.telemetry-panel,.telemetry-panel:hover,.provenance-table>div,.provenance-table>div:hover,.boundary-list p,.boundary-list p:hover,.project-link-strip a,.project-link-strip a:hover{transform:none!important;box-shadow:none!important}
-
 .scroll-progress{display:none!important}
-.site-header,.site-header.scrolled,.site-header.on-dark,.site-header.on-dark.scrolled{color:var(--tesla-carbon)!important;background:rgba(255,255,255,.82)!important;border:0!important;box-shadow:none!important;backdrop-filter:blur(16px)!important;-webkit-backdrop-filter:blur(16px)!important}
-.wordmark,.site-nav a,.header-actions a,.header-actions button{font-weight:500!important}
-.site-nav a,.header-actions a,.header-actions button{min-height:40px!important;display:inline-flex!important;align-items:center!important}
-#refreshStatus.is-loading::after{animation:none!important}
-.hero-image{transform:none!important;transition:opacity .33s cubic-bezier(.5,0,0,.75)!important}
-.hero-reticle{transform:translate(-50%,-50%)!important;transition:none!important}
-.hero-reticle *,.reticle-sweep,.result-orbit *,.geometry-beacon *,.telemetry-pulse,.timeline-signal *{animation:none!important}
-.result-orbit{transform:none!important;transition:none!important}
 
+/* Header */
+.site-header,.site-header.scrolled,.site-header.on-dark,.site-header.on-dark.scrolled,.archive-shell:not(.p11) .top{color:var(--tesla-carbon)!important;background:rgba(255,255,255,.9)!important;border:0!important;box-shadow:none!important;backdrop-filter:blur(16px)!important;-webkit-backdrop-filter:blur(16px)!important}
+.wordmark,.site-nav a,.header-actions a,.header-actions button,.archive-shell:not(.p11) .word,.archive-shell:not(.p11) .nav,.archive-shell:not(.p11) .top-btn{font-size:14px!important;font-weight:500!important}
+.site-nav a,.header-actions a,.header-actions button,.archive-shell:not(.p11) .word,.archive-shell:not(.p11) .nav a{min-height:40px!important;display:inline-flex!important;align-items:center!important}
+.archive-shell:not(.p11) .top-btn{height:40px!important;border-radius:4px!important;background:var(--tesla-ash)!important;color:var(--tesla-graphite)!important}
+.archive-shell:not(.p11) .top-btn.primary{background:var(--tesla-blue)!important;color:#fff!important}
+.mobile-menu-toggle,.archive-menu-toggle{display:none!important;min-height:40px!important;height:40px!important;align-items:center!important;justify-content:center!important}
+.archive-menu-close{min-height:40px!important;height:40px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important}
+
+/* Motion/chrome */
+.button,.social-button,.text-link,.site-nav a,.header-actions a,.header-actions button,.archive-shell:not(.p11) a,.archive-shell:not(.p11) button{transform:none!important;box-shadow:none!important;transition:background-color .33s cubic-bezier(.5,0,0,.75),color .33s cubic-bezier(.5,0,0,.75),border-color .33s cubic-bezier(.5,0,0,.75),opacity .33s cubic-bezier(.5,0,0,.75)!important}
+.button:hover,.button:active,.social-button:hover,.text-link:hover,.text-link:active,.site-nav a:hover,.site-nav a:active,.header-actions a:hover,.header-actions a:active,.header-actions button:hover,.header-actions button:active{transform:none!important}
+#refreshStatus.is-loading::after,.hero-reticle *,.reticle-sweep,.result-orbit *,.geometry-beacon *,.telemetry-pulse,.timeline-signal *{animation:none!important}
+.result-orbit,.hero-reticle{display:none!important}
+.metric-item,.geometry-numbers>div,.telemetry-panel,.provenance-table>div,.boundary-list p,.project-link-strip a{transform:none!important;box-shadow:none!important}
+
+/* Homepage hero: one current message, one contained historical visual. */
+#phase11Summary{display:none!important}
+.hero{min-height:720px!important;grid-template-columns:minmax(380px,.92fr) minmax(420px,1.08fr)!important;grid-template-rows:1fr auto!important;background:#fff!important}
+.hero-intro{padding:clamp(96px,9vw,132px) clamp(44px,5vw,76px) 54px!important;gap:32px!important}
+.hero-intro>div:first-child{max-width:600px!important}
+.hero h1{font-size:40px!important;line-height:48px!important;font-weight:500!important;letter-spacing:normal!important}
+.hero-subtitle{max-width:540px!important;margin:14px 0 28px!important;color:var(--tesla-graphite)!important;font-size:16px!important;line-height:24px!important}
+.hero-actions{justify-content:flex-start!important;gap:12px!important;margin:0!important;width:100%!important}
+.hero-actions a{min-width:174px!important;min-height:40px!important;padding:0 22px!important;border-width:0!important;font-weight:500!important}
+.hero-meta{margin-top:6px!important;gap:6px 16px!important;color:var(--tesla-pewter)!important;font-size:12px!important;line-height:18px!important}
+.hero-meta span+span::before{margin-right:16px!important}
+.hero-media{margin:80px 48px 42px 0!important;min-height:520px!important;display:grid!important;place-items:center!important;background:#d0d0d0!important;overflow:hidden!important}
+.hero-image{width:74%!important;height:auto!important;min-height:0!important;max-height:430px!important;object-fit:contain!important;object-position:center!important;opacity:.94!important;transform:none!important;transition:opacity .33s cubic-bezier(.5,0,0,.75)!important}
+.hero-telemetry{left:24px!important;top:24px!important;gap:5px!important}
+.hero-telemetry span{min-width:142px!important;padding:7px 9px!important;background:rgba(255,255,255,.86)!important;border-left:2px solid var(--tesla-blue)!important;box-shadow:none!important}
+.hero-media figcaption{left:24px!important;right:24px!important;bottom:18px!important;color:var(--tesla-graphite)!important}
+.hero-foot{min-height:44px!important;padding:0 clamp(24px,4vw,48px)!important}
+#homeModelRail{padding:30px clamp(24px,5vw,72px)!important;border-bottom:1px solid var(--tesla-line)!important}
+#homeModelRail .home-archive-link{text-decoration:none!important;color:var(--tesla-graphite)!important}
+#homeModelRail .home-rail-step{text-decoration:none!important;padding:8px 4px!important}
+
+/* Homepage typography and evidence sections */
 .hero h1,.section-copy h2,.boundary-copy h2{font-size:40px!important;line-height:48px!important;font-weight:500!important;letter-spacing:normal!important}
 .kicker,.lineage-eyebrow{font-weight:400!important;letter-spacing:normal!important;text-transform:none!important}
-.metric-item strong,.geometry-numbers strong{font-size:40px!important;line-height:48px!important;font-weight:500!important;letter-spacing:normal!important}
+.section-copy .lead,.boundary-copy .lead{max-width:680px!important;color:var(--tesla-graphite)!important}
+.metric-item strong,.geometry-numbers strong{font-size:36px!important;line-height:44px!important;font-weight:500!important;letter-spacing:normal!important}
 .panel-heading strong,.source-audit-head strong,.source-audit-item strong,.lineage-list h3,.lineage-map h3{font-weight:500!important;letter-spacing:normal!important}
-
+.telemetry-grid,.geometry-numbers,.metric-strip{width:min(1180px,calc(100% - 48px))!important;margin-left:auto!important;margin-right:auto!important}
+.telemetry-panel,.source-audit,.source-audit-grid,.source-audit-item,.source-audit-links,.lineage-list li,.lineage-map .lineage-era,.lineage-map .lineage-era-list li{box-shadow:none!important}
+.source-audit-head{border-bottom:0!important}
 .viewport-section.dark,.timeline-section{background:var(--tesla-ash)!important;color:var(--tesla-carbon)!important;background-image:none!important}
 .viewport-section.dark h1,.viewport-section.dark h2,.viewport-section.dark h3,.viewport-section.dark strong,.timeline-section h1,.timeline-section h2,.timeline-section h3,.timeline-section strong{color:var(--tesla-carbon)!important}
 .viewport-section.dark .lead,.viewport-section.dark p,.viewport-section.dark .caption,.timeline-section .lead,.timeline-section p,.timeline-section .lineage-note{color:var(--tesla-graphite)!important}
@@ -34,62 +59,42 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--tesla-blue);outline
 .timeline-section .social-button{background:var(--tesla-white)!important;color:var(--tesla-graphite)!important}
 .timeline-section .social-button:first-child{background:var(--tesla-blue)!important;color:#fff!important}
 .timeline-section .lineage-card-main,.timeline-section .lineage-secondary{border:0!important;box-shadow:none!important;background:transparent!important}
-.telemetry-panel,.source-audit,.source-audit-grid,.source-audit-item,.source-audit-links,.lineage-list li,.lineage-map .lineage-era,.lineage-map .lineage-era-list li{box-shadow:none!important}
-.source-audit-head{border-bottom:0!important}
 
+/* Historical archive: keep content, flatten presentation. */
 .archive-shell:not(.p11) .progress{display:none!important}
-.archive-shell:not(.p11) .top{color:var(--tesla-carbon)!important;background:rgba(255,255,255,.82)!important;border:0!important;box-shadow:none!important;backdrop-filter:blur(16px)!important}
-.archive-shell:not(.p11) .word,.archive-shell:not(.p11) .nav,.archive-shell:not(.p11) .top-btn{font-size:14px!important;font-weight:500!important}
-.archive-shell:not(.p11) .word,.archive-shell:not(.p11) .nav a{min-height:40px!important;display:inline-flex!important;align-items:center!important}
-.archive-shell:not(.p11) .top-btn{height:40px!important;border-radius:4px!important;background:var(--tesla-ash)!important;color:var(--tesla-graphite)!important}
-.archive-shell:not(.p11) .top-btn.primary{background:var(--tesla-blue)!important;color:#fff!important}
 .archive-shell:not(.p11) .hero::after{display:none!important}
 .archive-shell:not(.p11) .hero h1,.archive-shell:not(.p11) .index-hero h1,.archive-shell:not(.p11) .section h2,.archive-shell:not(.p11) .next strong,.archive-shell:not(.p11) .finding blockquote{font-size:clamp(28px,3vw,40px)!important;line-height:1.2!important;font-weight:500!important;letter-spacing:normal!important}
 .archive-shell:not(.p11) .deck{font-weight:400!important;letter-spacing:normal!important}
 .archive-shell:not(.p11) .kicker,.archive-shell:not(.p11) .story-label,.archive-shell:not(.p11) .next-reason span,.archive-shell:not(.p11) .viz-combo section>span{font-size:14px!important;line-height:20px!important;font-weight:400!important;letter-spacing:normal!important;text-transform:none!important}
 .archive-shell:not(.p11) .concept-number{font-size:40px!important;line-height:48px!important;font-weight:500!important;letter-spacing:normal!important}
-
 .archive-shell:not(.p11) .section.dark{background:var(--tesla-ash)!important;color:var(--tesla-carbon)!important}
 .archive-shell:not(.p11) .section.dark h1,.archive-shell:not(.p11) .section.dark h2,.archive-shell:not(.p11) .section.dark h3,.archive-shell:not(.p11) .section.dark strong{color:var(--tesla-carbon)!important}
 .archive-shell:not(.p11) .section.dark p,.archive-shell:not(.p11) .section.dark .section-intro,.archive-shell:not(.p11) .section.dark .architecture-note,.archive-shell:not(.p11) .section.dark .next-reason p,.archive-shell:not(.p11) .section.dark .source span{color:var(--tesla-graphite)!important}
 .archive-shell:not(.p11) .section.dark .kicker,.archive-shell:not(.p11) .section.dark .next-reason span,.archive-shell:not(.p11) .section.dark .arch-step span{color:var(--tesla-pewter)!important}
-
 .archive-shell:not(.p11) .phase-visual,.archive-shell:not(.p11) .metrics,.archive-shell:not(.p11) .metric-card,.archive-shell:not(.p11) .metric-card+article,.archive-shell:not(.p11) .story-pair article,.archive-shell:not(.p11) .changes article,.archive-shell:not(.p11) .shift>div,.archive-shell:not(.p11) .evidence-story,.archive-shell:not(.p11) .evidence-facts>div,.archive-shell:not(.p11) .limits-list,.archive-shell:not(.p11) .limits-list li,.archive-shell:not(.p11) .next-reason,.archive-shell:not(.p11) .source,.archive-shell:not(.p11) .next,.archive-shell:not(.p11) .era,.archive-shell:not(.p11) .phase-link,.archive-shell:not(.p11) .phase-rail{border-color:transparent!important;box-shadow:none!important}
-
 .archive-shell:not(.p11) [data-reveal]{opacity:1!important;transform:none!important;transition:none!important}
 .archive-shell:not(.p11) .node,.archive-shell:not(.p11) .scan,.archive-shell:not(.p11) .concept-rings i,.archive-shell:not(.p11) .metric-card.animate strong,.archive-shell:not(.p11) .viz-line .data-line,.archive-shell:not(.p11) .viz-line circle,.archive-shell:not(.p11) .frontier-ring,.archive-shell:not(.p11) .frontier-trace path{animation:none!important}
-.archive-shell:not(.p11) .viz-fill{transform:scaleX(1)!important;transition:none!important}
-.archive-shell:not(.p11) .arch-step{opacity:1!important;transform:none!important;transition:none!important;border-top:0!important}
-.archive-shell:not(.p11) .matrix-cells i{transform:scaleY(1)!important;transition:none!important}
-.archive-shell:not(.p11) .viz-line .data-line{stroke-dashoffset:0!important}
-.archive-shell:not(.p11) .viz-line circle{opacity:1!important}
-.archive-shell:not(.p11) .aegis-mini-mark,.archive-shell:not(.p11) .frontier-core,.archive-shell:not(.p11) .signature-visual{box-shadow:none!important}
-.archive-shell:not(.p11) .aegis-mini-mark{border-radius:4px!important}
-.archive-shell:not(.p11) .aegis-mini-mark b{box-shadow:none!important}
-
+.archive-shell:not(.p11) .viz-fill{transform:scaleX(1)!important;transition:none!important}.archive-shell:not(.p11) .arch-step{opacity:1!important;transform:none!important;transition:none!important;border-top:0!important}.archive-shell:not(.p11) .matrix-cells i{transform:scaleY(1)!important;transition:none!important}.archive-shell:not(.p11) .viz-line .data-line{stroke-dashoffset:0!important}.archive-shell:not(.p11) .viz-line circle{opacity:1!important}.archive-shell:not(.p11) .aegis-mini-mark,.archive-shell:not(.p11) .frontier-core,.archive-shell:not(.p11) .signature-visual{box-shadow:none!important}.archive-shell:not(.p11) .aegis-mini-mark{border-radius:4px!important}.archive-shell:not(.p11) .aegis-mini-mark b{box-shadow:none!important}
 .archive-shell:not(.p11) .phase-rail{grid-template-columns:repeat(13,minmax(0,1fr))!important}
-@media(max-width:980px){.archive-shell:not(.p11) .phase-rail{grid-template-columns:repeat(13,92px)!important}}
-@media(max-width:430px){.archive-shell:not(.p11) .phase-rail{grid-template-columns:repeat(13,82px)!important}}
 
-@media(min-width:801px) and (max-width:900px){
-  .archive-shell:not(.p11) .map{padding-left:22px!important;padding-right:22px!important}
-  .archive-shell:not(.p11) .era{grid-template-columns:1fr!important;gap:14px!important}
-  .archive-shell:not(.p11) .phase-link{grid-template-columns:1fr 28px!important;gap:8px 20px!important}
-  .archive-shell:not(.p11) .phase-link>span,
-  .archive-shell:not(.p11) .phase-link>strong,
-  .archive-shell:not(.p11) .phase-link>small{grid-column:1!important}
-  .archive-shell:not(.p11) .phase-link>i{grid-column:2!important;grid-row:1/4!important}
+@media(max-width:980px){
+  .archive-shell:not(.p11) .phase-rail{grid-template-columns:repeat(13,92px)!important}
+  .hero{grid-template-columns:minmax(340px,.95fr) minmax(340px,1.05fr)!important;min-height:680px!important}
+  .hero-intro{padding-left:36px!important;padding-right:32px!important}
+  .hero-media{margin-right:28px!important;min-height:470px!important}.hero-image{width:78%!important;max-height:390px!important}
 }
-
-/* Visual-QA hardening: keep mobile controls mobile-only and preserve hero text contrast. */
-.mobile-menu-toggle,.archive-menu-toggle{display:none!important}
-.archive-menu-close{display:inline-flex!important}
+@media(min-width:801px) and (max-width:900px){
+  .archive-shell:not(.p11) .map{padding-left:22px!important;padding-right:22px!important}.archive-shell:not(.p11) .era{grid-template-columns:1fr!important;gap:14px!important}.archive-shell:not(.p11) .phase-link{grid-template-columns:1fr 28px!important;gap:8px 20px!important}.archive-shell:not(.p11) .phase-link>span,.archive-shell:not(.p11) .phase-link>strong,.archive-shell:not(.p11) .phase-link>small{grid-column:1!important}.archive-shell:not(.p11) .phase-link>i{grid-column:2!important;grid-row:1/4!important}
+}
 @media(max-width:767px){
   .mobile-menu-toggle,.archive-menu-toggle{display:inline-flex!important}
+  .hero{display:block!important;min-height:auto!important;padding-top:56px!important}
+  .hero-intro{padding:62px 22px 34px!important;gap:24px!important}.hero h1{font-size:36px!important;line-height:42px!important}.hero-subtitle{font-size:16px!important;line-height:23px!important;margin-bottom:22px!important}.hero-actions{display:grid!important;grid-template-columns:1fr 1fr!important}.hero-actions a{width:100%!important;min-width:0!important}
+  .hero-media{margin:0!important;min-height:340px!important;height:340px!important}.hero-image{width:64%!important;max-height:270px!important;opacity:.9!important}.hero-telemetry{left:16px!important;top:16px!important}.hero-telemetry span{min-width:126px!important;padding:5px 7px!important}.hero-media figcaption{left:16px!important;right:16px!important;bottom:14px!important;font-size:11px!important}
+  .hero-foot{padding:0 18px!important;font-size:11px!important}.hero-meta{font-size:11px!important}.telemetry-grid,.geometry-numbers,.metric-strip{width:min(100% - 36px,1180px)!important}
 }
-@media(max-width:900px){
-  .hero .hero-intro{position:relative!important;z-index:2!important}
-  .hero .hero-image{opacity:.22!important}
+@media(max-width:430px){
+  .archive-shell:not(.p11) .phase-rail{grid-template-columns:repeat(13,82px)!important}
+  .hero-intro{padding-left:18px!important;padding-right:18px!important}.hero-actions{grid-template-columns:1fr!important}.hero-media{height:310px!important;min-height:310px!important}.hero-image{width:68%!important;max-height:235px!important}.hero-telemetry span{min-width:118px!important}.hero-media figcaption span:last-child{display:none!important}
 }
-
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
