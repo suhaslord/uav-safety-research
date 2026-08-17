@@ -41,6 +41,22 @@ try {
       add(`${item.name}-menu-sheet-open-state`, hidden === 'false' && openClass, { route: item.route, ariaHidden: hidden, openClass });
     }
 
+    if (item.name === 'home') {
+      const frontier = page.locator('#mobileMenuSheet a[href="/phases/phase11/"]');
+      const frontierText = (await frontier.first().textContent().catch(() => ''))?.trim() || '';
+      add('home-mobile-frontier-is-phase11', await frontier.count() === 1 && /phase\s*11/i.test(frontierText), { count: await frontier.count(), text: frontierText });
+      const stale = page.locator('#mobileMenuSheet a').filter({ hasText: /Phase\s*7/i });
+      add('home-mobile-no-stale-phase7', await stale.count() === 0, { staleCount: await stale.count() });
+    }
+    if (item.name === 'archive') {
+      const frontier = page.locator('#archiveMobileMenu .archive-menu-links a.primary');
+      const href = await frontier.getAttribute('href').catch(() => null);
+      const text = (await frontier.textContent().catch(() => ''))?.trim() || '';
+      add('archive-mobile-frontier-is-phase11', href === '/phases/phase11/' && /phase\s*11/i.test(text), { href, text });
+      const stale = page.locator('#archiveMobileMenu .archive-menu-links a').filter({ hasText: /^Phase\s*10$/i });
+      add('archive-mobile-no-stale-phase10', await stale.count() === 0, { staleCount: await stale.count() });
+    }
+
     await page.screenshot({ path: path.join(OUT, 'screenshots', `menu-${item.name}-mobile-open.png`), fullPage: false });
 
     await page.keyboard.press('Escape');
