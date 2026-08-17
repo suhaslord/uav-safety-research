@@ -1,4 +1,4 @@
-import { chromium, devices } from 'playwright';
+import { chromium } from 'playwright';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
@@ -26,9 +26,7 @@ function safeName(route) {
   if (route === '/') return 'home';
   return route.replace(/^\/+|\/+$/g, '').replaceAll('/', '-');
 }
-function push(level, data) {
-  report[level].push({ at: new Date().toISOString(), ...data });
-}
+function push(level, data) { report[level].push({ at: new Date().toISOString(), ...data }); }
 function ok(name, details = {}) { report.checks.push({ name, ok: true, ...details }); }
 function fail(name, details = {}) { report.checks.push({ name, ok: false, ...details }); push('errors', { name, ...details }); }
 
@@ -50,6 +48,7 @@ try {
       page.on('console', m => { if (m.type() === 'error') consoleErrors.push(m.text()); });
       page.on('pageerror', e => pageErrors.push(String(e?.message || e)));
       page.on('requestfailed', req => failedRequests.push({ url: req.url(), error: req.failure()?.errorText || 'requestfailed' }));
+
       let response;
       try {
         response = await page.goto(BASE + route, { waitUntil: 'domcontentloaded', timeout: 45000 });
@@ -61,8 +60,13 @@ try {
       }
 
       const status = response?.status() ?? 0;
-      if (status >= 200 && status < 400) ok('route-load', { viewport: vp.name, route, status });
-      else fail('route-load', { viewport: vp.name, route, status });
+      const contentType = (await response?.allHeaders().catch(() => ({})))?.['content-type'] || '';
+      if (status >= 200 && status < 400) ok('route-load', { viewport: vp.name, route, status, contentType });
+      else fail('route-load', { viewport: vp.name, route, status, contentType });
+      if (route === '/phases/phase11/') {
+        if (/text\/html/i.test(contentType)) ok('phase11-document-content-type', { viewport: vp.name, contentType });
+        else fail('phase11-document-content-type', { viewport: vp.name, contentType });
+      }
 
       const state = await page.evaluate(() => {
         const de = document.documentElement;
@@ -74,12 +78,29 @@ try {
         const visibleButtons = [...document.querySelectorAll('a,button')].filter(el => {
           const r = el.getBoundingClientRect(); const s = getComputedStyle(el);
           return r.width > 0 && r.height > 0 && s.visibility !== 'hidden' && s.display !== 'none';
-        }).map(el => { const r=el.getBoundingClientRect(); return { tag:el.tagName, text:(el.textContent||'').trim().replace(/\s+/g,' ').slice(0,80), w:Math.round(r.width), h:Math.round(r.height), href:el.getAttribute('href') }; });
+        }).map(el => { const r=el.getBoundingClientRect(); return { tag:el.tagName, cls:el.className || '', text:(el.textContent||'').trim().replace(/\s+/g,' ').slice(0,80), w:Math.round(r.width), h:Math.round(r.height), href:el.getAttribute('href') }; });
+
         const rail = document.querySelector('#phaseRail,.phase-rail');
-        const railSteps = rail ? [...rail.querySelectorAll('a')] : [];
-        const railTopGroups = [...new Set(railSteps.map(a => Math.round(a.getBoundingClientRect().top)) )];
+        const railSteps = rail ? [...rail.querySelectorAll(':scope > a')] : [];
+        const railStyle = rail ? getComputedStyle(rail) : null;
+        const railGridRows = railStyle?.gridTemplateRows || '';
+        const railGridCols = railStyle?.gridTemplateColumns || '';
+        const railRect = rail?.getBoundingClientRect();
+        const railSingleTrack = !!rail && railSteps.length > 0 && railSteps.every(a => {
+          const r = a.getBoundingClientRect();
+          return r.top >= railRect.top - 1 && r.bottom <= railRect.bottom + 1;
+        });
+
         const homeRail = document.querySelector('#homeModelRail');
         const homeSteps = homeRail ? [...homeRail.querySelectorAll('.home-rail-step')] : [];
+        const overflowOffenders = [...document.querySelectorAll('body *')].map(el => {
+          const r = el.getBoundingClientRect();
+          return { tag: el.tagName, id: el.id || '', cls: typeof el.className === 'string' ? el.className.slice(0,120) : '', left: Math.round(r.left), right: Math.round(r.right), width: Math.round(r.width) };
+        }).filter(x => x.right > innerWidth + 2 || x.left < -2).sort((a,b) => (b.right-innerWidth) - (a.right-innerWidth)).slice(0,12);
+
+        const sourcePrefix = bodyText.trimStart().slice(0, 250).toLowerCase();
+        const looksLikeSourceText = sourcePrefix.startsWith('<!doctype') || sourcePrefix.startsWith('<html') || sourcePrefix.includes('<head>');
+
         return {
           title: document.title,
           bodyWidth: de.scrollWidth,
@@ -87,25 +108,32 @@ try {
           bodyHeight: de.scrollHeight,
           viewportHeight: innerHeight,
           overflowX: de.scrollWidth - innerWidth,
+          overflowOffenders,
           images,
           anchors,
           missingHashTargets,
           visibleButtons,
           railCount: railSteps.length,
-          railRows: railTopGroups.length,
+          railGridRows,
+          railGridCols,
+          railSingleTrack,
           homeRailCount: homeSteps.length,
           hasUndefined: /(^|\s)(undefined|null|\[object Object\])(\s|$)/i.test(bodyText),
+          looksLikeSourceText,
           mainExists: !!document.querySelector('main'),
           h1Count: document.querySelectorAll('h1').length
         };
       });
+
+      if (!state.looksLikeSourceText) ok('html-rendered-not-source', { viewport: vp.name, route });
+      else fail('html-rendered-not-source', { viewport: vp.name, route, title: state.title });
 
       if (state.mainExists && state.h1Count >= 1) ok('semantic-shell', { viewport: vp.name, route, h1Count: state.h1Count });
       else fail('semantic-shell', { viewport: vp.name, route, mainExists: state.mainExists, h1Count: state.h1Count });
 
       const allowance = 2;
       if (state.overflowX <= allowance) ok('body-horizontal-overflow', { viewport: vp.name, route, overflowPx: state.overflowX });
-      else fail('body-horizontal-overflow', { viewport: vp.name, route, overflowPx: state.overflowX });
+      else fail('body-horizontal-overflow', { viewport: vp.name, route, overflowPx: state.overflowX, offenders: state.overflowOffenders });
 
       const brokenImages = state.images.filter(i => !i.complete || i.naturalWidth === 0 || i.naturalHeight === 0);
       if (!brokenImages.length) ok('images-load', { viewport: vp.name, route, count: state.images.length });
@@ -117,8 +145,8 @@ try {
       if (!state.hasUndefined) ok('no-placeholder-text', { viewport: vp.name, route });
       else fail('no-placeholder-text', { viewport: vp.name, route });
 
-      const tinyTargets = state.visibleButtons.filter(x => x.h < 36 && (x.text || x.href));
-      if (tinyTargets.length) push('warnings', { name: 'small-click-targets', viewport: vp.name, route, examples: tinyTargets.slice(0, 8) });
+      const importantTinyTargets = state.visibleButtons.filter(x => x.h < 36 && /(button|top-btn|site-nav|header-actions|menu|phase-link)/i.test(`${x.tag} ${x.cls} ${x.text}`));
+      if (importantTinyTargets.length) push('warnings', { name: 'small-important-click-targets', viewport: vp.name, route, examples: importantTinyTargets.slice(0, 8) });
 
       const filteredConsole = consoleErrors.filter(x => !/favicon|ERR_BLOCKED_BY_CLIENT/i.test(x));
       const filteredReq = failedRequests.filter(x => !/favicon|linkedin\.com|github\.com/i.test(x.url));
@@ -131,14 +159,14 @@ try {
         if (state.railCount === 13) ok('historical-phase-rail-count', { viewport: vp.name, route, count: state.railCount });
         else fail('historical-phase-rail-count', { viewport: vp.name, route, count: state.railCount });
         if (vp.name === 'desktop') {
-          if (state.railRows === 1) ok('historical-phase-rail-single-row', { viewport: vp.name, route, rows: state.railRows });
-          else fail('historical-phase-rail-single-row', { viewport: vp.name, route, rows: state.railRows });
+          if (state.railSingleTrack) ok('historical-phase-rail-single-track', { viewport: vp.name, route, rows: state.railGridRows, cols: state.railGridCols });
+          else fail('historical-phase-rail-single-track', { viewport: vp.name, route, rows: state.railGridRows, cols: state.railGridCols });
         }
       }
       if (route === '/' && state.homeRailCount !== 13) fail('home-phase-rail-count', { viewport: vp.name, count: state.homeRailCount });
       else if (route === '/') ok('home-phase-rail-count', { viewport: vp.name, count: state.homeRailCount });
 
-      if (screenshotRoutes.has(route) && (vp.name === 'desktop' || vp.name === 'mobile')) {
+      if (screenshotRoutes.has(route)) {
         const file = path.join(OUT, 'screenshots', `${safeName(route)}-${vp.name}.png`);
         await page.screenshot({ path: file, fullPage: true });
         report.screenshots.push(file);
@@ -203,9 +231,7 @@ try {
   const video = flow.video();
   await flow.close();
   await flowContext.close();
-  if (video) {
-    try { report.video = await video.path(); } catch {}
-  }
+  if (video) { try { report.video = await video.path(); } catch {} }
 
   // Probe every unique internal route found in key pages with the request API.
   const req = await browser.newContext();
@@ -222,12 +248,12 @@ try {
   for (const route of [...discovered].sort()) {
     try {
       const r = await req.request.get(BASE + route, { failOnStatusCode: false, maxRedirects: 5, timeout: 30000 });
-      if (r.status() < 400) ok('internal-link-http', { route, status: r.status() });
-      else fail('internal-link-http', { route, status: r.status() });
+      const ct = r.headers()['content-type'] || '';
+      if (r.status() < 400) ok('internal-link-http', { route, status: r.status(), contentType: ct });
+      else fail('internal-link-http', { route, status: r.status(), contentType: ct });
     } catch (error) { fail('internal-link-http', { route, error: String(error) }); }
   }
   await req.close();
-
 } finally {
   await browser.close();
 }
