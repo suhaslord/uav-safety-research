@@ -20,10 +20,10 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--tesla-blue);outline
 .result-orbit,.hero-reticle{display:none!important}
 .metric-item,.geometry-numbers>div,.telemetry-panel,.provenance-table>div,.boundary-list p,.project-link-strip a{transform:none!important;box-shadow:none!important}
 
-/* Homepage hero. Higher specificity intentionally beats the preserved legacy hero stylesheet. */
+/* Homepage hero. These selectors intentionally override the preserved full-viewport hero layer. */
 #phase11Summary{display:none!important}
-.viewport-section.hero{min-height:720px!important;grid-template-columns:minmax(380px,.92fr) minmax(420px,1.08fr)!important;grid-template-rows:1fr auto!important;background:#fff!important}
-.hero .hero-intro{padding:clamp(96px,9vw,132px) clamp(44px,5vw,76px) 54px!important;gap:32px!important}
+.viewport-section.hero{display:grid!important;position:relative!important;height:720px!important;min-height:720px!important;max-height:720px!important;grid-template-columns:minmax(380px,.92fr) minmax(420px,1.08fr)!important;grid-template-rows:minmax(0,1fr) 44px!important;padding:56px 0 0!important;background:#fff!important;overflow:hidden!important}
+.hero .hero-intro{position:relative!important;z-index:3!important;width:auto!important;min-height:0!important;height:auto!important;padding:74px clamp(44px,5vw,76px) 48px!important;display:flex!important;flex-direction:column!important;justify-content:space-between!important;gap:32px!important}
 .hero .hero-intro>div:first-child{max-width:600px!important}
 .hero h1{font-size:40px!important;line-height:48px!important;font-weight:500!important;letter-spacing:normal!important}
 .hero .hero-subtitle{max-width:540px!important;margin:14px 0 28px!important;color:var(--tesla-graphite)!important;font-size:16px!important;line-height:24px!important}
@@ -31,12 +31,13 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--tesla-blue);outline
 .hero .hero-actions a{min-width:174px!important;min-height:40px!important;padding:0 22px!important;border-width:0!important;font-weight:500!important}
 .hero .hero-meta{margin-top:6px!important;gap:6px 16px!important;color:var(--tesla-pewter)!important;font-size:12px!important;line-height:18px!important}
 .hero .hero-meta span+span::before{margin-right:16px!important}
-.hero .hero-media{margin:80px 48px 42px 0!important;min-height:520px!important;height:auto!important;display:grid!important;place-items:center!important;background:#d0d0d0!important;overflow:hidden!important}
-.hero .hero-media .hero-image{width:74%!important;height:auto!important;min-height:0!important;max-height:430px!important;object-fit:contain!important;object-position:center!important;opacity:.94!important;transform:none!important;padding:0!important;transition:opacity .33s cubic-bezier(.5,0,0,.75)!important}
-.hero .hero-telemetry{left:24px!important;top:24px!important;gap:5px!important}
+.hero .hero-media{position:relative!important;inset:auto!important;z-index:1!important;align-self:stretch!important;margin:24px 48px 24px 0!important;min-height:0!important;height:auto!important;display:grid!important;place-items:center!important;background:#d0d0d0!important;overflow:hidden!important}
+.hero .hero-media .hero-image{position:relative!important;width:74%!important;height:auto!important;min-height:0!important;max-height:430px!important;object-fit:contain!important;object-position:center!important;opacity:.94!important;transform:none!important;padding:0!important;transition:opacity .33s cubic-bezier(.5,0,0,.75)!important}
+.hero .hero-telemetry{display:grid!important;left:24px!important;top:24px!important;gap:5px!important}
 .hero .hero-telemetry span{min-width:142px!important;padding:7px 9px!important;background:rgba(255,255,255,.86)!important;border-left:2px solid var(--tesla-blue)!important;box-shadow:none!important}
-.hero .hero-media figcaption{left:24px!important;right:24px!important;bottom:18px!important;color:var(--tesla-graphite)!important}
-.hero .hero-foot{min-height:44px!important;padding:0 clamp(24px,4vw,48px)!important}
+.hero .hero-media figcaption{left:24px!important;right:24px!important;bottom:18px!important;width:auto!important;color:var(--tesla-graphite)!important}
+.hero .hero-foot{position:relative!important;left:auto!important;right:auto!important;bottom:auto!important;grid-column:1/-1!important;grid-row:2!important;z-index:4!important;min-height:44px!important;height:44px!important;padding:0 clamp(24px,4vw,48px)!important;background:#fff!important;color:var(--tesla-pewter)!important}
+.hero .hero-foot>span:first-child{display:inline!important}
 #homeModelRail{padding:30px clamp(24px,5vw,72px)!important;border-bottom:1px solid var(--tesla-line)!important}
 #homeModelRail .home-archive-link{text-decoration:none!important;color:var(--tesla-graphite)!important}
 #homeModelRail .home-rail-step{text-decoration:none!important;padding:8px 4px!important}
@@ -75,19 +76,18 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--tesla-blue);outline
 
 @media(max-width:980px){
   .archive-shell:not(.p11) .phase-rail{grid-template-columns:repeat(13,92px)!important}
-  .viewport-section.hero{grid-template-columns:minmax(340px,.95fr) minmax(340px,1.05fr)!important;min-height:680px!important}
-  .hero .hero-intro{padding-left:36px!important;padding-right:32px!important}
-  .hero .hero-media{margin-right:28px!important;min-height:470px!important}.hero .hero-media .hero-image{width:78%!important;max-height:390px!important}
+  .viewport-section.hero{height:680px!important;min-height:680px!important;max-height:680px!important;grid-template-columns:minmax(330px,.95fr) minmax(330px,1.05fr)!important}
+  .hero .hero-intro{padding:64px 32px 42px 36px!important}.hero .hero-media{margin:20px 28px 20px 0!important}.hero .hero-media .hero-image{width:78%!important;max-height:365px!important}
 }
 @media(min-width:801px) and (max-width:900px){
   .archive-shell:not(.p11) .map{padding-left:22px!important;padding-right:22px!important}.archive-shell:not(.p11) .era{grid-template-columns:1fr!important;gap:14px!important}.archive-shell:not(.p11) .phase-link{grid-template-columns:1fr 28px!important;gap:8px 20px!important}.archive-shell:not(.p11) .phase-link>span,.archive-shell:not(.p11) .phase-link>strong,.archive-shell:not(.p11) .phase-link>small{grid-column:1!important}.archive-shell:not(.p11) .phase-link>i{grid-column:2!important;grid-row:1/4!important}
 }
 @media(max-width:767px){
   .mobile-menu-toggle,.archive-menu-toggle{display:inline-flex!important}
-  .viewport-section.hero{display:block!important;min-height:auto!important;padding-top:56px!important}
-  .hero .hero-intro{padding:62px 22px 34px!important;gap:24px!important}.hero h1{font-size:36px!important;line-height:42px!important}.hero .hero-subtitle{font-size:16px!important;line-height:23px!important;margin-bottom:22px!important}.hero .hero-actions{display:grid!important;grid-template-columns:1fr 1fr!important}.hero .hero-actions a{width:100%!important;min-width:0!important}
-  .hero .hero-media{margin:0!important;min-height:340px!important;height:340px!important}.hero .hero-media .hero-image{width:64%!important;height:auto!important;min-height:0!important;max-height:270px!important;object-fit:contain!important;object-position:center!important;opacity:.9!important}.hero .hero-telemetry{left:16px!important;top:16px!important}.hero .hero-telemetry span{min-width:126px!important;padding:5px 7px!important}.hero .hero-media figcaption{left:16px!important;right:16px!important;bottom:14px!important;font-size:11px!important}
-  .hero .hero-foot{padding:0 18px!important;font-size:11px!important}.hero .hero-meta{font-size:11px!important}.telemetry-grid,.geometry-numbers,.metric-strip{width:min(100% - 36px,1180px)!important}
+  .viewport-section.hero{display:block!important;height:auto!important;min-height:0!important;max-height:none!important;padding-top:56px!important;overflow:visible!important}
+  .hero .hero-intro{position:relative!important;width:auto!important;min-height:0!important;padding:62px 22px 34px!important;gap:24px!important}.hero h1{font-size:36px!important;line-height:42px!important}.hero .hero-subtitle{font-size:16px!important;line-height:23px!important;margin-bottom:22px!important}.hero .hero-actions{display:grid!important;grid-template-columns:1fr 1fr!important}.hero .hero-actions a{width:100%!important;min-width:0!important}
+  .hero .hero-media{position:relative!important;inset:auto!important;margin:0!important;min-height:340px!important;height:340px!important}.hero .hero-media .hero-image{width:64%!important;height:auto!important;min-height:0!important;max-height:270px!important;object-fit:contain!important;object-position:center!important;opacity:.9!important}.hero .hero-telemetry{left:16px!important;top:16px!important}.hero .hero-telemetry span{min-width:126px!important;padding:5px 7px!important}.hero .hero-media figcaption{left:16px!important;right:16px!important;bottom:14px!important;font-size:11px!important}
+  .hero .hero-foot{position:relative!important;height:44px!important;min-height:44px!important;padding:0 18px!important;font-size:11px!important}.hero .hero-meta{font-size:11px!important}.telemetry-grid,.geometry-numbers,.metric-strip{width:min(100% - 36px,1180px)!important}
 }
 @media(max-width:430px){
   .archive-shell:not(.p11) .phase-rail{grid-template-columns:repeat(13,82px)!important}
