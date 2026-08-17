@@ -1,0 +1,124 @@
+/* AegisLand Tesla strictness layer.
+   Preserves the original research structure and evidence visuals while removing
+   decorative UI treatments that conflict with DESIGN-tesla.md. */
+
+:root{--tesla-blue:#3e6ae1;--tesla-white:#fff;--tesla-ash:#f4f4f4;--tesla-carbon:#171a20;--tesla-graphite:#393c41;--tesla-pewter:#5c5e62}
+
+a:focus-visible,button:focus-visible{outline:2px solid var(--tesla-blue);outline-offset:3px}
+
+/* Shared interaction discipline: color changes only, no lift/scale effects. */
+.button,.social-button,.text-link,.site-nav a,.header-actions a,.header-actions button,
+.archive-shell:not(.p11) a,.archive-shell:not(.p11) button{
+  transform:none!important;
+  box-shadow:none!important;
+  transition:background-color .33s cubic-bezier(.5,0,0,.75),color .33s cubic-bezier(.5,0,0,.75),border-color .33s cubic-bezier(.5,0,0,.75),opacity .33s cubic-bezier(.5,0,0,.75)!important
+}
+.button:hover,.button:active,.social-button:hover,.text-link:hover,.text-link:active,
+.site-nav a:hover,.site-nav a:active,.header-actions a:hover,.header-actions a:active,
+.header-actions button:hover,.header-actions button:active{transform:none!important}
+.metric-item,.metric-item:hover,.geometry-numbers>div,.geometry-numbers>div:hover,
+.telemetry-panel,.telemetry-panel:hover,.provenance-table>div,.provenance-table>div:hover,
+.boundary-list p,.boundary-list p:hover,.project-link-strip a,.project-link-strip a:hover{transform:none!important;box-shadow:none!important}
+
+/* Homepage chrome and motion. */
+.scroll-progress{display:none!important}
+.site-header,.site-header.scrolled,.site-header.on-dark,.site-header.on-dark.scrolled{
+  color:var(--tesla-carbon)!important;
+  background:rgba(255,255,255,.82)!important;
+  border:0!important;
+  box-shadow:none!important;
+  backdrop-filter:blur(16px)!important;
+  -webkit-backdrop-filter:blur(16px)!important
+}
+.wordmark,.site-nav a,.header-actions a,.header-actions button{font-weight:500!important}
+#refreshStatus.is-loading::after{animation:none!important}
+.hero-image{transform:none!important;transition:opacity .33s cubic-bezier(.5,0,0,.75)!important}
+.hero-reticle{transform:translate(-50%,-50%)!important;transition:none!important}
+.hero-reticle *,.reticle-sweep,.result-orbit *,.geometry-beacon *,.telemetry-pulse,.timeline-signal *{animation:none!important}
+.result-orbit{transform:none!important;transition:none!important}
+
+/* Typography stays within Tesla's restrained 400/500 hierarchy. */
+.hero h1,.section-copy h2,.boundary-copy h2{font-size:40px!important;line-height:48px!important;font-weight:500!important;letter-spacing:normal!important}
+.kicker,.lineage-eyebrow{font-weight:400!important;letter-spacing:normal!important;text-transform:none!important}
+.metric-item strong,.geometry-numbers strong{font-size:40px!important;line-height:48px!important;font-weight:500!important;letter-spacing:normal!important}
+.panel-heading strong,.source-audit-head strong,.source-audit-item strong,.lineage-list h3,.lineage-map h3{font-weight:500!important;letter-spacing:normal!important}
+
+/* Dark UI slabs become quiet gallery surfaces. */
+.viewport-section.dark,.timeline-section{background:var(--tesla-ash)!important;color:var(--tesla-carbon)!important;background-image:none!important}
+.viewport-section.dark h1,.viewport-section.dark h2,.viewport-section.dark h3,.viewport-section.dark strong,
+.timeline-section h1,.timeline-section h2,.timeline-section h3,.timeline-section strong{color:var(--tesla-carbon)!important}
+.viewport-section.dark .lead,.viewport-section.dark p,.viewport-section.dark .caption,
+.timeline-section .lead,.timeline-section p,.timeline-section .lineage-note{color:var(--tesla-graphite)!important}
+.timeline-section .lineage-index,.timeline-section .lineage-eyebrow,.timeline-section .lineage-meta,
+.timeline-section .lineage-secondary a{color:var(--tesla-pewter)!important}
+.timeline-section .social-button{background:var(--tesla-white)!important;color:var(--tesla-graphite)!important}
+.timeline-section .social-button:first-child{background:var(--tesla-blue)!important;color:#fff!important}
+.timeline-section .lineage-card-main,.timeline-section .lineage-secondary{border:0!important;box-shadow:none!important;background:transparent!important}
+
+/* Remove dashboard framing without removing data. */
+.telemetry-panel,.source-audit,.source-audit-grid,.source-audit-item,.source-audit-links,
+.lineage-list li,.lineage-map .lineage-era,.lineage-map .lineage-era-list li{box-shadow:none!important}
+.source-audit-head{border-bottom:0!important}
+
+/* Historical phase archive: same content, quieter Tesla presentation. */
+.archive-shell:not(.p11) .progress{display:none!important}
+.archive-shell:not(.p11) .top{
+  color:var(--tesla-carbon)!important;
+  background:rgba(255,255,255,.82)!important;
+  border:0!important;
+  box-shadow:none!important;
+  backdrop-filter:blur(16px)!important
+}
+.archive-shell:not(.p11) .word,.archive-shell:not(.p11) .nav,.archive-shell:not(.p11) .top-btn{font-size:14px!important;font-weight:500!important}
+.archive-shell:not(.p11) .top-btn{height:40px!important;border-radius:4px!important;background:var(--tesla-ash)!important;color:var(--tesla-graphite)!important}
+.archive-shell:not(.p11) .top-btn.primary{background:var(--tesla-blue)!important;color:#fff!important}
+.archive-shell:not(.p11) .hero::after{display:none!important}
+.archive-shell:not(.p11) .hero h1,.archive-shell:not(.p11) .index-hero h1,
+.archive-shell:not(.p11) .section h2,.archive-shell:not(.p11) .next strong,
+.archive-shell:not(.p11) .finding blockquote{font-size:clamp(28px,3vw,40px)!important;line-height:1.2!important;font-weight:500!important;letter-spacing:normal!important}
+.archive-shell:not(.p11) .deck{font-weight:400!important;letter-spacing:normal!important}
+.archive-shell:not(.p11) .kicker,.archive-shell:not(.p11) .story-label,
+.archive-shell:not(.p11) .next-reason span,.archive-shell:not(.p11) .viz-combo section>span{
+  font-size:14px!important;line-height:20px!important;font-weight:400!important;letter-spacing:normal!important;text-transform:none!important
+}
+.archive-shell:not(.p11) .concept-number{font-size:40px!important;line-height:48px!important;font-weight:500!important;letter-spacing:normal!important}
+
+.archive-shell:not(.p11) .section.dark{background:var(--tesla-ash)!important;color:var(--tesla-carbon)!important}
+.archive-shell:not(.p11) .section.dark h1,.archive-shell:not(.p11) .section.dark h2,
+.archive-shell:not(.p11) .section.dark h3,.archive-shell:not(.p11) .section.dark strong{color:var(--tesla-carbon)!important}
+.archive-shell:not(.p11) .section.dark p,.archive-shell:not(.p11) .section.dark .section-intro,
+.archive-shell:not(.p11) .section.dark .architecture-note,.archive-shell:not(.p11) .section.dark .next-reason p,
+.archive-shell:not(.p11) .section.dark .source span{color:var(--tesla-graphite)!important}
+
+.archive-shell:not(.p11) .phase-visual,.archive-shell:not(.p11) .metrics,
+.archive-shell:not(.p11) .metric-card,.archive-shell:not(.p11) .metric-card+article,
+.archive-shell:not(.p11) .story-pair article,.archive-shell:not(.p11) .changes article,
+.archive-shell:not(.p11) .shift>div,.archive-shell:not(.p11) .evidence-story,
+.archive-shell:not(.p11) .evidence-facts>div,.archive-shell:not(.p11) .limits-list,
+.archive-shell:not(.p11) .limits-list li,.archive-shell:not(.p11) .next-reason,
+.archive-shell:not(.p11) .source,.archive-shell:not(.p11) .next,
+.archive-shell:not(.p11) .era,.archive-shell:not(.p11) .phase-link,
+.archive-shell:not(.p11) .phase-rail{border-color:transparent!important;box-shadow:none!important}
+
+/* Keep the evidence visuals, but freeze decorative motion and reveal effects. */
+.archive-shell:not(.p11) [data-reveal]{opacity:1!important;transform:none!important;transition:none!important}
+.archive-shell:not(.p11) .node,.archive-shell:not(.p11) .scan,
+.archive-shell:not(.p11) .concept-rings i,.archive-shell:not(.p11) .metric-card.animate strong,
+.archive-shell:not(.p11) .viz-line .data-line,.archive-shell:not(.p11) .viz-line circle,
+.archive-shell:not(.p11) .frontier-ring,.archive-shell:not(.p11) .frontier-trace path{animation:none!important}
+.archive-shell:not(.p11) .viz-fill{transform:scaleX(1)!important;transition:none!important}
+.archive-shell:not(.p11) .arch-step{opacity:1!important;transform:none!important;transition:none!important;border-top:0!important}
+.archive-shell:not(.p11) .matrix-cells i{transform:scaleY(1)!important;transition:none!important}
+.archive-shell:not(.p11) .viz-line .data-line{stroke-dashoffset:0!important}
+.archive-shell:not(.p11) .viz-line circle{opacity:1!important}
+.archive-shell:not(.p11) .aegis-mini-mark,.archive-shell:not(.p11) .frontier-core,
+.archive-shell:not(.p11) .signature-visual{box-shadow:none!important}
+.archive-shell:not(.p11) .aegis-mini-mark{border-radius:4px!important}
+.archive-shell:not(.p11) .aegis-mini-mark b{box-shadow:none!important}
+
+/* Phase 11 additions in old phase rails: 13 slots, never wrap into a second row. */
+.archive-shell:not(.p11) .phase-rail{grid-template-columns:repeat(13,minmax(0,1fr))!important}
+@media(max-width:980px){.archive-shell:not(.p11) .phase-rail{grid-template-columns:repeat(13,92px)!important}}
+@media(max-width:430px){.archive-shell:not(.p11) .phase-rail{grid-template-columns:repeat(13,82px)!important}}
+
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
