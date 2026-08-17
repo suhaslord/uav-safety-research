@@ -81,4 +81,15 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--tesla-blue);outline
   .archive-shell:not(.p11) .phase-link>i{grid-column:2!important;grid-row:1/4!important}
 }
 
+/* Visual-QA hardening: keep mobile controls mobile-only and preserve hero text contrast. */
+.mobile-menu-toggle,.archive-menu-toggle{display:none!important}
+.archive-menu-close{display:inline-flex!important}
+@media(max-width:767px){
+  .mobile-menu-toggle,.archive-menu-toggle{display:inline-flex!important}
+}
+@media(max-width:900px){
+  .hero .hero-intro{position:relative!important;z-index:2!important}
+  .hero .hero-image{opacity:.22!important}
+}
+
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
