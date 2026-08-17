@@ -6,11 +6,11 @@
     },
     {
       "source": "/phases/phase11/",
-      "destination": "https://cdn.jsdelivr.net/gh/suhaslord/uav-safety-research@20a83daa75e55c09047916a31811608c052ceef1/dashboard/phases/phase11.html"
+      "destination": "/phase11.html"
     },
     {
       "source": "/phases/phase11",
-      "destination": "https://cdn.jsdelivr.net/gh/suhaslord/uav-safety-research@20a83daa75e55c09047916a31811608c052ceef1/dashboard/phases/phase11.html"
+      "destination": "/phase11.html"
     },
     {
       "source": "/phase-archive.css",
@@ -35,12 +35,11 @@
   ],
   "headers": [
     {
-      "source": "/phases/phase11/",
-      "headers": [{"key":"Content-Type","value":"text/html; charset=utf-8"}]
-    },
-    {
-      "source": "/phases/phase11",
-      "headers": [{"key":"Content-Type","value":"text/html; charset=utf-8"}]
+      "source": "/phase11.html",
+      "headers": [
+        {"key":"Content-Type","value":"text/html; charset=utf-8"},
+        {"key":"Cache-Control","value":"public, max-age=0, must-revalidate"}
+      ]
     },
     {
       "source": "/favicon.svg",
