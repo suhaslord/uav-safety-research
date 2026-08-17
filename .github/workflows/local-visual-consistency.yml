@@ -7,6 +7,7 @@ on:
       - 'deploy/vercel/**'
       - '.github/qa/local-vercel-server.mjs'
       - '.github/qa/visual-consistency-smoke.mjs'
+      - '.github/qa/capture-corrected-screenshots.mjs'
       - '.github/workflows/local-visual-consistency.yml'
   workflow_dispatch:
 
@@ -47,3 +48,18 @@ jobs:
         env:
           QA_BASE_URL: http://127.0.0.1:4173
         run: node .github/qa/visual-consistency-smoke.mjs
+
+      - name: Capture corrected screenshots
+        if: success()
+        env:
+          QA_BASE_URL: http://127.0.0.1:4173
+        run: node .github/qa/capture-corrected-screenshots.mjs
+
+      - name: Upload corrected visual evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aegisland-corrected-visual-evidence
+          path: corrected-visual-artifacts/
+          if-no-files-found: warn
+          retention-days: 14
