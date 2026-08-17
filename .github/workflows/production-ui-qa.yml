@@ -1,5 +1,6 @@
 name: Production UI QA
 
+# Post-deployment production verification: Phase 11 frontier labels included.
 on:
   push:
     branches: [main]
