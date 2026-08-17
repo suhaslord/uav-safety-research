@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - '.github/qa/production-ui-qa.mjs'
+      - '.github/qa/mobile-menu-smoke.mjs'
       - '.github/workflows/production-ui-qa.yml'
       - 'dashboard/**'
       - 'deploy/vercel/**'
@@ -36,6 +37,11 @@ jobs:
         env:
           QA_BASE_URL: https://aegisland-research-cockpit.vercel.app
         run: node .github/qa/production-ui-qa.mjs
+
+      - name: Run mobile menu interaction smoke
+        env:
+          QA_BASE_URL: https://aegisland-research-cockpit.vercel.app
+        run: node .github/qa/mobile-menu-smoke.mjs
 
       - name: Upload screenshots, video, and report
         if: always()
