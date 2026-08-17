@@ -55,6 +55,38 @@ try {
     await page.waitForTimeout(1800);
     const nextLabel = await page.locator('#nextPhase span').first().textContent().catch(() => '');
     add('phase10-next-link-not-stale-frontier', /next phase/i.test(nextLabel || ''), { nextLabel });
+
+    await page.goto(BASE + '/phases/phase11/', { waitUntil: 'domcontentloaded', timeout: 45000 });
+    await page.waitForTimeout(500);
+    const header = await page.locator('.p11 .top').evaluate(el => {
+      const s = getComputedStyle(el);
+      const r = el.getBoundingClientRect();
+      return { display: s.display, position: s.position, height: r.height };
+    });
+    add('phase11-header-has-explicit-layout', header.display === 'grid' && header.position === 'fixed' && Math.round(header.height) === 64, { header });
+    const brandStyle = await page.locator('.p11 .word').evaluate(el => {
+      const s = getComputedStyle(el);
+      return { color: s.color, decoration: s.textDecorationLine };
+    });
+    add('phase11-brand-not-browser-default-link', brandStyle.decoration === 'none' && brandStyle.color === 'rgb(23, 26, 32)', { brandStyle });
+    const navStyles = await page.locator('.p11 .nav a').evaluateAll(els => els.map(el => { const s=getComputedStyle(el); const r=el.getBoundingClientRect(); return { color:s.color, decoration:s.textDecorationLine, top:r.top, height:r.height }; }));
+    add('phase11-nav-not-browser-default-links', navStyles.length === 2 && navStyles.every(x => x.decoration === 'none' && x.color !== 'rgb(0, 0, 238)'), { navStyles });
+    add('phase11-desktop-nav-one-row', navStyles.length === 2 && Math.abs(navStyles[0].top-navStyles[1].top) < 1, { navStyles });
+    await page.close();
+    await context.close();
+  }
+
+  {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, reducedMotion: 'reduce' });
+    const page = await context.newPage();
+    await page.goto(BASE + '/phases/phase11/', { waitUntil: 'domcontentloaded', timeout: 45000 });
+    await page.waitForTimeout(500);
+    const mobileHeader = await page.locator('.p11 .top').evaluate(el => {
+      const s=getComputedStyle(el); const r=el.getBoundingClientRect(); return { display:s.display, height:r.height, overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth };
+    });
+    add('phase11-mobile-header-clean', mobileHeader.display === 'grid' && Math.round(mobileHeader.height) === 60 && mobileHeader.overflow <= 1, { mobileHeader });
+    const mobileBrand = await page.locator('.p11 .word').evaluate(el => { const s=getComputedStyle(el); return { color:s.color, decoration:s.textDecorationLine }; });
+    add('phase11-mobile-brand-not-default-link', mobileBrand.decoration === 'none' && mobileBrand.color === 'rgb(23, 26, 32)', { mobileBrand });
     await page.close();
     await context.close();
   }
