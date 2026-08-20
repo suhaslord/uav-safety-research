@@ -23,6 +23,20 @@
     };
 
     if (path === '/phases') {
+      const tabletStyle = document.createElement('style');
+      tabletStyle.textContent = `
+        @media (min-width:768px) and (max-width:900px) {
+          body.archive-shell .map { padding-left:28px; padding-right:28px; }
+          body.archive-shell .era { grid-template-columns:170px minmax(0,1fr); gap:28px; }
+          body.archive-shell .track { min-width:0; }
+          body.archive-shell .phase-link { grid-template-columns:120px minmax(0,1fr) 132px 24px; gap:16px; }
+          body.archive-shell .phase-link > span,
+          body.archive-shell .phase-link strong,
+          body.archive-shell .phase-link small { min-width:0; overflow-wrap:anywhere; }
+        }
+      `;
+      document.head.appendChild(tabletStyle);
+
       const top = document.querySelector('.top-end .primary');
       if (top) {
         top.textContent = 'Phase 11';
