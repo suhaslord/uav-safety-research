@@ -95,6 +95,8 @@
       const next = document.getElementById('nextPhase');
       if (next) {
         next.href = phase11Href;
+        next.removeAttribute('target');
+        next.removeAttribute('rel');
         next.innerHTML = '<span>Next phase</span><strong>Phase 11 · P14R</strong><i>→</i>';
       }
     }
@@ -104,9 +106,16 @@
     }
   };
 
+  // The historical Phase 10R decoration intentionally runs in requestAnimationFrame.
+  // Apply the current-frontier bridge one frame after that layer so the archive is
+  // corrected once, deterministically, without a persistent mutation observer.
+  const scheduleCurrentFrontier = () => {
+    requestAnimationFrame(() => requestAnimationFrame(applyCurrentFrontier));
+  };
+
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', applyCurrentFrontier, { once: true });
+    document.addEventListener('DOMContentLoaded', scheduleCurrentFrontier, { once: true });
   } else {
-    applyCurrentFrontier();
+    scheduleCurrentFrontier();
   }
 })();
