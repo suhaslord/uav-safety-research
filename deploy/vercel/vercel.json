@@ -1,53 +1,46 @@
 {
   "rewrites": [
-    {
-      "source": "/favicon.ico",
-      "destination": "/favicon.svg"
-    },
-    {
-      "source": "/phases/phase11/",
-      "destination": "/phase11.html"
-    },
-    {
-      "source": "/phases/phase11",
-      "destination": "/phase11.html"
-    },
-    {
-      "source": "/phase-archive.css",
-      "destination": "https://cdn.jsdelivr.net/gh/suhaslord/uav-safety-research@c30cd39ba01ee5034797bbab778d2d30ade4773b/dashboard/phase-archive.css"
-    },
-    {
-      "source": "/phase-responsive.css",
-      "destination": "https://cdn.jsdelivr.net/gh/suhaslord/uav-safety-research@c30cd39ba01ee5034797bbab778d2d30ade4773b/dashboard/phase-responsive.css"
-    },
-    {
-      "source": "/glass-ui.css",
-      "destination": "https://cdn.jsdelivr.net/gh/suhaslord/uav-safety-research@c30cd39ba01ee5034797bbab778d2d30ade4773b/dashboard/glass-ui.css"
-    },
-    {
-      "source": "/phases",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/phases/(.*)",
-      "destination": "/index.html"
-    }
+    { "source": "/favicon.ico", "destination": "/favicon.svg" },
+    { "source": "/phases/phase11/", "destination": "/phase11.html" },
+    { "source": "/phases/phase11", "destination": "/phase11.html" },
+    { "source": "/phases/", "destination": "/dashboard/phases/index.html" },
+    { "source": "/phases", "destination": "/dashboard/phases/index.html" },
+    { "source": "/phases/:phase/", "destination": "/dashboard/phases/phase.html" },
+    { "source": "/phases/:phase", "destination": "/dashboard/phases/phase.html" },
+
+    { "source": "/phase-archive.css", "destination": "/dashboard/phase-archive.css" },
+    { "source": "/phase-signatures.css", "destination": "/dashboard/phase-signatures.css" },
+    { "source": "/phase-responsive.css", "destination": "/dashboard/phase-responsive.css" },
+    { "source": "/phase-hero-scenes.css", "destination": "/dashboard/phase-hero-scenes.css" },
+    { "source": "/glass-ui.css", "destination": "/dashboard/glass-ui.css" },
+
+    { "source": "/phase-data.js", "destination": "/dashboard/phase-data.js" },
+    { "source": "/phase-runtime.js", "destination": "/dashboard/phase-runtime.js" },
+    { "source": "/phase-signatures.js", "destination": "/dashboard/phase-signatures.js" },
+    { "source": "/tesla-mobile.js", "destination": "/dashboard/tesla-mobile.js" },
+    { "source": "/phase-hero-fix.js", "destination": "/dashboard/phase-hero-fix.js" },
+    { "source": "/phase10r-archive.js", "destination": "/dashboard/phase10r-archive.js" },
+    { "source": "/phase-hero-scenes.js", "destination": "/dashboard/phase-hero-scenes.js" },
+    { "source": "/aegis-current.js", "destination": "/dashboard/aegis-current.js" }
   ],
   "headers": [
     {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+      ]
+    },
+    {
       "source": "/phase11.html",
       "headers": [
-        {"key":"Content-Type","value":"text/html; charset=utf-8"},
-        {"key":"Cache-Control","value":"public, max-age=0, must-revalidate"}
+        { "key": "Content-Type", "value": "text/html; charset=utf-8" },
+        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
       ]
     },
     {
       "source": "/favicon.svg",
-      "headers": [{"key":"Cache-Control","value":"public, max-age=300, must-revalidate"}]
-    },
-    {
-      "source": "/favicon.ico",
-      "headers": [{"key":"Cache-Control","value":"public, max-age=300, must-revalidate"}]
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=300, must-revalidate" }]
     }
   ]
 }
