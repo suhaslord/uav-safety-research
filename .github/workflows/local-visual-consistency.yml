@@ -2,9 +2,13 @@ name: Local visual consistency QA
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+      - 'fix/**'
     paths:
       - 'deploy/vercel/**'
+      - 'dashboard/aegis-current.js'
+      - 'dashboard/phases/**'
       - '.github/qa/local-vercel-server.mjs'
       - '.github/qa/visual-consistency-smoke.mjs'
       - '.github/qa/capture-corrected-screenshots.mjs'
