@@ -74,7 +74,7 @@ jobs:
             -w "$GITHUB_WORKSPACE/bitcraze-crazyflie-simulation" \
             -e UNM_TELEMETRY_PATH="$GITHUB_WORKSPACE/experiments/unm_crazyflie/results/webots_baseline.csv" \
             "$WEBOTS_IMAGE" \
-            bash -lc 'xvfb-run --auto-servernum webots --version && timeout 120s xvfb-run --auto-servernum webots --mode=fast --no-rendering --stdout --stderr --minimize --batch simulator_files/webots/worlds/crazyflie_world.wbt'
+            bash -lc 'xvfb-run --auto-servernum webots --version && timeout --signal=TERM 45s xvfb-run --auto-servernum webots --mode=fast --no-rendering --stdout --stderr --minimize --batch simulator_files/webots/worlds/crazyflie_world.wbt'
 
           test -s experiments/unm_crazyflie/results/webots_baseline.csv
           head -5 experiments/unm_crazyflie/results/webots_baseline.csv
