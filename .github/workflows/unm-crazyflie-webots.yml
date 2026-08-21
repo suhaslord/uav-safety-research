@@ -7,6 +7,12 @@ on:
     paths:
       - "experiments/unm_crazyflie/**"
       - ".github/workflows/unm-crazyflie-webots.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "experiments/unm_crazyflie/**"
+      - ".github/workflows/unm-crazyflie-webots.yml"
   workflow_dispatch:
 
 permissions:
