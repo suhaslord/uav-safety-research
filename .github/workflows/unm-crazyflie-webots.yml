@@ -1,0 +1,111 @@
+name: UNM Crazyflie Webots Baseline
+
+on:
+  push:
+    branches:
+      - research/unm-crazyflie-webots-baseline
+    paths:
+      - "experiments/unm_crazyflie/**"
+      - ".github/workflows/unm-crazyflie-webots.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  webots-baseline-and-faults:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out research repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install analysis dependency
+        run: python -m pip install --disable-pip-version-check numpy
+
+      - name: Validate analysis logic before simulator run
+        run: python experiments/unm_crazyflie/test_analysis.py
+
+      - name: Fetch pinned official Bitcraze simulation
+        run: |
+          git clone https://github.com/bitcraze/crazyflie-simulation.git bitcraze-crazyflie-simulation
+          git -C bitcraze-crazyflie-simulation checkout 7e93752dbc803af2488c1db46bb79b3da55f5d8c
+          test "$(git -C bitcraze-crazyflie-simulation rev-parse HEAD)" = "7e93752dbc803af2488c1db46bb79b3da55f5d8c"
+
+      - name: Install deterministic logger controller into stock Webots project
+        run: |
+          mkdir -p bitcraze-crazyflie-simulation/simulator_files/webots/controllers/unm_baseline_controller
+          cp experiments/unm_crazyflie/unm_baseline_controller.py \
+            bitcraze-crazyflie-simulation/simulator_files/webots/controllers/unm_baseline_controller/unm_baseline_controller.py
+
+          python - <<'PY'
+          from pathlib import Path
+          world = Path("bitcraze-crazyflie-simulation/simulator_files/webots/worlds/crazyflie_world.wbt")
+          text = world.read_text()
+          needle = "Crazyflie {\n}\n"
+          replacement = 'Crazyflie {\n  controller "unm_baseline_controller"\n  supervisor TRUE\n}\n'
+          if needle not in text:
+              raise SystemExit("Could not identify the stock Crazyflie node to patch")
+          world.write_text(text.replace(needle, replacement, 1))
+          print(world.read_text())
+          PY
+
+      - name: Run genuine Webots baseline headlessly
+        env:
+          WEBOTS_IMAGE: cyberbotics/webots:R2025a-ubuntu22.04
+        run: |
+          mkdir -p experiments/unm_crazyflie/results
+          docker pull "$WEBOTS_IMAGE"
+
+          docker run --rm \
+            -v "$GITHUB_WORKSPACE:$GITHUB_WORKSPACE" \
+            -w "$GITHUB_WORKSPACE/bitcraze-crazyflie-simulation" \
+            -e UNM_TELEMETRY_PATH="$GITHUB_WORKSPACE/experiments/unm_crazyflie/results/webots_baseline.csv" \
+            "$WEBOTS_IMAGE" \
+            bash -lc 'webots --version && xvfb-run -a webots --stdout --stderr --batch --mode=fast simulator_files/webots/worlds/crazyflie_world.wbt'
+
+          test -s experiments/unm_crazyflie/results/webots_baseline.csv
+          head -5 experiments/unm_crazyflie/results/webots_baseline.csv
+          tail -5 experiments/unm_crazyflie/results/webots_baseline.csv
+
+      - name: Run frozen single-fault matrix
+        run: |
+          python experiments/unm_crazyflie/analyze_faults.py \
+            experiments/unm_crazyflie/results/webots_baseline.csv \
+            --out-dir experiments/unm_crazyflie/results
+
+      - name: Write provenance
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          data = {
+              "bitcraze_repository": "bitcraze/crazyflie-simulation",
+              "bitcraze_commit": "7e93752dbc803af2488c1db46bb79b3da55f5d8c",
+              "webots_image": "cyberbotics/webots:R2025a-ubuntu22.04",
+              "experiment_repository": os.environ["GITHUB_REPOSITORY"],
+              "experiment_commit": os.environ["GITHUB_SHA"],
+              "workflow_run_id": os.environ["GITHUB_RUN_ID"],
+          }
+          Path("experiments/unm_crazyflie/results/provenance.json").write_text(
+              json.dumps(data, indent=2) + "\n"
+          )
+          PY
+
+      - name: Show result summary
+        run: cat experiments/unm_crazyflie/results/RESULTS.md
+
+      - name: Upload Webots evidence and fault results
+        uses: actions/upload-artifact@v4
+        with:
+          name: unm-crazyflie-webots-results
+          path: experiments/unm_crazyflie/results/
+          if-no-files-found: error
+          retention-days: 30
