@@ -30,7 +30,7 @@ During position dropout, there is no measurement update. The filter only predict
 
 A fixed 2.0 s dropout is almost harmless during some steady segments but severe around maneuvers. For example, the 7–9 s dropout reaches only about 0.004 m maximum error, while the same 2.0 s dropout starting at the 10 s direction change reaches about 0.526 m maximum error.
 
-The important conclusion is that **dropout severity depends on vehicle dynamics and estimator state, not only dropout duration**.
+Representative maneuver-adjacent windows averaged about 0.446 m maximum error versus about 0.006 m in representative steady windows, around 73 times larger. The important conclusion is that **dropout severity depends on vehicle dynamics and estimator state, not only dropout duration**.
 
 ## Residual / innovation diagnostic
 
@@ -41,6 +41,8 @@ In this experiment, the high-noise case and the +0.40 m bias case trigger the re
 ## Covariance diagnostic
 
 During dropout there is no measurement, so there is no innovation to inspect. The filter's covariance is more useful: it grows as the filter predicts without correction. The 4 s dropout crosses the empirical uncertainty threshold shortly after dropout begins.
+
+There is also an important limitation: for equal-duration dropouts, covariance growth is almost the same regardless of *when* the dropout occurs, even though the actual position error changes dramatically around maneuvers. That happens because this simple filter's covariance model knows how long it has been without measurements, but it does not fully know that the constant-velocity assumption has become especially poor during a commanded direction change. So covariance says **confidence is getting worse**, but it does not perfectly rank the real danger of every dropout window.
 
 ## What this does and does not claim
 
