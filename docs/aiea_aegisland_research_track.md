@@ -1,25 +1,21 @@
-# AIEA Lab Research Track Proposal — AegisLand
+# AIEA Lab Independent Research Track — AegisLand
 
 **Student:** Suhas Beemineni  
 **Program:** UCSC AIEA Lab K-12 Research Foundations  
-**Proposed track:** Independent research aligned with **Robustifying Autonomous Vehicles**  
+**Status:** Confirmed independent research project on August 22, 2026  
 **Project:** AegisLand — simulation-only UAV autonomy validation in PX4/Gazebo
 
-## Why AegisLand fits the AIEA program
+## Research direction
 
-AegisLand studies how autonomous systems should be evaluated when their behavior is uncertain, safety claims must remain bounded, and simulation evidence can be easily over-interpreted. That maps naturally onto AIEA's Robustifying Autonomous Vehicles pathway while keeping the work centered on UAVs rather than road vehicles.
+AegisLand studies how autonomous aerial systems should be evaluated when behavior is uncertain, failures must be measured rather than hidden, and simulation evidence can be easily over-interpreted. The project focuses on reproducible UAV autonomy validation in PX4/Gazebo while keeping claims explicitly bounded to the simulator evidence collected.
 
-The project is intentionally **simulation-only**. Results are treated as evidence about simulator behavior and test conditions, not as proof of real-world safety. Failed runs are retained, assumptions are documented, and evaluation metrics are designed to distinguish detection, recovery, and non-recovery rather than collapsing everything into a single success score.
+The project is intentionally **simulation-only**. Results are treated as evidence about simulator behavior and tested conditions, not as proof of physical-flight safety. Failed runs are retained, assumptions are documented, and evaluation separates detection, recovery, non-recovery, and uncertainty instead of collapsing everything into a single success score.
 
-## Proposed research question
+## Core research question
 
-> How can we build a reproducible simulation benchmark for autonomous UAV failures that measures not only whether recovery occurs, but how often the system fails, how quickly it recovers, and how confidence or evidence quality should limit the conclusions we draw?
+> How can we build a reproducible simulation benchmark for autonomous UAV failures that measures how often a system fails, how quickly it recovers, and how confidence or evidence quality should limit the conclusions we draw?
 
-## AIEA onboarding alignment
-
-The AIEA Robustifying AVs track begins by asking students to run an autonomous-vehicle simulator locally, document the simulator setup, execute a baseline experiment, and record evidence. AegisLand can satisfy that foundation with PX4/Gazebo, while extending it into a research-grade UAV validation benchmark.
-
-### Baseline deliverable
+## Baseline research foundation
 
 1. **Simulator:** PX4 SITL + Gazebo.
 2. **Baseline:** nominal autonomous mission with no injected fault.
@@ -28,7 +24,7 @@ The AIEA Robustifying AVs track begins by asking students to run an autonomous-v
 5. **Secondary metrics:** detection latency, isolation accuracy, false-positive/false-negative rate, safety-envelope violations, abstention rate, and non-recovery rate.
 6. **Evidence boundary:** simulator results are not converted into real-world safety claims.
 
-## Proposed 10-step research progression
+## Research progression
 
 1. Reproduce and document the local PX4/Gazebo baseline.
 2. Freeze a nominal mission and evaluation configuration.
@@ -49,51 +45,31 @@ AegisLand already contains work on:
 - frozen evaluation protocols;
 - external-perception validation;
 - failure-probability and recovery-time metrics;
-- a planned reproduction of model-free neural fault detection and isolation under actuator degradation;
+- planned model-free neural fault detection and isolation under actuator degradation;
 - explicit separation between simulator evidence and real-world safety claims.
 
-## AIEA Task 2 substitution proposal
+## First AIEA milestone
 
-The standard Robustifying AVs Task 2 asks for a locally running autonomous-vehicle simulator, a documented setup, a baseline experiment, and a recording. Rather than duplicate that work in CARLA, I propose using **PX4 SITL + Gazebo** as the allowed "simulator of your choice" and submitting the existing AegisLand simulation as the Task 2 foundation.
-
-The AIEA-facing packet will contain:
+The first formal AIEA research packet will package the existing simulator foundation into a concise, reproducible update containing:
 
 - environment and simulator versions;
-- setup/reproduction commands already used by the repository;
-- one nominal run with no injected fault;
+- setup/reproduction instructions already used by the repository;
+- one nominal run;
 - one controlled fault case;
 - configuration and seed/parameter records;
 - log locations and result summaries;
-- a short screen recording of the baseline/fault run;
-- a one-page write-up explaining setup, limitations, and evidence boundaries.
+- failure-probability and recovery-time definitions;
+- limitations and evidence-boundary statement;
+- links to the relevant AegisLand code, logs, and evaluation artifacts.
 
-The only element that cannot be generated from repository evidence alone is a fresh screen recording; that will be captured manually from the local simulator.
+## Confirmed AIEA workflow
 
-## What I want to confirm with AIEA
-
-At the next meeting, I would like to confirm whether AegisLand should be treated as:
-
-1. an **independent research project** under the K-12 research pathway, or
-2. a UAV adaptation of the **Robustifying Autonomous Vehicles** track.
-
-If either is acceptable, my next milestone will be to package the existing PX4/Gazebo baseline as the formal AIEA simulator-onboarding deliverable and then continue into the repeated fault-injection benchmark.
+Professor Leilani Gilpin confirmed on August 22, 2026 that AegisLand can continue as Suhas's existing **independent research project** in the AIEA K-12 program. Research deliverables and progress updates can be submitted by **email**.
 
 ## Immediate next milestone
 
-Create a concise AIEA-facing baseline packet containing:
+Freeze the next AegisLand evaluation slice, preserve the evidence bundle, perform the current failure-case analysis, and turn the result into the first AIEA progress update before expanding the challenge set.
 
-- local simulator setup;
-- one nominal run;
-- one controlled fault case;
-- run configuration and reproducibility notes;
-- failure probability / recovery time definitions;
-- a short evidence-boundary statement;
-- links to the relevant AegisLand code, logs, and evaluation artifacts.
+## Evidence boundary
 
-## Meeting agenda for Professor Gilpin
-
-1. Confirm whether AegisLand can serve as my K-12 independent project or as a UAV adaptation of Robustifying Autonomous Vehicles.
-2. Confirm that PX4/Gazebo can substitute for CARLA for the simulator-onboarding deliverable.
-3. Review the evidence-boundary approach: simulator evidence, failed-run retention, and claims that explicitly stop short of real-world safety.
-4. Agree on the first formal AIEA milestone: baseline packet plus controlled fault benchmark.
-5. Clarify the remaining administrative onboarding items: Discord role, member database, website profile, calendar/mailing list, and submission location for K-12 deliverables.
+AegisLand remains simulation-only. No simulator result should be represented as physical-flight validation or real-world safety acceptance. Negative results, mismatches, uncertainty, and provenance remain part of the research record.
