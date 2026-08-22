@@ -1,6 +1,5 @@
 {
   "redirects": [
-    { "source": "/", "destination": "/dashboard/", "permanent": false },
     { "source": "/phase7", "destination": "/dashboard/phase7.html", "permanent": false }
   ]
 }
