@@ -1,39 +1,41 @@
 # AIEA K-12 Onboarding Status
 
 **Student:** Suhas Beemineni  
-**Research focus:** AegisLand / safe UAV autonomy validation
+**Research focus:** AegisLand / safe UAV autonomy validation  
+**Updated:** August 22, 2026
 
 ## Completed or verified
 
-- [x] AIEA Lab opportunity received from Professor Leilani Gilpin on July 16, 2026.
-- [x] AIEA Notion access is active; AIEA Lab Notion notifications are reaching the student account.
+- [x] AIEA Lab opportunity received from Professor Leilani Gilpin.
+- [x] AIEA Notion access is active.
+- [x] Notion member entry completed as a high-school intern.
+- [x] Discord setup completed.
+- [x] AIEA group calendar added.
 - [x] K-12 Research Foundations GitHub structure reviewed.
-- [x] Existing-project vs independent-research choice evaluated.
-- [x] AegisLand mapped to the Robustifying Autonomous Vehicles pathway as a UAV-focused adaptation / independent research project.
+- [x] AegisLand confirmed with Professor Gilpin as the existing **independent research project** for the AIEA K-12 program.
 - [x] PX4 SITL + Gazebo simulator baseline already completed with preserved logs, provenance, and a completed mission.
 - [x] Formal AIEA-facing simulator-onboarding deliverable prepared from existing AegisLand evidence.
-- [x] AIEA-facing research-track proposal prepared.
-- [x] AIEA website profile content prepared and ready to submit once repository/fork access is available.
-- [x] Friday meeting agenda updated with the AegisLand research-track decision and remaining onboarding questions.
+- [x] AIEA-facing research-track document updated to reflect the confirmed independent-project status.
+- [x] Professor Gilpin confirmed that K-12 research deliverables/progress can be submitted by email.
+- [x] Professor Gilpin approved adding Suhas to the AIEA lab website.
 
-## Requires an external membership/UI action or Professor Gilpin confirmation
+## Pending external access or confirmation
 
-- [ ] Confirm membership in the AIEA prospectives / auditors Google Group.
-- [ ] Confirm Discord membership, set nickname, and obtain the auditor/K-12 role.
-- [ ] Confirm the correct K-12 Notion teamspace and add/update the internal Members database entry.
-- [ ] Confirm access to the AIEA group Google Calendar and shared Drive.
-- [ ] Place the introductory slide in the Auditors section of the AIEA deck.
-- [ ] Submit the prepared AIEA website profile to `aiea-lab/aiea-lab.github.io` once fork/write access is available.
-- [ ] Confirm where K-12 deliverables should be submitted because the public onboarding docs refer to Canvas and undergraduate auditor flows.
-- [ ] Confirm whether Professor Gilpin wants AegisLand formally labeled as an independent project or a UAV adaptation of Robustifying Autonomous Vehicles.
+- [ ] Prospectives email-group membership is requested; confirm when accepted.
+- [ ] Submit the AIEA website profile to `aiea-lab/aiea-lab.github.io` once repository/fork write access is available. Direct branch creation from the connected GitHub account still returns a 403.
+- [ ] Add a portrait asset if the website submission requires one.
 
-## AegisLand attachments
+## AegisLand research package
 
-- Research-track proposal: `docs/aiea_aegisland_research_track.md`
+- Confirmed research track: `docs/aiea_aegisland_research_track.md`
 - Simulator-onboarding deliverable: `docs/aiea_simulator_onboarding_deliverable.md`
-- Ready website profile: `docs/aiea_profile_ready.md`
-- AegisLand repository: https://github.com/suhaslord/uav-safety-research
-- AIEA integration PR: https://github.com/suhaslord/uav-safety-research/pull/17
+- Website profile source: `docs/aiea_profile_ready.md`
+- First AIEA progress update: `docs/aiea_progress_2026-08-22.md`
+- Repository: https://github.com/suhaslord/uav-safety-research
+
+## Current research priority
+
+Move from onboarding into a frozen, reproducible AegisLand evaluation slice: preserve the evidence bundle, analyze the current failure cases, then expand to a preregistered challenge set only after the current result is documented.
 
 ## Evidence boundary
 
