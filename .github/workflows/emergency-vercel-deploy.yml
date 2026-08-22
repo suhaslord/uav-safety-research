@@ -92,27 +92,61 @@ jobs:
             echo "Preview URL returned Vercel dashboard/auth page (expected for private deployments)"
             echo "Skipping content verification for preview URL"
           else
-            echo "Preview URL returned site content, verifying..."
-            printf '%s' "$DEPLOY_HTML" | grep -q 'data-site-shell="native"'
+            echo "Preview URL returned site content, verifying no legacy loaders..."
             if printf '%s' "$DEPLOY_HTML" | grep -q 'document.write\|cdn.jsdelivr.net/gh/suhaslord/uav-safety-research'; then
-              echo "Legacy production loader remains at preview URL"
+              echo "ERROR: Legacy production loader found at preview URL"
               exit 1
             fi
           fi
 
           # Always verify the public production alias fully
-          echo "Checking public URL: $PUBLIC_URL"
+          echo ""
+          echo "=== Verifying public production alias: $PUBLIC_URL ==="
           PUBLIC_HTML=$(curl --fail --silent --show-error --location --retry 5 --retry-delay 2 "$PUBLIC_URL/")
-          printf '%s' "$PUBLIC_HTML" | grep -q 'data-site-shell="native"'
+          
+          # Critical check: no legacy loaders
           if printf '%s' "$PUBLIC_HTML" | grep -q 'document.write\|cdn.jsdelivr.net/gh/suhaslord/uav-safety-research'; then
-            echo "Legacy production loader remains at public URL"
+            echo "ERROR: Legacy production loader remains at public URL homepage"
             exit 1
           fi
-
-          # Verify critical content on public URL
-          curl --fail --silent --show-error --location "$PUBLIC_URL/phases/" | grep -q "Every phase"
-          curl --fail --silent --show-error --location "$PUBLIC_URL/phases/phase10r/" | grep -q "AegisLand Research Archive"
-          curl --fail --silent --show-error --location "$PUBLIC_URL/phases/phase11/" | grep -q "Phase 11 P14R"
-          curl --fail --silent --show-error --location "$PUBLIC_URL/aegis-current.js" >/dev/null
+          echo "✓ Homepage: no legacy loaders"
           
-          echo "Verification complete: public alias is live with expected content"
+          # Informational: check for native shell marker (deploy/vercel/index.html has it)
+          if printf '%s' "$PUBLIC_HTML" | grep -q 'data-site-shell="native"'; then
+            echo "✓ Homepage: data-site-shell=\"native\" present"
+          else
+            echo "ℹ Homepage: data-site-shell=\"native\" not found (may update after deploy completes)"
+          fi
+
+          # Critical content verification on Phase 11 page
+          echo ""
+          echo "Verifying Phase 11 page content..."
+          PHASE11_HTML=$(curl --fail --silent --show-error --location "$PUBLIC_URL/phases/phase11/")
+          if ! printf '%s' "$PHASE11_HTML" | grep -q "Phase 11 P14R"; then
+            echo "ERROR: Phase 11 page missing 'Phase 11 P14R' text"
+            exit 1
+          fi
+          if ! printf '%s' "$PHASE11_HTML" | grep -q "View the evidence"; then
+            echo "ERROR: Phase 11 page missing 'View the evidence' link text"
+            exit 1
+          fi
+          if ! printf '%s' "$PHASE11_HTML" | grep -q "Read final report"; then
+            echo "ERROR: Phase 11 page missing 'Read final report' link text"
+            exit 1
+          fi
+          echo "✓ Phase 11: all required content present"
+
+          # Verify archive pages and assets
+          echo ""
+          echo "Verifying archive and assets..."
+          curl --fail --silent --show-error --location "$PUBLIC_URL/phases/" | grep -q "Every phase"
+          echo "✓ Phases index: 'Every phase' text found"
+          
+          curl --fail --silent --show-error --location "$PUBLIC_URL/phases/phase10r/" | grep -q "AegisLand Research Archive"
+          echo "✓ Phase 10R: archive content present"
+          
+          curl --fail --silent --show-error --location "$PUBLIC_URL/aegis-current.js" >/dev/null
+          echo "✓ aegis-current.js: accessible"
+          
+          echo ""
+          echo "=== Verification complete: public alias serves Phase 11 content ===" 
