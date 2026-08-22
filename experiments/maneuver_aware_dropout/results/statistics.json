@@ -1,0 +1,27 @@
+{
+  "baseline": {
+    "pearson_correlation": -0.025316689182069196,
+    "pearson_p_value": 0.8852169400832962,
+    "spearman_rank_correlation": 0.16210212401645888,
+    "spearman_p_value": 0.35218784218000976,
+    "mean_within_1sigma": 0.7238973008558262,
+    "mean_within_2sigma": 0.8607709750566893,
+    "ideal_within_1sigma": 0.68,
+    "ideal_within_2sigma": 0.95
+  },
+  "adaptive": {
+    "pearson_correlation": 0.9530998792477519,
+    "pearson_p_value": 1.072348610266693e-18,
+    "spearman_rank_correlation": 0.972829131652661,
+    "spearman_p_value": 1.521742230142923e-22,
+    "mean_within_1sigma": 1.0,
+    "mean_within_2sigma": 1.0,
+    "ideal_within_1sigma": 0.68,
+    "ideal_within_2sigma": 0.95
+  },
+  "improvement": {
+    "correlation_increase": 0.978416568429821,
+    "rank_correlation_increase": 0.8107270076362022,
+    "calibration_1sigma_closer_to_ideal": 0.27610269914417385
+  }
+}
