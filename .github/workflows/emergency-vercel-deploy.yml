@@ -82,17 +82,37 @@ jobs:
           DEPLOY_URL='${{ steps.deploy.outputs.url }}'
           PUBLIC_URL='https://aegisland-research-cockpit.vercel.app'
 
-          for URL in "$DEPLOY_URL" "$PUBLIC_URL"; do
-            echo "Checking $URL"
-            HTML=$(curl --fail --silent --show-error --location --retry 5 --retry-delay 2 "$URL/")
-            printf '%s' "$HTML" | grep -q 'data-site-shell="native"'
-            if printf '%s' "$HTML" | grep -q 'document.write\|cdn.jsdelivr.net/gh/suhaslord/uav-safety-research'; then
-              echo "Legacy production loader remains at $URL"
+          # Verify the deployment succeeded by checking the deploy URL response
+          echo "Checking deployment URL: $DEPLOY_URL"
+          DEPLOY_HTML=$(curl --fail --silent --show-error --location --retry 5 --retry-delay 2 "$DEPLOY_URL/")
+          
+          # Preview URLs may return Vercel authentication/dashboard HTML instead of the actual site
+          # Check for Vercel dashboard indicators (geist classes, Vercel branding)
+          if printf '%s' "$DEPLOY_HTML" | grep -qi 'class="[^"]*geist\|Vercel.*Dashboard'; then
+            echo "Preview URL returned Vercel dashboard/auth page (expected for private deployments)"
+            echo "Skipping content verification for preview URL"
+          else
+            echo "Preview URL returned site content, verifying..."
+            printf '%s' "$DEPLOY_HTML" | grep -q 'data-site-shell="native"'
+            if printf '%s' "$DEPLOY_HTML" | grep -q 'document.write\|cdn.jsdelivr.net/gh/suhaslord/uav-safety-research'; then
+              echo "Legacy production loader remains at preview URL"
               exit 1
             fi
+          fi
 
-            curl --fail --silent --show-error --location "$URL/phases/" | grep -q "Every phase"
-            curl --fail --silent --show-error --location "$URL/phases/phase10r/" | grep -q "AegisLand Research Archive"
-            curl --fail --silent --show-error --location "$URL/phases/phase11/" | grep -q "Phase 11 P14R"
-            curl --fail --silent --show-error --location "$URL/aegis-current.js" >/dev/null
-          done
+          # Always verify the public production alias fully
+          echo "Checking public URL: $PUBLIC_URL"
+          PUBLIC_HTML=$(curl --fail --silent --show-error --location --retry 5 --retry-delay 2 "$PUBLIC_URL/")
+          printf '%s' "$PUBLIC_HTML" | grep -q 'data-site-shell="native"'
+          if printf '%s' "$PUBLIC_HTML" | grep -q 'document.write\|cdn.jsdelivr.net/gh/suhaslord/uav-safety-research'; then
+            echo "Legacy production loader remains at public URL"
+            exit 1
+          fi
+
+          # Verify critical content on public URL
+          curl --fail --silent --show-error --location "$PUBLIC_URL/phases/" | grep -q "Every phase"
+          curl --fail --silent --show-error --location "$PUBLIC_URL/phases/phase10r/" | grep -q "AegisLand Research Archive"
+          curl --fail --silent --show-error --location "$PUBLIC_URL/phases/phase11/" | grep -q "Phase 11 P14R"
+          curl --fail --silent --show-error --location "$PUBLIC_URL/aegis-current.js" >/dev/null
+          
+          echo "Verification complete: public alias is live with expected content"
