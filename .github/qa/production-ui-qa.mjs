@@ -197,7 +197,7 @@ try {
     else fail('click-home-to-phase11', { url: flow.url() });
   } else fail('click-home-to-phase11', { error: 'CTA not found' });
 
-  const evidence = flow.getByRole('link', { name: /view the evidence/i }).first();
+  const evidence = flow.getByRole('link', { name: /view( the)? evidence/i }).first();
   if (await evidence.count()) {
     await evidence.click();
     await flow.waitForTimeout(600);
@@ -205,7 +205,7 @@ try {
     else fail('click-phase11-evidence-anchor', { url: flow.url() });
   } else fail('click-phase11-evidence-anchor', { error: 'link not found' });
 
-  const finalHref = await flow.getByRole('link', { name: /read final report/i }).first().getAttribute('href').catch(() => null);
+  const finalHref = await flow.getByRole('link', { name: /(read )?final report/i }).first().getAttribute('href').catch(() => null);
   if (finalHref?.includes('phase11_final_report.md')) ok('phase11-final-report-link', { href: finalHref });
   else fail('phase11-final-report-link', { href: finalHref });
 
