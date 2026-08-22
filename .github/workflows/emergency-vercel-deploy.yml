@@ -18,13 +18,10 @@ jobs:
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
       VERCEL_ORG_ID: team_4fHq5Px7I3sXJ9v8FOyXNOHD
       VERCEL_PROJECT_ID: prj_FNAwpTD02Jrab6rgiwurb13WYjzM
-      PRESERVED_COCKPIT_REF: 2b7543fe9b0794c6bec8540e5d33c16e00fa6a67
 
     steps:
-      - name: Checkout full history
+      - name: Checkout requested revision
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Verify Vercel token is configured
         shell: bash
@@ -40,58 +37,30 @@ jobs:
           set -euo pipefail
           rm -rf .vercel-release
           mkdir -p .vercel-release
+
+          # The release now ships the dashboard from the same commit being
+          # deployed. There is no pinned historical cockpit and no runtime CDN
+          # bootstrap. deploy/vercel contains the native homepage + routing;
+          # dashboard contains the historical research archive assets.
           cp -R deploy/vercel/. .vercel-release/
-
-          # Preserve the exact approved cockpit revision, but host it on the same
-          # Vercel deployment instead of fetching it from jsDelivr at runtime.
-          git archive "$PRESERVED_COCKPIT_REF" dashboard | tar -x -C .vercel-release
-
-          python - <<'PY'
-          from pathlib import Path
-          import json
-          import re
-
-          root = Path('.vercel-release')
-          index = root / 'index.html'
-          text = index.read_text(encoding='utf-8')
-
-          pattern = r"const rev='[^']+';const base=`https://cdn\.jsdelivr\.net/gh/suhaslord/uav-safety-research@\$\{rev\}/dashboard/`;"
-          text, n = re.subn(pattern, "const base='/dashboard/';", text, count=1)
-          if n != 1:
-              raise SystemExit('Could not replace external cockpit CDN base in index.html')
-          if 'cdn.jsdelivr.net/gh/suhaslord/uav-safety-research' in text:
-              raise SystemExit('External cockpit CDN reference remains in index.html')
-          index.write_text(text, encoding='utf-8')
-
-          config_path = root / 'vercel.json'
-          config = json.loads(config_path.read_text(encoding='utf-8'))
-          config['rewrites'] = [
-              r for r in config.get('rewrites', [])
-              if not str(r.get('destination', '')).startswith('https://cdn.jsdelivr.net/')
-          ]
-          config_path.write_text(json.dumps(config, indent=2) + '\n', encoding='utf-8')
-
-          if not (root / 'dashboard' / 'index.html').exists():
-              raise SystemExit('Preserved dashboard/index.html missing from release bundle')
-          if not (root / 'dashboard' / 'cockpit.css').exists():
-              raise SystemExit('Preserved dashboard/cockpit.css missing from release bundle')
-          if not (root / 'phase11.html').exists():
-              raise SystemExit('Phase 11 page missing from release bundle')
-          PY
+          cp -R dashboard .vercel-release/dashboard
 
           mkdir -p .vercel-release/.vercel
           cat > .vercel-release/.vercel/project.json <<EOF
           {"orgId":"$VERCEL_ORG_ID","projectId":"$VERCEL_PROJECT_ID"}
           EOF
 
-      - name: Assert release has no runtime jsDelivr dependency
+      - name: Assert release is native and self-contained
         shell: bash
         run: |
           set -euo pipefail
-          ! grep -R "cdn.jsdelivr.net/gh/suhaslord/uav-safety-research" .vercel-release/index.html .vercel-release/vercel.json
-          test -f .vercel-release/dashboard/index.html
-          test -f .vercel-release/dashboard/cockpit.css
-          test -f .vercel-release/dashboard/cockpit.js
+          grep -q 'data-site-shell="native"' .vercel-release/index.html
+          ! grep -q 'document.write' .vercel-release/index.html
+          ! grep -q 'cdn.jsdelivr.net/gh/suhaslord/uav-safety-research' .vercel-release/index.html .vercel-release/vercel.json
+          test -f .vercel-release/dashboard/phases/index.html
+          test -f .vercel-release/dashboard/phases/phase.html
+          test -f .vercel-release/dashboard/aegis-current.js
+          test -f .vercel-release/dashboard/phase-runtime.js
           test -f .vercel-release/phase11.html
 
       - name: Install Vercel CLI
@@ -116,12 +85,14 @@ jobs:
           for URL in "$DEPLOY_URL" "$PUBLIC_URL"; do
             echo "Checking $URL"
             HTML=$(curl --fail --silent --show-error --location --retry 5 --retry-delay 2 "$URL/")
-            printf '%s' "$HTML" | grep -q "const base='/dashboard/'"
-            if printf '%s' "$HTML" | grep -q "cdn.jsdelivr.net/gh/suhaslord/uav-safety-research"; then
-              echo "External cockpit CDN dependency still present at $URL"
+            printf '%s' "$HTML" | grep -q 'data-site-shell="native"'
+            if printf '%s' "$HTML" | grep -q 'document.write\|cdn.jsdelivr.net/gh/suhaslord/uav-safety-research'; then
+              echo "Legacy production loader remains at $URL"
               exit 1
             fi
-            curl --fail --silent --show-error --location "$URL/dashboard/index.html" >/dev/null
-            curl --fail --silent --show-error --location "$URL/dashboard/cockpit.css" >/dev/null
+
+            curl --fail --silent --show-error --location "$URL/phases/" | grep -q "Every phase"
+            curl --fail --silent --show-error --location "$URL/phases/phase10r/" | grep -q "AegisLand Research Archive"
             curl --fail --silent --show-error --location "$URL/phases/phase11/" | grep -q "Phase 11 P14R"
+            curl --fail --silent --show-error --location "$URL/aegis-current.js" >/dev/null
           done

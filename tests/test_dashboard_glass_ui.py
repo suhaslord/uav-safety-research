@@ -1,4 +1,3 @@
-import re
 from pathlib import Path
 
 
@@ -17,11 +16,11 @@ def test_phase_hero_has_contained_stable_layout():
     assert "overflow:hidden!important" in MOTION
 
 
-def test_all_twelve_phase_steps_fit_shared_rail():
+def test_all_twelve_historical_phase_steps_fit_shared_rail():
     assert "grid-template-columns:repeat(12,minmax(78px,1fr))!important" in MOTION
 
 
-def test_homepage_giant_target_stays_restrained_and_animated():
+def test_historical_homepage_motion_stays_restrained():
     assert ".hero-media .hero-image" in MOTION
     assert "opacity:.055!important" in MOTION
     assert "#homeModelRail::before" in MOTION
@@ -42,11 +41,9 @@ def test_motion_layer_does_not_reintroduce_glass_materials():
     assert not (ROOT / "dashboard" / "glass-refraction.css").exists()
 
 
-def test_vercel_shell_loads_motion_layer_without_refraction():
-    assert "const motion=`${base}glass-ui.css`;" in SHELL
+def test_vercel_home_is_native_instead_of_runtime_loading_historical_css():
+    assert 'data-site-shell="native"' in SHELL
+    assert "document.write" not in SHELL
+    assert "cdn.jsdelivr.net" not in SHELL
+    assert "const motion=`${base}glass-ui.css`;" not in SHELL
     assert "glass-refraction.css" not in SHELL
-    assert "backdrop-filter" not in SHELL
-    match = re.search(r"const rev='([0-9a-f]{40})';", SHELL)
-    assert match is not None
-    assert match.group(1) != "0" * 40
-    assert SHELL.count("</script>") == 1
