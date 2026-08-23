@@ -6,16 +6,22 @@
 
 P5 preregistration: `docs/phase11_p5_calibrated_continuity_preregistration.md`
 
-Freeze workflow:
+Freeze workflow (BIFURCATED receipt):
 
-- run: `32615673999`
-- freeze head: `39fc45efc7ff7ddea862191127280e7838a6da3c`
+- freeze_run_id: `32615673999`
+- freeze_head: `7c22c7682c3fe53bd2b205ccd7822ef70de8a6c6`
+- archive_tip: `fdc1c77868da49477a72c59a5d36cbe9bf4f9629`
+- tip_delta: 2 receipt/doc-only commits after freeze_head:
+  - `c8e9260` fix(phase11): lock freeze receipt to FINAL tip 7c22c76
+  - `fdc1c77` fix(phase11): update freeze head to match current tip c8e9260
 - artifact ID: `9486860595`
 - artifact digest: `sha256:a9861fc0f48b0792d5381ef38ab98da06acfbd94741e5687ce0a5a9e9f8ab843`
 - candidate JSON SHA-256: `ed1877717203a6334d3ac21af79c9bce5f0aceb50c2774c3cdf2fe850611c802`
 - transfer-result SHA-256: `a34c8548fb5711bdae732c514817c38cc9cf356805e68e9f55bfb45dfeb5711f`
 
-The freeze workflow passed all P5 invariant tests and verified that protected validation seed `242242` was **not generated**. No P5 validation frames or validation result were created. Protected validation seed `242242` frames/results remain absent from the tip artifact.
+The freeze workflow ran at commit `7c22c76` (Actions headSha: `7c22c7682c3fe53bd2b205ccd7822ef70de8a6c6`) and produced all digests and gate results at that commit. The archive tip `fdc1c77` includes only receipt documentation commits after the freeze head. Linear history is maintained: freeze_head is an ancestor of archive_tip.
+
+The freeze workflow passed all P5 invariant tests and verified that protected validation seed `242242` was **not generated**. No P5 validation frames or validation result were created. Protected validation seed `242242` frames/results remain absent from the freeze artifact.
 
 ## Frozen continuity candidate
 
