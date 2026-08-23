@@ -6,6 +6,8 @@
 
 Branch: `phase11-p5-calibrated-continuity`
 
+Development result: see `docs/phase11_p5_development_stop.md`
+
 All earlier Phase 11 challenge/validation evidence is permanently seen and excluded from P5 hidden evaluation. P2 `112112` and P3 `154154` remain ungenerated/retired. P4 protected validation seed `198198` is permanently seen.
 
 ## Research question
