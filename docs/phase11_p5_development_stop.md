@@ -8,12 +8,12 @@ P5 preregistration: `docs/phase11_p5_calibrated_continuity_preregistration.md`
 
 Freeze workflow:
 
-- run: `32615621252`
-- freeze head: `29d7ace9ce780d477dede3c4f6cf735c746740ab`
-- artifact ID: `9486846140`
-- artifact digest: `sha256:d0c919bb607eceb9c6cfcf76fd56f838e3c4ac57920400415bcead0801daaa9b`
-- candidate JSON SHA-256: `e0fbb959b85c04c1c9db0ed7950d9c6d41ce5d4d5ef7a8ef3987fa37a9290d78`
-- transfer-result SHA-256: `7952797ff7c736b46ba42508fc034a32b72b1511acf48a542a4d6510ac937786`
+- run: `32615673999`
+- freeze head: `bfb5432bd6bb9f2659bba146dd94dd42a2f84aeb`
+- artifact ID: `9486860595`
+- artifact digest: `sha256:a9861fc0f48b0792d5381ef38ab98da06acfbd94741e5687ce0a5a9e9f8ab843`
+- candidate JSON SHA-256: `ed1877717203a6334d3ac21af79c9bce5f0aceb50c2774c3cdf2fe850611c802`
+- transfer-result SHA-256: `a34c8548fb5711bdae732c514817c38cc9cf356805e68e9f55bfb45dfeb5711f`
 
 The freeze workflow passed all P5 invariant tests and verified that protected validation seed `242242` was **not generated**. No P5 validation frames or validation result were created. Protected validation seed `242242` frames/results remain absent from the tip artifact.
 
@@ -38,7 +38,7 @@ On the seen transfer-calibration split only, P5 availability was 99.51%. This is
 | H1 estimator availability | `99.51%` | PASS |
 | H2 lateral 95% coverage | `95.12%` | PASS |
 | H2 altitude 95% coverage | `95.12%` | PASS |
-| H3 calibration-curve MACE | `0.000923` | PASS |
+| H3 calibration-curve MACE | `0.000783` | PASS |
 | H4 lateral median half-width / p95 error | `0.652x` | PASS |
 | H4 altitude median ratio | `0.663x` | PASS |
 | H4 lateral p95 half-width / p95 error | `1.594x` | PASS |
