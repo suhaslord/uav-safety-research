@@ -8,11 +8,11 @@ P5 preregistration: `docs/phase11_p5_calibrated_continuity_preregistration.md`
 
 Freeze workflow:
 
-- run: `32614940772`
-- freeze head: `b7bf86b9d79cdc6a95bb40738a339465f8978d2a`
-- artifact ID: `9486640079`
+- run: `32615070655`
+- freeze head: `3fad871dd02e81774f2690776aa716ce965990b4`
+- artifact ID: `9486677349`
 - artifact digest: `sha256:f38c4cf7e3397ae488081c0dd886b7930179714b4e348351c833cbe1cc609800`
-- candidate JSON SHA-256: `a9a4a3de1da5642c4070b74e5b01a13599e6c2dcf3c34e08f8c1ef62adb9b5d8`
+- candidate JSON SHA-256: `1a16b6543ceccbe50021a2a4e2a1635d2d3bee54f833a1ed29e56ca64acdc872`
 - transfer-result SHA-256: `7952797ff7c736b46ba42508fc034a32b72b1511acf48a542a4d6510ac937786`
 
 The freeze workflow passed all P5 invariant tests and verified that protected validation seed `242242` was **not generated**. No P5 validation frames or validation result were created. Protected validation seed `242242` frames/results remain absent from the tip artifact.
