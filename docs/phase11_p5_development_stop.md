@@ -9,7 +9,7 @@ P5 preregistration: `docs/phase11_p5_calibrated_continuity_preregistration.md`
 Freeze workflow:
 
 - run: `32615673999`
-- freeze head: `bfb5432bd6bb9f2659bba146dd94dd42a2f84aeb`
+- freeze head: `39fc45efc7ff7ddea862191127280e7838a6da3c`
 - artifact ID: `9486860595`
 - artifact digest: `sha256:a9861fc0f48b0792d5381ef38ab98da06acfbd94741e5687ce0a5a9e9f8ab843`
 - candidate JSON SHA-256: `ed1877717203a6334d3ac21af79c9bce5f0aceb50c2774c3cdf2fe850611c802`
