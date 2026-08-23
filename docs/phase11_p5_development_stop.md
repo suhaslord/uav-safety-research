@@ -8,14 +8,14 @@ P5 preregistration: `docs/phase11_p5_calibrated_continuity_preregistration.md`
 
 Freeze workflow:
 
-- run: `31970927566`
-- freeze head: `40dd99da30434c70ee7127f0602063d636280515`
-- artifact ID: `9269762950`
-- artifact digest: `sha256:943406985c1abcb168b650d37665e588f3ec016b097dcec94a556cbbd3fae845`
-- candidate JSON SHA-256: `7b1d921240f3a78bcf2801e57550e7ffbe64096dd5feecd8a53b6ac7372b97a3`
-- transfer-result SHA-256: `7952797ff7c736b46ba42508fc034a32b72b1511acf48a542a4d6510ac937786`
+- run: `32612334978`
+- freeze head: `d73af7cfc430597e43db8a45d0618842927e6b80`
+- artifact ID: `9485867061`
+- artifact digest: `sha256:4ae739839d71d0737348d04099a140479758f4cdbc4cb80bca86ff00855c6677`
+- candidate JSON SHA-256: `27061d7605a1e0b76d9285ec59591d7f71ac8ebe00067658ca78948ee9ab004f`
+- transfer-result SHA-256: `a34c8548fb5711bdae732c514817c38cc9cf356805e68e9f55bfb45dfeb5711f`
 
-The freeze workflow passed all P5 invariant tests and verified that protected validation seed `242242` was **not generated**. No P5 validation frames or validation result were created.
+The freeze workflow passed all P5 invariant tests and verified that protected validation seed `242242` was **not generated**. No P5 validation frames or validation result were created. Protected validation seed `242242` frames/results remain absent from the tip artifact.
 
 ## Frozen continuity candidate
 
@@ -31,14 +31,14 @@ The freeze workflow passed all P5 invariant tests and verified that protected va
 
 Evidence role: `phase11_p5_seen_transfer_calibration`
 
-P5 solved the P4 availability bottleneck on seen compositional development data while preserving strong overall calibration:
+On the seen transfer-calibration split only, P5 availability was 99.51%. This is not comparable to P4 protected-validation availability (83.13%), and P5 makes no protected-validation or flight claim.
 
 | Gate | Frozen development result | Verdict |
 |---|---:|---|
 | H1 estimator availability | `99.51%` | PASS |
 | H2 lateral 95% coverage | `95.12%` | PASS |
 | H2 altitude 95% coverage | `95.12%` | PASS |
-| H3 calibration-curve MACE | `0.000923` | PASS |
+| H3 calibration-curve MACE | `0.000783` | PASS |
 | H4 lateral median half-width / p95 error | `0.652x` | PASS |
 | H4 altitude median ratio | `0.663x` | PASS |
 | H4 lateral p95 half-width / p95 error | `1.594x` | PASS |
@@ -66,11 +66,13 @@ No bridge horizon, velocity-cap rule, uncertainty-model feature, ridge constant,
 
 ## Interpretation
 
-P5 provides a clean next-step diagnosis:
+On seen compositional transfer data, a bounded five-frame direct-anchored bridge raised availability while overall calibration stayed within preregistered H2–H4 bands. Protected validation was not exposed.
 
-1. A bounded direct-anchored five-frame continuity layer can restore estimator availability on difficult compositional shifts.
-2. Overall uncertainty remains well calibrated and efficient when those recovered frames are included.
-3. The remaining weakness is localized to **long bridge horizons**, especially altitude, rather than to the general uncertainty model.
+P5 provides a next-step diagnosis on seen transfer evidence only:
+
+1. A bounded direct-anchored five-frame continuity layer raised availability on seen transfer compositions.
+2. Overall uncertainty on seen transfer data remained well calibrated and efficient when those recovered frames were included.
+3. The observed weakness is localized to **long bridge horizons**, especially altitude, rather than to the general uncertainty model.
 
 The next revision should therefore preserve P5 point estimation and continuity behavior but calibrate uncertainty separately for short/direct versus long (`3..5`) bridge states on completely new evidence.
 

@@ -27,6 +27,17 @@ def test_p5_freeze_never_generates_validation(tmp_path, monkeypatch):
     assert c["validation_seed_unseen_at_freeze"] == p5.VALIDATION_SEED
 
 
+def test_p5_transfer_result_records_h5_long_bridge_fail(tmp_path):
+    c = p5.freeze(tmp_path, "test-sha")
+    t_path = tmp_path / "transfer_result.json"
+    assert t_path.exists()
+    import json
+    with open(t_path) as f:
+        result = json.load(f)
+    assert result["gates"]["h5_long_bridge_honesty"]["pass"] is False
+    assert result["all_primary_gates_pass"] is False
+
+
 def test_bridge_never_exceeds_five_and_does_not_feed_itself():
     raw = p5._raw("fit", p5.FIT_SEED, p5.FIT_FAMILIES[:1], p5.FIT_DOMAINS[:2])
     caps = p5.fit_velocity_caps(raw)
