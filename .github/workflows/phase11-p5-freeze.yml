@@ -8,6 +8,7 @@ on:
       - scripts/run_phase11_p5_calibrated_continuity.py
       - tests/test_phase11_p5_calibrated_continuity.py
       - docs/phase11_p5_calibrated_continuity_preregistration.md
+      - docs/phase11_p5_development_stop.md
       - .github/workflows/phase11-p5-freeze.yml
 
 permissions:
