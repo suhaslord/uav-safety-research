@@ -1,43 +1,67 @@
-# AIEA High-School Intern Profile — Ready to Submit
+# AIEA High-School Intern Profile — PR Ready
 
-This is the website-profile source for the AIEA Lab site.
+Professor Leilani Gilpin approved adding this profile to the AIEA Lab website on August 22, 2026.
+
+## Target website file
+
+Create this file in the AIEA website fork at:
+
+`content/intern/suhas.md`
 
 ```toml
 +++
-date = "2026-08-22"
+bio = "Suhas Beemineni is a high school student interested in aerospace engineering, autonomous systems, and AI safety. His independent research project, AegisLand, studies reproducible simulation-based validation for UAV autonomy using PX4 and Gazebo, with an emphasis on uncertainty, failure and recovery behavior, provenance, and evidence-bounded safety claims."
+date = "2026-08-23"
 id = "suhas_beemineni"
+interests = ["Safe Autonomous Systems", "UAV Autonomy", "Simulation-Based Validation", "AI Safety and Explainability", "Fault Detection and Recovery"]
 name = "Suhas Beemineni"
+portrait = "/portraits/default.jpg"
+short_bio = "High school intern researching reproducible UAV autonomy validation and uncertainty-aware safety evaluation"
 short_name = "Suhas"
 title = "High School Intern"
-interests = [
-  "safe autonomous systems",
-  "UAV autonomy",
-  "simulation-based validation",
-  "AI safety and explainability",
-  "fault detection and recovery"
-]
-short_bio = "High school researcher working on AegisLand, a simulation-only PX4/Gazebo project for reproducible UAV autonomy validation, fault testing, and evidence-bounded safety evaluation."
-bio = "Suhas Beemineni is a high school student interested in aerospace engineering, autonomous systems, and AI safety. His current independent research project, AegisLand, studies reproducible simulation-based validation for UAV autonomy using PX4 and Gazebo, with an emphasis on failure probability, recovery behavior, uncertainty, provenance, and clear boundaries between simulator evidence and real-world safety claims."
 
 [[social]]
-icon = "github"
-icon_pack = "fa"
-link = "https://github.com/suhaslord"
+    icon = "github"
+    icon_pack = "fa"
+    link = "https://github.com/suhaslord"
+
+[[education]]
+    course = "High School"
+    institution = "River Islands High School"
+    year = 2029
 
 [[organizations]]
-name = "UC Santa Cruz"
-role = "High School Intern"
+    name = "UC Santa Cruz"
+    role = "High School Intern"
 +++
+
+I am working on AegisLand, a simulation-only PX4/Gazebo research project focused on rigorous UAV autonomy validation. I am especially interested in how autonomous systems can report uncertainty honestly, recover from degraded sensing, and preserve clear boundaries between simulation evidence and real-world safety claims.
 ```
 
 ## Project
 
-**AegisLand:** https://github.com/suhaslord/uav-safety-research
+AegisLand: https://github.com/suhaslord/uav-safety-research
 
-## Website status
+## PR metadata
 
-Professor Leilani Gilpin approved adding this profile to the AIEA lab website on August 22, 2026. The connected GitHub account has read access but not push access to `aiea-lab/aiea-lab.github.io`; direct branch creation still returns HTTP 403. No website merge is claimed until that access issue is resolved.
+**Branch:** `suhas-intern-profile`
 
-## Portrait
+**Title:** `Add Suhas Beemineni intern profile`
 
-A portrait field is intentionally omitted until an actual portrait asset is available in the website repository, avoiding a broken image reference.
+**Body:**
+
+```markdown
+Adds my AIEA Lab high school intern profile as part of onboarding.
+
+- Added `content/intern/suhas.md`
+- Uses the site's default portrait for now
+- Includes my research interests, education, GitHub, and AegisLand work
+```
+
+## Submission process verified
+
+Recent AIEA intern-profile submissions use a personal fork of `aiea-lab/aiea-lab.github.io`, commit the profile under `content/intern/` (and optionally a portrait under `static/img/portraits/`), then open a pull request back to `aiea-lab:main`.
+
+## Current blocker
+
+The connected GitHub integration can read the AIEA website repository but cannot create a branch there (`403 Resource not accessible by integration`) and exposes no fork action. No `suhaslord/aiea-lab.github.io` fork currently exists. Once that fork exists, the branch, file, and PR can be created through the connected GitHub tools.
