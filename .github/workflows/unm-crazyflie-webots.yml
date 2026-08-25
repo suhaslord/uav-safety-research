@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - research/unm-crazyflie-webots-baseline
+      - research/unm-indicator-validation
     paths:
       - "experiments/unm_crazyflie/**"
       - ".github/workflows/unm-crazyflie-webots.yml"
@@ -97,6 +98,44 @@ jobs:
           test -s experiments/unm_crazyflie/results/residual_uncertainty_detector.csv
           test -s experiments/unm_crazyflie/results/06_dropout_timing_vs_max_error.png
           cat experiments/unm_crazyflie/results/EXTENDED_RESULTS.md
+
+      - name: Validate frozen fault indicators
+        run: |
+          python experiments/unm_crazyflie/validate_indicators.py \
+            experiments/unm_crazyflie/results/webots_baseline.csv \
+            --results-dir experiments/unm_crazyflie/results
+
+          test -s experiments/unm_crazyflie/results/INDICATOR_VALIDATION.md
+          test -s experiments/unm_crazyflie/results/noise_detection_summary.csv
+          test -s experiments/unm_crazyflie/results/bias_detection.csv
+          test -s experiments/unm_crazyflie/results/dropout_detection.csv
+          test -s experiments/unm_crazyflie/results/nominal_direction_change_false_positives.csv
+
+          python - <<'PY'
+          import csv
+          from pathlib import Path
+
+          root = Path("experiments/unm_crazyflie/results")
+
+          def read(name):
+              with (root / name).open(newline="", encoding="utf-8") as fh:
+                  return list(csv.DictReader(fh))
+
+          noise = read("noise_detection_summary.csv")
+          assert len(noise) == 4
+          assert all(int(r["detections"]) == 30 and int(r["trials"]) == 30 for r in noise)
+
+          bias = read("bias_detection.csv")
+          assert [int(r["detected"]) for r in bias] == [0, 0, 1, 1]
+
+          dropout = read("dropout_detection.csv")
+          assert len(dropout) == 4 and all(int(r["detected"]) == 1 for r in dropout)
+
+          turns = read("nominal_direction_change_false_positives.csv")
+          assert len(turns) == 4 and sum(int(r["alerts_in_window"]) for r in turns) == 0
+          PY
+
+          cat experiments/unm_crazyflie/results/INDICATOR_VALIDATION.md
 
       - name: Write provenance
         run: |
