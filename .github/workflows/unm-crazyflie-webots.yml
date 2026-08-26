@@ -36,7 +36,9 @@ jobs:
         run: python -m pip install --disable-pip-version-check numpy matplotlib
 
       - name: Validate analysis logic before simulator run
-        run: python experiments/unm_crazyflie/test_analysis.py
+        run: |
+          python experiments/unm_crazyflie/test_analysis.py
+          python experiments/unm_crazyflie/test_mitigation.py
 
       - name: Fetch pinned official Bitcraze simulation
         run: |
@@ -97,6 +99,16 @@ jobs:
           test -s experiments/unm_crazyflie/results/residual_uncertainty_detector.csv
           test -s experiments/unm_crazyflie/results/06_dropout_timing_vs_max_error.png
           cat experiments/unm_crazyflie/results/EXTENDED_RESULTS.md
+
+      - name: Compare simple fault mitigation strategies
+        run: |
+          python experiments/unm_crazyflie/analyze_mitigation.py \
+            experiments/unm_crazyflie/results/webots_baseline.csv \
+            --results-dir experiments/unm_crazyflie/results
+          test -s experiments/unm_crazyflie/results/mitigation_trial_metrics.csv
+          test -s experiments/unm_crazyflie/results/mitigation_aggregate.csv
+          test -s experiments/unm_crazyflie/results/MITIGATION_RESULTS.md
+          cat experiments/unm_crazyflie/results/MITIGATION_RESULTS.md
 
       - name: Write provenance
         run: |
