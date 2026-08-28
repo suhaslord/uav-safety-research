@@ -5,9 +5,13 @@ import csv
 from pathlib import Path
 import numpy as np
 
-from analyze_extended import rolling_median, run_filter_diagnostics
+from analyze_extended import TURN_TIMES_S, rolling_median, run_filter_diagnostics
 from analyze_faults import BASE_SEED, load_baseline
-from fault_indicator_metrics import evaluate_indicator, summarize
+from fault_indicator_metrics import (
+    evaluate_indicator,
+    event_window_false_alarm_rate,
+    summarize,
+)
 
 
 def main() -> None:
@@ -15,12 +19,14 @@ def main() -> None:
     ap.add_argument("baseline_csv", type=Path)
     ap.add_argument("--out", type=Path, default=Path("fault_indicator_validation.csv"))
     ap.add_argument("--seeds", type=int, default=30)
+    ap.add_argument("--turn-window-s", type=float, default=0.5)
     args = ap.parse_args()
 
     baseline = load_baseline(args.baseline_csv)
     t, truth = baseline.t, baseline.xy
     dt = float(np.median(np.diff(t)))
     window = max(3, int(round(0.5 / dt)))
+    persistence = max(1, int(round(0.1 / dt)))
 
     _, _, nominal_nis, nominal_sigma = run_filter_diagnostics(t, truth.copy())
     nominal_roll = rolling_median(nominal_nis, window)
@@ -37,6 +43,7 @@ def main() -> None:
     rows = []
     for fault_type, severity in cases:
         trial_metrics = []
+        turn_false_alarm_rates = []
         for seed in range(args.seeds):
             rng = np.random.default_rng(BASE_SEED + seed)
             measurements = truth.copy()
@@ -62,17 +69,33 @@ def main() -> None:
                     indicator,
                     fault_mask,
                     threshold,
-                    min_consecutive=max(1, int(round(0.1 / dt))),
+                    min_consecutive=persistence,
+                )
+            )
+            turn_false_alarm_rates.append(
+                event_window_false_alarm_rate(
+                    t,
+                    indicator,
+                    threshold,
+                    TURN_TIMES_S,
+                    args.turn_window_s,
+                    exclude_mask=fault_mask,
+                    min_consecutive=persistence,
                 )
             )
 
         summary = summarize(trial_metrics)
+        finite_turn_rates = np.asarray(turn_false_alarm_rates, dtype=float)
+        finite_turn_rates = finite_turn_rates[np.isfinite(finite_turn_rates)]
         rows.append({
             "fault_type": fault_type,
             "severity": severity,
             "indicator": "radial_sigma" if fault_type == "dropout" else "rolling_median_nis",
             "threshold": sigma_threshold if fault_type == "dropout" else nis_threshold,
             **summary,
+            "mean_turn_window_false_alarm_rate": (
+                float(np.mean(finite_turn_rates)) if len(finite_turn_rates) else float("nan")
+            ),
         })
 
     with args.out.open("w", newline="", encoding="utf-8") as fh:
