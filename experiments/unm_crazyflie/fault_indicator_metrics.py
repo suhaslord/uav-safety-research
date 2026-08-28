@@ -37,6 +37,41 @@ def _runs(mask: np.ndarray, min_consecutive: int) -> np.ndarray:
     return out
 
 
+def alert_mask(indicator: np.ndarray, threshold: float, min_consecutive: int = 1) -> np.ndarray:
+    indicator = np.asarray(indicator, dtype=float)
+    finite = np.isfinite(indicator)
+    return _runs(finite & (indicator > threshold), min_consecutive)
+
+
+def event_window_false_alarm_rate(
+    t: np.ndarray,
+    indicator: np.ndarray,
+    threshold: float,
+    event_times_s: np.ndarray,
+    window_s: float,
+    exclude_mask: np.ndarray | None = None,
+    min_consecutive: int = 1,
+) -> float:
+    """Fraction of non-fault samples around normal events that are flagged.
+
+    This is useful for checking whether legitimate maneuvers such as direction
+    changes trigger the fault indicator. Samples overlapping the injected fault
+    can be excluded with ``exclude_mask``.
+    """
+    t = np.asarray(t, dtype=float)
+    events = np.asarray(event_times_s, dtype=float)
+    near_event = np.zeros(len(t), dtype=bool)
+    for event in events:
+        near_event |= np.abs(t - event) <= window_s
+    if exclude_mask is not None:
+        near_event &= ~np.asarray(exclude_mask, dtype=bool)
+    count = int(np.count_nonzero(near_event))
+    if count == 0:
+        return float("nan")
+    alerts = alert_mask(indicator, threshold, min_consecutive)
+    return float(np.count_nonzero(alerts & near_event) / count)
+
+
 def evaluate_indicator(
     t: np.ndarray,
     indicator: np.ndarray,
@@ -47,8 +82,7 @@ def evaluate_indicator(
     t = np.asarray(t, dtype=float)
     indicator = np.asarray(indicator, dtype=float)
     fault_mask = np.asarray(fault_mask, dtype=bool)
-    finite = np.isfinite(indicator)
-    alerts = _runs(finite & (indicator > threshold), min_consecutive)
+    alerts = alert_mask(indicator, threshold, min_consecutive)
 
     fault_alerts = alerts & fault_mask
     nonfault = ~fault_mask
