@@ -28,6 +28,16 @@ class DetectionMetricTests(unittest.TestCase):
         self.assertTrue(m.detected)
         self.assertEqual(m.false_alarm_count, 0)
 
+    def test_persistence_latency_uses_confirmation_sample(self):
+        t = np.arange(7.0)
+        signal = np.array([0, 0, 0, 8, 8, 8, 0], dtype=float)
+        fault = np.array([False, False, False, True, True, True, False])
+        m = evaluate_indicator(t, signal, fault, threshold=5.0, min_consecutive=2)
+        self.assertTrue(m.detected)
+        self.assertEqual(m.first_alert_s, 4.0)
+        self.assertEqual(m.response_time_s, 1.0)
+        self.assertEqual(m.alert_count, 2)
+
     def test_summary(self):
         t = np.arange(5.0)
         fault = np.array([False, True, True, False, False])
