@@ -38,6 +38,16 @@ class DetectionMetricTests(unittest.TestCase):
         self.assertEqual(m.response_time_s, 1.0)
         self.assertEqual(m.alert_count, 2)
 
+    def test_evaluation_mask_excludes_startup_false_alarm(self):
+        t = np.arange(6.0)
+        signal = np.array([9, 0, 0, 0, 0, 0], dtype=float)
+        fault = np.zeros(6, dtype=bool)
+        armed = t >= 2.0
+        m = evaluate_indicator(t, signal, fault, threshold=5.0, evaluation_mask=armed)
+        self.assertEqual(m.false_alarm_count, 0)
+        self.assertEqual(m.false_alarm_rate, 0.0)
+        self.assertEqual(m.alert_count, 0)
+
     def test_summary(self):
         t = np.arange(5.0)
         fault = np.array([False, True, True, False, False])
@@ -61,6 +71,18 @@ class DetectionMetricTests(unittest.TestCase):
             exclude_mask=fault,
         )
         self.assertEqual(rate, 1.0)
+
+    def test_turn_window_rate_ignores_unavailable_indicator_samples(self):
+        t = np.arange(5.0)
+        signal = np.array([0.0, np.nan, 9.0, 0.0, 0.0])
+        rate = event_window_false_alarm_rate(
+            t,
+            signal,
+            threshold=5.0,
+            event_times_s=np.array([2.0]),
+            window_s=1.0,
+        )
+        self.assertEqual(rate, 0.5)
 
 
 if __name__ == "__main__":
