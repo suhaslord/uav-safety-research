@@ -18,6 +18,12 @@ class DetectionMetrics:
 
 
 def _runs(mask: np.ndarray, min_consecutive: int) -> np.ndarray:
+    """Apply a causal persistence filter to a threshold mask.
+
+    A run is not considered an alert until ``min_consecutive`` samples have
+    actually been observed. Earlier samples in the run therefore stay false;
+    marking them retroactively would make measured response times too short.
+    """
     mask = np.asarray(mask, dtype=bool)
     out = np.zeros_like(mask)
     if min_consecutive <= 1:
@@ -32,7 +38,7 @@ def _runs(mask: np.ndarray, min_consecutive: int) -> np.ndarray:
         while end < n and mask[end]:
             end += 1
         if end - start >= min_consecutive:
-            out[start:end] = True
+            out[start + min_consecutive - 1 : end] = True
         start = end
     return out
 
