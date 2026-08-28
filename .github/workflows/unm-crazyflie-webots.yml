@@ -39,6 +39,7 @@ jobs:
         run: |
           python experiments/unm_crazyflie/test_analysis.py
           python experiments/unm_crazyflie/test_mitigation.py
+          python experiments/unm_crazyflie/test_fault_indicator_metrics.py
 
       - name: Fetch pinned official Bitcraze simulation
         run: |
@@ -99,6 +100,15 @@ jobs:
           test -s experiments/unm_crazyflie/results/residual_uncertainty_detector.csv
           test -s experiments/unm_crazyflie/results/06_dropout_timing_vs_max_error.png
           cat experiments/unm_crazyflie/results/EXTENDED_RESULTS.md
+
+      - name: Validate fault-indicator detection performance
+        run: |
+          python experiments/unm_crazyflie/validate_fault_indicators.py \
+            experiments/unm_crazyflie/results/webots_baseline.csv \
+            --out experiments/unm_crazyflie/results/fault_indicator_validation.csv \
+            --seeds 30
+          test -s experiments/unm_crazyflie/results/fault_indicator_validation.csv
+          cat experiments/unm_crazyflie/results/fault_indicator_validation.csv
 
       - name: Compare simple fault mitigation strategies
         run: |
