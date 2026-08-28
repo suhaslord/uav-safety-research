@@ -58,19 +58,16 @@ def event_window_false_alarm_rate(
     exclude_mask: np.ndarray | None = None,
     min_consecutive: int = 1,
 ) -> float:
-    """Fraction of non-fault samples around normal events that are flagged.
-
-    This is useful for checking whether legitimate maneuvers such as direction
-    changes trigger the fault indicator. Samples overlapping the injected fault
-    can be excluded with ``exclude_mask``.
-    """
+    """Fraction of observable, non-fault samples near normal events that alert."""
     t = np.asarray(t, dtype=float)
+    indicator = np.asarray(indicator, dtype=float)
     events = np.asarray(event_times_s, dtype=float)
     near_event = np.zeros(len(t), dtype=bool)
     for event in events:
         near_event |= np.abs(t - event) <= window_s
     if exclude_mask is not None:
         near_event &= ~np.asarray(exclude_mask, dtype=bool)
+    near_event &= np.isfinite(indicator)
     count = int(np.count_nonzero(near_event))
     if count == 0:
         return float("nan")
@@ -84,17 +81,31 @@ def evaluate_indicator(
     fault_mask: np.ndarray,
     threshold: float,
     min_consecutive: int = 1,
+    evaluation_mask: np.ndarray | None = None,
 ) -> DetectionMetrics:
+    """Evaluate alerts only where the detector is armed and observable.
+
+    ``evaluation_mask`` can exclude startup/settling periods. Non-finite
+    indicator samples are always excluded from rate denominators rather than
+    being silently counted as true negatives.
+    """
     t = np.asarray(t, dtype=float)
     indicator = np.asarray(indicator, dtype=float)
     fault_mask = np.asarray(fault_mask, dtype=bool)
-    alerts = alert_mask(indicator, threshold, min_consecutive)
+    if evaluation_mask is None:
+        evaluation_mask = np.ones(len(t), dtype=bool)
+    else:
+        evaluation_mask = np.asarray(evaluation_mask, dtype=bool)
 
+    eligible = evaluation_mask & np.isfinite(indicator)
+    alerts = alert_mask(indicator, threshold, min_consecutive) & eligible
+
+    fault_eligible = fault_mask & eligible
     fault_alerts = alerts & fault_mask
-    nonfault = ~fault_mask
+    nonfault = (~fault_mask) & eligible
     false_alerts = alerts & nonfault
 
-    fault_samples = int(np.count_nonzero(fault_mask))
+    fault_samples = int(np.count_nonzero(fault_eligible))
     nonfault_samples = int(np.count_nonzero(nonfault))
     tp = int(np.count_nonzero(fault_alerts))
     fp = int(np.count_nonzero(false_alerts))
@@ -103,7 +114,8 @@ def evaluate_indicator(
     detected = bool(tp)
     if detected:
         first_idx = int(np.flatnonzero(fault_alerts)[0])
-        fault_start_idx = int(np.flatnonzero(fault_mask)[0])
+        fault_start_candidates = np.flatnonzero(fault_mask & evaluation_mask)
+        fault_start_idx = int(fault_start_candidates[0])
         first_alert_s = float(t[first_idx])
         response_time_s = max(0.0, first_alert_s - float(t[fault_start_idx]))
     else:
@@ -117,7 +129,7 @@ def evaluate_indicator(
         detection_rate=1.0 if detected else 0.0,
         first_alert_s=first_alert_s,
         response_time_s=response_time_s,
-        false_alarm_rate=fp / nonfault_samples if nonfault_samples else 0.0,
+        false_alarm_rate=fp / nonfault_samples if nonfault_samples else float("nan"),
         false_alarm_count=fp,
         alert_count=total_alerts,
         precision=precision,
