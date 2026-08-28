@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
-"""Deterministic Crazyflie Webots baseline derived from Bitcraze's stock Python controller.
+"""Deterministic Crazyflie Webots logger derived from Bitcraze's stock controller.
 
 The plant, sensors, and pid_velocity_fixed_height_controller are the Bitcraze
 crazyflie-simulation versions pinned by the workflow. This file changes only:
 1) keyboard input -> deterministic body-frame velocity commands;
 2) CSV telemetry logging;
 3) simulation termination after the fixed run.
+
+`UNM_COMMAND_PROFILE=holdout` selects a second no-fault trajectory with different
+command timings and speeds. The default remains the original baseline profile.
 """
 
 import csv
@@ -21,29 +24,38 @@ from pid_controller import pid_velocity_fixed_height_controller
 
 FLYING_ALTITUDE_M = 1.0
 RUN_DURATION_S = 32.0
+VALID_COMMAND_PROFILES = {"baseline", "holdout"}
 
 
-def command_for_time(t: float):
-    """Return (forward_mps, sideways_mps, yaw_rate_cmd, target_height_m).
+def command_for_time(t: float, profile: str = "baseline"):
+    """Return (forward_mps, sideways_mps, yaw_rate_cmd, target_height_m)."""
+    if profile == "baseline":
+        # 0-5 settle; then four 5 s cardinal segments; 25-32 settle.
+        if 5.0 <= t < 10.0:
+            return 0.25, 0.0, 0.0, FLYING_ALTITUDE_M
+        if 10.0 <= t < 15.0:
+            return 0.0, 0.25, 0.0, FLYING_ALTITUDE_M
+        if 15.0 <= t < 20.0:
+            return -0.25, 0.0, 0.0, FLYING_ALTITUDE_M
+        if 20.0 <= t < 25.0:
+            return 0.0, -0.25, 0.0, FLYING_ALTITUDE_M
+        return 0.0, 0.0, 0.0, FLYING_ALTITUDE_M
 
-    0-5 s: takeoff/settle
-    5-10 s: forward
-    10-15 s: left
-    15-20 s: backward
-    20-25 s: right
-    25-32 s: hover/settle
+    if profile == "holdout":
+        # Different, deliberately uneven timings and speeds. No fault is added.
+        if 6.0 <= t < 10.0:
+            return 0.18, 0.0, 0.0, FLYING_ALTITUDE_M
+        if 10.0 <= t < 14.5:
+            return 0.0, 0.28, 0.0, FLYING_ALTITUDE_M
+        if 14.5 <= t < 19.0:
+            return -0.20, 0.0, 0.0, FLYING_ALTITUDE_M
+        if 19.0 <= t < 24.0:
+            return 0.0, -0.32, 0.0, FLYING_ALTITUDE_M
+        if 24.0 <= t < 28.0:
+            return 0.12, 0.0, 0.0, FLYING_ALTITUDE_M
+        return 0.0, 0.0, 0.0, FLYING_ALTITUDE_M
 
-    This is deliberately simple so each segment can be explained and repeated.
-    """
-    if 5.0 <= t < 10.0:
-        return 0.25, 0.0, 0.0, FLYING_ALTITUDE_M
-    if 10.0 <= t < 15.0:
-        return 0.0, 0.25, 0.0, FLYING_ALTITUDE_M
-    if 15.0 <= t < 20.0:
-        return -0.25, 0.0, 0.0, FLYING_ALTITUDE_M
-    if 20.0 <= t < 25.0:
-        return 0.0, -0.25, 0.0, FLYING_ALTITUDE_M
-    return 0.0, 0.0, 0.0, FLYING_ALTITUDE_M
+    raise ValueError(f"unknown UNM command profile: {profile}")
 
 
 def finite_difference(current: float, previous: float, dt: float) -> float:
@@ -54,6 +66,12 @@ def finite_difference(current: float, previous: float, dt: float) -> float:
 
 
 def main():
+    profile = os.environ.get("UNM_COMMAND_PROFILE", "baseline").strip().lower()
+    if profile not in VALID_COMMAND_PROFILES:
+        raise SystemExit(
+            f"UNM_COMMAND_PROFILE must be one of {sorted(VALID_COMMAND_PROFILES)}, got {profile!r}"
+        )
+
     robot = Supervisor()
     timestep = int(robot.getBasicTimeStep())
 
@@ -112,7 +130,7 @@ def main():
         vx_body = vx_global * cosyaw + vy_global * sinyaw
         vy_body = -vx_global * sinyaw + vy_global * cosyaw
 
-        forward_cmd, sideways_cmd, yaw_cmd, height_cmd = command_for_time(t)
+        forward_cmd, sideways_cmd, yaw_cmd, height_cmd = command_for_time(t, profile)
 
         motor_power = pid.pid(
             dt,
@@ -152,7 +170,7 @@ def main():
                 motor.setVelocity(0.0)
             fh.flush()
             fh.close()
-            print(f"UNM_BASELINE_COMPLETE rows={row_count} path={out_path}")
+            print(f"UNM_BASELINE_COMPLETE profile={profile} rows={row_count} path={out_path}")
             robot.simulationQuit(0)
             break
 
