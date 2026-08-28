@@ -1,7 +1,11 @@
 import unittest
 import numpy as np
 
-from fault_indicator_metrics import evaluate_indicator, summarize
+from fault_indicator_metrics import (
+    evaluate_indicator,
+    event_window_false_alarm_rate,
+    summarize,
+)
 
 
 class DetectionMetricTests(unittest.TestCase):
@@ -31,6 +35,22 @@ class DetectionMetricTests(unittest.TestCase):
         b = evaluate_indicator(t, np.zeros(5), fault, 5.0)
         s = summarize([a, b])
         self.assertAlmostEqual(s["detection_rate"], 0.5)
+
+    def test_turn_window_false_alarm_rate_excludes_fault(self):
+        t = np.arange(0.0, 10.0, 1.0)
+        signal = np.zeros_like(t)
+        signal[2] = 9.0
+        signal[5] = 9.0
+        fault = (t >= 5.0) & (t <= 6.0)
+        rate = event_window_false_alarm_rate(
+            t,
+            signal,
+            threshold=5.0,
+            event_times_s=np.array([2.0, 5.0]),
+            window_s=0.0,
+            exclude_mask=fault,
+        )
+        self.assertEqual(rate, 1.0)
 
 
 if __name__ == "__main__":
