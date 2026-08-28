@@ -11,7 +11,7 @@ crazyflie-simulation versions pinned by the workflow. This file changes only:
 import csv
 import os
 import sys
-from math import cos, sin
+from math import cos, isfinite, sin
 from pathlib import Path
 
 from controller import Supervisor
@@ -44,6 +44,13 @@ def command_for_time(t: float):
     if 20.0 <= t < 25.0:
         return 0.0, -0.25, 0.0, FLYING_ALTITUDE_M
     return 0.0, 0.0, 0.0, FLYING_ALTITUDE_M
+
+
+def finite_difference(current: float, previous: float, dt: float) -> float:
+    """Return a safe first derivative while Webots sensors are warming up."""
+    if dt <= 0.0 or not (isfinite(current) and isfinite(previous)):
+        return 0.0
+    return (current - previous) / dt
 
 
 def main():
@@ -94,8 +101,11 @@ def main():
         gx, gy, gz = gps.getValues()
         yaw_rate = gyro.getValues()[2]
 
-        vx_global = (gx - past_x) / dt
-        vy_global = (gy - past_y) / dt
+        # Webots can report NaN from GPS before its first enabled sensor sample.
+        # Treat that unavailable predecessor as zero measured velocity for the
+        # first derivative only; subsequent samples use the normal difference.
+        vx_global = finite_difference(gx, past_x, dt)
+        vy_global = finite_difference(gy, past_y, dt)
 
         cosyaw = cos(yaw)
         sinyaw = sin(yaw)
