@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-site-shell="native">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -22,13 +22,11 @@
     <div class="header-actions"><a class="current" href="/phases/phase11/" aria-current="page">Phase 11</a><a href="/phases/">Archive</a><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub</a></div>
     <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-expanded="false" aria-controls="mobileMenuSheet">Menu</button>
   </header>
-
   <nav class="mobile-menu-sheet" id="mobileMenuSheet" aria-label="Mobile navigation" aria-hidden="true">
     <div class="mobile-menu-head"><strong>AEGISLAND</strong><button class="mobile-menu-close" type="button" aria-label="Close navigation">Close</button></div>
     <div class="mobile-menu-links"><a href="#goal">Goal</a><a href="#boundary">Boundary</a><a href="#timeline">Lineage</a><a href="#method">Method</a><a href="/phases/phase11/">Phase 11</a></div>
     <div class="mobile-menu-meta"><a href="/phases/">Archive</a><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub ↗</a></div>
   </nav>
-
   <main id="main">
     <section class="hero" id="top" aria-labelledby="hero-title">
       <div class="wrap hero-grid">
@@ -39,69 +37,19 @@
           <div class="actions"><a class="button primary" href="/phases/phase11/">Open Phase 11</a><a class="button secondary" href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase11_final_report.md" target="_blank" rel="noreferrer">Read final report</a></div>
         </div>
         <aside class="result-card" aria-label="Current Phase 11 protected result">
-          <p class="eyebrow">Protected validation</p>
-          <strong class="fail">1 locked component failed</strong>
-          <p>H4 lateral p95 interval width / p95 error reached <b>2.435×</b> against a frozen maximum of <b>2.25×</b>. The threshold was not loosened.</p>
+          <p class="eyebrow">Protected validation</p><strong class="fail">1 locked component failed</strong><p>H4 lateral p95 interval width / p95 error reached <b>2.435×</b> against a frozen maximum of <b>2.25×</b>. The threshold was not loosened.</p>
           <div class="safety"><p class="eyebrow">Final status</p><strong>Mixed / failed overall</strong><p>simulation_only=true · safety_acceptance=false</p></div>
         </aside>
       </div>
     </section>
-
-    <section class="metrics" aria-label="Phase 11 protected validation metrics">
-      <div class="wrap metric-grid">
-        <div class="metric"><span>Protected availability</span><strong>98.53%</strong></div>
-        <div class="metric"><span>Lateral 95% coverage</span><strong>96.17%</strong></div>
-        <div class="metric"><span>Altitude 95% coverage</span><strong>95.82%</strong></div>
-        <div class="metric"><span>Rescue recovery</span><strong>94.63%</strong></div>
-      </div>
-    </section>
-
-    <section class="section" id="goal">
-      <div class="wrap goal-grid">
-        <div><p class="eyebrow">Our goal</p><h2>Make autonomous perception worthy of trust.</h2><p class="copy">The project is not trying to make a landing demo look successful. It tests when a perception estimate should be trusted, challenged by independent evidence, widened with calibrated uncertainty, or rejected. The experiment record matters as much as the headline metric.</p></div>
-        <div class="goal-points" aria-label="AegisLand research principles">
-          <div class="goal-point"><strong>Independent evidence</strong><span>A second signal should be useful without silently becoming the same failure mode.</span></div>
-          <div class="goal-point"><strong>Calibrated uncertainty</strong><span>Confidence should survive distribution shift, not only development data.</span></div>
-          <div class="goal-point"><strong>Controlled abstention</strong><span>Refusing a bad estimate can be safer, but excessive refusal is itself a failure.</span></div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section ash" id="boundary">
-      <div class="wrap boundary-grid">
-        <div><p class="eyebrow">The protected boundary</p><h2>The strongest result still stopped at a preregistered limit.</h2><p class="copy">P14R passed every required seen-transfer gate and nearly all protected checks. It did not pass the locked lateral tail-efficiency component. That miss is part of the result, not something to tune away after seeing protected data.</p><p class="copy">The final P15-v2 holdout remained unexposed and was retired without an unseen-replication claim.</p></div>
-        <div class="threshold-card">
-          <p class="eyebrow">H4 lateral tail efficiency</p><strong>2.435× <span class="fail">FAIL</span></strong><p>p95 interval width / p95 error</p>
-          <div class="threshold-chart" role="img" aria-label="Phase 11 lateral tail-efficiency result 2.435 times exceeded the frozen maximum 2.25 times"><div class="threshold-track"><div class="threshold-fill"></div></div><span class="threshold-limit" aria-hidden="true"></span><span class="threshold-result" aria-hidden="true"></span></div>
-          <div class="threshold-foot">Frozen maximum: 2.25× · result: 2.435× · threshold unchanged after protected exposure.</div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section" id="timeline">
-      <div class="wrap" id="homeModelRail">
-        <div class="rail-head"><div><p class="eyebrow">Research progression</p><h2>Every phase stays reachable.</h2></div><a class="text-link" href="/phases/">Open full archive →</a></div>
-        <div class="rail-scroll" aria-label="Scrollable research phase rail"><div class="home-rail-grid">
-          <a class="home-rail-step" href="/phases/phase1/">01<small>Phase 1</small></a><a class="home-rail-step" href="/phases/phase2/">02<small>Phase 2</small></a><a class="home-rail-step" href="/phases/phase3/">03<small>Phase 3</small></a><a class="home-rail-step" href="/phases/phase4/">04<small>Phase 4</small></a><a class="home-rail-step" href="/phases/phase5/">05<small>Phase 5</small></a><a class="home-rail-step" href="/phases/phase6/">06<small>Phase 6</small></a><a class="home-rail-step" href="/phases/phase6b/">07<small>Phase 6B</small></a><a class="home-rail-step" href="/phases/phase7/">08<small>Phase 7</small></a><a class="home-rail-step" href="/phases/phase8/">09<small>Phase 8</small></a><a class="home-rail-step" href="/phases/phase9/">10<small>Phase 9</small></a><a class="home-rail-step" href="/phases/phase10/">11<small>Phase 10</small></a><a class="home-rail-step" href="/phases/phase10r/">12<small>Phase 10R</small></a><a class="home-rail-step active" href="/phases/phase11/" aria-current="page">13<small>Phase 11</small></a>
-        </div></div>
-      </div>
-    </section>
-
-    <section class="section dark" id="method">
-      <div class="wrap">
-        <div class="section-head"><p class="eyebrow">Research method</p><div><h2>Inspectability is part of the product.</h2><p class="copy">Protocols, evidence, frozen predecessors, negative results, and source links stay visible so a strong percentage cannot erase the condition that invalidated the final claim.</p></div></div>
-        <div class="three"><article class="card"><h3>Freeze before protected evaluation.</h3><p>Candidate construction and gates are fixed before the protected result is exposed.</p><span class="tag">No post-result threshold moving</span></article><article class="card"><h3>Separate success from acceptance.</h3><p>Availability and coverage can be strong while a required tail component still blocks acceptance.</p><span class="tag">Mixed means mixed</span></article><article class="card"><h3>Preserve the next holdout.</h3><p>The untouched P15-v2 seed was not opened after the protected failure.</p><span class="tag">No final unseen-replication claim</span></article></div>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="wrap boundary-grid"><div><p class="eyebrow">Research archive</p><h2>Start with the frontier. Trace backward when you need the evidence.</h2><p class="copy">Phase 11 contains the current protected-validation story. Earlier phases remain accessible rather than being rewritten to fit the latest narrative.</p></div><div class="actions"><a class="button primary" href="/phases/phase11/">View Phase 11</a><a class="button secondary" href="/phases/">Browse all phases</a></div></div>
-    </section>
+    <section class="metrics" aria-label="Phase 11 protected validation metrics"><div class="wrap metric-grid"><div class="metric"><span>Protected availability</span><strong>98.53%</strong></div><div class="metric"><span>Lateral 95% coverage</span><strong>96.17%</strong></div><div class="metric"><span>Altitude 95% coverage</span><strong>95.82%</strong></div><div class="metric"><span>Rescue recovery</span><strong>94.63%</strong></div></div></section>
+    <section class="section" id="goal"><div class="wrap goal-grid"><div><p class="eyebrow">Our goal</p><h2>Make autonomous perception worthy of trust.</h2><p class="copy">The project is not trying to make a landing demo look successful. It tests when a perception estimate should be trusted, challenged by independent evidence, widened with calibrated uncertainty, or rejected. The experiment record matters as much as the headline metric.</p></div><div class="goal-points" aria-label="AegisLand research principles"><div class="goal-point"><strong>Independent evidence</strong><span>A second signal should be useful without silently becoming the same failure mode.</span></div><div class="goal-point"><strong>Calibrated uncertainty</strong><span>Confidence should survive distribution shift, not only development data.</span></div><div class="goal-point"><strong>Controlled abstention</strong><span>Refusing a bad estimate can be safer, but excessive refusal is itself a failure.</span></div></div></div></section>
+    <section class="section ash" id="boundary"><div class="wrap boundary-grid"><div><p class="eyebrow">The protected boundary</p><h2>The strongest result still stopped at a preregistered limit.</h2><p class="copy">P14R passed every required seen-transfer gate and nearly all protected checks. It did not pass the locked lateral tail-efficiency component. That miss is part of the result, not something to tune away after seeing protected data.</p><p class="copy">The final P15-v2 holdout remained unexposed and was retired without an unseen-replication claim.</p></div><div class="threshold-card"><p class="eyebrow">H4 lateral tail efficiency</p><strong>2.435× <span class="fail">FAIL</span></strong><p>p95 interval width / p95 error</p><div class="threshold-chart" role="img" aria-label="Phase 11 lateral tail-efficiency result 2.435 times exceeded the frozen maximum 2.25 times"><div class="threshold-track"><div class="threshold-fill"></div></div><span class="threshold-limit" aria-hidden="true"></span><span class="threshold-result" aria-hidden="true"></span></div><div class="threshold-foot">Frozen maximum: 2.25× · result: 2.435× · threshold unchanged after protected exposure.</div></div></div></section>
+    <section class="section" id="timeline"><div class="wrap" id="homeModelRail"><div class="rail-head"><div><p class="eyebrow">Research progression</p><h2>Every phase stays reachable.</h2></div><a class="text-link" href="/phases/">Open full archive →</a></div><div class="rail-scroll" aria-label="Scrollable research phase rail"><div class="home-rail-grid"><a class="home-rail-step" href="/phases/phase1/">01<small>Phase 1</small></a><a class="home-rail-step" href="/phases/phase2/">02<small>Phase 2</small></a><a class="home-rail-step" href="/phases/phase3/">03<small>Phase 3</small></a><a class="home-rail-step" href="/phases/phase4/">04<small>Phase 4</small></a><a class="home-rail-step" href="/phases/phase5/">05<small>Phase 5</small></a><a class="home-rail-step" href="/phases/phase6/">06<small>Phase 6</small></a><a class="home-rail-step" href="/phases/phase6b/">07<small>Phase 6B</small></a><a class="home-rail-step" href="/phases/phase7/">08<small>Phase 7</small></a><a class="home-rail-step" href="/phases/phase8/">09<small>Phase 8</small></a><a class="home-rail-step" href="/phases/phase9/">10<small>Phase 9</small></a><a class="home-rail-step" href="/phases/phase10/">11<small>Phase 10</small></a><a class="home-rail-step" href="/phases/phase10r/">12<small>Phase 10R</small></a><a class="home-rail-step active" href="/phases/phase11/" aria-current="page">13<small>Phase 11</small></a></div></div></div></section>
+    <section class="section dark" id="method"><div class="wrap"><div class="section-head"><p class="eyebrow">Research method</p><div><h2>Inspectability is part of the product.</h2><p class="copy">Protocols, evidence, frozen predecessors, negative results, and source links stay visible so a strong percentage cannot erase the condition that invalidated the final claim.</p></div></div><div class="three"><article class="card"><h3>Freeze before protected evaluation.</h3><p>Candidate construction and gates are fixed before the protected result is exposed.</p><span class="tag">No post-result threshold moving</span></article><article class="card"><h3>Separate success from acceptance.</h3><p>Availability and coverage can be strong while a required tail component still blocks acceptance.</p><span class="tag">Mixed means mixed</span></article><article class="card"><h3>Preserve the next holdout.</h3><p>The untouched P15-v2 seed was not opened after the protected failure.</p><span class="tag">No final unseen-replication claim</span></article></div></div></section>
+    <section class="section"><div class="wrap boundary-grid"><div><p class="eyebrow">Research archive</p><h2>Start with the frontier. Trace backward when you need the evidence.</h2><p class="copy">Phase 11 contains the current protected-validation story. Earlier phases remain accessible rather than being rewritten to fit the latest narrative.</p></div><div class="actions"><a class="button primary" href="/phases/phase11/">View Phase 11</a><a class="button secondary" href="/phases/">Browse all phases</a></div></div></section>
   </main>
-
   <footer class="footer"><p>AegisLand · educational simulation-only research</p><div class="footer-links"><a href="/phases/">Archive</a><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub ↗</a><a href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase11_final_report.md" target="_blank" rel="noreferrer">Final report ↗</a></div></footer>
-  <script>
-  (()=>{const b=document.getElementById('mobileMenuToggle'),m=document.getElementById('mobileMenuSheet'),c=m.querySelector('.mobile-menu-close');const set=o=>{b.setAttribute('aria-expanded',String(o));m.setAttribute('aria-hidden',String(!o));m.classList.toggle('open',o);document.body.classList.toggle('menu-open',o)};b.addEventListener('click',()=>set(b.getAttribute('aria-expanded')!=='true'));c.addEventListener('click',()=>set(false));m.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>set(false)));document.addEventListener('keydown',e=>{if(e.key==='Escape')set(false)})})();
-  </script>
+  <script>(()=>{const b=document.getElementById('mobileMenuToggle'),m=document.getElementById('mobileMenuSheet'),c=m.querySelector('.mobile-menu-close');const set=o=>{b.setAttribute('aria-expanded',String(o));m.setAttribute('aria-hidden',String(!o));m.classList.toggle('open',o);document.body.classList.toggle('menu-open',o)};b.addEventListener('click',()=>set(b.getAttribute('aria-expanded')!=='true'));c.addEventListener('click',()=>set(false));m.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>set(false)));document.addEventListener('keydown',e=>{if(e.key==='Escape')set(false)})})();</script>
 </body>
 </html>
