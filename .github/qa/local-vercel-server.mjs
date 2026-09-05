@@ -54,6 +54,8 @@ const server = http.createServer(async (req, res) => {
     if (!relative.includes('..')) return sendFile(res, path.join(dashboardRoot, relative));
   }
 
+  if (p === '/aegisland.css') return sendFile(res, path.join(deployRoot, 'aegisland.css'));
+
   const asset = p.replace(/^\//, '');
   if (dashboardAssets.has(asset)) return sendFile(res, path.join(dashboardRoot, asset));
   if (p === '/favicon.svg' || p === '/favicon.ico') return sendFile(res, path.join(deployRoot, p === '/favicon.ico' ? 'favicon.svg' : 'favicon.svg'));
