@@ -4,46 +4,55 @@ I built AegisLand to test one question:
 
 > **If a landing camera is confidently wrong, can an independent estimate expose the error before touchdown without making the system unusably conservative?**
 
-This repository is a simulation study, not flight software. The useful part is the experiment record: what I changed, what I measured, and which results failed.
+This repository is a simulation study, not flight software. The useful part is the experiment record: what I changed, what I measured, which gates passed, and which results failed.
 
 ## What I tested
 
 I started with synthetic landing experiments where the visual estimate could be biased while still looking internally consistent. I compared image-only estimation against supervisory variants that used temporal checks, a second imperfect estimate, uncertainty, and abstention.
 
-Later phases moved toward harder evidence: PX4/Gazebo traces, genuine camera frames, partial views, appearance changes, and protected holdouts that were evaluated once after the candidate was frozen.
+Later phases moved toward harder evidence: PX4/Gazebo traces, genuine camera frames, partial views, appearance changes, frozen transfer sets, and protected validation that was evaluated only after the candidate and gates were fixed.
 
-## Current result: Phase 10R
+## Current result: Phase 11 P14R
 
-Phase 10R was frozen at `e1d566f8baa47bf10f9bdf39dd5988724208be80` and then evaluated once on 12 new geometry trajectories across three appearance conditions: 36 sequences and **1,440 truth-visible frames**.
+Phase 11 is closed. The final candidate P14R was frozen at scientific head `58b06089a621264afb886f6aee2acaacf8a8709c`, passed every required seen-transfer gate, and then entered protected validation.
 
-It **failed the preregistered all-gates rule**.
+The protected result was **mixed / failed overall**. Availability and uncertainty coverage were strong, but one preregistered H4 lateral tail-efficiency component exceeded its frozen maximum:
 
-| Test | Result |
+| Protected check | Result |
 |---|---:|
-| Clean lateral / altitude MAE vs Phase 9 | PASS — `0.704x / 0.417x` |
-| Ambiguous lateral MAE improvement | PASS — **79.2%** |
-| Ambiguous altitude MAE improvement | PASS — **73.7%** |
-| Ambiguous lateral p95 improvement | FAIL — **-1.1%** |
-| Ambiguous altitude p95 improvement | FAIL — **7.3%** |
-| Truth-visible miss rate | FAIL — **20.0%** |
-| False-positive rate | PASS — **0.0%** |
-| 95% uncertainty coverage | FAIL — **84.3% lateral / 79.7% altitude** |
+| Useful availability | **98.53% — PASS** |
+| Lateral 95% coverage | **96.17% — PASS** |
+| Altitude 95% coverage | **95.82% — PASS** |
+| Calibration MACE | **0.03678 — PASS** |
+| Lateral median interval width / p95 error | **0.855× — PASS** |
+| Lateral p95 interval width / p95 error | **2.435× — FAIL** (`<= 2.25×` required) |
+| Altitude median interval width / p95 error | **1.113× — PASS** |
+| Altitude p95 interval width / p95 error | **1.833× — PASS** |
+| Rescue recovery | **94.63%** |
 
 ### What I think this means
 
-The candidate improved average error on ambiguous views, but that was not enough. A difficult tail remained, one in five truth-visible frames was missed, and uncertainty that looked calibrated during development became overconfident after appearance and geometry changed.
+Phase 11 supports a narrower result than “the system passed.” Bounded continuity plus an independent rescue path solved most of the earlier availability problem, and a robust groupwise conformal envelope restored uncertainty coverage under the tested shift. But protected shift still produced an excessively wide lateral tail relative to the error it was covering.
 
-The narrow conclusion is: **good in-domain calibration did not transfer cleanly under this shift.**
+I did **not** loosen the 2.25× threshold after seeing 2.435×. I also did **not** expose the final P15-v2 unseen holdout after the protected failure. Phase 11 therefore ends without a final unseen-replication claim.
 
-I am not treating the mean-error improvement as a safety win because the tail, availability, and uncertainty gates failed.
+## Why Phase 11 existed
 
-## Earlier result that looked much better
+Phase 10R improved mean error on ambiguous views but failed the preregistered all-gates rule. It left three problems visible:
+
+- truth-visible miss rate: **20.0%**;
+- lateral / altitude 95% uncertainty coverage: **84.3% / 79.7%** under shift;
+- both p95 improvement gates failed.
+
+Phase 11 specifically tested whether bounded continuity, independent rescue, and a more robust uncertainty-transfer scheme could repair those weaknesses without post-hoc retuning.
+
+## Earlier results that looked much better
 
 Phase 6B used a simpler synthetic setup. There, selective intervention reduced unsafe touchdowns from **43% to 1%**, with a deliberate **3% timeout** cost.
 
-That result was useful, but later testing showed why the project needed harder evidence. Synthetic success did not guarantee that the same ideas would survive genuine camera limitations and distribution shift.
+A separate V3 experiment also showed that independent error structure can matter: unsafe touchdowns fell from **84.2% to 2.4%** in that abstract redundant-perception setup.
 
-A separate V3 experiment also showed that independent error structure can matter: unsafe touchdowns fell from **84.2% to 2.4%** in that abstract redundant-perception setup. Again, that is evidence for the benchmark, not a claim about a physical aircraft.
+Both results were useful, but later testing showed why the project needed harder evidence. Synthetic success did not guarantee that the same ideas would survive genuine camera limitations and distribution shift.
 
 ## A result that did not transfer
 
@@ -67,7 +76,7 @@ So the useful Phase 10 result was about uncertainty calibration, not better poin
 | 9 | Genuine Gazebo camera frames | strong detection does not automatically give trustworthy metric geometry |
 | 10 | Temporal estimate + calibrated uncertainty | uncertainty improved; point-error target failed |
 | 10R | New geometry + appearance holdout | mean error improved, but tail, misses, and shift calibration failed |
-| 11 | Next | test reliability and abstention specifically under domain shift |
+| 11 | Frozen seen transfer + protected validation | availability and coverage recovered; one locked lateral tail-efficiency component still failed |
 
 ## Reproducing the repository
 
@@ -84,25 +93,30 @@ python scripts/serve_dashboard.py
 
 Useful records:
 
+- [Phase 11 final report](docs/phase11_final_report.md)
 - [Phase 10R frozen result](docs/phase10r_frozen_holdout_result.md)
 - [Phase 10R protocol](docs/phase10r_frozen_holdout_protocol.md)
 - [Phase 10 result](docs/phase10_frozen_holdout_result.md)
 - [Reproducibility protocol](docs/reproducibility.md)
 - [Research log](docs/research_log.md)
-- [Live result archive](https://aegisland-research-cockpit.vercel.app/)
+- [Live research cockpit](https://aegisland-research-cockpit.vercel.app/)
+
+The canonical production UI bundle is under `deploy/vercel/`. Historical dashboard assets remain in `dashboard/` because earlier phases are part of the research record.
 
 ## Limits I do not want this project to hide
 
 - **Simulation only.** I have not validated this on a physical aircraft or hardware camera.
-- The Phase 10R miss rate was **20%**, above the preregistered 10% maximum.
-- Both Phase 10R p95 improvement gates failed.
-- Phase 10R 95% uncertainty coverage fell to **84.3% lateral / 79.7% altitude** under shift.
-- The Phase 10R holdout is now seen and cannot be reused as a hidden test.
+- **Safety acceptance is false.** Passing most metrics is not a flight-safety claim.
+- Phase 11 failed the protected H4 lateral p95 interval-width / p95-error component: **2.435×** vs a frozen **2.25×** maximum.
+- The final P15-v2 unseen holdout was **not exposed** after that failure and is retired without an unseen-replication claim.
+- Phase 10R previously had a **20%** truth-visible miss rate and undercoverage under appearance/geometry shift.
 - The Phase 10 camera holdout was small: 20 truth-visible frames and 15 paired observations.
 - Passing CI tests says the software runs as tested. It does not make the system flight-safe.
 
 ## Next question
 
-Rather than retuning Phase 10R on a failed holdout, the next phase asks whether the estimator can recognize when its uncertainty calibration has stopped transferring. I want to measure coverage under shift, tail failures, and abstention behavior directly.
+Phase 11 is closed. Any attempt to improve the lateral tail-efficiency failure must be a **new preregistered phase** with fresh development, transfer, and protected evidence. The Phase 11 protected result should not be reused as a hidden test, and the retired P15-v2 holdout should not be opened to rescue this result.
+
+A legitimate next study would ask whether a new uncertainty model can reduce protected lateral tail width **without** sacrificing the availability and coverage gains that P14R achieved.
 
 **Safety note:** AegisLand is educational, simulation-only research. It is not validated flight-control software and should not be used to operate a physical aircraft.
