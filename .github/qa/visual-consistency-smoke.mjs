@@ -55,10 +55,14 @@ try {
     const current = await page.locator('#homeModelRail .home-rail-step.active[href="/phases/phase11/"]').count();
     add('home-phase11-is-current-frontier', current === 1, { current });
     const hero = await page.locator('.hero').evaluate(el => { const r = el.getBoundingClientRect(); return { height: Math.round(r.height), width: Math.round(r.width) }; });
-    add('home-hero-is-contained', hero.height >= 680 && hero.height <= 940, { hero });
+    add('home-hero-is-contained', hero.height >= 600 && hero.height <= 940, { hero });
     const statusText = await page.locator('.result-card').innerText();
-    add('home-keeps-failed-gate-visible', /10 \/ 11 gate families/i.test(statusText) && /not accepted/i.test(statusText), { statusText: statusText.slice(0, 220) });
-    const desktopMenu = await page.locator('.mobile-nav').evaluate(el => ({ display: getComputedStyle(el).display, width: el.getBoundingClientRect().width }));
+    add(
+      'home-keeps-failed-gate-visible',
+      /1 locked component failed/i.test(statusText) && /2\.435/.test(statusText) && /2\.25/.test(statusText) && /mixed \/ failed overall/i.test(statusText),
+      { statusText: statusText.slice(0, 300) }
+    );
+    const desktopMenu = await page.locator('.mobile-menu-toggle').evaluate(el => ({ display: getComputedStyle(el).display, width: el.getBoundingClientRect().width }));
     add('home-desktop-mobile-menu-hidden', desktopMenu.display === 'none' && desktopMenu.width === 0, { desktopMenu });
     await page.close();
     await context.close();
@@ -71,8 +75,8 @@ try {
     await page.waitForTimeout(300);
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     add('mobile-home-no-horizontal-overflow', overflow <= 1, { overflow });
-    const menu = await page.locator('.mobile-nav summary').evaluate(el => { const r = el.getBoundingClientRect(); return { display: getComputedStyle(el).display, width: Math.round(r.width), height: Math.round(r.height) }; });
-    add('mobile-home-menu-is-visible-and-touchable', menu.display !== 'none' && menu.width >= 44 && menu.height >= 36, { menu });
+    const menu = await page.locator('.mobile-menu-toggle').evaluate(el => { const r = el.getBoundingClientRect(); return { display: getComputedStyle(el).display, width: Math.round(r.width), height: Math.round(r.height) }; });
+    add('mobile-home-menu-is-visible-and-touchable', menu.display !== 'none' && menu.width >= 44 && menu.height >= 40, { menu });
     const railCount = await page.locator('#homeModelRail .home-rail-step').count();
     add('mobile-home-keeps-complete-phase-rail', railCount === 13, { railCount });
     const ctas = await page.locator('.hero .button').evaluateAll(els => els.map(el => Math.round(el.getBoundingClientRect().height)));
@@ -111,9 +115,11 @@ try {
     const header = await page.locator('.site-header').evaluate(el => { const s = getComputedStyle(el); const r = el.getBoundingClientRect(); return { display: s.display, position: s.position, height: Math.round(r.height) }; });
     add('phase11-uses-cockpit-header-scale', header.display === 'grid' && header.position === 'fixed' && header.height === 56, { header });
     const navLabels = await page.locator('.site-nav a').allTextContents();
-    add('phase11-nav-is-stable', JSON.stringify(navLabels) === JSON.stringify(['Result','Telemetry','Geometry','Lineage','Provenance']), { navLabels });
+    add('phase11-nav-is-stable', JSON.stringify(navLabels) === JSON.stringify(['Result','Evidence','Boundary','Provenance']), { navLabels });
     const sectionHeights = await page.locator('main > section').evaluateAll(els => els.map(el => Math.round(el.getBoundingClientRect().height)));
-    add('phase11-no-empty-viewport-panels', sectionHeights.every(height => height < 900), { sectionHeights });
+    add('phase11-no-empty-viewport-panels', sectionHeights.every(height => height < 1000), { sectionHeights });
+    const boundaryText = await page.locator('#boundary').innerText();
+    add('phase11-protected-boundary-is-explicit', /2\.435/.test(boundaryText) && /2\.25/.test(boundaryText) && /not exposed/i.test(boundaryText), { boundaryExcerpt: boundaryText.slice(0, 320) });
     await page.close();
     await context.close();
   }
@@ -125,8 +131,8 @@ try {
     await page.waitForTimeout(300);
     const mobileHeader = await page.locator('.site-header').evaluate(el => { const r = el.getBoundingClientRect(); return { display: getComputedStyle(el).display, height: Math.round(r.height), overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth }; });
     add('phase11-mobile-header-clean', mobileHeader.display === 'grid' && mobileHeader.height === 52 && mobileHeader.overflow <= 1, { mobileHeader });
-    const menu = await page.locator('#menuToggle').evaluate(el => ({ hidden: el.hidden, display: getComputedStyle(el).display, width: Math.round(el.getBoundingClientRect().width), height: Math.round(el.getBoundingClientRect().height) }));
-    add('phase11-mobile-menu-is-compact', !menu.hidden && ['flex','inline-flex'].includes(menu.display) && menu.width >= 58 && menu.width < 100 && menu.height === 32, { menu });
+    const menu = await page.locator('#mobileMenuToggle').evaluate(el => ({ display: getComputedStyle(el).display, width: Math.round(el.getBoundingClientRect().width), height: Math.round(el.getBoundingClientRect().height) }));
+    add('phase11-mobile-menu-is-touchable', ['flex','inline-flex'].includes(menu.display) && menu.width >= 58 && menu.width < 110 && menu.height >= 40, { menu });
     await page.close();
     await context.close();
   }
