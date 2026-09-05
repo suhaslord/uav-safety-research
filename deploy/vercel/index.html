@@ -1,75 +1,53 @@
 <!doctype html>
-<html lang="en" data-site-shell="native">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#ffffff">
-  <meta name="description" content="AegisLand research cockpit — simulation-only evidence, research lineage, and the current Phase 11 P14R frontier.">
+  <meta name="description" content="AegisLand is simulation-only UAV safety research built around frozen protocols, independent evidence, calibrated uncertainty, and visible negative results. Current frontier: Phase 11 P14R.">
+  <link rel="canonical" href="https://aegisland-research-cockpit.vercel.app/">
+  <meta property="og:title" content="AegisLand — Research Cockpit">
+  <meta property="og:description" content="Evidence before confidence. Phase 11 closes with strong availability and coverage, plus one protected tail-efficiency failure kept visible.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://aegisland-research-cockpit.vercel.app/">
   <title>AegisLand — Research Cockpit</title>
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=2">
-  <link rel="shortcut icon" href="/favicon.ico?v=2">
-  <style>
-    :root{--ink:#171a20;--body:#393c41;--muted:#6e7075;--line:#e2e3e3;--ash:#f4f4f4;--white:#fff;--blue:#3e6ae1;--header:56px;--ease:cubic-bezier(.5,0,0,.75)}
-    *{box-sizing:border-box}
-    html{scroll-behavior:smooth;scroll-padding-top:72px;background:var(--white)}
-    body{margin:0;background:var(--white);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;font-size:14px;line-height:20px;font-weight:400;overflow-x:hidden}
-    a{color:inherit}a,button{-webkit-tap-highlight-color:transparent}
-    a:focus-visible,summary:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
-    .wrap{width:min(1180px,calc(100% - 48px));margin:0 auto}
-    .header{position:fixed;inset:0 0 auto;z-index:50;height:var(--header);display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 clamp(24px,3vw,44px);background:rgba(255,255,255,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
-    .brand{justify-self:start;display:inline-flex;align-items:center;min-height:40px;text-decoration:none;font-size:13px;font-weight:500;letter-spacing:.20em;white-space:nowrap}
-    .brand-mark{width:28px;height:28px;margin-right:9px;border-radius:4px;display:grid;place-items:center;background:var(--ink);color:#fff;font-size:12px;letter-spacing:0}
-    .nav,.header-actions{display:flex;align-items:center;gap:2px}.header-actions{justify-self:end}
-    .nav a,.header-actions a{min-height:40px;padding:4px 13px;border-radius:4px;display:inline-flex;align-items:center;text-decoration:none;font-weight:500;transition:background-color .25s var(--ease),color .25s var(--ease)}
-    .nav a:hover,.header-actions a:hover{background:rgba(23,26,32,.08);color:var(--blue)}
-    .header-actions .current{color:var(--blue)}
-    .mobile-nav{display:none;justify-self:end;position:relative}.mobile-nav summary{list-style:none;cursor:pointer;min-width:62px;min-height:36px;border-radius:4px;background:var(--ash);display:grid;place-items:center;font-weight:500}.mobile-nav summary::-webkit-details-marker{display:none}
-    .mobile-panel{position:absolute;right:0;top:44px;width:min(300px,calc(100vw - 32px));padding:10px;border:1px solid var(--line);border-radius:8px;background:#fff;box-shadow:0 18px 48px rgba(0,0,0,.12);display:grid;gap:2px}.mobile-panel a{min-height:44px;padding:0 12px;border-radius:4px;display:flex;align-items:center;text-decoration:none;font-weight:500}.mobile-panel a:hover{background:var(--ash)}
-    main{padding-top:var(--header)}
-    .hero{min-height:calc(92vh - var(--header));padding:clamp(72px,10vw,132px) 0 80px;display:flex;align-items:center}
-    .hero-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(310px,.65fr);gap:clamp(56px,9vw,124px);align-items:end}
-    .eyebrow{margin:0 0 14px;color:var(--muted);font-weight:500}
-    h1,h2,h3,p{margin-top:0}h1{margin-bottom:0;max-width:760px;font-size:clamp(48px,6.5vw,82px);line-height:.98;font-weight:500;letter-spacing:-.045em}h2{margin-bottom:0;font-size:clamp(32px,4vw,48px);line-height:1.08;font-weight:500;letter-spacing:-.03em}h3{margin-bottom:0;font-size:17px;line-height:23px;font-weight:500}
-    .hero-deck{margin:24px 0 0;max-width:660px;color:var(--body);font-size:18px;line-height:27px}
-    .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px}.button{min-width:176px;min-height:42px;padding:0 22px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;font-weight:500}.button.primary{background:var(--blue);color:#fff}.button.primary:hover{background:#345fc7}.button.secondary{background:var(--ash);color:var(--body)}.button.secondary:hover{background:#e9e9e9}
-    .result-card{padding-left:28px;border-left:1px solid var(--line)}.result-card strong{display:block;margin-top:7px;font-size:28px;line-height:34px;font-weight:500}.result-card p{margin:9px 0 0;color:var(--body)}.result-card .safety{margin-top:22px;padding-top:20px;border-top:1px solid var(--line)}
-    .metrics{padding:34px 0;background:var(--ash)}.metric-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:42px}.metric span{display:block;color:var(--muted);font-size:12px;line-height:18px;font-weight:500}.metric strong{display:block;margin-top:5px;font-size:22px;line-height:28px;font-weight:500}
-    .section{padding:clamp(72px,9vw,116px) 0}.section.ash{background:var(--ash)}.section.dark{background:var(--ink);color:#fff}.section.dark .eyebrow,.section.dark .copy{color:#b7b9bd}.section-head{display:grid;grid-template-columns:minmax(180px,.38fr) minmax(0,1fr);gap:56px;align-items:start;margin-bottom:48px}.copy{margin:16px 0 0;max-width:700px;color:var(--body);font-size:15px;line-height:23px}
-    #homeModelRail{overflow:hidden}.rail-head{display:flex;justify-content:space-between;gap:24px;align-items:end;margin-bottom:26px}.text-link{color:var(--muted);text-decoration:none}.text-link:hover{color:var(--ink)}.rail-scroll{overflow-x:auto;padding:4px 0 16px;scrollbar-width:thin}.home-rail-grid{display:grid;grid-template-columns:repeat(13,minmax(82px,1fr));min-width:1110px}.home-rail-step{position:relative;min-height:88px;padding:18px 8px 8px;border-top:1px solid var(--line);text-align:center;text-decoration:none;color:var(--body);font-weight:500}.home-rail-step:before{content:"";position:absolute;top:-4px;left:50%;width:7px;height:7px;border-radius:50%;background:#b8babc;transform:translateX(-50%)}.home-rail-step small{display:block;margin-top:4px;color:var(--muted);font-size:11px;font-weight:400}.home-rail-step:hover{background:#fafafa}.home-rail-step.active{color:var(--blue)}.home-rail-step.active:before{background:var(--blue)}
-    .three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:42px}.research-card{padding:20px;border:1px solid var(--line);border-radius:8px;background:var(--white)}.research-card p{margin:10px 0 0;color:var(--body)}.research-card .tag{display:block;margin-top:18px;color:var(--muted);font-size:12px}
-    .principles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:42px}.principle{padding:20px;border:1px solid #42454b;border-radius:8px;background:rgba(255,255,255,.03)}.principle p{margin:10px 0 0;color:#d0d2d6}
-    .archive-grid{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:56px;align-items:end}.archive-actions{display:flex;gap:12px;flex-wrap:wrap}
-    .footer{min-height:72px;padding:20px clamp(24px,3vw,44px);border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:24px;color:var(--muted);font-size:12px}.footer p{margin:0}.footer-links{display:flex;gap:20px}.footer a{text-decoration:none;transition:color .25s var(--ease)}.footer a:hover{color:var(--blue)}
-    @media(max-width:980px){.header{grid-template-columns:1fr auto}.nav,.header-actions{display:none}.mobile-nav{display:block}.hero{min-height:auto}.hero-grid,.section-head,.archive-grid{grid-template-columns:1fr;gap:38px}.result-card{padding-left:0;padding-top:22px;border-left:0;border-top:1px solid var(--line)}.metric-grid{grid-template-columns:1fr 1fr}.three,.principles{grid-template-columns:1fr;gap:28px}}
-    @media(max-width:600px){:root{--header:52px}.header{height:52px;padding-inline:16px}.brand{font-size:11px}.brand-mark{width:26px;height:26px}.wrap{width:calc(100% - 36px)}.hero{padding:58px 0 54px}h1{font-size:46px}.hero-deck{font-size:16px;line-height:24px}.actions,.archive-actions{display:grid;grid-template-columns:1fr}.button{width:100%;min-width:0}.metrics{padding:28px 0}.metric-grid{grid-template-columns:1fr;gap:28px}.section{padding:60px 0}.section-head{gap:14px;margin-bottom:32px}.rail-head{align-items:flex-start;flex-direction:column}.footer{align-items:flex-start;flex-direction:column}.footer-links{flex-wrap:wrap}.research-card,.principle{padding:18px}}
-    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.nav a,.header-actions a{transition:none}}
-  </style>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=3">
+  <link rel="stylesheet" href="/aegisland.css?v=3">
 </head>
 <body>
-  <header class="header">
+  <a class="skip-link" href="#main">Skip to research result</a>
+  <header class="site-header">
     <a class="brand" href="#top" aria-label="AegisLand home"><span class="brand-mark" aria-hidden="true">A</span><span>AEGISLAND</span></a>
-    <nav class="nav" aria-label="Primary navigation"><a href="#frontier">Frontier</a><a href="#timeline">Lineage</a><a href="#method">Method</a></nav>
-    <div class="header-actions"><a class="current" href="/phases/phase11/">Phase 11</a><a href="/phases/">Archive</a><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub</a></div>
-    <details class="mobile-nav"><summary>Menu</summary><div class="mobile-panel"><a href="#frontier">Frontier</a><a href="#timeline">Lineage</a><a href="#method">Method</a><a href="/phases/phase11/">Phase 11</a><a href="/phases/">Archive</a><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub ↗</a></div></details>
+    <nav class="site-nav" aria-label="Primary navigation"><a href="#goal">Goal</a><a href="#boundary">Boundary</a><a href="#timeline">Lineage</a><a href="#method">Method</a></nav>
+    <div class="header-actions"><a class="current" href="/phases/phase11/" aria-current="page">Phase 11</a><a href="/phases/">Archive</a><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub</a></div>
+    <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-expanded="false" aria-controls="mobileMenuSheet">Menu</button>
   </header>
 
-  <main id="top">
-    <section class="hero" aria-labelledby="hero-title">
+  <nav class="mobile-menu-sheet" id="mobileMenuSheet" aria-label="Mobile navigation" aria-hidden="true">
+    <div class="mobile-menu-head"><strong>AEGISLAND</strong><button class="mobile-menu-close" type="button" aria-label="Close navigation">Close</button></div>
+    <div class="mobile-menu-links"><a href="#goal">Goal</a><a href="#boundary">Boundary</a><a href="#timeline">Lineage</a><a href="#method">Method</a><a href="/phases/phase11/">Phase 11</a></div>
+    <div class="mobile-menu-meta"><a href="/phases/">Archive</a><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub ↗</a></div>
+  </nav>
+
+  <main id="main">
+    <section class="hero" id="top" aria-labelledby="hero-title">
       <div class="wrap hero-grid">
         <div>
-          <p class="eyebrow">Simulation-only research · current frontier · Phase 11 P14R</p>
+          <p class="eyebrow">Simulation-only research · study closed · Phase 11 P14R</p>
           <h1 id="hero-title">Evidence before confidence.</h1>
-          <p class="hero-deck">AegisLand studies safety-supervisor behavior under frozen simulation protocols. The current result keeps the successful evidence and the failed protected gate visible in the same place.</p>
-          <div class="actions"><a class="button primary" href="/phases/phase11/">Open Phase 11</a><a class="button secondary" href="/phases/">Research archive</a></div>
+          <p class="hero-deck">AegisLand asks whether an independent estimate, calibrated uncertainty, and controlled abstention can expose confidently wrong landing perception without making the system unusably conservative.</p>
+          <div class="actions"><a class="button primary" href="/phases/phase11/">Open Phase 11</a><a class="button secondary" href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase11_final_report.md" target="_blank" rel="noreferrer">Read final report</a></div>
         </div>
-        <aside class="result-card" aria-label="Current protected result">
-          <p class="eyebrow">Protected validation</p><strong>10 / 11 gate families</strong><p>High availability and uncertainty coverage, with one preregistered lateral tail-efficiency gate blocking final confirmation.</p>
-          <div class="safety"><p class="eyebrow">Safety status</p><strong>Not accepted</strong><p>simulation_only=true · safety_acceptance=false</p></div>
+        <aside class="result-card" aria-label="Current Phase 11 protected result">
+          <p class="eyebrow">Protected validation</p>
+          <strong class="fail">1 locked component failed</strong>
+          <p>H4 lateral p95 interval width / p95 error reached <b>2.435×</b> against a frozen maximum of <b>2.25×</b>. The threshold was not loosened.</p>
+          <div class="safety"><p class="eyebrow">Final status</p><strong>Mixed / failed overall</strong><p>simulation_only=true · safety_acceptance=false</p></div>
         </aside>
       </div>
     </section>
 
-    <section class="metrics" id="frontier" aria-label="Phase 11 protected validation metrics">
+    <section class="metrics" aria-label="Phase 11 protected validation metrics">
       <div class="wrap metric-grid">
         <div class="metric"><span>Protected availability</span><strong>98.53%</strong></div>
         <div class="metric"><span>Lateral 95% coverage</span><strong>96.17%</strong></div>
@@ -78,54 +56,52 @@
       </div>
     </section>
 
+    <section class="section" id="goal">
+      <div class="wrap goal-grid">
+        <div><p class="eyebrow">Our goal</p><h2>Make autonomous perception worthy of trust.</h2><p class="copy">The project is not trying to make a landing demo look successful. It tests when a perception estimate should be trusted, challenged by independent evidence, widened with calibrated uncertainty, or rejected. The experiment record matters as much as the headline metric.</p></div>
+        <div class="goal-points" aria-label="AegisLand research principles">
+          <div class="goal-point"><strong>Independent evidence</strong><span>A second signal should be useful without silently becoming the same failure mode.</span></div>
+          <div class="goal-point"><strong>Calibrated uncertainty</strong><span>Confidence should survive distribution shift, not only development data.</span></div>
+          <div class="goal-point"><strong>Controlled abstention</strong><span>Refusing a bad estimate can be safer, but excessive refusal is itself a failure.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section ash" id="boundary">
+      <div class="wrap boundary-grid">
+        <div><p class="eyebrow">The protected boundary</p><h2>The strongest result still stopped at a preregistered limit.</h2><p class="copy">P14R passed every required seen-transfer gate and nearly all protected checks. It did not pass the locked lateral tail-efficiency component. That miss is part of the result, not something to tune away after seeing protected data.</p><p class="copy">The final P15-v2 holdout remained unexposed and was retired without an unseen-replication claim.</p></div>
+        <div class="threshold-card">
+          <p class="eyebrow">H4 lateral tail efficiency</p><strong>2.435× <span class="fail">FAIL</span></strong><p>p95 interval width / p95 error</p>
+          <div class="threshold-chart" role="img" aria-label="Phase 11 lateral tail-efficiency result 2.435 times exceeded the frozen maximum 2.25 times"><div class="threshold-track"><div class="threshold-fill"></div></div><span class="threshold-limit" aria-hidden="true"></span><span class="threshold-result" aria-hidden="true"></span></div>
+          <div class="threshold-foot">Frozen maximum: 2.25× · result: 2.435× · threshold unchanged after protected exposure.</div>
+        </div>
+      </div>
+    </section>
+
     <section class="section" id="timeline">
       <div class="wrap" id="homeModelRail">
         <div class="rail-head"><div><p class="eyebrow">Research progression</p><h2>Every phase stays reachable.</h2></div><a class="text-link" href="/phases/">Open full archive →</a></div>
         <div class="rail-scroll" aria-label="Scrollable research phase rail"><div class="home-rail-grid">
-          <a class="home-rail-step" href="/phases/phase1/">01<small>Phase 1</small></a>
-          <a class="home-rail-step" href="/phases/phase2/">02<small>Phase 2</small></a>
-          <a class="home-rail-step" href="/phases/phase3/">03<small>Phase 3</small></a>
-          <a class="home-rail-step" href="/phases/phase4/">04<small>Phase 4</small></a>
-          <a class="home-rail-step" href="/phases/phase5/">05<small>Phase 5</small></a>
-          <a class="home-rail-step" href="/phases/phase6/">06<small>Phase 6</small></a>
-          <a class="home-rail-step" href="/phases/phase6b/">07<small>Phase 6B</small></a>
-          <a class="home-rail-step" href="/phases/phase7/">08<small>Phase 7</small></a>
-          <a class="home-rail-step" href="/phases/phase8/">09<small>Phase 8</small></a>
-          <a class="home-rail-step" href="/phases/phase9/">10<small>Phase 9</small></a>
-          <a class="home-rail-step" href="/phases/phase10/">11<small>Phase 10</small></a>
-          <a class="home-rail-step" href="/phases/phase10r/">12<small>Phase 10R</small></a>
-          <a class="home-rail-step active" href="/phases/phase11/" aria-current="page">13<small>Phase 11</small></a>
+          <a class="home-rail-step" href="/phases/phase1/">01<small>Phase 1</small></a><a class="home-rail-step" href="/phases/phase2/">02<small>Phase 2</small></a><a class="home-rail-step" href="/phases/phase3/">03<small>Phase 3</small></a><a class="home-rail-step" href="/phases/phase4/">04<small>Phase 4</small></a><a class="home-rail-step" href="/phases/phase5/">05<small>Phase 5</small></a><a class="home-rail-step" href="/phases/phase6/">06<small>Phase 6</small></a><a class="home-rail-step" href="/phases/phase6b/">07<small>Phase 6B</small></a><a class="home-rail-step" href="/phases/phase7/">08<small>Phase 7</small></a><a class="home-rail-step" href="/phases/phase8/">09<small>Phase 8</small></a><a class="home-rail-step" href="/phases/phase9/">10<small>Phase 9</small></a><a class="home-rail-step" href="/phases/phase10/">11<small>Phase 10</small></a><a class="home-rail-step" href="/phases/phase10r/">12<small>Phase 10R</small></a><a class="home-rail-step active" href="/phases/phase11/" aria-current="page">13<small>Phase 11</small></a>
         </div></div>
-      </div>
-    </section>
-
-    <section class="section ash">
-      <div class="wrap">
-        <div class="section-head"><p class="eyebrow">Current frontier</p><div><h2>A mixed result is still a result.</h2><p class="copy">Phase 11 P14R passed the required seen-transfer gates and preserved strong protected coverage and availability. One locked protected component failed, so the study closed without turning a near-pass into a safety claim.</p></div></div>
-        <div class="three">
-          <article class="research-card"><h3>Independent rescue</h3><p>The study separates the rescue signal from the main uncertainty path so its contribution can be tested rather than assumed.</p><span class="tag">Phase 11 · P14R</span></article>
-          <article class="research-card"><h3>Robust uncertainty transfer</h3><p>Coverage is evaluated under a frozen protocol instead of retuning after protected results become visible.</p><span class="tag">Frozen evaluation</span></article>
-          <article class="research-card"><h3>Visible failure boundary</h3><p>The lateral tail-efficiency miss remains part of the result and prevents final confirmation.</p><span class="tag">Safety acceptance: false</span></article>
-        </div>
       </div>
     </section>
 
     <section class="section dark" id="method">
       <div class="wrap">
-        <div class="section-head"><p class="eyebrow">Research method</p><div><h2>Inspectability is part of the product.</h2><p class="copy">AegisLand keeps protocols, evidence, frozen predecessors, failed gates, and source links visible so the website communicates what the experiments actually support.</p></div></div>
-        <div class="principles">
-          <article class="principle"><h3>Freeze before protected evaluation.</h3><p>Research choices should not quietly move after the protected result is known.</p></article>
-          <article class="principle"><h3>Keep limitations beside metrics.</h3><p>Strong percentages do not erase a failed preregistered gate.</p></article>
-          <article class="principle"><h3>Keep the lineage navigable.</h3><p>Earlier phases remain available instead of being rewritten to match the newest narrative.</p></article>
-        </div>
+        <div class="section-head"><p class="eyebrow">Research method</p><div><h2>Inspectability is part of the product.</h2><p class="copy">Protocols, evidence, frozen predecessors, negative results, and source links stay visible so a strong percentage cannot erase the condition that invalidated the final claim.</p></div></div>
+        <div class="three"><article class="card"><h3>Freeze before protected evaluation.</h3><p>Candidate construction and gates are fixed before the protected result is exposed.</p><span class="tag">No post-result threshold moving</span></article><article class="card"><h3>Separate success from acceptance.</h3><p>Availability and coverage can be strong while a required tail component still blocks acceptance.</p><span class="tag">Mixed means mixed</span></article><article class="card"><h3>Preserve the next holdout.</h3><p>The untouched P15-v2 seed was not opened after the protected failure.</p><span class="tag">No final unseen-replication claim</span></article></div>
       </div>
     </section>
 
     <section class="section">
-      <div class="wrap archive-grid"><div><p class="eyebrow">Research archive</p><h2>Start with the frontier. Trace backward when you need the evidence.</h2><p class="copy">Phase 11 contains the current protected-validation story. The archive keeps the earlier system changes and evidence chain accessible.</p></div><div class="archive-actions"><a class="button primary" href="/phases/phase11/">View Phase 11</a><a class="button secondary" href="/phases/">Browse all phases</a></div></div>
+      <div class="wrap boundary-grid"><div><p class="eyebrow">Research archive</p><h2>Start with the frontier. Trace backward when you need the evidence.</h2><p class="copy">Phase 11 contains the current protected-validation story. Earlier phases remain accessible rather than being rewritten to fit the latest narrative.</p></div><div class="actions"><a class="button primary" href="/phases/phase11/">View Phase 11</a><a class="button secondary" href="/phases/">Browse all phases</a></div></div>
     </section>
   </main>
 
-  <footer class="footer"><p>AegisLand · simulation-only research cockpit</p><div class="footer-links"><a href="/phases/">Archive</a><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub ↗</a><a href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase11_final_report.md" target="_blank" rel="noreferrer">Final report ↗</a></div></footer>
+  <footer class="footer"><p>AegisLand · educational simulation-only research</p><div class="footer-links"><a href="/phases/">Archive</a><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub ↗</a><a href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase11_final_report.md" target="_blank" rel="noreferrer">Final report ↗</a></div></footer>
+  <script>
+  (()=>{const b=document.getElementById('mobileMenuToggle'),m=document.getElementById('mobileMenuSheet'),c=m.querySelector('.mobile-menu-close');const set=o=>{b.setAttribute('aria-expanded',String(o));m.setAttribute('aria-hidden',String(!o));m.classList.toggle('open',o);document.body.classList.toggle('menu-open',o)};b.addEventListener('click',()=>set(b.getAttribute('aria-expanded')!=='true'));c.addEventListener('click',()=>set(false));m.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>set(false)));document.addEventListener('keydown',e=>{if(e.key==='Escape')set(false)})})();
+  </script>
 </body>
 </html>
