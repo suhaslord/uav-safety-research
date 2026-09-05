@@ -52,7 +52,7 @@
   } else if (isArchive) {
     add('Research lineage', '#archiveMap');
     add('Main cockpit', '/');
-    add('Phase 10', '/phases/phase10/', true);
+    add('Phase 11', '/phases/phase11/', true);
   } else {
     document.querySelectorAll('.nav a').forEach(a => add(a.textContent.trim(), a.getAttribute('href')));
     add('Research archive', '/phases/', true);
