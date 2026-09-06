@@ -1,0 +1,14 @@
+{
+  "original_run_id": "31658568350",
+  "source_commit": "2f3965794fcfc44293c214aea90a92d750bd4733",
+  "archive_sha256": "d6922f63a7d91fad8b14393935a5a9e5760f164434be74f2f1636e44a62ce740",
+  "verified_archive_files": 318,
+  "mismatches": [],
+  "heldout_cases": 24,
+  "evaluated_at_utc": "2026-09-05",
+  "model_retrained": false,
+  "threshold_changed": false,
+  "python": "Python 3.12.13",
+  "torch": "2.14.0+cpu",
+  "original_evaluator_unchanged": true
+}

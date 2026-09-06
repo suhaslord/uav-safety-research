@@ -131,7 +131,9 @@ jobs:
           while IFS= read -r -d '' summary; do
             d="$(dirname "$summary")"; args+=(--trace "$d/trace.csv" --summary "$summary")
           done < <(find /tmp/ornik-px4/heldout -name trace_summary.json -print0 | sort -z)
-          test "${#args[@]}" -eq 48
+          # Each case contributes four arguments: --trace PATH --summary PATH.
+          expected_cases=$(python -c 'import json; print(len(json.load(open("configs/ornik_fdi_frozen_v1.json"))["px4"]["heldout_cases"]))')
+          test "${#args[@]}" -eq "$((4 * expected_cases))"
           python scripts/evaluate_ornik_px4_benchmark.py \
             --model /tmp/ornik-px4/provenance/frozen_px4_detector.pt \
             --standardizer /tmp/ornik-px4/provenance/frozen_px4_standardizer.json \
