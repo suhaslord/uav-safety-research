@@ -60,6 +60,7 @@ jobs:
           ! grep -q 'cdn.jsdelivr.net/gh/suhaslord/uav-safety-research' .vercel-release/index.html .vercel-release/vercel.json
 
           test -f .vercel-release/aegisland.css
+          test -f .vercel-release/phase-polish.css
           test -f .vercel-release/frozen-lineage.js
           test -f .vercel-release/dashboard/phases/index.html
           test -f .vercel-release/dashboard/phases/frozen.html
@@ -80,6 +81,13 @@ jobs:
           grep -q 'simulation_only=true' .vercel-release/index.html
           grep -q 'safety_acceptance=false' .vercel-release/index.html
           grep -q 'controller_tuning_allowed=false' .vercel-release/index.html
+
+          grep -q 'href="/phase-polish.css?v=' .vercel-release/dashboard/phases/index.html
+          grep -q 'href="/phase-polish.css?v=' .vercel-release/dashboard/phases/frozen.html
+          grep -q 'href="/phase-polish.css?v=' .vercel-release/dashboard/phases/phase.html
+          ! grep -q 'href="/signature.css?v=' .vercel-release/dashboard/phases/index.html
+          ! grep -q 'href="/signature.css?v=' .vercel-release/dashboard/phases/frozen.html
+          grep -q 'Every phase stays part of the story.' .vercel-release/dashboard/phases/index.html
 
           node - <<'NODE'
           global.window = {};
@@ -144,6 +152,7 @@ jobs:
           echo "✓ Homepage: Tesla-style research shell, professor framing, frozen Phase 22 evidence, and claim boundary present"
 
           curl --fail --silent --show-error --location "$PUBLIC_URL/aegisland.css" >/dev/null
+          curl --fail --silent --show-error --location "$PUBLIC_URL/phase-polish.css" >/dev/null
           curl --fail --silent --show-error --location "$PUBLIC_URL/frozen-lineage.js" -o /tmp/frozen-lineage.js
           node - <<'NODE'
           global.window = {};
@@ -159,18 +168,24 @@ jobs:
           echo "✓ Frozen lineage asset: exact 6 PASS / 7 FAIL record and Phase 22 identities present"
 
           ARCHIVE_HTML=$(curl --fail --silent --show-error --location "$PUBLIC_URL/phases/")
-          printf '%s' "$ARCHIVE_HTML" | grep -q 'Every frozen phase'
-          printf '%s' "$ARCHIVE_HTML" | grep -q 'Nothing rewritten'
-          echo "✓ Archive: frozen lineage index present"
+          printf '%s' "$ARCHIVE_HTML" | grep -q 'Every phase stays part of the story.'
+          printf '%s' "$ARCHIVE_HTML" | grep -q 'href="/phase-polish.css?v='
+          ! printf '%s' "$ARCHIVE_HTML" | grep -q 'href="/signature.css?v='
+          echo "✓ Archive: polished Tesla-style phase index present"
 
           for PHASE in phase12 phase13a phase13b phase13c phase14 phase15 phase16 phase17 phase18 phase19 phase20 phase21 phase22; do
             PHASE_HTML=$(curl --fail --silent --show-error --location "$PUBLIC_URL/phases/$PHASE/")
             printf '%s' "$PHASE_HTML" | grep -q 'phaseContent'
+            printf '%s' "$PHASE_HTML" | grep -q 'href="/phase-polish.css?v='
           done
-          echo "✓ Frozen detail routes: Phase 12 through Phase 22 resolve through the shared frozen-detail system"
+          echo "✓ Frozen detail routes: Phase 12 through Phase 22 resolve through the polished shared detail system"
 
+          PHASE1_HTML=$(curl --fail --silent --show-error --location "$PUBLIC_URL/phases/phase1/")
+          printf '%s' "$PHASE1_HTML" | grep -q 'href="/phase-polish.css?v='
+          PHASE10R_HTML=$(curl --fail --silent --show-error --location "$PUBLIC_URL/phases/phase10r/")
+          printf '%s' "$PHASE10R_HTML" | grep -q 'href="/phase-polish.css?v='
           PHASE11_HTML=$(curl --fail --silent --show-error --location "$PUBLIC_URL/phases/phase11/")
           printf '%s' "$PHASE11_HTML" | grep -q 'Phase 11 P14R'
-          echo "✓ Phase 11 predecessor remains reachable"
+          echo "✓ Foundational phase pages remain reachable and polished"
 
-          echo "=== Verification complete: AegisLand serves the Tesla-style homepage and frozen Phase 22 research archive ==="
+          echo "=== Verification complete: AegisLand serves the Tesla-style homepage and polished Phase 1–22 archive ==="
