@@ -143,8 +143,8 @@ def _apply_component_subset(
     for _, idx_obj in out.groupby("sequence_id", sort=False).groups.items():
         idx = list(idx_obj)
         frames = out.loc[idx, "frame_index"].to_numpy(int)
-        lat = out.loc[idx, "p14_estimate_lateral_x_m"].to_numpy(float)
-        alt = out.loc[idx, "p14_estimate_altitude_m"].to_numpy(float)
+        lat = out.loc[idx, "p14_estimate_lateral_x_m"].to_numpy(float).copy()
+        alt = out.loc[idx, "p14_estimate_altitude_m"].to_numpy(float).copy()
 
         if "A" in components:
             lag = np.full(len(idx), 2, dtype=int)
