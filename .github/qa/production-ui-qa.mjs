@@ -25,7 +25,7 @@ const viewports = [
   { name: 'tablet', width: 820, height: 1180 },
   { name: 'mobile', width: 390, height: 844, isMobile: true, hasTouch: true }
 ];
-const screenshotRoutes = new Set(['/', '/phases/', '/phases/phase13a/', '/phases/phase18/', '/phases/phase22/']);
+const screenshotRoutes = new Set(['/', '/phases/', '/phases/phase1/', '/phases/phase13a/', '/phases/phase18/', '/phases/phase22/']);
 const report = { base: BASE, startedAt: new Date().toISOString(), checks: [], errors: [], warnings: [], screenshots: [] };
 
 await fs.rm(OUT, { recursive: true, force: true });
@@ -39,8 +39,7 @@ const safeName = (route) => route === '/' ? 'home' : route.replace(/^\/+|\/+$/g,
 
 const browser = await chromium.launch({ headless: true });
 try {
-  // Production UI QA can race the deploy workflow on a main push. Wait until the
-  // public alias exposes the frozen archive identity before evaluating the page set.
+  // Production QA may race deployment on a main push. Wait for the frozen site identity.
   const readinessContext = await browser.newContext({ viewport: { width: 1280, height: 800 }, reducedMotion: 'reduce' });
   const readiness = await readinessContext.newPage();
   let ready = false;
@@ -85,7 +84,7 @@ try {
       let response;
       try {
         response = await page.goto(BASE + route, { waitUntil: 'domcontentloaded', timeout: 45000 });
-        await page.waitForTimeout(650);
+        await page.waitForTimeout(700);
       } catch (error) {
         add(`${vp.name}-${route}-load`, false, { error: String(error) });
         await page.close();
@@ -163,41 +162,70 @@ try {
   add('home-claim-boundary-visible', home.hasBoundary, home);
   add('home-no-phase23', home.noPhase23Link && home.saysFrozen, home);
 
-  const inspectArchive = page.getByRole('link', { name: /inspect every phase/i }).first();
-  add('home-archive-cta-exists', await inspectArchive.count() === 1);
-  if (await inspectArchive.count()) {
-    await inspectArchive.click();
+  const archiveCta = page.getByRole('link', { name: /see every phase|inspect every phase|browse all phases/i }).first();
+  add('home-archive-cta-exists', await archiveCta.count() === 1);
+  if (await archiveCta.count()) {
+    await archiveCta.click();
     await page.waitForTimeout(500);
     add('home-archive-cta-routes', /\/phases\/?$/.test(new URL(page.url()).pathname), { url: page.url() });
   }
 
   await page.goto(BASE + '/phases/', { waitUntil: 'domcontentloaded', timeout: 45000 });
-  await page.waitForTimeout(650);
+  await page.waitForTimeout(800);
   const archive = await page.evaluate(() => ({
-    frozenCards: document.querySelectorAll('#frozenCards .archive-card').length,
-    legacyCards: document.querySelectorAll('#legacyCards .archive-card').length,
+    categories: document.querySelectorAll('.archive-category').length,
+    categoryNav: document.querySelectorAll('#categoryNav a').length,
+    allCards: document.querySelectorAll('.archive-card.phase-personalized').length,
+    frozenCards: document.querySelectorAll('.archive-card[data-frozen="true"]').length,
+    historicalCards: document.querySelectorAll('.archive-card[data-frozen="false"]').length,
+    frozenPass: document.querySelectorAll('.archive-card[data-frozen="true"] .verdict-chip--pass').length,
+    frozenFail: document.querySelectorAll('.archive-card[data-frozen="true"] .verdict-chip--fail').length,
+    identities: document.querySelectorAll('.archive-card__identity').length,
+    questions: document.querySelectorAll('.archive-card__question').length,
+    signals: document.querySelectorAll('.archive-card__signal').length,
     text: document.body?.innerText || ''
   }));
-  add('archive-13-frozen-records', archive.frozenCards === 13, archive);
-  add('archive-13-foundational-records', archive.legacyCards === 13, archive);
-  add('archive-nothing-rewritten', /Every frozen phase/i.test(archive.text) && /Nothing rewritten/i.test(archive.text), archive);
+  add('archive-six-research-categories', archive.categories === 6 && archive.categoryNav === 6, archive);
+  add('archive-all-26-records', archive.allCards === 26, archive);
+  add('archive-13-frozen-13-historical', archive.frozenCards === 13 && archive.historicalCards === 13, archive);
+  add('archive-preserves-6-pass-7-fail', archive.frozenPass === 6 && archive.frozenFail === 7, archive);
+  add('archive-personalizes-all-records', archive.identities === 26 && archive.questions === 26 && archive.signals === 26, archive);
+  add('archive-category-thesis-visible', /One research program\. Six distinct chapters/i.test(archive.text), archive);
+  add('archive-continuity-visible', /Every phase stays part of the story/i.test(archive.text), archive);
 
-  const expectedVerdicts = { phase12: 'PASS', phase13a: 'FAIL', phase18: 'FAIL', phase22: 'PASS' };
-  for (const [slug, verdict] of Object.entries(expectedVerdicts)) {
+  const identityChecks = {
+    phase1: [/The safety gate/i, /HOLD \/ ABORT/i],
+    phase10r: [/The shift holdout/i, /Tail \+ coverage/i],
+    phase11: [/The protected reliability pass/i, /Protected gates/i],
+    phase12: [/The uncertainty baseline/i, /Coverage/i],
+    phase13a: [/The validity gauntlet/i, /FAIL preserved/i],
+    phase18: [/The protected confirmation/i, /Protected FAIL/i],
+    phase22: [/The frozen transfer model/i, /10 \/ 10 gates/i]
+  };
+
+  for (const [slug, [identity, signal]] of Object.entries(identityChecks)) {
     await page.goto(`${BASE}/phases/${slug}/`, { waitUntil: 'domcontentloaded', timeout: 45000 });
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(650);
     const snapshot = await page.evaluate(() => ({
       text: document.body?.innerText || '',
-      phaseContent: !!document.querySelector('#phaseContent'),
+      chip: document.querySelectorAll('.phase-identity-chip').length,
+      role: document.querySelectorAll('.phase-role-card').length,
+      category: document.body.dataset.phaseCategory || '',
       hashText: [...document.querySelectorAll('.phase-hash')].map((el) => el.textContent || '').join('\n')
     }));
-    add(`${slug}-shared-frozen-detail`, snapshot.phaseContent, snapshot);
-    add(`${slug}-locked-${verdict.toLowerCase()}`, new RegExp(`LOCKED VERDICT\\s+${verdict}`, 'i').test(snapshot.text), { excerpt: snapshot.text.slice(0, 400) });
-    add(`${slug}-boundary-visible`, /Synthetic, frozen simulation evidence only/i.test(snapshot.text), { excerpt: snapshot.text.slice(0, 500) });
+    add(`${slug}-personalized-identity`, snapshot.chip === 1 && snapshot.role === 1 && identity.test(snapshot.text), { excerpt: snapshot.text.slice(0, 600), chip: snapshot.chip, role: snapshot.role });
+    add(`${slug}-personalized-signal`, signal.test(snapshot.text), { excerpt: snapshot.text.slice(0, 700) });
+    add(`${slug}-category-bound`, snapshot.category.length > 0, { category: snapshot.category });
+
+    if (frozenSlugs.includes(slug)) {
+      const expectedVerdict = ['phase13a', 'phase13b', 'phase14', 'phase15', 'phase16', 'phase17', 'phase18'].includes(slug) ? 'FAIL' : 'PASS';
+      add(`${slug}-locked-${expectedVerdict.toLowerCase()}`, new RegExp(`LOCKED VERDICT\\s+${expectedVerdict}`, 'i').test(snapshot.text), { excerpt: snapshot.text.slice(0, 450) });
+      add(`${slug}-boundary-visible`, /Synthetic, frozen simulation evidence only/i.test(snapshot.text), { excerpt: snapshot.text.slice(-650) });
+    }
     if (slug === 'phase22') {
       add('phase22-sealed-result-sha-visible', snapshot.hashText.includes(PHASE22_RESULT), { hashText: snapshot.hashText });
       add('phase22-sealed-candidate-sha-visible', snapshot.hashText.includes(PHASE22_CANDIDATE), { hashText: snapshot.hashText });
-      add('phase22-final-r2-visible', snapshot.text.includes('0.8319') && snapshot.text.includes('0.7744'), { excerpt: snapshot.text.slice(0, 650) });
+      add('phase22-final-r2-visible', snapshot.text.includes('0.8319') && snapshot.text.includes('0.7744'), { excerpt: snapshot.text.slice(0, 900) });
     }
   }
 
@@ -205,7 +233,7 @@ try {
   await page.waitForTimeout(500);
   const phase11Text = await page.locator('body').innerText();
   add('phase11-predecessor-reachable', /Phase 11 P14R/i.test(phase11Text));
-  add('phase11-failure-remains-visible', /2\.435/.test(phase11Text) && /2\.25/.test(phase11Text) && /not exposed/i.test(phase11Text), { excerpt: phase11Text.slice(0, 700) });
+  add('phase11-failure-remains-visible', /2\.435/.test(phase11Text) && /2\.25/.test(phase11Text) && /not exposed/i.test(phase11Text), { excerpt: phase11Text.slice(0, 800) });
 
   await page.close();
   await context.close();
