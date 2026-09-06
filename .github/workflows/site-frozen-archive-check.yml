@@ -36,17 +36,18 @@ jobs:
           grep -q "slug: 'phase13a'" deploy/vercel/frozen-lineage.js
           grep -q "slug: 'phase13c'" deploy/vercel/frozen-lineage.js
           grep -q "slug: 'phase22'" deploy/vercel/frozen-lineage.js
-          grep -q '0.832' deploy/vercel/frozen-lineage.js
-          grep -q '0.774' deploy/vercel/frozen-lineage.js
+          grep -q '0.8319' deploy/vercel/frozen-lineage.js
+          grep -q '0.7744' deploy/vercel/frozen-lineage.js
           grep -q '0ddc968b8bd48c2de6d904194b417854913389a8927cff0b15b96c6501f8294c' deploy/vercel/frozen-lineage.js
           grep -q '62e75d7b39088c2e66f1cc6be4d180501b79632f2f6847af1fbe0bd96be17551' deploy/vercel/frozen-lineage.js
+          grep -q '668d065714dde279857bc0e196f0ef7cc5e182ed' deploy/vercel/frozen-lineage.js
+          grep -q 'sha256:78fa8d0d5a0df2a59d2d65a3e30abb1e8c948c1f3b9b66a2cb262f00adb971cb' deploy/vercel/frozen-lineage.js
 
           test "$(grep -c "verdict: 'PASS'" deploy/vercel/frozen-lineage.js)" -eq 6
           test "$(grep -c "verdict: 'FAIL'" deploy/vercel/frozen-lineage.js)" -eq 7
 
           grep -q 'Every frozen phase' dashboard/phases/index.html
-          grep -q 'phase13a' dashboard/phases/frozen.html
-          grep -q 'phase22' dashboard/phases/frozen.html
+          grep -q 'const phase = lineage && lineage.bySlug\[slug\]' dashboard/phases/frozen.html
           grep -q '/dashboard/phases/frozen.html' deploy/vercel/vercel.json
 
           grep -q 'simulation_only=true' deploy/vercel/index.html
