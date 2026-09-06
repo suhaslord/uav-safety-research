@@ -2,69 +2,81 @@
 
 I built AegisLand to test one question:
 
-> **If a landing camera is confidently wrong, can an independent estimate expose the error before touchdown without making the system unusably conservative?**
+> **If a landing camera is confidently wrong, can independent evidence and calibrated uncertainty expose the error without making the system unusably conservative?**
 
-This repository is a simulation study, not flight software. The useful part is the experiment record: what I changed, what I measured, which gates passed, and which results failed.
+This repository is a simulation study, not flight software. The useful part is the experiment record: what changed, what was frozen, what evidence was allowed to influence development, which gates passed, which gates failed, and which holdouts stayed untouched until their preregistered stage.
 
-## What I tested
+## Current result: Phase 12 Iteration 3
 
-I started with synthetic landing experiments where the visual estimate could be biased while still looking internally consistent. I compared image-only estimation against supervisory variants that used temporal checks, a second imperfect estimate, uncertainty, and abstention.
+**Phase 12 is closed. Iteration 3 passed development, transfer, protected validation, and final unseen replication without retuning after candidate freeze.**
 
-Later phases moved toward harder evidence: PX4/Gazebo traces, genuine camera frames, partial views, appearance changes, frozen transfer sets, and protected validation that was evaluated only after the candidate and gates were fixed.
+The Phase 12 lineage was created after Phase 11 P14R missed one locked protected H4 lateral tail-efficiency gate (`2.4354x` vs `<= 2.25x`). Phase 11 remained closed. Phase 12 used fresh scale-fit/calibration/development/transfer/protected/final evidence and never reused the Phase 11 protected seed.
 
-## Current result: Phase 11 P14R
+### Final holdout — seed `935935`
 
-Phase 11 is closed. The final candidate P14R was frozen at scientific head `58b06089a621264afb886f6aee2acaacf8a8709c`, passed every required seen-transfer gate, and then entered protected validation.
-
-The protected result was **mixed / failed overall**. Availability and uncertainty coverage were strong, but one preregistered H4 lateral tail-efficiency component exceeded its frozen maximum:
-
-| Protected check | Result |
+| Final check | Result |
 |---|---:|
-| Useful availability | **98.53% — PASS** |
-| Lateral 95% coverage | **96.17% — PASS** |
-| Altitude 95% coverage | **95.82% — PASS** |
-| Calibration MACE | **0.03678 — PASS** |
-| Lateral median interval width / p95 error | **0.855× — PASS** |
-| Lateral p95 interval width / p95 error | **2.435× — FAIL** (`<= 2.25×` required) |
-| Altitude median interval width / p95 error | **1.113× — PASS** |
-| Altitude p95 interval width / p95 error | **1.833× — PASS** |
-| Rescue recovery | **94.63%** |
+| Useful availability | **98.57% — PASS** |
+| Lateral 95% coverage | **95.53% — PASS** |
+| Altitude 95% coverage | **95.22% — PASS** |
+| Calibration MACE | **0.01751 — PASS** |
+| Lateral median interval width / p95 error | **0.5613x — PASS** |
+| Lateral p95 interval width / p95 error | **2.23035x — PASS** (`<= 2.25x`) |
+| Altitude median interval width / p95 error | **0.7768x — PASS** |
+| Altitude p95 interval width / p95 error | **1.7291x — PASS** |
+| Rescue recovery | **95.43% — PASS** |
+| Diagnostic AUROC | **0.9833** |
 
-### What I think this means
+The final H4 lateral p95 result is close to its locked boundary, which is why the unchanged protected and final replications matter. No threshold was relaxed and no post-hoc interval multiplier was added.
 
-Phase 11 supports a narrower result than “the system passed.” Bounded continuity plus an independent rescue path solved most of the earlier availability problem, and a robust groupwise conformal envelope restored uncertainty coverage under the tested shift. But protected shift still produced an excessively wide lateral tail relative to the error it was covering.
+## What changed in Phase 12
 
-I did **not** loosen the 2.25× threshold after seeing 2.435×. I also did **not** expose the final P15-v2 unseen holdout after the protected failure. Phase 11 therefore ends without a final unseen-replication claim.
+The Phase 11 point estimator, bounded continuity path, independent rescue, velocity caps, innovation scales, availability logic, and gate definitions stayed fixed. Phase 12 changed only the uncertainty model.
 
-## Why Phase 11 existed
+The first two development iterations improved the targeted lateral H4 p95 ratio but still failed it:
 
-Phase 10R improved mean error on ambiguous views but failed the preregistered all-gates rule. It left three problems visible:
+- v1 severity-conditioned normalized conformal: `2.3620x` — FAIL
+- v2 continuity-scale contrast shrinkage: `2.3485x` — FAIL
 
-- truth-visible miss rate: **20.0%**;
-- lateral / altitude 95% uncertainty coverage: **84.3% / 79.7%** under shift;
-- both p95 improvement gates failed.
+Seen-only forensics showed that the largest continuity widths were poorly aligned with the largest actual errors, while normalized lateral anchor innovation was a much stronger inference-visible indicator of error heteroscedasticity than severity. Iteration 3 therefore added one bounded continuity-only lateral reliability coordinate derived from anchor innovation and fit its low-capacity normalization using scale-fit evidence only.
 
-Phase 11 specifically tested whether bounded continuity, independent rescue, and a more robust uncertainty-transfer scheme could repair those weaknesses without post-hoc retuning.
+No neural model, optimizer sweep, development-selected coefficient, calibration weakening, gate change, point-estimator change, rescue change, or threshold movement was introduced.
 
-## Earlier results that looked much better
+## Frozen Iteration 3 identity
 
-Phase 6B used a simpler synthetic setup. There, selective intervention reduced unsafe touchdowns from **43% to 1%**, with a deliberate **3% timeout** cost.
+- scientific Git SHA: `8d0617a83d699cd14eae6194ce3a86a5c034dfbc`
+- candidate SHA-256: `e2372ca597cdd983f098f1a45524c077798114c59a62bf9faccefd17b67a4991`
+- method: `continuity_lateral_innovation_residual_normalized_robust_conformal`
+- frozen invariant suite: `35 passed`
+- broad CI on frozen scientific SHA: PASS
 
-A separate V3 experiment also showed that independent error structure can matter: unsafe touchdowns fell from **84.2% to 2.4%** in that abstract redundant-perception setup.
+### Replication progression
 
-Both results were useful, but later testing showed why the project needed harder evidence. Synthetic success did not guarantee that the same ideas would survive genuine camera limitations and distribution shift.
+| Stage | Seed | Lateral H4 p95 | Lateral 95% coverage | Verdict |
+|---|---:|---:|---:|---|
+| Development | `907907` | `2.16845x` | `94.95%` | PASS |
+| Transfer | `913913` | `2.05804x` | `94.50%` | PASS |
+| Protected validation | `924924` | `2.21245x` | `95.40%` | PASS |
+| Final holdout | `935935` | **`2.23035x`** | **`95.53%`** | **PASS** |
 
-## A result that did not transfer
+No scientific code or candidate content changed after freeze.
 
-In Phase 10, every usable Gazebo-camera observation was already clean ArUco geometry at centimeter scale. The temporal estimator therefore did **not** improve the point estimate:
+## Evidence ledger
 
-| Metric | Phase 9 | AegisT10 |
-|---|---:|---:|
-| Lateral / altitude MAE | `2.77 / 1.57 cm` | `2.77 / 1.57 cm` |
-| Median \|residual\| / sigma (lat / alt) | `13.17 / 5.11` | `0.65 / 0.52` |
-| 2-sigma coverage | — | `93% / 100%` |
+Permanently seen in Phase 12:
 
-So the useful Phase 10 result was about uncertainty calibration, not better point estimation. I froze the mixed result and did not retune after seeing the holdout.
+- scale-fit `880880`
+- calibration A `891891`
+- calibration B `902902`
+- development-only `907907`
+- transfer `913913` — exposed once after development PASS
+- protected `924924` — exposed once after transfer PASS
+- final `935935` — exposed once after protected PASS
+
+Untouched / forbidden throughout Phase 12:
+
+- Phase 11 protected `858858` — never reused or reevaluated
+- retired Phase 11 P15-v2 `869869` — never exposed
 
 ## How the evidence changed over time
 
@@ -76,7 +88,8 @@ So the useful Phase 10 result was about uncertainty calibration, not better poin
 | 9 | Genuine Gazebo camera frames | strong detection does not automatically give trustworthy metric geometry |
 | 10 | Temporal estimate + calibrated uncertainty | uncertainty improved; point-error target failed |
 | 10R | New geometry + appearance holdout | mean error improved, but tail, misses, and shift calibration failed |
-| 11 | Frozen seen transfer + protected validation | availability and coverage recovered; one locked lateral tail-efficiency component still failed |
+| 11 | Fresh transfer + protected validation | availability and coverage recovered; locked lateral tail efficiency still failed |
+| **12** | Fresh scale-fit/calibration + development → transfer → protected → final | **innovation-conditioned continuity uncertainty passed the locked simulation-study gates across the full frozen progression** |
 
 ## Reproducing the repository
 
@@ -93,30 +106,29 @@ python scripts/serve_dashboard.py
 
 Useful records:
 
+- [Phase 12 Iteration 3 final report](docs/phase12_iteration3_final_report.md)
+- [Phase 12 Iteration 3 preregistration](docs/phase12_iteration3_preregistration.md)
+- [Phase 12 width-tail forensics](docs/phase12_width_tail_forensics.md)
+- [Phase 12 development log](docs/phase12_development_log.md)
 - [Phase 11 final report](docs/phase11_final_report.md)
-- [Phase 10R frozen result](docs/phase10r_frozen_holdout_result.md)
-- [Phase 10R protocol](docs/phase10r_frozen_holdout_protocol.md)
-- [Phase 10 result](docs/phase10_frozen_holdout_result.md)
 - [Reproducibility protocol](docs/reproducibility.md)
-- [Research log](docs/research_log.md)
 - [Live research cockpit](https://aegisland-research-cockpit.vercel.app/)
 
 The canonical production UI bundle is under `deploy/vercel/`. Historical dashboard assets remain in `dashboard/` because earlier phases are part of the research record.
 
 ## Limits I do not want this project to hide
 
-- **Simulation only.** I have not validated this on a physical aircraft or hardware camera.
-- **Safety acceptance is false.** Passing most metrics is not a flight-safety claim.
-- Phase 11 failed the protected H4 lateral p95 interval-width / p95-error component: **2.435×** vs a frozen **2.25×** maximum.
-- The final P15-v2 unseen holdout was **not exposed** after that failure and is retired without an unseen-replication claim.
-- Phase 10R previously had a **20%** truth-visible miss rate and undercoverage under appearance/geometry shift.
-- The Phase 10 camera holdout was small: 20 truth-visible frames and 15 paired observations.
+- **Simulation only.** This has not been validated on a physical aircraft or hardware camera.
+- **Safety acceptance is false.** Passing simulation-study gates is not a flight-safety or certification claim.
+- **Controller tuning is not authorized from this result.** Phase 12 evaluates uncertainty behavior around a frozen estimator lineage.
+- The final H4 lateral p95 ratio, `2.23035x`, passes but is close to the locked `2.25x` maximum.
+- The study does not establish real-sensor rescue equivalence, autonomous landing safety, operational reliability, or production readiness.
 - Passing CI tests says the software runs as tested. It does not make the system flight-safe.
 
 ## Next question
 
-Phase 11 is closed. Any attempt to improve the lateral tail-efficiency failure must be a **new preregistered phase** with fresh development, transfer, and protected evidence. The Phase 11 protected result should not be reused as a hidden test, and the retired P15-v2 holdout should not be opened to rescue this result.
+Phase 12 is now closed. No more Phase 12 tuning or evidence exposure is authorized.
 
-A legitimate next study would ask whether a new uncertainty model can reduce protected lateral tail width **without** sacrificing the availability and coverage gains that P14R achieved.
+Any follow-on study should start a **new preregistered lineage with fresh evidence**. A legitimate next question is whether the same uncertainty-allocation idea transfers to a meaningfully different simulator, sensor model, or real recorded camera dataset while preserving the same evidence hygiene.
 
 **Safety note:** AegisLand is educational, simulation-only research. It is not validated flight-control software and should not be used to operate a physical aircraft.
