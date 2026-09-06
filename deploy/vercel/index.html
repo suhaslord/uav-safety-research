@@ -3,59 +3,133 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#ffffff">
-  <meta name="description" content="AegisLand is simulation-only UAV safety research built around frozen protocols, independent evidence, calibrated uncertainty, and visible negative results. Current frontier: Phase 12 Iteration 3 final replication.">
+  <meta name="theme-color" content="#070a0d">
+  <meta name="description" content="AegisLand is a frozen simulation-only UAV research archive. The evidence lineage is closed through Phase 22, including preserved failures and final holdout passes.">
   <link rel="canonical" href="https://aegisland-research-cockpit.vercel.app/">
-  <meta property="og:title" content="AegisLand — Research Cockpit">
-  <meta property="og:description" content="Evidence before confidence. Phase 12 Iteration 3 passed development, transfer, protected validation, and final unseen replication without retuning.">
+  <meta property="og:title" content="AegisLand — Frozen Evidence Archive">
+  <meta property="og:description" content="Freeze the evidence. Keep the failures. AegisLand is frozen through Phase 22.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://aegisland-research-cockpit.vercel.app/">
-  <title>AegisLand — Research Cockpit</title>
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=4">
-  <link rel="stylesheet" href="/aegisland.css?v=4">
+  <title>AegisLand — Frozen Evidence Archive</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=5">
+  <link rel="stylesheet" href="/signature.css?v=1">
 </head>
-<body>
-  <a class="skip-link" href="#main">Skip to research result</a>
-  <header class="site-header">
-    <a class="brand" href="#top" aria-label="AegisLand home"><span class="brand-mark" aria-hidden="true">A</span><span>AEGISLAND</span></a>
-    <nav class="site-nav" aria-label="Primary navigation"><a href="#result">Result</a><a href="#boundary">Boundary</a><a href="#timeline">Lineage</a><a href="#method">Method</a></nav>
-    <div class="header-actions"><a class="current" href="/phases/phase12/" aria-current="page">Phase 12</a><a href="/phases/">Archive</a><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub</a></div>
-    <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-expanded="false" aria-controls="mobileMenuSheet">Menu</button>
+<body class="signature-site">
+  <header class="signature-nav">
+    <div class="signature-shell signature-nav__inner">
+      <a class="signature-brand" href="/" aria-label="AegisLand home"><span class="signature-brand__mark" aria-hidden="true"></span><span>AEGISLAND</span></a>
+      <nav class="signature-nav__links" aria-label="Primary navigation">
+        <a href="#lineage">Frozen lineage</a>
+        <a href="#finding">What survived</a>
+        <a href="/research-cockpit/">Cockpit</a>
+        <a href="/phases/">Archive</a>
+      </nav>
+    </div>
   </header>
-  <nav class="mobile-menu-sheet" id="mobileMenuSheet" aria-label="Mobile navigation" aria-hidden="true">
-    <div class="mobile-menu-head"><strong>AEGISLAND</strong><button class="mobile-menu-close" type="button" aria-label="Close navigation">Close</button></div>
-    <div class="mobile-menu-links"><a href="#result">Result</a><a href="#boundary">Boundary</a><a href="#timeline">Lineage</a><a href="#method">Method</a><a href="/phases/phase12/">Phase 12</a></div>
-    <div class="mobile-menu-meta"><a href="/phases/">Archive</a><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub ↗</a></div>
-  </nav>
-  <main id="main">
-    <section class="hero" id="top" aria-labelledby="hero-title">
-      <div class="wrap hero-grid">
-        <div>
-          <p class="eyebrow">Simulation-only research · lineage closed · Phase 12 Iteration 3</p>
-          <h1 id="hero-title">Evidence before confidence.</h1>
-          <p class="hero-deck">AegisLand asks whether independent evidence and calibrated uncertainty can expose confidently wrong landing perception without making the system unusably conservative.</p>
-          <div class="actions"><a class="button primary" href="/phases/phase12/">Open Phase 12</a><a class="button secondary" href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase12_iteration3_final_report.md" target="_blank" rel="noreferrer">Read final report</a></div>
+
+  <main>
+    <section class="signature-shell signature-hero" id="top">
+      <div>
+        <div class="signature-kicker">Frozen through Phase 22 · simulation only</div>
+        <h1>Freeze the evidence.<em>Keep the failures.</em></h1>
+        <p class="signature-hero__lede">AegisLand is no longer a queue of “next phases.” It is a closed research record: every failed gate stays visible, every passing result keeps its boundary, and the scientific lineage is frozen at the exact Phase 22 final evidence head.</p>
+        <div class="signature-actions">
+          <a class="signature-button signature-button--primary" href="/phases/">Explore the frozen lineage</a>
+          <a class="signature-button" href="/phases/phase22/">Open Phase 22</a>
+          <a class="signature-button" href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">Source ↗</a>
         </div>
-        <aside class="result-card" aria-label="Current Phase 12 final replication result">
-          <p class="eyebrow">Final unseen replication</p><strong class="pass">All required gates passed</strong><p>Final lateral H4 p95 width / p95 error reached <b>2.23035×</b> against the locked maximum of <b>2.25×</b>, while lateral 95% coverage remained <b>95.53%</b>.</p>
-          <div class="safety"><p class="eyebrow">Claim boundary</p><strong>Simulation result only</strong><p>simulation_only=true · safety_acceptance=false · controller_tuning_allowed=false</p></div>
-        </aside>
+      </div>
+
+      <div class="aegis-halo" aria-label="Aegis Halo — frozen evidence signature">
+        <span class="aegis-halo__ring"></span><span class="aegis-halo__ring"></span><span class="aegis-halo__ring"></span>
+        <span class="aegis-halo__axis"></span><span class="aegis-halo__axis aegis-halo__axis--v"></span>
+        <span class="aegis-halo__node aegis-halo__node--a"></span><span class="aegis-halo__node aegis-halo__node--b"></span><span class="aegis-halo__node aegis-halo__node--c"></span><span class="aegis-halo__node aegis-halo__node--d"></span>
+        <span class="aegis-halo__core"></span>
+        <span class="aegis-halo__caption">evidence locked · history visible</span>
       </div>
     </section>
 
-    <section class="metrics" id="result" aria-label="Phase 12 final holdout metrics"><div class="wrap metric-grid"><div class="metric"><span>Final availability</span><strong>98.57%</strong></div><div class="metric"><span>Lateral 95% coverage</span><strong>95.53%</strong></div><div class="metric"><span>Altitude 95% coverage</span><strong>95.22%</strong></div><div class="metric"><span>Rescue recovery</span><strong>95.43%</strong></div></div></section>
+    <section class="signature-strip" aria-label="Frozen research status">
+      <div class="signature-shell signature-strip__inner">
+        <div class="signature-stat"><strong>22</strong><span>Frozen frontier</span></div>
+        <div class="signature-stat"><strong>12</strong><span>Recorded states from P12→P22</span></div>
+        <div class="signature-stat"><strong>6 / 6</strong><span>Recent PASS / FAIL records</span></div>
+        <div class="signature-stat"><strong>0</strong><span>Authorized new phases</span></div>
+      </div>
+    </section>
 
-    <section class="section"><div class="wrap goal-grid"><div><p class="eyebrow">What changed</p><h2>Allocate uncertainty to the estimator states that actually look unreliable.</h2><p class="copy">Phase 11 already recovered availability and nominal coverage, but protected lateral tail width was too large. Phase 12 left the point estimator, rescue path, gates, and evidence rules alone and changed only the uncertainty model.</p></div><div class="goal-points" aria-label="Phase 12 design"><div class="goal-point"><strong>Seen-only forensics</strong><span>The widest continuity rows were poorly aligned with the largest actual errors.</span></div><div class="goal-point"><strong>Inference-visible reliability</strong><span>Normalized lateral anchor innovation tracked error heteroscedasticity better than severity.</span></div><div class="goal-point"><strong>Frozen progression</strong><span>The same candidate then passed development, transfer, protected validation, and final holdout without retuning.</span></div></div></div></section>
+    <section class="signature-section" id="lineage">
+      <div class="signature-shell">
+        <div class="signature-section__head">
+          <div><div class="signature-section__eyebrow">The evidence spine</div><h2>Failures are part of the result.</h2></div>
+          <p class="signature-section__intro">Phase 13A is not softened because Phase 13C passed. Phase 18 is not upgraded because Phase 19 answered a narrower question. The spine is deliberately scarred: red means the locked scientific gate failed.</p>
+        </div>
+        <div class="evidence-spine" id="evidenceSpine" aria-live="polite"></div>
+      </div>
+    </section>
 
-    <section class="section ash" id="boundary"><div class="wrap boundary-grid"><div><p class="eyebrow">The locked boundary held</p><h2>Phase 12 passed without moving Phase 11's failed threshold.</h2><p class="copy">Phase 11 P14R ended at 2.4354× against a preregistered 2.25× maximum. Phase 12 started a fresh lineage rather than retuning that protected result. Iteration 3 reached 2.16845× in development, 2.05804× in transfer, 2.21245× in protected validation, and 2.23035× in the final holdout.</p><p class="copy">The final number is close to the boundary. That is why the unchanged protected and final replications matter.</p></div><div class="threshold-card phase12-threshold"><p class="eyebrow">H4 lateral p95 efficiency</p><strong>2.23035× <span class="pass">PASS</span></strong><p>p95 interval width / p95 error</p><div class="threshold-chart" role="img" aria-label="Phase 12 final H4 lateral p95 interval width to p95 error ratio was 2.23035, below the frozen maximum 2.25"><div class="threshold-track"><div class="threshold-fill"></div></div><span class="threshold-limit" aria-hidden="true"></span><span class="threshold-result" aria-hidden="true"></span></div><div class="threshold-foot">Frozen maximum: 2.25× · final: 2.23035× · no post-freeze scientific changes.</div></div></div></section>
+    <section class="signature-section" id="finding">
+      <div class="signature-shell">
+        <div class="signature-section__head">
+          <div><div class="signature-section__eyebrow">What actually survived</div><h2>Three conclusions. No victory lap.</h2></div>
+          <p class="signature-section__intro">The later phases matter because they narrowed the claim until it survived fresh evidence. The website now centers those durable conclusions instead of presenting every experiment as a new milestone.</p>
+        </div>
+        <div class="signature-grid">
+          <article class="signature-card"><div class="signature-card__index">01 · LEVEL ERROR</div><h3>Latency still makes the estimate worse.</h3><p>Pure two-frame staleness increased absolute lateral error and reduced frozen Phase 12 coverage while <strong>Phase 12 interval widths stayed exactly unchanged</strong>. None of the later residual results overturn that.</p></article>
+          <article class="signature-card"><div class="signature-card__index">02 · LOCAL DYNAMICS</div><h3>One-step residual dynamics are context-specific.</h3><p>Phase 19 confirmed a repeatable distribution-wide residual advantage in the simple synthetic context while the hard context stayed approximately neutral. That is a statement about local predictability, <strong>not latency being beneficial</strong>.</p></article>
+          <article class="signature-card"><div class="signature-card__index">03 · CONTEXT STRUCTURE</div><h3>The five-factor surface is mostly additive.</h3><p>Phases 20–22 moved from exact Shapley attribution to orthogonal decomposition to a frozen predictive model. The final additive model transferred without refit across new 32-cell cubes.</p></article>
+        </div>
+      </div>
+    </section>
 
-    <section class="section" id="timeline"><div class="wrap" id="homeModelRail"><div class="rail-head"><div><p class="eyebrow">Research progression</p><h2>Every phase stays reachable.</h2></div><a class="text-link" href="/phases/">Open full archive →</a></div><div class="rail-scroll" aria-label="Scrollable research phase rail"><div class="home-rail-grid"><a class="home-rail-step" href="/phases/phase1/">01<small>Phase 1</small></a><a class="home-rail-step" href="/phases/phase2/">02<small>Phase 2</small></a><a class="home-rail-step" href="/phases/phase3/">03<small>Phase 3</small></a><a class="home-rail-step" href="/phases/phase4/">04<small>Phase 4</small></a><a class="home-rail-step" href="/phases/phase5/">05<small>Phase 5</small></a><a class="home-rail-step" href="/phases/phase6/">06<small>Phase 6</small></a><a class="home-rail-step" href="/phases/phase6b/">07<small>Phase 6B</small></a><a class="home-rail-step" href="/phases/phase7/">08<small>Phase 7</small></a><a class="home-rail-step" href="/phases/phase8/">09<small>Phase 8</small></a><a class="home-rail-step" href="/phases/phase9/">10<small>Phase 9</small></a><a class="home-rail-step" href="/phases/phase10/">11<small>Phase 10</small></a><a class="home-rail-step" href="/phases/phase10r/">12<small>Phase 10R</small></a><a class="home-rail-step" href="/phases/phase11/">13<small>Phase 11</small></a><a class="home-rail-step active" href="/phases/phase12/" aria-current="page">14<small>Phase 12</small></a></div></div></div></section>
+    <section class="signature-section">
+      <div class="signature-shell">
+        <article class="final-panel">
+          <div class="final-panel__top"><div class="signature-section__eyebrow">Phase 22 · final holdout</div><span class="verdict-chip verdict-chip--pass">PASS · 10 / 10</span></div>
+          <h3>Frozen Additive Context Transfer</h3>
+          <p>A six-parameter main-effects model was fitted once, then held fixed through development, transfer, protected validation, and the final 32-cell holdout. Final Phase 22 passed every locked gate with no model refit.</p>
+          <div class="final-metrics">
+            <div class="final-metric"><strong>0.832</strong><span>RMSE R²</span></div>
+            <div class="final-metric"><strong>0.774</strong><span>MAE R²</span></div>
+            <div class="final-metric"><strong>0.0111</strong><span>RMSE cell MAE</span></div>
+            <div class="final-metric"><strong>0.0209</strong><span>MAE cell MAE</span></div>
+            <div class="final-metric"><strong>100%</strong><span>Stable-sign accuracy</span></div>
+          </div>
+          <div class="claim-boundary"><b>BOUNDARY //</b> simulation_only=true · safety_acceptance=false · controller_tuning_allowed=false<br>No physical-flight safety, certification, production-readiness, real-sensor-equivalence, controller-improvement, or operational-safety claim.</div>
+        </article>
+      </div>
+    </section>
 
-    <section class="section dark" id="method"><div class="wrap"><div class="section-head"><p class="eyebrow">Research method</p><div><h2>Inspectability is part of the product.</h2><p class="copy">Protocols, failed iterations, evidence identities, candidate hashes, frozen code, and final results stay visible so a pass cannot erase how it was obtained.</p></div></div><div class="three"><article class="card"><h3>Freeze before downstream evidence.</h3><p>Transfer, protected validation, and final holdout were exposed only after the preceding gate authorized them.</p><span class="tag">One-way evidence progression</span></article><article class="card"><h3>Keep failures in the lineage.</h3><p>v1 and v2 remain failed development iterations. Phase 11 remains a protected H4 failure.</p><span class="tag">No rewritten history</span></article><article class="card"><h3>Stop after final replication.</h3><p>No further Phase 12 tuning or evidence exposure is authorized after the final PASS.</p><span class="tag">Lineage closed</span></article></div></div></section>
-
-    <section class="section"><div class="wrap boundary-grid"><div><p class="eyebrow">Research archive</p><h2>Start with Phase 12. Trace backward when you need the evidence.</h2><p class="copy">The latest result is a stronger simulation-study replication, not a real-world flight-safety claim. Earlier mismatches and failed gates remain accessible.</p></div><div class="actions"><a class="button primary" href="/phases/phase12/">View Phase 12</a><a class="button secondary" href="/phases/">Browse all phases</a></div></div></section>
+    <section class="signature-section">
+      <div class="signature-shell signature-section__head">
+        <div><div class="signature-section__eyebrow">Archive mode</div><h2>The science is frozen. The interface can still improve.</h2></div>
+        <div class="signature-section__intro">Future work on this branch is presentation, documentation, reproducibility, and navigation—not a new scientific phase. The frozen scientific head is <code>668d065f4312e33e2d21ca7a7ee76d4d6d5617b3</code>.</div>
+      </div>
+    </section>
   </main>
-  <footer class="footer"><p>AegisLand · educational simulation-only research</p><div class="footer-links"><a href="/phases/">Archive</a><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub ↗</a><a href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase12_iteration3_final_report.md" target="_blank" rel="noreferrer">Phase 12 report ↗</a></div></footer>
-  <script>(()=>{const b=document.getElementById('mobileMenuToggle'),m=document.getElementById('mobileMenuSheet'),c=m.querySelector('.mobile-menu-close');const set=o=>{b.setAttribute('aria-expanded',String(o));m.setAttribute('aria-hidden',String(!o));m.classList.toggle('open',o);document.body.classList.toggle('menu-open',o)};b.addEventListener('click',()=>set(b.getAttribute('aria-expanded')!=='true'));c.addEventListener('click',()=>set(false));m.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>set(false)));document.addEventListener('keydown',e=>{if(e.key==='Escape')set(false)})})();</script>
+
+  <footer class="signature-footer">
+    <div class="signature-shell signature-footer__inner">
+      <div>AegisLand · frozen simulation-only research archive</div>
+      <div><code>simulation_only=true · safety_acceptance=false · controller_tuning_allowed=false</code></div>
+    </div>
+  </footer>
+
+  <script src="/frozen-lineage.js?v=1"></script>
+  <script>
+    (() => {
+      const data = window.AEGIS_FROZEN_LINEAGE;
+      const root = document.getElementById('evidenceSpine');
+      if (!data || !root) return;
+      data.phases.forEach((phase) => {
+        const link = document.createElement('a');
+        link.className = 'evidence-row';
+        link.dataset.verdict = phase.verdict;
+        link.href = `/phases/${phase.slug}/`;
+        link.innerHTML = `<span class="evidence-node" aria-hidden="true"></span><span class="evidence-label">${phase.label}</span><span class="evidence-title"><strong>${phase.title}</strong><span>${phase.summary}</span></span><span class="verdict-chip verdict-chip--${phase.verdict.toLowerCase()}">${phase.verdict}</span>`;
+        root.appendChild(link);
+      });
+    })();
+  </script>
 </body>
 </html>
