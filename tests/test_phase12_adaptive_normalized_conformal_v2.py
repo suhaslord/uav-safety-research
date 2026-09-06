@@ -24,10 +24,18 @@ def _models() -> dict[str, object]:
 
 
 def _df(group: str) -> pd.DataFrame:
+    horizon_by_group = {
+        v1.p11.GROUP_H3: 3,
+        v1.p11.GROUP_H45: 4,
+        v1.p11.GROUP_H67: 6,
+    }
+    is_continuity = group in horizon_by_group
+    source = "soft_innovation_continuity" if is_continuity else group
+    horizon = horizon_by_group.get(group, 0)
     return pd.DataFrame(
         {
-            "p14_source": [group, group, group],
-            "p9_continuity_horizon": [3 if group == v1.p11.GROUP_H3 else 0] * 3,
+            "p14_source": [source, source, source],
+            "p9_continuity_horizon": [horizon, horizon, horizon],
             "severity": [0.0, 0.5, 1.0],
         }
     )
@@ -39,6 +47,11 @@ def test_v2_keeps_base_scale_exactly_v1():
         v2._scale_values(df, _models(), "lateral"),
         v1._scale_values(df, _models(), "lateral"),
     )
+
+
+def test_fixture_reaches_the_intended_continuity_group():
+    df = _df(v1.p11.GROUP_H3)
+    assert set(v1.p11._groups(df).astype(str)) == {v1.p11.GROUP_H3}
 
 
 def test_v2_continuity_scale_is_positive_monotone_and_lower_contrast():
