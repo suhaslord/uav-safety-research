@@ -8,7 +8,8 @@ const routes = [
   { name: 'home', path: '/' },
   { name: 'archive', path: '/phases/' },
   { name: 'phase10r', path: '/phases/phase10r/' },
-  { name: 'phase11', path: '/phases/phase11/' }
+  { name: 'phase11', path: '/phases/phase11/' },
+  { name: 'phase12', path: '/phases/phase12/' }
 ];
 const viewports = [
   { name: 'desktop', width: 1440, height: 1000 },
