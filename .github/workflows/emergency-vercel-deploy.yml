@@ -51,7 +51,7 @@ jobs:
           {"orgId":"$VERCEL_ORG_ID","projectId":"$VERCEL_PROJECT_ID"}
           EOF
 
-      - name: Assert frozen signature release is native and self-contained
+      - name: Assert research-first frozen release is native and self-contained
         shell: bash
         run: |
           set -euo pipefail
@@ -60,17 +60,24 @@ jobs:
           ! grep -q 'cdn.jsdelivr.net/gh/suhaslord/uav-safety-research' .vercel-release/index.html .vercel-release/vercel.json
 
           test -f .vercel-release/signature.css
+          test -f .vercel-release/research-home.css
           test -f .vercel-release/frozen-lineage.js
           test -f .vercel-release/dashboard/phases/index.html
           test -f .vercel-release/dashboard/phases/frozen.html
-          test -f .vercel-release/dashboard/phases/phase.html
           test -f .vercel-release/phase11.html
+          test -f .vercel-release/phase12.html
 
-          grep -q 'Freeze the evidence.' .vercel-release/index.html
-          grep -q 'Frozen through Phase 22' .vercel-release/index.html
+          grep -q 'Research question' .vercel-release/index.html
+          grep -q 'Main purpose' .vercel-release/index.html
+          grep -q 'Problem being studied' .vercel-release/index.html
+          grep -q 'Approach' .vercel-release/index.html
+          grep -q 'Main conclusion' .vercel-release/index.html
+          grep -q 'Confidence is not' .vercel-release/index.html
           grep -q 'Frozen Additive Context Transfer' .vercel-release/index.html
-          grep -q '0.832' .vercel-release/index.html
-          grep -q '0.774' .vercel-release/index.html
+          grep -q '0.8322' .vercel-release/index.html
+          grep -q '0.7738' .vercel-release/index.html
+          grep -q '0.01056' .vercel-release/index.html
+          grep -q '0.01679' .vercel-release/index.html
           grep -q '100%' .vercel-release/index.html
           grep -q 'simulation_only=true' .vercel-release/index.html
           grep -q 'safety_acceptance=false' .vercel-release/index.html
@@ -78,17 +85,24 @@ jobs:
 
           grep -q "slug: 'phase13a'" .vercel-release/frozen-lineage.js
           grep -q "slug: 'phase18'" .vercel-release/frozen-lineage.js
+          grep -q "slug: 'phase20'" .vercel-release/frozen-lineage.js
+          grep -q "slug: 'phase21'" .vercel-release/frozen-lineage.js
           grep -q "slug: 'phase22'" .vercel-release/frozen-lineage.js
-          grep -q "verdict: 'FAIL'" .vercel-release/frozen-lineage.js
-          grep -q "verdict: 'PASS'" .vercel-release/frozen-lineage.js
+          grep -q '0ddc968b8bd48c2de6d904194b417854913389a8927cff0b15b96c6501f8294c' .vercel-release/frozen-lineage.js
+          grep -q '62e75d7b39088c2e66f1cc6be4d180501b79632f2f6847af1fbe0bd96be17551' .vercel-release/frozen-lineage.js
 
           node - <<'NODE'
           global.window = {};
           require('./.vercel-release/frozen-lineage.js');
           const d = window.AEGIS_FROZEN_LINEAGE;
           if (!d || d.frozenThrough !== 'Phase 22') throw new Error('frozen frontier mismatch');
+          if (d.phases.length !== 13) throw new Error('frozen lineage record count mismatch');
+          if (d.counts.PASS !== 6 || d.counts.FAIL !== 7) throw new Error('pass/fail count mismatch');
           if (d.bySlug.phase18.verdict !== 'FAIL') throw new Error('Phase 18 failure was rewritten');
-          if (d.bySlug.phase22.verdict !== 'PASS') throw new Error('Phase 22 final pass missing');
+          if (d.bySlug.phase19.verdict !== 'PASS') throw new Error('Phase 19 final pass missing');
+          if (d.bySlug.phase20.verdict !== 'PASS' || d.bySlug.phase21.verdict !== 'PASS' || d.bySlug.phase22.verdict !== 'PASS') throw new Error('late frozen pass missing');
+          if (d.bySlug.phase22.resultSha !== '0ddc968b8bd48c2de6d904194b417854913389a8927cff0b15b96c6501f8294c') throw new Error('Phase 22 final result identity mismatch');
+          if (d.bySlug.phase22.candidateSha !== '62e75d7b39088c2e66f1cc6be4d180501b79632f2f6847af1fbe0bd96be17551') throw new Error('Phase 22 candidate identity mismatch');
           if (d.boundary.simulation_only !== true || d.boundary.safety_acceptance !== false || d.boundary.controller_tuning_allowed !== false) throw new Error('claim boundary mismatch');
           NODE
 
@@ -104,7 +118,7 @@ jobs:
           echo "url=$URL" >> "$GITHUB_OUTPUT"
           echo "Production deployment: $URL"
 
-      - name: Verify deployed frozen signature bundle and public alias
+      - name: Verify deployed research-first bundle and public alias
         shell: bash
         run: |
           set -euo pipefail
@@ -123,35 +137,46 @@ jobs:
           PUBLIC_HTML=$(curl --fail --silent --show-error --location --retry 5 --retry-delay 2 "$PUBLIC_URL/")
           ! printf '%s' "$PUBLIC_HTML" | grep -q 'document.write\|cdn.jsdelivr.net/gh/suhaslord/uav-safety-research'
           printf '%s' "$PUBLIC_HTML" | grep -q 'data-site-shell="native"'
-          printf '%s' "$PUBLIC_HTML" | grep -q 'Freeze the evidence.'
-          printf '%s' "$PUBLIC_HTML" | grep -q 'Frozen through Phase 22'
-          printf '%s' "$PUBLIC_HTML" | grep -q '0.832'
-          printf '%s' "$PUBLIC_HTML" | grep -q '0.774'
+          printf '%s' "$PUBLIC_HTML" | grep -q 'Research question'
+          printf '%s' "$PUBLIC_HTML" | grep -q 'Main purpose'
+          printf '%s' "$PUBLIC_HTML" | grep -q 'Problem being studied'
+          printf '%s' "$PUBLIC_HTML" | grep -q 'Main conclusion'
+          printf '%s' "$PUBLIC_HTML" | grep -q '0.8322'
+          printf '%s' "$PUBLIC_HTML" | grep -q '0.7738'
           printf '%s' "$PUBLIC_HTML" | grep -q 'simulation_only=true'
           printf '%s' "$PUBLIC_HTML" | grep -q 'safety_acceptance=false'
           printf '%s' "$PUBLIC_HTML" | grep -q 'controller_tuning_allowed=false'
-          echo "✓ Homepage: frozen Phase 22 signature and claim boundary present"
+          echo "✓ Homepage: research question, purpose, conclusion, Phase 22 result, and claim boundary present"
 
+          curl --fail --silent --show-error --location "$PUBLIC_URL/signature.css" >/dev/null
+          curl --fail --silent --show-error --location "$PUBLIC_URL/research-home.css" >/dev/null
           LINEAGE_JS=$(curl --fail --silent --show-error --location "$PUBLIC_URL/frozen-lineage.js")
           printf '%s' "$LINEAGE_JS" | grep -q "slug: 'phase13a'"
           printf '%s' "$LINEAGE_JS" | grep -q "slug: 'phase18'"
+          printf '%s' "$LINEAGE_JS" | grep -q "slug: 'phase20'"
+          printf '%s' "$LINEAGE_JS" | grep -q "slug: 'phase21'"
           printf '%s' "$LINEAGE_JS" | grep -q "slug: 'phase22'"
-          printf '%s' "$LINEAGE_JS" | grep -q 'Frozen Additive Context Transfer'
-          echo "✓ Frozen lineage asset: passes and failures are present through Phase 22"
+          printf '%s' "$LINEAGE_JS" | grep -q '0ddc968b8bd48c2de6d904194b417854913389a8927cff0b15b96c6501f8294c'
+          echo "✓ Frozen lineage asset: passes and failures are present through exact Phase 22 final evidence"
 
           ARCHIVE_HTML=$(curl --fail --silent --show-error --location "$PUBLIC_URL/phases/")
           printf '%s' "$ARCHIVE_HTML" | grep -q 'Every phase.'
           printf '%s' "$ARCHIVE_HTML" | grep -q 'Nothing rewritten.'
           echo "✓ Archive: frozen lineage index present"
 
-          for PHASE in phase12 phase13a phase13b phase13c phase14 phase15 phase16 phase17 phase18 phase19 phase20 phase21 phase22; do
+          for PHASE in phase13a phase13b phase13c phase14 phase15 phase16 phase17 phase18 phase19 phase20 phase21 phase22; do
             PHASE_HTML=$(curl --fail --silent --show-error --location "$PUBLIC_URL/phases/$PHASE/")
             printf '%s' "$PHASE_HTML" | grep -q 'phaseContent'
           done
-          echo "✓ Frozen routes: Phase 12 through Phase 22 resolve through the signature detail system"
+          echo "✓ Frozen detail routes: Phase 13A through Phase 22 resolve through the signature detail system"
+
+          PHASE12_HTML=$(curl --fail --silent --show-error --location "$PUBLIC_URL/phases/phase12/")
+          printf '%s' "$PHASE12_HTML" | grep -q 'Phase 12'
+          printf '%s' "$PHASE12_HTML" | grep -q '2.23035'
+          echo "✓ Phase 12 frozen baseline remains reachable"
 
           PHASE11_HTML=$(curl --fail --silent --show-error --location "$PUBLIC_URL/phases/phase11/")
           printf '%s' "$PHASE11_HTML" | grep -q 'Phase 11 P14R'
-          echo "✓ Phase 11 and foundational archive remain reachable"
+          echo "✓ Phase 11 foundational predecessor remains reachable"
 
-          echo "=== Verification complete: AegisLand serves the frozen Phase 22 archive ==="
+          echo "=== Verification complete: AegisLand serves the research-first frozen Phase 22 archive ==="
