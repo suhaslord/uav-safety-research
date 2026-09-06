@@ -1,0 +1,25 @@
+/* Final responsive guardrails for the shared phase polish layer. */
+.signature-shell,.phase-detail,.phase-detail__hero,.phase-detail__metrics-band,.phase-detail__body,.phase-detail__panel,.phase-detail__context,.phase-detail__context-grid,.phase-detail__nav,.phase-metric,.phase-evidence-row,.phase-hash{min-width:0}
+.phase-hash,.phase-evidence-row strong,.signature-footer code{overflow-wrap:anywhere;word-break:break-word;white-space:normal}
+.phase-detail__panel--evidence>div{min-width:0;flex-wrap:wrap}
+
+@media(max-width:980px){
+  body.archive-shell.phase-polish-shell .hero{min-height:auto;padding:86px 24px 64px}
+  body.archive-shell.phase-polish-shell .section{min-height:0;padding:72px 24px}
+  body.archive-shell.phase-polish-shell .program-goal{min-height:0}
+  body.archive-shell.phase-polish-shell .phase-rail-section{padding-inline:24px}
+}
+
+@media(max-width:600px){
+  .signature-shell{width:calc(100% - 36px);max-width:100%}
+  .phase-detail{max-width:100%;overflow:hidden}
+  .phase-detail__hero,.phase-detail__body,.phase-detail__context-grid,.phase-detail__nav{width:100%;max-width:100%}
+  .phase-detail__metrics-band{width:100%;max-width:100%;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  .phase-metric strong,.phase-metric span{overflow-wrap:anywhere}
+  .phase-hash{max-width:100%;font-size:10px}
+  .phase-detail__panel--evidence>div{display:grid!important;grid-template-columns:minmax(0,1fr) auto;align-items:start!important}
+  .phase-detail__panel--evidence h2{min-width:0}
+  body.archive-shell.phase-polish-shell .hero{min-height:auto;padding:72px 18px 54px}
+  body.archive-shell.phase-polish-shell .section{min-height:0;padding:58px 18px}
+  body.archive-shell.phase-polish-shell .program-goal{min-height:0;padding:58px 18px}
+}
