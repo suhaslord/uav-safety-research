@@ -27,13 +27,13 @@
   <script>
     (() => {
       const lineage = window.AEGIS_FROZEN_LINEAGE;
-      const match = location.pathname.match(/\/phases\/(phase(?:13a|13b|13c|1[4-9]|2[0-2]))\/?$/i);
+      const match = location.pathname.match(/\/phases\/(phase(?:12|13a|13b|13c|1[4-9]|2[0-2]))\/?$/i);
       const slug = match ? match[1].toLowerCase() : '';
       const phase = lineage && lineage.bySlug[slug];
       const root = document.getElementById('phaseContent');
       if (!phase) {
         document.title = 'AegisLand — Phase not found';
-        root.innerHTML = `<section class="archive-hero"><div class="signature-kicker">Archive lookup</div><h1>Phase not found.</h1><p>This route is not part of the frozen Phase 13A–22 presentation layer.</p><a class="signature-button signature-button--primary" href="/phases/">Open archive</a></section>`;
+        root.innerHTML = `<section class="archive-hero"><div class="signature-kicker">Archive lookup</div><h1>Phase not found.</h1><p>This route is not part of the frozen Phase 12–22 presentation layer.</p><a class="signature-button signature-button--primary" href="/phases/">Open archive</a></section>`;
         return;
       }
 
@@ -74,7 +74,7 @@
           </aside>
         </section>
         <nav class="phase-detail__nav" aria-label="Frozen phase navigation">
-          ${prev ? `<a class="signature-button" href="/phases/${prev.slug}/">← ${prev.label}</a>` : '<span></span>'}
+          ${prev ? `<a class="signature-button" href="/phases/${prev.slug}/">← ${prev.label}</a>` : '<a class="signature-button" href="/phases/phase11/">← Phase 11</a>'}
           ${next ? `<a class="signature-button" href="/phases/${next.slug}/">${next.label} →</a>` : '<a class="signature-button signature-button--primary" href="/">Frozen homepage →</a>'}
         </nav>`;
     })();
