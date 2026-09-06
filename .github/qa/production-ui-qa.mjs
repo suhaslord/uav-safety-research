@@ -180,7 +180,11 @@ try {
   }));
   add('archive-13-frozen-records', archive.frozenCards === 13, archive);
   add('archive-13-foundational-records', archive.legacyCards === 13, archive);
-  add('archive-nothing-rewritten', /Every frozen phase/i.test(archive.text) && /Nothing rewritten/i.test(archive.text), archive);
+  add(
+    'archive-preserves-verdict-integrity-wording',
+    /Every phase stays part of the story/i.test(archive.text) && /A later PASS never upgrades an earlier FAIL/i.test(archive.text),
+    archive
+  );
 
   const expectedVerdicts = { phase12: 'PASS', phase13a: 'FAIL', phase18: 'FAIL', phase22: 'PASS' };
   for (const [slug, verdict] of Object.entries(expectedVerdicts)) {
