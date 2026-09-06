@@ -43,7 +43,7 @@
       const root = document.getElementById('phaseContent');
       if (!phase) {
         document.title = 'AegisLand — Phase not found';
-        root.innerHTML = `<section class="archive-hero"><div class="signature-kicker">Archive lookup</div><h1>Phase not found.</h1><p>This route is not part of the frozen Phase 12–22 research archive.</p><div class="signature-actions"><a class="signature-button signature-button--primary" href="/phases/">Open all phases</a></div></section>`;
+        root.innerHTML = `<section class="archive-hero"><div class="signature-kicker">Archive lookup</div><h1>That phase is not in this frozen archive.</h1><p>Use the archive page to open one of the published Phase 12–22 records.</p><div class="signature-actions"><a class="signature-button signature-button--primary" href="/phases/">Open all phases</a></div></section>`;
         return;
       }
 
@@ -77,8 +77,8 @@
 
         <section class="phase-detail__body">
           <article class="phase-detail__panel">
-            <span class="phase-detail__eyebrow">Frozen finding</span>
-            <h2>What this phase established.</h2>
+            <span class="phase-detail__eyebrow">What the phase showed</span>
+            <h2>The recorded finding.</h2>
             <p>${phase.finding}</p>
             <div class="claim-boundary"><b>EVIDENCE BOUNDARY //</b> ${lineage.boundary.statement}</div>
           </article>
@@ -92,8 +92,8 @@
 
         <section class="phase-detail__context">
           <div class="phase-detail__context-grid">
-            <div><span class="phase-detail__eyebrow">Why the record stays frozen</span><h2>${phase.note}</h2></div>
-            <p>A later phase may ask a narrower new question, but it does not rewrite this phase's locked verdict. The archive keeps positive and negative evidence equally visible so the scientific lineage remains inspectable.</p>
+            <div><span class="phase-detail__eyebrow">Why it stays frozen</span><h2>${phase.note}</h2></div>
+            <p>A later phase can ask a new question, but it cannot go back and change this result. Passes and failures stay visible so the lineage can be checked without hindsight edits.</p>
           </div>
         </section>
 
