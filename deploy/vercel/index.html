@@ -32,12 +32,12 @@
     <section class="hero" id="top" aria-labelledby="hero-title">
       <div class="wrap hero-grid">
         <div>
-          <p class="eyebrow">Simulation-only research · frozen through Phase 22</p>
+          <p class="eyebrow">Simulation-only research · Frozen through Phase 22</p>
           <h1 id="hero-title">Evidence before confidence.</h1>
           <p class="hero-deck">AegisLand studies whether frozen uncertainty and local error-dynamics diagnostics stay informative when synthetic UAV landing-perception estimates become stale or degraded.</p>
-          <div class="actions"><a class="button primary signature-button" href="#question">Read the research question</a><a class="button secondary signature-button" href="/phases/">Browse the archive</a></div>
+          <div class="actions"><a class="button primary signature-button" href="#question">Read the research question</a><a class="button secondary signature-button" href="/phases/">Inspect every phase</a></div>
         </div>
-        <aside class="result-card" aria-label="Phase 22 final holdout result">
+        <aside class="result-card aegis-halo" aria-label="Phase 22 final holdout result">
           <p class="eyebrow">Phase 22 · final holdout</p>
           <strong class="pass">All 10 locked gates passed</strong>
           <p>The frozen additive context-transfer candidate reached <b>0.8319</b> RMSE-surface R² and <b>0.7744</b> MAE-surface R², with <b>100%</b> stable-sign accuracy on eligible cells.</p>
@@ -56,9 +56,9 @@
 
     <section class="section" id="conclusion"><div class="wrap goal-grid"><div><p class="eyebrow">Main conclusion</p><h2>Uncertainty, level error, and local predictability are different things.</h2><p class="copy">Across the frozen simulation studies, pure two-frame stale estimates can worsen absolute lateral error while Phase 12 interval widths remain unchanged. A context-specific one-step residual structure can still be predictable, and later phases show that much of its synthetic context dependence is first-order and can be approximated additively on fresh 32-cell context cubes.</p><p class="copy"><strong>This does not mean latency is beneficial.</strong> Static latency-induced level-error degradation persists.</p></div><div class="goal-points"><div class="goal-point"><strong>Phase 16 · Level error</strong><span>Pure two-frame staleness worsened absolute lateral error and coverage while Phase 12 widths stayed identical.</span></div><div class="goal-point"><strong>Phase 19 · Residuals</strong><span>A narrower distribution-wide one-step residual advantage replicated in the simple synthetic context.</span></div><div class="goal-point"><strong>Phases 20–21 · Structure</strong><span>Context attenuation was distributed across predefined modifiers and was predominantly first-order.</span></div><div class="goal-point"><strong>Phase 22 · Transfer</strong><span>The frozen additive candidate passed all 10 final gates without refitting.</span></div></div></div></section>
 
-    <section class="section ash" id="timeline"><div class="wrap"><div class="rail-head"><div><p class="eyebrow">Frozen evidence lineage</p><h2>Every pass and every failure stays reachable.</h2><p class="copy">The record is frozen through Phase 22. A later PASS does not erase an earlier FAIL.</p></div><a class="text-link" href="/phases/">Open full archive →</a></div><div class="evidence-list" id="frozenEvidenceList" aria-live="polite"></div></div></section>
+    <section class="section ash" id="timeline"><div class="wrap"><div class="rail-head"><div><p class="eyebrow">Frozen evidence lineage</p><h2>Every pass and every failure stays reachable.</h2><p class="copy">The record is frozen through Phase 22. A later PASS does not erase an earlier FAIL.</p></div><a class="text-link" href="/phases/">Open full archive →</a></div><div class="evidence-list" id="evidenceSpine" aria-live="polite"></div></div></section>
 
-    <section class="section"><div class="wrap boundary-grid"><div><p class="eyebrow">Evidence boundary</p><h2>The science is frozen. The presentation can improve.</h2><p class="copy">No Phase 23 is implied or authorized by this site. The scientific record remains fixed through Phase 22 at scientific head <code>668d065714dde279857bc0e196f0ef7cc5e182ed</code>.</p><p class="copy">No physical-flight safety, certification, production-readiness, real-sensor-equivalence, controller-improvement, physical-causality, or operational-safety claim is made.</p></div><div class="actions"><a class="button primary signature-button" href="/phases/phase22/">View Phase 22</a><a class="button secondary signature-button" href="/phases/">Browse all phases</a></div></div></section>
+    <section class="section"><div class="wrap boundary-grid"><div><p class="eyebrow">Evidence boundary</p><h2>The science is frozen. The presentation can improve.</h2><p class="copy signature-section__intro">No Phase 23 is implied or authorized by this site. The scientific record remains fixed through Phase 22 at scientific head <code>668d065714dde279857bc0e196f0ef7cc5e182ed</code>.</p><p class="copy">No physical-flight safety, certification, production-readiness, real-sensor-equivalence, controller-improvement, physical-causality, or operational-safety claim is made.</p></div><div class="actions"><a class="button primary signature-button" href="/phases/phase22/">View Phase 22</a><a class="button secondary signature-button" href="/phases/">Browse all phases</a></div></div></section>
   </main>
 
   <footer class="footer"><p>AegisLand · frozen simulation-only research</p><div class="footer-links"><a href="/phases/">Archive</a><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub ↗</a><a href="/phases/phase22/">Phase 22</a></div></footer>
@@ -67,11 +67,12 @@
   <script>
     (() => {
       const data = window.AEGIS_FROZEN_LINEAGE;
-      const root = document.getElementById('frozenEvidenceList');
+      const root = document.getElementById('evidenceSpine');
       if (data && root) {
         data.phases.forEach((phase) => {
           const item = document.createElement('a');
-          item.className = 'evidence-item';
+          item.className = 'evidence-item evidence-row';
+          item.dataset.verdict = phase.verdict;
           item.href = `/phases/${phase.slug}/`;
           item.style.textDecoration = 'none';
           item.innerHTML = `<span>${phase.label} · ${phase.stage}</span><strong>${phase.verdict} · ${phase.title}</strong>`;
