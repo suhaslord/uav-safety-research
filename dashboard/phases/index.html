@@ -3,36 +3,50 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#070a0d">
+  <meta name="theme-color" content="#ffffff">
   <meta name="description" content="AegisLand frozen research lineage through Phase 22, with passes and failures preserved.">
-  <title>AegisLand — Frozen Research Lineage</title>
+  <title>AegisLand — Research Phase Archive</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=5">
-  <link rel="stylesheet" href="/signature.css?v=2">
+  <link rel="stylesheet" href="/aegisland.css?v=4">
+  <link rel="stylesheet" href="/phase-polish.css?v=1">
 </head>
-<body class="signature-site">
+<body class="phase-polish-shell">
+  <a class="skip-link" href="#main">Skip to phase archive</a>
   <header class="signature-nav">
-    <div class="signature-shell signature-nav__inner">
-      <a class="signature-brand" href="/"><span class="signature-brand__mark" aria-hidden="true"></span><span>AEGISLAND</span></a>
-      <nav class="signature-nav__links"><a href="/">Signature home</a><a href="/research-cockpit/">Cockpit</a><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">Source ↗</a></nav>
-    </div>
+    <a class="signature-brand" href="/" aria-label="AegisLand home"><span class="signature-brand__mark" aria-hidden="true"></span><span>AEGISLAND</span></a>
+    <nav class="signature-nav__links" aria-label="Archive navigation"><a href="#frozen">Frozen evidence</a><a href="#foundational">Foundational</a><a href="/">Research home</a><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub ↗</a></nav>
+    <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-expanded="false" aria-controls="mobileMenuSheet">Menu</button>
   </header>
 
-  <main class="signature-shell">
+  <nav class="mobile-menu-sheet" id="mobileMenuSheet" aria-label="Mobile navigation" aria-hidden="true">
+    <div class="mobile-menu-head"><strong>AEGISLAND</strong><button class="mobile-menu-close" type="button" aria-label="Close navigation">Close</button></div>
+    <div class="mobile-menu-links"><a href="#frozen">Frozen evidence</a><a href="#foundational">Foundational</a><a href="/phases/phase22/">Phase 22</a><a href="/">Research home</a></div>
+    <div class="mobile-menu-meta"><a href="/">Home</a><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub ↗</a></div>
+  </nav>
+
+  <main class="signature-shell archive-main" id="main">
     <section class="archive-hero">
-      <div class="signature-kicker">Frozen research archive · Phase 1 → Phase 22</div>
-      <h1>Every frozen phase.<br>Nothing rewritten.</h1>
-      <p>The early research remains navigable in its original archive. From Phase 12 onward, the frozen evidence layer makes the scientific verdict explicit: passes stay passes, failures stay failures, and later work never retroactively upgrades an earlier gate.</p>
-      <div class="signature-actions"><a class="signature-button signature-button--primary" href="/phases/phase22/">Open frozen endpoint</a><a class="signature-button" href="/#lineage">View homepage spine</a></div>
+      <div class="signature-kicker">Research archive · Phase 1 → Phase 22 · simulation only</div>
+      <h1>Every phase stays part of the story.</h1>
+      <p>The archive keeps the full research progression visible: early architecture work, failed gates, successful confirmations, and the frozen Phase 12–22 evidence lineage. A later PASS never upgrades an earlier FAIL.</p>
+      <div class="signature-actions"><a class="signature-button signature-button--primary" href="/phases/phase22/">Open Phase 22</a><a class="signature-button" href="/">Back to research home</a></div>
+    </section>
+
+    <section class="archive-stats" aria-label="Archive summary">
+      <div class="archive-stat"><span>Total phase pages</span><strong>26</strong></div>
+      <div class="archive-stat"><span>Frozen Phase 12–22 records</span><strong>13</strong></div>
+      <div class="archive-stat"><span>Frozen PASS</span><strong>6</strong></div>
+      <div class="archive-stat"><span>Frozen FAIL</span><strong>7</strong></div>
     </section>
 
     <div class="archive-groups">
-      <section class="archive-group">
+      <section class="archive-group" id="frozen">
         <div class="archive-group__title"><h2>Frozen evidence frontier</h2><span>Phase 12 → Phase 22 · immutable verdicts</span></div>
         <div class="archive-cards" id="frozenCards"></div>
       </section>
 
-      <section class="archive-group">
-        <div class="archive-group__title"><h2>Foundational archive</h2><span>Original research pages · still reachable</span></div>
+      <section class="archive-group" id="foundational">
+        <div class="archive-group__title"><h2>Foundational archive</h2><span>Phase 1 → Phase 11 · original research progression</span></div>
         <div class="archive-cards" id="legacyCards"></div>
       </section>
 
@@ -52,7 +66,7 @@
         card.className = 'archive-card';
         card.href = `/phases/${phase.slug}/`;
         const verdictClass = phase.verdict === 'PASS' ? 'verdict-chip--pass' : 'verdict-chip--fail';
-        card.innerHTML = `<div class="archive-card__top"><span class="archive-card__label">${phase.label} · ${phase.stage}</span><span class="verdict-chip ${verdictClass}">${phase.verdict}</span></div><h3>${phase.title}</h3><p>${phase.summary}</p>`;
+        card.innerHTML = `<div class="archive-card__top"><span class="archive-card__label">${phase.label} · ${phase.stage}</span><span class="verdict-chip ${verdictClass}">${phase.verdict}</span></div><h3>${phase.title}</h3><p>${phase.summary}</p><span class="archive-card__open">Open phase →</span>`;
         frozen.appendChild(card);
       });
 
@@ -68,9 +82,25 @@
         const card = document.createElement('a');
         card.className = 'archive-card';
         card.href = `/phases/${slug}/`;
-        card.innerHTML = `<div class="archive-card__top"><span class="archive-card__label">${label}</span><span class="verdict-chip">ARCHIVE</span></div><h3>${title}</h3><p>Open the original phase page and its historical research context.</p>`;
+        card.innerHTML = `<div class="archive-card__top"><span class="archive-card__label">${label}</span><span class="verdict-chip">ARCHIVE</span></div><h3>${title}</h3><p>Open the original phase case study, system changes, evidence, limitations, and research takeaway.</p><span class="archive-card__open">Open phase →</span>`;
         legacyRoot.appendChild(card);
       });
+    })();
+
+    (() => {
+      const b = document.getElementById('mobileMenuToggle');
+      const m = document.getElementById('mobileMenuSheet');
+      const c = m.querySelector('.mobile-menu-close');
+      const set = (open) => {
+        b.setAttribute('aria-expanded', String(open));
+        m.setAttribute('aria-hidden', String(!open));
+        m.classList.toggle('open', open);
+        document.body.classList.toggle('menu-open', open);
+      };
+      b.addEventListener('click', () => set(b.getAttribute('aria-expanded') !== 'true'));
+      c.addEventListener('click', () => set(false));
+      m.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => set(false)));
+      document.addEventListener('keydown', (event) => { if (event.key === 'Escape') set(false); });
     })();
   </script>
 </body>
