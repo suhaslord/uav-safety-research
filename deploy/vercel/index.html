@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-site-shell="native">
+<html lang="en" data-site-shell="native frozen-archive">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -12,8 +12,8 @@
   <meta property="og:url" content="https://aegisland-research-cockpit.vercel.app/">
   <title>AegisLand — Frozen UAV Perception Research</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=5">
-  <link rel="stylesheet" href="/signature.css?v=1">
-  <link rel="stylesheet" href="/research-home.css?v=1">
+  <link rel="stylesheet" href="/signature.css?v=2">
+  <link rel="stylesheet" href="/research-home.css?v=2">
 </head>
 <body class="signature-site">
   <header class="signature-nav">
@@ -32,9 +32,9 @@
   <main>
     <section class="signature-shell signature-hero" id="top">
       <div>
-        <div class="signature-kicker">Simulation-only UAV landing-perception research · frozen through Phase 22</div>
+        <div class="signature-kicker">Simulation-only research · complete frozen lineage · Frozen through Phase 22</div>
         <h1>Confidence is not<em>correctness.</em></h1>
-        <p class="signature-hero__lede">AegisLand studies what happens when synthetic landing-perception estimates become stale or degraded: whether frozen uncertainty still reflects error, what drives failure, and which local error-dynamics patterns transfer without refitting.</p>
+        <p class="signature-hero__lede">AegisLand studies what happens when synthetic landing-perception estimates become stale or degraded: whether frozen uncertainty still reflects error, what drives failure, and which local error-dynamics patterns transfer without refitting. <strong>The failures are the map.</strong></p>
         <div class="signature-actions">
           <a class="signature-button signature-button--primary" href="#question">Read the research question</a>
           <a class="signature-button" href="/phases/">Inspect every phase</a>
@@ -110,7 +110,7 @@
           <div class="conclusion-check"><strong>Residuals</strong><span>Phase 19 confirmed a narrower distribution-wide one-step residual advantage in the simple synthetic context; the hard context remained approximately neutral.</span></div>
           <div class="conclusion-check"><strong>Attribution</strong><span>Phase 20 exactly allocated simple→hard attenuation across five predefined synthetic modifiers; no factor was established as universally dominant.</span></div>
           <div class="conclusion-check"><strong>Structure</strong><span>Phase 21 found first-order effects explained 88.44% of final RMSE-surface variance and 78.01% of final MAE-surface variance.</span></div>
-          <div class="conclusion-check"><strong>Transfer</strong><span>Phase 22’s frozen additive candidate passed all 10 final gates with R² 0.8322 / 0.7738 and 100% stable-sign accuracy on eligible cells.</span></div>
+          <div class="conclusion-check"><strong>Transfer</strong><span>Phase 22’s frozen additive candidate passed all 10 final gates with R² 0.8319 / 0.7744 and 100% stable-sign accuracy on eligible cells.</span></div>
         </div>
       </div>
     </section>
@@ -137,11 +137,10 @@
           <h3>Frozen Additive Context Transfer</h3>
           <p>The additive candidate was fitted before downstream evidence and remained unchanged through transfer, protected validation, and the final 32-cell synthetic context cube. No refit, coefficient change, threshold change, or controller adaptation occurred after freeze.</p>
           <div class="final-metrics">
-            <div class="final-metric"><strong>0.8322</strong><span>RMSE-surface R²</span></div>
-            <div class="final-metric"><strong>0.7738</strong><span>MAE-surface R²</span></div>
-            <div class="final-metric"><strong>0.01056</strong><span>RMSE prediction MAE</span></div>
-            <div class="final-metric"><strong>0.01679</strong><span>MAE prediction MAE</span></div>
+            <div class="final-metric"><strong>0.8319</strong><span>RMSE-surface R²</span></div>
+            <div class="final-metric"><strong>0.7744</strong><span>MAE-surface R²</span></div>
             <div class="final-metric"><strong>100%</strong><span>Stable-sign accuracy</span></div>
+            <div class="final-metric"><strong>10 / 10</strong><span>Locked final gates</span></div>
           </div>
           <div class="claim-boundary"><b>BOUNDARY //</b> simulation_only=true · safety_acceptance=false · controller_tuning_allowed=false<br>Synthetic frozen evidence only. No physical-flight safety, certification, production-readiness, real-sensor-equivalence, controller-improvement, physical-causality, or operational-safety claim.</div>
         </article>
@@ -151,7 +150,7 @@
     <section class="signature-section">
       <div class="signature-shell signature-section__head">
         <div><div class="signature-section__eyebrow">Archive mode</div><h2>The science is frozen. The interface can improve.</h2></div>
-        <div class="signature-section__intro">No Phase 23 is implied or authorized by this site. Presentation, documentation, reproducibility, and navigation can change while the scientific record remains fixed at head <code>668d065f4312e33e2d21ca7a7ee76d4d6d5617b3</code>.</div>
+        <div class="signature-section__intro">No Phase 23 is implied or authorized by this site. Presentation, documentation, reproducibility, and navigation can change while the scientific record remains fixed at head <code>668d065714dde279857bc0e196f0ef7cc5e182ed</code>.</div>
       </div>
     </section>
   </main>
@@ -163,7 +162,7 @@
     </div>
   </footer>
 
-  <script src="/frozen-lineage.js?v=2"></script>
+  <script src="/frozen-lineage.js?v=3"></script>
   <script>
     (() => {
       const data = window.AEGIS_FROZEN_LINEAGE;
