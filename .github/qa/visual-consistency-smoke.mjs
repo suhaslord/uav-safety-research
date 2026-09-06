@@ -53,8 +53,8 @@ try {
 
     const shell = await page.evaluate(() => document.documentElement.dataset.siteShell || '');
     add('home-frozen-native-shell', shell === 'native frozen-archive', { shell });
-    const halo = await page.locator('.aegis-halo').count();
-    add('home-has-aegis-halo', halo === 1, { halo });
+    const teslaStyles = await page.locator('link[href^="/aegisland.css"]').count();
+    add('home-uses-tesla-style-source', teslaStyles === 1, { teslaStyles });
     const evidenceRows = await page.locator('#evidenceSpine .evidence-row').count();
     const passRows = await page.locator('#evidenceSpine .evidence-row[data-verdict="PASS"]').count();
     const failRows = await page.locator('#evidenceSpine .evidence-row[data-verdict="FAIL"]').count();
@@ -62,9 +62,10 @@ try {
     add('home-preserves-pass-fail-record', passRows === 6 && failRows === 7, { passRows, failRows });
 
     const homeText = await page.locator('main').innerText();
-    add('home-signature-thesis-visible', /confidence is not\s*correctness/i.test(homeText) && /failures are the map/i.test(homeText), { excerpt: homeText.slice(0, 280) });
-    add('home-phase22-final-visible', /0\.8319/.test(homeText) && /0\.7744/.test(homeText) && /10\s*\/\s*10/.test(homeText) && /100%/.test(homeText), { excerpt: homeText.slice(-700) });
-    add('home-science-is-explicitly-frozen', /0\s+Authorized new phases/i.test(homeText) && /No Phase 23 is implied or authorized/i.test(homeText), { excerpt: homeText.slice(-500) });
+    add('home-old-thesis-restored', /Evidence before confidence/i.test(homeText), { excerpt: homeText.slice(0, 280) });
+    add('home-professor-framing-visible', /Research question/i.test(homeText) && /Main purpose/i.test(homeText) && /Problem being studied/i.test(homeText) && /Main conclusion/i.test(homeText));
+    add('home-phase22-final-visible', /0\.8319/.test(homeText) && /0\.7744/.test(homeText) && /10\s+locked gates/i.test(homeText) && /100%/.test(homeText), { excerpt: homeText.slice(0, 900) });
+    add('home-science-is-explicitly-frozen', /No Phase 23 is implied or authorized/i.test(homeText), { excerpt: homeText.slice(-500) });
     add('home-claim-boundary-visible', /simulation_only=true/.test(homeText) && /safety_acceptance=false/.test(homeText) && /controller_tuning_allowed=false/.test(homeText));
     const phase23Links = await page.locator('a[href*="phase23"]').count();
     add('home-does-not-link-new-phase', phase23Links === 0, { phase23Links });
@@ -126,7 +127,7 @@ try {
       add(`mobile-${route}-no-horizontal-overflow`, overflow <= 1, { overflow });
     }
     await page.goto(BASE + '/', { waitUntil: 'domcontentloaded', timeout: 45000 });
-    const ctas = await page.locator('.signature-hero .signature-button').evaluateAll(els => els.map(el => Math.round(el.getBoundingClientRect().height)));
+    const ctas = await page.locator('.hero .button').evaluateAll(els => els.map(el => Math.round(el.getBoundingClientRect().height)));
     add('mobile-home-ctas-touchable', ctas.length >= 2 && ctas.every(height => height >= 40), { ctas });
     await page.close();
     await context.close();
