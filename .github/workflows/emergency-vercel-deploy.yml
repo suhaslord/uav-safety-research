@@ -60,6 +60,7 @@ jobs:
           ! grep -q 'cdn.jsdelivr.net/gh/suhaslord/uav-safety-research' .vercel-release/index.html .vercel-release/vercel.json
 
           test -f .vercel-release/aegisland.css
+          test -f .vercel-release/research-home.css
           test -f .vercel-release/phase-polish.css
           test -f .vercel-release/frozen-lineage.js
           test -f .vercel-release/dashboard/phases/index.html
@@ -68,13 +69,15 @@ jobs:
 
           grep -q 'href="/aegisland.css?v=' .vercel-release/index.html
           ! grep -q 'href="/signature.css?v=' .vercel-release/index.html
-          ! grep -q 'href="/research-home.css?v=' .vercel-release/index.html
+          grep -q 'href="/research-home.css?v=' .vercel-release/index.html
           grep -q 'Evidence before confidence.' .vercel-release/index.html
           grep -q 'Frozen through Phase 22' .vercel-release/index.html
           grep -q 'Research question' .vercel-release/index.html
           grep -q 'Main purpose' .vercel-release/index.html
           grep -q 'Problem being studied' .vercel-release/index.html
           grep -q 'Main conclusion' .vercel-release/index.html
+          grep -q 'home-lineage__track' .vercel-release/index.html
+          grep -q '6 PASS / 7 FAIL' .vercel-release/index.html
           grep -q '0.8319' .vercel-release/index.html
           grep -q '0.7744' .vercel-release/index.html
           grep -q '100%' .vercel-release/index.html
@@ -139,19 +142,22 @@ jobs:
           ! printf '%s' "$PUBLIC_HTML" | grep -q 'document.write\|cdn.jsdelivr.net/gh/suhaslord/uav-safety-research'
           printf '%s' "$PUBLIC_HTML" | grep -q 'data-site-shell="native frozen-archive"'
           printf '%s' "$PUBLIC_HTML" | grep -q 'href="/aegisland.css?v='
+          printf '%s' "$PUBLIC_HTML" | grep -q 'href="/research-home.css?v='
           printf '%s' "$PUBLIC_HTML" | grep -q 'Evidence before confidence.'
           printf '%s' "$PUBLIC_HTML" | grep -q 'Research question'
           printf '%s' "$PUBLIC_HTML" | grep -q 'Main purpose'
           printf '%s' "$PUBLIC_HTML" | grep -q 'Main conclusion'
           printf '%s' "$PUBLIC_HTML" | grep -q 'Frozen through Phase 22'
+          printf '%s' "$PUBLIC_HTML" | grep -q 'home-lineage__track'
           printf '%s' "$PUBLIC_HTML" | grep -q '0.8319'
           printf '%s' "$PUBLIC_HTML" | grep -q '0.7744'
           printf '%s' "$PUBLIC_HTML" | grep -q 'simulation_only=true'
           printf '%s' "$PUBLIC_HTML" | grep -q 'safety_acceptance=false'
           printf '%s' "$PUBLIC_HTML" | grep -q 'controller_tuning_allowed=false'
-          echo "✓ Homepage: Tesla-style research shell, professor framing, frozen Phase 22 evidence, and claim boundary present"
+          echo "✓ Homepage: focused Tesla-style research shell, frozen Phase 22 evidence, lineage visual, and claim boundary present"
 
           curl --fail --silent --show-error --location "$PUBLIC_URL/aegisland.css" >/dev/null
+          curl --fail --silent --show-error --location "$PUBLIC_URL/research-home.css" >/dev/null
           curl --fail --silent --show-error --location "$PUBLIC_URL/phase-polish.css" >/dev/null
           curl --fail --silent --show-error --location "$PUBLIC_URL/frozen-lineage.js" -o /tmp/frozen-lineage.js
           node - <<'NODE'
