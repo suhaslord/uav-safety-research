@@ -4,87 +4,147 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#ffffff">
-  <meta name="description" content="AegisLand research lineage through Phase 22, including frozen passes, failures, and foundational work.">
+  <meta name="description" content="AegisLand research lineage through Phase 22, organized by research category with frozen passes, failures, and foundational work preserved.">
   <title>AegisLand — Research Phase Archive</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=5">
   <link rel="stylesheet" href="/aegisland.css?v=4">
   <link rel="stylesheet" href="/phase-polish.css?v=1">
   <link rel="stylesheet" href="/phase-polish-v2.css?v=1">
+  <link rel="stylesheet" href="/phase-personalization.css?v=1">
 </head>
 <body class="phase-polish-shell">
   <a class="skip-link" href="#main">Skip to phase archive</a>
   <header class="signature-nav">
     <a class="signature-brand" href="/" aria-label="AegisLand home"><span class="signature-brand__mark" aria-hidden="true"></span><span>AEGISLAND</span></a>
-    <nav class="signature-nav__links" aria-label="Archive navigation"><a href="#frozen">Frozen evidence</a><a href="#foundational">Foundational</a><a href="/">Research home</a><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub ↗</a></nav>
+    <nav class="signature-nav__links" aria-label="Archive navigation"><a href="#categories">Categories</a><a href="/phases/phase22/">Phase 22</a><a href="/">Research home</a><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub ↗</a></nav>
     <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-expanded="false" aria-controls="mobileMenuSheet">Menu</button>
   </header>
 
   <nav class="mobile-menu-sheet" id="mobileMenuSheet" aria-label="Mobile navigation" aria-hidden="true">
     <div class="mobile-menu-head"><strong>AEGISLAND</strong><button class="mobile-menu-close" type="button" aria-label="Close navigation">Close</button></div>
-    <div class="mobile-menu-links"><a href="#frozen">Frozen evidence</a><a href="#foundational">Foundational</a><a href="/phases/phase22/">Phase 22</a><a href="/">Research home</a></div>
+    <div class="mobile-menu-links"><a href="#categories">Research categories</a><a href="/phases/phase22/">Phase 22</a><a href="/">Research home</a></div>
     <div class="mobile-menu-meta"><a href="/">Home</a><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub ↗</a></div>
   </nav>
 
   <main class="signature-shell archive-main" id="main">
     <section class="archive-hero">
       <div class="signature-kicker">Research archive · Phase 1 → Phase 22 · simulation only</div>
-      <h1>Every phase stays part of the story.</h1>
-      <p>This is the full record: early architecture work, naming gaps, failed gates, successful confirmations, and the frozen Phase 12–22 lineage. Nothing gets cleaned up after the fact just because a later phase did better.</p>
-      <div class="signature-actions"><a class="signature-button signature-button--primary" href="/phases/phase22/">Open Phase 22</a><a class="signature-button" href="/">Research home</a></div>
+      <h1>One research program. Six distinct chapters.</h1>
+      <p>The phases are grouped by the question they were trying to answer: safety architecture, perception, external validation, reliability, latency dynamics, and context transfer. Every failure, naming gap, and frozen result still stays in chronological order inside its category.</p>
+      <div class="signature-actions"><a class="signature-button signature-button--primary" href="#categories">Browse by category</a><a class="signature-button" href="/phases/phase22/">Open Phase 22</a></div>
+      <nav class="category-nav" id="categoryNav" aria-label="Research categories"></nav>
     </section>
 
     <section class="archive-stats" aria-label="Archive summary">
       <div class="archive-stat"><span>Total phase pages</span><strong>26</strong></div>
-      <div class="archive-stat"><span>Frozen Phase 12–22 records</span><strong>13</strong></div>
-      <div class="archive-stat"><span>Frozen PASS</span><strong>6</strong></div>
-      <div class="archive-stat"><span>Frozen FAIL</span><strong>7</strong></div>
+      <div class="archive-stat"><span>Research categories</span><strong>6</strong></div>
+      <div class="archive-stat"><span>Frozen Phase 12–22</span><strong>13</strong></div>
+      <div class="archive-stat"><span>Frozen verdicts</span><strong>6 PASS / 7 FAIL</strong></div>
     </section>
 
-    <div class="archive-groups">
-      <section class="archive-group" id="frozen">
-        <div class="archive-group__title"><h2>Frozen evidence</h2><span>Phase 12 → Phase 22 · verdicts stay locked</span></div>
-        <div class="archive-cards" id="frozenCards"></div>
-      </section>
-
-      <section class="archive-group" id="foundational">
-        <div class="archive-group__title"><h2>Foundational work</h2><span>Phase 1 → Phase 11 · how the system got here</span></div>
-        <div class="archive-cards" id="legacyCards"></div>
-      </section>
-
+    <div class="archive-groups" id="categories">
+      <div id="archiveCategories"></div>
       <section class="claim-boundary"><b>ARCHIVE BOUNDARY //</b> simulation_only=true · safety_acceptance=false · controller_tuning_allowed=false<br>This archive reports synthetic simulation studies and their frozen evidence states. It does not establish physical-flight safety, certification relevance, production readiness, real-sensor equivalence, controller improvement, or operational safety.</section>
     </div>
   </main>
 
   <footer class="signature-footer"><div class="signature-shell signature-footer__inner"><div>AegisLand · frozen simulation-only research archive</div><div><code>scientific lineage frozen through Phase 22</code></div></div></footer>
 
+  <script src="/phase-taxonomy.js?v=1"></script>
   <script src="/frozen-lineage.js?v=3"></script>
   <script>
     (() => {
-      const data = window.AEGIS_FROZEN_LINEAGE;
-      const frozen = document.getElementById('frozenCards');
-      data.phases.forEach((phase) => {
-        const card = document.createElement('a');
-        card.className = 'archive-card';
-        card.href = `/phases/${phase.slug}/`;
-        const verdictClass = phase.verdict === 'PASS' ? 'verdict-chip--pass' : 'verdict-chip--fail';
-        card.innerHTML = `<div class="archive-card__top"><span class="archive-card__label">${phase.label} · ${phase.stage}</span><span class="verdict-chip ${verdictClass}">${phase.verdict}</span></div><h3>${phase.title}</h3><p>${phase.summary}</p><span class="archive-card__open">Open phase →</span>`;
-        frozen.appendChild(card);
-      });
+      const taxonomy = window.AEGIS_PHASE_TAXONOMY;
+      const frozen = window.AEGIS_FROZEN_LINEAGE;
+      const root = document.getElementById('archiveCategories');
+      const nav = document.getElementById('categoryNav');
 
-      const legacy = [
-        ['phase1','Phase 1','Safety supervisor'], ['phase2','Phase 2','Temporal filtering'], ['phase3','Phase 3','Independent reference'],
-        ['phase4','Phase 4','Naming gap'], ['phase5','Phase 5','Robustness + pixels'], ['phase6','Phase 6','Image perception loop'],
-        ['phase6b','Phase 6B','Selective confidence'], ['phase7','Phase 7','External-validity stress'], ['phase8','Phase 8','PX4/Gazebo trace comparison'],
-        ['phase9','Phase 9','External camera perception'], ['phase10','Phase 10','Temporal metric perception'], ['phase10r','Phase 10R','Frozen holdout'],
-        ['phase11','Phase 11','Protected reliability result']
+      const legacy = {
+        phase1: ['Phase 1', 'Safety supervisor', 'Introduced a separate HOLD / ABORT safety layer and exposed the safety-versus-availability tradeoff.'],
+        phase2: ['Phase 2', 'Temporal filtering', 'Added persistence and hysteresis so one bad frame could not dominate the supervisor.'],
+        phase3: ['Phase 3', 'Independent reference', 'Added a second estimator so persistent visual bias became observable through disagreement.'],
+        phase4: ['Phase 4', 'Naming gap', 'Preserves the real repository history instead of inventing a missing experiment.'],
+        phase5: ['Phase 5', 'Robustness + pixels', 'Stress-tested V3 broadly and introduced the first synthetic landing-pad image estimator.'],
+        phase6: ['Phase 6', 'Image perception loop', 'Connected image-derived measurements, confidence, tracking, and the landing controller.'],
+        phase6b: ['Phase 6B', 'Selective confidence', 'Split lateral and altitude confidence so useful geometry could survive partial uncertainty.'],
+        phase7: ['Phase 7', 'External-validity stress', 'Added asynchronous sensing, latency, stale state, shared faults, and stronger dynamics.'],
+        phase8: ['Phase 8', 'PX4/Gazebo comparison', 'Compared internal traces directly with higher-fidelity PX4 SITL + Gazebo evidence.'],
+        phase9: ['Phase 9', 'External camera perception', 'Moved metric perception onto genuine Gazebo camera frames and exposed fallback-geometry error.'],
+        phase10: ['Phase 10', 'Temporal metric perception', 'Protected causal state from ambiguous geometry and made uncertainty more honest.'],
+        phase10r: ['Phase 10R', 'Frozen shift holdout', 'Mean ambiguous-view error improved, but tail risk, availability, and coverage still failed locked gates.'],
+        phase11: ['Phase 11', 'Protected reliability result', 'Recovered high availability and coverage while preserving one locked lateral tail-efficiency failure.']
+      };
+
+      const order = [
+        'phase1','phase2','phase3','phase4','phase5','phase6','phase6b','phase7','phase8','phase9','phase10','phase10r','phase11',
+        'phase12','phase13a','phase13b','phase13c','phase14','phase15','phase16','phase17','phase18','phase19','phase20','phase21','phase22'
       ];
-      const legacyRoot = document.getElementById('legacyCards');
-      legacy.forEach(([slug,label,title]) => {
-        const card = document.createElement('a');
-        card.className = 'archive-card';
-        card.href = `/phases/${slug}/`;
-        card.innerHTML = `<div class="archive-card__top"><span class="archive-card__label">${label}</span><span class="verdict-chip">ARCHIVE</span></div><h3>${title}</h3><p>See the problem, what changed, the recorded evidence, the limits, and why the next phase was needed.</p><span class="archive-card__open">Open phase →</span>`;
-        legacyRoot.appendChild(card);
+
+      const recordFor = (slug) => {
+        const meta = taxonomy.bySlug[slug];
+        const frozenPhase = frozen.bySlug[slug];
+        if (frozenPhase) return {
+          slug,
+          label: frozenPhase.label,
+          title: frozenPhase.title,
+          summary: frozenPhase.summary,
+          status: frozenPhase.verdict,
+          statusClass: frozenPhase.verdict === 'PASS' ? 'verdict-chip--pass' : 'verdict-chip--fail',
+          frozen: true,
+          meta
+        };
+        const historical = legacy[slug];
+        return {
+          slug,
+          label: historical[0],
+          title: historical[1],
+          summary: historical[2],
+          status: slug === 'phase4' ? 'PROVENANCE' : (slug === 'phase10r' ? 'FAILED HOLDOUT' : (slug === 'phase11' ? 'MIXED / FAIL' : 'ARCHIVE')),
+          statusClass: slug === 'phase10r' || slug === 'phase11' ? 'verdict-chip--fail' : '',
+          frozen: false,
+          meta
+        };
+      };
+
+      taxonomy.categories.forEach((category, index) => {
+        const categoryRecords = order.map(recordFor).filter(record => record.meta.category === category.id);
+        const section = document.createElement('section');
+        section.className = 'archive-category';
+        section.id = `category-${category.id}`;
+        section.style.setProperty('--category-accent', category.accent);
+        section.innerHTML = `
+          <div class="archive-category__head">
+            <div class="archive-category__index">Category ${String(index + 1).padStart(2, '0')}</div>
+            <div class="archive-category__copy"><h2>${category.name}</h2><span class="archive-category__range">${category.range}</span><p>${category.description}</p></div>
+          </div>
+          <div class="archive-category__cards"></div>`;
+
+        const cards = section.querySelector('.archive-category__cards');
+        categoryRecords.forEach(record => {
+          const card = document.createElement('a');
+          card.className = 'archive-card phase-personalized';
+          card.href = `/phases/${record.slug}/`;
+          card.dataset.category = category.id;
+          card.dataset.frozen = String(record.frozen);
+          if (record.frozen) card.dataset.verdict = record.status;
+          card.style.setProperty('--phase-accent', category.accent);
+          card.style.setProperty('--phase-tint', category.tint);
+          card.innerHTML = `
+            <div class="archive-card__top"><span class="archive-card__label">${record.label}</span><span class="verdict-chip ${record.statusClass}">${record.status}</span></div>
+            <div class="archive-card__identity">${record.meta.identity}</div>
+            <h3>${record.title}</h3>
+            <p>${record.summary}</p>
+            <p class="archive-card__question">${record.meta.question}</p>
+            <span class="archive-card__signal">${record.meta.signal}</span>
+            <span class="archive-card__open">Open phase →</span>`;
+          cards.appendChild(card);
+        });
+        root.appendChild(section);
+
+        const navLink = document.createElement('a');
+        navLink.href = `#category-${category.id}`;
+        navLink.textContent = category.name;
+        nav.appendChild(navLink);
       });
     })();
 
