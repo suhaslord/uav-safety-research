@@ -1,0 +1,125 @@
+name: Phase 12 iteration 3 frozen transfer
+
+on:
+  push:
+    branches: [phase12/adaptive-normalized-conformal]
+    paths:
+      - .github/workflows/phase12-transfer-v3.yml
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  FROZEN_SCIENTIFIC_SHA: 8d0617a83d699cd14eae6194ce3a86a5c034dfbc
+  FROZEN_CANDIDATE_SHA256: e2372ca597cdd983f098f1a45524c077798114c59a62bf9faccefd17b67a4991
+  FROZEN_DEV_RESULT_SHA256: cc502dd7adc11d92f8efb331e6d16b629e6c264f4392549d5d419e31ceb0a9e0
+  FROZEN_DEV_RUN_ID: '34004695243'
+
+jobs:
+  transfer:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Refuse a second transfer exposure
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          COUNT=$(gh api \
+            -H 'Accept: application/vnd.github+json' \
+            '/repos/${{ github.repository }}/actions/artifacts?name=phase12-transfer-v3&per_page=100' \
+            --jq '[.artifacts[] | select(.expired == false)] | length')
+          test "$COUNT" = "0" || { echo "Phase 12 v3 transfer artifact already exists; refusing a second exposure"; exit 1; }
+      - name: Check out exact frozen scientific code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.FROZEN_SCIENTIFIC_SHA }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify frozen checkout
+        run: |
+          test "$(git rev-parse HEAD)" = "$FROZEN_SCIENTIFIC_SHA"
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+          python -m compileall -q \
+            scripts/run_phase12_adaptive_normalized_conformal.py \
+            scripts/run_phase12_adaptive_normalized_conformal_v2.py \
+            scripts/run_phase12_adaptive_normalized_conformal_v3.py
+          pytest -q \
+            tests/test_phase11_p9_soft_update_direct_conformal.py \
+            tests/test_phase11_p14_bounded_independent_rescue.py \
+            tests/test_phase11_p14r_robust_group_envelope.py \
+            tests/test_phase12_adaptive_normalized_conformal.py \
+            tests/test_phase12_adaptive_normalized_conformal_v2.py \
+            tests/test_phase12_adaptive_normalized_conformal_v3.py
+      - name: Recover exact frozen development candidate
+        uses: actions/download-artifact@v4
+        with:
+          name: phase12-development-v3
+          path: frozen_development_artifact
+          github-token: ${{ github.token }}
+          repository: suhaslord/uav-safety-research
+          run-id: ${{ env.FROZEN_DEV_RUN_ID }}
+      - name: Verify freeze authorization
+        run: |
+          CANDIDATE=$(find frozen_development_artifact -path '*/results/phase12_candidate_v3/candidate_freeze.json' -print -quit)
+          DEV_RESULT=$(find frozen_development_artifact -path '*/results/phase12_dev_v3/development_result.json' -print -quit)
+          test -n "$CANDIDATE"
+          test -n "$DEV_RESULT"
+          echo "$FROZEN_CANDIDATE_SHA256  $CANDIDATE" | sha256sum -c -
+          echo "$FROZEN_DEV_RESULT_SHA256  $DEV_RESULT" | sha256sum -c -
+          export CANDIDATE
+          echo "CANDIDATE=$CANDIDATE" >> "$GITHUB_ENV"
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          c=json.loads(Path(os.environ['CANDIDATE']).read_text())
+          dpath=next(Path('frozen_development_artifact').glob('**/results/phase12_dev_v3/development_result.json'))
+          d=json.loads(dpath.read_text())
+          assert c['schema'] == 'aegisland.phase12.adaptive-normalized-conformal.candidate.v3'
+          assert c['scientific_git_sha'] == os.environ['FROZEN_SCIENTIFIC_SHA']
+          assert c['simulation_only'] is True and c['safety_acceptance'] is False
+          assert c['controller_tuning_allowed'] is False
+          assert d['all_primary_gates_pass'] is True
+          assert d['development_only'] is True
+          assert d['eligible_for_progression'] is False
+          assert d['evaluated_seed_seen_after_run'] == 907907
+          assert d['scientific_git_sha'] == os.environ['FROZEN_SCIENTIFIC_SHA']
+          print('PHASE12_V3_TRANSFER_AUTHORIZED_BY_FROZEN_DEVELOPMENT=true')
+          PY
+      - name: Expose frozen transfer exactly once
+        run: |
+          rm -rf results/phase12_transfer_v3
+          python scripts/run_phase12_adaptive_normalized_conformal_v3.py \
+            --stage transfer \
+            --candidate "$CANDIDATE" \
+            --out results/phase12_transfer_v3 \
+            --git-sha "$FROZEN_SCIENTIFIC_SHA" | tee phase12-v3-transfer.log
+          test -f results/phase12_transfer_v3/transfer_result.json
+          test ! -e results/phase12_validation
+          test ! -e results/phase12_final
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('results/phase12_transfer_v3/transfer_result.json').read_text())
+          assert r['schema'] == 'aegisland.phase12.v3.transfer-result.v1'
+          assert r['evaluated_seed_seen_after_run'] == 913913
+          assert r['candidate_sha256'] == 'e2372ca597cdd983f098f1a45524c077798114c59a62bf9faccefd17b67a4991'
+          assert r['scientific_git_sha'] == '8d0617a83d699cd14eae6194ce3a86a5c034dfbc'
+          assert r['simulation_only'] is True and r['safety_acceptance'] is False
+          assert r['controller_tuning_allowed'] is False
+          verdict={'schema':'aegisland.phase12.v3.transfer-verdict.v1','all_primary_gates_pass':bool(r['all_primary_gates_pass']),'protected_authorized':bool(r['all_primary_gates_pass'])}
+          Path('results/phase12_transfer_v3/transfer_verdict.json').write_text(json.dumps(verdict,indent=2,sort_keys=True)+'\n')
+          print('PHASE12_V3_TRANSFER_PERMANENTLY_SEEN=true')
+          print('PHASE12_V3_PROTECTED_AUTHORIZED=' + str(verdict['protected_authorized']).lower())
+          PY
+      - name: Upload permanent transfer evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase12-transfer-v3
+          path: |
+            results/phase12_transfer_v3/
+            phase12-v3-transfer.log
+          if-no-files-found: error
+          retention-days: 90

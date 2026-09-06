@@ -2,23 +2,22 @@
   const applyCurrentFrontier = () => {
     const path = location.pathname.replace(/\/+$/, '') || '/';
     const phase11Href = '/phases/phase11/';
+    const phase12Href = '/phases/phase12/';
 
     const replaceLeafText = (root, replacements) => {
       if (!root) return;
       root.querySelectorAll('*').forEach((node) => {
         if (node.children.length) return;
         const value = (node.textContent || '').trim();
-        if (Object.prototype.hasOwnProperty.call(replacements, value)) {
-          node.textContent = replacements[value];
-        }
+        if (Object.prototype.hasOwnProperty.call(replacements, value)) node.textContent = replacements[value];
       });
     };
 
-    const phase11RailStep = () => {
+    const railStep = (href, index, label, frontier = false) => {
       const link = document.createElement('a');
-      link.className = 'rail-step frontier';
-      link.href = phase11Href;
-      link.innerHTML = '<span>13</span><i></i><strong>Phase 11\nP14R</strong>';
+      link.className = frontier ? 'rail-step frontier' : 'rail-step';
+      link.href = href;
+      link.innerHTML = `<span>${index}</span><i></i><strong>${label}</strong>`;
       return link;
     };
 
@@ -39,19 +38,19 @@
 
       const top = document.querySelector('.top-end .primary');
       if (top) {
-        top.textContent = 'Phase 11';
-        top.href = phase11Href;
+        top.textContent = 'Phase 12';
+        top.href = phase12Href;
       }
 
       const intro = document.querySelector('.index-hero .big');
       if (intro) {
-        intro.textContent = 'From the first safety supervisor through PX4/Gazebo evidence, the frozen Phase 10R holdout, and Phase 11 P14R. Positive results, mismatches, near-misses, and failed gates all stay visible.';
+        intro.textContent = 'From the first safety supervisor through PX4/Gazebo evidence, the failed Phase 11 protected boundary, and the frozen Phase 12 final replication. Positive results, mismatches, near-misses, and failed gates all stay visible.';
       }
 
       const map = document.getElementById('archiveMap');
       if (map) {
         const staleFrontier = [...map.querySelectorAll('.era')].find((era) => {
-          if (era.id === 'phase11ArchiveEra') return false;
+          if (era.id === 'phase11ArchiveEra' || era.id === 'phase12ArchiveEra') return false;
           return (era.querySelector('h2')?.textContent || '').trim().toLowerCase() === 'current frontier';
         });
         if (staleFrontier) {
@@ -66,21 +65,30 @@
         }
 
         if (!map.querySelector(`a[href="${phase11Href}"]`)) {
-          const era = document.createElement('section');
-          era.className = 'era';
-          era.id = 'phase11ArchiveEra';
-          era.innerHTML = '<header><span>05</span><h2>Phase 11 P14R</h2></header><div class="track"><a class="phase-link frontier-link" href="/phases/phase11/"><span>Current research frontier</span><strong>High protected availability and uncertainty coverage, with one lateral tail-efficiency gate blocking confirmation.</strong><small>Study closed · mixed protected-validation result</small><i>→</i></a></div>';
-          map.appendChild(era);
+          const era11 = document.createElement('section');
+          era11.className = 'era';
+          era11.id = 'phase11ArchiveEra';
+          era11.innerHTML = '<header><span>05</span><h2>Phase 11 P14R</h2></header><div class="track"><a class="phase-link" href="/phases/phase11/"><span>Frozen predecessor</span><strong>High protected availability and coverage, with the locked lateral tail-efficiency gate still failing.</strong><small>Study closed · protected H4 failure preserved</small><i>→</i></a></div>';
+          map.appendChild(era11);
+        }
+
+        if (!map.querySelector(`a[href="${phase12Href}"]`)) {
+          const era12 = document.createElement('section');
+          era12.className = 'era';
+          era12.id = 'phase12ArchiveEra';
+          era12.innerHTML = '<header><span>06</span><h2>Phase 12 Iteration 3</h2></header><div class="track"><a class="phase-link frontier-link" href="/phases/phase12/"><span>Current research frontier</span><strong>Innovation-conditioned continuity uncertainty passed development, transfer, protected validation, and final unseen replication without retuning.</strong><small>Lineage closed · simulation-only final replication PASS</small><i>→</i></a></div>';
+          map.appendChild(era12);
         }
       }
       return;
     }
 
-    if (!path.startsWith('/phases/phase') || path === '/phases/phase11') return;
+    if (!path.startsWith('/phases/phase') || path === '/phases/phase11' || path === '/phases/phase12') return;
 
     const rail = document.querySelector('#phaseRail,.phase-rail');
-    if (rail && !rail.querySelector(`a[href="${phase11Href}"]`)) {
-      rail.appendChild(phase11RailStep());
+    if (rail) {
+      if (!rail.querySelector(`a[href="${phase11Href}"]`)) rail.appendChild(railStep(phase11Href, '13', 'Phase 11\nP14R'));
+      if (!rail.querySelector(`a[href="${phase12Href}"]`)) rail.appendChild(railStep(phase12Href, '14', 'Phase 12\nI3', true));
     }
 
     if (path === '/phases/phase10r') {
@@ -101,21 +109,10 @@
       }
     }
 
-    if (path === '/phases/phase10') {
-      replaceLeafText(document.getElementById('nextPhase'), { 'Latest published frontier': 'Next phase' });
-    }
+    if (path === '/phases/phase10') replaceLeafText(document.getElementById('nextPhase'), { 'Latest published frontier': 'Next phase' });
   };
 
-  // The historical Phase 10R decoration intentionally runs in requestAnimationFrame.
-  // Apply the current-frontier bridge one frame after that layer so the archive is
-  // corrected once, deterministically, without a persistent mutation observer.
-  const scheduleCurrentFrontier = () => {
-    requestAnimationFrame(() => requestAnimationFrame(applyCurrentFrontier));
-  };
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', scheduleCurrentFrontier, { once: true });
-  } else {
-    scheduleCurrentFrontier();
-  }
+  const scheduleCurrentFrontier = () => requestAnimationFrame(() => requestAnimationFrame(applyCurrentFrontier));
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', scheduleCurrentFrontier, { once: true });
+  else scheduleCurrentFrontier();
 })();

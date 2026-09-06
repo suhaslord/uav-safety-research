@@ -1,0 +1,145 @@
+name: Phase 12 iteration 3 final replication
+
+on:
+  push:
+    branches: [phase12/adaptive-normalized-conformal]
+    paths:
+      - .github/workflows/phase12-final-v3.yml
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  FROZEN_SCIENTIFIC_SHA: 8d0617a83d699cd14eae6194ce3a86a5c034dfbc
+  FROZEN_CANDIDATE_SHA256: e2372ca597cdd983f098f1a45524c077798114c59a62bf9faccefd17b67a4991
+  FROZEN_DEV_RUN_ID: '34004695243'
+  FROZEN_PROTECTED_RUN_ID: '34005089276'
+  FROZEN_PROTECTED_RESULT_SHA256: 7440152a9b90ddcf1ed14f9e9c9269da21190463ddddf8259e56a39d0588358f
+
+jobs:
+  final-replication:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Refuse a second final exposure
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          COUNT=$(gh api \
+            -H 'Accept: application/vnd.github+json' \
+            '/repos/${{ github.repository }}/actions/artifacts?name=phase12-final-v3&per_page=100' \
+            --jq '[.artifacts[] | select(.expired == false)] | length')
+          test "$COUNT" = "0" || { echo "Phase 12 v3 final artifact already exists; refusing a second exposure"; exit 1; }
+
+      - name: Check out exact frozen scientific code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.FROZEN_SCIENTIFIC_SHA }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Verify frozen checkout and invariants
+        run: |
+          test "$(git rev-parse HEAD)" = "$FROZEN_SCIENTIFIC_SHA"
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+          python -m compileall -q \
+            scripts/run_phase12_adaptive_normalized_conformal.py \
+            scripts/run_phase12_adaptive_normalized_conformal_v2.py \
+            scripts/run_phase12_adaptive_normalized_conformal_v3.py
+          pytest -q \
+            tests/test_phase11_p9_soft_update_direct_conformal.py \
+            tests/test_phase11_p14_bounded_independent_rescue.py \
+            tests/test_phase11_p14r_robust_group_envelope.py \
+            tests/test_phase12_adaptive_normalized_conformal.py \
+            tests/test_phase12_adaptive_normalized_conformal_v2.py \
+            tests/test_phase12_adaptive_normalized_conformal_v3.py
+
+      - name: Recover exact frozen development candidate
+        uses: actions/download-artifact@v4
+        with:
+          name: phase12-development-v3
+          path: frozen_development_artifact
+          github-token: ${{ github.token }}
+          repository: suhaslord/uav-safety-research
+          run-id: ${{ env.FROZEN_DEV_RUN_ID }}
+
+      - name: Verify candidate digest
+        run: |
+          CANDIDATE=$(find frozen_development_artifact -path '*/results/phase12_candidate_v3/candidate_freeze.json' -print -quit)
+          test -n "$CANDIDATE"
+          echo "$FROZEN_CANDIDATE_SHA256  $CANDIDATE" | sha256sum -c -
+          echo "CANDIDATE=$CANDIDATE" >> "$GITHUB_ENV"
+
+      - name: Recover permanently-seen protected evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: phase12-protected-v3
+          path: frozen_protected_artifact
+          github-token: ${{ github.token }}
+          repository: suhaslord/uav-safety-research
+          run-id: ${{ env.FROZEN_PROTECTED_RUN_ID }}
+
+      - name: Verify final authorization from protected validation
+        run: |
+          PROTECTED_RESULT=$(find frozen_protected_artifact -path '*/results/phase12_protected_v3/validation_result.json' -print -quit)
+          test -n "$PROTECTED_RESULT"
+          echo "$FROZEN_PROTECTED_RESULT_SHA256  $PROTECTED_RESULT" | sha256sum -c -
+          export PROTECTED_RESULT
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          r=json.loads(Path(os.environ['PROTECTED_RESULT']).read_text())
+          assert r['schema'] == 'aegisland.phase12.v3.validation-result.v1'
+          assert r['all_primary_gates_pass'] is True
+          assert r['evaluated_seed_seen_after_run'] == 924924
+          assert r['candidate_sha256'] == os.environ['FROZEN_CANDIDATE_SHA256']
+          assert r['scientific_git_sha'] == os.environ['FROZEN_SCIENTIFIC_SHA']
+          assert r['simulation_only'] is True
+          assert r['safety_acceptance'] is False
+          assert r['controller_tuning_allowed'] is False
+          print('PHASE12_V3_FINAL_AUTHORIZED_BY_PROTECTED=true')
+          PY
+
+      - name: Expose final holdout exactly once
+        run: |
+          rm -rf results/phase12_final_v3
+          python scripts/run_phase12_adaptive_normalized_conformal_v3.py \
+            --stage final \
+            --candidate "$CANDIDATE" \
+            --out results/phase12_final_v3 \
+            --git-sha "$FROZEN_SCIENTIFIC_SHA" | tee phase12-v3-final.log
+          test -f results/phase12_final_v3/final_result.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('results/phase12_final_v3/final_result.json').read_text())
+          assert r['schema'] == 'aegisland.phase12.v3.final-result.v1'
+          assert r['evaluated_seed_seen_after_run'] == 935935
+          assert r['candidate_sha256'] == 'e2372ca597cdd983f098f1a45524c077798114c59a62bf9faccefd17b67a4991'
+          assert r['scientific_git_sha'] == '8d0617a83d699cd14eae6194ce3a86a5c034dfbc'
+          assert r['simulation_only'] is True
+          assert r['safety_acceptance'] is False
+          assert r['controller_tuning_allowed'] is False
+          verdict={
+              'schema':'aegisland.phase12.v3.final-verdict.v1',
+              'all_primary_gates_pass':bool(r['all_primary_gates_pass']),
+              'phase12_pass':bool(r['all_primary_gates_pass']),
+          }
+          Path('results/phase12_final_v3/final_verdict.json').write_text(json.dumps(verdict,indent=2,sort_keys=True)+'\n')
+          print('PHASE12_V3_FINAL_PERMANENTLY_SEEN=true')
+          print('PHASE12_V3_PHASE12_PASS=' + str(verdict['phase12_pass']).lower())
+          PY
+
+      - name: Upload permanent final evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase12-final-v3
+          path: |
+            results/phase12_final_v3/
+            phase12-v3-final.log
+          if-no-files-found: error
+          retention-days: 180

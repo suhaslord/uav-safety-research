@@ -9,7 +9,7 @@ const routes = [
   '/', '/phases/', '/phases/phase1/', '/phases/phase2/', '/phases/phase3/',
   '/phases/phase4/', '/phases/phase5/', '/phases/phase6/', '/phases/phase6b/',
   '/phases/phase7/', '/phases/phase8/', '/phases/phase9/', '/phases/phase10/',
-  '/phases/phase10r/', '/phases/phase11/'
+  '/phases/phase10r/', '/phases/phase11/', '/phases/phase12/'
 ];
 
 const browser = await chromium.launch({ headless: true });
@@ -51,16 +51,16 @@ try {
     const shell = await page.evaluate(() => document.documentElement.dataset.siteShell || '');
     add('home-native-static-shell', shell === 'native', { shell });
     const railCount = await page.locator('#homeModelRail .home-rail-step').count();
-    add('home-has-complete-phase-rail', railCount === 13, { railCount });
-    const current = await page.locator('#homeModelRail .home-rail-step.active[href="/phases/phase11/"]').count();
-    add('home-phase11-is-current-frontier', current === 1, { current });
+    add('home-has-complete-phase-rail', railCount === 14, { railCount });
+    const current = await page.locator('#homeModelRail .home-rail-step.active[href="/phases/phase12/"]').count();
+    add('home-phase12-is-current-frontier', current === 1, { current });
     const hero = await page.locator('.hero').evaluate(el => { const r = el.getBoundingClientRect(); return { height: Math.round(r.height), width: Math.round(r.width) }; });
     add('home-hero-is-contained', hero.height >= 600 && hero.height <= 940, { hero });
     const statusText = await page.locator('.result-card').innerText();
     add(
-      'home-keeps-failed-gate-visible',
-      /1 locked component failed/i.test(statusText) && /2\.435/.test(statusText) && /2\.25/.test(statusText) && /mixed \/ failed overall/i.test(statusText),
-      { statusText: statusText.slice(0, 300) }
+      'home-keeps-phase12-gate-visible',
+      /all required gates passed/i.test(statusText) && /2\.23035/.test(statusText) && /2\.25/.test(statusText) && /95\.53/.test(statusText) && /simulation result only/i.test(statusText),
+      { statusText: statusText.slice(0, 360) }
     );
     const desktopMenu = await page.locator('.mobile-menu-toggle').evaluate(el => ({ display: getComputedStyle(el).display, width: el.getBoundingClientRect().width }));
     add('home-desktop-mobile-menu-hidden', desktopMenu.display === 'none' && desktopMenu.width === 0, { desktopMenu });
@@ -78,7 +78,7 @@ try {
     const menu = await page.locator('.mobile-menu-toggle').evaluate(el => { const r = el.getBoundingClientRect(); return { display: getComputedStyle(el).display, width: Math.round(r.width), height: Math.round(r.height) }; });
     add('mobile-home-menu-is-visible-and-touchable', menu.display !== 'none' && menu.width >= 44 && menu.height >= 40, { menu });
     const railCount = await page.locator('#homeModelRail .home-rail-step').count();
-    add('mobile-home-keeps-complete-phase-rail', railCount === 13, { railCount });
+    add('mobile-home-keeps-complete-phase-rail', railCount === 14, { railCount });
     const ctas = await page.locator('.hero .button').evaluateAll(els => els.map(el => Math.round(el.getBoundingClientRect().height)));
     add('mobile-home-ctas-touchable', ctas.length === 2 && ctas.every(height => height >= 42), { ctas });
     await page.close();
@@ -91,11 +91,15 @@ try {
     await page.goto(BASE + '/phases/', { waitUntil: 'domcontentloaded', timeout: 45000 });
     await page.waitForTimeout(500);
     const phase11Heading = await page.locator('#phase11ArchiveEra h2').textContent().catch(() => '');
+    const phase12Heading = await page.locator('#phase12ArchiveEra h2').textContent().catch(() => '');
     add('archive-phase11-era-present', /phase 11 p14r/i.test(phase11Heading || ''), { phase11Heading });
+    add('archive-phase12-era-present', /phase 12 iteration 3/i.test(phase12Heading || ''), { phase12Heading });
+    const currentFrontierLinks = await page.locator('#phase12ArchiveEra .frontier-link[href="/phases/phase12/"]').count();
+    add('archive-phase12-is-current-frontier', currentFrontierLinks === 1, { currentFrontierLinks });
     const oldCurrent = await page.locator('#archiveMap .era').filter({ has: page.locator('h2', { hasText: /^Current frontier$/ }) }).count();
     add('archive-no-stale-current-frontier', oldCurrent === 0, { oldCurrent });
     const frozen = await page.locator('#archiveMap .era h2').filter({ hasText: 'Frozen predecessor' }).count();
-    add('archive-phase10r-is-frozen-predecessor', frozen >= 1, { frozen });
+    add('archive-has-frozen-predecessor', frozen >= 1, { frozen });
 
     await page.goto(BASE + '/phases/phase10r/', { waitUntil: 'domcontentloaded', timeout: 45000 });
     await page.waitForTimeout(500);
@@ -103,7 +107,9 @@ try {
     add('phase10r-no-latest-frontier-label', !/latest published frontier/i.test(heroText), { heroExcerpt: heroText.slice(0, 240) });
     add('phase10r-frozen-predecessor-label', /frozen predecessor/i.test(heroText), { heroExcerpt: heroText.slice(0, 240) });
     const phase11Rail = await page.locator('#phaseRail a[href="/phases/phase11/"]').count();
+    const phase12Rail = await page.locator('#phaseRail a[href="/phases/phase12/"]').count();
     add('phase10r-rail-links-to-phase11', phase11Rail === 1, { phase11Rail });
+    add('phase10r-rail-links-to-phase12', phase12Rail === 1, { phase12Rail });
 
     await page.goto(BASE + '/phases/phase10/', { waitUntil: 'domcontentloaded', timeout: 45000 });
     await page.waitForTimeout(500);
@@ -112,14 +118,19 @@ try {
 
     await page.goto(BASE + '/phases/phase11/', { waitUntil: 'domcontentloaded', timeout: 45000 });
     await page.waitForTimeout(300);
+    const phase11BoundaryText = await page.locator('#boundary').innerText();
+    add('phase11-failed-boundary-remains-visible', /2\.435/.test(phase11BoundaryText) && /2\.25/.test(phase11BoundaryText) && /not exposed/i.test(phase11BoundaryText), { boundaryExcerpt: phase11BoundaryText.slice(0, 320) });
+
+    await page.goto(BASE + '/phases/phase12/', { waitUntil: 'domcontentloaded', timeout: 45000 });
+    await page.waitForTimeout(300);
     const header = await page.locator('.site-header').evaluate(el => { const s = getComputedStyle(el); const r = el.getBoundingClientRect(); return { display: s.display, position: s.position, height: Math.round(r.height) }; });
-    add('phase11-uses-cockpit-header-scale', header.display === 'grid' && header.position === 'fixed' && header.height === 56, { header });
+    add('phase12-uses-cockpit-header-scale', header.display === 'grid' && header.position === 'fixed' && header.height === 56, { header });
     const navLabels = await page.locator('.site-nav a').allTextContents();
-    add('phase11-nav-is-stable', JSON.stringify(navLabels) === JSON.stringify(['Result','Evidence','Boundary','Provenance']), { navLabels });
+    add('phase12-nav-is-stable', JSON.stringify(navLabels) === JSON.stringify(['Result','Progression','Mechanism','Provenance']), { navLabels });
     const sectionHeights = await page.locator('main > section').evaluateAll(els => els.map(el => Math.round(el.getBoundingClientRect().height)));
-    add('phase11-no-empty-viewport-panels', sectionHeights.every(height => height < 1000), { sectionHeights });
-    const boundaryText = await page.locator('#boundary').innerText();
-    add('phase11-protected-boundary-is-explicit', /2\.435/.test(boundaryText) && /2\.25/.test(boundaryText) && /not exposed/i.test(boundaryText), { boundaryExcerpt: boundaryText.slice(0, 320) });
+    add('phase12-no-empty-viewport-panels', sectionHeights.every(height => height < 1100), { sectionHeights });
+    const phase12Text = await page.locator('main').innerText();
+    add('phase12-final-boundary-is-explicit', /2\.23035/.test(phase12Text) && /2\.25/.test(phase12Text) && /95\.53/.test(phase12Text) && /lineage closed/i.test(phase12Text), { excerpt: phase12Text.slice(0, 420) });
     await page.close();
     await context.close();
   }
@@ -127,12 +138,12 @@ try {
   {
     const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, reducedMotion: 'reduce' });
     const page = await context.newPage();
-    await page.goto(BASE + '/phases/phase11/', { waitUntil: 'domcontentloaded', timeout: 45000 });
+    await page.goto(BASE + '/phases/phase12/', { waitUntil: 'domcontentloaded', timeout: 45000 });
     await page.waitForTimeout(300);
     const mobileHeader = await page.locator('.site-header').evaluate(el => { const r = el.getBoundingClientRect(); return { display: getComputedStyle(el).display, height: Math.round(r.height), overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth }; });
-    add('phase11-mobile-header-clean', mobileHeader.display === 'grid' && mobileHeader.height === 52 && mobileHeader.overflow <= 1, { mobileHeader });
+    add('phase12-mobile-header-clean', mobileHeader.display === 'grid' && mobileHeader.height === 52 && mobileHeader.overflow <= 1, { mobileHeader });
     const menu = await page.locator('#mobileMenuToggle').evaluate(el => ({ display: getComputedStyle(el).display, width: Math.round(el.getBoundingClientRect().width), height: Math.round(el.getBoundingClientRect().height) }));
-    add('phase11-mobile-menu-is-touchable', ['flex','inline-flex'].includes(menu.display) && menu.width >= 58 && menu.width < 110 && menu.height >= 40, { menu });
+    add('phase12-mobile-menu-is-touchable', ['flex','inline-flex'].includes(menu.display) && menu.width >= 58 && menu.width < 110 && menu.height >= 40, { menu });
     await page.close();
     await context.close();
   }

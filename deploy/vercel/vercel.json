@@ -1,6 +1,8 @@
 {
   "rewrites": [
     { "source": "/favicon.ico", "destination": "/favicon.svg" },
+    { "source": "/phases/phase12/", "destination": "/phase12.html" },
+    { "source": "/phases/phase12", "destination": "/phase12.html" },
     { "source": "/phases/phase11/", "destination": "/phase11.html" },
     { "source": "/phases/phase11", "destination": "/phase11.html" },
     { "source": "/phases/", "destination": "/dashboard/phases/index.html" },
@@ -29,6 +31,13 @@
       "headers": [
         { "key": "X-Content-Type-Options", "value": "nosniff" },
         { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+      ]
+    },
+    {
+      "source": "/phase12.html",
+      "headers": [
+        { "key": "Content-Type", "value": "text/html; charset=utf-8" },
+        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
       ]
     },
     {

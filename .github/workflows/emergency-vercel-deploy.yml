@@ -38,10 +38,8 @@ jobs:
           rm -rf .vercel-release
           mkdir -p .vercel-release
 
-          # The release now ships the dashboard from the same commit being
-          # deployed. There is no pinned historical cockpit and no runtime CDN
-          # bootstrap. deploy/vercel contains the native homepage + routing;
-          # dashboard contains the historical research archive assets.
+          # Ship the dashboard from the same commit being deployed. There is no
+          # pinned historical cockpit and no runtime CDN bootstrap.
           cp -R deploy/vercel/. .vercel-release/
           cp -R dashboard .vercel-release/dashboard
 
@@ -62,6 +60,10 @@ jobs:
           test -f .vercel-release/dashboard/aegis-current.js
           test -f .vercel-release/dashboard/phase-runtime.js
           test -f .vercel-release/phase11.html
+          test -f .vercel-release/phase12.html
+          grep -q 'Open Phase 12' .vercel-release/index.html
+          grep -q '2.23035' .vercel-release/index.html
+          grep -q '935935' .vercel-release/phase12.html
 
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
@@ -82,71 +84,64 @@ jobs:
           DEPLOY_URL='${{ steps.deploy.outputs.url }}'
           PUBLIC_URL='https://aegisland-research-cockpit.vercel.app'
 
-          # Verify the deployment succeeded by checking the deploy URL response
           echo "Checking deployment URL: $DEPLOY_URL"
           DEPLOY_HTML=$(curl --fail --silent --show-error --location --retry 5 --retry-delay 2 "$DEPLOY_URL/")
-          
-          # Preview URLs may return Vercel authentication/dashboard HTML instead of the actual site
-          # Check for Vercel dashboard indicators (geist classes, Vercel branding)
+
           if printf '%s' "$DEPLOY_HTML" | grep -qi 'class="[^"]*geist\|Vercel.*Dashboard'; then
-            echo "Preview URL returned Vercel dashboard/auth page (expected for private deployments)"
-            echo "Skipping content verification for preview URL"
+            echo "Preview URL returned Vercel dashboard/auth page; verifying public alias instead."
           else
-            echo "Preview URL returned site content, verifying no legacy loaders..."
+            echo "Preview URL returned site content; checking for legacy loaders."
             if printf '%s' "$DEPLOY_HTML" | grep -q 'document.write\|cdn.jsdelivr.net/gh/suhaslord/uav-safety-research'; then
               echo "ERROR: Legacy production loader found at preview URL"
               exit 1
             fi
           fi
 
-          # Always verify the public production alias fully
           echo ""
           echo "=== Verifying public production alias: $PUBLIC_URL ==="
           PUBLIC_HTML=$(curl --fail --silent --show-error --location --retry 5 --retry-delay 2 "$PUBLIC_URL/")
-          
-          # Critical check: no legacy loaders
+
           if printf '%s' "$PUBLIC_HTML" | grep -q 'document.write\|cdn.jsdelivr.net/gh/suhaslord/uav-safety-research'; then
             echo "ERROR: Legacy production loader remains at public URL homepage"
             exit 1
           fi
           echo "✓ Homepage: no legacy loaders"
-          
-          # Informational: check for native shell marker (deploy/vercel/index.html has it)
-          if printf '%s' "$PUBLIC_HTML" | grep -q 'data-site-shell="native"'; then
-            echo "✓ Homepage: data-site-shell=\"native\" present"
-          else
-            echo "ℹ Homepage: data-site-shell=\"native\" not found (may update after deploy completes)"
-          fi
 
-          # Critical content verification on Phase 11 page
+          printf '%s' "$PUBLIC_HTML" | grep -q 'data-site-shell="native"'
+          printf '%s' "$PUBLIC_HTML" | grep -q 'Open Phase 12'
+          printf '%s' "$PUBLIC_HTML" | grep -q '2.23035'
+          printf '%s' "$PUBLIC_HTML" | grep -q '95.53%'
+          printf '%s' "$PUBLIC_HTML" | grep -q 'safety_acceptance=false'
+          echo "✓ Homepage: Phase 12 final result and claim boundary present"
+
           echo ""
-          echo "Verifying Phase 11 page content..."
-          PHASE11_HTML=$(curl --fail --silent --show-error --location "$PUBLIC_URL/phases/phase11/")
-          if ! printf '%s' "$PHASE11_HTML" | grep -q "Phase 11 P14R"; then
-            echo "ERROR: Phase 11 page missing 'Phase 11 P14R' text"
-            exit 1
-          fi
-          if ! printf '%s' "$PHASE11_HTML" | grep -q "View the evidence"; then
-            echo "ERROR: Phase 11 page missing 'View the evidence' link text"
-            exit 1
-          fi
-          if ! printf '%s' "$PHASE11_HTML" | grep -q "Read final report"; then
-            echo "ERROR: Phase 11 page missing 'Read final report' link text"
-            exit 1
-          fi
-          echo "✓ Phase 11: all required content present"
+          echo "Verifying Phase 12 page content..."
+          PHASE12_HTML=$(curl --fail --silent --show-error --location --retry 5 --retry-delay 2 "$PUBLIC_URL/phases/phase12/")
+          printf '%s' "$PHASE12_HTML" | grep -q 'Phase 12'
+          printf '%s' "$PHASE12_HTML" | grep -q 'View progression'
+          printf '%s' "$PHASE12_HTML" | grep -q 'Read final report'
+          printf '%s' "$PHASE12_HTML" | grep -q '935935'
+          printf '%s' "$PHASE12_HTML" | grep -q '2.23035'
+          printf '%s' "$PHASE12_HTML" | grep -q '95.53%'
+          printf '%s' "$PHASE12_HTML" | grep -q 'simulation_only=true'
+          printf '%s' "$PHASE12_HTML" | grep -q 'safety_acceptance=false'
+          printf '%s' "$PHASE12_HTML" | grep -q 'controller_tuning_allowed=false'
+          echo "✓ Phase 12: final replication content present"
 
-          # Verify archive pages and assets
+          echo ""
+          echo "Verifying Phase 11 remains archived and explicit..."
+          PHASE11_HTML=$(curl --fail --silent --show-error --location --retry 5 --retry-delay 2 "$PUBLIC_URL/phases/phase11/")
+          printf '%s' "$PHASE11_HTML" | grep -q 'Phase 11 P14R'
+          printf '%s' "$PHASE11_HTML" | grep -q '2.435'
+          printf '%s' "$PHASE11_HTML" | grep -q '2.25'
+          echo "✓ Phase 11: failed predecessor remains visible"
+
           echo ""
           echo "Verifying archive and assets..."
-          curl --fail --silent --show-error --location "$PUBLIC_URL/phases/" | grep -q "Every phase"
-          echo "✓ Phases index: 'Every phase' text found"
-          
-          curl --fail --silent --show-error --location "$PUBLIC_URL/phases/phase10r/" | grep -q "AegisLand Research Archive"
-          echo "✓ Phase 10R: archive content present"
-          
+          ARCHIVE_HTML=$(curl --fail --silent --show-error --location --retry 5 --retry-delay 2 "$PUBLIC_URL/phases/")
+          printf '%s' "$ARCHIVE_HTML" | grep -q 'Every phase'
           curl --fail --silent --show-error --location "$PUBLIC_URL/aegis-current.js" >/dev/null
-          echo "✓ aegis-current.js: accessible"
-          
+          echo "✓ Archive and current-frontier bridge accessible"
+
           echo ""
-          echo "=== Verification complete: public alias serves Phase 11 content ===" 
+          echo "=== Verification complete: public alias serves Phase 12 content ==="

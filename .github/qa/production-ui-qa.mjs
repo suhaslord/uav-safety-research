@@ -8,14 +8,14 @@ const routes = [
   '/', '/phases/', '/phases/phase1/', '/phases/phase2/', '/phases/phase3/',
   '/phases/phase4/', '/phases/phase5/', '/phases/phase6/', '/phases/phase6b/',
   '/phases/phase7/', '/phases/phase8/', '/phases/phase9/', '/phases/phase10/',
-  '/phases/phase10r/', '/phases/phase11/'
+  '/phases/phase10r/', '/phases/phase11/', '/phases/phase12/'
 ];
 const viewports = [
   { name: 'desktop', width: 1440, height: 1000 },
   { name: 'tablet', width: 820, height: 1180 },
   { name: 'mobile', width: 390, height: 844, isMobile: true, hasTouch: true }
 ];
-const screenshotRoutes = new Set(['/', '/phases/', '/phases/phase10r/', '/phases/phase11/']);
+const screenshotRoutes = new Set(['/', '/phases/', '/phases/phase10r/', '/phases/phase11/', '/phases/phase12/']);
 const report = { base: BASE, startedAt: new Date().toISOString(), checks: [], errors: [], warnings: [], screenshots: [], video: null };
 
 await fs.rm(OUT, { recursive: true, force: true });
@@ -63,9 +63,9 @@ try {
       const contentType = (await response?.allHeaders().catch(() => ({})))?.['content-type'] || '';
       if (status >= 200 && status < 400) ok('route-load', { viewport: vp.name, route, status, contentType });
       else fail('route-load', { viewport: vp.name, route, status, contentType });
-      if (route === '/phases/phase11/') {
-        if (/text\/html/i.test(contentType)) ok('phase11-document-content-type', { viewport: vp.name, contentType });
-        else fail('phase11-document-content-type', { viewport: vp.name, contentType });
+      if (route === '/phases/phase11/' || route === '/phases/phase12/') {
+        if (/text\/html/i.test(contentType)) ok('frontier-document-content-type', { viewport: vp.name, route, contentType });
+        else fail('frontier-document-content-type', { viewport: vp.name, route, contentType });
       }
 
       const state = await page.evaluate(() => {
@@ -155,15 +155,15 @@ try {
       if (!filteredReq.length) ok('network-failures', { viewport: vp.name, route });
       else fail('network-failures', { viewport: vp.name, route, failedRequests: filteredReq });
 
-      if (route.startsWith('/phases/phase') && route !== '/phases/phase11/') {
-        if (state.railCount === 13) ok('historical-phase-rail-count', { viewport: vp.name, route, count: state.railCount });
+      if (route.startsWith('/phases/phase') && route !== '/phases/phase11/' && route !== '/phases/phase12/') {
+        if (state.railCount === 14) ok('historical-phase-rail-count', { viewport: vp.name, route, count: state.railCount });
         else fail('historical-phase-rail-count', { viewport: vp.name, route, count: state.railCount });
         if (vp.name === 'desktop') {
           if (state.railSingleTrack) ok('historical-phase-rail-single-track', { viewport: vp.name, route, rows: state.railGridRows, cols: state.railGridCols });
           else fail('historical-phase-rail-single-track', { viewport: vp.name, route, rows: state.railGridRows, cols: state.railGridCols });
         }
       }
-      if (route === '/' && state.homeRailCount !== 13) fail('home-phase-rail-count', { viewport: vp.name, count: state.homeRailCount });
+      if (route === '/' && state.homeRailCount !== 14) fail('home-phase-rail-count', { viewport: vp.name, count: state.homeRailCount });
       else if (route === '/') ok('home-phase-rail-count', { viewport: vp.name, count: state.homeRailCount });
 
       if (screenshotRoutes.has(route)) {
@@ -176,7 +176,6 @@ try {
     await context.close();
   }
 
-  // Deep interaction flow + video.
   const flowContext = await browser.newContext({
     viewport: { width: 1280, height: 720 },
     recordVideo: { dir: path.join(OUT, 'videos'), size: { width: 1280, height: 720 } },
@@ -189,40 +188,46 @@ try {
 
   await flow.goto(BASE + '/', { waitUntil: 'domcontentloaded', timeout: 45000 });
   await flow.waitForTimeout(2500);
-  const openPhase11 = flow.getByRole('link', { name: /open phase 11/i }).first();
-  if (await openPhase11.count()) {
-    await openPhase11.click();
+  const openPhase12 = flow.getByRole('link', { name: /open phase 12/i }).first();
+  if (await openPhase12.count()) {
+    await openPhase12.click();
     await flow.waitForTimeout(1800);
-    if (/\/phases\/phase11\/?$/.test(new URL(flow.url()).pathname)) ok('click-home-to-phase11');
-    else fail('click-home-to-phase11', { url: flow.url() });
-  } else fail('click-home-to-phase11', { error: 'CTA not found' });
+    if (/\/phases\/phase12\/?$/.test(new URL(flow.url()).pathname)) ok('click-home-to-phase12');
+    else fail('click-home-to-phase12', { url: flow.url() });
+  } else fail('click-home-to-phase12', { error: 'CTA not found' });
 
-  const evidence = flow.getByRole('link', { name: /view( the)? evidence/i }).first();
-  if (await evidence.count()) {
-    await evidence.click();
+  const progression = flow.getByRole('link', { name: /view progression/i }).first();
+  if (await progression.count()) {
+    await progression.click();
     await flow.waitForTimeout(600);
-    if (flow.url().endsWith('#evidence')) ok('click-phase11-evidence-anchor');
-    else fail('click-phase11-evidence-anchor', { url: flow.url() });
-  } else fail('click-phase11-evidence-anchor', { error: 'link not found' });
+    if (flow.url().endsWith('#progression')) ok('click-phase12-progression-anchor');
+    else fail('click-phase12-progression-anchor', { url: flow.url() });
+  } else fail('click-phase12-progression-anchor', { error: 'link not found' });
 
   const finalHref = await flow.getByRole('link', { name: /(read )?final report/i }).first().getAttribute('href').catch(() => null);
-  if (finalHref?.includes('phase11_final_report.md')) ok('phase11-final-report-link', { href: finalHref });
-  else fail('phase11-final-report-link', { href: finalHref });
+  if (finalHref?.includes('phase12_iteration3_final_report.md')) ok('phase12-final-report-link', { href: finalHref });
+  else fail('phase12-final-report-link', { href: finalHref });
 
   await flow.goto(BASE + '/phases/', { waitUntil: 'domcontentloaded', timeout: 45000 });
   await flow.waitForTimeout(2200);
   const archiveP11 = flow.locator('a[href="/phases/phase11/"]');
+  const archiveP12 = flow.locator('a[href="/phases/phase12/"]');
   if (await archiveP11.count()) ok('archive-phase11-link', { count: await archiveP11.count() });
   else fail('archive-phase11-link');
+  if (await archiveP12.count()) ok('archive-phase12-link', { count: await archiveP12.count() });
+  else fail('archive-phase12-link');
 
   await flow.goto(BASE + '/phases/phase10r/', { waitUntil: 'domcontentloaded', timeout: 45000 });
   await flow.waitForTimeout(2200);
   const railP11 = flow.locator('#phaseRail a[href="/phases/phase11/"],.phase-rail a[href="/phases/phase11/"]');
+  const railP12 = flow.locator('#phaseRail a[href="/phases/phase12/"],.phase-rail a[href="/phases/phase12/"]');
   if (await railP11.count()) ok('phase10r-to-phase11-rail-link');
   else fail('phase10r-to-phase11-rail-link');
+  if (await railP12.count()) ok('phase10r-to-phase12-rail-link');
+  else fail('phase10r-to-phase12-rail-link');
 
   for (let i = 0; i < 7; i++) { await flow.mouse.wheel(0, 620); await flow.waitForTimeout(260); }
-  await flow.goto(BASE + '/phases/phase11/', { waitUntil: 'domcontentloaded', timeout: 45000 });
+  await flow.goto(BASE + '/phases/phase12/', { waitUntil: 'domcontentloaded', timeout: 45000 });
   await flow.waitForTimeout(1800);
   for (let i = 0; i < 8; i++) { await flow.mouse.wheel(0, 560); await flow.waitForTimeout(260); }
 
@@ -233,11 +238,10 @@ try {
   await flowContext.close();
   if (video) { try { report.video = await video.path(); } catch {} }
 
-  // Probe every unique internal route found in key pages with the request API.
   const req = await browser.newContext();
   const probePage = await req.newPage();
   const discovered = new Set(routes);
-  for (const route of ['/', '/phases/', '/phases/phase10r/', '/phases/phase11/']) {
+  for (const route of ['/', '/phases/', '/phases/phase10r/', '/phases/phase11/', '/phases/phase12/']) {
     await probePage.goto(BASE + route, { waitUntil: 'domcontentloaded', timeout: 45000 });
     await probePage.waitForTimeout(1800);
     const hrefs = await probePage.locator('a[href]').evaluateAll(as => as.map(a => a.getAttribute('href')).filter(Boolean));
