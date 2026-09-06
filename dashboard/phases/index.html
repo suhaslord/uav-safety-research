@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#ffffff">
+  <meta name="theme-color" content="#0b1118">
   <meta name="description" content="AegisLand research lineage through Phase 22, organized by research category with frozen passes, failures, and foundational work preserved.">
   <title>AegisLand — Research Phase Archive</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=5">
@@ -11,35 +11,41 @@
   <link rel="stylesheet" href="/phase-polish.css?v=1">
   <link rel="stylesheet" href="/phase-polish-v2.css?v=1">
   <link rel="stylesheet" href="/phase-personalization.css?v=1">
+  <link rel="stylesheet" href="/research-workspace.css?v=1">
 </head>
-<body class="phase-polish-shell">
+<body class="phase-polish-shell research-workspace archive-workspace">
   <a class="skip-link" href="#main">Skip to phase archive</a>
   <header class="signature-nav">
     <a class="signature-brand" href="/" aria-label="AegisLand home"><span class="signature-brand__mark" aria-hidden="true"></span><span>AEGISLAND</span></a>
-    <nav class="signature-nav__links" aria-label="Archive navigation"><a href="#categories">Categories</a><a href="/phases/phase22/">Phase 22</a><a href="/">Research home</a><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub ↗</a></nav>
+    <nav class="signature-nav__links" aria-label="Archive navigation"><a href="#categories">Categories</a><a href="/phases/phase22/">Current evidence</a><a href="/">Research home</a><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub ↗</a></nav>
     <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-expanded="false" aria-controls="mobileMenuSheet">Menu</button>
   </header>
 
   <nav class="mobile-menu-sheet" id="mobileMenuSheet" aria-label="Mobile navigation" aria-hidden="true">
     <div class="mobile-menu-head"><strong>AEGISLAND</strong><button class="mobile-menu-close" type="button" aria-label="Close navigation">Close</button></div>
-    <div class="mobile-menu-links"><a href="#categories">Research categories</a><a href="/phases/phase22/">Phase 22</a><a href="/">Research home</a></div>
+    <div class="mobile-menu-links"><a href="#categories">Research categories</a><a href="/phases/phase22/">Current evidence</a><a href="/">Research home</a></div>
     <div class="mobile-menu-meta"><a href="/">Home</a><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub ↗</a></div>
   </nav>
 
   <main class="signature-shell archive-main" id="main">
     <section class="archive-hero">
-      <div class="signature-kicker">Research archive · Phase 1 → Phase 22 · simulation only</div>
+      <div class="workspace-context" aria-label="Archive context"><span>Evidence archive</span><span>Phase 1 → Phase 22</span><span>Simulation only</span></div>
+      <div class="signature-kicker">Research lineage</div>
       <h1>One research program. Six distinct chapters.</h1>
-      <p>The phases are grouped by the question they were trying to answer: safety architecture, perception, external validation, reliability, latency dynamics, and context transfer. Every phase stays part of the story; the categories just make the progression easier to read. Every failure, naming gap, and frozen result still stays in chronological order inside its category.</p>
-      <div class="signature-actions"><a class="signature-button signature-button--primary" href="#categories">Browse by category</a><a class="signature-button" href="/phases/phase22/">Open Phase 22</a></div>
+      <p>The phases are grouped by the question they were trying to answer: safety architecture, perception, external validation, reliability, latency dynamics, and context transfer. Every phase stays part of the story; the categories just make the progression easier to read. Every failure, naming gap, and frozen result remains in chronological order inside its category.</p>
+      <div class="archive-meta-line"><span><strong>26</strong> phase records</span><span><strong>6</strong> research categories</span><span><strong>13</strong> frozen Phase 12–22 records</span><span><strong>6 PASS / 7 FAIL</strong> frozen verdicts</span></div>
       <nav class="category-nav" id="categoryNav" aria-label="Research categories"></nav>
     </section>
 
-    <section class="archive-stats" aria-label="Archive summary">
-      <div class="archive-stat"><span>Total phase pages</span><strong>26</strong></div>
-      <div class="archive-stat"><span>Research categories</span><strong>6</strong></div>
-      <div class="archive-stat"><span>Frozen Phase 12–22</span><strong>13</strong></div>
-      <div class="archive-stat"><span>Frozen verdicts</span><strong>6 PASS / 7 FAIL</strong></div>
+    <section class="archive-stats archive-toolbar" aria-label="Archive search and filters">
+      <div class="archive-toolbar__search"><label for="archiveSearch">Search</label><input id="archiveSearch" type="search" placeholder="phase, question, finding, signal…" autocomplete="off" spellcheck="false"></div>
+      <div class="archive-filter-group" role="group" aria-label="Filter phase records">
+        <button class="archive-filter" type="button" data-filter="all" aria-pressed="true">All</button>
+        <button class="archive-filter" type="button" data-filter="pass" aria-pressed="false">PASS</button>
+        <button class="archive-filter" type="button" data-filter="fail" aria-pressed="false">FAIL</button>
+        <button class="archive-filter" type="button" data-filter="historical" aria-pressed="false">Foundational</button>
+      </div>
+      <div class="archive-filter-summary" id="archiveResultCount" aria-live="polite">Showing all 26 phase records.</div>
     </section>
 
     <div class="archive-groups" id="categories">
@@ -111,6 +117,7 @@
         const section = document.createElement('section');
         section.className = 'archive-category';
         section.id = `category-${category.id}`;
+        section.dataset.category = category.id;
         section.style.setProperty('--category-accent', category.accent);
         section.innerHTML = `
           <div class="archive-category__head">
@@ -124,6 +131,7 @@
           const card = document.createElement('a');
           card.className = 'archive-card phase-personalized';
           card.href = `/phases/${record.slug}/`;
+          card.dataset.slug = record.slug;
           card.dataset.category = category.id;
           card.dataset.frozen = String(record.frozen);
           if (record.frozen) card.dataset.verdict = record.status;
@@ -132,11 +140,9 @@
           card.innerHTML = `
             <div class="archive-card__top"><span class="archive-card__label">${record.label}</span><span class="verdict-chip ${record.statusClass}">${record.status}</span></div>
             <div class="archive-card__identity">${record.meta.identity}</div>
-            <h3>${record.title}</h3>
-            <p>${record.summary}</p>
-            <p class="archive-card__question">${record.meta.question}</p>
+            <div><h3>${record.title}</h3><p>${record.summary}</p><p class="archive-card__question">${record.meta.question}</p></div>
             <span class="archive-card__signal">${record.meta.signal}</span>
-            <span class="archive-card__open">Open phase →</span>`;
+            <span class="archive-card__open">Open →</span>`;
           cards.appendChild(card);
         });
         root.appendChild(section);
@@ -146,6 +152,40 @@
         navLink.textContent = category.name;
         nav.appendChild(navLink);
       });
+
+      const search = document.getElementById('archiveSearch');
+      const filters = [...document.querySelectorAll('.archive-filter')];
+      const summary = document.getElementById('archiveResultCount');
+      let activeFilter = 'all';
+
+      const applyFilters = () => {
+        const query = search.value.trim().toLowerCase();
+        const cards = [...document.querySelectorAll('.archive-card.phase-personalized')];
+        let visible = 0;
+        cards.forEach((card) => {
+          const matchesText = !query || card.innerText.toLowerCase().includes(query) || (card.dataset.slug || '').includes(query);
+          const verdict = (card.dataset.verdict || '').toLowerCase();
+          const matchesFilter = activeFilter === 'all'
+            || (activeFilter === 'pass' && verdict === 'pass')
+            || (activeFilter === 'fail' && (verdict === 'fail' || card.textContent.includes('FAILED HOLDOUT') || card.textContent.includes('MIXED / FAIL')))
+            || (activeFilter === 'historical' && card.dataset.frozen === 'false');
+          const show = matchesText && matchesFilter;
+          card.hidden = !show;
+          if (show) visible += 1;
+        });
+
+        document.querySelectorAll('.archive-category').forEach((section) => {
+          section.hidden = !section.querySelector('.archive-card.phase-personalized:not([hidden])');
+        });
+        summary.textContent = visible === 26 && !query && activeFilter === 'all' ? 'Showing all 26 phase records.' : `Showing ${visible} of 26 phase records.`;
+      };
+
+      search.addEventListener('input', applyFilters);
+      filters.forEach((button) => button.addEventListener('click', () => {
+        activeFilter = button.dataset.filter;
+        filters.forEach((item) => item.setAttribute('aria-pressed', String(item === button)));
+        applyFilters();
+      }));
     })();
 
     (() => {
@@ -164,5 +204,6 @@
       document.addEventListener('keydown', (event) => { if (event.key === 'Escape') set(false); });
     })();
   </script>
+  <script src="/research-workspace.js?v=1"></script>
 </body>
 </html>
