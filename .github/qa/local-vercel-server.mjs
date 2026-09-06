@@ -21,6 +21,10 @@ const dashboardAssets = new Set([
   'phase10r-archive.js', 'phase-hero-scenes.js', 'aegis-current.js'
 ]);
 
+const deployAssets = new Set([
+  'aegisland.css', 'signature.css', 'research-home.css', 'frozen-lineage.js'
+]);
+
 const sendFile = async (res, file) => {
   try {
     const body = await fs.readFile(file);
@@ -40,10 +44,10 @@ const server = http.createServer(async (req, res) => {
   const url = new URL(req.url || '/', `http://${req.headers.host || `127.0.0.1:${port}`}`);
   const p = url.pathname;
 
-  // Keep the local QA router aligned with deploy/vercel/vercel.json. Dedicated
-  // frontier pages must be matched before the generic historical phase route.
-  if (p === '/phases/phase12' || p === '/phases/phase12/') {
-    return sendFile(res, path.join(deployRoot, 'phase12.html'));
+  // Mirror deploy/vercel/vercel.json: the frozen evidence layer must win before
+  // the generic historical phase route.
+  if (/^\/phases\/phase(?:12|13a|13b|13c|1[4-9]|2[0-2])\/?$/i.test(p)) {
+    return sendFile(res, path.join(dashboardRoot, 'phases', 'frozen.html'));
   }
   if (p === '/phases/phase11' || p === '/phases/phase11/') {
     return sendFile(res, path.join(deployRoot, 'phase11.html'));
@@ -59,9 +63,8 @@ const server = http.createServer(async (req, res) => {
     if (!relative.includes('..')) return sendFile(res, path.join(dashboardRoot, relative));
   }
 
-  if (p === '/aegisland.css') return sendFile(res, path.join(deployRoot, 'aegisland.css'));
-
   const asset = p.replace(/^\//, '');
+  if (deployAssets.has(asset)) return sendFile(res, path.join(deployRoot, asset));
   if (dashboardAssets.has(asset)) return sendFile(res, path.join(dashboardRoot, asset));
   if (p === '/favicon.svg' || p === '/favicon.ico') return sendFile(res, path.join(deployRoot, 'favicon.svg'));
   if (p === '/' || p === '/index.html') return sendFile(res, path.join(deployRoot, 'index.html'));
