@@ -3,14 +3,23 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_phase_pages_use_one_canonical_responsive_layer():
+def test_legacy_phase_template_keeps_one_canonical_responsive_layer():
     phase = (ROOT / "dashboard/phases/phase.html").read_text()
+    assert 'phase-responsive.css' in phase
+    assert 'tesla-mobile.css' not in phase
+    assert 'tesla-phase-mobile.css' not in phase
+    assert 'class="archive-shell"' in phase
+
+
+def test_frozen_archive_uses_signature_responsive_system_instead_of_legacy_stack():
     index = (ROOT / "dashboard/phases/index.html").read_text()
-    for html in (phase, index):
-        assert 'phase-responsive.css' in html
+    frozen = (ROOT / "dashboard/phases/frozen.html").read_text()
+    for html in (index, frozen):
+        assert 'href="/signature.css?v=' in html
+        assert 'phase-responsive.css' not in html
         assert 'tesla-mobile.css' not in html
         assert 'tesla-phase-mobile.css' not in html
-        assert 'class="archive-shell"' in html
+        assert 'class="signature-site"' in html
 
 
 def test_responsive_css_has_no_compatibility_important_stack():

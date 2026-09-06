@@ -1,0 +1,56 @@
+name: Frozen archive presentation check
+
+on:
+  pull_request:
+    paths:
+      - 'deploy/vercel/**'
+      - 'dashboard/**'
+      - '.github/workflows/site-frozen-archive-check.yml'
+  push:
+    branches:
+      - 'site/**'
+    paths:
+      - 'deploy/vercel/**'
+      - 'dashboard/**'
+      - '.github/workflows/site-frozen-archive-check.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Assert frozen archive presentation
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q 'data-site-shell="native frozen-archive"' deploy/vercel/index.html
+          grep -q 'Confidence is not' deploy/vercel/index.html
+          grep -q 'correctness.' deploy/vercel/index.html
+          grep -q 'The failures are the map' deploy/vercel/index.html
+          grep -q 'Aegis Halo' deploy/vercel/index.html
+          grep -q 'Frozen through Phase 22' deploy/vercel/index.html
+
+          grep -q "slug: 'phase13a'" deploy/vercel/frozen-lineage.js
+          grep -q "slug: 'phase13c'" deploy/vercel/frozen-lineage.js
+          grep -q "slug: 'phase22'" deploy/vercel/frozen-lineage.js
+          grep -q '0.8319' deploy/vercel/frozen-lineage.js
+          grep -q '0.7744' deploy/vercel/frozen-lineage.js
+          grep -q '0ddc968b8bd48c2de6d904194b417854913389a8927cff0b15b96c6501f8294c' deploy/vercel/frozen-lineage.js
+          grep -q '62e75d7b39088c2e66f1cc6be4d180501b79632f2f6847af1fbe0bd96be17551' deploy/vercel/frozen-lineage.js
+          grep -q '668d065714dde279857bc0e196f0ef7cc5e182ed' deploy/vercel/frozen-lineage.js
+          grep -q 'sha256:78fa8d0d5a0df2a59d2d65a3e30abb1e8c948c1f3b9b66a2cb262f00adb971cb' deploy/vercel/frozen-lineage.js
+
+          test "$(grep -c "verdict: 'PASS'" deploy/vercel/frozen-lineage.js)" -eq 6
+          test "$(grep -c "verdict: 'FAIL'" deploy/vercel/frozen-lineage.js)" -eq 7
+
+          grep -q 'Every frozen phase' dashboard/phases/index.html
+          grep -q 'const phase = lineage && lineage.bySlug\[slug\]' dashboard/phases/frozen.html
+          grep -q '/dashboard/phases/frozen.html' deploy/vercel/vercel.json
+
+          grep -q 'simulation_only=true' deploy/vercel/index.html
+          grep -q 'safety_acceptance=false' deploy/vercel/index.html
+          grep -q 'controller_tuning_allowed=false' deploy/vercel/index.html

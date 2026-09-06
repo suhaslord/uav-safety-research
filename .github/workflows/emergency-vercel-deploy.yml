@@ -44,33 +44,59 @@ jobs:
           set -euo pipefail
           rm -rf .vercel-release
           mkdir -p .vercel-release
-
-          # Ship the dashboard from the same commit being deployed. There is no
-          # pinned historical cockpit and no runtime CDN bootstrap.
           cp -R deploy/vercel/. .vercel-release/
           cp -R dashboard .vercel-release/dashboard
-
           mkdir -p .vercel-release/.vercel
           cat > .vercel-release/.vercel/project.json <<EOF
           {"orgId":"$VERCEL_ORG_ID","projectId":"$VERCEL_PROJECT_ID"}
           EOF
 
-      - name: Assert release is native and self-contained
+      - name: Assert frozen signature release is native and self-contained
         shell: bash
         run: |
           set -euo pipefail
-          grep -q 'data-site-shell="native"' .vercel-release/index.html
+          grep -q 'data-site-shell="native frozen-archive"' .vercel-release/index.html
           ! grep -q 'document.write' .vercel-release/index.html
           ! grep -q 'cdn.jsdelivr.net/gh/suhaslord/uav-safety-research' .vercel-release/index.html .vercel-release/vercel.json
+
+          test -f .vercel-release/signature.css
+          test -f .vercel-release/research-home.css
+          test -f .vercel-release/frozen-lineage.js
           test -f .vercel-release/dashboard/phases/index.html
-          test -f .vercel-release/dashboard/phases/phase.html
-          test -f .vercel-release/dashboard/aegis-current.js
-          test -f .vercel-release/dashboard/phase-runtime.js
+          test -f .vercel-release/dashboard/phases/frozen.html
           test -f .vercel-release/phase11.html
-          test -f .vercel-release/phase12.html
-          grep -q 'Open Phase 12' .vercel-release/index.html
-          grep -q '2.23035' .vercel-release/index.html
-          grep -q '935935' .vercel-release/phase12.html
+
+          grep -q 'Confidence is not' .vercel-release/index.html
+          grep -q 'The failures are the map' .vercel-release/index.html
+          grep -q 'Aegis Halo' .vercel-release/index.html
+          grep -q 'Frozen through Phase 22' .vercel-release/index.html
+          grep -q 'Research question' .vercel-release/index.html
+          grep -q 'Main purpose' .vercel-release/index.html
+          grep -q 'Main conclusion' .vercel-release/index.html
+          grep -q '0.8319' .vercel-release/index.html
+          grep -q '0.7744' .vercel-release/index.html
+          grep -q '100%' .vercel-release/index.html
+          grep -q 'simulation_only=true' .vercel-release/index.html
+          grep -q 'safety_acceptance=false' .vercel-release/index.html
+          grep -q 'controller_tuning_allowed=false' .vercel-release/index.html
+
+          node - <<'NODE'
+          global.window = {};
+          require('./.vercel-release/frozen-lineage.js');
+          const d = window.AEGIS_FROZEN_LINEAGE;
+          if (!d || d.frozenThrough !== 'Phase 22') throw new Error('frozen frontier mismatch');
+          if (d.phases.length !== 13) throw new Error('frozen lineage record count mismatch');
+          if (d.counts.PASS !== 6 || d.counts.FAIL !== 7) throw new Error('pass/fail count mismatch');
+          if (d.bySlug.phase13a.verdict !== 'FAIL' || d.bySlug.phase13b.verdict !== 'FAIL') throw new Error('Phase 13 failures were rewritten');
+          if (d.bySlug.phase18.verdict !== 'FAIL') throw new Error('Phase 18 failure was rewritten');
+          if (d.bySlug.phase19.verdict !== 'PASS' || d.bySlug.phase20.verdict !== 'PASS' || d.bySlug.phase21.verdict !== 'PASS' || d.bySlug.phase22.verdict !== 'PASS') throw new Error('late frozen pass missing');
+          if (d.bySlug.phase22.resultSha !== '0ddc968b8bd48c2de6d904194b417854913389a8927cff0b15b96c6501f8294c') throw new Error('Phase 22 final result identity mismatch');
+          if (d.bySlug.phase22.candidateSha !== '62e75d7b39088c2e66f1cc6be4d180501b79632f2f6847af1fbe0bd96be17551') throw new Error('Phase 22 candidate identity mismatch');
+          if (d.frozenScientificHead !== '668d065714dde279857bc0e196f0ef7cc5e182ed') throw new Error('Phase 22 scientific head mismatch');
+          if (d.phase22FinalRun !== '34043148327' || d.phase22FinalArtifact !== '9992317865') throw new Error('Phase 22 final run/artifact mismatch');
+          if (d.phase22FinalArtifactDigest !== 'sha256:78fa8d0d5a0df2a59d2d65a3e30abb1e8c948c1f3b9b66a2cb262f00adb971cb') throw new Error('Phase 22 artifact digest mismatch');
+          if (d.boundary.simulation_only !== true || d.boundary.safety_acceptance !== false || d.boundary.controller_tuning_allowed !== false) throw new Error('claim boundary mismatch');
+          NODE
 
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
@@ -84,7 +110,7 @@ jobs:
           echo "url=$URL" >> "$GITHUB_OUTPUT"
           echo "Production deployment: $URL"
 
-      - name: Verify deployed bundle and public alias
+      - name: Verify deployed frozen archive and public alias
         shell: bash
         run: |
           set -euo pipefail
@@ -93,62 +119,56 @@ jobs:
 
           echo "Checking deployment URL: $DEPLOY_URL"
           DEPLOY_HTML=$(curl --fail --silent --show-error --location --retry 5 --retry-delay 2 "$DEPLOY_URL/")
-
           if printf '%s' "$DEPLOY_HTML" | grep -qi 'class="[^"]*geist\|Vercel.*Dashboard'; then
             echo "Preview URL returned Vercel dashboard/auth page; verifying public alias instead."
           else
-            echo "Preview URL returned site content; checking for legacy loaders."
-            if printf '%s' "$DEPLOY_HTML" | grep -q 'document.write\|cdn.jsdelivr.net/gh/suhaslord/uav-safety-research'; then
-              echo "ERROR: Legacy production loader found at preview URL"
-              exit 1
-            fi
+            ! printf '%s' "$DEPLOY_HTML" | grep -q 'document.write\|cdn.jsdelivr.net/gh/suhaslord/uav-safety-research'
           fi
 
-          echo ""
           echo "=== Verifying public production alias: $PUBLIC_URL ==="
           PUBLIC_HTML=$(curl --fail --silent --show-error --location --retry 5 --retry-delay 2 "$PUBLIC_URL/")
-
-          if printf '%s' "$PUBLIC_HTML" | grep -q 'document.write\|cdn.jsdelivr.net/gh/suhaslord/uav-safety-research'; then
-            echo "ERROR: Legacy production loader remains at public URL homepage"
-            exit 1
-          fi
-          echo "✓ Homepage: no legacy loaders"
-
-          printf '%s' "$PUBLIC_HTML" | grep -q 'data-site-shell="native"'
-          printf '%s' "$PUBLIC_HTML" | grep -q 'Open Phase 12'
-          printf '%s' "$PUBLIC_HTML" | grep -q '2.23035'
-          printf '%s' "$PUBLIC_HTML" | grep -q '95.53%'
+          ! printf '%s' "$PUBLIC_HTML" | grep -q 'document.write\|cdn.jsdelivr.net/gh/suhaslord/uav-safety-research'
+          printf '%s' "$PUBLIC_HTML" | grep -q 'data-site-shell="native frozen-archive"'
+          printf '%s' "$PUBLIC_HTML" | grep -q 'Confidence is not'
+          printf '%s' "$PUBLIC_HTML" | grep -q 'The failures are the map'
+          printf '%s' "$PUBLIC_HTML" | grep -q 'Aegis Halo'
+          printf '%s' "$PUBLIC_HTML" | grep -q 'Frozen through Phase 22'
+          printf '%s' "$PUBLIC_HTML" | grep -q '0.8319'
+          printf '%s' "$PUBLIC_HTML" | grep -q '0.7744'
+          printf '%s' "$PUBLIC_HTML" | grep -q 'simulation_only=true'
           printf '%s' "$PUBLIC_HTML" | grep -q 'safety_acceptance=false'
-          echo "✓ Homepage: Phase 12 final result and claim boundary present"
+          printf '%s' "$PUBLIC_HTML" | grep -q 'controller_tuning_allowed=false'
+          echo "✓ Homepage: Aegis Halo signature, frozen Phase 22 evidence, and claim boundary present"
 
-          echo ""
-          echo "Verifying Phase 12 page content..."
-          PHASE12_HTML=$(curl --fail --silent --show-error --location --retry 5 --retry-delay 2 "$PUBLIC_URL/phases/phase12/")
-          printf '%s' "$PHASE12_HTML" | grep -q 'Phase 12'
-          printf '%s' "$PHASE12_HTML" | grep -q 'View progression'
-          printf '%s' "$PHASE12_HTML" | grep -q 'Read final report'
-          printf '%s' "$PHASE12_HTML" | grep -q '935935'
-          printf '%s' "$PHASE12_HTML" | grep -q '2.23035'
-          printf '%s' "$PHASE12_HTML" | grep -q '95.53%'
-          printf '%s' "$PHASE12_HTML" | grep -q 'simulation_only=true'
-          printf '%s' "$PHASE12_HTML" | grep -q 'safety_acceptance=false'
-          printf '%s' "$PHASE12_HTML" | grep -q 'controller_tuning_allowed=false'
-          echo "✓ Phase 12: final replication content present"
+          curl --fail --silent --show-error --location "$PUBLIC_URL/signature.css" >/dev/null
+          curl --fail --silent --show-error --location "$PUBLIC_URL/research-home.css" >/dev/null
+          curl --fail --silent --show-error --location "$PUBLIC_URL/frozen-lineage.js" -o /tmp/frozen-lineage.js
+          node - <<'NODE'
+          global.window = {};
+          require('/tmp/frozen-lineage.js');
+          const d = window.AEGIS_FROZEN_LINEAGE;
+          if (d.frozenThrough !== 'Phase 22' || d.phases.length !== 13) throw new Error('public lineage shape mismatch');
+          if (d.counts.PASS !== 6 || d.counts.FAIL !== 7) throw new Error('public pass/fail count mismatch');
+          if (d.bySlug.phase13a.verdict !== 'FAIL' || d.bySlug.phase18.verdict !== 'FAIL' || d.bySlug.phase22.verdict !== 'PASS') throw new Error('public verdict mismatch');
+          if (d.bySlug.phase22.resultSha !== '0ddc968b8bd48c2de6d904194b417854913389a8927cff0b15b96c6501f8294c') throw new Error('public Phase 22 result mismatch');
+          if (d.bySlug.phase22.candidateSha !== '62e75d7b39088c2e66f1cc6be4d180501b79632f2f6847af1fbe0bd96be17551') throw new Error('public Phase 22 candidate mismatch');
+          if (d.frozenScientificHead !== '668d065714dde279857bc0e196f0ef7cc5e182ed') throw new Error('public scientific head mismatch');
+          NODE
+          echo "✓ Frozen lineage asset: exact 6 PASS / 7 FAIL record and Phase 22 identities present"
 
-          echo ""
-          echo "Verifying Phase 11 remains archived and explicit..."
-          PHASE11_HTML=$(curl --fail --silent --show-error --location --retry 5 --retry-delay 2 "$PUBLIC_URL/phases/phase11/")
+          ARCHIVE_HTML=$(curl --fail --silent --show-error --location "$PUBLIC_URL/phases/")
+          printf '%s' "$ARCHIVE_HTML" | grep -q 'Every frozen phase'
+          printf '%s' "$ARCHIVE_HTML" | grep -q 'Nothing rewritten'
+          echo "✓ Archive: frozen lineage index present"
+
+          for PHASE in phase12 phase13a phase13b phase13c phase14 phase15 phase16 phase17 phase18 phase19 phase20 phase21 phase22; do
+            PHASE_HTML=$(curl --fail --silent --show-error --location "$PUBLIC_URL/phases/$PHASE/")
+            printf '%s' "$PHASE_HTML" | grep -q 'phaseContent'
+          done
+          echo "✓ Frozen detail routes: Phase 12 through Phase 22 resolve through the shared signature detail system"
+
+          PHASE11_HTML=$(curl --fail --silent --show-error --location "$PUBLIC_URL/phases/phase11/")
           printf '%s' "$PHASE11_HTML" | grep -q 'Phase 11 P14R'
-          printf '%s' "$PHASE11_HTML" | grep -q '2.435'
-          printf '%s' "$PHASE11_HTML" | grep -q '2.25'
-          echo "✓ Phase 11: failed predecessor remains visible"
+          echo "✓ Phase 11 predecessor remains reachable"
 
-          echo ""
-          echo "Verifying archive and assets..."
-          ARCHIVE_HTML=$(curl --fail --silent --show-error --location --retry 5 --retry-delay 2 "$PUBLIC_URL/phases/")
-          printf '%s' "$ARCHIVE_HTML" | grep -q 'Every phase'
-          curl --fail --silent --show-error --location "$PUBLIC_URL/aegis-current.js" >/dev/null
-          echo "✓ Archive and current-frontier bridge accessible"
-
-          echo ""
-          echo "=== Verification complete: public alias serves Phase 12 content ==="
+          echo "=== Verification complete: AegisLand serves the frozen Phase 22 research archive ==="
