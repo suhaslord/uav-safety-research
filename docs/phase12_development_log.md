@@ -107,3 +107,76 @@ Do **not** expose transfer yet. The next development iteration should remain on 
 2. simplify continuity calibration into a pooled continuity uncertainty cell if diagnostics show the separate horizon cells are creating width cliffs without corresponding error separation.
 
 Whichever direction is chosen must be amended into the preregistration before implementation and before transfer seed `913913` is ever exposed. No gate relaxation or post-hoc interval multiplier is allowed.
+
+## Iteration 3 — innovation-residual normalized conformal
+
+Iteration 3 was chosen only after the permanently-seen width-tail forensic analysis and was preregistered before the next development evaluation. The diagnostic showed that iteration-2 width was allocated mainly by severity/horizon even though normalized lateral anchor innovation was a substantially more stable predictor of realized continuity error across scale-fit, calibration A, calibration B, and development.
+
+Frozen method:
+
+`u = log1p(p9_anchor_innovation_lateral_abs / frozen_lateral_innovation_scale)`
+
+A monotone residual contrast is fit per continuity horizon group using only Phase 12 scale-fit evidence. It modifies only lateral continuity uncertainty. Base, rescue, all altitude scales, point estimates, availability, groups, finite-sample conformal calculation, calibration A/B maximum, thresholds, and H1-H11 definitions remain unchanged.
+
+- preregistration: `docs/phase12_iteration3_preregistration.md`
+- forensic note: `docs/phase12_width_tail_forensics.md`
+- frozen scientific head: `8d0617a83d699cd14eae6194ce3a86a5c034dfbc`
+- candidate SHA-256: `e2372ca597cdd983f098f1a45524c077798114c59a62bf9faccefd17b67a4991`
+- development workflow run: `34004695243`
+- development result SHA-256: `cc502dd7adc11d92f8efb331e6d16b629e6c264f4392549d5d419e31ceb0a9e0`
+- candidate determinism: PASS; byte-identical independent rebuild
+- targeted predecessor + Phase 12 invariants: PASS
+- broad repository CI on frozen scientific head: PASS (`34004695207`)
+
+### Iteration-3 development result
+
+| Gate | Development result | Verdict |
+|---|---:|---|
+| H1 useful availability | `98.264%` | PASS |
+| H2 lateral 95% coverage | `94.947%` | PASS |
+| H2 altitude 95% coverage | `94.859%` | PASS |
+| H3 calibration MACE | `0.003587` | PASS |
+| H4 lateral median width / p95 error | `0.586486x` | PASS |
+| H4 lateral p95 width / p95 error | **`2.168449x`** | **PASS** |
+| H4 altitude median width / p95 error | `0.811724x` | PASS |
+| H4 altitude p95 width / p95 error | `1.706228x` | PASS |
+| H5 primary-continuity honesty | passed | PASS |
+| H6 base-output honesty | passed | PASS |
+| H8 high-severity honesty | passed | PASS |
+| H9 rescue-output honesty | passed | PASS |
+| H10 rescue accuracy floor | passed | PASS |
+| H11 rescue effectiveness | `95.483%` recovery | PASS |
+
+Overall iteration-3 development result: **PASS**. The candidate was frozen immediately; no further development tuning was performed.
+
+## Downstream evidence status — immutable iteration-3 candidate
+
+The following downstream results are not development evidence, but are recorded here to close the lineage and point to their dedicated evidence documents.
+
+| Stage | Seed | Lateral H4 p95 ratio | Lateral 95% coverage | Result |
+|---|---:|---:|---:|---|
+| transfer | `913913` | `2.0580396987x` | `94.5035%` | PASS |
+| protected validation | `924924` | `2.2124459142x` | `95.3994%` | PASS |
+| final holdout | `935935` | `2.2303494666x` | `95.5333%` | PASS |
+
+Dedicated records:
+
+- `docs/phase12_iteration3_transfer_result.md`
+- `docs/phase12_iteration3_protected_result.md`
+- `docs/phase12_iteration3_final_report.md`
+
+All three stages used candidate SHA `e2372ca597cdd983f098f1a45524c077798114c59a62bf9faccefd17b67a4991` and frozen scientific SHA `8d0617a83d699cd14eae6194ce3a86a5c034dfbc` without refit or recalibration.
+
+### Final evidence ledger
+
+- `880880` scale fit — seen
+- `891891` calibration A — seen
+- `902902` calibration B — seen
+- `907907` development-only — seen; never promoted as protected evidence
+- `913913` transfer — exposed once; PASS
+- `924924` protected validation — exposed once; PASS
+- `935935` final holdout — exposed once; PASS
+- `858858` Phase 11 protected — **not reused / forbidden**
+- `869869` retired Phase 11 P15-v2 — **not exposed / forbidden**
+
+Phase 12 iteration 3 is complete. No further tuning or evidence exposure is authorized in this lineage.
