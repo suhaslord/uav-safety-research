@@ -8,6 +8,8 @@ Authoritative predecessor: Phase 11 P14R, study closed after a mixed / negative 
 
 Phase 11 remains frozen evidence. This phase does **not** reopen P14R, does not retune against protected seed `858858`, and does not expose or reuse retired P15-v2 seed `869869`.
 
+Development seed `907907` is permanently seen and may be rerun for debugging/model development exactly as declared before its first exposure. The development history is recorded in `docs/phase12_development_log.md`.
+
 ## Motivation
 
 Phase 11 P14R preserved high useful availability and approximately nominal 95% uncertainty coverage under protected shift, but failed one locked H4 component:
@@ -28,10 +30,11 @@ The Phase 11 P14R point estimator, bounded continuity policy, independent rescue
 Phase 12 changes only the uncertainty model:
 
 1. fit a simple monotone difficulty scale from fresh Phase 12 scale-fit data using the already inference-visible `severity` signal, separately by P14R output group and axis;
-2. normalize absolute errors by that frozen scale;
-3. compute finite-sample conformal quantiles of the normalized scores independently in two disjoint fresh calibration environments;
-4. take the pointwise maximum of the two calibration quantiles for robustness;
-5. at inference, return `half_width = frozen_scale(severity, group, axis) * robust_normalized_quantile`.
+2. apply the development-frozen continuity contrast rule defined below;
+3. normalize absolute errors by that frozen scale;
+4. compute finite-sample conformal quantiles of the normalized scores independently in two disjoint fresh calibration environments;
+5. take the pointwise maximum of the two calibration quantiles for robustness;
+6. at inference, return `half_width = frozen_scale(severity, group, axis) * robust_normalized_quantile`.
 
 No truth-derived quantity is available to the uncertainty model at inference.
 
@@ -43,8 +46,26 @@ For each P14R output group and axis:
 - the low-error anchor is the median absolute error in the lowest severity third;
 - the high-error anchor is the median absolute error in the highest severity third;
 - the high-error anchor is constrained to be no smaller than the low-error anchor;
-- scale varies linearly between the two severity anchors and is clipped outside them;
+- raw scale varies linearly between the two severity anchors and is clipped outside them;
 - a positive floor prevents division by zero.
+
+### Development amendment 1 — frozen before transfer exposure
+
+Iteration 1 used the raw clipped-linear scale directly. On permanently-seen development seed `907907`, every required gate except lateral H4 tail efficiency passed; lateral p95 half-width / p95 error improved from the closed Phase 11 protected value `2.4354x` to `2.3620x`, but remained above the locked `2.25x` maximum. No transfer, protected, or final Phase 12 seed had been exposed.
+
+Iteration 2 therefore changes only **within-continuity scale contrast**, while retaining all seeds, family IDs, domains, gates, point-estimator behavior, calibration environments, and the robust maximum rule.
+
+For `continuity_h3`, `continuity_h45`, and `continuity_h67`, after computing raw clipped-linear scale `s` from low/high anchors `l,h`, define:
+
+- `c = sqrt(l*h)`;
+- `scale = c * (s/c)^0.5` when `h > l`;
+- otherwise `scale = s`.
+
+Base-output and independent-rescue scales keep exponent `1.0` and are unchanged from iteration 1.
+
+This geometric-center shrinkage preserves positivity and monotonicity while reducing unstable high-tail contrast inside the smaller continuity cells. It is **not** a post-conformal multiplicative shrinkage of final intervals: the fresh calibration environments still determine all normalized conformal quantiles after this scale transformation.
+
+The exponent `0.5` is now frozen for the candidate that may advance to transfer. Any further scientific change after a failed development rerun must be recorded before transfer; after transfer exposure, the scale formula cannot change.
 
 This intentionally limits model capacity. No splines, neural scale model, post-transfer coefficient tuning, or protected-data feature engineering is allowed in this phase.
 
@@ -94,7 +115,7 @@ Scale-fit / calibration roles allocate 8 families per stratum. Transfer / protec
 
 Phase 12 keeps the same factor vocabulary used by the predecessor benchmark (`edge`, `small_scale`, `oblique`, `dim`, `blur_noise`, `low_contrast`, `temporal_dropout`) but uses newly frozen stage-specific compound-domain lists and fresh seeds / family identities.
 
-Domain lists are code constants in `scripts/run_phase12_adaptive_normalized_conformal.py` and are part of the scientific freeze.
+Domain lists are code constants in the Phase 12 runners and are part of the scientific freeze.
 
 ## Power minimums
 
@@ -152,7 +173,7 @@ H7 shift AUROC remains diagnostic only.
 
 The following are forbidden after transfer exposure:
 
-- changing the severity anchors or scale formula;
+- changing the severity anchors, continuity shrinkage exponent, or scale formula;
 - changing the robust max rule;
 - changing a gate threshold;
 - changing transfer / protected / final domains, seeds, or family IDs;
