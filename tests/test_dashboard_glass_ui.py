@@ -41,12 +41,13 @@ def test_motion_layer_does_not_reintroduce_glass_materials():
     assert not (ROOT / "dashboard" / "glass-refraction.css").exists()
 
 
-def test_vercel_home_is_native_frozen_archive_instead_of_runtime_loading_historical_css():
+def test_vercel_home_is_native_frozen_archive_using_tesla_style_source():
     assert 'data-site-shell="native frozen-archive"' in SHELL
     assert "document.write" not in SHELL
     assert "cdn.jsdelivr.net" not in SHELL
     assert "const motion=`${base}glass-ui.css`;" not in SHELL
     assert "glass-refraction.css" not in SHELL
-    assert 'href="/signature.css?v=' in SHELL
-    assert 'href="/research-home.css?v=' in SHELL
+    assert 'href="/aegisland.css?v=' in SHELL
+    assert 'href="/signature.css?v=' not in SHELL
+    assert 'href="/research-home.css?v=' not in SHELL
     assert 'src="/frozen-lineage.js?v=' in SHELL
