@@ -41,12 +41,18 @@
       <div class="archive-toolbar__search"><label for="archiveSearch">Search</label><input id="archiveSearch" type="search" placeholder="phase, question, finding, signal…" autocomplete="off" spellcheck="false"></div>
       <div class="archive-filter-group" role="group" aria-label="Filter phase records">
         <button class="archive-filter" type="button" data-filter="all" aria-pressed="true">All</button>
-        <button class="archive-filter" type="button" data-filter="pass" aria-pressed="false">PASS</button>
-        <button class="archive-filter" type="button" data-filter="fail" aria-pressed="false">FAIL</button>
+        <button class="archive-filter" type="button" data-filter="pass" aria-pressed="false">Frozen PASS</button>
+        <button class="archive-filter" type="button" data-filter="fail" aria-pressed="false">Frozen FAIL</button>
         <button class="archive-filter" type="button" data-filter="historical" aria-pressed="false">Foundational</button>
       </div>
       <div class="archive-filter-summary" id="archiveResultCount" aria-live="polite">Showing all 26 phase records.</div>
     </section>
+
+    <div class="archive-empty-state" id="archiveEmptyState" hidden role="status">
+      <strong>No phase records match.</strong>
+      <span>Try a phase number, research question, or clear the active verdict filter.</span>
+      <button class="archive-reset" id="archiveReset" type="button">Clear search and filters</button>
+    </div>
 
     <div class="archive-groups" id="categories">
       <div id="archiveCategories"></div>
@@ -156,6 +162,8 @@
       const search = document.getElementById('archiveSearch');
       const filters = [...document.querySelectorAll('.archive-filter')];
       const summary = document.getElementById('archiveResultCount');
+      const emptyState = document.getElementById('archiveEmptyState');
+      const reset = document.getElementById('archiveReset');
       let activeFilter = 'all';
 
       const applyFilters = () => {
@@ -163,12 +171,14 @@
         const cards = [...document.querySelectorAll('.archive-card.phase-personalized')];
         let visible = 0;
         cards.forEach((card) => {
-          const matchesText = !query || card.innerText.toLowerCase().includes(query) || (card.dataset.slug || '').includes(query);
+          const searchable = `${card.textContent || ''} ${card.dataset.slug || ''}`.toLowerCase();
+          const matchesText = !query || searchable.includes(query);
           const verdict = (card.dataset.verdict || '').toLowerCase();
+          const isFrozen = card.dataset.frozen === 'true';
           const matchesFilter = activeFilter === 'all'
-            || (activeFilter === 'pass' && verdict === 'pass')
-            || (activeFilter === 'fail' && (verdict === 'fail' || card.textContent.includes('FAILED HOLDOUT') || card.textContent.includes('MIXED / FAIL')))
-            || (activeFilter === 'historical' && card.dataset.frozen === 'false');
+            || (activeFilter === 'pass' && isFrozen && verdict === 'pass')
+            || (activeFilter === 'fail' && isFrozen && verdict === 'fail')
+            || (activeFilter === 'historical' && !isFrozen);
           const show = matchesText && matchesFilter;
           card.hidden = !show;
           if (show) visible += 1;
@@ -177,6 +187,7 @@
         document.querySelectorAll('.archive-category').forEach((section) => {
           section.hidden = !section.querySelector('.archive-card.phase-personalized:not([hidden])');
         });
+        emptyState.hidden = visible !== 0;
         summary.textContent = visible === 26 && !query && activeFilter === 'all' ? 'Showing all 26 phase records.' : `Showing ${visible} of 26 phase records.`;
       };
 
@@ -186,6 +197,13 @@
         filters.forEach((item) => item.setAttribute('aria-pressed', String(item === button)));
         applyFilters();
       }));
+      reset.addEventListener('click', () => {
+        search.value = '';
+        activeFilter = 'all';
+        filters.forEach((item) => item.setAttribute('aria-pressed', String(item.dataset.filter === 'all')));
+        applyFilters();
+        search.focus();
+      });
     })();
 
     (() => {
