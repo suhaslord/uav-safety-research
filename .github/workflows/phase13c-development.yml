@@ -1,0 +1,145 @@
+name: Phase 13C Thirteen-Contrast Compound Attribution development
+
+on:
+  push:
+    branches: [phase13c/compound-interaction-attribution]
+    paths:
+      - .github/workflows/phase13c-development.yml
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  FROZEN_PHASE12_DEV_RUN_ID: '34004695243'
+  FROZEN_PHASE12_CANDIDATE_SHA256: e2372ca597cdd983f098f1a45524c077798114c59a62bf9faccefd17b67a4991
+  PHASE13C_DEV_SEED: '1313135'
+
+jobs:
+  development:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Refuse a second Phase 13C development exposure
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          COUNT=$(gh api \
+            -H 'Accept: application/vnd.github+json' \
+            '/repos/${{ github.repository }}/actions/artifacts?name=phase13c-development&per_page=100' \
+            --jq '[.artifacts[] | select(.expired == false)] | length')
+          test "$COUNT" = "0" || { echo "Phase 13C development artifact already exists; refusing a second exposure"; exit 1; }
+
+      - name: Check out preregistered Phase 13C scientific head
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Verify attribution implementation before evidence
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+          python -m compileall -q \
+            scripts/run_phase13c_compound_attribution.py \
+            scripts/run_phase13c_compound_attribution_remediation1.py \
+            scripts/run_phase13_external_validity_gauntlet.py \
+            scripts/run_phase12_adaptive_normalized_conformal.py \
+            scripts/run_phase12_adaptive_normalized_conformal_v2.py \
+            scripts/run_phase12_adaptive_normalized_conformal_v3.py
+          python - <<'PY'
+          import pytest
+          from scripts import run_phase13c_compound_attribution_remediation1 as remediation
+          remediation.install_execution_remediation()
+          paths = [
+              'tests/test_phase11_p9_soft_update_direct_conformal.py',
+              'tests/test_phase11_p14_bounded_independent_rescue.py',
+              'tests/test_phase11_p14r_robust_group_envelope.py',
+              'tests/test_phase12_adaptive_normalized_conformal.py',
+              'tests/test_phase12_adaptive_normalized_conformal_v2.py',
+              'tests/test_phase12_adaptive_normalized_conformal_v3.py',
+              'tests/test_phase13_external_validity_gauntlet.py',
+              'tests/test_phase13c_compound_attribution.py',
+              'tests/test_phase13c_execution_remediation1.py',
+          ]
+          raise SystemExit(pytest.main(['-q', *paths]))
+          PY
+          test -f docs/phase13c_preregistration.md
+          test -f docs/phase13c_execution_amendment_01.md
+          grep -q '1313135' docs/phase13c_preregistration.md
+          grep -q 'Exactly thirteen contrast overlays' docs/phase13c_preregistration.md
+          grep -q 'Phase 13A and Phase 13B remain immutable failed lineages' docs/phase13c_preregistration.md
+          grep -q '34009501311' docs/phase13c_execution_amendment_01.md
+
+      - name: Recover exact frozen Phase 12 candidate
+        uses: actions/download-artifact@v4
+        with:
+          name: phase12-development-v3
+          path: frozen_phase12_candidate_artifact
+          github-token: ${{ github.token }}
+          repository: suhaslord/uav-safety-research
+          run-id: ${{ env.FROZEN_PHASE12_DEV_RUN_ID }}
+
+      - name: Verify predecessor identity and freeze Phase 13C scientific head
+        run: |
+          CANDIDATE=$(find frozen_phase12_candidate_artifact -path '*/results/phase12_candidate_v3/candidate_freeze.json' -print -quit)
+          test -n "$CANDIDATE"
+          echo "$FROZEN_PHASE12_CANDIDATE_SHA256  $CANDIDATE" | sha256sum -c -
+          echo "CANDIDATE=$CANDIDATE" >> "$GITHUB_ENV"
+          echo "PHASE13C_SCIENTIFIC_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Expose Phase 13C development evidence exactly once
+        run: |
+          rm -rf results/phase13c_development
+          python scripts/run_phase13c_compound_attribution_remediation1.py \
+            --stage dev \
+            --candidate "$CANDIDATE" \
+            --out results/phase13c_development \
+            --git-sha "$PHASE13C_SCIENTIFIC_SHA" 2>&1 | tee phase13c-development.log
+          test -f results/phase13c_development/dev_result.json
+          test -f results/phase13c_development/manifest.json
+          test -f results/phase13c_development/dev_control_frames.csv
+          test -f results/phase13c_development/dev_contrast_frames.csv
+
+      - name: Verify result boundary and record mechanism verdict
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          r = json.loads(Path('results/phase13c_development/dev_result.json').read_text())
+          assert r['schema'] == 'aegisland.phase13c.compound-attribution.dev-result.v1'
+          assert r['evaluated_seed_seen_after_run'] == int(os.environ['PHASE13C_DEV_SEED'])
+          assert r['families'] == list(range(1393, 1417))
+          assert r['frozen_phase12_candidate_sha256'] == os.environ['FROZEN_PHASE12_CANDIDATE_SHA256']
+          assert r['scientific_git_sha'] == os.environ['PHASE13C_SCIENTIFIC_SHA']
+          assert r['contrast_count'] == 13
+          assert len(r['contrast_names']) == 13
+          assert r['phase13a_failure_preserved'] is True
+          assert r['phase13b_failure_preserved'] is True
+          assert r['zero_adaptation'] is True
+          assert r['simulation_only'] is True
+          assert r['safety_acceptance'] is False
+          assert r['controller_tuning_allowed'] is False
+          assert set(r['gates']) == {
+              'c13_1_construction_integrity',
+              'c13_2_full_compound_execution_equivalence',
+              'c13_3_fresh_failure_phenomenon_replication',
+              'c13_4_attribution_completeness',
+              'c13_5_zero_adaptation',
+          }
+          print('PHASE13C_DEVELOPMENT_PERMANENTLY_SEEN=true')
+          print('PHASE13C_DEVELOPMENT_PASS=' + str(bool(r['phase13c_pass'])).lower())
+          print(json.dumps(r['gates'], indent=2, sort_keys=True))
+          print(json.dumps(r['attribution'], indent=2, sort_keys=True))
+          PY
+
+      - name: Upload permanent Phase 13C development evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase13c-development
+          path: |
+            results/phase13c_development/
+            phase13c-development.log
+          if-no-files-found: error
+          retention-days: 90
