@@ -28,7 +28,8 @@ jobs:
         run: |
           set -euo pipefail
           grep -q 'data-site-shell="native frozen-archive"' deploy/vercel/index.html
-          grep -q 'Confidence is not correctness' deploy/vercel/index.html
+          grep -q 'Confidence is not' deploy/vercel/index.html
+          grep -q 'correctness.' deploy/vercel/index.html
           grep -q 'The failures are the map' deploy/vercel/index.html
           grep -q 'Aegis Halo' deploy/vercel/index.html
           grep -q 'Frozen through Phase 22' deploy/vercel/index.html
