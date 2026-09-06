@@ -29,19 +29,21 @@ try {
       page.on('console', message => { if (message.type() === 'error') browserErrors.push(message.text()); });
 
       const response = await page.goto(BASE + route, { waitUntil: 'domcontentloaded', timeout: 45000 });
-      await page.waitForTimeout(250);
+      await page.waitForTimeout(300);
       add(`${viewport.name}-${route}-status`, !!response && response.status() >= 200 && response.status() < 400, { status: response?.status() || 0 });
 
       const state = await page.evaluate(() => ({
         overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
         main: !!document.querySelector('main'),
         h1: document.querySelectorAll('h1').length,
-        polish: [...document.querySelectorAll('link[rel="stylesheet"]')].some(link => (link.getAttribute('href') || '').startsWith('/phase-polish.css'))
+        polish: [...document.querySelectorAll('link[rel="stylesheet"]')].some(link => (link.getAttribute('href') || '').startsWith('/phase-polish.css')),
+        personalization: [...document.querySelectorAll('link[rel="stylesheet"]')].some(link => (link.getAttribute('href') || '').startsWith('/phase-personalization.css'))
       }));
       add(`${viewport.name}-${route}-no-horizontal-overflow`, state.overflow <= 1, { overflow: state.overflow });
       add(`${viewport.name}-${route}-semantic-shell`, state.main && state.h1 >= 1, { main: state.main, h1: state.h1 });
-      if (/^\/phases\/(phase(?:[1-9]|10|10r|1[2-9]|2[0-2]|6b))\/?$/.test(route) && route !== '/phases/phase11/') {
+      if (/^\/phases\/(phase(?:[1-9]|10|10r|11|1[2-9]|2[0-2]|6b))\/?$/.test(route)) {
         add(`${viewport.name}-${route}-shared-phase-polish`, state.polish, { polish: state.polish });
+        add(`${viewport.name}-${route}-personalization-style`, state.personalization, { personalization: state.personalization });
       }
       add(`${viewport.name}-${route}-browser-clean`, browserErrors.length === 0, { browserErrors });
       await page.close();
@@ -81,37 +83,55 @@ try {
     const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'reduce' });
     const page = await context.newPage();
     await page.goto(BASE + '/phases/', { waitUntil: 'domcontentloaded', timeout: 45000 });
-    await page.waitForTimeout(400);
-    const frozenCards = await page.locator('#frozenCards .archive-card').count();
-    const legacyCards = await page.locator('#legacyCards .archive-card').count();
-    const frozenPass = await page.locator('#frozenCards .verdict-chip--pass').count();
-    const frozenFail = await page.locator('#frozenCards .verdict-chip--fail').count();
+    await page.waitForTimeout(500);
+    const categories = await page.locator('.archive-category').count();
+    const categoryNav = await page.locator('#categoryNav a').count();
+    const allCards = await page.locator('.archive-card.phase-personalized').count();
+    const frozenCards = await page.locator('.archive-card[data-frozen="true"]').count();
+    const historicalCards = await page.locator('.archive-card[data-frozen="false"]').count();
+    const frozenPass = await page.locator('.archive-card[data-frozen="true"] .verdict-chip--pass').count();
+    const frozenFail = await page.locator('.archive-card[data-frozen="true"] .verdict-chip--fail').count();
+    const identities = await page.locator('.archive-card__identity').count();
+    const questions = await page.locator('.archive-card__question').count();
+    const signals = await page.locator('.archive-card__signal').count();
     const archiveText = await page.locator('main').innerText();
     const archivePolish = await page.locator('link[href^="/phase-polish.css"]').count();
+    const archivePersonalization = await page.locator('link[href^="/phase-personalization.css"]').count();
     const archiveSignature = await page.locator('link[href^="/signature.css"]').count();
-    add('archive-has-13-frozen-records', frozenCards === 13, { frozenCards });
-    add('archive-has-13-foundational-records', legacyCards === 13, { legacyCards });
+    add('archive-has-six-research-categories', categories === 6 && categoryNav === 6, { categories, categoryNav });
+    add('archive-has-all-26-phase-records', allCards === 26, { allCards });
+    add('archive-preserves-13-frozen-and-13-historical', frozenCards === 13 && historicalCards === 13, { frozenCards, historicalCards });
     add('archive-preserves-6-pass-7-fail', frozenPass === 6 && frozenFail === 7, { frozenPass, frozenFail });
-    add('archive-uses-polished-tesla-shell', archivePolish === 1 && archiveSignature === 0, { archivePolish, archiveSignature });
-    add('archive-has-new-editorial-thesis', /Every phase stays part of the story/i.test(archiveText));
+    add('archive-personalizes-every-card', identities === 26 && questions === 26 && signals === 26, { identities, questions, signals });
+    add('archive-uses-polished-tesla-shell', archivePolish === 1 && archivePersonalization === 1 && archiveSignature === 0, { archivePolish, archivePersonalization, archiveSignature });
+    add('archive-has-category-led-thesis', /One research program\. Six distinct chapters/i.test(archiveText));
 
     const phaseChecks = [
-      ['/phases/phase12/', /PASS/, /2\.23035/],
-      ['/phases/phase13a/', /FAIL/, /External-Validity Gauntlet/i],
-      ['/phases/phase18/', /FAIL/, /protected validation missed two q90 gates/i],
-      ['/phases/phase22/', /PASS/, /0\.8319/]
+      ['/phases/phase1/', /The safety gate/i, /HOLD \/ ABORT/i],
+      ['/phases/phase10r/', /The shift holdout/i, /Tail \+ coverage/i],
+      ['/phases/phase11/', /The protected reliability pass/i, /Protected gates/i],
+      ['/phases/phase12/', /The uncertainty baseline/i, /2\.23035/],
+      ['/phases/phase13a/', /The validity gauntlet/i, /External-Validity Gauntlet/i],
+      ['/phases/phase18/', /The protected confirmation/i, /protected validation missed two q90 gates/i],
+      ['/phases/phase22/', /The frozen transfer model/i, /0\.8319/]
     ];
-    for (const [route, verdict, evidence] of phaseChecks) {
+    for (const [route, identity, evidence] of phaseChecks) {
       await page.goto(BASE + route, { waitUntil: 'domcontentloaded', timeout: 45000 });
-      await page.waitForTimeout(250);
+      await page.waitForTimeout(350);
       const text = await page.locator('main').innerText();
-      const polish = await page.locator('link[href^="/phase-polish.css"]').count();
-      const signature = await page.locator('link[href^="/signature.css"]').count();
-      add(`${route}-locked-verdict-visible`, verdict.test(text), { excerpt: text.slice(0, 280) });
-      add(`${route}-evidence-visible`, evidence.test(text), { excerpt: text.slice(0, 500) });
-      add(`${route}-boundary-visible`, /Synthetic, frozen simulation evidence only/i.test(text), { excerpt: text.slice(-300) });
-      add(`${route}-tesla-polish-source`, polish === 1 && signature === 0, { polish, signature });
+      const chip = await page.locator('.phase-identity-chip').count();
+      const role = await page.locator('.phase-role-card').count();
+      const category = await page.evaluate(() => document.body.dataset.phaseCategory || '');
+      add(`${route}-identity-visible`, identity.test(text) && chip === 1 && role === 1, { chip, role, excerpt: text.slice(0, 500) });
+      add(`${route}-evidence-visible`, evidence.test(text), { excerpt: text.slice(0, 700) });
+      add(`${route}-category-bound`, category.length > 0, { category });
     }
+
+    await page.goto(BASE + '/phases/phase12/', { waitUntil: 'domcontentloaded', timeout: 45000 });
+    await page.waitForTimeout(250);
+    const phase12Text = await page.locator('main').innerText();
+    add('phase12-locked-verdict-visible', /PASS/.test(phase12Text));
+    add('phase12-boundary-visible', /Synthetic, frozen simulation evidence only/i.test(phase12Text));
 
     await page.goto(BASE + '/phases/phase22/', { waitUntil: 'domcontentloaded', timeout: 45000 });
     await page.waitForTimeout(250);
@@ -132,13 +152,17 @@ try {
     const page = await context.newPage();
     for (const route of ['/', '/phases/', '/phases/phase1/', '/phases/phase10r/', '/phases/phase13a/', '/phases/phase22/']) {
       await page.goto(BASE + route, { waitUntil: 'domcontentloaded', timeout: 45000 });
-      await page.waitForTimeout(250);
+      await page.waitForTimeout(300);
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
       add(`mobile-${route}-no-horizontal-overflow`, overflow <= 1, { overflow });
     }
     await page.goto(BASE + '/', { waitUntil: 'domcontentloaded', timeout: 45000 });
     const ctas = await page.locator('.hero .button').evaluateAll(els => els.map(el => Math.round(el.getBoundingClientRect().height)));
     add('mobile-home-ctas-touchable', ctas.length >= 2 && ctas.every(height => height >= 40), { ctas });
+    await page.goto(BASE + '/phases/', { waitUntil: 'domcontentloaded', timeout: 45000 });
+    await page.waitForTimeout(300);
+    const mobileCategoryLinks = await page.locator('#categoryNav a').count();
+    add('mobile-archive-keeps-all-category-links', mobileCategoryLinks === 6, { mobileCategoryLinks });
     await page.close();
     await context.close();
   }
