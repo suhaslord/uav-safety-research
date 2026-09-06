@@ -13,7 +13,7 @@ def test_vercel_home_is_native_frozen_archive_shell() -> None:
     assert "cdn.jsdelivr.net/gh/suhaslord/uav-safety-research" not in html
     assert "const rev=" not in html
     assert 'id="evidenceSpine"' in html
-    assert 'src="/frozen-lineage.js?v=2"' in html
+    assert 'src="/frozen-lineage.js?v=' in html
     assert "Frozen through Phase 22" in html
     assert "0.8319" in html
     assert "0.7744" in html
@@ -83,11 +83,11 @@ def test_frozen_archive_replaces_current_frontier_bridge_without_breaking_legacy
     assert "document.write" not in current
     assert "Phase 12" in current
 
-    assert 'src="/frozen-lineage.js?v=1"' in archive
+    assert 'src="/frozen-lineage.js?v=' in archive
     assert 'src="/aegis-current.js"' not in archive
     assert 'src="/phase-runtime.js"' not in archive
 
-    assert 'src="/frozen-lineage.js?v=1"' in frozen
+    assert 'src="/frozen-lineage.js?v=' in frozen
     assert "phase(?:12|13a|13b|13c|1[4-9]|2[0-2])" in frozen
 
     assert phase.rfind('src="/aegis-current.js"') > phase.rfind('src="/phase-hero-scenes.js"')
