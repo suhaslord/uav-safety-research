@@ -22,7 +22,7 @@ const dashboardAssets = new Set([
 ]);
 
 const deployAssets = new Set([
-  'aegisland.css', 'signature.css', 'research-home.css', 'frozen-lineage.js'
+  'aegisland.css', 'signature.css', 'research-home.css', 'phase-polish.css', 'frozen-lineage.js'
 ]);
 
 const sendFile = async (res, file) => {
