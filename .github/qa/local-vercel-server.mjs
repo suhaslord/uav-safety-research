@@ -40,6 +40,11 @@ const server = http.createServer(async (req, res) => {
   const url = new URL(req.url || '/', `http://${req.headers.host || `127.0.0.1:${port}`}`);
   const p = url.pathname;
 
+  // Keep the local QA router aligned with deploy/vercel/vercel.json. Dedicated
+  // frontier pages must be matched before the generic historical phase route.
+  if (p === '/phases/phase12' || p === '/phases/phase12/') {
+    return sendFile(res, path.join(deployRoot, 'phase12.html'));
+  }
   if (p === '/phases/phase11' || p === '/phases/phase11/') {
     return sendFile(res, path.join(deployRoot, 'phase11.html'));
   }
@@ -58,7 +63,7 @@ const server = http.createServer(async (req, res) => {
 
   const asset = p.replace(/^\//, '');
   if (dashboardAssets.has(asset)) return sendFile(res, path.join(dashboardRoot, asset));
-  if (p === '/favicon.svg' || p === '/favicon.ico') return sendFile(res, path.join(deployRoot, p === '/favicon.ico' ? 'favicon.svg' : 'favicon.svg'));
+  if (p === '/favicon.svg' || p === '/favicon.ico') return sendFile(res, path.join(deployRoot, 'favicon.svg'));
   if (p === '/' || p === '/index.html') return sendFile(res, path.join(deployRoot, 'index.html'));
 
   res.writeHead(404, { 'content-type': 'text/plain; charset=utf-8' });
