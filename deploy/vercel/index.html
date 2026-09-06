@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#0b1118">
+  <meta name="theme-color" content="#ffffff">
   <meta name="description" content="AegisLand is a simulation-only UAV landing-perception research archive. Frozen through Phase 22.">
   <link rel="canonical" href="https://aegisland-research-cockpit.vercel.app/">
   <meta property="og:title" content="AegisLand — Research Cockpit">
@@ -14,17 +14,14 @@
   <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=5">
   <link rel="stylesheet" href="/aegisland.css?v=4">
   <link rel="stylesheet" href="/phase-polish-v2.css?v=1">
-  <link rel="stylesheet" href="/research-workspace.css?v=1">
-  <style>
-    @media(max-width:680px){body.research-workspace .workspace-status-head{flex-direction:column;align-items:flex-start}body.research-workspace .status-badge{max-width:100%;white-space:normal;line-height:1.4;overflow-wrap:anywhere}}
-  </style>
+  <link rel="stylesheet" href="/research-workspace.css?v=2">
 </head>
 <body class="research-workspace home-workspace">
   <a class="skip-link" href="#main">Skip to research result</a>
   <header class="site-header signature-nav">
     <a class="brand signature-brand" href="#top" aria-label="AegisLand home"><span class="brand-mark" aria-hidden="true">A</span><span>AEGISLAND</span></a>
     <nav class="site-nav signature-nav__links" aria-label="Primary navigation">
-      <a href="#status">Status</a><a href="#question">Question</a><a href="#evidence">Evidence</a><a href="#method">Method</a><a href="#timeline">Lineage</a>
+      <a href="#status">Status</a><a href="#evidence">Evidence</a><a href="#question">Question</a><a href="#method">Method</a><a href="#timeline">Lineage</a>
     </nav>
     <div class="header-actions"><a href="/phases/phase22/">Phase 22</a><a href="/phases/">Archive</a><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub</a></div>
     <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-expanded="false" aria-controls="mobileMenuSheet">Menu</button>
@@ -32,7 +29,7 @@
 
   <nav class="mobile-menu-sheet" id="mobileMenuSheet" aria-label="Mobile navigation" aria-hidden="true">
     <div class="mobile-menu-head"><strong>AEGISLAND</strong><button class="mobile-menu-close" type="button" aria-label="Close navigation">Close</button></div>
-    <div class="mobile-menu-links"><a href="#status">Current status</a><a href="#question">Research question</a><a href="#evidence">Evidence</a><a href="#method">Method</a><a href="#timeline">Lineage</a><a href="/phases/phase22/">Phase 22</a></div>
+    <div class="mobile-menu-links"><a href="#status">Current status</a><a href="#evidence">Evidence</a><a href="#question">Research question</a><a href="#method">Method</a><a href="#timeline">Lineage</a><a href="/phases/phase22/">Phase 22</a></div>
     <div class="mobile-menu-meta"><a href="/phases/">Archive</a><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub ↗</a></div>
   </nav>
 
@@ -43,8 +40,8 @@
           <div class="workspace-context" aria-label="Research context"><span>Research cockpit</span><span>UAV landing perception</span><span>Frozen through Phase 22</span></div>
           <p class="eyebrow">Evidence before confidence.</p>
           <h1 id="hero-title">Review the current claim, then trace the evidence.</h1>
-          <p class="hero-deck">AegisLand studies what happens when a UAV landing estimate gets stale, noisy, or hard to see — and whether the system’s uncertainty still tells the truth. The cockpit keeps the pass/fail record visible so a reviewer can move from the current result back to the exact evidence that supports it.</p>
-          <div class="actions"><a class="button primary signature-button" href="/phases/phase22/">Open Phase 22 evidence</a><a class="button secondary signature-button" href="/phases/">See every phase</a></div>
+          <p class="hero-deck">AegisLand studies what happens when a UAV landing estimate gets stale, noisy, or hard to see — and whether the system’s uncertainty still tells the truth. The archive keeps failed gates visible so the current result can be traced back to the evidence that produced it.</p>
+          <div class="actions"><a class="button primary signature-button" href="/phases/phase22/">Review Phase 22</a><a class="button secondary signature-button" href="/phases/">Browse research archive</a></div>
         </div>
 
         <aside class="workspace-status-card result-card aegis-halo" id="status" aria-label="Current research status">
@@ -58,23 +55,15 @@
             <div class="workspace-measure"><span>Stable-sign accuracy</span><strong>100%</strong></div>
           </div>
           <div class="workspace-boundary"><strong>Evidence boundary</strong>Simulation result only. simulation_only=true · safety_acceptance=false · controller_tuning_allowed=false</div>
-          <div class="workspace-status-actions"><a class="workspace-action workspace-action--primary" href="/phases/phase22/">Open Phase 22 evidence</a><a class="workspace-action" href="#timeline">Trace lineage</a></div>
+          <div class="workspace-status-meta">Final evidence role · synthetic 32-cell holdout · transferred without refitting</div>
         </aside>
       </div>
     </section>
 
     <section class="metrics workspace-brief-strip" aria-label="Research briefing">
       <div class="wrap brief-strip-grid">
-        <div class="brief-strip-item"><span>Research state</span><strong>Frozen P12→P22 record: 6 PASS / 7 FAIL. Earlier failures remain unchanged.</strong></div>
         <div class="brief-strip-item"><span>Current finding</span><strong>Context transfer worked without refitting on the final synthetic 32-cell holdout.</strong></div>
         <div class="brief-strip-item"><span>Primary caution</span><strong>Static latency-induced level error still gets worse; residual predictability is a separate result.</strong></div>
-      </div>
-    </section>
-
-    <section class="section" id="question">
-      <div class="wrap goal-grid">
-        <div><p class="eyebrow">Research question</p><h2>When the landing estimate gets worse, can the system tell that it is getting worse?</h2><p class="copy">The project separates three things that are easy to mix together: how wrong the estimate is, how wide the uncertainty interval is, and how predictable the next small error step looks. The point is to see when those signals agree — and when they do not.</p></div>
-        <div class="goal-points"><div class="goal-point"><strong>Uncertainty</strong><span>Does the reported interval still cover the actual error under degradation?</span></div><div class="goal-point"><strong>Absolute error</strong><span>How much does staleness change lateral accuracy and coverage?</span></div><div class="goal-point"><strong>Short-horizon behavior</strong><span>Can local residual structure stay predictable even while the overall estimate gets worse?</span></div></div>
       </div>
     </section>
 
@@ -83,6 +72,13 @@
         <div class="research-alert" role="note"><div class="research-alert__label">Key caution</div><p>A stale estimate can be less accurate while an old uncertainty width barely changes. Later residual structure does not mean latency improved the underlying level error.</p><a href="/phases/phase16/">Review Phase 16 →</a></div>
         <div class="section-head" style="margin-top:42px"><p class="eyebrow">Main conclusion</p><div><h2>Confidence, absolute error, and local predictability are not the same thing.</h2><p class="copy">Across the frozen simulation studies, a stale estimate can become less accurate while its old uncertainty width barely changes. At the same time, short-horizon residual behavior can still have repeatable structure. Later phases found that much of the synthetic context effect could be described with simple first-order terms and transferred to fresh 32-cell context cubes without refitting.</p></div></div>
         <div class="evidence-list" aria-label="Evidence supporting the current conclusion"><a class="evidence-item" href="/phases/phase16/"><span>Phase 16 · staleness mechanism</span><strong>Two-frame staleness worsened lateral level error and coverage.</strong></a><a class="evidence-item" href="/phases/phase19/"><span>Phase 19 · residual effect</span><strong>A narrower one-step residual advantage replicated in the simple context.</strong></a><a class="evidence-item" href="/phases/phase20/"><span>Phase 20 · factor decomposition</span><strong>Predefined modifiers explained the simple-to-hard attenuation pattern.</strong></a><a class="evidence-item" href="/phases/phase21/"><span>Phase 21 · context spectrum</span><strong>The frozen context surface was mostly first-order rather than interaction-driven.</strong></a><a class="evidence-item" href="/phases/phase22/"><span>Phase 22 · final transfer</span><strong>The additive model passed all 10 final gates without refitting.</strong></a></div>
+      </div>
+    </section>
+
+    <section class="section" id="question">
+      <div class="wrap goal-grid">
+        <div><p class="eyebrow">Research question</p><h2>When the landing estimate gets worse, can the system tell that it is getting worse?</h2><p class="copy">The project separates three things that are easy to mix together: how wrong the estimate is, how wide the uncertainty interval is, and how predictable the next small error step looks. The point is to see when those signals agree — and when they do not.</p></div>
+        <div class="goal-points"><div class="goal-point"><strong>Uncertainty</strong><span>Does the reported interval still cover the actual error under degradation?</span></div><div class="goal-point"><strong>Absolute error</strong><span>How much does staleness change lateral accuracy and coverage?</span></div><div class="goal-point"><strong>Short-horizon behavior</strong><span>Can local residual structure stay predictable even while the overall estimate gets worse?</span></div></div>
       </div>
     </section>
 
