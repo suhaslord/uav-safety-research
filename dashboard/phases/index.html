@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#ffffff">
-  <meta name="description" content="AegisLand frozen research lineage through Phase 22, with passes and failures preserved.">
+  <meta name="description" content="AegisLand research lineage through Phase 22, including frozen passes, failures, and foundational work.">
   <title>AegisLand — Research Phase Archive</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=5">
   <link rel="stylesheet" href="/aegisland.css?v=4">
@@ -29,8 +29,8 @@
     <section class="archive-hero">
       <div class="signature-kicker">Research archive · Phase 1 → Phase 22 · simulation only</div>
       <h1>Every phase stays part of the story.</h1>
-      <p>Every frozen phase remains visible alongside the foundational progression. Nothing rewritten: failed gates stay failed, successful confirmations stay scoped to their recorded evidence, and a later PASS never upgrades an earlier FAIL.</p>
-      <div class="signature-actions"><a class="signature-button signature-button--primary" href="/phases/phase22/">Open Phase 22</a><a class="signature-button" href="/">Back to research home</a></div>
+      <p>This is the full record: early architecture work, naming gaps, failed gates, successful confirmations, and the frozen Phase 12–22 lineage. Nothing gets cleaned up after the fact just because a later phase did better.</p>
+      <div class="signature-actions"><a class="signature-button signature-button--primary" href="/phases/phase22/">Open Phase 22</a><a class="signature-button" href="/">Research home</a></div>
     </section>
 
     <section class="archive-stats" aria-label="Archive summary">
@@ -42,12 +42,12 @@
 
     <div class="archive-groups">
       <section class="archive-group" id="frozen">
-        <div class="archive-group__title"><h2>Frozen evidence frontier</h2><span>Phase 12 → Phase 22 · immutable verdicts</span></div>
+        <div class="archive-group__title"><h2>Frozen evidence</h2><span>Phase 12 → Phase 22 · verdicts stay locked</span></div>
         <div class="archive-cards" id="frozenCards"></div>
       </section>
 
       <section class="archive-group" id="foundational">
-        <div class="archive-group__title"><h2>Foundational archive</h2><span>Phase 1 → Phase 11 · original research progression</span></div>
+        <div class="archive-group__title"><h2>Foundational work</h2><span>Phase 1 → Phase 11 · how the system got here</span></div>
         <div class="archive-cards" id="legacyCards"></div>
       </section>
 
@@ -72,18 +72,18 @@
       });
 
       const legacy = [
-        ['phase1','Phase 1','Safety Supervisor'], ['phase2','Phase 2','Expanded safety study'], ['phase3','Phase 3','Robustness evidence'],
-        ['phase4','Phase 4','Research progression'], ['phase5','Phase 5','Research progression'], ['phase6','Phase 6','Image-to-Aegis study'],
-        ['phase6b','Phase 6B','Paired landing study'], ['phase7','Phase 7','External-validity study'], ['phase8','Phase 8','Trace validation'],
-        ['phase9','Phase 9','Perception trace'], ['phase10','Phase 10','Research progression'], ['phase10r','Phase 10R','Frozen holdout'],
-        ['phase11','Phase 11','P14R protected result']
+        ['phase1','Phase 1','Safety supervisor'], ['phase2','Phase 2','Temporal filtering'], ['phase3','Phase 3','Independent reference'],
+        ['phase4','Phase 4','Naming gap'], ['phase5','Phase 5','Robustness + pixels'], ['phase6','Phase 6','Image perception loop'],
+        ['phase6b','Phase 6B','Selective confidence'], ['phase7','Phase 7','External-validity stress'], ['phase8','Phase 8','PX4/Gazebo trace comparison'],
+        ['phase9','Phase 9','External camera perception'], ['phase10','Phase 10','Temporal metric perception'], ['phase10r','Phase 10R','Frozen holdout'],
+        ['phase11','Phase 11','Protected reliability result']
       ];
       const legacyRoot = document.getElementById('legacyCards');
       legacy.forEach(([slug,label,title]) => {
         const card = document.createElement('a');
         card.className = 'archive-card';
         card.href = `/phases/${slug}/`;
-        card.innerHTML = `<div class="archive-card__top"><span class="archive-card__label">${label}</span><span class="verdict-chip">ARCHIVE</span></div><h3>${title}</h3><p>Open the original phase case study, system changes, evidence, limitations, and research takeaway.</p><span class="archive-card__open">Open phase →</span>`;
+        card.innerHTML = `<div class="archive-card__top"><span class="archive-card__label">${label}</span><span class="verdict-chip">ARCHIVE</span></div><h3>${title}</h3><p>See the problem, what changed, the recorded evidence, the limits, and why the next phase was needed.</p><span class="archive-card__open">Open phase →</span>`;
         legacyRoot.appendChild(card);
       });
     })();

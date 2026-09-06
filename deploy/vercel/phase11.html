@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#ffffff">
-  <meta name="description" content="AegisLand Phase 11 P14R final report: high protected availability and uncertainty coverage, with one locked lateral tail-efficiency failure and no final unseen-replication claim.">
+  <meta name="description" content="AegisLand Phase 11 P14R final report: strong protected availability and coverage, with one locked lateral tail-efficiency failure kept visible.">
   <link rel="canonical" href="https://aegisland-research-cockpit.vercel.app/phases/phase11/">
   <meta property="og:title" content="Phase 11 P14R — AegisLand">
-  <meta property="og:description" content="A frozen simulation study that kept one protected tail-efficiency failure visible instead of retuning it away.">
+  <meta property="og:description" content="A frozen simulation study with strong protected metrics and one locked tail-efficiency failure.">
   <meta property="og:type" content="article">
   <meta property="og:url" content="https://aegisland-research-cockpit.vercel.app/phases/phase11/">
   <title>Phase 11 · P14R — AegisLand</title>
@@ -21,14 +21,14 @@
   <a class="skip-link" href="#main">Skip to Phase 11 result</a>
   <header class="site-header">
     <a class="brand" href="/" aria-label="AegisLand home"><span class="brand-mark" aria-hidden="true">A</span><span>AEGISLAND</span></a>
-    <nav class="site-nav" aria-label="Phase 11 navigation"><a href="#result">Result</a><a href="#evidence">Evidence</a><a href="#boundary">Boundary</a><a href="#provenance">Provenance</a></nav>
+    <nav class="site-nav" aria-label="Phase 11 navigation"><a href="#result">Result</a><a href="#evidence">Evidence</a><a href="#boundary">Limit</a><a href="#provenance">Provenance</a></nav>
     <div class="header-actions"><a class="current" href="/phases/phase11/" aria-current="page">Phase 11</a><a href="/phases/">Archive</a><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub</a></div>
     <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-expanded="false" aria-controls="mobileMenuSheet">Menu</button>
   </header>
 
   <nav class="mobile-menu-sheet" id="mobileMenuSheet" aria-label="Mobile navigation" aria-hidden="true">
     <div class="mobile-menu-head"><strong>PHASE 11 · P14R</strong><button class="mobile-menu-close" type="button" aria-label="Close navigation">Close</button></div>
-    <div class="mobile-menu-links"><a href="#result">Result</a><a href="#evidence">Evidence</a><a href="#boundary">Boundary</a><a href="#provenance">Provenance</a><a href="/">Research cockpit</a></div>
+    <div class="mobile-menu-links"><a href="#result">Result</a><a href="#evidence">Evidence</a><a href="#boundary">Limit</a><a href="#provenance">Provenance</a><a href="/">Research home</a></div>
     <div class="mobile-menu-meta"><a href="/phases/">Archive</a><a href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase11_final_report.md" target="_blank" rel="noreferrer">Final report ↗</a></div>
   </nav>
 
@@ -36,15 +36,15 @@
     <section class="hero" id="result" aria-labelledby="phase-title">
       <div class="wrap hero-grid">
         <div>
-          <p class="eyebrow">Frozen historical phase · Phase 11 · P14R · study closed</p>
-          <h1 id="phase-title">Independent rescue + robust uncertainty transfer.</h1>
-          <p class="hero-deck">A frozen simulation study with high protected availability and coverage, plus one preregistered lateral tail-efficiency component that failed and remained failed.</p>
-          <p class="copy">P14R passed every required seen-transfer gate. Protected validation reached 98.53% useful availability, 96.17% lateral 95% coverage, 95.82% altitude 95% coverage, and 94.63% rescue recovery. Final confirmation stopped at the locked H4 lateral p95 tail-efficiency limit.</p>
-          <div class="actions"><a class="button primary" href="#evidence">View the evidence</a><a class="button secondary" href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase11_final_report.md" target="_blank" rel="noreferrer">Read final report</a></div>
+          <p class="eyebrow">Phase 11 · P14R · frozen historical result</p>
+          <h1 id="phase-title">High availability, good coverage, one tail-efficiency failure.</h1>
+          <p class="hero-deck">P14R fixed most of the availability and uncertainty problems that motivated the phase. It still failed one preregistered protected metric, so the overall verdict stayed failed.</p>
+          <p class="copy">Protected validation reached 98.53% useful availability, 96.17% lateral 95% coverage, 95.82% altitude 95% coverage, and 94.63% rescue recovery. The H4 lateral p95 tail-efficiency ratio was 2.435×, above the frozen 2.25× maximum.</p>
+          <div class="actions"><a class="button primary" href="#evidence">See the numbers</a><a class="button secondary" href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase11_final_report.md" target="_blank" rel="noreferrer">Read final report</a></div>
         </div>
         <aside class="result-card" aria-label="Phase 11 protected result">
-          <p class="eyebrow">Protected verdict</p><strong class="fail">Mixed / failed overall</strong><p>One locked H4 component failed: lateral p95 interval width / p95 error = <b>2.435×</b>, above the frozen <b>2.25×</b> maximum.</p>
-          <div class="safety"><p class="eyebrow">Claim boundary</p><strong>Not safety accepted</strong><p>simulation_only=true · safety_acceptance=false · controller_tuning_allowed=false</p></div>
+          <p class="eyebrow">Protected verdict</p><strong class="fail">Mixed / failed overall</strong><p>One locked H4 component missed its limit: lateral p95 interval width / p95 error = <b>2.435×</b>, above the frozen <b>2.25×</b> maximum.</p>
+          <div class="safety"><p class="eyebrow">Boundary</p><strong>Not safety accepted</strong><p>simulation_only=true · safety_acceptance=false · controller_tuning_allowed=false</p></div>
         </aside>
       </div>
     </section>
@@ -57,46 +57,46 @@
 
     <section class="section">
       <div class="wrap">
-        <div class="section-head"><p class="eyebrow">What changed</p><div><h2>Three bounded changes define P14R.</h2><p class="copy">The redesign addressed Phase 10R's availability and transfer-calibration problems without turning the rescue path into a recursive source of future state.</p></div></div>
-        <div class="three"><article class="card"><h3>Bounded primary path</h3><p>The trusted continuity estimator stays capped at seven frames and nonrecursive.</p><span class="tag">Continuity stays bounded</span></article><article class="card"><h3>Independent rescue</h3><p>Primary-unavailable truth-visible observations can be recovered without making rescue outputs future primary anchors.</p><span class="tag">94.63% protected recovery</span></article><article class="card"><h3>Robust uncertainty envelope</h3><p>Groupwise conformal uncertainty is calibrated for compound shift rather than one brittle severity partition.</p><span class="tag">Protected coverage near 96%</span></article></div>
+        <div class="section-head"><p class="eyebrow">What changed</p><div><h2>Three bounded changes defined P14R.</h2><p class="copy">The redesign targeted availability and transfer calibration without letting the rescue path become a recursive source of future state.</p></div></div>
+        <div class="three"><article class="card"><h3>Bounded primary path</h3><p>The trusted continuity estimator stayed capped at seven frames and remained nonrecursive.</p><span class="tag">Continuity stays bounded</span></article><article class="card"><h3>Independent rescue</h3><p>Truth-visible observations could be recovered when the primary path was unavailable, without turning rescue output into a future primary anchor.</p><span class="tag">94.63% protected recovery</span></article><article class="card"><h3>Robust uncertainty envelope</h3><p>Groupwise conformal uncertainty was calibrated for compound shift instead of one narrow severity split.</p><span class="tag">Protected coverage near 96%</span></article></div>
       </div>
     </section>
 
     <section class="section ash">
       <div class="wrap goal-grid">
-        <div><p class="eyebrow">Fresh seen transfer</p><h2>The redesign recovered availability without giving up coverage.</h2><p class="copy">All required seen-transfer families passed before protected validation. This was the gate to proceed, not permission to call the system safe.</p></div>
+        <div><p class="eyebrow">Fresh seen transfer</p><h2>The redesign recovered availability without giving up coverage.</h2><p class="copy">Every required seen-transfer family passed before protected validation. That was permission to continue the experiment, not permission to call the system safe.</p></div>
         <div class="evidence-list" aria-label="Fresh seen transfer metrics"><div class="evidence-item"><span>Useful availability</span><strong>97.72%</strong></div><div class="evidence-item"><span>Lateral 95% coverage</span><strong>94.76%</strong></div><div class="evidence-item"><span>Altitude 95% coverage</span><strong>94.79%</strong></div><div class="evidence-item"><span>Calibration MACE</span><strong>0.00512</strong></div><div class="evidence-item"><span>Lateral p95 width / p95 error</span><strong>2.169×</strong></div><div class="evidence-item"><span>Seen-transfer status</span><strong>PASS</strong></div></div>
       </div>
     </section>
 
     <section class="section" id="boundary">
       <div class="wrap boundary-grid">
-        <div><p class="eyebrow">Protected boundary</p><h2>One locked tail component stopped the study.</h2><p class="copy">Protected validation passed the required availability, coverage, calibration, rescue, and most efficiency checks. The lateral p95 interval-width / p95-error component did not. The frozen maximum stayed 2.25× after the 2.435× result became visible.</p><p class="copy">At Phase 11 close, the final P15-v2 holdout was not exposed after this failure. Any later work required a new preregistered phase and fresh evidence rather than reopening this verdict.</p></div>
+        <div><p class="eyebrow">The failed gate</p><h2>One locked tail metric stopped the phase.</h2><p class="copy">Protected validation passed the required availability, coverage, calibration, rescue, and most efficiency checks. The lateral p95 interval-width / p95-error component did not. Its frozen maximum stayed 2.25× after the 2.435× result was visible.</p><p class="copy">The final P15-v2 holdout was not opened after this failure. Any later work had to start as a new preregistered phase with fresh evidence.</p></div>
         <div class="threshold-card"><p class="eyebrow">H4 lateral p95 efficiency</p><strong>2.435× <span class="fail">FAIL</span></strong><p>Frozen maximum: 2.25×</p><div class="threshold-chart" role="img" aria-label="Protected H4 lateral p95 interval width to p95 error ratio was 2.435, above the frozen maximum 2.25"><div class="threshold-track"><div class="threshold-fill"></div></div><span class="threshold-limit" aria-hidden="true"></span><span class="threshold-result" aria-hidden="true"></span></div><div class="threshold-foot">Threshold unchanged · no post-protected retuning · no P15 unseen-replication claim.</div></div>
       </div>
     </section>
 
     <section class="section ash">
       <div class="wrap">
-        <div class="section-head"><p class="eyebrow">Protected gate detail</p><div><h2>Strong metrics and the failed component belong in the same table.</h2><p class="copy">That is the point of the cockpit: a reader should not have to choose between the impressive part and the disqualifying part.</p></div></div>
+        <div class="section-head"><p class="eyebrow">Protected gate detail</p><div><h2>The strong metrics and the failed metric belong together.</h2><p class="copy">The result is easier to understand when the impressive numbers and the disqualifying number are shown in the same place.</p></div></div>
         <div class="evidence-list" aria-label="Selected Phase 11 protected gate outcomes"><div class="evidence-item"><span>H1 useful availability</span><strong>98.53% · PASS</strong></div><div class="evidence-item"><span>H3 calibration MACE</span><strong>0.03678 · PASS</strong></div><div class="evidence-item"><span>H4 lateral median width / p95 error</span><strong>0.855× · PASS</strong></div><div class="evidence-item"><span>H4 lateral p95 width / p95 error</span><strong class="fail">2.435× · FAIL</strong></div><div class="evidence-item"><span>H4 altitude median ratio</span><strong>1.113× · PASS</strong></div><div class="evidence-item"><span>H4 altitude p95 ratio</span><strong>1.833× · PASS</strong></div><div class="evidence-item"><span>Rescue lateral MAE</span><strong>0.0840 m</strong></div><div class="evidence-item"><span>Rescue altitude MAE</span><strong>0.1650 m</strong></div></div>
       </div>
     </section>
 
     <section class="section" id="provenance">
       <div class="wrap">
-        <div class="section-head"><p class="eyebrow">Provenance</p><div><h2>Frozen evidence, not a rewritten success story.</h2><p class="copy">The study is closed under the Phase 11 protocol. The scientific head and candidate digest stay visible so the published result can be traced to the frozen artifacts.</p></div></div>
+        <div class="section-head"><p class="eyebrow">Provenance</p><div><h2>The result stays tied to the frozen artifacts.</h2><p class="copy">The scientific head and candidate digest are published here so the page can be checked against the locked Phase 11 record.</p></div></div>
         <div class="provenance"><div><span>Scientific head</span><code>58b06089a621264afb886f6aee2acaacf8a8709c</code></div><div><span>Candidate SHA-256</span><code>bba1b7be7565b470af80db502e6fa5d969bc86c712e322557c06b30e49bd9c86</code></div><div><span>Candidate artifact</span><strong>#9271909463</strong></div></div>
         <div class="actions"><a class="button primary" href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase11_final_report.md" target="_blank" rel="noreferrer">Read final report</a><a class="button outline" href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">Inspect repository</a></div>
       </div>
     </section>
 
     <section class="section dark">
-      <div class="wrap boundary-grid"><div><p class="eyebrow">Evidence-backed claim</p><h2>Strongest so far does not mean safety accepted.</h2><p class="copy">Phase 11 supports a narrower claim: bounded continuity plus independent rescue achieved high availability and robust coverage across fresh transfer and protected validation, while protected shift still exposed excessive lateral tail width.</p></div><div class="result-card"><p class="eyebrow">Final unseen holdout</p><strong>Not exposed</strong><p>P15-v2 remained untouched after the protected failure and is retired without an unseen-replication claim.</p></div></div>
+      <div class="wrap boundary-grid"><div><p class="eyebrow">What Phase 11 supports</p><h2>Strongest so far still did not mean safety accepted.</h2><p class="copy">The narrow evidence-backed claim is that bounded continuity plus independent rescue reached high availability and robust coverage across fresh transfer and protected validation, while protected shift still exposed excessive lateral tail width.</p></div><div class="result-card"><p class="eyebrow">Final unseen holdout</p><strong>Not exposed</strong><p>P15-v2 stayed untouched after the protected failure and was retired without an unseen-replication claim.</p></div></div>
     </section>
   </main>
 
-  <footer class="footer"><p>Phase 11 P14R · study closed · simulation only</p><div class="footer-links"><a href="/">Research cockpit</a><a href="/phases/">Archive</a><a href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase11_final_report.md" target="_blank" rel="noreferrer">Final report ↗</a></div></footer>
+  <footer class="footer"><p>Phase 11 P14R · study closed · simulation only</p><div class="footer-links"><a href="/">Research home</a><a href="/phases/">Archive</a><a href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase11_final_report.md" target="_blank" rel="noreferrer">Final report ↗</a></div></footer>
   <script>
   (()=>{const b=document.getElementById('mobileMenuToggle'),m=document.getElementById('mobileMenuSheet'),c=m.querySelector('.mobile-menu-close');const set=o=>{b.setAttribute('aria-expanded',String(o));m.setAttribute('aria-hidden',String(!o));m.classList.toggle('open',o);document.body.classList.toggle('menu-open',o)};b.addEventListener('click',()=>set(b.getAttribute('aria-expanded')!=='true'));c.addEventListener('click',()=>set(false));m.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>set(false)));document.addEventListener('keydown',e=>{if(e.key==='Escape')set(false)})})();
   </script>
