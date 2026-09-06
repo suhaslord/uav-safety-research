@@ -21,7 +21,7 @@ permissions:
 jobs:
   webots-baseline-and-faults:
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    timeout-minutes: 15
 
     steps:
       - name: Check out research repository
@@ -39,6 +39,7 @@ jobs:
         run: |
           python experiments/unm_crazyflie/test_analysis.py
           python experiments/unm_crazyflie/test_mitigation.py
+          python experiments/unm_crazyflie/test_fault_indicator_metrics.py
 
       - name: Fetch pinned official Bitcraze simulation
         run: |
@@ -64,7 +65,7 @@ jobs:
           print(world.read_text())
           PY
 
-      - name: Run genuine Webots baseline headlessly
+      - name: Run genuine Webots calibration baseline headlessly
         env:
           WEBOTS_IMAGE: cyberbotics/webots:R2025a-ubuntu22.04
         run: |
@@ -75,12 +76,29 @@ jobs:
             -v "$GITHUB_WORKSPACE:$GITHUB_WORKSPACE" \
             -w "$GITHUB_WORKSPACE/bitcraze-crazyflie-simulation" \
             -e UNM_TELEMETRY_PATH="$GITHUB_WORKSPACE/experiments/unm_crazyflie/results/webots_baseline.csv" \
+            -e UNM_COMMAND_PROFILE=baseline \
             "$WEBOTS_IMAGE" \
             bash -lc 'apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends python3-numpy >/dev/null && xvfb-run --auto-servernum webots --version && timeout --signal=TERM 45s xvfb-run --auto-servernum webots --mode=fast --no-rendering --stdout --stderr --minimize --batch simulator_files/webots/worlds/crazyflie_world.wbt'
 
           test -s experiments/unm_crazyflie/results/webots_baseline.csv
           head -5 experiments/unm_crazyflie/results/webots_baseline.csv
           tail -5 experiments/unm_crazyflie/results/webots_baseline.csv
+
+      - name: Run independent no-fault Webots holdout trajectory
+        env:
+          WEBOTS_IMAGE: cyberbotics/webots:R2025a-ubuntu22.04
+        run: |
+          docker run --rm \
+            -v "$GITHUB_WORKSPACE:$GITHUB_WORKSPACE" \
+            -w "$GITHUB_WORKSPACE/bitcraze-crazyflie-simulation" \
+            -e UNM_TELEMETRY_PATH="$GITHUB_WORKSPACE/experiments/unm_crazyflie/results/webots_holdout.csv" \
+            -e UNM_COMMAND_PROFILE=holdout \
+            "$WEBOTS_IMAGE" \
+            bash -lc 'apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends python3-numpy >/dev/null && timeout --signal=TERM 45s xvfb-run --auto-servernum webots --mode=fast --no-rendering --stdout --stderr --minimize --batch simulator_files/webots/worlds/crazyflie_world.wbt'
+
+          test -s experiments/unm_crazyflie/results/webots_holdout.csv
+          head -5 experiments/unm_crazyflie/results/webots_holdout.csv
+          tail -5 experiments/unm_crazyflie/results/webots_holdout.csv
 
       - name: Run frozen single-fault matrix
         run: |
@@ -99,6 +117,24 @@ jobs:
           test -s experiments/unm_crazyflie/results/residual_uncertainty_detector.csv
           test -s experiments/unm_crazyflie/results/06_dropout_timing_vs_max_error.png
           cat experiments/unm_crazyflie/results/EXTENDED_RESULTS.md
+
+      - name: Validate fault-indicator detection performance
+        run: |
+          python experiments/unm_crazyflie/validate_fault_indicators.py \
+            experiments/unm_crazyflie/results/webots_baseline.csv \
+            --out experiments/unm_crazyflie/results/fault_indicator_validation.csv \
+            --seeds 30
+          test -s experiments/unm_crazyflie/results/fault_indicator_validation.csv
+          cat experiments/unm_crazyflie/results/fault_indicator_validation.csv
+
+      - name: Validate frozen thresholds on unseen nominal trajectory
+        run: |
+          python experiments/unm_crazyflie/validate_nominal_holdout.py \
+            experiments/unm_crazyflie/results/webots_baseline.csv \
+            experiments/unm_crazyflie/results/webots_holdout.csv \
+            --out experiments/unm_crazyflie/results/nominal_holdout_validation.json
+          test -s experiments/unm_crazyflie/results/nominal_holdout_validation.json
+          cat experiments/unm_crazyflie/results/nominal_holdout_validation.json
 
       - name: Compare simple fault mitigation strategies
         run: |
@@ -120,6 +156,8 @@ jobs:
               "bitcraze_repository": "bitcraze/crazyflie-simulation",
               "bitcraze_commit": "7e93752dbc803af2488c1db46bb79b3da55f5d8c",
               "webots_image": "cyberbotics/webots:R2025a-ubuntu22.04",
+              "calibration_profile": "baseline",
+              "holdout_profile": "holdout",
               "experiment_repository": os.environ["GITHUB_REPOSITORY"],
               "experiment_commit": os.environ["GITHUB_SHA"],
               "workflow_run_id": os.environ["GITHUB_RUN_ID"],
