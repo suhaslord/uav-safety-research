@@ -33,6 +33,9 @@ def test_vercel_routes_use_packaged_frozen_and_legacy_assets() -> None:
     assert "/dashboard/phases/frozen.html" in destinations
     assert "/dashboard/phases/phase.html" in destinations
     assert "/dashboard/aegis-current.js" in destinations
+    assert "/dashboard/phase-taxonomy.js" in destinations
+    assert "/dashboard/phase-personalization.css" in destinations
+    assert "/dashboard/phase-personalization.js" in destinations
     assert "/phase11.html" in destinations
     assert "/phase12.html" not in destinations
 
@@ -85,9 +88,44 @@ def test_phase_archive_uses_shared_tesla_polish_without_rewriting_lineage() -> N
     assert 'href="/phase-polish.css?v=' in archive
     assert 'href="/phase-polish.css?v=' in frozen
     assert 'href="/phase-polish.css?v=' in phase
+    assert 'href="/phase-personalization.css?v=' in archive
+    assert 'href="/phase-personalization.css?v=' in frozen
+    assert 'href="/phase-personalization.css?v=' in phase
     assert 'href="/signature.css?v=' not in archive
     assert 'href="/signature.css?v=' not in frozen
-    assert "Every phase stays part of the story." in archive
+    assert "One research program. Six distinct chapters." in archive
+    assert "Research categories" in archive
+
+
+def test_phase_taxonomy_personalizes_all_26_phase_routes() -> None:
+    taxonomy = (ROOT / "dashboard" / "phase-taxonomy.js").read_text(encoding="utf-8")
+    personalization = (ROOT / "dashboard" / "phase-personalization.js").read_text(encoding="utf-8")
+    css = (ROOT / "dashboard" / "phase-personalization.css").read_text(encoding="utf-8")
+
+    expected_slugs = (
+        "phase1", "phase2", "phase3", "phase4", "phase5", "phase6", "phase6b",
+        "phase7", "phase8", "phase9", "phase10", "phase10r", "phase11", "phase12",
+        "phase13a", "phase13b", "phase13c", "phase14", "phase15", "phase16", "phase17",
+        "phase18", "phase19", "phase20", "phase21", "phase22",
+    )
+    for slug in expected_slugs:
+        assert f"{slug}: {{ category:" in taxonomy
+
+    for category in (
+        "safety-architecture",
+        "perception-robustness",
+        "external-validation",
+        "reliability-calibration",
+        "latency-dynamics",
+        "context-transfer",
+    ):
+        assert f"id: '{category}'" in taxonomy
+
+    assert "phase-identity-chip" in personalization
+    assert "phase-role-card" in personalization
+    assert "dataset.phaseCategory" in personalization
+    assert ".archive-category" in css
+    assert ".phase-role-card" in css
 
 
 def test_frozen_archive_replaces_current_frontier_bridge_without_breaking_legacy_phase_template() -> None:
@@ -101,13 +139,16 @@ def test_frozen_archive_replaces_current_frontier_bridge_without_breaking_legacy
     assert "Phase 12" in current
 
     assert 'src="/frozen-lineage.js?v=' in archive
+    assert 'src="/phase-taxonomy.js?v=' in archive
     assert 'src="/aegis-current.js"' not in archive
     assert 'src="/phase-runtime.js"' not in archive
 
     assert 'src="/frozen-lineage.js?v=' in frozen
+    assert 'src="/phase-taxonomy.js?v=' in frozen
+    assert 'src="/phase-personalization.js?v=' in frozen
     assert "phase(?:12|13a|13b|13c|1[4-9]|2[0-2])" in frozen
 
-    assert phase.rfind('src="/aegis-current.js"') > phase.rfind('src="/phase-hero-scenes.js"')
+    assert phase.rfind('src="/phase-personalization.js?v=1"') > phase.rfind('src="/aegis-current.js"')
 
 
 def test_phase10r_logic_is_loaded_by_the_shared_phase_template() -> None:
