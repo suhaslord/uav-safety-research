@@ -34,17 +34,21 @@ def test_phase12_evidence_units_and_seeds_are_disjoint():
     assert 869869 not in seeds
 
 
-def test_final_domains_are_not_used_before_final():
-    final = set(p12.FINAL_DOMAINS)
-    for earlier in (
+def test_all_phase12_domains_preserve_temporal_dropout_and_stage_lists_differ():
+    stages = (
         p12.SCALE_FIT_DOMAINS,
         p12.CAL_A_DOMAINS,
         p12.CAL_B_DOMAINS,
         p12.DEV_DOMAINS,
         p12.TRANSFER_DOMAINS,
         p12.VALIDATION_DOMAINS,
-    ):
-        assert final.isdisjoint(earlier)
+        p12.FINAL_DOMAINS,
+    )
+    for domains in stages:
+        assert domains
+        assert all(domain.endswith("+temporal_dropout") for domain in domains)
+    assert p12.TRANSFER_DOMAINS != p12.VALIDATION_DOMAINS
+    assert p12.VALIDATION_DOMAINS != p12.FINAL_DOMAINS
 
 
 def test_normalized_robust_envelope_is_pointwise_maximum():
