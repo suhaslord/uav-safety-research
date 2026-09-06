@@ -61,6 +61,6 @@ def test_workspace_returns_to_light_tesla_system() -> None:
     assert "font-size:clamp(34px,4vw,40px)" in css
     assert "background:rgba(255,255,255,.96)" in css
     assert "text-transform:none" in css
-    assert "min-height:650px!important" in home
+    assert "min-height:610px!important" in home
     assert "grid-template-columns:repeat(13,minmax(0,1fr))" in home
     assert "--phase-accent:#3e6ae1!important" in identity
