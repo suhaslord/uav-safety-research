@@ -68,6 +68,7 @@ jobs:
           test -n "$DEV_RESULT"
           echo "$FROZEN_CANDIDATE_SHA256  $CANDIDATE" | sha256sum -c -
           echo "$FROZEN_DEV_RESULT_SHA256  $DEV_RESULT" | sha256sum -c -
+          export CANDIDATE
           echo "CANDIDATE=$CANDIDATE" >> "$GITHUB_ENV"
           python - <<'PY'
           import json, os
