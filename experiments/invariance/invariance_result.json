@@ -1,0 +1,28 @@
+{
+  "recoverable_set_half_width_m": {
+    "lateral": 0.3,
+    "altitude": 0.85
+  },
+  "A_closed_loop_diagonal": [
+    0.65,
+    0.7
+  ],
+  "bounded_disturbance_m_per_step": {
+    "lateral": 0.05,
+    "altitude": 0.12
+  },
+  "one_step_image_half_width_m": {
+    "lateral": 0.245,
+    "altitude": 0.715
+  },
+  "invariance_margin_m": {
+    "lateral": 0.055,
+    "altitude": 0.135
+  },
+  "robust_positive_invariant": true,
+  "minimal_rpi_box_half_width_m": {
+    "lateral": 0.14285714285714288,
+    "altitude": 0.3999999999999999
+  },
+  "scope": "simplified 2-state bounded-disturbance surrogate; not PX4/Gazebo or flight proof"
+}
