@@ -1,0 +1,168 @@
+name: Phase 17 context-conditional coefficient mismatch development
+
+on:
+  push:
+    branches: [phase17/context-conditional-coefficient-mismatch]
+    paths:
+      - .github/workflows/phase17-development.yml
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  FROZEN_PHASE17_FIT_SCIENTIFIC_SHA: c497bb6bdfeb7a84160d67ae67fd441d18ca25bc
+  FROZEN_PHASE17_FIT_RUN_ID: '34011621058'
+  FROZEN_PHASE17_FIT_CANDIDATE_SHA256: 2ca52a418f5616e0e83ef84d0c9238ee429260cd4de7a553356b0c1bba44d8e0
+  FROZEN_PHASE12_DEV_RUN_ID: '34004695243'
+  FROZEN_PHASE12_CANDIDATE_SHA256: e2372ca597cdd983f098f1a45524c077798114c59a62bf9faccefd17b67a4991
+  PHASE14_FIT_RUN_ID: '34010431456'
+  PHASE14_BRIDGE_CANDIDATE_SHA256: 0443d4e45a1966c77544c5c9965de8caec6e622c79ef8c2ce47aee82a3c95981
+  PHASE17_DEV_SEED: '1717171'
+
+jobs:
+  development:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Require fit PASS and refuse second Phase 17 development exposure
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          FIT_COUNT=$(gh api \
+            -H 'Accept: application/vnd.github+json' \
+            '/repos/${{ github.repository }}/actions/artifacts?name=phase17-fit-candidate&per_page=100' \
+            --jq '[.artifacts[] | select(.expired == false)] | length')
+          test "$FIT_COUNT" = "1" || { echo "Expected exactly one permanent Phase 17 fit artifact"; exit 1; }
+          DEV_COUNT=$(gh api \
+            -H 'Accept: application/vnd.github+json' \
+            '/repos/${{ github.repository }}/actions/artifacts?name=phase17-development&per_page=100' \
+            --jq '[.artifacts[] | select(.expired == false)] | length')
+          test "$DEV_COUNT" = "0" || { echo "Phase 17 development artifact already exists; refusing second exposure"; exit 1; }
+
+      - name: Check out development-authorization head
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Verify frozen Phase 17 implementation before development
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+          python -m compileall -q scripts/run_phase17_context_conditional_coefficient_mismatch.py
+          pytest -q \
+            tests/test_phase16_matched_latency_level_dynamics.py \
+            tests/test_phase17_context_conditional_coefficient_mismatch.py
+          CHANGED=$(git diff --name-only "$FROZEN_PHASE17_FIT_SCIENTIFIC_SHA"..HEAD)
+          printf '%s\n' "$CHANGED"
+          test -n "$CHANGED"
+          BAD=$(printf '%s\n' "$CHANGED" | grep -Ev '^(docs/phase17_fit_freeze\.md|\.github/workflows/phase17-development\.yml)$' || true)
+          test -z "$BAD" || { echo "Scientific implementation changed after Phase 17 fit freeze:"; echo "$BAD"; exit 1; }
+          grep -q '2ca52a418f5616e0e83ef84d0c9238ee429260cd4de7a553356b0c1bba44d8e0' docs/phase17_fit_freeze.md
+          grep -q '1717171' docs/phase17_fit_freeze.md
+
+      - name: Recover exact frozen Phase 12 candidate
+        uses: actions/download-artifact@v4
+        with:
+          name: phase12-development-v3
+          path: frozen_phase12_candidate_artifact
+          github-token: ${{ github.token }}
+          repository: suhaslord/uav-safety-research
+          run-id: ${{ env.FROZEN_PHASE12_DEV_RUN_ID }}
+
+      - name: Recover exact frozen Phase 14 bridge candidate
+        uses: actions/download-artifact@v4
+        with:
+          name: phase14-bridge-candidate
+          path: frozen_phase14_bridge_artifact
+          github-token: ${{ github.token }}
+          repository: suhaslord/uav-safety-research
+          run-id: ${{ env.PHASE14_FIT_RUN_ID }}
+
+      - name: Recover exact frozen Phase 17 fit candidate
+        uses: actions/download-artifact@v4
+        with:
+          name: phase17-fit-candidate
+          path: frozen_phase17_fit_artifact
+          github-token: ${{ github.token }}
+          repository: suhaslord/uav-safety-research
+          run-id: ${{ env.FROZEN_PHASE17_FIT_RUN_ID }}
+
+      - name: Verify candidate identities and freeze development head
+        run: |
+          P12=$(find frozen_phase12_candidate_artifact -path '*/results/phase12_candidate_v3/candidate_freeze.json' -print -quit)
+          BRIDGE=$(find frozen_phase14_bridge_artifact -path '*/results/phase14_fit/bridge_candidate.json' -print -quit)
+          FIT=$(find frozen_phase17_fit_artifact -path '*/results/phase17_fit/fit_candidate.json' -print -quit)
+          test -n "$P12"
+          test -n "$BRIDGE"
+          test -n "$FIT"
+          echo "$FROZEN_PHASE12_CANDIDATE_SHA256  $P12" | sha256sum -c -
+          echo "$PHASE14_BRIDGE_CANDIDATE_SHA256  $BRIDGE" | sha256sum -c -
+          echo "$FROZEN_PHASE17_FIT_CANDIDATE_SHA256  $FIT" | sha256sum -c -
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          fit_path = next(Path('frozen_phase17_fit_artifact').rglob('fit_candidate.json'))
+          r = json.loads(fit_path.read_text())
+          assert r['fit_eligible_for_development'] is True
+          assert all(r['gates'].values())
+          assert r['scientific_git_sha'] == os.environ['FROZEN_PHASE17_FIT_SCIENTIFIC_SHA']
+          PY
+          echo "PHASE12_CANDIDATE=$P12" >> "$GITHUB_ENV"
+          echo "PHASE14_BRIDGE=$BRIDGE" >> "$GITHUB_ENV"
+          echo "PHASE17_FIT_CANDIDATE=$FIT" >> "$GITHUB_ENV"
+          echo "PHASE17_DEVELOPMENT_SCIENTIFIC_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Expose Phase 17 development evidence exactly once
+        run: |
+          rm -rf results/phase17_development
+          python scripts/run_phase17_context_conditional_coefficient_mismatch.py \
+            --stage dev \
+            --phase12-candidate "$PHASE12_CANDIDATE" \
+            --phase14-bridge "$PHASE14_BRIDGE" \
+            --fit-candidate "$PHASE17_FIT_CANDIDATE" \
+            --out results/phase17_development \
+            --git-sha "$PHASE17_DEVELOPMENT_SCIENTIFIC_SHA" 2>&1 | tee phase17-development.log
+          test -f results/phase17_development/dev_result.json
+
+      - name: Verify permanent development boundary and record verdict
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          r = json.loads(Path('results/phase17_development/dev_result.json').read_text())
+          assert r['schema'] == 'aegisland.phase17.context-conditional-coefficient-mismatch.dev-result.v1'
+          assert r['stage'] == 'dev'
+          assert r['evaluated_seed_seen_after_run'] == int(os.environ['PHASE17_DEV_SEED'])
+          assert r['families'] == list(range(1833, 1857))
+          assert r['scientific_git_sha'] == os.environ['PHASE17_DEVELOPMENT_SCIENTIFIC_SHA']
+          assert r['phase12_candidate_sha256'] == os.environ['FROZEN_PHASE12_CANDIDATE_SHA256']
+          assert r['phase14_bridge_sha256'] == os.environ['PHASE14_BRIDGE_CANDIDATE_SHA256']
+          assert r['phase17_fit_candidate_sha256'] == os.environ['FROZEN_PHASE17_FIT_CANDIDATE_SHA256']
+          assert r['latency_intervention']['lag_frames'] == 2
+          assert r['latency_intervention']['innovation_response'] is False
+          assert r['latency_intervention']['severity_response'] is False
+          assert r['zero_adaptation'] is True
+          assert r['simulation_only'] is True
+          assert r['safety_acceptance'] is False
+          assert r['controller_tuning_allowed'] is False
+          assert len(r['gates']) == 10
+          print('PHASE17_DEVELOPMENT_PERMANENTLY_SEEN=true')
+          print('PHASE17_DEVELOPMENT_PASS=' + str(bool(r['phase17_pass'])).lower())
+          print(json.dumps(r['gates'], indent=2, sort_keys=True))
+          print(json.dumps(r['contexts'], indent=2, sort_keys=True))
+          PY
+
+      - name: Upload permanent Phase 17 development evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase17-development
+          path: |
+            results/phase17_development/
+            phase17-development.log
+          if-no-files-found: error
+          retention-days: 90
