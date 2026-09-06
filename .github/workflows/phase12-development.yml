@@ -1,0 +1,91 @@
+name: Phase 12 development only
+
+on:
+  push:
+    branches: [phase12/adaptive-normalized-conformal]
+    paths:
+      - .github/workflows/phase12-development.yml
+      - scripts/run_phase12_adaptive_normalized_conformal.py
+      - tests/test_phase12_adaptive_normalized_conformal.py
+      - docs/phase12_adaptive_normalized_conformal_preregistration.md
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  development:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install project
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Run Phase 12 invariants
+        run: |
+          python -m compileall -q scripts/run_phase12_adaptive_normalized_conformal.py tests/test_phase12_adaptive_normalized_conformal.py
+          pytest -q \
+            tests/test_phase11_p9_soft_update_direct_conformal.py \
+            tests/test_phase11_p14_bounded_independent_rescue.py \
+            tests/test_phase11_p14r_robust_group_envelope.py \
+            tests/test_phase12_adaptive_normalized_conformal.py
+      - name: Recover exact closed Phase 11 P14R predecessor candidate
+        uses: actions/download-artifact@v4
+        with:
+          name: phase11-p14r-candidate-freeze
+          path: predecessor_artifact
+          github-token: ${{ github.token }}
+          repository: suhaslord/uav-safety-research
+          run-id: 31979250287
+      - name: Verify predecessor candidate digest
+        run: |
+          PREDECESSOR=$(find predecessor_artifact -name candidate_freeze.json -print -quit)
+          test -n "$PREDECESSOR"
+          echo "bba1b7be7565b470af80db502e6fa5d969bc86c712e322557c06b30e49bd9c86  $PREDECESSOR" | sha256sum -c -
+          echo "PREDECESSOR=$PREDECESSOR" >> "$GITHUB_ENV"
+      - name: Build Phase 12 candidate from fresh fit/calibration evidence
+        run: |
+          rm -rf results/phase12_candidate
+          python scripts/run_phase12_adaptive_normalized_conformal.py \
+            --stage freeze \
+            --predecessor "$PREDECESSOR" \
+            --out results/phase12_candidate \
+            --git-sha "$GITHUB_SHA" | tee phase12-freeze.log
+          test -f results/phase12_candidate/candidate_freeze.json
+          echo "CANDIDATE=results/phase12_candidate/candidate_freeze.json" >> "$GITHUB_ENV"
+      - name: Run permanently-seen development smoke only
+        run: |
+          rm -rf results/phase12_dev
+          python scripts/run_phase12_adaptive_normalized_conformal.py \
+            --stage dev \
+            --candidate "$CANDIDATE" \
+            --out results/phase12_dev \
+            --git-sha "$GITHUB_SHA" | tee phase12-dev.log
+          test -f results/phase12_dev/development_result.json
+          test ! -e results/phase12_transfer
+          test ! -e results/phase12_validation
+          test ! -e results/phase12_final
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('results/phase12_dev/development_result.json').read_text())
+          assert r['development_only'] is True
+          assert r['eligible_for_progression'] is False
+          assert r['evaluated_seed_seen_after_run'] == 907907
+          print('PHASE12_DEVELOPMENT_ONLY_CONFIRMED=true')
+          print(json.dumps(r['gates'], sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: phase12-development-only
+          path: |
+            results/phase12_candidate/
+            results/phase12_dev/
+            phase12-freeze.log
+            phase12-dev.log
+          if-no-files-found: error
+          retention-days: 30
