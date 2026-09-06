@@ -53,4 +53,4 @@ def test_vercel_home_is_native_frozen_archive_using_tesla_style_source():
     assert 'href="/research-home.css?v=' in SHELL
     assert 'src="/frozen-lineage.js?v=' in SHELL
     assert ".home-lineage__track" in HOME
-    assert "min-height:650px!important" in HOME
+    assert "min-height:610px!important" in HOME
