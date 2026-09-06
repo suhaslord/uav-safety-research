@@ -29,8 +29,10 @@
 
     document.body.dataset.phase = slug;
     document.body.dataset.phaseCategory = category.id;
-    document.documentElement.style.setProperty('--phase-accent', category.accent);
-    document.documentElement.style.setProperty('--phase-tint', category.tint);
+
+    // Categories organize the research, but the UI keeps one chromatic accent.
+    document.documentElement.style.setProperty('--phase-accent', '#3e6ae1');
+    document.documentElement.style.setProperty('--phase-tint', '#eef2ff');
 
     const legacyHero = document.querySelector('body.archive-shell #phaseHero');
     if (legacyHero) {
