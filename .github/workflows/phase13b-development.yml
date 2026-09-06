@@ -1,0 +1,138 @@
+name: Phase 13B Thirteen Paired Degradation Audit development
+
+on:
+  push:
+    branches: [phase13b/paired-degradation-audit]
+    paths:
+      - .github/workflows/phase13b-development.yml
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  FROZEN_PHASE12_DEV_RUN_ID: '34004695243'
+  FROZEN_PHASE12_CANDIDATE_SHA256: e2372ca597cdd983f098f1a45524c077798114c59a62bf9faccefd17b67a4991
+  PHASE13B_DEV_SEED: '1313131'
+
+jobs:
+  development:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Refuse a second Phase 13B development exposure
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          COUNT=$(gh api \
+            -H 'Accept: application/vnd.github+json' \
+            '/repos/${{ github.repository }}/actions/artifacts?name=phase13b-development&per_page=100' \
+            --jq '[.artifacts[] | select(.expired == false)] | length')
+          test "$COUNT" = "0" || { echo "Phase 13B development artifact already exists; refusing a second exposure"; exit 1; }
+
+      - name: Check out preregistered Phase 13B scientific head
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Verify implementation and evidence boundaries before exposure
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+          python -m compileall -q \
+            scripts/run_phase13b_paired_degradation_audit.py \
+            scripts/run_phase13_external_validity_gauntlet.py \
+            scripts/run_phase13_external_validity_gauntlet_remediation1.py \
+            scripts/run_phase12_adaptive_normalized_conformal.py \
+            scripts/run_phase12_adaptive_normalized_conformal_v2.py \
+            scripts/run_phase12_adaptive_normalized_conformal_v3.py
+          pytest -q \
+            tests/test_phase11_p9_soft_update_direct_conformal.py \
+            tests/test_phase11_p14_bounded_independent_rescue.py \
+            tests/test_phase11_p14r_robust_group_envelope.py \
+            tests/test_phase12_adaptive_normalized_conformal.py \
+            tests/test_phase12_adaptive_normalized_conformal_v2.py \
+            tests/test_phase12_adaptive_normalized_conformal_v3.py \
+            tests/test_phase13_external_validity_gauntlet.py \
+            tests/test_phase13_execution_remediation1.py \
+            tests/test_phase13b_paired_degradation_audit.py
+          test -f docs/phase13b_preregistration.md
+          grep -q '1313131' docs/phase13b_preregistration.md
+          grep -q '13 / 13' docs/phase13b_preregistration.md
+          grep -q 'Phase 13A remains immutable and failed' docs/phase13b_preregistration.md
+          ! grep -q '1313132' .github/workflows/phase13b-development.yml
+          ! grep -q '1313133' .github/workflows/phase13b-development.yml
+          ! grep -q '1313134' .github/workflows/phase13b-development.yml
+
+      - name: Recover exact frozen Phase 12 candidate
+        uses: actions/download-artifact@v4
+        with:
+          name: phase12-development-v3
+          path: frozen_phase12_candidate_artifact
+          github-token: ${{ github.token }}
+          repository: suhaslord/uav-safety-research
+          run-id: ${{ env.FROZEN_PHASE12_DEV_RUN_ID }}
+
+      - name: Verify predecessor identity and freeze Phase 13B scientific head
+        run: |
+          CANDIDATE=$(find frozen_phase12_candidate_artifact -path '*/results/phase12_candidate_v3/candidate_freeze.json' -print -quit)
+          test -n "$CANDIDATE"
+          echo "$FROZEN_PHASE12_CANDIDATE_SHA256  $CANDIDATE" | sha256sum -c -
+          echo "CANDIDATE=$CANDIDATE" >> "$GITHUB_ENV"
+          echo "PHASE13B_SCIENTIFIC_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Expose Phase 13B development evidence exactly once
+        run: |
+          rm -rf results/phase13b_development
+          python scripts/run_phase13b_paired_degradation_audit.py \
+            --stage dev \
+            --candidate "$CANDIDATE" \
+            --out results/phase13b_development \
+            --git-sha "$PHASE13B_SCIENTIFIC_SHA" 2>&1 | tee phase13b-development.log
+          test -f results/phase13b_development/dev_result.json
+          test -f results/phase13b_development/manifest.json
+          test -f results/phase13b_development/dev_paired_control_frames.csv
+          test -f results/phase13b_development/dev_shifted_frames.csv
+
+      - name: Verify result boundary and record scientific verdict
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          r = json.loads(Path('results/phase13b_development/dev_result.json').read_text())
+          assert r['schema'] == 'aegisland.phase13b.paired-degradation.dev-result.v1'
+          assert r['evaluated_seed_seen_after_run'] == int(os.environ['PHASE13B_DEV_SEED'])
+          assert r['families'] == list(range(1297, 1321))
+          assert r['frozen_phase12_candidate_sha256'] == os.environ['FROZEN_PHASE12_CANDIDATE_SHA256']
+          assert r['scientific_git_sha'] == os.environ['PHASE13B_SCIENTIFIC_SHA']
+          assert r['phase13a_absolute_transfer_failure_preserved'] is True
+          assert r['zero_adaptation'] is True
+          assert r['simulation_only'] is True
+          assert r['safety_acceptance'] is False
+          assert r['controller_tuning_allowed'] is False
+          assert len(r['paired_domain_metrics']) == 13
+          assert set(r['gates']) == {
+              'g13b_1_paired_construction_integrity',
+              'g13b_2_no_catastrophic_shifted_domain',
+              'g13b_3_bounded_paired_coverage_degradation',
+              'g13b_4_rescue_honesty_floor',
+              'g13b_5_reliability_mechanism_survives',
+              'g13b_6_compound_domain_stands_alone',
+              'g13b_7_zero_adaptation',
+          }
+          print('PHASE13B_DEVELOPMENT_PERMANENTLY_SEEN=true')
+          print('PHASE13B_DEVELOPMENT_PASS=' + str(bool(r['phase13b_pass'])).lower())
+          print(json.dumps(r['gates'], indent=2, sort_keys=True))
+          PY
+
+      - name: Upload permanent Phase 13B development evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase13b-development
+          path: |
+            results/phase13b_development/
+            phase13b-development.log
+          if-no-files-found: error
+          retention-days: 90
