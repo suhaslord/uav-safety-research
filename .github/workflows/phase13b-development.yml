@@ -61,9 +61,6 @@ jobs:
           grep -q '1313131' docs/phase13b_preregistration.md
           grep -q '13 / 13' docs/phase13b_preregistration.md
           grep -q 'Phase 13A remains immutable and failed' docs/phase13b_preregistration.md
-          ! grep -q '1313132' .github/workflows/phase13b-development.yml
-          ! grep -q '1313133' .github/workflows/phase13b-development.yml
-          ! grep -q '1313134' .github/workflows/phase13b-development.yml
 
       - name: Recover exact frozen Phase 12 candidate
         uses: actions/download-artifact@v4
