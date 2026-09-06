@@ -5,7 +5,7 @@
     simulation_only: true,
     safety_acceptance: false,
     controller_tuning_allowed: false,
-    statement: 'Frozen synthetic simulation evidence only. This does not establish physical-flight safety, certification, production readiness, real-sensor equivalence, controller improvement, or operational safety.'
+    statement: 'Synthetic, frozen simulation evidence only. This does not establish physical-flight safety, certification, production readiness, real-sensor equivalence, controller improvement, or operational safety.'
   };
 
   const phases = [
