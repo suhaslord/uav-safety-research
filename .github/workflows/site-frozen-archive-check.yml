@@ -1,0 +1,93 @@
+name: Frozen archive presentation QA
+
+on:
+  push:
+    branches:
+      - site/frozen-lineage-signature-home
+    paths:
+      - 'deploy/vercel/**'
+      - 'dashboard/phases/**'
+      - '.github/workflows/site-frozen-archive-check.yml'
+      - '.github/workflows/emergency-vercel-deploy.yml'
+  pull_request:
+    paths:
+      - 'deploy/vercel/**'
+      - 'dashboard/phases/**'
+      - '.github/workflows/site-frozen-archive-check.yml'
+      - '.github/workflows/emergency-vercel-deploy.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  frozen-site:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate syntax and routing config
+        run: |
+          set -euo pipefail
+          node --check deploy/vercel/frozen-lineage.js
+          python -m json.tool deploy/vercel/vercel.json >/dev/null
+          test -f deploy/vercel/signature.css
+          test -f dashboard/phases/frozen.html
+
+      - name: Validate frozen evidence identities
+        run: |
+          node - <<'NODE'
+          global.window = {};
+          require('./deploy/vercel/frozen-lineage.js');
+          const d = window.AEGIS_FROZEN_LINEAGE;
+          const expected = {
+            phase12: 'PASS', phase13a: 'FAIL', phase13b: 'FAIL', phase13c: 'PASS',
+            phase14: 'FAIL', phase15: 'FAIL', phase16: 'FAIL', phase17: 'FAIL', phase18: 'FAIL',
+            phase19: 'PASS', phase20: 'PASS', phase21: 'PASS', phase22: 'PASS'
+          };
+          for (const [slug, verdict] of Object.entries(expected)) {
+            if (!d.bySlug[slug]) throw new Error(`missing ${slug}`);
+            if (d.bySlug[slug].verdict !== verdict) throw new Error(`${slug}: expected ${verdict}`);
+          }
+          if (d.frozenThrough !== 'Phase 22') throw new Error('frontier must be Phase 22');
+          if (d.frozenScientificHead !== '668d065f4312e33e2d21ca7a7ee76d4d6d5617b3') throw new Error('scientific head mismatch');
+          if (d.bySlug.phase22.candidateSha !== '62e75d7b4dd69f9fecff5018ee52e533242996856705f2b011cc3a5488c1bd61') throw new Error('Phase 22 candidate mismatch');
+          if (d.boundary.simulation_only !== true || d.boundary.safety_acceptance !== false || d.boundary.controller_tuning_allowed !== false) throw new Error('boundary mismatch');
+          NODE
+
+      - name: Validate signature homepage content
+        run: |
+          set -euo pipefail
+          grep -q 'data-site-shell="native"' deploy/vercel/index.html
+          grep -q 'Freeze the evidence.' deploy/vercel/index.html
+          grep -q 'Keep the failures.' deploy/vercel/index.html
+          grep -q 'Aegis Halo' deploy/vercel/index.html
+          grep -q 'Frozen through Phase 22' deploy/vercel/index.html
+          grep -q 'Frozen Additive Context Transfer' deploy/vercel/index.html
+          grep -q '0.832' deploy/vercel/index.html
+          grep -q '0.774' deploy/vercel/index.html
+          grep -q '100%' deploy/vercel/index.html
+          grep -q 'simulation_only=true' deploy/vercel/index.html
+          ! grep -q 'Open Phase 12' deploy/vercel/index.html
+          ! grep -q 'Current frontier' deploy/vercel/index.html
+
+      - name: Validate frozen routes
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          cfg = json.loads(Path('deploy/vercel/vercel.json').read_text())
+          routes = {r['source']: r['destination'] for r in cfg['rewrites']}
+          for slug in ['phase12','phase13a','phase13b','phase13c','phase14','phase15','phase16','phase17','phase18','phase19','phase20','phase21','phase22']:
+              for source in [f'/phases/{slug}', f'/phases/{slug}/']:
+                  assert routes.get(source) == '/dashboard/phases/frozen.html', (source, routes.get(source))
+          assert routes['/phases/phase11'] == '/phase11.html'
+          PY
+
+      - name: Validate archive accessibility and reduced-motion support
+        run: |
+          set -euo pipefail
+          grep -q 'Every phase.' dashboard/phases/index.html
+          grep -q 'Nothing rewritten.' dashboard/phases/index.html
+          grep -q 'Foundational archive' dashboard/phases/index.html
+          grep -q 'prefers-reduced-motion' deploy/vercel/signature.css
+          grep -q 'phase12|13a|13b|13c' dashboard/phases/frozen.html
