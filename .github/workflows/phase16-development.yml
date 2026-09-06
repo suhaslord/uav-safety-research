@@ -45,17 +45,27 @@ jobs:
           python -m compileall -q \
             scripts/run_phase16_matched_latency_level_dynamics.py \
             scripts/run_phase13c_compound_attribution.py \
+            scripts/run_phase13c_compound_attribution_remediation1.py \
             scripts/run_phase14_uncertainty_recoverability_bridge.py
-          pytest -q \
-            tests/test_phase13c_compound_attribution.py \
-            tests/test_phase14_uncertainty_recoverability_bridge.py \
-            tests/test_phase15_recoverability_feasibility_frontier.py \
-            tests/test_phase16_matched_latency_level_dynamics.py
+          python - <<'PY'
+          import pytest
+          from scripts import run_phase13c_compound_attribution_remediation1 as remediation
+          remediation.install_execution_remediation()
+          raise SystemExit(pytest.main([
+              '-q',
+              'tests/test_phase13c_compound_attribution.py',
+              'tests/test_phase14_uncertainty_recoverability_bridge.py',
+              'tests/test_phase15_recoverability_feasibility_frontier.py',
+              'tests/test_phase16_matched_latency_level_dynamics.py',
+          ]))
+          PY
           test -f docs/phase16_preregistration.md
+          test -f docs/phase16_execution_amendment_01.md
           grep -q '1616161' docs/phase16_preregistration.md
           grep -q 'component A from Phase 13C' docs/phase16_preregistration.md
           grep -q 'no innovation response' docs/phase16_preregistration.md
           grep -q 'no severity response' docs/phase16_preregistration.md
+          grep -q 'did not generate or score seed `1616161`' docs/phase16_execution_amendment_01.md
 
       - name: Recover exact frozen Phase 12 candidate
         uses: actions/download-artifact@v4
