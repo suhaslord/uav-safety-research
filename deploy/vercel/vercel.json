@@ -1,8 +1,34 @@
 {
   "rewrites": [
     { "source": "/favicon.ico", "destination": "/favicon.svg" },
-    { "source": "/phases/phase12/", "destination": "/phase12.html" },
-    { "source": "/phases/phase12", "destination": "/phase12.html" },
+
+    { "source": "/phases/phase12/", "destination": "/dashboard/phases/frozen.html" },
+    { "source": "/phases/phase12", "destination": "/dashboard/phases/frozen.html" },
+    { "source": "/phases/phase13a/", "destination": "/dashboard/phases/frozen.html" },
+    { "source": "/phases/phase13a", "destination": "/dashboard/phases/frozen.html" },
+    { "source": "/phases/phase13b/", "destination": "/dashboard/phases/frozen.html" },
+    { "source": "/phases/phase13b", "destination": "/dashboard/phases/frozen.html" },
+    { "source": "/phases/phase13c/", "destination": "/dashboard/phases/frozen.html" },
+    { "source": "/phases/phase13c", "destination": "/dashboard/phases/frozen.html" },
+    { "source": "/phases/phase14/", "destination": "/dashboard/phases/frozen.html" },
+    { "source": "/phases/phase14", "destination": "/dashboard/phases/frozen.html" },
+    { "source": "/phases/phase15/", "destination": "/dashboard/phases/frozen.html" },
+    { "source": "/phases/phase15", "destination": "/dashboard/phases/frozen.html" },
+    { "source": "/phases/phase16/", "destination": "/dashboard/phases/frozen.html" },
+    { "source": "/phases/phase16", "destination": "/dashboard/phases/frozen.html" },
+    { "source": "/phases/phase17/", "destination": "/dashboard/phases/frozen.html" },
+    { "source": "/phases/phase17", "destination": "/dashboard/phases/frozen.html" },
+    { "source": "/phases/phase18/", "destination": "/dashboard/phases/frozen.html" },
+    { "source": "/phases/phase18", "destination": "/dashboard/phases/frozen.html" },
+    { "source": "/phases/phase19/", "destination": "/dashboard/phases/frozen.html" },
+    { "source": "/phases/phase19", "destination": "/dashboard/phases/frozen.html" },
+    { "source": "/phases/phase20/", "destination": "/dashboard/phases/frozen.html" },
+    { "source": "/phases/phase20", "destination": "/dashboard/phases/frozen.html" },
+    { "source": "/phases/phase21/", "destination": "/dashboard/phases/frozen.html" },
+    { "source": "/phases/phase21", "destination": "/dashboard/phases/frozen.html" },
+    { "source": "/phases/phase22/", "destination": "/dashboard/phases/frozen.html" },
+    { "source": "/phases/phase22", "destination": "/dashboard/phases/frozen.html" },
+
     { "source": "/phases/phase11/", "destination": "/phase11.html" },
     { "source": "/phases/phase11", "destination": "/phase11.html" },
     { "source": "/phases/", "destination": "/dashboard/phases/index.html" },
@@ -15,7 +41,6 @@
     { "source": "/phase-responsive.css", "destination": "/dashboard/phase-responsive.css" },
     { "source": "/phase-hero-scenes.css", "destination": "/dashboard/phase-hero-scenes.css" },
     { "source": "/glass-ui.css", "destination": "/dashboard/glass-ui.css" },
-
     { "source": "/phase-data.js", "destination": "/dashboard/phase-data.js" },
     { "source": "/phase-runtime.js", "destination": "/dashboard/phase-runtime.js" },
     { "source": "/phase-signatures.js", "destination": "/dashboard/phase-signatures.js" },
@@ -26,30 +51,18 @@
     { "source": "/aegis-current.js", "destination": "/dashboard/aegis-current.js" }
   ],
   "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
-      ]
-    },
-    {
-      "source": "/phase12.html",
-      "headers": [
-        { "key": "Content-Type", "value": "text/html; charset=utf-8" },
-        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
-      ]
-    },
-    {
-      "source": "/phase11.html",
-      "headers": [
-        { "key": "Content-Type", "value": "text/html; charset=utf-8" },
-        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
-      ]
-    },
-    {
-      "source": "/favicon.svg",
-      "headers": [{ "key": "Cache-Control", "value": "public, max-age=300, must-revalidate" }]
-    }
+    { "source": "/(.*)", "headers": [
+      { "key": "X-Content-Type-Options", "value": "nosniff" },
+      { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+    ]},
+    { "source": "/dashboard/phases/frozen.html", "headers": [
+      { "key": "Content-Type", "value": "text/html; charset=utf-8" },
+      { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
+    ]},
+    { "source": "/phase11.html", "headers": [
+      { "key": "Content-Type", "value": "text/html; charset=utf-8" },
+      { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
+    ]},
+    { "source": "/favicon.svg", "headers": [{ "key": "Cache-Control", "value": "public, max-age=300, must-revalidate" }] }
   ]
 }
