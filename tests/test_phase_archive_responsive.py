@@ -15,7 +15,7 @@ def test_frozen_archive_uses_signature_responsive_system_instead_of_legacy_stack
     index = (ROOT / "dashboard/phases/index.html").read_text()
     frozen = (ROOT / "dashboard/phases/frozen.html").read_text()
     for html in (index, frozen):
-        assert '/signature.css?v=1' in html
+        assert 'href="/signature.css?v=' in html
         assert 'phase-responsive.css' not in html
         assert 'tesla-mobile.css' not in html
         assert 'tesla-phase-mobile.css' not in html
