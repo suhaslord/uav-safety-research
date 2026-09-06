@@ -8,6 +8,9 @@ on:
     paths:
       - 'deploy/vercel/**'
       - 'dashboard/aegis-current.js'
+      - 'dashboard/phase-taxonomy.js'
+      - 'dashboard/phase-personalization.css'
+      - 'dashboard/phase-personalization.js'
       - 'dashboard/phases/**'
       - '.github/qa/local-vercel-server.mjs'
       - '.github/qa/visual-consistency-smoke.mjs'
@@ -17,6 +20,9 @@ on:
     paths:
       - 'deploy/vercel/**'
       - 'dashboard/aegis-current.js'
+      - 'dashboard/phase-taxonomy.js'
+      - 'dashboard/phase-personalization.css'
+      - 'dashboard/phase-personalization.js'
       - 'dashboard/phases/**'
       - '.github/qa/local-vercel-server.mjs'
       - '.github/qa/visual-consistency-smoke.mjs'
