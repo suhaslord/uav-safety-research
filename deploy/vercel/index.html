@@ -3,179 +3,95 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#070a0d">
-  <meta name="description" content="AegisLand is frozen simulation-only UAV landing-perception research asking how stale and degraded estimates interact with uncertainty, local error dynamics, and synthetic context. The evidence lineage is frozen through Phase 22.">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="description" content="AegisLand is frozen simulation-only UAV landing-perception research studying how stale and degraded estimates interact with uncertainty, level error, and local error dynamics. Frozen through Phase 22.">
   <link rel="canonical" href="https://aegisland-research-cockpit.vercel.app/">
-  <meta property="og:title" content="AegisLand — Frozen UAV Perception Research">
-  <meta property="og:description" content="Research question, method, preserved failures, and frozen evidence through Phase 22.">
+  <meta property="og:title" content="AegisLand — Research Cockpit">
+  <meta property="og:description" content="Research question, method, conclusion, and frozen evidence through Phase 22.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://aegisland-research-cockpit.vercel.app/">
-  <title>AegisLand — Frozen UAV Perception Research</title>
+  <title>AegisLand — Research Cockpit</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=5">
-  <link rel="stylesheet" href="/signature.css?v=2">
-  <link rel="stylesheet" href="/research-home.css?v=2">
+  <link rel="stylesheet" href="/aegisland.css?v=4">
 </head>
-<body class="signature-site">
-  <header class="signature-nav">
-    <div class="signature-shell signature-nav__inner">
-      <a class="signature-brand" href="/" aria-label="AegisLand home"><span class="signature-brand__mark" aria-hidden="true"></span><span>AEGISLAND</span></a>
-      <nav class="signature-nav__links" aria-label="Primary navigation">
-        <a href="#question">Question</a>
-        <a href="#method">Method</a>
-        <a href="#conclusion">Conclusion</a>
-        <a href="#lineage">Evidence</a>
-        <a href="/phases/">Archive</a>
-      </nav>
-    </div>
+<body>
+  <a class="skip-link" href="#main">Skip to research result</a>
+  <header class="site-header signature-nav">
+    <a class="brand signature-brand" href="#top" aria-label="AegisLand home"><span class="brand-mark" aria-hidden="true">A</span><span>AEGISLAND</span></a>
+    <nav class="site-nav signature-nav__links" aria-label="Primary navigation"><a href="#question">Question</a><a href="#purpose">Purpose</a><a href="#method">Method</a><a href="#conclusion">Conclusion</a><a href="#timeline">Lineage</a></nav>
+    <div class="header-actions"><a class="current" href="/phases/phase22/" aria-current="page">Phase 22</a><a href="/phases/">Archive</a><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub</a></div>
+    <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-expanded="false" aria-controls="mobileMenuSheet">Menu</button>
   </header>
+  <nav class="mobile-menu-sheet" id="mobileMenuSheet" aria-label="Mobile navigation" aria-hidden="true">
+    <div class="mobile-menu-head"><strong>AEGISLAND</strong><button class="mobile-menu-close" type="button" aria-label="Close navigation">Close</button></div>
+    <div class="mobile-menu-links"><a href="#question">Question</a><a href="#purpose">Purpose</a><a href="#method">Method</a><a href="#conclusion">Conclusion</a><a href="#timeline">Lineage</a><a href="/phases/phase22/">Phase 22</a></div>
+    <div class="mobile-menu-meta"><a href="/phases/">Archive</a><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub ↗</a></div>
+  </nav>
 
-  <main>
-    <section class="signature-shell signature-hero" id="top">
-      <div>
-        <div class="signature-kicker">Simulation-only research · complete frozen lineage · Frozen through Phase 22</div>
-        <h1>Confidence is not<em>correctness.</em></h1>
-        <p class="signature-hero__lede">AegisLand studies what happens when synthetic landing-perception estimates become stale or degraded: whether frozen uncertainty still reflects error, what drives failure, and which local error-dynamics patterns transfer without refitting. <strong>The failures are the map.</strong></p>
-        <div class="signature-actions">
-          <a class="signature-button signature-button--primary" href="#question">Read the research question</a>
-          <a class="signature-button" href="/phases/">Inspect every phase</a>
-          <a class="signature-button" href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">Source ↗</a>
-        </div>
-      </div>
-
-      <div class="aegis-halo" aria-label="Aegis Halo — frozen evidence signature">
-        <span class="aegis-halo__ring"></span><span class="aegis-halo__ring"></span><span class="aegis-halo__ring"></span>
-        <span class="aegis-halo__axis"></span><span class="aegis-halo__axis aegis-halo__axis--v"></span>
-        <span class="aegis-halo__node aegis-halo__node--a"></span><span class="aegis-halo__node aegis-halo__node--b"></span><span class="aegis-halo__node aegis-halo__node--c"></span><span class="aegis-halo__node aegis-halo__node--d"></span>
-        <span class="aegis-halo__core"></span>
-        <span class="aegis-halo__caption">question → protocol → evidence → boundary</span>
-      </div>
-    </section>
-
-    <section class="signature-strip" aria-label="Frozen research status">
-      <div class="signature-shell signature-strip__inner">
-        <div class="signature-stat"><strong>22</strong><span>Frozen frontier</span></div>
-        <div class="signature-stat"><strong>13</strong><span>Records from P12→P22</span></div>
-        <div class="signature-stat"><strong>6 / 7</strong><span>PASS / FAIL records</span></div>
-        <div class="signature-stat"><strong>0</strong><span>Authorized new phases</span></div>
-      </div>
-    </section>
-
-    <section class="research-framing" id="question">
-      <div class="signature-shell">
-        <div class="research-question">
-          <div class="research-label">Research question</div>
-          <h2>When synthetic UAV landing perception becomes <strong>stale or degraded</strong>, can frozen uncertainty and local error-dynamics diagnostics distinguish confidence from correctness, explain which contexts drive failure, and transfer those patterns without refitting?</h2>
-        </div>
-        <div class="research-purpose-grid">
-          <article class="research-purpose">
-            <small>Main purpose</small>
-            <h3>Build an inspectable research record, not a demo that only shows wins.</h3>
-            <p>AegisLand separates <b>uncertainty calibration</b>, <b>absolute estimation quality</b>, <b>failure attribution</b>, and <b>local one-step predictability</b>. Candidates are frozen before downstream evidence, negative results stay public, and later questions are narrowed rather than rewriting earlier failures.</p>
-          </article>
-          <article class="research-purpose">
-            <small>Problem being studied</small>
-            <h3>A system can look confident while its estimate is wrong.</h3>
-            <p>Under synthetic degradation, interval width, actual level error, and short-horizon residual dynamics do not have to move together. The research asks which of those quantities remain informative—and where a proposed recoverability or predictive claim breaks.</p>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section class="research-protocol" id="method">
-      <div class="signature-shell">
-        <div class="research-protocol__head">
-          <div><div class="signature-section__eyebrow">Approach</div><h2>Freeze first. Expose evidence once.</h2></div>
-          <p>The protocol is designed so a protected or final result cannot be tuned into a pass after it is seen. Later phases may ask a narrower new question, but they do not retroactively change an earlier verdict.</p>
-        </div>
-        <div class="protocol-grid">
-          <article class="protocol-step"><span>01 / FREEZE</span><h3>Lock the candidate.</h3><p>Coefficients, thresholds, context definitions, and scientific code are frozen before downstream evidence is exposed.</p></article>
-          <article class="protocol-step"><span>02 / SEPARATE</span><h3>Use fresh evidence roles.</h3><p>Development, transfer, protected validation, and final holdout are treated as sequential evidence rather than one reusable test set.</p></article>
-          <article class="protocol-step"><span>03 / MATCH</span><h3>Control the intervention.</h3><p>Matched synthetic comparisons isolate pure two-frame staleness while preserving truth, pair identity, useful masks, and Phase 12 interval widths.</p></article>
-          <article class="protocol-step"><span>04 / PRESERVE</span><h3>Keep failed gates failed.</h3><p>Phase 14, Phase 15, Phase 17, and Phase 18 do not disappear because later, narrower questions eventually passed.</p></article>
-        </div>
-      </div>
-    </section>
-
-    <section class="signature-section" id="conclusion">
-      <div class="signature-shell research-conclusion">
+  <main id="main">
+    <section class="hero" id="top" aria-labelledby="hero-title">
+      <div class="wrap hero-grid">
         <div>
-          <div class="signature-section__eyebrow">Main conclusion</div>
-          <div class="research-conclusion__statement">
-            <h2>Uncertainty, level error, and local predictability are different things.</h2>
-            <p>Across the frozen simulation studies, pure two-frame stale estimates can worsen absolute lateral error while leaving Phase 12 interval widths unchanged. A context-specific one-step residual structure can still be predictable, and later phases show that much of its synthetic context dependence is first-order and can be approximated additively on fresh 32-cell context cubes. <strong>This does not mean latency is beneficial.</strong></p>
-          </div>
+          <p class="eyebrow">Simulation-only research · frozen through Phase 22</p>
+          <h1 id="hero-title">Evidence before confidence.</h1>
+          <p class="hero-deck">AegisLand studies whether frozen uncertainty and local error-dynamics diagnostics stay informative when synthetic UAV landing-perception estimates become stale or degraded.</p>
+          <div class="actions"><a class="button primary signature-button" href="#question">Read the research question</a><a class="button secondary signature-button" href="/phases/">Browse the archive</a></div>
         </div>
-        <div class="research-conclusion__checks">
-          <div class="conclusion-check"><strong>Level error</strong><span>Phase 16 showed pure two-frame staleness worsened absolute lateral error and coverage while Phase 12 widths remained exactly identical.</span></div>
-          <div class="conclusion-check"><strong>Residuals</strong><span>Phase 19 confirmed a narrower distribution-wide one-step residual advantage in the simple synthetic context; the hard context remained approximately neutral.</span></div>
-          <div class="conclusion-check"><strong>Attribution</strong><span>Phase 20 exactly allocated simple→hard attenuation across five predefined synthetic modifiers; no factor was established as universally dominant.</span></div>
-          <div class="conclusion-check"><strong>Structure</strong><span>Phase 21 found first-order effects explained 88.44% of final RMSE-surface variance and 78.01% of final MAE-surface variance.</span></div>
-          <div class="conclusion-check"><strong>Transfer</strong><span>Phase 22’s frozen additive candidate passed all 10 final gates with R² 0.8319 / 0.7744 and 100% stable-sign accuracy on eligible cells.</span></div>
-        </div>
+        <aside class="result-card" aria-label="Phase 22 final holdout result">
+          <p class="eyebrow">Phase 22 · final holdout</p>
+          <strong class="pass">All 10 locked gates passed</strong>
+          <p>The frozen additive context-transfer candidate reached <b>0.8319</b> RMSE-surface R² and <b>0.7744</b> MAE-surface R², with <b>100%</b> stable-sign accuracy on eligible cells.</p>
+          <div class="safety"><p class="eyebrow">Claim boundary</p><strong>Simulation result only</strong><p>simulation_only=true · safety_acceptance=false · controller_tuning_allowed=false</p></div>
+        </aside>
       </div>
     </section>
 
-    <section class="signature-section" id="lineage">
-      <div class="signature-shell">
-        <div class="signature-section__head">
-          <div><div class="signature-section__eyebrow">Frozen evidence lineage</div><h2>Every pass. Every failure.</h2></div>
-          <p class="signature-section__intro">The research record is frozen through Phase 22. Red rows are scientific failures, not UI warnings. Green rows passed their own preregistered question; they do not erase earlier red rows.</p>
-        </div>
-        <div class="evidence-spine" id="evidenceSpine" aria-live="polite"></div>
-        <div class="phase-arc" aria-label="Late-stage research arc">
-          <article><small>PHASES 13A–18</small><h3>Falsify and isolate.</h3><p>External validity, recoverability bridges, coefficient transfer, and protected q90 confirmation produced both failures and mechanism evidence.</p></article>
-          <article><small>PHASE 19</small><h3>Narrow the claim.</h3><p>The distribution-wide RMSE/MAE residual question survived all four evidence roles without weakening the earlier Phase 18 q90 failure.</p></article>
-          <article><small>PHASES 20–22</small><h3>Explain and transfer.</h3><p>Exact Shapley attribution → orthogonal first-order structure → one frozen additive predictor tested on new full context cubes.</p></article>
-        </div>
-      </div>
-    </section>
+    <section class="metrics" aria-label="Phase 22 final metrics"><div class="wrap metric-grid"><div class="metric"><span>RMSE-surface R²</span><strong>0.8319</strong></div><div class="metric"><span>MAE-surface R²</span><strong>0.7744</strong></div><div class="metric"><span>Stable-sign accuracy</span><strong>100%</strong></div><div class="metric"><span>Frozen record P12→P22</span><strong>6 PASS / 7 FAIL</strong></div></div></section>
 
-    <section class="signature-section">
-      <div class="signature-shell">
-        <article class="final-panel">
-          <div class="final-panel__top"><div class="signature-section__eyebrow">Phase 22 · one-shot final holdout</div><span class="verdict-chip verdict-chip--pass">PASS · 10 / 10</span></div>
-          <h3>Frozen Additive Context Transfer</h3>
-          <p>The additive candidate was fitted before downstream evidence and remained unchanged through transfer, protected validation, and the final 32-cell synthetic context cube. No refit, coefficient change, threshold change, or controller adaptation occurred after freeze.</p>
-          <div class="final-metrics">
-            <div class="final-metric"><strong>0.8319</strong><span>RMSE-surface R²</span></div>
-            <div class="final-metric"><strong>0.7744</strong><span>MAE-surface R²</span></div>
-            <div class="final-metric"><strong>100%</strong><span>Stable-sign accuracy</span></div>
-            <div class="final-metric"><strong>10 / 10</strong><span>Locked final gates</span></div>
-          </div>
-          <div class="claim-boundary"><b>BOUNDARY //</b> simulation_only=true · safety_acceptance=false · controller_tuning_allowed=false<br>Synthetic frozen evidence only. No physical-flight safety, certification, production-readiness, real-sensor-equivalence, controller-improvement, physical-causality, or operational-safety claim.</div>
-        </article>
-      </div>
-    </section>
+    <section class="section" id="question"><div class="wrap goal-grid"><div><p class="eyebrow">Research question</p><h2>When synthetic UAV landing perception becomes stale or degraded, what still tells us whether the estimate is actually reliable?</h2><p class="copy">The study asks whether frozen uncertainty and local error-dynamics diagnostics can distinguish confidence from correctness, explain which synthetic contexts drive failure, and transfer those patterns without refitting.</p></div><div class="goal-points"><div class="goal-point"><strong>Uncertainty</strong><span>Does interval width still track actual estimation error under degradation?</span></div><div class="goal-point"><strong>Level error</strong><span>How much does a stale point estimate worsen absolute lateral accuracy and coverage?</span></div><div class="goal-point"><strong>Local dynamics</strong><span>Can one-step residual structure remain predictable even when absolute error gets worse?</span></div></div></div></section>
 
-    <section class="signature-section">
-      <div class="signature-shell signature-section__head">
-        <div><div class="signature-section__eyebrow">Archive mode</div><h2>The science is frozen. The interface can improve.</h2></div>
-        <div class="signature-section__intro">No Phase 23 is implied or authorized by this site. Presentation, documentation, reproducibility, and navigation can change while the scientific record remains fixed at head <code>668d065714dde279857bc0e196f0ef7cc5e182ed</code>.</div>
-      </div>
-    </section>
+    <section class="section ash" id="purpose"><div class="wrap goal-grid"><div><p class="eyebrow">Main purpose</p><h2>Build an inspectable research record, not a demo that only shows wins.</h2><p class="copy">AegisLand separates uncertainty calibration, absolute estimation quality, failure attribution, and local one-step predictability. Candidates are frozen before downstream evidence, negative results remain visible, and later phases narrow the question instead of rewriting earlier failures.</p></div><div class="goal-points"><div class="goal-point"><strong>Problem being studied</strong><span>A system can look confident while its estimate is wrong.</span></div><div class="goal-point"><strong>Why that matters</strong><span>Interval width, level error, and short-horizon residual dynamics do not have to move together.</span></div><div class="goal-point"><strong>Research discipline</strong><span>Development, transfer, protected validation, and final holdout are exposed sequentially rather than reused as one test set.</span></div></div></div></section>
+
+    <section class="section dark" id="method"><div class="wrap"><div class="section-head"><p class="eyebrow">Research method</p><div><h2>Freeze first. Expose evidence once.</h2><p class="copy">The protocol is designed so a protected or final result cannot be tuned into a pass after it is seen. Later phases can ask a narrower new question, but they do not retroactively change an earlier verdict.</p></div></div><div class="three"><article class="card"><h3>Lock the candidate.</h3><p>Coefficients, thresholds, context definitions, and scientific code are frozen before downstream evidence is exposed.</p><span class="tag">01 · Freeze</span></article><article class="card"><h3>Use fresh evidence roles.</h3><p>Development, transfer, protected validation, and final holdout remain separate evidence stages.</p><span class="tag">02 · Separate</span></article><article class="card"><h3>Keep failed gates failed.</h3><p>Later successful phases do not upgrade Phase 13A, 13B, 14, 15, 16, 17, or 18.</p><span class="tag">03 · Preserve</span></article></div></div></section>
+
+    <section class="section" id="conclusion"><div class="wrap goal-grid"><div><p class="eyebrow">Main conclusion</p><h2>Uncertainty, level error, and local predictability are different things.</h2><p class="copy">Across the frozen simulation studies, pure two-frame stale estimates can worsen absolute lateral error while Phase 12 interval widths remain unchanged. A context-specific one-step residual structure can still be predictable, and later phases show that much of its synthetic context dependence is first-order and can be approximated additively on fresh 32-cell context cubes.</p><p class="copy"><strong>This does not mean latency is beneficial.</strong> Static latency-induced level-error degradation persists.</p></div><div class="goal-points"><div class="goal-point"><strong>Phase 16 · Level error</strong><span>Pure two-frame staleness worsened absolute lateral error and coverage while Phase 12 widths stayed identical.</span></div><div class="goal-point"><strong>Phase 19 · Residuals</strong><span>A narrower distribution-wide one-step residual advantage replicated in the simple synthetic context.</span></div><div class="goal-point"><strong>Phases 20–21 · Structure</strong><span>Context attenuation was distributed across predefined modifiers and was predominantly first-order.</span></div><div class="goal-point"><strong>Phase 22 · Transfer</strong><span>The frozen additive candidate passed all 10 final gates without refitting.</span></div></div></div></section>
+
+    <section class="section ash" id="timeline"><div class="wrap"><div class="rail-head"><div><p class="eyebrow">Frozen evidence lineage</p><h2>Every pass and every failure stays reachable.</h2><p class="copy">The record is frozen through Phase 22. A later PASS does not erase an earlier FAIL.</p></div><a class="text-link" href="/phases/">Open full archive →</a></div><div class="evidence-list" id="frozenEvidenceList" aria-live="polite"></div></div></section>
+
+    <section class="section"><div class="wrap boundary-grid"><div><p class="eyebrow">Evidence boundary</p><h2>The science is frozen. The presentation can improve.</h2><p class="copy">No Phase 23 is implied or authorized by this site. The scientific record remains fixed through Phase 22 at scientific head <code>668d065714dde279857bc0e196f0ef7cc5e182ed</code>.</p><p class="copy">No physical-flight safety, certification, production-readiness, real-sensor-equivalence, controller-improvement, physical-causality, or operational-safety claim is made.</p></div><div class="actions"><a class="button primary signature-button" href="/phases/phase22/">View Phase 22</a><a class="button secondary signature-button" href="/phases/">Browse all phases</a></div></div></section>
   </main>
 
-  <footer class="signature-footer">
-    <div class="signature-shell signature-footer__inner">
-      <div>AegisLand · frozen simulation-only UAV perception research</div>
-      <div><code>simulation_only=true · safety_acceptance=false · controller_tuning_allowed=false</code></div>
-    </div>
-  </footer>
+  <footer class="footer"><p>AegisLand · frozen simulation-only research</p><div class="footer-links"><a href="/phases/">Archive</a><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub ↗</a><a href="/phases/phase22/">Phase 22</a></div></footer>
 
   <script src="/frozen-lineage.js?v=3"></script>
   <script>
     (() => {
       const data = window.AEGIS_FROZEN_LINEAGE;
-      const root = document.getElementById('evidenceSpine');
-      if (!data || !root) return;
-      data.phases.forEach((phase) => {
-        const link = document.createElement('a');
-        link.className = 'evidence-row';
-        link.dataset.verdict = phase.verdict;
-        link.href = `/phases/${phase.slug}/`;
-        link.innerHTML = `<span class="evidence-node" aria-hidden="true"></span><span class="evidence-label">${phase.label}</span><span class="evidence-title"><strong>${phase.title}</strong><span>${phase.summary}</span></span><span class="verdict-chip verdict-chip--${phase.verdict.toLowerCase()}">${phase.verdict}</span>`;
-        root.appendChild(link);
-      });
+      const root = document.getElementById('frozenEvidenceList');
+      if (data && root) {
+        data.phases.forEach((phase) => {
+          const item = document.createElement('a');
+          item.className = 'evidence-item';
+          item.href = `/phases/${phase.slug}/`;
+          item.style.textDecoration = 'none';
+          item.innerHTML = `<span>${phase.label} · ${phase.stage}</span><strong>${phase.verdict} · ${phase.title}</strong>`;
+          root.appendChild(item);
+        });
+      }
+
+      const b = document.getElementById('mobileMenuToggle');
+      const m = document.getElementById('mobileMenuSheet');
+      const c = m.querySelector('.mobile-menu-close');
+      const set = (open) => {
+        b.setAttribute('aria-expanded', String(open));
+        m.setAttribute('aria-hidden', String(!open));
+        m.classList.toggle('open', open);
+        document.body.classList.toggle('menu-open', open);
+      };
+      b.addEventListener('click', () => set(b.getAttribute('aria-expanded') !== 'true'));
+      c.addEventListener('click', () => set(false));
+      m.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => set(false)));
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') set(false); });
     })();
   </script>
 </body>
