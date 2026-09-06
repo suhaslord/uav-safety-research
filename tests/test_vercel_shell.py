@@ -81,7 +81,7 @@ def test_phase_archive_uses_shared_tesla_polish_without_rewriting_lineage() -> N
 
     assert "--phase-blue:#3e6ae1" in polish
     assert "backdrop-filter" in polish  # restrained fixed navigation only
-    assert "box-shadow" not in polish
+    assert "linear-gradient" not in polish
     assert 'href="/phase-polish.css?v=' in archive
     assert 'href="/phase-polish.css?v=' in frozen
     assert 'href="/phase-polish.css?v=' in phase
