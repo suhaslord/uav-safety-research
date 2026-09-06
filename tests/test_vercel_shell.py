@@ -73,6 +73,23 @@ def test_phase12_standalone_file_remains_a_frozen_historical_record() -> None:
     assert "No further Phase 12 tuning" in html
 
 
+def test_phase_archive_uses_shared_tesla_polish_without_rewriting_lineage() -> None:
+    polish = (ROOT / "deploy" / "vercel" / "phase-polish.css").read_text(encoding="utf-8")
+    archive = (ROOT / "dashboard" / "phases" / "index.html").read_text(encoding="utf-8")
+    frozen = (ROOT / "dashboard" / "phases" / "frozen.html").read_text(encoding="utf-8")
+    phase = (ROOT / "dashboard" / "phases" / "phase.html").read_text(encoding="utf-8")
+
+    assert "--phase-blue:#3e6ae1" in polish
+    assert "backdrop-filter" in polish  # restrained fixed navigation only
+    assert "box-shadow" not in polish
+    assert 'href="/phase-polish.css?v=' in archive
+    assert 'href="/phase-polish.css?v=' in frozen
+    assert 'href="/phase-polish.css?v=' in phase
+    assert 'href="/signature.css?v=' not in archive
+    assert 'href="/signature.css?v=' not in frozen
+    assert "Every phase stays part of the story." in archive
+
+
 def test_frozen_archive_replaces_current_frontier_bridge_without_breaking_legacy_phase_template() -> None:
     current = (ROOT / "dashboard" / "aegis-current.js").read_text(encoding="utf-8")
     archive = (ROOT / "dashboard" / "phases" / "index.html").read_text(encoding="utf-8")
