@@ -21,11 +21,13 @@ jobs:
           node --check dashboard/cockpit.js
           node --check dashboard/cockpit-extension.js
           node --check dashboard/app.js
+          node --check dashboard/phase-taxonomy.js
           node --check dashboard/phase-data.js
           node --check dashboard/phase-runtime.js
           node --check dashboard/phase-signatures.js
           node --check dashboard/tesla-mobile.js
           node --check dashboard/aegis-current.js
+          node --check dashboard/phase-personalization.js
       - name: Check Phase 8 Trace Lab JavaScript
         run: node --check phase8_dashboard/app.js
       - name: Unit tests
