@@ -7,9 +7,13 @@ on:
       - .github/workflows/phase12-development.yml
       - scripts/run_phase12_adaptive_normalized_conformal.py
       - scripts/run_phase12_adaptive_normalized_conformal_v2.py
+      - scripts/run_phase12_adaptive_normalized_conformal_v3.py
       - tests/test_phase12_adaptive_normalized_conformal.py
       - tests/test_phase12_adaptive_normalized_conformal_v2.py
+      - tests/test_phase12_adaptive_normalized_conformal_v3.py
       - docs/phase12_adaptive_normalized_conformal_preregistration.md
+      - docs/phase12_iteration3_preregistration.md
+      - docs/phase12_width_tail_forensics.md
       - docs/phase12_development_log.md
 
 permissions:
@@ -28,19 +32,23 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e ".[dev]"
-      - name: Run Phase 12 invariants
+      - name: Run predecessor and Phase 12 invariants
         run: |
           python -m compileall -q \
             scripts/run_phase12_adaptive_normalized_conformal.py \
             scripts/run_phase12_adaptive_normalized_conformal_v2.py \
+            scripts/run_phase12_adaptive_normalized_conformal_v3.py \
+            scripts/analyze_phase12_width_tail.py \
             tests/test_phase12_adaptive_normalized_conformal.py \
-            tests/test_phase12_adaptive_normalized_conformal_v2.py
+            tests/test_phase12_adaptive_normalized_conformal_v2.py \
+            tests/test_phase12_adaptive_normalized_conformal_v3.py
           pytest -q \
             tests/test_phase11_p9_soft_update_direct_conformal.py \
             tests/test_phase11_p14_bounded_independent_rescue.py \
             tests/test_phase11_p14r_robust_group_envelope.py \
             tests/test_phase12_adaptive_normalized_conformal.py \
-            tests/test_phase12_adaptive_normalized_conformal_v2.py
+            tests/test_phase12_adaptive_normalized_conformal_v2.py \
+            tests/test_phase12_adaptive_normalized_conformal_v3.py
       - name: Recover exact closed Phase 11 P14R predecessor candidate
         uses: actions/download-artifact@v4
         with:
@@ -55,46 +63,82 @@ jobs:
           test -n "$PREDECESSOR"
           echo "bba1b7be7565b470af80db502e6fa5d969bc86c712e322557c06b30e49bd9c86  $PREDECESSOR" | sha256sum -c -
           echo "PREDECESSOR=$PREDECESSOR" >> "$GITHUB_ENV"
-      - name: Build Phase 12 iteration-2 candidate
+      - name: Build Phase 12 iteration-3 candidate
         run: |
-          rm -rf results/phase12_candidate_v2
-          python scripts/run_phase12_adaptive_normalized_conformal_v2.py \
+          rm -rf results/phase12_candidate_v3 results/phase12_candidate_v3_repeat
+          python scripts/run_phase12_adaptive_normalized_conformal_v3.py \
             --stage freeze \
             --predecessor "$PREDECESSOR" \
-            --out results/phase12_candidate_v2 \
-            --git-sha "$GITHUB_SHA" | tee phase12-v2-freeze.log
-          test -f results/phase12_candidate_v2/candidate_freeze.json
-          echo "CANDIDATE=results/phase12_candidate_v2/candidate_freeze.json" >> "$GITHUB_ENV"
-      - name: Run permanently-seen iteration-2 development smoke only
+            --out results/phase12_candidate_v3 \
+            --git-sha "$GITHUB_SHA" | tee phase12-v3-freeze.log
+          test -f results/phase12_candidate_v3/candidate_freeze.json
+          echo "CANDIDATE=results/phase12_candidate_v3/candidate_freeze.json" >> "$GITHUB_ENV"
+      - name: Verify candidate determinism and invariants
         run: |
-          rm -rf results/phase12_dev_v2
-          python scripts/run_phase12_adaptive_normalized_conformal_v2.py \
+          python scripts/run_phase12_adaptive_normalized_conformal_v3.py \
+            --stage freeze \
+            --predecessor "$PREDECESSOR" \
+            --out results/phase12_candidate_v3_repeat \
+            --git-sha "$GITHUB_SHA" > phase12-v3-freeze-repeat.log
+          cmp results/phase12_candidate_v3/candidate_freeze.json results/phase12_candidate_v3_repeat/candidate_freeze.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          c=json.loads(Path('results/phase12_candidate_v3/candidate_freeze.json').read_text())
+          assert c['schema'] == 'aegisland.phase12.adaptive-normalized-conformal.candidate.v3'
+          assert c['development_iteration'] == 3
+          assert c['simulation_only'] is True
+          assert c['safety_acceptance'] is False
+          assert c['controller_tuning_allowed'] is False
+          assert c['continuity_scale_shrinkage_exponent'] == 0.5
+          assert c['lateral_reliability_coordinate'] == 'log1p_normalized_anchor_innovation'
+          for group, model in c['lateral_reliability_models'].items():
+              assert model['u90'] > model['u10']
+              assert model['residual_high'] >= model['residual_low'] > 0
+              assert model['geometric_center'] > 0
+          targets = ['0.50','0.68','0.80','0.90','0.95']
+          for group, axes in c['robust_normalized_radii'].items():
+              for axis, table in axes.items():
+                  values=[table[q] for q in targets]
+                  assert all(v >= 0 for v in values)
+                  assert values == sorted(values)
+          print('PHASE12_V3_CANDIDATE_DETERMINISTIC=true')
+          PY
+      - name: Run permanently-seen iteration-3 development only
+        run: |
+          rm -rf results/phase12_dev_v3
+          python scripts/run_phase12_adaptive_normalized_conformal_v3.py \
             --stage dev \
             --candidate "$CANDIDATE" \
-            --out results/phase12_dev_v2 \
-            --git-sha "$GITHUB_SHA" | tee phase12-v2-dev.log
-          test -f results/phase12_dev_v2/development_result.json
+            --out results/phase12_dev_v3 \
+            --git-sha "$GITHUB_SHA" | tee phase12-v3-dev.log
+          test -f results/phase12_dev_v3/development_result.json
           test ! -e results/phase12_transfer
           test ! -e results/phase12_validation
           test ! -e results/phase12_final
           python - <<'PY'
           import json
           from pathlib import Path
-          r=json.loads(Path('results/phase12_dev_v2/development_result.json').read_text())
+          r=json.loads(Path('results/phase12_dev_v3/development_result.json').read_text())
           assert r['development_only'] is True
           assert r['eligible_for_progression'] is False
           assert r['evaluated_seed_seen_after_run'] == 907907
+          assert r['simulation_only'] is True
+          assert r['safety_acceptance'] is False
+          assert r['controller_tuning_allowed'] is False
           assert r['continuity_scale_shrinkage_exponent'] == 0.5
-          print('PHASE12_V2_DEVELOPMENT_ONLY_CONFIRMED=true')
+          assert r['lateral_reliability_coordinate'] == 'log1p_normalized_anchor_innovation'
+          print('PHASE12_V3_DEVELOPMENT_ONLY_CONFIRMED=true')
           print(json.dumps(r['gates'], sort_keys=True))
           PY
       - uses: actions/upload-artifact@v4
         with:
-          name: phase12-development-v2
+          name: phase12-development-v3
           path: |
-            results/phase12_candidate_v2/
-            results/phase12_dev_v2/
-            phase12-v2-freeze.log
-            phase12-v2-dev.log
+            results/phase12_candidate_v3/
+            results/phase12_dev_v3/
+            phase12-v3-freeze.log
+            phase12-v3-freeze-repeat.log
+            phase12-v3-dev.log
           if-no-files-found: error
           retention-days: 30
