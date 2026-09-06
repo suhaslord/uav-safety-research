@@ -103,11 +103,11 @@
     },
     {
       slug: 'phase22', label: 'Phase 22', title: 'Frozen Additive Context Transfer', verdict: 'PASS', stage: 'FINAL',
-      summary: 'A six-parameter additive model fitted once predicted fresh 32-cell context surfaces without refitting.',
-      finding: 'The frozen main-effects model cleared development, transfer, protected, and final gates. Final stable-sign accuracy was 100% on eligible cells; the model remained frozen after fit.',
-      metrics: [['Final RMSE R²', '0.832'], ['Final MAE R²', '0.774'], ['RMSE cell MAE', '0.0111'], ['MAE cell MAE', '0.0209'], ['Stable-sign accuracy', '100%']],
-      resultSha: 'db76d2d4eedf21a8e4c275e53dcbb7e3229ef5e3c0a2b0d923b45c005d059efa',
-      candidateSha: '62e75d7b4dd69f9fecff5018ee52e533242996856705f2b011cc3a5488c1bd61',
+      summary: 'A frozen additive main-effects model predicted fresh 32-cell context surfaces without refitting.',
+      finding: 'The frozen additive candidate cleared development, transfer, protected validation, and the one-shot final holdout. Final cellwise R² was 0.8322 for the RMSE-advantage surface and 0.7738 for the MAE-advantage surface, with 100% stable-sign accuracy on eligible cells.',
+      metrics: [['Final RMSE R²', '0.8322'], ['Final MAE R²', '0.7738'], ['RMSE prediction MAE', '0.01056'], ['MAE prediction MAE', '0.01679'], ['Stable-sign accuracy', '100%']],
+      resultSha: '0ddc968b8bd48c2de6d904194b417854913389a8927cff0b15b96c6501f8294c',
+      candidateSha: '62e75d7b39088c2e66f1cc6be4d180501b79632f2f6847af1fbe0bd96be17551',
       note: 'Frozen through Phase 22. No new scientific phase is implied by this site.'
     }
   ];
@@ -121,6 +121,9 @@
   window.AEGIS_FROZEN_LINEAGE = Object.freeze({
     frozenThrough: 'Phase 22',
     frozenScientificHead: '668d065f4312e33e2d21ca7a7ee76d4d6d5617b3',
+    phase22FinalRun: '34043148327',
+    phase22FinalArtifact: '9992317865',
+    phase22FinalArtifactDigest: 'sha256:78fa8eb98cd72c8a32969a463b44e12e2ef38aad7e5af64a968cab9ada6871cb',
     boundary: Object.freeze(boundary),
     phases: Object.freeze(phases.map(Object.freeze)),
     bySlug: Object.freeze(bySlug),
