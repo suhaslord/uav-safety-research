@@ -13,8 +13,10 @@
   <title>Phase 11 · P14R — AegisLand</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=3">
   <link rel="stylesheet" href="/aegisland.css?v=3">
+  <link rel="stylesheet" href="/phase-polish.css?v=1">
+  <link rel="stylesheet" href="/phase-polish-fixes.css?v=1">
 </head>
-<body>
+<body class="phase11-polish">
   <a class="skip-link" href="#main">Skip to Phase 11 result</a>
   <header class="site-header">
     <a class="brand" href="/" aria-label="AegisLand home"><span class="brand-mark" aria-hidden="true">A</span><span>AEGISLAND</span></a>
@@ -33,7 +35,7 @@
     <section class="hero" id="result" aria-labelledby="phase-title">
       <div class="wrap hero-grid">
         <div>
-          <p class="eyebrow">Current research frontier · Phase 11 · P14R · study closed</p>
+          <p class="eyebrow">Frozen historical phase · Phase 11 · P14R · study closed</p>
           <h1 id="phase-title">Independent rescue + robust uncertainty transfer.</h1>
           <p class="hero-deck">A frozen simulation study with high protected availability and coverage, plus one preregistered lateral tail-efficiency component that failed and remained failed.</p>
           <p class="copy">P14R passed every required seen-transfer gate. Protected validation reached 98.53% useful availability, 96.17% lateral 95% coverage, 95.82% altitude 95% coverage, and 94.63% rescue recovery. Final confirmation stopped at the locked H4 lateral p95 tail-efficiency limit.</p>
@@ -41,7 +43,7 @@
         </div>
         <aside class="result-card" aria-label="Phase 11 protected result">
           <p class="eyebrow">Protected verdict</p><strong class="fail">Mixed / failed overall</strong><p>One locked H4 component failed: lateral p95 interval width / p95 error = <b>2.435×</b>, above the frozen <b>2.25×</b> maximum.</p>
-          <div class="safety"><p class="eyebrow">Claim boundary</p><strong>Not safety accepted</strong><p>simulation_only=true · controller_tuning_allowed=false</p></div>
+          <div class="safety"><p class="eyebrow">Claim boundary</p><strong>Not safety accepted</strong><p>simulation_only=true · safety_acceptance=false · controller_tuning_allowed=false</p></div>
         </aside>
       </div>
     </section>
@@ -49,6 +51,8 @@
     <section class="metrics" id="evidence" aria-label="Protected validation metrics">
       <div class="wrap metric-grid"><div class="metric"><span>Protected availability</span><strong>98.53%</strong></div><div class="metric"><span>Lateral 95% coverage</span><strong>96.17%</strong></div><div class="metric"><span>Altitude 95% coverage</span><strong>95.82%</strong></div><div class="metric"><span>Rescue recovery</span><strong>94.63%</strong></div></div>
     </section>
+
+    <section class="phase11-jump" aria-label="Adjacent phases"><div class="wrap"><span>Phase 11 sits between the Phase 10R holdout and the frozen Phase 12 conformal study.</span><nav><a class="button secondary" href="/phases/phase10r/">← Phase 10R</a><a class="button primary" href="/phases/phase12/">Phase 12 →</a></nav></div></section>
 
     <section class="section">
       <div class="wrap">
@@ -66,7 +70,7 @@
 
     <section class="section" id="boundary">
       <div class="wrap boundary-grid">
-        <div><p class="eyebrow">Protected boundary</p><h2>One locked tail component stopped the study.</h2><p class="copy">Protected validation passed the required availability, coverage, calibration, rescue, and most efficiency checks. The lateral p95 interval-width / p95-error component did not. The frozen maximum stayed 2.25× after the 2.435× result became visible.</p><p class="copy">The final P15-v2 holdout was not exposed after this failure. Future improvement requires a new preregistered phase and fresh evidence.</p></div>
+        <div><p class="eyebrow">Protected boundary</p><h2>One locked tail component stopped the study.</h2><p class="copy">Protected validation passed the required availability, coverage, calibration, rescue, and most efficiency checks. The lateral p95 interval-width / p95-error component did not. The frozen maximum stayed 2.25× after the 2.435× result became visible.</p><p class="copy">At Phase 11 close, the final P15-v2 holdout was not exposed after this failure. Any later work required a new preregistered phase and fresh evidence rather than reopening this verdict.</p></div>
         <div class="threshold-card"><p class="eyebrow">H4 lateral p95 efficiency</p><strong>2.435× <span class="fail">FAIL</span></strong><p>Frozen maximum: 2.25×</p><div class="threshold-chart" role="img" aria-label="Protected H4 lateral p95 interval width to p95 error ratio was 2.435, above the frozen maximum 2.25"><div class="threshold-track"><div class="threshold-fill"></div></div><span class="threshold-limit" aria-hidden="true"></span><span class="threshold-result" aria-hidden="true"></span></div><div class="threshold-foot">Threshold unchanged · no post-protected retuning · no P15 unseen-replication claim.</div></div>
       </div>
     </section>
