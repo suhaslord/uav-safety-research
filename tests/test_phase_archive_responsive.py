@@ -8,29 +8,32 @@ def test_legacy_phase_template_keeps_canonical_responsive_base_plus_polish_guard
     assert 'phase-responsive.css' in phase
     assert 'href="/phase-polish.css?v=' in phase
     assert 'href="/phase-polish-fixes.css?v=' in phase
+    assert 'href="/research-workspace.css?v=' in phase
     assert 'tesla-mobile.css' not in phase
     assert 'tesla-phase-mobile.css' not in phase
-    assert 'class="archive-shell phase-polish-shell"' in phase
+    assert 'class="archive-shell phase-polish-shell research-workspace"' in phase
 
 
-def test_frozen_archive_uses_shared_tesla_polish_instead_of_dark_signature_stack():
+def test_frozen_archive_uses_shared_polish_plus_research_workspace_instead_of_signature_stack():
     index = (ROOT / "dashboard/phases/index.html").read_text()
     frozen = (ROOT / "dashboard/phases/frozen.html").read_text()
 
     assert 'href="/phase-polish.css?v=' in index
+    assert 'href="/research-workspace.css?v=' in index
     assert 'href="/signature.css?v=' not in index
     assert 'phase-responsive.css' not in index
     assert 'tesla-mobile.css' not in index
     assert 'tesla-phase-mobile.css' not in index
-    assert 'class="phase-polish-shell"' in index
+    assert 'phase-polish-shell research-workspace' in index
 
     assert 'href="/phase-polish.css?v=' in frozen
     assert 'href="/phase-polish-fixes.css?v=' in frozen
+    assert 'href="/research-workspace.css?v=' in frozen
     assert 'href="/signature.css?v=' not in frozen
     assert 'phase-responsive.css' not in frozen
     assert 'tesla-mobile.css' not in frozen
     assert 'tesla-phase-mobile.css' not in frozen
-    assert 'class="phase-polish-shell"' in frozen
+    assert 'class="phase-polish-shell research-workspace"' in frozen
 
 
 def test_responsive_css_has_no_compatibility_important_stack():
