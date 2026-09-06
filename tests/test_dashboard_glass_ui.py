@@ -4,6 +4,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 MOTION = (ROOT / "dashboard" / "glass-ui.css").read_text(encoding="utf-8")
 SHELL = (ROOT / "deploy" / "vercel" / "index.html").read_text(encoding="utf-8")
+HOME = (ROOT / "deploy" / "vercel" / "research-home.css").read_text(encoding="utf-8")
 
 
 def test_phase_hero_text_is_kept_out_of_moving_svg_geometry():
@@ -49,5 +50,7 @@ def test_vercel_home_is_native_frozen_archive_using_tesla_style_source():
     assert "glass-refraction.css" not in SHELL
     assert 'href="/aegisland.css?v=' in SHELL
     assert 'href="/signature.css?v=' not in SHELL
-    assert 'href="/research-home.css?v=' not in SHELL
+    assert 'href="/research-home.css?v=' in SHELL
     assert 'src="/frozen-lineage.js?v=' in SHELL
+    assert ".home-lineage__track" in HOME
+    assert "min-height:650px!important" in HOME
