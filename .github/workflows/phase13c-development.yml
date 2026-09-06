@@ -42,23 +42,34 @@ jobs:
           pip install -e ".[dev]"
           python -m compileall -q \
             scripts/run_phase13c_compound_attribution.py \
+            scripts/run_phase13c_compound_attribution_remediation1.py \
             scripts/run_phase13_external_validity_gauntlet.py \
             scripts/run_phase12_adaptive_normalized_conformal.py \
             scripts/run_phase12_adaptive_normalized_conformal_v2.py \
             scripts/run_phase12_adaptive_normalized_conformal_v3.py
-          pytest -q \
-            tests/test_phase11_p9_soft_update_direct_conformal.py \
-            tests/test_phase11_p14_bounded_independent_rescue.py \
-            tests/test_phase11_p14r_robust_group_envelope.py \
-            tests/test_phase12_adaptive_normalized_conformal.py \
-            tests/test_phase12_adaptive_normalized_conformal_v2.py \
-            tests/test_phase12_adaptive_normalized_conformal_v3.py \
-            tests/test_phase13_external_validity_gauntlet.py \
-            tests/test_phase13c_compound_attribution.py
+          python - <<'PY'
+          import pytest
+          from scripts import run_phase13c_compound_attribution_remediation1 as remediation
+          remediation.install_execution_remediation()
+          paths = [
+              'tests/test_phase11_p9_soft_update_direct_conformal.py',
+              'tests/test_phase11_p14_bounded_independent_rescue.py',
+              'tests/test_phase11_p14r_robust_group_envelope.py',
+              'tests/test_phase12_adaptive_normalized_conformal.py',
+              'tests/test_phase12_adaptive_normalized_conformal_v2.py',
+              'tests/test_phase12_adaptive_normalized_conformal_v3.py',
+              'tests/test_phase13_external_validity_gauntlet.py',
+              'tests/test_phase13c_compound_attribution.py',
+              'tests/test_phase13c_execution_remediation1.py',
+          ]
+          raise SystemExit(pytest.main(['-q', *paths]))
+          PY
           test -f docs/phase13c_preregistration.md
+          test -f docs/phase13c_execution_amendment_01.md
           grep -q '1313135' docs/phase13c_preregistration.md
           grep -q 'Exactly thirteen contrast overlays' docs/phase13c_preregistration.md
           grep -q 'Phase 13A and Phase 13B remain immutable failed lineages' docs/phase13c_preregistration.md
+          grep -q '34009501311' docs/phase13c_execution_amendment_01.md
 
       - name: Recover exact frozen Phase 12 candidate
         uses: actions/download-artifact@v4
@@ -80,7 +91,7 @@ jobs:
       - name: Expose Phase 13C development evidence exactly once
         run: |
           rm -rf results/phase13c_development
-          python scripts/run_phase13c_compound_attribution.py \
+          python scripts/run_phase13c_compound_attribution_remediation1.py \
             --stage dev \
             --candidate "$CANDIDATE" \
             --out results/phase13c_development \
