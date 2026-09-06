@@ -18,8 +18,7 @@ try {
     reducedMotion: 'reduce'
   });
 
-  // Homepage deliberately uses the original Tesla-style drawer rather than the
-  // later always-visible signature navigation.
+  // Homepage keeps the original Tesla-style drawer.
   {
     const page = await context.newPage();
     const browserErrors = [];
@@ -60,25 +59,48 @@ try {
     await page.close();
   }
 
-  // Frozen archive/detail pages retain their shared archive navigation.
+  // Archive and frozen detail pages now share the polished white mobile drawer.
   for (const item of [
-    { name: 'archive', route: '/', url: '/phases/' },
-    { name: 'phase13a', route: '/phases/', url: '/phases/phase13a/' },
-    { name: 'phase22', route: '/phases/', url: '/phases/phase22/' }
+    { name: 'archive', url: '/phases/', expected: '/phases/phase22/' },
+    { name: 'phase13a', url: '/phases/phase13a/', expected: '/phases/' },
+    { name: 'phase22', url: '/phases/phase22/', expected: '/phases/' }
   ]) {
     const page = await context.newPage();
+    const browserErrors = [];
+    page.on('pageerror', (error) => browserErrors.push(String(error?.message || error)));
+    page.on('console', (message) => { if (message.type() === 'error') browserErrors.push(message.text()); });
     const response = await page.goto(BASE + item.url, { waitUntil: 'domcontentloaded', timeout: 45000 });
-    await page.waitForTimeout(400);
+    await page.waitForTimeout(450);
     add(`${item.name}-status`, !!response && response.status() >= 200 && response.status() < 400, { status: response?.status() || 0 });
     const state = await page.evaluate(() => ({
       overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
       brand: !!document.querySelector('.signature-brand'),
       nav: !!document.querySelector('.signature-nav'),
+      polish: [...document.querySelectorAll('link[rel="stylesheet"]')].some(link => (link.getAttribute('href') || '').startsWith('/phase-polish.css')),
       text: document.body?.innerText || ''
     }));
     add(`${item.name}-no-horizontal-overflow`, state.overflow <= 2, { overflow: state.overflow });
     add(`${item.name}-archive-brand-present`, state.brand);
     add(`${item.name}-archive-nav-present`, state.nav);
+    add(`${item.name}-phase-polish-present`, state.polish);
+    add(`${item.name}-browser-clean`, browserErrors.length === 0, { browserErrors });
+
+    const toggle = page.locator('.mobile-menu-toggle').first();
+    add(`${item.name}-menu-toggle-exists`, await toggle.count() === 1);
+    if (await toggle.count()) {
+      const box = await toggle.boundingBox();
+      add(`${item.name}-menu-toggle-touchable`, !!box && box.height >= 40, { height: box?.height || 0 });
+      await toggle.click();
+      await page.waitForTimeout(160);
+      add(`${item.name}-menu-opens`, await toggle.getAttribute('aria-expanded') === 'true');
+      const sheet = page.locator('#mobileMenuSheet');
+      add(`${item.name}-menu-sheet-visible`, await sheet.getAttribute('aria-hidden') === 'false');
+      add(`${item.name}-menu-expected-link`, await sheet.locator(`a[href="${item.expected}"]`).count() >= 1, { expected: item.expected });
+      await page.keyboard.press('Escape');
+      await page.waitForTimeout(160);
+      add(`${item.name}-menu-closes`, await toggle.getAttribute('aria-expanded') === 'false');
+    }
+
     if (item.name === 'phase13a') add('phase13a-fail-visible', /LOCKED VERDICT\s+FAIL/i.test(state.text));
     if (item.name === 'phase22') add('phase22-pass-visible', /LOCKED VERDICT\s+PASS/i.test(state.text) && state.text.includes('0.8319') && state.text.includes('0.7744'));
     await page.close();
