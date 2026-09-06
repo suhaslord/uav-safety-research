@@ -35,10 +35,14 @@ try {
       const state = await page.evaluate(() => ({
         overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
         main: !!document.querySelector('main'),
-        h1: document.querySelectorAll('h1').length
+        h1: document.querySelectorAll('h1').length,
+        polish: [...document.querySelectorAll('link[rel="stylesheet"]')].some(link => (link.getAttribute('href') || '').startsWith('/phase-polish.css'))
       }));
       add(`${viewport.name}-${route}-no-horizontal-overflow`, state.overflow <= 1, { overflow: state.overflow });
       add(`${viewport.name}-${route}-semantic-shell`, state.main && state.h1 >= 1, { main: state.main, h1: state.h1 });
+      if (/^\/phases\/(phase(?:[1-9]|10|10r|1[2-9]|2[0-2]|6b))\/?$/.test(route) && route !== '/phases/phase11/') {
+        add(`${viewport.name}-${route}-shared-phase-polish`, state.polish, { polish: state.polish });
+      }
       add(`${viewport.name}-${route}-browser-clean`, browserErrors.length === 0, { browserErrors });
       await page.close();
     }
@@ -83,10 +87,13 @@ try {
     const frozenPass = await page.locator('#frozenCards .verdict-chip--pass').count();
     const frozenFail = await page.locator('#frozenCards .verdict-chip--fail').count();
     const archiveText = await page.locator('main').innerText();
+    const archivePolish = await page.locator('link[href^="/phase-polish.css"]').count();
+    const archiveSignature = await page.locator('link[href^="/signature.css"]').count();
     add('archive-has-13-frozen-records', frozenCards === 13, { frozenCards });
     add('archive-has-13-foundational-records', legacyCards === 13, { legacyCards });
     add('archive-preserves-6-pass-7-fail', frozenPass === 6 && frozenFail === 7, { frozenPass, frozenFail });
-    add('archive-says-nothing-rewritten', /Every frozen phase/i.test(archiveText) && /Nothing rewritten/i.test(archiveText));
+    add('archive-uses-polished-tesla-shell', archivePolish === 1 && archiveSignature === 0, { archivePolish, archiveSignature });
+    add('archive-has-new-editorial-thesis', /Every phase stays part of the story/i.test(archiveText));
 
     const phaseChecks = [
       ['/phases/phase12/', /PASS/, /2\.23035/],
@@ -98,9 +105,12 @@ try {
       await page.goto(BASE + route, { waitUntil: 'domcontentloaded', timeout: 45000 });
       await page.waitForTimeout(250);
       const text = await page.locator('main').innerText();
+      const polish = await page.locator('link[href^="/phase-polish.css"]').count();
+      const signature = await page.locator('link[href^="/signature.css"]').count();
       add(`${route}-locked-verdict-visible`, verdict.test(text), { excerpt: text.slice(0, 280) });
       add(`${route}-evidence-visible`, evidence.test(text), { excerpt: text.slice(0, 500) });
       add(`${route}-boundary-visible`, /Synthetic, frozen simulation evidence only/i.test(text), { excerpt: text.slice(-300) });
+      add(`${route}-tesla-polish-source`, polish === 1 && signature === 0, { polish, signature });
     }
 
     await page.goto(BASE + '/phases/phase22/', { waitUntil: 'domcontentloaded', timeout: 45000 });
@@ -120,7 +130,7 @@ try {
   {
     const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, reducedMotion: 'reduce' });
     const page = await context.newPage();
-    for (const route of ['/', '/phases/', '/phases/phase13a/', '/phases/phase22/']) {
+    for (const route of ['/', '/phases/', '/phases/phase1/', '/phases/phase10r/', '/phases/phase13a/', '/phases/phase22/']) {
       await page.goto(BASE + route, { waitUntil: 'domcontentloaded', timeout: 45000 });
       await page.waitForTimeout(250);
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
