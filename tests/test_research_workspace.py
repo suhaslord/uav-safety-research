@@ -1,0 +1,48 @@
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def _read(path: str) -> str:
+    return (ROOT / path).read_text(encoding="utf-8")
+
+
+def test_home_primary_action_opens_current_evidence_and_scopes_phase22_status() -> None:
+    html = _read("deploy/vercel/index.html")
+    assert '>Open Phase 22 evidence</a>' in html
+    assert 'href="/phases/phase22/"' in html
+    assert "Phase 22 · 10 / 10 locked gates passed" in html
+    assert "6 PASS / 7 FAIL" in html
+
+
+def test_archive_has_semantic_frozen_filters_search_and_empty_state() -> None:
+    html = _read("dashboard/phases/index.html")
+    assert ">Frozen PASS</button>" in html
+    assert ">Frozen FAIL</button>" in html
+    assert 'id="archiveEmptyState"' in html
+    assert 'id="archiveReset"' in html
+    assert "card.textContent" in html
+    assert "isFrozen && verdict === 'pass'" in html
+    assert "isFrozen && verdict === 'fail'" in html
+    assert "!isFrozen" in html
+
+
+def test_frozen_phase_prioritizes_finding_before_secondary_metrics() -> None:
+    html = _read("dashboard/phases/frozen.html")
+    finding = html.index('class="phase-detail__body"')
+    metrics = html.index('class="phase-detail__metrics-band"')
+    context = html.index('class="phase-detail__context"')
+    assert finding < metrics < context
+
+
+def test_workspace_interaction_layer_is_loaded_across_public_shells() -> None:
+    shells = [
+        _read("deploy/vercel/index.html"),
+        _read("dashboard/phases/index.html"),
+        _read("dashboard/phases/phase.html"),
+        _read("dashboard/phases/frozen.html"),
+        _read("deploy/vercel/phase11.html"),
+    ]
+    for html in shells:
+        assert 'href="/research-workspace.css?v=1"' in html
+        assert 'src="/research-workspace.js?v=1"' in html
