@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#070a0d">
+  <title>AegisLand — Frozen phase</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=5">
+  <link rel="stylesheet" href="/signature.css?v=2">
+</head>
+<body class="signature-site">
+  <header class="signature-nav">
+    <div class="signature-shell signature-nav__inner">
+      <a class="signature-brand" href="/"><span class="signature-brand__mark" aria-hidden="true"></span><span>AEGISLAND</span></a>
+      <nav class="signature-nav__links"><a href="/phases/">Frozen lineage</a><a href="/research-cockpit/">Cockpit</a><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">Source ↗</a></nav>
+    </div>
+  </header>
+
+  <main class="signature-shell phase-detail" id="phaseRoot">
+    <a class="phase-detail__back" href="/phases/">← FROZEN LINEAGE</a>
+    <div id="phaseContent" aria-live="polite"></div>
+  </main>
+
+  <footer class="signature-footer"><div class="signature-shell signature-footer__inner"><div>AegisLand · frozen simulation-only research archive</div><div><code>simulation_only=true · safety_acceptance=false · controller_tuning_allowed=false</code></div></div></footer>
+
+  <script src="/frozen-lineage.js?v=2"></script>
+  <script>
+    (() => {
+      const lineage = window.AEGIS_FROZEN_LINEAGE;
+      const match = location.pathname.match(/\/phases\/(phase(?:12|13a|13b|13c|1[4-9]|2[0-2]))\/?$/i);
+      const slug = match ? match[1].toLowerCase() : '';
+      const phase = lineage && lineage.bySlug[slug];
+      const root = document.getElementById('phaseContent');
+      if (!phase) {
+        document.title = 'AegisLand — Phase not found';
+        root.innerHTML = `<section class="archive-hero"><div class="signature-kicker">Archive lookup</div><h1>Phase not found.</h1><p>This route is not part of the frozen Phase 12–22 presentation layer.</p><a class="signature-button signature-button--primary" href="/phases/">Open archive</a></section>`;
+        return;
+      }
+
+      document.title = `${phase.label} — ${phase.title} · AegisLand`;
+      const phaseIndex = lineage.phases.findIndex((item) => item.slug === slug);
+      const prev = lineage.phases[phaseIndex - 1];
+      const next = lineage.phases[phaseIndex + 1];
+      const metrics = phase.metrics.map(([label, value]) => `<div class="phase-metric"><strong>${value}</strong><span>${label}</span></div>`).join('');
+      const hashes = [
+        phase.resultSha ? `<div class="phase-hash">result / evidence SHA<br>${phase.resultSha}</div>` : '',
+        phase.candidateSha ? `<div class="phase-hash">frozen candidate SHA<br>${phase.candidateSha}</div>` : ''
+      ].join('');
+      const verdictClass = phase.verdict === 'PASS' ? 'verdict-chip--pass' : 'verdict-chip--fail';
+
+      root.innerHTML = `
+        <section class="phase-detail__hero">
+          <div>
+            <div class="signature-kicker">${phase.label} · ${phase.stage} · frozen</div>
+            <h1>${phase.title}</h1>
+            <p class="phase-detail__summary">${phase.summary}</p>
+          </div>
+          <aside class="phase-verdict-panel">
+            <span>locked verdict</span>
+            <strong>${phase.verdict}</strong>
+            <span>${phase.note}</span>
+          </aside>
+        </section>
+        <section class="phase-detail__body">
+          <article class="phase-detail__panel">
+            <h2>Frozen finding</h2>
+            <p>${phase.finding}</p>
+            <div class="claim-boundary"><b>BOUNDARY //</b> ${lineage.boundary.statement}</div>
+          </article>
+          <aside class="phase-detail__panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:20px"><h2 style="margin:0">Evidence snapshot</h2><span class="verdict-chip ${verdictClass}">${phase.verdict}</span></div>
+            <div class="phase-metrics">${metrics}</div>
+            ${hashes}
+          </aside>
+        </section>
+        <nav class="phase-detail__nav" aria-label="Frozen phase navigation">
+          ${prev ? `<a class="signature-button" href="/phases/${prev.slug}/">← ${prev.label}</a>` : '<a class="signature-button" href="/phases/phase11/">← Phase 11</a>'}
+          ${next ? `<a class="signature-button" href="/phases/${next.slug}/">${next.label} →</a>` : '<a class="signature-button signature-button--primary" href="/">Frozen homepage →</a>'}
+        </nav>`;
+    })();
+  </script>
+</body>
+</html>
