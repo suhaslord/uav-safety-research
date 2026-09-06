@@ -91,7 +91,8 @@ body.signature-site {
 .signature-section__head { display: grid; grid-template-columns: .8fr 1.2fr; gap: 40px; align-items: end; margin-bottom: 42px; }
 .signature-section__eyebrow { font-family: var(--aegis-mono); color: var(--aegis-cyan); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; }
 .signature-section h2 { margin: 9px 0 0; font-size: clamp(36px, 5vw, 67px); letter-spacing: -.055em; line-height: .98; }
-.signature-section__intro { color: #9eabb5; font-size: 17px; line-height: 1.65; max-width: 600px; justify-self: end; }
+.signature-section__intro { color: #9eabb5; font-size: 17px; line-height: 1.65; max-width: 600px; justify-self: end; min-width: 0; }
+.signature-section__intro code { overflow-wrap: anywhere; word-break: break-all; }
 
 .evidence-spine { position: relative; display: grid; gap: 10px; }
 .evidence-spine::before { content: ""; position: absolute; left: 31px; top: 30px; bottom: 30px; width: 1px; background: linear-gradient(180deg, transparent, rgba(156,236,255,.28) 8%, rgba(156,236,255,.16) 92%, transparent); }
