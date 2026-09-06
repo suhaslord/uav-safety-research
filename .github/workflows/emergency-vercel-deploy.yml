@@ -51,7 +51,7 @@ jobs:
           {"orgId":"$VERCEL_ORG_ID","projectId":"$VERCEL_PROJECT_ID"}
           EOF
 
-      - name: Assert frozen signature release is native and self-contained
+      - name: Assert frozen Tesla-style release is native and self-contained
         shell: bash
         run: |
           set -euo pipefail
@@ -59,19 +59,20 @@ jobs:
           ! grep -q 'document.write' .vercel-release/index.html
           ! grep -q 'cdn.jsdelivr.net/gh/suhaslord/uav-safety-research' .vercel-release/index.html .vercel-release/vercel.json
 
-          test -f .vercel-release/signature.css
-          test -f .vercel-release/research-home.css
+          test -f .vercel-release/aegisland.css
           test -f .vercel-release/frozen-lineage.js
           test -f .vercel-release/dashboard/phases/index.html
           test -f .vercel-release/dashboard/phases/frozen.html
           test -f .vercel-release/phase11.html
 
-          grep -q 'Confidence is not' .vercel-release/index.html
-          grep -q 'The failures are the map' .vercel-release/index.html
-          grep -q 'Aegis Halo' .vercel-release/index.html
+          grep -q 'href="/aegisland.css?v=' .vercel-release/index.html
+          ! grep -q 'href="/signature.css?v=' .vercel-release/index.html
+          ! grep -q 'href="/research-home.css?v=' .vercel-release/index.html
+          grep -q 'Evidence before confidence.' .vercel-release/index.html
           grep -q 'Frozen through Phase 22' .vercel-release/index.html
           grep -q 'Research question' .vercel-release/index.html
           grep -q 'Main purpose' .vercel-release/index.html
+          grep -q 'Problem being studied' .vercel-release/index.html
           grep -q 'Main conclusion' .vercel-release/index.html
           grep -q '0.8319' .vercel-release/index.html
           grep -q '0.7744' .vercel-release/index.html
@@ -129,19 +130,20 @@ jobs:
           PUBLIC_HTML=$(curl --fail --silent --show-error --location --retry 5 --retry-delay 2 "$PUBLIC_URL/")
           ! printf '%s' "$PUBLIC_HTML" | grep -q 'document.write\|cdn.jsdelivr.net/gh/suhaslord/uav-safety-research'
           printf '%s' "$PUBLIC_HTML" | grep -q 'data-site-shell="native frozen-archive"'
-          printf '%s' "$PUBLIC_HTML" | grep -q 'Confidence is not'
-          printf '%s' "$PUBLIC_HTML" | grep -q 'The failures are the map'
-          printf '%s' "$PUBLIC_HTML" | grep -q 'Aegis Halo'
+          printf '%s' "$PUBLIC_HTML" | grep -q 'href="/aegisland.css?v='
+          printf '%s' "$PUBLIC_HTML" | grep -q 'Evidence before confidence.'
+          printf '%s' "$PUBLIC_HTML" | grep -q 'Research question'
+          printf '%s' "$PUBLIC_HTML" | grep -q 'Main purpose'
+          printf '%s' "$PUBLIC_HTML" | grep -q 'Main conclusion'
           printf '%s' "$PUBLIC_HTML" | grep -q 'Frozen through Phase 22'
           printf '%s' "$PUBLIC_HTML" | grep -q '0.8319'
           printf '%s' "$PUBLIC_HTML" | grep -q '0.7744'
           printf '%s' "$PUBLIC_HTML" | grep -q 'simulation_only=true'
           printf '%s' "$PUBLIC_HTML" | grep -q 'safety_acceptance=false'
           printf '%s' "$PUBLIC_HTML" | grep -q 'controller_tuning_allowed=false'
-          echo "✓ Homepage: Aegis Halo signature, frozen Phase 22 evidence, and claim boundary present"
+          echo "✓ Homepage: Tesla-style research shell, professor framing, frozen Phase 22 evidence, and claim boundary present"
 
-          curl --fail --silent --show-error --location "$PUBLIC_URL/signature.css" >/dev/null
-          curl --fail --silent --show-error --location "$PUBLIC_URL/research-home.css" >/dev/null
+          curl --fail --silent --show-error --location "$PUBLIC_URL/aegisland.css" >/dev/null
           curl --fail --silent --show-error --location "$PUBLIC_URL/frozen-lineage.js" -o /tmp/frozen-lineage.js
           node - <<'NODE'
           global.window = {};
@@ -165,10 +167,10 @@ jobs:
             PHASE_HTML=$(curl --fail --silent --show-error --location "$PUBLIC_URL/phases/$PHASE/")
             printf '%s' "$PHASE_HTML" | grep -q 'phaseContent'
           done
-          echo "✓ Frozen detail routes: Phase 12 through Phase 22 resolve through the shared signature detail system"
+          echo "✓ Frozen detail routes: Phase 12 through Phase 22 resolve through the shared frozen-detail system"
 
           PHASE11_HTML=$(curl --fail --silent --show-error --location "$PUBLIC_URL/phases/phase11/")
           printf '%s' "$PHASE11_HTML" | grep -q 'Phase 11 P14R'
           echo "✓ Phase 11 predecessor remains reachable"
 
-          echo "=== Verification complete: AegisLand serves the frozen Phase 22 research archive ==="
+          echo "=== Verification complete: AegisLand serves the Tesla-style homepage and frozen Phase 22 research archive ==="
