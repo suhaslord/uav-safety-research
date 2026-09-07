@@ -71,6 +71,14 @@ body.research-workspace.phase11-polish .footer-links a{
   padding-inline:4px;
 }
 
+/* Editorial photos sit in normal document flow across all three phase templates. */
+body.research-workspace.archive-shell .phase-editorial-photo,
+body.research-workspace.phase11-polish .phase-editorial-photo,
+body.research-workspace .phase-detail > .phase-editorial-photo,
+body.research-workspace .phase-detail #phaseContent > .phase-editorial-photo{
+  margin-top:0!important;
+}
+
 /* Hero diagram labels were the weakest readability point in the legacy template. */
 body.research-workspace.archive-shell .hero-scene .scene-label,
 body.research-workspace.archive-shell .hero-scene .scene-label *,
@@ -102,6 +110,13 @@ body.research-workspace.archive-shell .hero-scene .scene-micro span{
 body.research-workspace.archive-shell .phase-rail .rail-step,
 body.research-workspace.archive-shell .phase-rail .rail-step span,
 body.research-workspace.archive-shell .phase-rail .rail-step strong{
+  font-size:11px!important;
+  line-height:1.3!important;
+}
+
+/* Sequence indexes and frontier state labels remain legible at the shared type floor. */
+body.research-workspace.archive-shell .program-pillars span,
+body.research-workspace.archive-shell .frontier-badge span{
   font-size:11px!important;
   line-height:1.3!important;
 }
