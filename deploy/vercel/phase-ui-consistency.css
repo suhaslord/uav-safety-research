@@ -136,6 +136,74 @@ body.research-workspace .phase-role-card{
   box-shadow:none!important;
 }
 
+/* Final craft pass: give the phase-specific hero visual enough presence to read as evidence,
+   without turning the archive back into a card-heavy or glass UI. */
+body.research-workspace.archive-shell .scene-hero .hero-scene{
+  background:#fafbfc!important;
+  border:1px solid #e4e7eb!important;
+  border-radius:12px!important;
+  box-shadow:0 1px 0 rgba(23,26,32,.025)!important;
+}
+body.research-workspace.archive-shell .scene-hero .scene-canvas{
+  border-radius:8px!important;
+}
+body.research-workspace.archive-shell .scene-hero .scene-svg{
+  opacity:.98!important;
+  filter:contrast(1.12) saturate(.92)!important;
+}
+body.research-workspace.archive-shell .scene-hero .scene-label,
+body.research-workspace.archive-shell .scene-hero .scene-foot{
+  border-color:#dde1e6!important;
+}
+
+/* The archive was technically clean but still read slightly too compressed in the 1440px review.
+   Raise the information hierarchy a notch while preserving the same grouped taxonomy. */
+body.research-workspace.archive-workspace .archive-card.phase-personalized h3{
+  font-size:16px!important;
+  line-height:1.38!important;
+  letter-spacing:-.01em!important;
+}
+body.research-workspace.archive-workspace .archive-card.phase-personalized>div>p:not(.archive-card__question),
+body.research-workspace.archive-workspace .archive-card.phase-personalized p:not(.archive-card__question){
+  font-size:13.5px!important;
+  line-height:1.58!important;
+}
+body.research-workspace.archive-workspace .archive-card__question{
+  font-size:13.5px!important;
+  line-height:1.55!important;
+  color:#45484d!important;
+}
+body.research-workspace.archive-workspace .archive-card__identity,
+body.research-workspace.archive-workspace .archive-card__label,
+body.research-workspace.archive-workspace .archive-card__signal,
+body.research-workspace.archive-workspace .archive-card__open,
+body.research-workspace.archive-workspace .verdict-chip{
+  font-size:12px!important;
+}
+body.research-workspace.archive-workspace .archive-card.phase-personalized{
+  padding-top:24px!important;
+  padding-bottom:26px!important;
+}
+
+/* Make verdict and current-result surfaces feel intentional rather than merely gray. */
+body.research-workspace .phase-verdict-panel,
+body.research-workspace.phase11-polish .result-card,
+body.research-workspace.home-workspace .result-card{
+  border:1px solid #e2e5e9!important;
+}
+
+/* Maintain one clear focus treatment across every major interactive surface. */
+body.research-workspace a:focus-visible,
+body.research-workspace button:focus-visible,
+body.research-workspace input:focus-visible{
+  outline:2px solid var(--rw-accent,#3559c7)!important;
+  outline-offset:3px!important;
+}
+body.research-workspace ::selection{
+  background:#dfe7ff;
+  color:#171a20;
+}
+
 @media(max-width:700px){
   /* Keep touch targets comfortably tappable on the narrowest supported viewport. */
   body.research-workspace.archive-workspace .category-nav a{
@@ -176,6 +244,24 @@ body.research-workspace .phase-role-card{
   }
   body.research-workspace.phase11-polish .footer-links a{
     min-height:44px!important;
+  }
+
+  /* Phone archive cards should feel deliberate, not like shrunken desktop rows. */
+  body.research-workspace.archive-workspace .archive-card.phase-personalized h3{
+    font-size:17px!important;
+    line-height:1.34!important;
+  }
+  body.research-workspace.archive-workspace .archive-card.phase-personalized p,
+  body.research-workspace.archive-workspace .archive-card__question{
+    font-size:13.5px!important;
+    line-height:1.58!important;
+  }
+  body.research-workspace.archive-workspace .archive-card.phase-personalized{
+    padding-top:20px!important;
+    padding-bottom:22px!important;
+  }
+  body.research-workspace.archive-shell .scene-hero .hero-scene{
+    border-radius:10px!important;
   }
 }
 
