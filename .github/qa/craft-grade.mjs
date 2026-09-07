@@ -41,11 +41,11 @@ try {
       page.on('requestfailed', (request) => failedRequests.push({ url:request.url(), error:request.failure()?.errorText || 'failed' }));
 
       const response = await page.goto(`${BASE}${route}?craft_grade=1`, { waitUntil:'domcontentloaded', timeout:45000 });
-      if (phaseRoutes.includes(route)) {
-        await page.waitForFunction(() => document.documentElement.dataset.phaseCraft === 'ready', null, { timeout:10000 }).catch(() => {});
-      }
       await page.waitForFunction(() => document.documentElement.dataset.finalConvergence === 'ready', null, { timeout:10000 }).catch(() => {});
-      await page.waitForTimeout(450);
+      // The craft stylesheet is deliberately tiny and appended after the structural
+      // convergence layer. Do not hide a missing craft layer behind a per-route
+      // timeout: let the 20-point gate fail immediately if it did not settle.
+      await page.waitForTimeout(500);
       await page.evaluate(async () => {
         await Promise.all([...document.images].map((img) => img.decode?.().catch(() => undefined)));
         window.scrollTo(0,0);
@@ -142,7 +142,6 @@ try {
 
 const obs = (viewport, route) => observations.find((x) => x.viewport === viewport && x.route === route);
 const all = (fn) => observations.every(fn);
-const onRoutes = (targetRoutes, fn) => observations.filter((x) => targetRoutes.includes(x.route)).every(fn);
 const phaseObs = observations.filter((x) => phaseRoutes.includes(x.route));
 const legacyObs = observations.filter((x) => legacyRoutes.includes(x.route));
 const frozenObs = observations.filter((x) => frozenRoutes.includes(x.route));
@@ -152,21 +151,18 @@ const phoneObs = observations.filter((x) => x.viewport === 'phone');
 const gates = [];
 const gate = (name, pass, detail) => gates.push({ name, pass:Boolean(pass), detail });
 
-// 01-05: basic product integrity.
 gate('01 · Every public route loads', all((x) => x.status >= 200 && x.status < 400), '28 routes × desktop/phone');
 gate('02 · Semantic shell stays intact', all((x) => x.metrics.main && x.metrics.h1Count === 1), 'one <main> and one <h1> on every route');
 gate('03 · No horizontal overflow', all((x) => x.metrics.scrollWidth - x.metrics.clientWidth <= 2), 'desktop and 390px phone');
 gate('04 · Browser console stays clean', all((x) => x.consoleErrors.length === 0), 'no uncaught/page console errors');
 gate('05 · Local assets and images stay healthy', all((x) => x.failedRequests.length === 0 && x.metrics.brokenImages.length === 0), 'no failed local requests or broken images');
 
-// 06-10: interaction and hierarchy.
 gate('06 · Navigation responds by viewport', desktopObs.every((x) => !x.metrics.mobileToggleVisible) && phoneObs.filter((x) => x.route !== '/phases/').every((x) => x.metrics.mobileToggleVisible), 'mobile controls stay on phone only');
 gate('07 · Phone controls remain tappable', phoneObs.every((x) => x.metrics.smallTargets.length === 0), 'all visible controls at least 40×40px');
 gate('08 · Phase titles stay editorial, not billboard-sized', phaseObs.every((x) => x.viewport === 'desktop' ? x.metrics.h1Size <= 49 : x.metrics.h1Size <= 35), '≤49px desktop / ≤35px phone');
 gate('09 · Every phase names its actual question', phaseObs.every((x) => x.metrics.roleQuestion === 'Central question'), '26 phase routes, both viewports');
 gate('10 · Every phase has one predictable ending', phaseObs.every((x) => x.metrics.unifiedVisible && x.metrics.unifiedLinks.length === 3 && x.metrics.unifiedLinks.some((l) => l.text === 'All phases')), 'Previous / All phases / Next');
 
-// 11-16: human-made craft and phase-specific language.
 gate('11 · Craft layer reaches every phase', phaseObs.every((x) => x.metrics.craftReady === 'ready' && x.metrics.styles.some((href) => href.includes('/craft-polish.css'))), 'craft-polish.css loaded on all 26 phase routes');
 gate('12 · Phase metadata reads like an editorial note', phaseObs.every((x) => x.metrics.rolePresent && x.metrics.roleLabel === 'Place in the program' && x.metrics.roleSignal === 'Signal' && x.metrics.roleRadius === 0 && x.metrics.roleBorderTop !== 'none' && x.metrics.roleBorderBottom !== 'none'), 'rule-based metadata; no rounded chatbot card');
 gate('13 · Legacy phases no longer repeat generic template headings', legacyObs.every((x) => !x.metrics.genericSnapshot && !x.metrics.genericSystem && !x.metrics.genericEvidence), 'phase-specific context/system language');
@@ -174,14 +170,12 @@ gate('14 · Legacy CTA copy is research-first', legacyObs.every((x) => !x.metric
 gate('15 · Frozen findings use phase identity', frozenObs.every((x) => !x.metrics.genericSupports), 'no repeated “What this phase supports.”');
 gate('16 · Frozen source/freeze language is explicit', frozenObs.every((x) => x.metrics.lockedSource && x.metrics.fixedRecordLabel), 'Locked source record + Why the record stays fixed');
 
-// 17-19: photography, archive architecture, and restrained surface language.
 gate('17 · Photography stays contextual, not evidentiary', phaseObs.every((x) => x.metrics.editorialPresent && /not AegisLand experimental evidence/i.test(x.metrics.editorialCaption) && (x.viewport === 'desktop' ? x.metrics.editorialHeight <= 430 : x.metrics.editorialHeight <= 260)), 'captioned context photography under strict size caps');
 const archiveDesktop = obs('desktop','/phases/');
 const archivePhone = obs('phone','/phases/');
 gate('18 · Archive remains a complete six-chapter map', [archiveDesktop,archivePhone].every((x) => x && x.metrics.archiveCategories === 6 && x.metrics.archiveCards === 26 && x.metrics.archiveIdentities === 26 && x.metrics.frozenCards === 13 && x.metrics.historicalCards === 13), '6 categories / 26 phases / 13 frozen + 13 historical');
 gate('19 · Phase metadata avoids rounded-card soup', phaseObs.every((x) => x.metrics.roleBackground === 'rgba(0, 0, 0, 0)' || x.metrics.roleBackground === 'transparent'), 'metadata surface is transparent on every phase');
 
-// 20: frozen scientific integrity. These exact public facts must survive every craft pass.
 const home = obs('desktop','/');
 const archive = obs('desktop','/phases/');
 const phase22 = obs('desktop','/phases/phase22/');
