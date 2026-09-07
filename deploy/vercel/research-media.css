@@ -1,0 +1,143 @@
+/* Homepage visual media layer. Uses clearly labeled public-domain reference photography; no scientific evidence is inferred from imagery. */
+body.research-workspace.home-workspace .research-photo{
+  margin:0;
+  min-width:0;
+  overflow:hidden;
+  border-radius:12px;
+  background:#eef0f2;
+}
+body.research-workspace.home-workspace .research-photo img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+body.research-workspace.home-workspace .research-photo figcaption{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:20px;
+  padding:11px 2px 0;
+  color:#686b70;
+  font-size:11px;
+  line-height:1.5;
+}
+body.research-workspace.home-workspace .research-photo figcaption span{
+  color:#35383d;
+  font-weight:500;
+  white-space:nowrap;
+}
+
+body.research-workspace.home-workspace .research-photo--hero{
+  width:min(var(--rw-max),calc(100% - 64px));
+  margin:18px auto 0;
+}
+body.research-workspace.home-workspace .research-photo--hero .research-photo__frame{
+  height:clamp(300px,34vw,470px);
+  overflow:hidden;
+  border-radius:12px;
+}
+body.research-workspace.home-workspace .research-photo--hero img{
+  object-position:center 47%;
+}
+
+body.research-workspace.home-workspace .method-visual-grid{
+  display:grid;
+  grid-template-columns:minmax(0,1.12fr) minmax(300px,.88fr);
+  gap:38px;
+  align-items:stretch;
+}
+body.research-workspace.home-workspace .research-photo--method{
+  display:grid;
+  grid-template-rows:minmax(0,1fr) auto;
+}
+body.research-workspace.home-workspace .research-photo--method .research-photo__frame{
+  min-height:390px;
+  overflow:hidden;
+  border-radius:12px;
+}
+body.research-workspace.home-workspace .research-photo--method img{
+  object-position:center center;
+}
+
+/* Fix the old sparse three-card row: same content, cleaner vertical method sequence beside the field image. */
+body.research-workspace.home-workspace #method .method-steps{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr)!important;
+  gap:0!important;
+  align-content:start;
+  border-top:1px solid #dfe2e6!important;
+}
+body.research-workspace.home-workspace #method .method-steps .card,
+body.research-workspace.home-workspace #method .method-steps .card+.card{
+  min-width:0!important;
+  padding:22px 0!important;
+  border-left:0!important;
+  border-bottom:1px solid #dfe2e6!important;
+  background:transparent!important;
+}
+body.research-workspace.home-workspace #method .method-steps .card h3{
+  margin:0 0 7px!important;
+  font-size:17px!important;
+  line-height:1.3!important;
+  font-weight:500!important;
+}
+body.research-workspace.home-workspace #method .method-steps .card p{
+  max-width:440px;
+  margin:0 0 14px!important;
+  font-size:14px!important;
+  line-height:1.6!important;
+}
+body.research-workspace.home-workspace #method .method-steps .tag{
+  font-size:11px!important;
+  letter-spacing:.01em!important;
+}
+
+@media(max-width:1000px){
+  body.research-workspace.home-workspace .research-photo--hero{
+    width:min(100% - 44px,var(--rw-max));
+    margin-top:8px;
+  }
+  body.research-workspace.home-workspace .method-visual-grid{
+    grid-template-columns:minmax(0,1fr);
+    gap:28px;
+  }
+  body.research-workspace.home-workspace .research-photo--method .research-photo__frame{
+    min-height:340px;
+    max-height:520px;
+  }
+}
+
+@media(max-width:680px){
+  body.research-workspace.home-workspace .research-photo{
+    border-radius:10px;
+  }
+  body.research-workspace.home-workspace .research-photo--hero{
+    width:calc(100% - 28px);
+    max-width:calc(100% - 28px);
+    margin-top:2px;
+  }
+  body.research-workspace.home-workspace .research-photo--hero .research-photo__frame{
+    height:240px;
+    border-radius:10px;
+  }
+  body.research-workspace.home-workspace .research-photo figcaption{
+    display:block;
+    padding-top:9px;
+    font-size:10.5px;
+  }
+  body.research-workspace.home-workspace .research-photo figcaption span{
+    display:block;
+    margin-bottom:2px;
+    white-space:normal;
+  }
+  body.research-workspace.home-workspace .research-photo--method .research-photo__frame{
+    min-height:0;
+    height:260px;
+    border-radius:10px;
+  }
+  body.research-workspace.home-workspace #method .method-steps .card,
+  body.research-workspace.home-workspace #method .method-steps .card+.card{
+    padding:18px 0!important;
+  }
+}
