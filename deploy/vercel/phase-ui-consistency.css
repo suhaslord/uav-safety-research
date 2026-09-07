@@ -21,6 +21,14 @@ body.research-workspace.archive-shell .word{
   display:inline-flex;
   align-items:center;
 }
+body.research-workspace.archive-shell .aegis-mini-mark{
+  background:var(--rw-accent,#3559c7)!important;
+  border-radius:4px!important;
+  box-shadow:none!important;
+}
+body.research-workspace.archive-shell .aegis-mini-mark b{
+  display:none!important;
+}
 
 /* Archive controls should feel like the same control family as the phase buttons. */
 body.research-workspace.archive-workspace .category-nav a,
