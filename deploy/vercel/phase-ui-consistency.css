@@ -116,7 +116,8 @@ body.research-workspace.archive-shell .phase-rail .rail-step strong{
 
 /* Sequence indexes and frontier state labels remain legible at the shared type floor. */
 body.research-workspace.archive-shell .program-pillars span,
-body.research-workspace.archive-shell .frontier-badge span{
+body.research-workspace.archive-shell .frontier-badge span,
+body.research-workspace.archive-shell #phaseLimitations span{
   font-size:11px!important;
   line-height:1.3!important;
 }
