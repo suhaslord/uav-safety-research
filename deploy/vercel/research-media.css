@@ -141,10 +141,16 @@ body.research-workspace.home-workspace #method .method-steps .tag{
 body.research-workspace.home-workspace .skip-link,
 body.research-workspace.home-workspace .brand,
 body.research-workspace.home-workspace .mobile-menu-toggle,
-body.research-workspace.home-workspace .mobile-menu-close{
+body.research-workspace.home-workspace .mobile-menu-close,
+body.research-workspace.home-workspace .research-alert a,
+body.research-workspace.home-workspace .footer-links a{
   min-height:44px!important;
   display:inline-flex!important;
   align-items:center!important;
+}
+body.research-workspace.home-workspace .research-alert a,
+body.research-workspace.home-workspace .footer-links a{
+  padding-inline:4px!important;
 }
 body.research-workspace.home-workspace .mobile-menu-toggle,
 body.research-workspace.home-workspace .mobile-menu-close{min-width:44px!important}
