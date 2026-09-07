@@ -330,6 +330,13 @@ body.research-workspace.home-workspace .boundary-flags{
   overflow-wrap:anywhere;
 }
 
+body.research-workspace.home-workspace code{
+  max-width:100%!important;
+  white-space:normal!important;
+  overflow-wrap:anywhere!important;
+  word-break:break-word!important;
+}
+
 @media(max-width:1000px){
   body.research-workspace.home-workspace .wrap{width:min(100% - 44px,var(--rw-max))!important}
   body.research-workspace.home-workspace .site-header{padding-inline:22px!important}
