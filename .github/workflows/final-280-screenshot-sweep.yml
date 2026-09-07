@@ -1,0 +1,62 @@
+name: Final 280-screenshot production sweep
+
+on:
+  push:
+    branches:
+      - chatgpt/final-280-screenshot-sweep
+    paths:
+      - '.github/qa/final-280-screenshot-sweep.mjs'
+      - '.github/workflows/final-280-screenshot-sweep.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sweep:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Playwright
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Verify live release before sweep
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE='https://aegisland-research-cockpit.vercel.app'
+          for i in {1..30}; do
+            TYPE=$(curl --fail --silent --show-error --location --head "$BASE/phase-ui-consistency.css?v=1" | tr -d '\r' | awk -F': ' 'tolower($1)=="content-type"{print tolower($2)}' | tail -1 || true)
+            if printf '%s' "$TYPE" | grep -q 'text/css'; then
+              echo '✓ live consistency stylesheet is ready'
+              exit 0
+            fi
+            sleep 2
+          done
+          echo 'Timed out waiting for live consistency stylesheet.'
+          exit 1
+
+      - name: Capture 140 desktop + 140 phone screenshots and audit navigation
+        env:
+          QA_BASE_URL: https://aegisland-research-cockpit.vercel.app
+        run: node .github/qa/final-280-screenshot-sweep.mjs
+
+      - name: Upload final sweep evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aegisland-final-280-screenshot-sweep
+          path: qa-artifacts/final-280-sweep/
+          if-no-files-found: error
+          retention-days: 14
