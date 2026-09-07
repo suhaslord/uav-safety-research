@@ -28,29 +28,42 @@ jobs:
         run: |
           set -euo pipefail
           grep -q 'data-site-shell="native frozen-archive"' deploy/vercel/index.html
+          grep -q 'data-editorial-media="local-v2"' deploy/vercel/index.html
           grep -q 'href="/aegisland.css?v=' deploy/vercel/index.html
           ! grep -q 'href="/signature.css?v=' deploy/vercel/index.html
           grep -q 'href="/research-home.css?v=' deploy/vercel/index.html
+          grep -q 'href="/research-media.css?v=' deploy/vercel/index.html
           grep -q 'Evidence before confidence.' deploy/vercel/index.html
           grep -q 'Research question' deploy/vercel/index.html
           grep -q 'Main purpose' deploy/vercel/index.html
-          grep -q 'Problem being studied' deploy/vercel/index.html
+          grep -q '<strong>Problem</strong>' deploy/vercel/index.html
           grep -q 'Main conclusion' deploy/vercel/index.html
           grep -q 'Frozen through Phase 22' deploy/vercel/index.html
           grep -q 'home-lineage__track' deploy/vercel/index.html
           grep -q '6 PASS / 7 FAIL' deploy/vercel/index.html
+          test "$(grep -o 'Visual context — not AegisLand experimental evidence' deploy/vercel/index.html | wc -l)" -eq 4
 
           test -f deploy/vercel/phase-polish.css
           test -f deploy/vercel/research-home.css
+          test -f deploy/vercel/research-media.css
           test -f dashboard/phase-taxonomy.js
           test -f dashboard/phase-personalization.css
           test -f dashboard/phase-personalization.js
+          test -f dashboard/phase-visuals.js
+          test -f dashboard/phase-editorial-media.css
+          test -f dashboard/phase-editorial-media.js
           grep -q 'href="/phase-polish.css?v=' dashboard/phases/index.html
           grep -q 'href="/phase-polish.css?v=' dashboard/phases/frozen.html
           grep -q 'href="/phase-polish.css?v=' dashboard/phases/phase.html
           grep -q 'href="/phase-personalization.css?v=' dashboard/phases/index.html
           grep -q 'href="/phase-personalization.css?v=' dashboard/phases/frozen.html
           grep -q 'href="/phase-personalization.css?v=' dashboard/phases/phase.html
+          grep -q 'href="/phase-editorial-media.css?v=' dashboard/phases/frozen.html
+          grep -q 'href="/phase-editorial-media.css?v=' dashboard/phases/phase.html
+          grep -q 'src="/phase-visuals.js?v=' dashboard/phases/frozen.html
+          grep -q 'src="/phase-visuals.js?v=' dashboard/phases/phase.html
+          grep -q 'src="/phase-editorial-media.js?v=' dashboard/phases/frozen.html
+          grep -q 'src="/phase-editorial-media.js?v=' dashboard/phases/phase.html
           ! grep -q 'href="/signature.css?v=' dashboard/phases/index.html
           ! grep -q 'href="/signature.css?v=' dashboard/phases/frozen.html
           grep -q 'One research program. Six distinct chapters.' dashboard/phases/index.html
@@ -62,6 +75,9 @@ jobs:
           grep -q "phase1: { category: 'safety-architecture'" dashboard/phase-taxonomy.js
           grep -q "phase22: { category: 'context-transfer'" dashboard/phase-taxonomy.js
           test "$(grep -c "id: '.*'" dashboard/phase-taxonomy.js)" -ge 6
+          grep -q 'phase1:' dashboard/phase-visuals.js
+          grep -q 'phase22:' dashboard/phase-visuals.js
+          test "$(grep -o "phase[0-9][0-9a-z]*:" dashboard/phase-visuals.js | wc -l)" -eq 26
 
           grep -q "slug: 'phase13a'" deploy/vercel/frozen-lineage.js
           grep -q "slug: 'phase13c'" deploy/vercel/frozen-lineage.js
@@ -80,6 +96,9 @@ jobs:
           grep -q '/dashboard/phase-taxonomy.js' deploy/vercel/vercel.json
           grep -q '/dashboard/phase-personalization.css' deploy/vercel/vercel.json
           grep -q '/dashboard/phase-personalization.js' deploy/vercel/vercel.json
+          grep -q '/dashboard/phase-visuals.js' deploy/vercel/vercel.json
+          grep -q '/dashboard/phase-editorial-media.css' deploy/vercel/vercel.json
+          grep -q '/dashboard/phase-editorial-media.js' deploy/vercel/vercel.json
           grep -q '0.8319' deploy/vercel/index.html
           grep -q '0.7744' deploy/vercel/index.html
           grep -q '100%' deploy/vercel/index.html

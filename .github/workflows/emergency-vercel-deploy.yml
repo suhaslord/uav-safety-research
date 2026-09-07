@@ -59,7 +59,7 @@ jobs:
         run: |
           set -euo pipefail
           grep -q 'data-site-shell="native frozen-archive"' .vercel-release/index.html
-          grep -q 'data-editorial-media="local-v1"' .vercel-release/index.html
+          grep -q 'data-editorial-media="local-v2"' .vercel-release/index.html
           ! grep -q 'document.write' .vercel-release/index.html
           ! grep -q 'cdn.jsdelivr.net/gh/suhaslord/uav-safety-research' .vercel-release/index.html .vercel-release/vercel.json
 
@@ -68,10 +68,14 @@ jobs:
           test -f .vercel-release/research-media.css
           test -f .vercel-release/phase-polish.css
           test -f .vercel-release/frozen-lineage.js
-          test -f .vercel-release/media/acero-uav-flight.jpg
-          test -f .vercel-release/media/acero-uav-landing.jpg
-          test -s .vercel-release/media/acero-uav-flight.jpg
-          test -s .vercel-release/media/acero-uav-landing.jpg
+          test -f .vercel-release/dashboard/phase-visuals.js
+          test -f .vercel-release/dashboard/phase-editorial-media.js
+          test -f .vercel-release/dashboard/phase-editorial-media.css
+
+          for ASSET in acero-uav-flight.jpg acero-ground-control.jpg stereo-uav-preflight.jpg acero-uav-landing.jpg phase01-context.jpg phase02-context.jpg phase04-context.jpg phase05-context.jpg phase06b-context.jpg phase07-context.jpg phase08-context.jpg phase10-context.jpg phase10r-context.jpg phase12-context.jpg phase13a-context.jpg phase13b-context.jpg phase13c-context.jpg phase14-context.jpg phase15-context.jpg phase16-context.jpg phase17-context.jpg phase18-context.jpg phase19-context.jpg phase20-context.jpg phase21-context.jpg phase22-context.jpg; do
+            test -s ".vercel-release/media/$ASSET"
+          done
+
           test -f .vercel-release/dashboard/phases/index.html
           test -f .vercel-release/dashboard/phases/frozen.html
           test -f .vercel-release/phase11.html
@@ -81,15 +85,17 @@ jobs:
           grep -q 'href="/research-home.css?v=' .vercel-release/index.html
           grep -q 'href="/research-media.css?v=' .vercel-release/index.html
           grep -q 'src="/media/acero-uav-flight.jpg"' .vercel-release/index.html
+          grep -q 'src="/media/acero-ground-control.jpg"' .vercel-release/index.html
+          grep -q 'src="/media/stereo-uav-preflight.jpg"' .vercel-release/index.html
           grep -q 'src="/media/acero-uav-landing.jpg"' .vercel-release/index.html
-          grep -q 'Visual context — not AegisLand experimental evidence' .vercel-release/index.html
+          test "$(grep -o 'Visual context — not AegisLand experimental evidence' .vercel-release/index.html | wc -l)" -eq 4
           grep -q 'Don Richey / NASA Ames Research Center' .vercel-release/index.html
+          grep -q 'Joel Kowsky / NASA' .vercel-release/index.html
           ! grep -q '<img[^>]*src="https://' .vercel-release/index.html
           grep -q 'Evidence before confidence.' .vercel-release/index.html
           grep -q 'Frozen through Phase 22' .vercel-release/index.html
           grep -q 'Research question' .vercel-release/index.html
           grep -q 'Main purpose' .vercel-release/index.html
-          grep -q 'Problem being studied' .vercel-release/index.html
           grep -q 'Main conclusion' .vercel-release/index.html
           grep -q 'home-lineage__track' .vercel-release/index.html
           grep -q '6 PASS / 7 FAIL' .vercel-release/index.html
@@ -103,6 +109,14 @@ jobs:
           grep -q 'href="/phase-polish.css?v=' .vercel-release/dashboard/phases/index.html
           grep -q 'href="/phase-polish.css?v=' .vercel-release/dashboard/phases/frozen.html
           grep -q 'href="/phase-polish.css?v=' .vercel-release/dashboard/phases/phase.html
+          grep -q 'href="/phase-editorial-media.css?v=' .vercel-release/dashboard/phases/frozen.html
+          grep -q 'href="/phase-editorial-media.css?v=' .vercel-release/dashboard/phases/phase.html
+          grep -q 'src="/phase-visuals.js?v=' .vercel-release/dashboard/phases/frozen.html
+          grep -q 'src="/phase-editorial-media.js?v=' .vercel-release/dashboard/phases/frozen.html
+          grep -q 'src="/phase-visuals.js?v=' .vercel-release/dashboard/phases/phase.html
+          grep -q 'src="/phase-editorial-media.js?v=' .vercel-release/dashboard/phases/phase.html
+          grep -q 'src="/phase-visuals.js?v=' .vercel-release/phase11.html
+          grep -q 'src="/phase-editorial-media.js?v=' .vercel-release/phase11.html
           ! grep -q 'href="/signature.css?v=' .vercel-release/dashboard/phases/index.html
           ! grep -q 'href="/signature.css?v=' .vercel-release/dashboard/phases/frozen.html
           grep -q 'Every phase stays part of the story.' .vercel-release/dashboard/phases/index.html
@@ -156,12 +170,13 @@ jobs:
           PUBLIC_HTML=$(curl --fail --silent --show-error --location --retry 5 --retry-delay 2 "$PUBLIC_URL/")
           ! printf '%s' "$PUBLIC_HTML" | grep -q 'document.write\|cdn.jsdelivr.net/gh/suhaslord/uav-safety-research'
           printf '%s' "$PUBLIC_HTML" | grep -q 'data-site-shell="native frozen-archive"'
-          printf '%s' "$PUBLIC_HTML" | grep -q 'data-editorial-media="local-v1"'
+          printf '%s' "$PUBLIC_HTML" | grep -q 'data-editorial-media="local-v2"'
           printf '%s' "$PUBLIC_HTML" | grep -q 'href="/aegisland.css?v='
           printf '%s' "$PUBLIC_HTML" | grep -q 'href="/research-home.css?v='
           printf '%s' "$PUBLIC_HTML" | grep -q 'href="/research-media.css?v='
-          printf '%s' "$PUBLIC_HTML" | grep -q 'Visual context — not AegisLand experimental evidence'
+          test "$(printf '%s' "$PUBLIC_HTML" | grep -o 'Visual context — not AegisLand experimental evidence' | wc -l)" -eq 4
           printf '%s' "$PUBLIC_HTML" | grep -q 'Don Richey / NASA Ames Research Center'
+          printf '%s' "$PUBLIC_HTML" | grep -q 'Joel Kowsky / NASA'
           printf '%s' "$PUBLIC_HTML" | grep -q 'Evidence before confidence.'
           printf '%s' "$PUBLIC_HTML" | grep -q 'Research question'
           printf '%s' "$PUBLIC_HTML" | grep -q 'Main purpose'
@@ -174,16 +189,19 @@ jobs:
           printf '%s' "$PUBLIC_HTML" | grep -q 'safety_acceptance=false'
           printf '%s' "$PUBLIC_HTML" | grep -q 'controller_tuning_allowed=false'
 
-          curl --fail --silent --show-error --location "$PUBLIC_URL/media/acero-uav-flight.jpg" -o /tmp/acero-uav-flight.jpg
-          curl --fail --silent --show-error --location "$PUBLIC_URL/media/acero-uav-landing.jpg" -o /tmp/acero-uav-landing.jpg
-          test $(wc -c < /tmp/acero-uav-flight.jpg) -gt 50000
-          test $(wc -c < /tmp/acero-uav-landing.jpg) -gt 50000
-          echo "✓ Homepage editorial media: local, credited NASA Ames public-domain photographs resolve"
+          for ASSET in acero-uav-flight.jpg acero-ground-control.jpg stereo-uav-preflight.jpg acero-uav-landing.jpg phase01-context.jpg phase22-context.jpg; do
+            curl --fail --silent --show-error --location "$PUBLIC_URL/media/$ASSET" -o "/tmp/$ASSET"
+            test $(wc -c < "/tmp/$ASSET") -gt 50000
+          done
+          echo "✓ Editorial media: expanded local NASA photo set resolves"
 
           curl --fail --silent --show-error --location "$PUBLIC_URL/aegisland.css" >/dev/null
           curl --fail --silent --show-error --location "$PUBLIC_URL/research-home.css" >/dev/null
           curl --fail --silent --show-error --location "$PUBLIC_URL/research-media.css" >/dev/null
           curl --fail --silent --show-error --location "$PUBLIC_URL/phase-polish.css" >/dev/null
+          curl --fail --silent --show-error --location "$PUBLIC_URL/phase-editorial-media.css" >/dev/null
+          curl --fail --silent --show-error --location "$PUBLIC_URL/phase-visuals.js" >/dev/null
+          curl --fail --silent --show-error --location "$PUBLIC_URL/phase-editorial-media.js" >/dev/null
           curl --fail --silent --show-error --location "$PUBLIC_URL/frozen-lineage.js" -o /tmp/frozen-lineage.js
           node - <<'NODE'
           global.window = {};
@@ -208,15 +226,19 @@ jobs:
             PHASE_HTML=$(curl --fail --silent --show-error --location "$PUBLIC_URL/phases/$PHASE/")
             printf '%s' "$PHASE_HTML" | grep -q 'phaseContent'
             printf '%s' "$PHASE_HTML" | grep -q 'href="/phase-polish.css?v='
+            printf '%s' "$PHASE_HTML" | grep -q 'src="/phase-visuals.js?v='
+            printf '%s' "$PHASE_HTML" | grep -q 'src="/phase-editorial-media.js?v='
           done
-          echo "✓ Frozen detail routes: Phase 12 through Phase 22 resolve through the polished shared detail system"
+          echo "✓ Frozen detail routes: Phase 12 through Phase 22 resolve through the polished shared detail system with contextual photography"
 
           PHASE1_HTML=$(curl --fail --silent --show-error --location "$PUBLIC_URL/phases/phase1/")
           printf '%s' "$PHASE1_HTML" | grep -q 'href="/phase-polish.css?v='
+          printf '%s' "$PHASE1_HTML" | grep -q 'src="/phase-visuals.js?v='
           PHASE10R_HTML=$(curl --fail --silent --show-error --location "$PUBLIC_URL/phases/phase10r/")
           printf '%s' "$PHASE10R_HTML" | grep -q 'href="/phase-polish.css?v='
           PHASE11_HTML=$(curl --fail --silent --show-error --location "$PUBLIC_URL/phases/phase11/")
           printf '%s' "$PHASE11_HTML" | grep -q 'Phase 11 P14R'
-          echo "✓ Foundational phase pages remain reachable and polished"
+          printf '%s' "$PHASE11_HTML" | grep -q 'src="/phase-visuals.js?v='
+          echo "✓ Foundational phase pages remain reachable, polished, and contextualized"
 
-          echo "=== Verification complete: AegisLand serves local editorial photography and the frozen Phase 1–22 research archive ==="
+          echo "=== Verification complete: AegisLand serves local licensed photography and the frozen Phase 1–22 research archive ==="

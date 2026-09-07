@@ -69,7 +69,7 @@ try {
 
     const homeText = await page.locator('main').innerText();
     add('home-old-thesis-restored', /Evidence before confidence/i.test(homeText), { excerpt: homeText.slice(0, 280) });
-    add('home-professor-framing-visible', /Research question/i.test(homeText) && /Main purpose/i.test(homeText) && /Problem being studied/i.test(homeText) && /Main conclusion/i.test(homeText));
+    add('home-professor-framing-visible', /Research question/i.test(homeText) && /Main purpose/i.test(homeText) && /\bProblem\b/i.test(homeText) && /Main conclusion/i.test(homeText));
     add('home-phase22-final-visible', /0\.8319/.test(homeText) && /0\.7744/.test(homeText) && /10\s+locked gates/i.test(homeText) && /100%/.test(homeText), { excerpt: homeText.slice(0, 900) });
     add('home-science-is-explicitly-frozen', /No Phase 23 is implied or authorized/i.test(homeText), { excerpt: homeText.slice(-500) });
     add('home-claim-boundary-visible', /simulation_only=true/.test(homeText) && /safety_acceptance=false/.test(homeText) && /controller_tuning_allowed=false/.test(homeText));

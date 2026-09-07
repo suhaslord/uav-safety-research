@@ -42,8 +42,10 @@
     { "source": "/phase-hero-scenes.css", "destination": "/dashboard/phase-hero-scenes.css" },
     { "source": "/glass-ui.css", "destination": "/dashboard/glass-ui.css" },
     { "source": "/phase-personalization.css", "destination": "/dashboard/phase-personalization.css" },
+    { "source": "/phase-editorial-media.css", "destination": "/dashboard/phase-editorial-media.css" },
 
     { "source": "/phase-taxonomy.js", "destination": "/dashboard/phase-taxonomy.js" },
+    { "source": "/phase-visuals.js", "destination": "/dashboard/phase-visuals.js" },
     { "source": "/phase-data.js", "destination": "/dashboard/phase-data.js" },
     { "source": "/phase-runtime.js", "destination": "/dashboard/phase-runtime.js" },
     { "source": "/phase-signatures.js", "destination": "/dashboard/phase-signatures.js" },
@@ -52,7 +54,8 @@
     { "source": "/phase10r-archive.js", "destination": "/dashboard/phase10r-archive.js" },
     { "source": "/phase-hero-scenes.js", "destination": "/dashboard/phase-hero-scenes.js" },
     { "source": "/aegis-current.js", "destination": "/dashboard/aegis-current.js" },
-    { "source": "/phase-personalization.js", "destination": "/dashboard/phase-personalization.js" }
+    { "source": "/phase-personalization.js", "destination": "/dashboard/phase-personalization.js" },
+    { "source": "/phase-editorial-media.js", "destination": "/dashboard/phase-editorial-media.js" }
   ],
   "headers": [
     {
