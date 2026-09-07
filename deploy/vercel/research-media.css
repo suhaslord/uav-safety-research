@@ -1,6 +1,6 @@
 /*
   Homepage editorial media layer.
-  The photographs are public-domain NASA Ames context imagery only; no scientific evidence is inferred from them.
+  The photographs are public-domain NASA context imagery only; no scientific evidence is inferred from them.
 */
 body.research-workspace.home-workspace .research-photo{
   margin:0;
@@ -72,6 +72,20 @@ body.research-workspace.home-workspace .research-photo--hero img{
   object-position:center 46%;
 }
 
+/* Smaller editorial pauses inside the homepage narrative. */
+body.research-workspace.home-workspace .research-photo--inline{
+  width:min(760px,72%);
+  margin-top:32px;
+}
+body.research-workspace.home-workspace .research-photo--inline-right{margin-left:auto}
+body.research-workspace.home-workspace .research-photo--inline-left{margin-right:auto}
+body.research-workspace.home-workspace .research-photo--inline .research-photo__frame{
+  aspect-ratio:16 / 9;
+}
+body.research-workspace.home-workspace #purpose .research-photo--inline{margin-top:38px}
+body.research-workspace.home-workspace #purpose .research-photo--inline img{object-position:center 54%}
+body.research-workspace.home-workspace #evidence .research-photo--inline img{object-position:center 48%}
+
 body.research-workspace.home-workspace .method-visual-grid{
   display:grid;
   grid-template-columns:minmax(0,1.05fr) minmax(320px,.95fr);
@@ -123,6 +137,7 @@ body.research-workspace.home-workspace #method .method-steps .tag{
     width:min(100% - 44px,1040px);
     margin-top:14px;
   }
+  body.research-workspace.home-workspace .research-photo--inline{width:min(820px,88%)}
   body.research-workspace.home-workspace .method-visual-grid{
     grid-template-columns:minmax(0,1fr);
     gap:30px;
@@ -138,6 +153,12 @@ body.research-workspace.home-workspace #method .method-steps .tag{
     max-width:calc(100% - 28px);
     margin-top:8px;
   }
+  body.research-workspace.home-workspace .research-photo--inline{
+    width:100%;
+    max-width:100%;
+    margin-top:26px;
+  }
+  body.research-workspace.home-workspace #purpose .research-photo--inline{margin-top:28px}
   body.research-workspace.home-workspace .research-photo__frame{
     border-radius:8px;
   }
