@@ -19,6 +19,7 @@ on:
       - '.github/qa/local-vercel-server.mjs'
       - '.github/qa/visual-consistency-smoke.mjs'
       - '.github/qa/editorial-media-smoke.mjs'
+      - '.github/qa/mobile-density-smoke.mjs'
       - '.github/qa/exhaustive-visual-audit.mjs'
       - '.github/qa/capture-corrected-screenshots.mjs'
       - '.github/workflows/local-visual-consistency.yml'
@@ -36,6 +37,7 @@ on:
       - '.github/qa/local-vercel-server.mjs'
       - '.github/qa/visual-consistency-smoke.mjs'
       - '.github/qa/editorial-media-smoke.mjs'
+      - '.github/qa/mobile-density-smoke.mjs'
       - '.github/qa/exhaustive-visual-audit.mjs'
       - '.github/qa/capture-corrected-screenshots.mjs'
       - '.github/workflows/local-visual-consistency.yml'
@@ -87,6 +89,11 @@ jobs:
           QA_BASE_URL: http://127.0.0.1:4173
         run: node .github/qa/editorial-media-smoke.mjs
 
+      - name: Run real-device mobile density smoke
+        env:
+          QA_BASE_URL: http://127.0.0.1:4173
+        run: node .github/qa/mobile-density-smoke.mjs
+
       - name: Capture every route at desktop tablet and mobile
         env:
           QA_BASE_URL: http://127.0.0.1:4173
@@ -97,6 +104,15 @@ jobs:
         env:
           QA_BASE_URL: http://127.0.0.1:4173
         run: node .github/qa/capture-corrected-screenshots.mjs
+
+      - name: Upload mobile density evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aegisland-mobile-density-evidence
+          path: qa-artifacts/mobile-density/
+          if-no-files-found: warn
+          retention-days: 14
 
       - name: Upload exhaustive visual evidence
         if: always()

@@ -8,6 +8,7 @@ on:
       - '.github/qa/production-ui-qa.mjs'
       - '.github/qa/exhaustive-visual-audit.mjs'
       - '.github/qa/editorial-media-smoke.mjs'
+      - '.github/qa/mobile-density-smoke.mjs'
       - '.github/qa/mobile-menu-smoke.mjs'
       - '.github/workflows/production-ui-qa.yml'
       - 'dashboard/**'
@@ -43,18 +44,21 @@ jobs:
           BASE='https://aegisland-research-cockpit.vercel.app'
           HOME_URL="$BASE/?ui_consistency_ready=1"
           CSS_URL="$BASE/phase-ui-consistency.css?v=1"
+          DENSITY_URL="$BASE/final-convergence.css?v=mobile-density-1"
           for i in {1..60}; do
             HTML=$(curl --fail --silent --show-error --location "$HOME_URL" || true)
-            rm -f /tmp/ui-consistency.css /tmp/ui-consistency.headers
+            rm -f /tmp/ui-consistency.css /tmp/ui-consistency.headers /tmp/final-convergence.css
             if printf '%s' "$HTML" | grep -q 'data-editorial-media="local-v2"' \
               && curl --fail --silent --show-error --location --dump-header /tmp/ui-consistency.headers "$CSS_URL" -o /tmp/ui-consistency.css \
               && grep -qi '^content-type: text/css' /tmp/ui-consistency.headers \
               && grep -q 'Cross-template UI consistency pass' /tmp/ui-consistency.css \
-              && grep -q '#phaseLimitations span' /tmp/ui-consistency.css; then
+              && grep -q '#phaseLimitations span' /tmp/ui-consistency.css \
+              && curl --fail --silent --show-error --location "$DENSITY_URL" -o /tmp/final-convergence.css \
+              && grep -q 'Real-device density pass' /tmp/final-convergence.css; then
               for ASSET in acero-uav-flight.jpg acero-ground-control.jpg stereo-uav-preflight.jpg acero-uav-landing.jpg phase01-context.jpg phase22-context.jpg; do
                 curl --fail --silent --show-error --location "$BASE/media/$ASSET" >/dev/null
               done
-              echo '✓ live UI consistency release and editorial media are ready'
+              echo '✓ live UI consistency release, mobile density pass, and editorial media are ready'
               exit 0
             fi
             sleep 2
@@ -76,6 +80,11 @@ jobs:
         env:
           QA_BASE_URL: https://aegisland-research-cockpit.vercel.app
         run: node .github/qa/editorial-media-smoke.mjs
+
+      - name: Run real-device mobile density smoke
+        env:
+          QA_BASE_URL: https://aegisland-research-cockpit.vercel.app
+        run: node .github/qa/mobile-density-smoke.mjs
 
       - name: Run mobile menu interaction smoke
         env:
