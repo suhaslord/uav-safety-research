@@ -1,0 +1,180 @@
+/*
+  AegisLand craft pass.
+  Same light research theme; less card-heavy, less templated, more editorial.
+  This layer changes presentation only. Scientific content, verdicts, metrics,
+  hashes, and evidence boundaries remain untouched.
+*/
+
+body.research-workspace{
+  --craft-rule:#dfe2e6;
+  --craft-muted:#5c5e62;
+  --craft-ink:#171a20;
+}
+
+body.research-workspace h1,
+body.research-workspace h2{
+  text-wrap:balance;
+}
+
+body.research-workspace p,
+body.research-workspace li{
+  text-wrap:pretty;
+}
+
+/* The phase note should read like an editor's margin note, not a generated card. */
+body.research-workspace .phase-role-card{
+  margin-top:28px!important;
+  padding:16px 0!important;
+  border-top:1px solid var(--craft-rule)!important;
+  border-bottom:1px solid var(--craft-rule)!important;
+  border-left:0!important;
+  border-right:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+body.research-workspace .phase-role-card__label span,
+body.research-workspace .phase-role-card__question-label,
+body.research-workspace .phase-role-card__signal span{
+  color:var(--craft-muted)!important;
+  font-size:11px!important;
+  line-height:15px!important;
+  letter-spacing:.01em!important;
+}
+body.research-workspace .phase-role-card__label strong{
+  font-size:14px!important;
+  line-height:20px!important;
+  font-weight:520!important;
+}
+body.research-workspace .phase-role-card__question-text{
+  font-size:14.5px!important;
+  line-height:21px!important;
+}
+body.research-workspace .phase-role-card__signal strong{
+  font-size:12px!important;
+  line-height:18px!important;
+  font-weight:520!important;
+}
+body.research-workspace .phase-identity-chip{
+  gap:7px!important;
+}
+body.research-workspace .phase-identity-chip strong::before{
+  content:"/";
+  margin-right:7px;
+  color:#a2a6ac;
+  font-weight:400;
+}
+
+/* Keep controls compact and intentional instead of rounded-everything UI. */
+body.research-workspace .button,
+body.research-workspace .signature-button,
+body.research-workspace .top-btn,
+body.research-workspace .archive-filter,
+body.research-workspace .category-nav a,
+body.research-workspace .phase-unified-nav a{
+  border-radius:4px!important;
+}
+
+/* Editorial image treatment: photography supports the research instead of acting like a hero ad. */
+body.research-workspace .phase-editorial-photo__frame,
+body.research-workspace .research-photo__frame{
+  border-radius:4px!important;
+}
+body.research-workspace .phase-editorial-photo figcaption,
+body.research-workspace .research-photo figcaption{
+  color:#5c5e62!important;
+  letter-spacing:0!important;
+}
+
+/* Make data read like data. */
+body.research-workspace .metric-card strong,
+body.research-workspace .phase-metric strong,
+body.research-workspace .workspace-measure strong,
+body.research-workspace .result-card strong,
+body.research-workspace .threshold-card strong{
+  font-variant-numeric:tabular-nums;
+}
+
+/* Legacy pages: remove a little template sheen without changing their structure. */
+body.research-workspace.archive-shell .section-head .kicker{
+  letter-spacing:.01em!important;
+  text-transform:none!important;
+}
+body.research-workspace.archive-shell .section-head h2{
+  max-width:780px;
+}
+body.research-workspace.archive-shell .story-pair article{
+  border-top:1px solid var(--craft-rule)!important;
+}
+body.research-workspace.archive-shell .story-label{
+  text-transform:none!important;
+  letter-spacing:.01em!important;
+}
+body.research-workspace.archive-shell .finding blockquote{
+  max-width:28ch!important;
+  letter-spacing:-.025em!important;
+}
+body.research-workspace.archive-shell .architecture > *{
+  box-shadow:none!important;
+}
+
+/* Frozen pages: source integrity stays technical; the visual language stays quiet. */
+body.research-workspace .phase-verdict-panel,
+body.research-workspace .phase-detail__metrics-band,
+body.research-workspace .phase-detail__context{
+  border-radius:6px!important;
+}
+body.research-workspace .phase-detail__panel h2{
+  letter-spacing:-.018em!important;
+}
+body.research-workspace .phase-detail__eyebrow{
+  text-transform:none!important;
+  letter-spacing:.01em!important;
+}
+body.research-workspace .claim-boundary{
+  border-top:1px solid var(--craft-rule)!important;
+  padding-top:18px!important;
+}
+
+/* Archive: keep grouping, but make the chapter surfaces feel designed rather than generated. */
+body.research-workspace.archive-workspace .archive-category{
+  border-radius:8px!important;
+}
+body.research-workspace.archive-workspace .archive-card.phase-personalized::before{
+  border-radius:4px!important;
+}
+body.research-workspace.archive-workspace .archive-card__question{
+  max-width:42ch!important;
+}
+body.research-workspace.archive-workspace .archive-card__open{
+  font-weight:520!important;
+}
+
+/* Homepage: let the scientific statement lead, not the chrome. */
+body.research-workspace.home-workspace .workspace-status-card,
+body.research-workspace.home-workspace .research-alert,
+body.research-workspace.home-workspace .section.ash > .wrap{
+  border-radius:6px!important;
+}
+body.research-workspace.home-workspace .hero-deck,
+body.research-workspace.home-workspace .copy{
+  max-width:68ch;
+}
+
+@media(max-width:700px){
+  body.research-workspace .phase-role-card{
+    padding:14px 0!important;
+    gap:9px!important;
+  }
+  body.research-workspace .phase-role-card__label,
+  body.research-workspace .phase-role-card__question,
+  body.research-workspace .phase-role-card__signal{
+    padding:0!important;
+  }
+  body.research-workspace .phase-identity-chip strong::before{
+    margin-right:5px;
+  }
+  body.research-workspace.archive-shell .finding blockquote{
+    max-width:none!important;
+  }
+}
