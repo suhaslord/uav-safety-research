@@ -32,6 +32,12 @@
         next.removeAttribute('rel');
         next.innerHTML = '<span>Next research phase</span><strong>Phase 11 · Protected reliability</strong><i>→</i>';
       }
+      if (!document.getElementById('phase10r-density-fix')) {
+        const style = document.createElement('style');
+        style.id = 'phase10r-density-fix';
+        style.textContent = '@media(max-width:700px){body.archive-shell[data-phase="phase10r"] .section{padding-top:42px!important;padding-bottom:42px!important}body.archive-shell[data-phase="phase10r"] .section-head{margin-bottom:18px!important}}';
+        document.head.appendChild(style);
+      }
     }
   };
 
