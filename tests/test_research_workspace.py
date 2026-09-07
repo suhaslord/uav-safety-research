@@ -48,7 +48,27 @@ def test_workspace_interaction_layer_is_loaded_across_public_shells() -> None:
     ]
     for html in shells:
         assert 'href="/research-workspace.css?v=' in html
-        assert 'src="/research-workspace.js?v=1"' in html
+        assert 'src="/research-workspace.js?v=' in html
+
+
+def test_home_editorial_media_is_local_credited_and_context_only() -> None:
+    html = _read("deploy/vercel/index.html")
+    css = _read("deploy/vercel/research-media.css")
+    fetcher = _read("deploy/vercel/fetch-editorial-media.mjs")
+
+    assert 'data-editorial-media="local-v1"' in html
+    assert 'src="/media/acero-uav-flight.jpg"' in html
+    assert 'src="/media/acero-uav-landing.jpg"' in html
+    assert '<img src="https://' not in html
+    assert html.count("Visual context — not AegisLand experimental evidence") == 2
+    assert html.count("Don Richey / NASA Ames Research Center") == 2
+    assert html.count("Public domain") == 2
+    assert html.count("data-image-fallback") == 2
+    assert 'width="1280" height="852"' in html
+    assert 'width="1280" height="854"' in html
+    assert "aspect-ratio:16 / 9" in css
+    assert "acero-uav-flight.jpg" in fetcher
+    assert "acero-uav-landing.jpg" in fetcher
 
 
 def test_workspace_uses_original_light_research_system() -> None:
