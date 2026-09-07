@@ -58,23 +58,26 @@ try {
 
       let response = null;
       try {
-        response = await page.goto(`${BASE}${route}?exhaustive_visual_audit=1`, { waitUntil: 'domcontentloaded', timeout: 45000 });
+        response = await page.goto(`${BASE}${route}?exhaustive_visual_audit=2`, { waitUntil: 'domcontentloaded', timeout: 45000 });
         await page.waitForTimeout(900);
       } catch (error) {
         pushBlocker(pageKey, 'load-failed', { error: String(error) });
       }
 
-      // Force lazy editorial media into a settled state before measuring or capturing.
+      // Settle all lazy/editorial images. Always return to the top before measurement and
+      // full-page capture so sticky headers are not painted halfway down the screenshot.
       const images = page.locator('img');
       const imageCount = await images.count().catch(() => 0);
       for (let i = 0; i < imageCount; i += 1) {
         await images.nth(i).scrollIntoViewIfNeeded().catch(() => {});
       }
-      await page.waitForTimeout(300);
+      await page.waitForTimeout(250);
       await page.evaluate(async () => {
         const imgs = [...document.images];
         await Promise.all(imgs.map((img) => img.decode?.().catch(() => undefined)));
+        window.scrollTo(0, 0);
       }).catch(() => {});
+      await page.waitForTimeout(180);
 
       const metrics = await page.evaluate(({ route, viewportName }) => {
         const root = document.documentElement;
@@ -86,33 +89,55 @@ try {
           const r = el.getBoundingClientRect();
           return s.display !== 'none' && s.visibility !== 'hidden' && Number(s.opacity || 1) > 0 && r.width > 0 && r.height > 0;
         };
-        const clickable = [...document.querySelectorAll('a,button,input,select,textarea,[role="button"]')].filter(visible);
+        const onDocument = (el) => {
+          const r = el.getBoundingClientRect();
+          return r.bottom > 0 && r.right > 0;
+        };
+        const clickable = [...document.querySelectorAll('a,button,input,select,textarea,[role="button"]')].filter((el) => visible(el) && onDocument(el));
         const tinyTargets = clickable
-          .map((el) => ({ tag: el.tagName, text: (el.getAttribute('aria-label') || el.textContent || '').trim().slice(0,80), r: rect(el) }))
+          .map((el) => ({ tag: el.tagName, text: (el.getAttribute('aria-label') || el.textContent || el.getAttribute('placeholder') || '').trim().slice(0,80), r: rect(el) }))
           .filter((item) => item.r && (item.r.width < 40 || item.r.height < 40));
         const tinyText = [...document.querySelectorAll('p,li,a,button,span,small,figcaption,dd,dt')]
-          .filter(visible)
+          .filter((el) => visible(el) && onDocument(el))
           .map((el) => ({ text: (el.textContent || '').trim().slice(0,80), size: parseFloat(getComputedStyle(el).fontSize || '0') }))
           .filter((item) => item.text && item.size > 0 && item.size < 11);
         const ids = [...document.querySelectorAll('[id]')].map((el) => el.id).filter(Boolean);
         const dupIds = ids.filter((id, index) => ids.indexOf(id) !== index);
         const brokenImages = [...document.images].filter((img) => !img.complete || img.naturalWidth === 0).map((img) => img.currentSrc || img.src);
         const missingAlt = [...document.images].filter((img) => !img.hasAttribute('alt')).map((img) => img.currentSrc || img.src);
-        const unlabeledControls = clickable.filter((el) => {
-          const txt = (el.getAttribute('aria-label') || el.getAttribute('title') || el.textContent || '').trim();
-          return !txt && !el.querySelector('img[alt]');
-        }).length;
+        const controlName = (el) => {
+          const direct = (el.getAttribute('aria-label') || el.getAttribute('title') || el.textContent || '').trim();
+          if (direct) return direct;
+          const labelledBy = (el.getAttribute('aria-labelledby') || '').trim();
+          if (labelledBy && labelledBy.split(/\s+/).some((id) => document.getElementById(id)?.textContent?.trim())) return labelledBy;
+          if ('labels' in el && el.labels?.length && [...el.labels].some((label) => label.textContent?.trim())) return 'associated-label';
+          if ((el.getAttribute('placeholder') || '').trim()) return 'placeholder';
+          if (el.querySelector?.('img[alt]')) return 'image-alt';
+          return '';
+        };
+        const unlabeledControls = clickable.filter((el) => !controlName(el)).length;
         const phasePage = /^\/phases\/phase/i.test(route);
         const hero = document.querySelector('main h1')?.closest('section,header,article,div') || document.querySelector('main h1');
         const phaseChip = document.querySelector('.phase-identity-chip');
         const roleCard = document.querySelector('.phase-role-card');
-        const editorial = document.querySelector('.phase-editorial-visual, [data-phase-editorial-visual], .phase-context-visual, figure[data-phase-visual]');
+        const editorial = document.querySelector('.phase-editorial-photo, [data-editorial-photo]');
         const nav = document.querySelector('header, .site-header, .topbar, nav');
         const main = document.querySelector('main');
         const footer = document.querySelector('footer');
-        const allSections = [...document.querySelectorAll('main > section, main > article, main > div')].filter(visible).map(rect).filter(Boolean);
+        const consistencyLink = document.querySelector('link[data-aegis-phase-ui-consistency]');
+        const structuralBlocks = [...document.querySelectorAll('main > section, main > article, main > div, main > figure[data-editorial-photo], .phase-detail > figure[data-editorial-photo]')]
+          .filter(visible)
+          .map((el) => ({ className: el.className || el.tagName, r: rect(el) }))
+          .filter((item) => item.r)
+          .sort((a, b) => a.r.y - b.r.y);
         const sectionGaps = [];
-        for (let i=1;i<allSections.length;i+=1) sectionGaps.push(Math.round(allSections[i].y - allSections[i-1].bottom));
+        for (let i=1;i<structuralBlocks.length;i+=1) {
+          sectionGaps.push({
+            gap: Math.round(structuralBlocks[i].r.y - structuralBlocks[i-1].r.bottom),
+            from: String(structuralBlocks[i-1].className).slice(0,80),
+            to: String(structuralBlocks[i].className).slice(0,80)
+          });
+        }
         return {
           viewportName,
           route,
@@ -132,6 +157,7 @@ try {
           roleCard: visible(roleCard),
           editorialVisual: visible(editorial),
           editorialRect: rect(editorial),
+          consistencyLayer: !!consistencyLink,
           bodyPhase: body?.dataset?.phase || '',
           bodyCategory: body?.dataset?.phaseCategory || '',
           brokenImages,
@@ -158,11 +184,14 @@ try {
         if (metrics.unlabeledControls) pushBlocker(pageKey, 'unlabeled-controls', { count: metrics.unlabeledControls });
         if (metrics.phasePage && (!metrics.phaseChip || !metrics.roleCard)) pushBlocker(pageKey, 'phase-personalization-missing', { chip: metrics.phaseChip, role: metrics.roleCard });
         if (metrics.phasePage && !metrics.bodyCategory) pushBlocker(pageKey, 'phase-category-missing');
-        if (metrics.phasePage && !metrics.editorialVisual) pushWarning(pageKey, 'phase-editorial-visual-selector-not-detected');
+        if (metrics.phasePage && !metrics.editorialVisual) pushBlocker(pageKey, 'phase-editorial-visual-missing');
+        if ((metrics.phasePage || route === '/phases/') && !metrics.consistencyLayer) pushBlocker(pageKey, 'phase-consistency-layer-missing');
         if (vp.name === 'mobile' && metrics.tinyTargets.length) pushWarning(pageKey, 'small-touch-targets', { count: metrics.tinyTargets.length, examples: metrics.tinyTargets.slice(0,8) });
         if (metrics.tinyText.length) pushWarning(pageKey, 'tiny-text', { count: metrics.tinyText.length, examples: metrics.tinyText.slice(0,8) });
-        if (metrics.sectionGaps.some((gap) => gap < -2)) pushWarning(pageKey, 'section-overlap-suspected', { gaps: metrics.sectionGaps.filter((gap) => gap < -2) });
-        if (metrics.sectionGaps.some((gap) => gap > 220)) pushWarning(pageKey, 'excessive-section-gap', { maxGap: Math.max(...metrics.sectionGaps) });
+        const overlaps = metrics.sectionGaps.filter((item) => item.gap < -2);
+        const oversized = metrics.sectionGaps.filter((item) => item.gap > 220);
+        if (overlaps.length) pushWarning(pageKey, 'section-overlap-suspected', { gaps: overlaps.slice(0,8) });
+        if (oversized.length) pushWarning(pageKey, 'excessive-section-gap', { gaps: oversized.slice(0,8) });
       }
 
       const filteredConsole = consoleErrors.filter((entry) => !/favicon|ERR_BLOCKED_BY_CLIENT/i.test(entry));

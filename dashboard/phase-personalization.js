@@ -20,6 +20,21 @@
     return card;
   };
 
+  const normalizePhaseFlow = (slug) => {
+    // Phase 10R used to jump out to a GitHub preregistration document even though
+    // the archive now has a first-class Phase 11 page. Keep the research source
+    // link intact elsewhere, but make the site progression stay inside the site.
+    if (slug === 'phase10r') {
+      const next = document.getElementById('nextPhase');
+      if (next) {
+        next.href = '/phases/phase11/';
+        next.removeAttribute('target');
+        next.removeAttribute('rel');
+        next.innerHTML = '<span>Next research phase</span><strong>Phase 11 · Protected reliability</strong><i>→</i>';
+      }
+    }
+  };
+
   const applyIdentity = () => {
     const taxonomy = window.AEGIS_PHASE_TAXONOMY;
     const slug = getSlug();
@@ -33,6 +48,8 @@
     // Categories organize the research, but the UI keeps one chromatic accent.
     document.documentElement.style.setProperty('--phase-accent', '#3e6ae1');
     document.documentElement.style.setProperty('--phase-tint', '#eef2ff');
+
+    normalizePhaseFlow(slug);
 
     const legacyHero = document.querySelector('body.archive-shell #phaseHero');
     if (legacyHero) {

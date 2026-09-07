@@ -1,0 +1,184 @@
+/*
+  Cross-template UI consistency pass for the phase archive.
+  Visual-only: no research data, verdicts, hashes, or scientific copy are changed.
+*/
+
+/* Shared interaction sizing and focus rhythm. */
+body.research-workspace .skip-link{
+  min-height:44px;
+  display:inline-flex;
+  align-items:center;
+}
+body.research-workspace .mobile-menu-toggle,
+body.research-workspace .mobile-menu-close{
+  min-height:44px;
+  min-width:44px;
+}
+body.research-workspace .signature-brand,
+body.research-workspace.phase11-polish .brand,
+body.research-workspace.archive-shell .word{
+  min-height:44px;
+  display:inline-flex;
+  align-items:center;
+}
+body.research-workspace.archive-shell .aegis-mini-mark{
+  background:var(--rw-accent,#3559c7)!important;
+  border-radius:4px!important;
+  box-shadow:none!important;
+}
+body.research-workspace.archive-shell .aegis-mini-mark b{
+  display:none!important;
+}
+
+/* Archive controls should feel like the same control family as the phase buttons. */
+body.research-workspace.archive-workspace .category-nav a,
+body.research-workspace.archive-workspace .archive-filter,
+body.research-workspace.archive-workspace .archive-reset{
+  min-height:44px!important;
+}
+body.research-workspace.archive-workspace .category-nav{
+  scrollbar-width:thin;
+  scroll-padding-inline:14px;
+}
+
+/* Frozen detail navigation uses full-size controls, including the back affordance. */
+body.research-workspace .phase-detail__back{
+  min-height:44px;
+  display:inline-flex;
+  align-items:center;
+  padding-inline:4px;
+}
+body.research-workspace .phase-detail__nav .signature-button{
+  min-height:44px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+}
+
+/* Legacy phase footer/navigation was visually smaller than the frozen template. */
+body.research-workspace.archive-shell .switch-nav a,
+body.research-workspace.archive-shell .switcher .next{
+  min-height:44px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+}
+
+/* Phase 11 footer links now match the interaction scale used elsewhere. */
+body.research-workspace.phase11-polish .footer-links a{
+  min-height:44px;
+  display:inline-flex;
+  align-items:center;
+  padding-inline:4px;
+}
+
+/* Editorial photos sit in normal document flow across all three phase templates. */
+body.research-workspace.archive-shell .phase-editorial-photo,
+body.research-workspace.phase11-polish .phase-editorial-photo,
+body.research-workspace .phase-detail > .phase-editorial-photo,
+body.research-workspace .phase-detail #phaseContent > .phase-editorial-photo{
+  margin-top:0!important;
+}
+
+/* Hero diagram labels were the weakest readability point in the legacy template. */
+body.research-workspace.archive-shell .hero-scene .scene-label,
+body.research-workspace.archive-shell .hero-scene .scene-label *,
+body.research-workspace.archive-shell .hero-scene .scene-micro,
+body.research-workspace.archive-shell .hero-scene .scene-micro *,
+body.research-workspace.archive-shell .hero-scene .scene-foot,
+body.research-workspace.archive-shell .hero-scene .scene-foot *{
+  font-size:11px!important;
+  line-height:1.3!important;
+}
+body.research-workspace.archive-shell .hero-scene .scene-label{
+  letter-spacing:.08em!important;
+}
+body.research-workspace.archive-shell .hero-scene .scene-label strong,
+body.research-workspace.archive-shell .hero-scene .scene-foot strong{
+  font-size:12px!important;
+}
+body.research-workspace.archive-shell .hero-scene .scene-micro{
+  min-height:28px!important;
+  gap:6px!important;
+  letter-spacing:.035em!important;
+}
+body.research-workspace.archive-shell .hero-scene .scene-micro span{
+  white-space:normal!important;
+  text-align:center;
+}
+
+/* Rail labels stay readable without changing the chronology or density. */
+body.research-workspace.archive-shell .phase-rail .rail-step,
+body.research-workspace.archive-shell .phase-rail .rail-step span,
+body.research-workspace.archive-shell .phase-rail .rail-step strong{
+  font-size:11px!important;
+  line-height:1.3!important;
+}
+
+/* Sequence indexes and frontier state labels remain legible at the shared type floor. */
+body.research-workspace.archive-shell .program-pillars span,
+body.research-workspace.archive-shell .frontier-badge span,
+body.research-workspace.archive-shell #phaseLimitations span{
+  font-size:11px!important;
+  line-height:1.3!important;
+}
+
+/* Small numbered sublabels inside legacy visual cards should never fall below the shared floor. */
+body.research-workspace.archive-shell .phase-visual span,
+body.research-workspace.archive-shell .signature-visual span,
+body.research-workspace.archive-shell .evidence-facts span,
+body.research-workspace.archive-shell .architecture span{
+  font-size:max(11px,1em)!important;
+}
+
+/* Make the shared phase role block read as one stable component everywhere. */
+body.research-workspace .phase-role-card{
+  border:1px solid #e3e5e9!important;
+  box-shadow:none!important;
+}
+
+@media(max-width:700px){
+  /* Keep touch targets comfortably tappable on the narrowest supported viewport. */
+  body.research-workspace.archive-workspace .category-nav a{
+    min-height:44px!important;
+    padding-inline:15px!important;
+  }
+  body.research-workspace.archive-workspace .archive-filter{
+    min-height:44px!important;
+  }
+
+  /* The same hero diagram type scale is used on every legacy phase. */
+  body.research-workspace.archive-shell .hero-scene .scene-label,
+  body.research-workspace.archive-shell .hero-scene .scene-label *,
+  body.research-workspace.archive-shell .hero-scene .scene-micro,
+  body.research-workspace.archive-shell .hero-scene .scene-micro *,
+  body.research-workspace.archive-shell .hero-scene .scene-foot,
+  body.research-workspace.archive-shell .hero-scene .scene-foot *{
+    font-size:11px!important;
+  }
+  body.research-workspace.archive-shell .hero-scene .scene-label strong,
+  body.research-workspace.archive-shell .hero-scene .scene-foot strong{
+    font-size:12px!important;
+  }
+
+  /* Legacy previous/archive links no longer collapse into 22px-high text rows. */
+  body.research-workspace.archive-shell .switch-nav{
+    gap:8px!important;
+  }
+  body.research-workspace.archive-shell .switch-nav a,
+  body.research-workspace.archive-shell .switcher .next{
+    min-height:46px!important;
+    padding-block:10px!important;
+  }
+
+  body.research-workspace.phase11-polish .footer-links{
+    gap:8px!important;
+    flex-wrap:wrap!important;
+  }
+  body.research-workspace.phase11-polish .footer-links a{
+    min-height:44px!important;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  body.research-workspace *{scroll-behavior:auto!important}
+}
