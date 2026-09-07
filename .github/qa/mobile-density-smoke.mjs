@@ -38,7 +38,21 @@ try {
       null,
       { timeout:4000 }
     );
-    await page.waitForTimeout(250);
+    // Density measurements and screenshots must represent the actual settled phase,
+    // not the intentionally brief "Opening phase…" boot surface.
+    await page.waitForFunction(() => {
+      const boot = document.getElementById('archiveBoot');
+      const h1 = document.querySelector('.hero h1');
+      const bootStyle = boot ? getComputedStyle(boot) : null;
+      const bootGone = !boot
+        || boot.classList.contains('leave')
+        || bootStyle?.display === 'none'
+        || bootStyle?.visibility === 'hidden'
+        || Number.parseFloat(bootStyle?.opacity || '1') <= 0.05;
+      return bootGone && Boolean(h1?.textContent?.trim());
+    }, null, { timeout:6000 });
+    await page.evaluate(async () => { if (document.fonts?.ready) await document.fonts.ready; });
+    await page.waitForTimeout(450);
 
     const metrics = await page.evaluate(() => {
       const number = (value) => Number.parseFloat(value || '0') || 0;
@@ -50,6 +64,8 @@ try {
       const program = style('.program-goal');
       const finding = style('.finding blockquote');
       const evidence = style('.evidence-visual');
+      const boot = document.getElementById('archiveBoot');
+      const bootStyle = boot ? getComputedStyle(boot) : null;
       const sections = [...document.querySelectorAll('.section')];
       const sectionStyles = sections.map((el) => getComputedStyle(el));
       return {
@@ -67,6 +83,10 @@ try {
         findingFontSize:number(finding?.fontSize),
         findingLineHeight:number(finding?.lineHeight),
         evidenceMinHeight:number(evidence?.minHeight),
+        bootSettled:!boot
+          || bootStyle?.display === 'none'
+          || bootStyle?.visibility === 'hidden'
+          || number(bootStyle?.opacity) <= 0.05,
         convergenceReady:document.documentElement.dataset.finalConvergence || ''
       };
     });
@@ -74,6 +94,7 @@ try {
     const checks = {
       status:Boolean(response && response.status() >= 200 && response.status() < 400),
       convergence:metrics.convergenceReady === 'ready',
+      bootSettled:metrics.bootSettled,
       noOverflow:metrics.scrollWidth - metrics.clientWidth <= 2,
       heroNotForcedFullscreen:metrics.heroMinHeight <= 1,
       programExists:metrics.programPresent,
@@ -116,7 +137,7 @@ const report = {
 await fs.writeFile(path.join(OUT, 'report.json'), JSON.stringify(report, null, 2));
 await fs.writeFile(
   path.join(OUT, 'summary.md'),
-  `# Mobile density smoke\n\n- Passed: ${passed} / ${results.length}\n- Viewport: 390 × 844\n- Rule: no forced full-screen legacy sections; finding ≤32px; compact program/evidence rhythm.\n`
+  `# Mobile density smoke\n\n- Passed: ${passed} / ${results.length}\n- Viewport: 390 × 844\n- Rule: settled phase only; no forced full-screen legacy sections; finding ≤32px; compact program/evidence rhythm.\n`
 );
 
 if (passed !== results.length) {
