@@ -102,7 +102,6 @@ try {
         const main = document.querySelector('main');
         const h1 = document.querySelector('main h1');
         const header = document.querySelector('body > header, .signature-nav, .site-header, .top');
-        const hero = h1?.closest('section,article,header,.hero,.phase-detail__hero') || h1;
         const phasePage = /^\/phases\/phase/i.test(route);
         const archivePage = route === '/phases/';
         const theme = document.querySelector('meta[name="theme-color"]')?.getAttribute('content') || '';
@@ -129,7 +128,10 @@ try {
         const frozenVerdict = document.querySelector('.phase-detail__hero .phase-verdict-panel');
         const frozenCopy = frozenHero?.firstElementChild || null;
         const navR = rect(header);
-        const heroR = rect(hero);
+        // Fixed/sticky headers legitimately sit over a hero section's background and padding.
+        // The real regression is overlap with the first meaningful hero content, not the
+        // section box itself. Prefer the phase identity chip when present, otherwise the h1.
+        const heroR = rect(phaseChip || h1);
         const sceneR = rect(legacyScene);
         const copyR = rect(legacyCopy);
         const frozenVerdictR = rect(frozenVerdict);
