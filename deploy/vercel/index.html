@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-site-shell="native frozen-archive" data-editorial-media="local-v1">
+<html lang="en" data-site-shell="native frozen-archive" data-editorial-media="local-v2">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -16,7 +16,7 @@
   <link rel="stylesheet" href="/phase-polish-v2.css?v=1">
   <link rel="stylesheet" href="/research-workspace.css?v=2">
   <link rel="stylesheet" href="/research-home.css?v=2">
-  <link rel="stylesheet" href="/research-media.css?v=2">
+  <link rel="stylesheet" href="/research-media.css?v=3">
 </head>
 <body class="research-workspace home-workspace">
   <a class="skip-link" href="#main">Skip to research result</a>
@@ -41,8 +41,8 @@
         <div>
           <div class="workspace-context" aria-label="Research context"><span>Research cockpit</span><span>UAV landing perception</span><span>Frozen through Phase 22</span></div>
           <p class="eyebrow">Evidence before confidence.</p>
-          <h1 id="hero-title">Review the current claim, then trace the evidence.</h1>
-          <p class="hero-deck">AegisLand studies what happens when a UAV landing estimate gets stale, noisy, or hard to see — and whether the system’s uncertainty still tells the truth. Failed gates stay visible so the current result can be traced back to the evidence that produced it.</p>
+          <h1 id="hero-title">Can the system tell when a landing estimate stops being trustworthy?</h1>
+          <p class="hero-deck">AegisLand tests degraded UAV landing perception in simulation. Error, uncertainty, and failed gates stay separate and traceable.</p>
           <div class="actions"><a class="button primary signature-button" href="/phases/phase22/">Review Phase 22</a><a class="button secondary signature-button" href="/phases/">Browse research archive</a></div>
         </div>
 
@@ -56,7 +56,7 @@
             <div class="workspace-measure"><span>MAE-surface R²</span><strong>0.7744</strong></div>
             <div class="workspace-measure"><span>Stable-sign accuracy</span><strong>100%</strong></div>
           </div>
-          <div class="workspace-boundary"><strong>Evidence boundary</strong>Simulation-only result. It is not a physical-flight safety acceptance and it is not authorized for controller tuning.</div>
+          <div class="workspace-boundary"><strong>Evidence boundary</strong>Simulation-only result. Not physical-flight safety acceptance. Not authorized for controller tuning.</div>
           <div class="workspace-status-meta">Final synthetic 32-cell holdout · transferred without refitting</div>
           <div class="home-lineage" aria-label="Frozen Phase 12 through Phase 22 verdict lineage">
             <div class="home-lineage__head"><span>Frozen lineage · Phase 12 → Phase 22</span><strong>6 PASS / 7 FAIL</strong></div>
@@ -80,29 +80,53 @@
 
     <section class="section ash" id="evidence">
       <div class="wrap">
-        <div class="research-alert" role="note"><div class="research-alert__label">Key caution</div><p>A stale estimate can be less accurate while an old uncertainty width barely changes. Later residual structure does not mean latency improved the underlying level error.</p><a href="/phases/phase16/">Review Phase 16 →</a></div>
-        <div class="section-head"><p class="eyebrow">Main conclusion</p><div><h2>Confidence, absolute error, and local predictability are not the same thing.</h2><p class="copy">Across the frozen simulation studies, a stale estimate can become less accurate while its old uncertainty width barely changes. At the same time, short-horizon residual behavior can still have repeatable structure. Later phases found that much of the synthetic context effect could be described with simple first-order terms and transferred to fresh 32-cell context cubes without refitting.</p></div></div>
-        <div class="evidence-list" aria-label="Evidence supporting the current conclusion"><a class="evidence-item" href="/phases/phase16/"><span>Phase 16 · staleness mechanism</span><strong>Two-frame staleness worsened lateral level error and coverage.</strong></a><a class="evidence-item" href="/phases/phase19/"><span>Phase 19 · residual effect</span><strong>A narrower one-step residual advantage replicated in the simple context.</strong></a><a class="evidence-item" href="/phases/phase20/"><span>Phase 20 · factor decomposition</span><strong>Predefined modifiers explained the simple-to-hard attenuation pattern.</strong></a><a class="evidence-item" href="/phases/phase21/"><span>Phase 21 · context spectrum</span><strong>The frozen context surface was mostly first-order rather than interaction-driven.</strong></a><a class="evidence-item" href="/phases/phase22/"><span>Phase 22 · final transfer</span><strong>The additive model passed all 10 final gates without refitting.</strong></a></div>
+        <div class="research-alert" role="note"><div class="research-alert__label">Key caution</div><p>A stale estimate can be less accurate while its old uncertainty width barely moves. Residual structure is not proof that latency improved accuracy.</p><a href="/phases/phase16/">Review Phase 16 →</a></div>
+        <div class="section-head"><p class="eyebrow">Main conclusion</p><div><h2>A stale estimate can be worse even when confidence barely changes.</h2><p class="copy">Later phases found repeatable residual structure, but that does not erase the underlying level error.</p></div></div>
+        <div class="evidence-list" aria-label="Evidence supporting the current conclusion"><a class="evidence-item" href="/phases/phase16/"><span>Phase 16 · staleness mechanism</span><strong>Staleness worsened lateral error and coverage.</strong></a><a class="evidence-item" href="/phases/phase19/"><span>Phase 19 · residual effect</span><strong>One-step residual advantage replicated.</strong></a><a class="evidence-item" href="/phases/phase20/"><span>Phase 20 · factor decomposition</span><strong>Predefined modifiers explained attenuation.</strong></a><a class="evidence-item" href="/phases/phase21/"><span>Phase 21 · context spectrum</span><strong>The context surface was mostly first-order.</strong></a><a class="evidence-item" href="/phases/phase22/"><span>Phase 22 · final transfer</span><strong>The additive model passed 10/10 gates without refitting.</strong></a></div>
+
+        <figure class="research-photo research-photo--inline research-photo--inline-right" data-editorial-photo>
+          <div class="research-photo__frame">
+            <img src="/media/acero-ground-control.jpg" alt="Ground-control operators monitoring an unmanned aircraft flight during a NASA Ames ACERO field test." width="1280" height="852" loading="lazy" decoding="async">
+            <div class="research-photo__fallback" data-image-fallback hidden role="status">Context photograph unavailable. The AegisLand evidence remains unaffected.</div>
+          </div>
+          <figcaption>
+            <span class="research-photo__context">Visual context — not AegisLand experimental evidence</span>
+            <span class="research-photo__credit">Photo: Don Richey / NASA Ames Research Center · Public domain · <a href="https://commons.wikimedia.org/wiki/File:Advanced_Capabilities_for_Emergency_Response_Operations_(ACERO)_(ACD24-0180-009).jpg" target="_blank" rel="noreferrer">Source</a></span>
+          </figcaption>
+        </figure>
       </div>
     </section>
 
     <section class="section" id="question">
       <div class="wrap goal-grid">
-        <div><p class="eyebrow">Research question</p><h2>When the landing estimate gets worse, can the system tell that it is getting worse?</h2><p class="copy">The project separates three things that are easy to mix together: how wrong the estimate is, how wide the uncertainty interval is, and how predictable the next small error step looks. The point is to see when those signals agree — and when they do not.</p></div>
-        <div class="goal-points"><div class="goal-point"><strong>Uncertainty</strong><span>Does the reported interval still cover the actual error under degradation?</span></div><div class="goal-point"><strong>Absolute error</strong><span>How much does staleness change lateral accuracy and coverage?</span></div><div class="goal-point"><strong>Short-horizon behavior</strong><span>Can local residual structure stay predictable even while the overall estimate gets worse?</span></div></div>
+        <div><p class="eyebrow">Research question</p><h2>Can uncertainty still tell the truth when the estimate degrades?</h2><p class="copy">We track three signals separately: absolute error, interval width, and one-step residual behavior.</p></div>
+        <div class="goal-points"><div class="goal-point"><strong>Uncertainty</strong><span>Does the interval still cover the actual error?</span></div><div class="goal-point"><strong>Absolute error</strong><span>How much does staleness hurt accuracy?</span></div><div class="goal-point"><strong>Short-horizon behavior</strong><span>Does local residual structure remain predictable?</span></div></div>
       </div>
     </section>
 
     <section class="section" id="purpose">
       <div class="wrap goal-grid">
-        <div><p class="eyebrow">Main purpose</p><h2>Keep the full record, including the parts that did not work.</h2><p class="copy">Each phase answers one narrower question. Candidates are frozen before later evidence is opened, failed gates stay failed, and a later success does not rewrite an earlier miss. That makes the archive useful as a research record instead of a highlight reel.</p></div>
-        <div class="goal-points"><div class="goal-point"><strong>Problem being studied</strong><span>A model can be confidently wrong.</span></div><div class="goal-point"><strong>The practical question</strong><span>Which signals still deserve trust when the input shifts?</span></div><div class="goal-point"><strong>The rule</strong><span>Development, transfer, protected validation, and final holdout stay separate.</span></div></div>
+        <div><p class="eyebrow">Main purpose</p><h2>Keep every result — especially failures.</h2><p class="copy">Each phase is frozen before the next evidence role opens. Later success never rewrites an earlier miss.</p></div>
+        <div class="goal-points"><div class="goal-point"><strong>Problem</strong><span>A model can be confidently wrong.</span></div><div class="goal-point"><strong>Question</strong><span>Which signals still deserve trust under shift?</span></div><div class="goal-point"><strong>Rule</strong><span>Development, protected validation, and final holdout stay separate.</span></div></div>
+      </div>
+
+      <div class="wrap">
+        <figure class="research-photo research-photo--inline research-photo--inline-left" data-editorial-photo>
+          <div class="research-photo__frame">
+            <img src="/media/stereo-uav-preflight.jpg" alt="NASA STEReO pilot performing pre-flight checks on a FreeFly Systems Alta X drone." width="1280" height="853" loading="lazy" decoding="async">
+            <div class="research-photo__fallback" data-image-fallback hidden role="status">Context photograph unavailable. The AegisLand research record remains unchanged.</div>
+          </div>
+          <figcaption>
+            <span class="research-photo__context">Visual context — not AegisLand experimental evidence</span>
+            <span class="research-photo__credit">Photo: Joel Kowsky / NASA · Public domain · <a href="https://commons.wikimedia.org/wiki/File:STEReO_Field_Testing_(NHQ202105050002).jpg" target="_blank" rel="noreferrer">Source</a></span>
+          </figcaption>
+        </figure>
       </div>
     </section>
 
     <section class="section ash" id="method">
       <div class="wrap">
-        <div class="section-head"><p class="eyebrow">Method</p><div><h2>Freeze the decision before opening the next result.</h2><p class="copy">Thresholds, coefficients, and context definitions are locked before protected evidence is exposed. If a gate fails, the phase closes with that failure. The next phase can ask a different question, but it cannot go back and tune the old answer.</p></div></div>
+        <div class="section-head"><p class="eyebrow">Method</p><div><h2>Freeze first. Then evaluate.</h2><p class="copy">Thresholds and coefficients lock before protected evidence opens. A failed gate stays failed.</p></div></div>
         <div class="method-visual-grid">
           <figure class="research-photo research-photo--method" data-editorial-photo>
             <div class="research-photo__frame">
@@ -115,20 +139,20 @@
             </figcaption>
           </figure>
           <div class="three method-steps">
-            <article class="card"><h3>Lock the evaluation conditions.</h3><p>Freeze the candidate, thresholds, and scientific code before the next evidence role.</p><span class="tag">01 · Freeze</span></article>
-            <article class="card"><h3>Keep evidence separate from interpretation.</h3><p>Development data is not quietly reused as protected or final evidence.</p><span class="tag">02 · Separate</span></article>
-            <article class="card"><h3>Leave failures visible.</h3><p>Phase 13A, 13B, 14, 15, 16, 17, and 18 remain failed in the archive.</p><span class="tag">03 · Preserve</span></article>
+            <article class="card"><h3>Lock the evaluation conditions.</h3><p>Freeze the candidate, thresholds, and scientific code.</p><span class="tag">01 · Freeze</span></article>
+            <article class="card"><h3>Keep evidence separate from interpretation.</h3><p>Do not reuse development data as protected or final evidence.</p><span class="tag">02 · Separate</span></article>
+            <article class="card"><h3>Leave failures visible.</h3><p>Failed phases remain failed in the archive.</p><span class="tag">03 · Preserve</span></article>
           </div>
         </div>
       </div>
     </section>
 
     <section class="section" id="timeline">
-      <div class="wrap"><div class="rail-head"><div><p class="eyebrow">Frozen evidence lineage</p><h2>Every pass and every failure is still here.</h2><p class="copy">The scientific record is frozen through Phase 22. Later results do not upgrade earlier verdicts.</p></div><a class="text-link" href="/phases/">Open full archive →</a></div><div class="evidence-list" id="evidenceSpine" aria-live="polite"></div></div>
+      <div class="wrap"><div class="rail-head"><div><p class="eyebrow">Frozen evidence lineage</p><h2>Every pass and failure stays visible.</h2><p class="copy">Frozen through Phase 22. Later results do not upgrade earlier verdicts.</p></div><a class="text-link" href="/phases/">Open full archive →</a></div><div class="evidence-list" id="evidenceSpine" aria-live="polite"></div></div>
     </section>
 
     <section class="section ash">
-      <div class="wrap boundary-grid"><div><p class="eyebrow">Evidence boundary</p><h2>The interface can change. The frozen results cannot.</h2><p class="copy signature-section__intro">No Phase 23 is implied or authorized by this site. The scientific record remains fixed through Phase 22 at scientific head <code>668d065714dde279857bc0e196f0ef7cc5e182ed</code>.</p><p class="copy">No physical-flight safety, certification, production-readiness, real-sensor-equivalence, controller-improvement, physical-causality, or operational-safety claim is made.</p><code class="boundary-flags">simulation_only=true · safety_acceptance=false · controller_tuning_allowed=false</code></div><div class="actions"><a class="button primary signature-button" href="/phases/phase22/">Inspect current evidence</a><a class="button secondary signature-button" href="/phases/">Browse all phases</a></div></div>
+      <div class="wrap boundary-grid"><div><p class="eyebrow">Evidence boundary</p><h2>The interface can change. The science cannot.</h2><p class="copy signature-section__intro">No Phase 23 is implied or authorized. The record is frozen through Phase 22 at scientific head <code>668d065714dde279857bc0e196f0ef7cc5e182ed</code>.</p><p class="copy">No physical-flight safety, certification, production-readiness, real-sensor-equivalence, controller-improvement, physical-causality, or operational-safety claim is made.</p><code class="boundary-flags">simulation_only=true · safety_acceptance=false · controller_tuning_allowed=false</code></div><div class="actions"><a class="button primary signature-button" href="/phases/phase22/">Inspect current evidence</a><a class="button secondary signature-button" href="/phases/">Browse all phases</a></div></div>
     </section>
   </main>
 
