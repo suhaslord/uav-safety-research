@@ -1,0 +1,148 @@
+/*
+  Cross-template UI consistency pass for the phase archive.
+  Visual-only: no research data, verdicts, hashes, or scientific copy are changed.
+*/
+
+/* Shared interaction sizing and focus rhythm. */
+body.research-workspace .skip-link{
+  min-height:44px;
+  display:inline-flex;
+  align-items:center;
+}
+body.research-workspace .mobile-menu-toggle,
+body.research-workspace .mobile-menu-close{
+  min-height:44px;
+  min-width:44px;
+}
+body.research-workspace .signature-brand,
+body.research-workspace.phase11-polish .brand,
+body.research-workspace.archive-shell .word{
+  min-height:44px;
+  display:inline-flex;
+  align-items:center;
+}
+
+/* Archive controls should feel like the same control family as the phase buttons. */
+body.research-workspace.archive-workspace .category-nav a,
+body.research-workspace.archive-workspace .archive-filter,
+body.research-workspace.archive-workspace .archive-reset{
+  min-height:44px!important;
+}
+body.research-workspace.archive-workspace .category-nav{
+  scrollbar-width:thin;
+  scroll-padding-inline:14px;
+}
+
+/* Frozen detail navigation uses full-size controls, including the back affordance. */
+body.research-workspace .phase-detail__back{
+  min-height:44px;
+  display:inline-flex;
+  align-items:center;
+  padding-inline:4px;
+}
+body.research-workspace .phase-detail__nav .signature-button{
+  min-height:44px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+}
+
+/* Legacy phase footer/navigation was visually smaller than the frozen template. */
+body.research-workspace.archive-shell .switch-nav a,
+body.research-workspace.archive-shell .switcher .next{
+  min-height:44px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+}
+
+/* Phase 11 footer links now match the interaction scale used elsewhere. */
+body.research-workspace.phase11-polish .footer-links a{
+  min-height:44px;
+  display:inline-flex;
+  align-items:center;
+  padding-inline:4px;
+}
+
+/* Hero diagram labels were the weakest readability point in the legacy template. */
+body.research-workspace.archive-shell .scene-label{
+  font-size:11px!important;
+  letter-spacing:.08em!important;
+}
+body.research-workspace.archive-shell .scene-label strong{
+  font-size:12px!important;
+}
+body.research-workspace.archive-shell .scene-micro{
+  min-height:28px!important;
+  gap:6px!important;
+  font-size:11px!important;
+  line-height:1.25!important;
+  letter-spacing:.035em!important;
+}
+body.research-workspace.archive-shell .scene-micro span{
+  white-space:normal!important;
+  text-align:center;
+}
+body.research-workspace.archive-shell .scene-foot{
+  font-size:11px!important;
+  line-height:1.35!important;
+}
+body.research-workspace.archive-shell .scene-foot strong{
+  font-size:12px!important;
+}
+
+/* Rail labels stay readable without changing the chronology or density. */
+body.research-workspace.archive-shell .rail-step span,
+body.research-workspace.archive-shell .rail-step strong{
+  font-size:11px!important;
+  line-height:1.3!important;
+}
+
+/* Make the shared phase role block read as one stable component everywhere. */
+body.research-workspace .phase-role-card{
+  border:1px solid #e3e5e9!important;
+  box-shadow:none!important;
+}
+
+@media(max-width:700px){
+  /* Keep touch targets comfortably tappable on the narrowest supported viewport. */
+  body.research-workspace.archive-workspace .category-nav a{
+    min-height:44px!important;
+    padding-inline:15px!important;
+  }
+  body.research-workspace.archive-workspace .archive-filter{
+    min-height:44px!important;
+  }
+
+  /* The same hero diagram type scale is used on every legacy phase. */
+  body.research-workspace.archive-shell .scene-label,
+  body.research-workspace.archive-shell .scene-micro,
+  body.research-workspace.archive-shell .scene-foot{
+    font-size:11px!important;
+  }
+  body.research-workspace.archive-shell .scene-label strong,
+  body.research-workspace.archive-shell .scene-foot strong{
+    font-size:12px!important;
+  }
+
+  /* Legacy previous/archive links no longer collapse into 22px-high text rows. */
+  body.research-workspace.archive-shell .switch-nav{
+    gap:8px!important;
+  }
+  body.research-workspace.archive-shell .switch-nav a,
+  body.research-workspace.archive-shell .switcher .next{
+    min-height:46px!important;
+    padding-block:10px!important;
+  }
+
+  body.research-workspace.phase11-polish .footer-links{
+    gap:8px!important;
+    flex-wrap:wrap!important;
+  }
+  body.research-workspace.phase11-polish .footer-links a{
+    min-height:44px!important;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  body.research-workspace *{scroll-behavior:auto!important}
+}
