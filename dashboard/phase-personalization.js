@@ -15,7 +15,7 @@
     card.className = 'phase-role-card';
     card.innerHTML = `
       <div class="phase-role-card__label"><span>Phase role</span><strong>${meta.identity}</strong></div>
-      <p class="phase-role-card__question">${meta.question}</p>
+      <p class="phase-role-card__question" data-question-labeled="true"><span class="phase-role-card__question-label">Central question</span><span class="phase-role-card__question-text">${meta.question}</span></p>
       <div class="phase-role-card__signal"><span>Core signal</span><strong>${meta.signal}</strong></div>`;
     return card;
   };
