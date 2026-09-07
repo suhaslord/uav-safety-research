@@ -36,23 +36,30 @@ jobs:
           npm install --no-save playwright@1.55.0
           npx playwright install --with-deps chromium
 
-      - name: Wait for expanded local editorial media release
+      - name: Wait for live UI consistency release
         shell: bash
         run: |
           set -euo pipefail
-          URL='https://aegisland-research-cockpit.vercel.app/?editorial_media_ready=2'
-          for i in {1..40}; do
-            HTML=$(curl --fail --silent --show-error --location "$URL" || true)
-            if printf '%s' "$HTML" | grep -q 'data-editorial-media="local-v2"'; then
+          BASE='https://aegisland-research-cockpit.vercel.app'
+          HOME_URL="$BASE/?ui_consistency_ready=1"
+          CSS_URL="$BASE/phase-ui-consistency.css?v=1"
+          for i in {1..60}; do
+            HTML=$(curl --fail --silent --show-error --location "$HOME_URL" || true)
+            rm -f /tmp/ui-consistency.css /tmp/ui-consistency.headers
+            if printf '%s' "$HTML" | grep -q 'data-editorial-media="local-v2"' \
+              && curl --fail --silent --show-error --location --dump-header /tmp/ui-consistency.headers "$CSS_URL" -o /tmp/ui-consistency.css \
+              && grep -qi '^content-type: text/css' /tmp/ui-consistency.headers \
+              && grep -q 'Cross-template UI consistency pass' /tmp/ui-consistency.css \
+              && grep -q '#phaseLimitations span' /tmp/ui-consistency.css; then
               for ASSET in acero-uav-flight.jpg acero-ground-control.jpg stereo-uav-preflight.jpg acero-uav-landing.jpg phase01-context.jpg phase22-context.jpg; do
-                curl --fail --silent --show-error --location "https://aegisland-research-cockpit.vercel.app/media/$ASSET" >/dev/null
+                curl --fail --silent --show-error --location "$BASE/media/$ASSET" >/dev/null
               done
-              echo '✓ expanded local editorial media release is ready'
+              echo '✓ live UI consistency release and editorial media are ready'
               exit 0
             fi
             sleep 2
           done
-          echo 'Timed out waiting for expanded local editorial media release.'
+          echo 'Timed out waiting for the live UI consistency release.'
           exit 1
 
       - name: Run production browser QA
