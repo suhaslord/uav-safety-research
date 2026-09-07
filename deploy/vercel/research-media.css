@@ -1,66 +1,88 @@
-/* Homepage visual media layer. Uses clearly labeled public-domain reference photography; no scientific evidence is inferred from imagery. */
+/*
+  Homepage editorial media layer.
+  The photographs are public-domain NASA Ames context imagery only; no scientific evidence is inferred from them.
+*/
 body.research-workspace.home-workspace .research-photo{
   margin:0;
   min-width:0;
-  overflow:hidden;
-  border-radius:12px;
-  background:#eef0f2;
 }
+
+body.research-workspace.home-workspace .research-photo__frame{
+  position:relative;
+  width:100%;
+  aspect-ratio:16 / 9;
+  overflow:hidden;
+  border:1px solid #e1e3e6;
+  border-radius:10px;
+  background:#f3f4f5;
+}
+
 body.research-workspace.home-workspace .research-photo img{
   display:block;
   width:100%;
   height:100%;
   object-fit:cover;
 }
+
+body.research-workspace.home-workspace .research-photo__fallback{
+  position:absolute;
+  inset:0;
+  display:grid;
+  place-items:center;
+  padding:28px;
+  background:#f3f4f5;
+  color:#5c5e62;
+  text-align:center;
+  font-size:13px;
+  line-height:1.55;
+}
+body.research-workspace.home-workspace .research-photo__fallback[hidden]{display:none}
+
 body.research-workspace.home-workspace .research-photo figcaption{
-  display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
-  gap:20px;
-  padding:11px 2px 0;
-  color:#686b70;
+  display:grid;
+  gap:4px;
+  padding:10px 2px 0;
+  color:#666a70;
   font-size:11px;
   line-height:1.5;
 }
-body.research-workspace.home-workspace .research-photo figcaption span{
-  color:#35383d;
+body.research-workspace.home-workspace .research-photo__context{
+  color:#34373c;
   font-weight:500;
-  white-space:nowrap;
+}
+body.research-workspace.home-workspace .research-photo__credit{
+  color:#6a6d72;
+}
+body.research-workspace.home-workspace .research-photo figcaption a{
+  color:var(--rw-accent)!important;
+  text-decoration:none;
+}
+body.research-workspace.home-workspace .research-photo figcaption a:hover{text-decoration:underline}
+body.research-workspace.home-workspace .research-photo figcaption a:focus-visible{
+  outline:2px solid var(--rw-accent);
+  outline-offset:2px;
+  border-radius:2px;
 }
 
 body.research-workspace.home-workspace .research-photo--hero{
-  width:min(var(--rw-max),calc(100% - 64px));
-  margin:18px auto 0;
-}
-body.research-workspace.home-workspace .research-photo--hero .research-photo__frame{
-  height:clamp(300px,34vw,470px);
-  overflow:hidden;
-  border-radius:12px;
+  width:min(1120px,calc(100% - 64px));
+  margin:24px auto 0;
 }
 body.research-workspace.home-workspace .research-photo--hero img{
-  object-position:center 47%;
+  object-position:center 46%;
 }
 
 body.research-workspace.home-workspace .method-visual-grid{
   display:grid;
-  grid-template-columns:minmax(0,1.12fr) minmax(300px,.88fr);
-  gap:38px;
-  align-items:stretch;
-}
-body.research-workspace.home-workspace .research-photo--method{
-  display:grid;
-  grid-template-rows:minmax(0,1fr) auto;
-}
-body.research-workspace.home-workspace .research-photo--method .research-photo__frame{
-  min-height:390px;
-  overflow:hidden;
-  border-radius:12px;
+  grid-template-columns:minmax(0,1.05fr) minmax(320px,.95fr);
+  gap:42px;
+  align-items:start;
 }
 body.research-workspace.home-workspace .research-photo--method img{
   object-position:center center;
 }
 
-/* Fix the old sparse three-card row: same content, cleaner vertical method sequence beside the field image. */
+/* Same principles, but as a quiet vertical sequence instead of three oversized boxes. */
 body.research-workspace.home-workspace #method .method-steps{
   display:grid!important;
   grid-template-columns:minmax(0,1fr)!important;
@@ -71,73 +93,64 @@ body.research-workspace.home-workspace #method .method-steps{
 body.research-workspace.home-workspace #method .method-steps .card,
 body.research-workspace.home-workspace #method .method-steps .card+.card{
   min-width:0!important;
-  padding:22px 0!important;
+  padding:20px 0!important;
   border-left:0!important;
   border-bottom:1px solid #dfe2e6!important;
   background:transparent!important;
 }
 body.research-workspace.home-workspace #method .method-steps .card h3{
+  max-width:430px;
   margin:0 0 7px!important;
   font-size:17px!important;
-  line-height:1.3!important;
+  line-height:1.32!important;
   font-weight:500!important;
+  letter-spacing:-.01em!important;
 }
 body.research-workspace.home-workspace #method .method-steps .card p{
   max-width:440px;
-  margin:0 0 14px!important;
+  margin:0 0 13px!important;
   font-size:14px!important;
   line-height:1.6!important;
 }
 body.research-workspace.home-workspace #method .method-steps .tag{
+  color:#666a70!important;
   font-size:11px!important;
   letter-spacing:.01em!important;
 }
 
 @media(max-width:1000px){
   body.research-workspace.home-workspace .research-photo--hero{
-    width:min(100% - 44px,var(--rw-max));
-    margin-top:8px;
+    width:min(100% - 44px,1040px);
+    margin-top:14px;
   }
   body.research-workspace.home-workspace .method-visual-grid{
     grid-template-columns:minmax(0,1fr);
-    gap:28px;
+    gap:30px;
   }
-  body.research-workspace.home-workspace .research-photo--method .research-photo__frame{
-    min-height:340px;
-    max-height:520px;
+  body.research-workspace.home-workspace .research-photo--method{
+    max-width:760px;
   }
 }
 
 @media(max-width:680px){
-  body.research-workspace.home-workspace .research-photo{
-    border-radius:10px;
-  }
   body.research-workspace.home-workspace .research-photo--hero{
     width:calc(100% - 28px);
     max-width:calc(100% - 28px);
-    margin-top:2px;
+    margin-top:8px;
   }
-  body.research-workspace.home-workspace .research-photo--hero .research-photo__frame{
-    height:240px;
-    border-radius:10px;
+  body.research-workspace.home-workspace .research-photo__frame{
+    border-radius:8px;
   }
   body.research-workspace.home-workspace .research-photo figcaption{
-    display:block;
-    padding-top:9px;
+    padding-top:8px;
     font-size:10.5px;
+    line-height:1.45;
   }
-  body.research-workspace.home-workspace .research-photo figcaption span{
-    display:block;
-    margin-bottom:2px;
-    white-space:normal;
-  }
-  body.research-workspace.home-workspace .research-photo--method .research-photo__frame{
-    min-height:0;
-    height:260px;
-    border-radius:10px;
+  body.research-workspace.home-workspace .method-visual-grid{
+    gap:24px;
   }
   body.research-workspace.home-workspace #method .method-steps .card,
   body.research-workspace.home-workspace #method .method-steps .card+.card{
-    padding:18px 0!important;
+    padding:17px 0!important;
   }
 }
