@@ -1,0 +1,107 @@
+/* Licensed contextual photography for phase pages. Never experimental evidence. */
+.phase-editorial-photo{
+  width:min(1120px,calc(100% - 64px));
+  margin:0 auto 54px;
+}
+.phase-editorial-photo__frame{
+  position:relative;
+  width:100%;
+  aspect-ratio:16 / 9;
+  overflow:hidden;
+  border:1px solid #e1e3e6;
+  border-radius:10px;
+  background:#f3f4f5;
+}
+.phase-editorial-photo img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center;
+}
+.phase-editorial-photo__fallback{
+  position:absolute;
+  inset:0;
+  display:grid;
+  place-items:center;
+  padding:28px;
+  background:#f3f4f5;
+  color:#5c5e62;
+  text-align:center;
+  font-size:13px;
+  line-height:1.55;
+}
+.phase-editorial-photo__fallback[hidden]{display:none}
+.phase-editorial-photo figcaption{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:5px 24px;
+  padding:10px 2px 0;
+  color:#666a70;
+  font-size:11px;
+  line-height:1.5;
+}
+.phase-editorial-photo__context{
+  color:#34373c;
+  font-weight:500;
+}
+.phase-editorial-photo__why{
+  grid-column:1 / -1;
+  color:#50545b;
+}
+.phase-editorial-photo__credit{
+  grid-column:2;
+  grid-row:1;
+  text-align:right;
+  white-space:nowrap;
+}
+.phase-editorial-photo a{
+  color:var(--phase-accent,#3559c7);
+  text-decoration:none;
+}
+.phase-editorial-photo a:hover{text-decoration:underline}
+.phase-editorial-photo a:focus-visible{
+  outline:2px solid var(--phase-accent,#3559c7);
+  outline-offset:2px;
+  border-radius:2px;
+}
+
+body.archive-shell .phase-editorial-photo{margin-top:-30px}
+body.phase11-polish .phase-editorial-photo{margin-top:-26px}
+body .phase-detail > .phase-editorial-photo{
+  width:100%;
+  margin-top:-28px;
+}
+
+@media(max-width:1040px){
+  .phase-editorial-photo{width:min(100% - 44px,1040px);margin-bottom:44px}
+  body .phase-detail > .phase-editorial-photo{width:100%}
+}
+
+@media(max-width:700px){
+  .phase-editorial-photo{
+    width:calc(100% - 28px);
+    margin-top:-10px!important;
+    margin-bottom:34px;
+  }
+  body .phase-detail > .phase-editorial-photo{width:100%}
+  .phase-editorial-photo__frame{border-radius:8px}
+  .phase-editorial-photo figcaption{
+    grid-template-columns:1fr;
+    gap:4px;
+    padding-top:8px;
+    font-size:10.5px;
+    line-height:1.45;
+  }
+  .phase-editorial-photo__credit{
+    grid-column:auto;
+    grid-row:auto;
+    text-align:left;
+    white-space:normal;
+  }
+  .phase-editorial-photo__why{grid-column:auto}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .phase-editorial-photo *{scroll-behavior:auto!important}
+}
