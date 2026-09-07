@@ -10,7 +10,30 @@
     link.addEventListener('load', () => { document.documentElement.dataset.finalConvergence = 'ready'; }, { once: true });
     document.head.appendChild(link);
   };
+
+  const ensureRuntimeOverrides = () => {
+    if (document.getElementById('aegis-convergence-runtime')) return;
+    const style = document.createElement('style');
+    style.id = 'aegis-convergence-runtime';
+    style.textContent = `
+      @media (min-width:701px){
+        body.research-workspace .mobile-menu-toggle,
+        body.research-workspace .mobile-menu-sheet,
+        body.research-workspace .archive-menu-toggle,
+        body.research-workspace .archive-menu-sheet{display:none!important}
+      }
+      @media (max-width:700px){
+        body.research-workspace.archive-shell .hero h1,
+        body.research-workspace.phase11-polish .hero h1,
+        body.research-workspace .phase-detail__hero h1{font-size:34px!important;line-height:1.08!important}
+      }
+      body.research-workspace .phase-detail__back{display:none!important}
+    `;
+    document.head.appendChild(style);
+  };
+
   ensureConvergenceStyles();
+  ensureRuntimeOverrides();
 
   const samePath = (href) => {
     try {
@@ -115,7 +138,10 @@
 
   const labelRoleQuestion = () => {
     document.querySelectorAll('.phase-role-card__question').forEach((question) => {
-      if (question.dataset.questionLabeled === 'true') return;
+      if (question.querySelector('.phase-role-card__question-label')) {
+        question.dataset.questionLabeled = 'true';
+        return;
+      }
       const text = question.textContent.trim();
       question.textContent = '';
       const label = document.createElement('span');
