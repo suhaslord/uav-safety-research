@@ -1,13 +1,16 @@
-name: AegisLand 20-point human craft grade
+name: AegisLand human craft grade
 
 on:
   push:
     branches:
-      - chatgpt/aegisland-converge-to-10
+      - main
+      - 'fix/**'
+      - 'chatgpt/**'
     paths:
       - 'deploy/vercel/**'
       - 'dashboard/**'
       - '.github/qa/craft-grade.mjs'
+      - '.github/qa/mobile-density-smoke.mjs'
       - '.github/qa/local-vercel-server.mjs'
       - '.github/workflows/craft-grade.yml'
   workflow_dispatch:
@@ -58,11 +61,18 @@ jobs:
           QA_BASE_URL: http://127.0.0.1:4173
         run: node .github/qa/craft-grade.mjs
 
+      - name: Grade real-device mobile density
+        env:
+          QA_BASE_URL: http://127.0.0.1:4173
+        run: node .github/qa/mobile-density-smoke.mjs
+
       - name: Upload craft evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: aegisland-20-point-craft-grade
-          path: qa-artifacts/craft-grade/
+          name: aegisland-human-craft-grade
+          path: |
+            qa-artifacts/craft-grade/
+            qa-artifacts/mobile-density/
           if-no-files-found: warn
           retention-days: 14
