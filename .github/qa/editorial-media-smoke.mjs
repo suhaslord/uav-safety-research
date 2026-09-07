@@ -33,6 +33,23 @@ try {
       const response = await page.goto(`${BASE}${route}`, { waitUntil: 'networkidle', timeout: 60000 });
       add(`${viewport.name}-${route}-status`, !!response && response.status() < 400, { status: response?.status() || 0 });
 
+      // Lazy media should remain lazy in the product. Exercise it like a user would
+      // before checking natural dimensions so mobile QA does not confuse "not yet
+      // requested" with "broken".
+      if (route === '/') {
+        const figures = page.locator('[data-editorial-photo]');
+        const count = await figures.count();
+        for (let index = 0; index < count; index += 1) {
+          await figures.nth(index).scrollIntoViewIfNeeded();
+          await page.waitForFunction((photoIndex) => {
+            const figure = document.querySelectorAll('[data-editorial-photo]')[photoIndex];
+            if (!figure) return false;
+            const image = figure.querySelector('img');
+            return figure.dataset.imageState === 'fallback' || !image || (image.complete && image.naturalWidth > 0 && image.naturalHeight > 0);
+          }, index, { timeout: 10000 }).catch(() => {});
+        }
+      }
+
       const state = await page.evaluate((contextLabel) => {
         const root = document.documentElement;
         const photos = [...document.querySelectorAll('[data-editorial-photo]')];
@@ -43,7 +60,7 @@ try {
           marker: root.dataset.editorialMedia || '',
           photoCount: photos.length,
           localSources: images.map((img) => img.getAttribute('src') || ''),
-          imagesLoaded: images.every((img) => img.complete && img.naturalWidth > 0 && img.naturalHeight > 0),
+          imagesLoaded: images.length === photos.length && images.every((img) => img.complete && img.naturalWidth > 0 && img.naturalHeight > 0),
           altText: images.map((img) => img.getAttribute('alt') || ''),
           captionCount: photos.filter((figure) => (figure.textContent || '').includes(contextLabel)).length,
           credits: photos.map((figure) => figure.querySelector('.research-photo__credit')?.textContent?.trim() || ''),
