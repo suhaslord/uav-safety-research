@@ -1,6 +1,26 @@
 (() => {
   'use strict';
 
+  const ensureCraftStyles = () => {
+    let link = document.querySelector('link[data-aegis-craft-polish]');
+    if (!link) {
+      link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = '/craft-polish.css?v=1';
+      link.dataset.aegisCraftPolish = '';
+      document.head.appendChild(link);
+    } else {
+      // Moving an existing stylesheet to the end is intentional: the craft pass
+      // must be the final presentation layer, after structural convergence CSS.
+      document.head.appendChild(link);
+    }
+    if (link.sheet) {
+      document.documentElement.dataset.phaseCraft = 'ready';
+    } else {
+      link.addEventListener('load', () => { document.documentElement.dataset.phaseCraft = 'ready'; }, { once:true });
+    }
+  };
+
   const getSlug = () => location.pathname.match(/\/phases\/(phase(?:\d+[a-z]?))\/?$/i)?.[1]?.toLowerCase() || '';
 
   const makeChip = (category, meta) => {
@@ -115,9 +135,14 @@
     humanizePhase11Copy();
   };
 
+  const settle = () => {
+    applyIdentity();
+    requestAnimationFrame(ensureCraftStyles);
+  };
+
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => requestAnimationFrame(applyIdentity), { once: true });
+    document.addEventListener('DOMContentLoaded', () => requestAnimationFrame(settle), { once: true });
   } else {
-    requestAnimationFrame(applyIdentity);
+    requestAnimationFrame(settle);
   }
 })();
