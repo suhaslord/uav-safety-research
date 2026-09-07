@@ -9,6 +9,7 @@ def test_vercel_home_is_native_frozen_archive_shell() -> None:
     html = (ROOT / "deploy" / "vercel" / "index.html").read_text(encoding="utf-8")
 
     assert 'data-site-shell="native frozen-archive"' in html
+    assert 'data-editorial-media="local-v2"' in html
     assert "document.write" not in html
     assert "cdn.jsdelivr.net/gh/suhaslord/uav-safety-research" not in html
     assert "const rev=" not in html
@@ -36,6 +37,9 @@ def test_vercel_routes_use_packaged_frozen_and_legacy_assets() -> None:
     assert "/dashboard/phase-taxonomy.js" in destinations
     assert "/dashboard/phase-personalization.css" in destinations
     assert "/dashboard/phase-personalization.js" in destinations
+    assert "/dashboard/phase-editorial-media.css" in destinations
+    assert "/dashboard/phase-visuals.js" in destinations
+    assert "/dashboard/phase-editorial-media.js" in destinations
     assert "/phase11.html" in destinations
     assert "/phase12.html" not in destinations
 
@@ -83,7 +87,7 @@ def test_phase_archive_uses_shared_tesla_polish_without_rewriting_lineage() -> N
     phase = (ROOT / "dashboard" / "phases" / "phase.html").read_text(encoding="utf-8")
 
     assert "--phase-blue:#3e6ae1" in polish
-    assert "backdrop-filter" in polish  # restrained fixed navigation only
+    assert "backdrop-filter" in polish
     assert "linear-gradient" not in polish
     assert 'href="/phase-polish.css?v=' in archive
     assert 'href="/phase-polish.css?v=' in frozen
@@ -91,6 +95,8 @@ def test_phase_archive_uses_shared_tesla_polish_without_rewriting_lineage() -> N
     assert 'href="/phase-personalization.css?v=' in archive
     assert 'href="/phase-personalization.css?v=' in frozen
     assert 'href="/phase-personalization.css?v=' in phase
+    assert 'href="/phase-editorial-media.css?v=' in frozen
+    assert 'href="/phase-editorial-media.css?v=' in phase
     assert 'href="/signature.css?v=' not in archive
     assert 'href="/signature.css?v=' not in frozen
     assert "One research program. Six distinct chapters." in archive
@@ -145,10 +151,13 @@ def test_frozen_archive_replaces_current_frontier_bridge_without_breaking_legacy
 
     assert 'src="/frozen-lineage.js?v=' in frozen
     assert 'src="/phase-taxonomy.js?v=' in frozen
+    assert 'src="/phase-visuals.js?v=' in frozen
     assert 'src="/phase-personalization.js?v=' in frozen
+    assert 'src="/phase-editorial-media.js?v=' in frozen
     assert "phase(?:12|13a|13b|13c|1[4-9]|2[0-2])" in frozen
 
     assert phase.rfind('src="/phase-personalization.js?v=1"') > phase.rfind('src="/aegis-current.js"')
+    assert phase.rfind('src="/phase-editorial-media.js?v=1"') > phase.rfind('src="/phase-personalization.js?v=1"')
 
 
 def test_phase10r_logic_is_loaded_by_the_shared_phase_template() -> None:
