@@ -1,6 +1,17 @@
 (() => {
   'use strict';
 
+  const ensureCraftStyles = () => {
+    if (document.querySelector('link[data-aegis-craft-polish]')) return;
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = '/craft-polish.css?v=1';
+    link.dataset.aegisCraftPolish = '';
+    link.addEventListener('load', () => { document.documentElement.dataset.phaseCraft = 'ready'; }, { once: true });
+    document.head.appendChild(link);
+  };
+  ensureCraftStyles();
+
   const getSlug = () => location.pathname.match(/\/phases\/(phase(?:\d+[a-z]?))\/?$/i)?.[1]?.toLowerCase() || '';
 
   const makeChip = (category, meta) => {
