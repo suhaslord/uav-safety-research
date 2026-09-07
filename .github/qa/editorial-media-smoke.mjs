@@ -15,6 +15,11 @@ const phaseSlugs = [
 const allPhaseRoutes = phaseSlugs.map((slug) => `/phases/${slug}/`);
 const responsiveRoutes = ['/', '/phases/', '/phases/phase1/', '/phases/phase11/', '/phases/phase22/'];
 const expectedContext = 'Visual context — not AegisLand experimental evidence';
+const expectedPhaseRatio = (viewportName) => {
+  if (viewportName === 'desktop') return 16 / 7;
+  if (viewportName === 'tablet') return 2;
+  return 16 / 9;
+};
 const results = [];
 let failed = 0;
 const add = (name, ok, details = {}) => {
@@ -100,6 +105,7 @@ try {
       } else if (route === '/phases/') {
         add(`${viewport.name}-archive-no-editorial-photo-duplication`, state.photoCount === 0, { photoCount: state.photoCount });
       } else {
+        const targetRatio = expectedPhaseRatio(viewport.name);
         add(`${viewport.name}-${route}-one-phase-photo`, state.photoCount === 1, { photoCount: state.photoCount });
         add(`${viewport.name}-${route}-phase-photo-local`, state.localSources.length === 1 && state.localSources[0].startsWith('/media/'), { sources: state.localSources });
         add(`${viewport.name}-${route}-phase-photo-loaded`, state.imagesLoaded && !state.fallbackVisible, { imagesLoaded: state.imagesLoaded, fallbackVisible: state.fallbackVisible });
@@ -107,7 +113,7 @@ try {
         add(`${viewport.name}-${route}-phase-photo-context`, state.captionCount === 1, { captionCount: state.captionCount });
         add(`${viewport.name}-${route}-phase-photo-credit`, state.credits.length === 1 && /Public domain/i.test(state.credits[0]) && /(Don Richey|Joel Kowsky)/i.test(state.credits[0]), { credits: state.credits });
         add(`${viewport.name}-${route}-phase-photo-source`, state.sourceLinks.length === 1 && state.sourceLinks[0].startsWith('https://commons.wikimedia.org/wiki/File:'), { sourceLinks: state.sourceLinks });
-        add(`${viewport.name}-${route}-phase-photo-ratio`, state.ratios.length === 1 && Math.abs(state.ratios[0] - (16 / 9)) < 0.03, { ratios: state.ratios });
+        add(`${viewport.name}-${route}-phase-photo-ratio`, state.ratios.length === 1 && Math.abs(state.ratios[0] - targetRatio) < 0.03, { ratios: state.ratios, targetRatio });
         if (viewport.name === 'desktop' && state.localSources[0]) desktopPhaseSources.set(route, state.localSources[0]);
       }
       await page.close();
