@@ -1,0 +1,68 @@
+name: AegisLand local convergence grade
+
+on:
+  push:
+    branches:
+      - chatgpt/aegisland-converge-to-10
+    paths:
+      - 'deploy/vercel/**'
+      - 'dashboard/**'
+      - '.github/qa/convergence-grade.mjs'
+      - '.github/qa/local-vercel-server.mjs'
+      - '.github/workflows/convergence-local-grade.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  grade:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Fetch licensed editorial media
+        run: node deploy/vercel/fetch-editorial-media.mjs
+
+      - name: Install Playwright
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Start local Vercel mirror
+        shell: bash
+        run: |
+          node .github/qa/local-vercel-server.mjs >/tmp/aegis-local.log 2>&1 &
+          echo $! >/tmp/aegis-local.pid
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:4173/ >/dev/null; then
+              curl --fail --silent --head http://127.0.0.1:4173/final-convergence.css | grep -qi 'content-type: text/css'
+              echo '✓ local mirror ready'
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/aegis-local.log
+          exit 1
+
+      - name: Capture 280 screenshots and grade convergence
+        env:
+          QA_BASE_URL: http://127.0.0.1:4173
+        run: node .github/qa/convergence-grade.mjs
+
+      - name: Upload convergence evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aegisland-local-convergence-grade
+          path: qa-artifacts/convergence-grade/
+          if-no-files-found: warn
+          retention-days: 14
