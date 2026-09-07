@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths:
       - '.github/qa/production-ui-qa.mjs'
+      - '.github/qa/editorial-media-smoke.mjs'
       - '.github/qa/mobile-menu-smoke.mjs'
       - '.github/workflows/production-ui-qa.yml'
       - 'dashboard/**'
@@ -34,10 +35,33 @@ jobs:
           npm install --no-save playwright@1.55.0
           npx playwright install --with-deps chromium
 
+      - name: Wait for local editorial media release
+        shell: bash
+        run: |
+          set -euo pipefail
+          URL='https://aegisland-research-cockpit.vercel.app/?editorial_media_ready=1'
+          for i in {1..40}; do
+            HTML=$(curl --fail --silent --show-error --location "$URL" || true)
+            if printf '%s' "$HTML" | grep -q 'data-editorial-media="local-v1"'; then
+              curl --fail --silent --show-error --location 'https://aegisland-research-cockpit.vercel.app/media/acero-uav-flight.jpg' >/dev/null
+              curl --fail --silent --show-error --location 'https://aegisland-research-cockpit.vercel.app/media/acero-uav-landing.jpg' >/dev/null
+              echo '✓ local editorial media release is ready'
+              exit 0
+            fi
+            sleep 2
+          done
+          echo 'Timed out waiting for local editorial media release.'
+          exit 1
+
       - name: Run production browser QA
         env:
           QA_BASE_URL: https://aegisland-research-cockpit.vercel.app
         run: node .github/qa/production-ui-qa.mjs
+
+      - name: Run editorial media smoke
+        env:
+          QA_BASE_URL: https://aegisland-research-cockpit.vercel.app
+        run: node .github/qa/editorial-media-smoke.mjs
 
       - name: Run mobile menu interaction smoke
         env:
