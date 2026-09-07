@@ -46,6 +46,9 @@ jobs:
         with:
           node-version: '22'
 
+      - name: Fetch licensed editorial media
+        run: node deploy/vercel/fetch-editorial-media.mjs
+
       - name: Install Playwright
         run: |
           npm init -y >/dev/null 2>&1
