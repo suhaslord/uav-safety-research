@@ -17,10 +17,12 @@
     style.id = 'aegis-convergence-runtime';
     style.textContent = `
       @media (min-width:701px){
-        body.research-workspace .mobile-menu-toggle,
-        body.research-workspace .mobile-menu-sheet,
-        body.research-workspace .archive-menu-toggle,
-        body.research-workspace .archive-menu-sheet{display:none!important}
+        html body.research-workspace.home-workspace #mobileMenuToggle,
+        html body.research-workspace.home-workspace #mobileMenuSheet,
+        html body.research-workspace .mobile-menu-toggle,
+        html body.research-workspace .mobile-menu-sheet,
+        html body.research-workspace .archive-menu-toggle,
+        html body.research-workspace .archive-menu-sheet{display:none!important}
       }
       @media (max-width:700px){
         body.research-workspace.archive-shell .hero h1,
