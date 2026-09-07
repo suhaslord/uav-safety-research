@@ -21,10 +21,10 @@ const types = {
 const dashboardAssets = new Set([
   'phase-archive.css', 'phase-signatures.css', 'phase-responsive.css',
   'phase-hero-scenes.css', 'glass-ui.css', 'phase-personalization.css',
-  'phase-taxonomy.js', 'phase-data.js', 'phase-runtime.js',
-  'phase-signatures.js', 'tesla-mobile.js', 'phase-hero-fix.js',
-  'phase10r-archive.js', 'phase-hero-scenes.js', 'aegis-current.js',
-  'phase-personalization.js'
+  'phase-editorial-media.css', 'phase-taxonomy.js', 'phase-visuals.js',
+  'phase-data.js', 'phase-runtime.js', 'phase-signatures.js', 'tesla-mobile.js',
+  'phase-hero-fix.js', 'phase10r-archive.js', 'phase-hero-scenes.js',
+  'aegis-current.js', 'phase-personalization.js', 'phase-editorial-media.js'
 ]);
 
 const deployAssets = new Set([
