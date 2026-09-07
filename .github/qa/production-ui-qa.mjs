@@ -94,6 +94,23 @@ try {
       const status = response?.status() || 0;
       add(`${vp.name}-${route}-status`, status >= 200 && status < 400, { status });
 
+      // The Method photograph is deliberately native-lazy. Before the generic
+      // broken-image check, scroll editorial photos into view and wait for the
+      // browser to either decode them or activate the product fallback.
+      if (route === '/') {
+        const figures = page.locator('[data-editorial-photo]');
+        const count = await figures.count();
+        for (let index = 0; index < count; index += 1) {
+          await figures.nth(index).scrollIntoViewIfNeeded();
+          await page.waitForFunction((photoIndex) => {
+            const figure = document.querySelectorAll('[data-editorial-photo]')[photoIndex];
+            if (!figure) return false;
+            const image = figure.querySelector('img');
+            return figure.dataset.imageState === 'fallback' || !image || (image.complete && image.naturalWidth > 0 && image.naturalHeight > 0);
+          }, index, { timeout: 10000 }).catch(() => {});
+        }
+      }
+
       const state = await page.evaluate(() => {
         const root = document.documentElement;
         const bodyText = document.body?.innerText || '';
