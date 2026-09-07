@@ -30,12 +30,34 @@
   html body.research-workspace.research-workspace .archive-menu-sheet{
     display:block!important;
   }
+
   body.research-workspace .workspace-context{
     column-gap:10px!important;
     row-gap:4px!important;
   }
   body.research-workspace .workspace-context span+span::before{
     content:none!important;
+  }
+
+  /* The 12-step early-phase rail is too wide for tablets. Use its compact disclosure. */
+  body.research-workspace.archive-shell .phase-rail-section{
+    border-top:0!important;
+  }
+  body.research-workspace.archive-shell .phase-progress-compact{
+    display:flex!important;
+  }
+  body.research-workspace.archive-shell .phase-rail{
+    display:none!important;
+    min-height:0!important;
+    padding-bottom:6px!important;
+  }
+  body.research-workspace.archive-shell .phase-rail-section.is-open .phase-rail{
+    display:grid!important;
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    overflow:visible!important;
+  }
+  body.research-workspace.archive-shell .phase-rail-section.is-open .rail-step{
+    min-width:0!important;
   }
 }
 
@@ -52,9 +74,51 @@ body.research-workspace .phase-detail #phaseContent > .phase-editorial-photo{
   margin-right:auto!important;
 }
 
+/* Small text links are still controls; keep their tap targets usable. */
+body.research-workspace.home-workspace #timeline .text-link{
+  min-height:44px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+}
+
 @media (max-width:700px){
   body.research-workspace .phase-detail > .phase-editorial-photo,
   body.research-workspace .phase-detail #phaseContent > .phase-editorial-photo{
     width:calc(100% - 28px)!important;
+  }
+
+  /* Archive categories wrap instead of looking cut off beyond the phone edge. */
+  html body.research-workspace.archive-workspace .category-nav{
+    margin-right:0!important;
+    padding-right:0!important;
+    overflow-x:visible!important;
+    flex-wrap:wrap!important;
+    white-space:normal!important;
+  }
+  html body.research-workspace.archive-workspace .category-nav a{
+    min-height:44px!important;
+  }
+
+  /* Keep all 13 lineage dots visible instead of clipping half the sequence. */
+  html body.research-workspace.home-workspace .home-lineage{
+    overflow-x:visible!important;
+  }
+  html body.research-workspace.home-workspace .home-lineage__track{
+    width:100%!important;
+    min-width:0!important;
+    grid-template-columns:repeat(7,minmax(44px,1fr))!important;
+    row-gap:2px!important;
+  }
+  html body.research-workspace.home-workspace .home-lineage__track::before{
+    display:none!important;
+  }
+  html body.research-workspace.home-workspace .home-lineage__node{
+    width:100%!important;
+    min-width:44px!important;
+    min-height:44px!important;
+  }
+  html body.research-workspace.home-workspace .home-lineage__caption{
+    width:100%!important;
+    min-width:0!important;
   }
 }
