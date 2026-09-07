@@ -11,7 +11,11 @@ const types = {
   '.css': 'text/css; charset=utf-8',
   '.js': 'application/javascript; charset=utf-8',
   '.svg': 'image/svg+xml',
-  '.ico': 'image/x-icon'
+  '.ico': 'image/x-icon',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.png': 'image/png',
+  '.webp': 'image/webp'
 };
 
 const dashboardAssets = new Set([
@@ -33,7 +37,7 @@ const sendFile = async (res, file) => {
   try {
     const body = await fs.readFile(file);
     res.writeHead(200, {
-      'content-type': types[path.extname(file)] || 'application/octet-stream',
+      'content-type': types[path.extname(file).toLowerCase()] || 'application/octet-stream',
       'cache-control': 'no-store',
       'x-content-type-options': 'nosniff'
     });
@@ -65,6 +69,10 @@ const server = http.createServer(async (req, res) => {
   if (p.startsWith('/dashboard/')) {
     const relative = p.slice('/dashboard/'.length);
     if (!relative.includes('..')) return sendFile(res, path.join(dashboardRoot, relative));
+  }
+  if (p.startsWith('/media/')) {
+    const relative = p.slice('/media/'.length);
+    if (!relative.includes('..') && !relative.includes('/')) return sendFile(res, path.join(deployRoot, 'media', relative));
   }
 
   const asset = p.replace(/^\//, '');
