@@ -35,7 +35,7 @@
       if (!document.getElementById('phase10r-density-fix')) {
         const style = document.createElement('style');
         style.id = 'phase10r-density-fix';
-        style.textContent = '@media(max-width:700px){body.archive-shell[data-phase="phase10r"] .section{padding-top:42px!important;padding-bottom:42px!important}body.archive-shell[data-phase="phase10r"] .section-head{margin-bottom:18px!important}}';
+        style.textContent = '@media(max-width:700px){body.archive-shell[data-phase="phase10r"] .section{padding-top:22px!important;padding-bottom:22px!important}body.archive-shell[data-phase="phase10r"] .section-head{margin-bottom:14px!important}body.archive-shell[data-phase="phase10r"] .metrics,body.archive-shell[data-phase="phase10r"] .metric-cards{margin-top:18px!important}}';
         document.head.appendChild(style);
       }
     }
