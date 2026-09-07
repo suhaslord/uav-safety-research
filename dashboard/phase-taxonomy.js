@@ -12,6 +12,12 @@
     document.head.appendChild(link);
   }
 
+  // Older phase templates still carry the pre-redesign dark theme-color meta tag.
+  // Keep mobile browser chrome consistent with the actual light workspace without
+  // touching any scientific page content.
+  const themeColor = document.querySelector('meta[name="theme-color"]');
+  if (themeColor) themeColor.setAttribute('content', '#ffffff');
+
   const categories = [
     {
       id: 'safety-architecture',
