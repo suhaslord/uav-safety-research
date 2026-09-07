@@ -1,17 +1,6 @@
 (() => {
   'use strict';
 
-  const ensureCraftStyles = () => {
-    if (document.querySelector('link[data-aegis-craft-polish]')) return;
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = '/craft-polish.css?v=1';
-    link.dataset.aegisCraftPolish = '';
-    link.addEventListener('load', () => { document.documentElement.dataset.phaseCraft = 'ready'; }, { once: true });
-    document.head.appendChild(link);
-  };
-  ensureCraftStyles();
-
   const getSlug = () => location.pathname.match(/\/phases\/(phase(?:\d+[a-z]?))\/?$/i)?.[1]?.toLowerCase() || '';
 
   const makeChip = (category, meta) => {
@@ -37,19 +26,14 @@
     const identity = sentenceIdentity(meta);
     const snapshot = document.getElementById('snapshotTitle');
     if (snapshot) snapshot.textContent = slug === 'phase4' ? 'Why the numbering gap matters.' : `Why ${identity} existed.`;
-
     const evidence = document.querySelector('.evidence-section .section-head h2');
     if (evidence) evidence.textContent = 'What the evidence showed.';
-
     const limits = document.querySelector('.limits-section .section-head h2');
     if (limits) limits.textContent = 'Where it still broke.';
-
     const changes = document.querySelector('#changes .section-head h2');
     if (changes) changes.textContent = 'What changed here.';
-
     const system = document.querySelector('.system-section .section-head h2');
     if (system) system.textContent = slug === 'phase4' ? 'How the gap is represented.' : `How ${identity} worked.`;
-
     const primary = document.querySelector('#phaseHero .actions .button.blue');
     if (primary) primary.textContent = 'Read the evidence';
     const secondary = document.querySelector('#phaseHero .actions .button.ash');
@@ -63,7 +47,6 @@
     if (findingTitle) findingTitle.textContent = `What ${identity} tells us.`;
     const sourceTitle = panels[1]?.querySelector('h2');
     if (sourceTitle) sourceTitle.textContent = 'Locked source record';
-
     const frozenLabel = document.querySelector('.phase-detail__context .phase-detail__eyebrow');
     if (frozenLabel) frozenLabel.textContent = 'Why the record stays fixed';
   };
@@ -74,9 +57,6 @@
   };
 
   const normalizePhaseFlow = (slug) => {
-    // Phase 10R used to jump out to a GitHub preregistration document even though
-    // the archive now has a first-class Phase 11 page. Keep the research source
-    // link intact elsewhere, but make the site progression stay inside the site.
     if (slug === 'phase10r') {
       const next = document.getElementById('nextPhase');
       if (next) {
@@ -103,11 +83,8 @@
 
     document.body.dataset.phase = slug;
     document.body.dataset.phaseCategory = category.id;
-
-    // Categories organize the research, but the UI keeps one chromatic accent.
     document.documentElement.style.setProperty('--phase-accent', '#3e6ae1');
     document.documentElement.style.setProperty('--phase-tint', '#eef2ff');
-
     normalizePhaseFlow(slug);
 
     const legacyHero = document.querySelector('body.archive-shell #phaseHero');
