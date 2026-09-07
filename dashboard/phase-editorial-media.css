@@ -68,14 +68,16 @@
 
 body.archive-shell .phase-editorial-photo{margin-top:-30px}
 body.phase11-polish .phase-editorial-photo{margin-top:-26px}
-body .phase-detail > .phase-editorial-photo{
+body .phase-detail > .phase-editorial-photo,
+body .phase-detail #phaseContent > .phase-editorial-photo{
   width:100%;
   margin-top:-28px;
 }
 
 @media(max-width:1040px){
   .phase-editorial-photo{width:min(100% - 44px,1040px);margin-bottom:44px}
-  body .phase-detail > .phase-editorial-photo{width:100%}
+  body .phase-detail > .phase-editorial-photo,
+  body .phase-detail #phaseContent > .phase-editorial-photo{width:100%}
 }
 
 @media(max-width:700px){
@@ -84,7 +86,8 @@ body .phase-detail > .phase-editorial-photo{
     margin-top:-10px!important;
     margin-bottom:34px;
   }
-  body .phase-detail > .phase-editorial-photo{width:100%}
+  body .phase-detail > .phase-editorial-photo,
+  body .phase-detail #phaseContent > .phase-editorial-photo{width:100%}
   .phase-editorial-photo__frame{border-radius:8px}
   .phase-editorial-photo figcaption{
     grid-template-columns:1fr;
