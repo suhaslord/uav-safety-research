@@ -8,6 +8,7 @@ on:
       - 'deploy/vercel/**'
       - 'dashboard/**'
       - '.github/qa/convergence-grade.mjs'
+      - '.github/qa/craft-grade.mjs'
       - '.github/workflows/convergence-preview-grade.yml'
   workflow_dispatch:
 
@@ -52,8 +53,10 @@ jobs:
           {"orgId":"$VERCEL_ORG_ID","projectId":"$VERCEL_PROJECT_ID"}
           EOF
           test -s .vercel-release/final-convergence.css
+          test -s .vercel-release/craft-polish.css
           grep -q "final-convergence.css" .vercel-release/research-workspace.js
           grep -q "phase-unified-nav" .vercel-release/research-workspace.js
+          grep -q "craft-polish.css" .vercel-release/dashboard/phase-personalization.js
 
       - name: Install Vercel and Playwright
         run: |
@@ -79,8 +82,9 @@ jobs:
           for i in {1..60}; do
             HTML=$(curl --fail --silent --show-error --location "$BASE/" || true)
             CSS_HEADERS=$(curl --fail --silent --show-error --location --head "$BASE/final-convergence.css?v=1" || true)
-            if printf '%s' "$HTML" | grep -q 'research-workspace.js' && printf '%s' "$CSS_HEADERS" | grep -qi 'content-type: text/css'; then
-              echo '✓ convergence preview ready'
+            CRAFT_HEADERS=$(curl --fail --silent --show-error --location --head "$BASE/craft-polish.css?v=1" || true)
+            if printf '%s' "$HTML" | grep -q 'research-workspace.js' && printf '%s' "$CSS_HEADERS" | grep -qi 'content-type: text/css' && printf '%s' "$CRAFT_HEADERS" | grep -qi 'content-type: text/css'; then
+              echo '✓ convergence + craft preview ready'
               exit 0
             fi
             sleep 2
@@ -93,11 +97,25 @@ jobs:
           QA_BASE_URL: ${{ steps.deploy.outputs.url }}
         run: node .github/qa/convergence-grade.mjs
 
+      - name: Grade 20 human craft gates on preview
+        env:
+          QA_BASE_URL: ${{ steps.deploy.outputs.url }}
+        run: node .github/qa/craft-grade.mjs
+
       - name: Upload convergence evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: aegisland-convergence-grade
           path: qa-artifacts/convergence-grade/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload craft evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aegisland-preview-20-point-craft-grade
+          path: qa-artifacts/craft-grade/
           if-no-files-found: warn
           retention-days: 14
