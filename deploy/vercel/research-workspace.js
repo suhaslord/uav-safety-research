@@ -138,6 +138,79 @@
     });
   };
 
+  const clarifyHomePurpose = () => {
+    if (!document.body.classList.contains('home-workspace')) return;
+    if (document.body.dataset.purposeClarity === 'true') return;
+    document.body.dataset.purposeClarity = 'true';
+
+    const description = 'AegisLand is a simulation study that degrades UAV landing-perception estimates and tests whether reported uncertainty still reflects the real error.';
+    document.querySelector('meta[name="description"]')?.setAttribute('content', description);
+    document.querySelector('meta[property="og:description"]')?.setAttribute('content', description);
+
+    const nav = document.querySelector('.site-nav.signature-nav__links');
+    if (nav) nav.innerHTML = '<a href="#purpose">Purpose</a><a href="#evidence">Evidence</a><a href="#method">Method</a><a href="#timeline">Lineage</a>';
+
+    const mobileLinks = document.querySelector('#mobileMenuSheet .mobile-menu-links');
+    if (mobileLinks) mobileLinks.innerHTML = '<a href="#purpose">Purpose</a><a href="#status">Current result</a><a href="#evidence">Evidence</a><a href="#method">Method</a><a href="#timeline">Lineage</a><a href="/phases/phase22/">Phase 22</a>';
+
+    const hero = document.querySelector('#top .hero-grid > div');
+    if (hero) {
+      const eyebrow = hero.querySelector('.eyebrow');
+      const title = hero.querySelector('h1');
+      const deck = hero.querySelector('.hero-deck');
+      if (eyebrow) eyebrow.textContent = 'Why AegisLand exists.';
+      if (title) title.textContent = 'Can a UAV tell when its landing estimate is no longer trustworthy?';
+      if (deck) deck.textContent = 'AegisLand makes simulated landing-perception estimates worse on purpose, then checks whether reported uncertainty grows with the real error.';
+    }
+
+    const question = document.getElementById('question');
+    if (question) question.remove();
+
+    const purpose = document.getElementById('purpose');
+    const purposeGrid = purpose?.querySelector('.goal-grid');
+    if (purposeGrid) {
+      purposeGrid.innerHTML = `
+        <div>
+          <p class="eyebrow">What the project does</p>
+          <h2>Find when landing perception becomes confidently wrong.</h2>
+          <p class="copy">The goal is not to fly a drone. It is to measure when a simulated landing estimate gets worse without its confidence admitting it.</p>
+        </div>
+        <div class="goal-points">
+          <div class="goal-point"><strong>Stress</strong><span>Introduce stale or degraded landing estimates.</span></div>
+          <div class="goal-point"><strong>Check</strong><span>Compare actual error with reported uncertainty.</span></div>
+          <div class="goal-point"><strong>Freeze</strong><span>Lock every phase so failures stay visible.</span></div>
+        </div>`;
+    }
+
+    const alert = document.querySelector('#evidence .research-alert p');
+    if (alert) alert.textContent = 'Stale estimates can get worse while uncertainty barely moves. Predictable residuals do not mean accuracy improved.';
+    const evidenceCopy = document.querySelector('#evidence .section-head .copy');
+    if (evidenceCopy) evidenceCopy.textContent = 'Staleness raised error faster than confidence reflected it.';
+
+    const methodCopy = document.querySelector('#method .section-head .copy');
+    if (methodCopy) methodCopy.textContent = 'Lock the candidate and thresholds before protected evidence opens.';
+
+    const boundary = document.querySelector('.boundary-grid');
+    if (boundary) {
+      const paragraphs = boundary.querySelectorAll('p.copy');
+      if (paragraphs[0]) paragraphs[0].innerHTML = 'Frozen through Phase 22; no Phase 23 is authorized. Scientific head <code>668d065714dde279857bc0e196f0ef7cc5e182ed</code>.';
+      if (paragraphs[1]) paragraphs[1].textContent = 'Simulation only. No flight-safety, certification, real-sensor, controller-tuning, or operational claim.';
+    }
+
+    const statusBoundary = document.querySelector('.workspace-boundary');
+    if (statusBoundary) statusBoundary.innerHTML = '<strong>Evidence boundary</strong>Simulation only. Not flight-safety acceptance or controller tuning.';
+  };
+
+  const compactPhaseBoilerplate = () => {
+    if (!location.pathname.startsWith('/phases/')) return;
+    const evidence = document.querySelector('.phase-detail__panel--evidence p');
+    if (evidence) evidence.textContent = 'Hashes tie this page to the frozen record; later phases cannot change the verdict.';
+    const context = document.querySelector('.phase-detail__context-grid p');
+    if (context) context.textContent = 'Later phases may ask new questions, but this verdict stays unchanged.';
+    const findingHeading = [...document.querySelectorAll('.phase-detail__panel h2')].find((node) => node.textContent.trim() === 'What this phase supports.');
+    if (findingHeading) findingHeading.textContent = 'Supported finding';
+  };
+
   const labelRoleQuestion = () => {
     document.querySelectorAll('.phase-role-card__question').forEach((question) => {
       if (question.querySelector('.phase-role-card__question-label')) {
@@ -253,6 +326,8 @@
   const normalizePhaseSurface = () => {
     normalizeThemeColor();
     normalizeCurrentLinks();
+    clarifyHomePurpose();
+    compactPhaseBoilerplate();
     labelRoleQuestion();
     normalizePhaseNavigation();
     addLegacyProgressDisclosure();
@@ -263,6 +338,8 @@
 
   normalizeThemeColor();
   normalizeCurrentLinks();
+  clarifyHomePurpose();
+  compactPhaseBoilerplate();
   manageMobileMenus();
   normalizeEditorialFallbacks();
 
