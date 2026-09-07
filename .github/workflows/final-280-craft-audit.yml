@@ -1,0 +1,62 @@
+name: Final 280-Screenshot Craft Audit
+
+on:
+  push:
+    branches:
+      - 'chatgpt/aegisland-final-10-craft-pass'
+    paths:
+      - 'dashboard/**'
+      - 'deploy/vercel/**'
+      - '.github/qa/final-280-craft-audit.mjs'
+      - '.github/workflows/final-280-craft-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  final-280-craft-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Fetch licensed editorial media
+        run: node deploy/vercel/fetch-editorial-media.mjs
+
+      - name: Install Playwright
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Start local Vercel-equivalent bundle
+        run: |
+          node .github/qa/local-vercel-server.mjs > /tmp/aegis-final-280.log 2>&1 &
+          echo $! > /tmp/aegis-final-280.pid
+          for i in {1..30}; do
+            curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0
+            sleep 1
+          done
+          cat /tmp/aegis-final-280.log
+          exit 1
+
+      - name: Run 280-screenshot 10-gate audit
+        env:
+          QA_BASE_URL: http://127.0.0.1:4173
+        run: node .github/qa/final-280-craft-audit.mjs
+
+      - name: Upload final craft evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aegisland-final-280-craft-audit
+          path: qa-artifacts/final-280/
+          if-no-files-found: warn
+          retention-days: 14
