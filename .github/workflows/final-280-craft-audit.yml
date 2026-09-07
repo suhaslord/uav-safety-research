@@ -1,14 +1,6 @@
 name: Final 280-Screenshot Craft Audit
 
 on:
-  push:
-    branches:
-      - 'chatgpt/aegisland-final-10-craft-pass'
-    paths:
-      - 'dashboard/**'
-      - 'deploy/vercel/**'
-      - '.github/qa/final-280-craft-audit.mjs'
-      - '.github/workflows/final-280-craft-audit.yml'
   workflow_dispatch:
 
 permissions:
