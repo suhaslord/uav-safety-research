@@ -19,7 +19,7 @@
   }
   html body.research-workspace.research-workspace .mobile-menu-toggle,
   html body.research-workspace.research-workspace .archive-menu-toggle,
-  html body.research-workspace.home-workspace #mobileMenuToggle{
+  html body.research-workspace.home-workspace.home-workspace #mobileMenuToggle{
     display:inline-flex!important;
     align-items:center!important;
     justify-content:center!important;
@@ -31,7 +31,7 @@
   /* 768px previously sat between desktop and phone CSS, leaving no usable menu. */
   html body.research-workspace.research-workspace .mobile-menu-sheet,
   html body.research-workspace.research-workspace .archive-menu-sheet,
-  html body.research-workspace.home-workspace #mobileMenuSheet{
+  html body.research-workspace.home-workspace.home-workspace #mobileMenuSheet{
     position:fixed!important;
     inset:0!important;
     z-index:140!important;
@@ -57,9 +57,9 @@
   html body.research-workspace.research-workspace .mobile-menu-sheet.is-open,
   html body.research-workspace.research-workspace .archive-menu-sheet.open,
   html body.research-workspace.research-workspace .archive-menu-sheet.is-open,
-  html body.research-workspace.home-workspace #mobileMenuSheet[aria-hidden="false"],
-  html body.research-workspace.home-workspace #mobileMenuSheet.open,
-  html body.research-workspace.home-workspace #mobileMenuSheet.is-open{
+  html body.research-workspace.home-workspace.home-workspace #mobileMenuSheet[aria-hidden="false"],
+  html body.research-workspace.home-workspace.home-workspace #mobileMenuSheet.open,
+  html body.research-workspace.home-workspace.home-workspace #mobileMenuSheet.is-open{
     opacity:1!important;
     visibility:visible!important;
     transform:none!important;
