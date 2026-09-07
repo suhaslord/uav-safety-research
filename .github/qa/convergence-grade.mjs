@@ -73,7 +73,7 @@ try {
         const oldPhase11Jump = document.querySelector('.phase11-jump');
         const unified = document.querySelector('.phase-unified-nav');
         const roleQuestionLabel = document.querySelector('.phase-role-card__question-label');
-        const mobileToggle = document.querySelector('.mobile-menu-toggle');
+        const mobileToggle = document.querySelector('.mobile-menu-toggle, .archive-menu-toggle');
         const back = document.querySelector('.phase-detail__back');
         const contextHeading = document.querySelector('.phase-detail__context-grid h2');
         const hash = document.querySelector('.phase-hash, .provenance code, .signature-footer code');
