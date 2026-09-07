@@ -1,0 +1,121 @@
+name: AegisLand convergence preview grade
+
+on:
+  push:
+    branches:
+      - chatgpt/aegisland-converge-to-10
+    paths:
+      - 'deploy/vercel/**'
+      - 'dashboard/**'
+      - '.github/qa/convergence-grade.mjs'
+      - '.github/qa/craft-grade.mjs'
+      - '.github/workflows/convergence-preview-grade.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preview-grade:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: team_4fHq5Px7I3sXJ9v8FOyXNOHD
+      VERCEL_PROJECT_ID: prj_FNAwpTD02Jrab6rgiwurb13WYjzM
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Verify Vercel token
+        shell: bash
+        run: |
+          test -n "$VERCEL_TOKEN"
+
+      - name: Fetch licensed editorial media
+        run: node deploy/vercel/fetch-editorial-media.mjs
+
+      - name: Build self-contained preview bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf .vercel-release
+          mkdir -p .vercel-release
+          cp -R deploy/vercel/. .vercel-release/
+          cp -R dashboard .vercel-release/dashboard
+          mkdir -p .vercel-release/.vercel
+          cat > .vercel-release/.vercel/project.json <<EOF
+          {"orgId":"$VERCEL_ORG_ID","projectId":"$VERCEL_PROJECT_ID"}
+          EOF
+          test -s .vercel-release/final-convergence.css
+          test -s .vercel-release/craft-polish.css
+          grep -q "final-convergence.css" .vercel-release/research-workspace.js
+          grep -q "phase-unified-nav" .vercel-release/research-workspace.js
+          grep -q "craft-polish.css" .vercel-release/dashboard/phase-personalization.js
+
+      - name: Install Vercel and Playwright
+        run: |
+          npm install --global vercel@latest
+          npm init -y >/dev/null 2>&1
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Deploy preview
+        id: deploy
+        shell: bash
+        run: |
+          set -euo pipefail
+          URL=$(vercel deploy --force --yes --cwd .vercel-release --token="$VERCEL_TOKEN")
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+          echo "Preview deployment: $URL"
+
+      - name: Wait for preview release
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE='${{ steps.deploy.outputs.url }}'
+          for i in {1..60}; do
+            HTML=$(curl --fail --silent --show-error --location "$BASE/" || true)
+            CSS_HEADERS=$(curl --fail --silent --show-error --location --head "$BASE/final-convergence.css?v=1" || true)
+            CRAFT_HEADERS=$(curl --fail --silent --show-error --location --head "$BASE/craft-polish.css?v=1" || true)
+            if printf '%s' "$HTML" | grep -q 'research-workspace.js' && printf '%s' "$CSS_HEADERS" | grep -qi 'content-type: text/css' && printf '%s' "$CRAFT_HEADERS" | grep -qi 'content-type: text/css'; then
+              echo '✓ convergence + craft preview ready'
+              exit 0
+            fi
+            sleep 2
+          done
+          echo 'Preview did not become ready in time.'
+          exit 1
+
+      - name: Capture 280 screenshots and grade convergence
+        env:
+          QA_BASE_URL: ${{ steps.deploy.outputs.url }}
+        run: node .github/qa/convergence-grade.mjs
+
+      - name: Grade 20 human craft gates on preview
+        env:
+          QA_BASE_URL: ${{ steps.deploy.outputs.url }}
+        run: node .github/qa/craft-grade.mjs
+
+      - name: Upload convergence evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aegisland-convergence-grade
+          path: qa-artifacts/convergence-grade/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload craft evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aegisland-preview-20-point-craft-grade
+          path: qa-artifacts/craft-grade/
+          if-no-files-found: warn
+          retention-days: 14
