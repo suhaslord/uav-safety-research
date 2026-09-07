@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths:
       - '.github/qa/production-ui-qa.mjs'
+      - '.github/qa/exhaustive-visual-audit.mjs'
       - '.github/qa/editorial-media-smoke.mjs'
       - '.github/qa/mobile-menu-smoke.mjs'
       - '.github/workflows/production-ui-qa.yml'
@@ -19,7 +20,7 @@ permissions:
 jobs:
   production-ui-qa:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -58,6 +59,11 @@ jobs:
         env:
           QA_BASE_URL: https://aegisland-research-cockpit.vercel.app
         run: node .github/qa/production-ui-qa.mjs
+
+      - name: Run exhaustive 84-screenshot visual audit
+        env:
+          QA_BASE_URL: https://aegisland-research-cockpit.vercel.app
+        run: node .github/qa/exhaustive-visual-audit.mjs
 
       - name: Run editorial media smoke
         env:
