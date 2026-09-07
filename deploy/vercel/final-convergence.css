@@ -286,17 +286,67 @@ body.research-workspace.archive-workspace .archive-card.phase-personalized:focus
   body.research-workspace.archive-shell .phase-rail-section.is-open .phase-progress-compact strong::after{
     content:" · Close";
   }
+
+  /* Real-device density pass: phone pages should read as an editorial case study,
+     not a stack of forced full-screen presentation slides. */
   body.research-workspace.archive-shell .hero{
+    min-height:0!important;
     padding-top:76px!important;
-    padding-bottom:46px!important;
+    padding-bottom:40px!important;
+    gap:28px!important;
   }
+  body.research-workspace.archive-shell .program-goal,
   body.research-workspace.archive-shell .section,
   body.research-workspace.phase11-polish .section{
-    padding-top:54px!important;
-    padding-bottom:54px!important;
+    min-height:0!important;
+    padding-top:50px!important;
+    padding-bottom:50px!important;
+  }
+  body.research-workspace.archive-shell .program-goal{
+    padding-left:20px!important;
+    padding-right:20px!important;
+    gap:26px!important;
+  }
+  body.research-workspace.archive-shell .program-goal-copy h2{
+    font-size:28px!important;
+    line-height:34px!important;
+  }
+  body.research-workspace.archive-shell .program-pillars>div,
+  body.research-workspace.archive-shell .program-pillars>div:nth-child(even),
+  body.research-workspace.archive-shell .program-pillars>div:nth-child(n+3){
+    min-height:0!important;
+    padding:12px 0!important;
   }
   body.research-workspace.archive-shell .section-head{
     margin-bottom:22px!important;
+  }
+  body.research-workspace.archive-shell .snapshot-grid,
+  body.research-workspace.archive-shell .evidence-layout,
+  body.research-workspace.archive-shell .story-pair,
+  body.research-workspace.archive-shell .shift{
+    gap:26px!important;
+  }
+  body.research-workspace.archive-shell .metrics,
+  body.research-workspace.archive-shell .metric-cards{
+    margin-top:24px!important;
+  }
+  body.research-workspace.archive-shell .metric-card,
+  body.research-workspace.archive-shell .metric-card+article{
+    min-height:0!important;
+    padding-top:16px!important;
+    padding-bottom:16px!important;
+  }
+  body.research-workspace.archive-shell .changes{
+    gap:24px!important;
+  }
+  body.research-workspace.archive-shell .evidence-visual{
+    min-height:260px!important;
+  }
+  body.research-workspace.archive-shell .finding blockquote{
+    max-width:22ch!important;
+    font-size:clamp(27px,8vw,32px)!important;
+    line-height:1.12!important;
+    letter-spacing:-.025em!important;
   }
 
   .phase-unified-nav{
@@ -320,7 +370,7 @@ body.research-workspace.archive-workspace .archive-card.phase-personalized:focus
     width:calc(100% - 28px)!important;
     margin-left:auto!important;
     margin-right:auto!important;
-    margin-bottom:30px!important;
+    margin-bottom:28px!important;
   }
   body.research-workspace .phase-editorial-photo__frame{
     aspect-ratio:16 / 9!important;
