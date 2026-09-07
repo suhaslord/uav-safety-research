@@ -1,6 +1,17 @@
 (() => {
   'use strict';
 
+  // Every archive/detail template already loads this taxonomy before its phase runtime.
+  // Attach the final shared visual guardrail here so legacy, Phase 11, frozen detail,
+  // and the archive all receive the same interaction/readability layer.
+  if (!document.querySelector('link[data-aegis-phase-ui-consistency]')) {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = '/phase-ui-consistency.css?v=1';
+    link.dataset.aegisPhaseUiConsistency = '';
+    document.head.appendChild(link);
+  }
+
   const categories = [
     {
       id: 'safety-architecture',
