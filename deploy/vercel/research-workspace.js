@@ -62,4 +62,20 @@
   document.querySelectorAll('[data-workspace-current]').forEach((link) => {
     if (samePath(link.href)) link.setAttribute('aria-current', 'page');
   });
+
+  document.querySelectorAll('[data-editorial-photo]').forEach((figure) => {
+    const image = figure.querySelector('img');
+    const fallback = figure.querySelector('[data-image-fallback]');
+    if (!image || !fallback) return;
+
+    const showFallback = () => {
+      if (!image.isConnected) return;
+      image.remove();
+      fallback.hidden = false;
+      figure.dataset.imageState = 'fallback';
+    };
+
+    image.addEventListener('error', showFallback, { once: true });
+    if (image.complete && image.naturalWidth === 0) showFallback();
+  });
 })();
