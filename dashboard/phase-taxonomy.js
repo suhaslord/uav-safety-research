@@ -1,6 +1,12 @@
 (() => {
   'use strict';
 
+  // Bind the route immediately, before the legacy renderer's DOMContentLoaded handler.
+  // This makes Phase 10R render as its own native record instead of falling through
+  // the older phase1–phase10 route matcher and visually masquerading as Phase 10.
+  const routeMatch = location.pathname.match(/\/phases\/(phase(?:1|2|3|4|5|6|6b|7|8|9|10r?|11|12|13a|13b|13c|14|15|16|17|18|19|20|21|22))\/?$/i);
+  if (routeMatch) document.body.dataset.phase = routeMatch[1].toLowerCase();
+
   // Every archive/detail template already loads this taxonomy before its phase runtime.
   // Attach the final shared visual guardrail here so legacy, Phase 11, frozen detail,
   // and the archive all receive the same interaction/readability layer.
