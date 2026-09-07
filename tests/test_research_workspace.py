@@ -56,19 +56,70 @@ def test_home_editorial_media_is_local_credited_and_context_only() -> None:
     css = _read("deploy/vercel/research-media.css")
     fetcher = _read("deploy/vercel/fetch-editorial-media.mjs")
 
-    assert 'data-editorial-media="local-v1"' in html
-    assert 'src="/media/acero-uav-flight.jpg"' in html
-    assert 'src="/media/acero-uav-landing.jpg"' in html
+    assert 'data-editorial-media="local-v2"' in html
+    for filename in (
+        "acero-uav-flight.jpg",
+        "acero-ground-control.jpg",
+        "stereo-uav-preflight.jpg",
+        "acero-uav-landing.jpg",
+    ):
+        assert f'src="/media/{filename}"' in html
+        assert filename in fetcher
     assert '<img src="https://' not in html
-    assert html.count("Visual context — not AegisLand experimental evidence") == 2
-    assert html.count("Don Richey / NASA Ames Research Center") == 2
-    assert html.count("Public domain") == 2
-    assert html.count("data-image-fallback") == 2
-    assert 'width="1280" height="852"' in html
-    assert 'width="1280" height="854"' in html
+    assert html.count("Visual context — not AegisLand experimental evidence") == 4
+    assert html.count("Public domain") == 4
+    assert html.count("data-image-fallback") == 4
+    assert html.count("Don Richey / NASA Ames Research Center") == 3
+    assert html.count("Joel Kowsky / NASA") == 1
     assert "aspect-ratio:16 / 9" in css
-    assert "acero-uav-flight.jpg" in fetcher
-    assert "acero-uav-landing.jpg" in fetcher
+    assert "research-photo--inline" in css
+
+
+def test_every_phase_has_one_distinct_local_context_photo() -> None:
+    manifest = _read("dashboard/phase-visuals.js")
+    runtime = _read("dashboard/phase-editorial-media.js")
+    css = _read("dashboard/phase-editorial-media.css")
+    fetcher = _read("deploy/vercel/fetch-editorial-media.mjs")
+    phase = _read("dashboard/phases/phase.html")
+    frozen = _read("dashboard/phases/frozen.html")
+    phase11 = _read("deploy/vercel/phase11.html")
+
+    slugs = [
+        "phase1", "phase2", "phase3", "phase4", "phase5", "phase6", "phase6b",
+        "phase7", "phase8", "phase9", "phase10", "phase10r", "phase11", "phase12",
+        "phase13a", "phase13b", "phase13c", "phase14", "phase15", "phase16",
+        "phase17", "phase18", "phase19", "phase20", "phase21", "phase22",
+    ]
+    filenames = [
+        "phase01-context.jpg", "phase02-context.jpg", "acero-ground-control.jpg",
+        "phase04-context.jpg", "phase05-context.jpg", "acero-uav-flight.jpg",
+        "phase06b-context.jpg", "phase07-context.jpg", "phase08-context.jpg",
+        "acero-uav-landing.jpg", "phase10-context.jpg", "phase10r-context.jpg",
+        "stereo-uav-preflight.jpg", "phase12-context.jpg", "phase13a-context.jpg",
+        "phase13b-context.jpg", "phase13c-context.jpg", "phase14-context.jpg",
+        "phase15-context.jpg", "phase16-context.jpg", "phase17-context.jpg",
+        "phase18-context.jpg", "phase19-context.jpg", "phase20-context.jpg",
+        "phase21-context.jpg", "phase22-context.jpg",
+    ]
+
+    assert len(slugs) == 26
+    assert len(filenames) == len(set(filenames)) == 26
+    for slug in slugs:
+        assert f"{slug}:" in manifest
+    for filename in filenames:
+        assert f"'{filename}'" in manifest
+        assert f"'{filename}'" in fetcher
+
+    assert "Visual context — not AegisLand experimental evidence" in manifest
+    assert "phase-editorial-photo__fallback" in runtime
+    assert "figure.dataset.imageState = 'fallback'" in runtime
+    assert "aspect-ratio:16 / 9" in css
+    assert "object-fit:cover" in css
+
+    for shell in (phase, frozen, phase11):
+        assert 'href="/phase-editorial-media.css?v=' in shell
+        assert 'src="/phase-visuals.js?v=' in shell
+        assert 'src="/phase-editorial-media.js?v=' in shell
 
 
 def test_workspace_uses_original_light_research_system() -> None:
