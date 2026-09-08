@@ -138,6 +138,22 @@ body.research-workspace .phase-role-card{
   box-shadow:none!important;
 }
 
+/* Historical role-card labels must remain readable over translucent Liquid Glass.
+   Legacy personalization colors were designed for white cards and become too dark here. */
+html body.research-workspace.archive-shell.archive-shell .phase-role-card__label span,
+html body.research-workspace.archive-shell.archive-shell .phase-role-card__question-label,
+html body.research-workspace.archive-shell.archive-shell .phase-role-card__signal span{
+  color:var(--rw-muted,#a7bdcf)!important;
+}
+html body.research-workspace.archive-shell.archive-shell .phase-role-card__label strong,
+html body.research-workspace.archive-shell.archive-shell .phase-role-card__question,
+html body.research-workspace.archive-shell.archive-shell .phase-role-card__question-text{
+  color:var(--rw-body,#d9e7f3)!important;
+}
+html body.research-workspace.archive-shell.archive-shell .phase-role-card__signal strong{
+  color:var(--rw-accent,#73e7ff)!important;
+}
+
 @media(max-width:700px){
   /* Keep touch targets comfortably tappable on the narrowest supported viewport. */
   body.research-workspace.archive-workspace .category-nav a{
