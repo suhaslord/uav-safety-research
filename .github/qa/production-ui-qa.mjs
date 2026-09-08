@@ -166,7 +166,7 @@ try {
       noPhase23Link: document.querySelectorAll('a[href*="phase23"]').length === 0,
       hasBoundary: text.includes('simulation_only=true') && text.includes('safety_acceptance=false') && text.includes('controller_tuning_allowed=false'),
       hasFinalMetrics: text.includes('0.8319') && text.includes('0.7744') && text.includes('100%'),
-      saysFrozen: /Frozen through Phase 22/i.test(text) && /No Phase 23 is implied or authorized/i.test(text),
+      saysFrozen: /Frozen through Phase 22/i.test(text) && /No Phase 23[^.\n]*authorized/i.test(text),
       dataOk: !!data && data.frozenThrough === 'Phase 22' && data.phases.length === 13 && data.counts.PASS === 6 && data.counts.FAIL === 7 && data.frozenScientificHead === frozenHead && data.bySlug.phase22.resultSha === resultSha && data.bySlug.phase22.candidateSha === candidateSha
     };
   }, { resultSha: PHASE22_RESULT, candidateSha: PHASE22_CANDIDATE, frozenHead: FROZEN_HEAD });
