@@ -1,0 +1,470 @@
+/*
+  AegisLand Liquid Glass presentation layer.
+  Reference direction: clear/milky optical glass, soft refraction, bright specular
+  rims, capsule controls, and restrained depth. Presentation only.
+*/
+
+html body.research-workspace.research-workspace.research-workspace{
+  --rw-bg:#071426;
+  --rw-bg-soft:#0b1d35;
+  --rw-surface:rgba(221,239,255,.13);
+  --rw-surface-2:rgba(226,243,255,.17);
+  --rw-surface-3:rgba(235,247,255,.22);
+  --rw-line:rgba(255,255,255,.26);
+  --rw-line-soft:rgba(220,238,255,.15);
+  --rw-text:#f7fbff;
+  --rw-body:#d9e7f3;
+  --rw-muted:#a7bdcf;
+  --rw-dim:#7e99ad;
+  --rw-accent:#73e7ff;
+  --rw-accent-hover:#b2f4ff;
+  --rw-accent-soft:rgba(115,231,255,.16);
+  --rw-pass:#77e89a;
+  --rw-fail:#ff8f9a;
+  --rw-warn:#ffd06a;
+  --rw-violet:#c5a8ff;
+  --rw-violet-soft:rgba(197,168,255,.15);
+  --rw-error:#ff8f9a;
+  --rw-radius:22px;
+  --rw-radius-sm:18px;
+  --rw-radius-lg:28px;
+
+  --liquid-fill:linear-gradient(145deg,rgba(255,255,255,.22) 0%,rgba(211,234,255,.10) 34%,rgba(180,218,255,.075) 58%,rgba(255,255,255,.16) 100%);
+  --liquid-fill-strong:linear-gradient(145deg,rgba(255,255,255,.28) 0%,rgba(214,237,255,.14) 38%,rgba(164,205,246,.10) 64%,rgba(255,255,255,.20) 100%);
+  --liquid-fill-soft:linear-gradient(145deg,rgba(255,255,255,.15),rgba(206,233,255,.07) 55%,rgba(255,255,255,.10));
+  --liquid-border:rgba(255,255,255,.34);
+  --liquid-border-soft:rgba(225,241,255,.23);
+  --liquid-border-hot:rgba(232,251,255,.58);
+  --liquid-shadow:0 22px 56px rgba(0,8,24,.24),0 8px 20px rgba(0,18,42,.14),inset 0 1px 1px rgba(255,255,255,.48),inset 0 -1px 1px rgba(1,16,38,.16);
+  --liquid-shadow-soft:0 14px 34px rgba(0,8,24,.18),inset 0 1px 1px rgba(255,255,255,.38),inset 0 -1px 1px rgba(1,16,38,.12);
+  --liquid-shadow-pill:0 8px 22px rgba(0,8,24,.18),inset 0 1px 1px rgba(255,255,255,.50),inset 0 -1px 1px rgba(3,24,52,.13);
+  --liquid-focus:0 0 0 3px rgba(115,231,255,.23),0 12px 34px rgba(16,180,216,.18),inset 0 1px 1px rgba(255,255,255,.48);
+  --liquid-blur:blur(28px) saturate(175%) contrast(104%);
+  --liquid-blur-strong:blur(36px) saturate(185%) contrast(105%);
+  --liquid-transition:190ms cubic-bezier(.2,.72,.2,1);
+
+  background:
+    radial-gradient(1100px 680px at 8% -5%,rgba(83,211,255,.38),transparent 62%),
+    radial-gradient(900px 640px at 93% 9%,rgba(132,116,255,.31),transparent 60%),
+    radial-gradient(850px 620px at 54% 52%,rgba(44,135,232,.20),transparent 64%),
+    linear-gradient(145deg,#061225 0%,#0b2543 36%,#0a1931 68%,#171336 100%)!important;
+  color:var(--rw-text)!important;
+}
+
+html body.research-workspace.research-workspace.research-workspace::before,
+html body.research-workspace.research-workspace.research-workspace::after{
+  display:block!important;
+  content:""!important;
+  position:fixed!important;
+  pointer-events:none!important;
+  z-index:0!important;
+  border-radius:50%!important;
+  mix-blend-mode:screen!important;
+  will-change:transform!important;
+}
+html body.research-workspace.research-workspace.research-workspace::before{
+  width:58vw!important;
+  height:58vw!important;
+  min-width:520px!important;
+  min-height:520px!important;
+  left:-23vw!important;
+  top:10vh!important;
+  opacity:.58!important;
+  filter:blur(86px)!important;
+  background:radial-gradient(circle at 58% 48%,rgba(130,242,255,.50),rgba(64,167,255,.22) 38%,transparent 69%)!important;
+}
+html body.research-workspace.research-workspace.research-workspace::after{
+  width:52vw!important;
+  height:52vw!important;
+  min-width:480px!important;
+  min-height:480px!important;
+  right:-20vw!important;
+  top:44vh!important;
+  opacity:.52!important;
+  filter:blur(94px)!important;
+  background:radial-gradient(circle at 42% 46%,rgba(190,159,255,.46),rgba(73,132,255,.18) 43%,transparent 70%)!important;
+}
+
+/* Do not let the legacy white loading veil cover the settled research surface. */
+html body.research-workspace.research-workspace.research-workspace.archive-shell .boot{
+  display:none!important;
+}
+
+/* Shared optical surfaces. */
+html body.research-workspace.research-workspace.research-workspace .glass-panel,
+html body.research-workspace.research-workspace.research-workspace .workspace-status-card,
+html body.research-workspace.research-workspace.research-workspace .result-card.aegis-halo,
+html body.research-workspace.research-workspace.research-workspace .archive-category,
+html body.research-workspace.research-workspace.research-workspace .phase-verdict-panel,
+html body.research-workspace.research-workspace.research-workspace .phase-detail__context,
+html body.research-workspace.research-workspace.research-workspace .phase-role-card,
+html body.research-workspace.research-workspace.research-workspace.phase11-polish .result-card,
+html body.research-workspace.research-workspace.research-workspace.phase11-polish .threshold-card{
+  background:var(--liquid-fill-strong)!important;
+  background-color:rgba(164,207,242,.10)!important;
+  border:1px solid var(--liquid-border)!important;
+  border-radius:28px!important;
+  box-shadow:var(--liquid-shadow)!important;
+  backdrop-filter:var(--liquid-blur-strong)!important;
+  -webkit-backdrop-filter:var(--liquid-blur-strong)!important;
+}
+
+html body.research-workspace.research-workspace.research-workspace .glass-card,
+html body.research-workspace.research-workspace.research-workspace .card,
+html body.research-workspace.research-workspace.research-workspace .archive-card.phase-personalized,
+html body.research-workspace.research-workspace.research-workspace .phase-detail__panel,
+html body.research-workspace.research-workspace.research-workspace .metric-card,
+html body.research-workspace.research-workspace.research-workspace .phase-metric,
+html body.research-workspace.research-workspace.research-workspace .evidence-item,
+html body.research-workspace.research-workspace.research-workspace .goal-point,
+html body.research-workspace.research-workspace.research-workspace .source,
+html body.research-workspace.research-workspace.research-workspace .finding,
+html body.research-workspace.research-workspace.research-workspace .evidence-story,
+html body.research-workspace.research-workspace.research-workspace .architecture,
+html body.research-workspace.research-workspace.research-workspace .changes>*{
+  background:var(--liquid-fill)!important;
+  background-color:rgba(174,216,247,.075)!important;
+  border:1px solid var(--liquid-border-soft)!important;
+  border-radius:20px!important;
+  box-shadow:var(--liquid-shadow-soft)!important;
+  backdrop-filter:var(--liquid-blur)!important;
+  -webkit-backdrop-filter:var(--liquid-blur)!important;
+}
+
+/* The floating command bar is the clearest Apple-like glass surface. */
+html body.research-workspace.research-workspace.research-workspace .site-header,
+html body.research-workspace.research-workspace.research-workspace .signature-nav,
+html body.research-workspace.research-workspace.research-workspace.archive-shell .top,
+html body.research-workspace.research-workspace.research-workspace.phase11-polish .site-header{
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.30),rgba(199,229,255,.12) 52%,rgba(158,205,244,.08))!important;
+  background-color:rgba(159,207,244,.11)!important;
+  border:1px solid rgba(255,255,255,.38)!important;
+  border-radius:999px!important;
+  box-shadow:0 18px 42px rgba(0,8,24,.22),inset 0 1px 1px rgba(255,255,255,.58),inset 0 -1px 1px rgba(3,25,56,.16)!important;
+  backdrop-filter:blur(32px) saturate(190%) contrast(104%)!important;
+  -webkit-backdrop-filter:blur(32px) saturate(190%) contrast(104%)!important;
+}
+
+html body.research-workspace.research-workspace.research-workspace .brand-mark,
+html body.research-workspace.research-workspace.research-workspace .signature-brand__mark{
+  background:linear-gradient(145deg,rgba(200,251,255,.95),rgba(78,214,250,.88) 55%,rgba(93,164,255,.92))!important;
+  color:#072238!important;
+  border:1px solid rgba(255,255,255,.62)!important;
+  border-radius:50%!important;
+  box-shadow:0 8px 18px rgba(0,12,34,.18),inset 0 1px 1px rgba(255,255,255,.76),inset 0 -1px 1px rgba(6,84,116,.18)!important;
+}
+
+/* Capsule controls with translucent edge highlights. */
+html body.research-workspace.research-workspace.research-workspace .glass-button,
+html body.research-workspace.research-workspace.research-workspace .button,
+html body.research-workspace.research-workspace.research-workspace .signature-button,
+html body.research-workspace.research-workspace.research-workspace .top-btn,
+html body.research-workspace.research-workspace.research-workspace .workspace-action,
+html body.research-workspace.research-workspace.research-workspace .archive-filter,
+html body.research-workspace.research-workspace.research-workspace .category-nav a,
+html body.research-workspace.research-workspace.research-workspace .phase-unified-nav a,
+html body.research-workspace.research-workspace.research-workspace .mobile-menu-meta a,
+html body.research-workspace.research-workspace.research-workspace .archive-menu-meta a,
+html body.research-workspace.research-workspace.research-workspace .phase-progress-compact,
+html body.research-workspace.research-workspace.research-workspace .archive-reset{
+  min-height:44px!important;
+  border:1px solid rgba(255,255,255,.33)!important;
+  border-radius:999px!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.23),rgba(196,228,255,.095) 56%,rgba(151,198,239,.075))!important;
+  background-color:rgba(188,225,250,.08)!important;
+  color:var(--rw-text)!important;
+  box-shadow:var(--liquid-shadow-pill)!important;
+  backdrop-filter:blur(22px) saturate(180%)!important;
+  -webkit-backdrop-filter:blur(22px) saturate(180%)!important;
+  transition:transform var(--liquid-transition),border-color var(--liquid-transition),background var(--liquid-transition),box-shadow var(--liquid-transition)!important;
+}
+html body.research-workspace.research-workspace.research-workspace .glass-button:hover,
+html body.research-workspace.research-workspace.research-workspace .button:hover,
+html body.research-workspace.research-workspace.research-workspace .signature-button:hover,
+html body.research-workspace.research-workspace.research-workspace .top-btn:hover,
+html body.research-workspace.research-workspace.research-workspace .workspace-action:hover,
+html body.research-workspace.research-workspace.research-workspace .archive-filter:hover,
+html body.research-workspace.research-workspace.research-workspace .category-nav a:hover,
+html body.research-workspace.research-workspace.research-workspace .phase-unified-nav a:hover,
+html body.research-workspace.research-workspace.research-workspace .archive-reset:hover{
+  transform:translateY(-1px) scale(1.01)!important;
+  border-color:var(--liquid-border-hot)!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.30),rgba(194,231,255,.14) 58%,rgba(142,204,246,.10))!important;
+  box-shadow:0 12px 28px rgba(0,10,30,.20),0 0 0 1px rgba(146,239,255,.08),inset 0 1px 1px rgba(255,255,255,.64),inset 0 -1px 1px rgba(3,25,56,.12)!important;
+}
+html body.research-workspace.research-workspace.research-workspace .button.primary,
+html body.research-workspace.research-workspace.research-workspace .signature-button--primary,
+html body.research-workspace.research-workspace.research-workspace .top-btn.primary,
+html body.research-workspace.research-workspace.research-workspace .workspace-action--primary,
+html body.research-workspace.research-workspace.research-workspace .archive-filter[aria-pressed="true"],
+html body.research-workspace.research-workspace.research-workspace .phase-unified-nav__next{
+  background:
+    linear-gradient(180deg,rgba(208,252,255,.34),rgba(75,217,245,.21) 56%,rgba(42,147,222,.17))!important;
+  background-color:rgba(60,192,232,.14)!important;
+  border-color:rgba(205,252,255,.52)!important;
+  color:#effeff!important;
+  box-shadow:0 12px 30px rgba(4,94,142,.18),inset 0 1px 1px rgba(255,255,255,.72),inset 0 -1px 1px rgba(3,65,95,.18)!important;
+}
+
+/* Inputs use the same optical capsule language. */
+html body.research-workspace.research-workspace.research-workspace .glass-input,
+html body.research-workspace.research-workspace.research-workspace .archive-toolbar__search input,
+html body.research-workspace.research-workspace.research-workspace input[type="search"],
+html body.research-workspace.research-workspace.research-workspace input[type="text"],
+html body.research-workspace.research-workspace.research-workspace textarea,
+html body.research-workspace.research-workspace.research-workspace select{
+  min-height:44px!important;
+  border:1px solid rgba(255,255,255,.32)!important;
+  border-radius:999px!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.18),rgba(194,227,255,.08))!important;
+  color:var(--rw-text)!important;
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.42),inset 0 -1px 1px rgba(3,25,56,.14),0 8px 22px rgba(0,9,28,.14)!important;
+  backdrop-filter:blur(24px) saturate(180%)!important;
+  -webkit-backdrop-filter:blur(24px) saturate(180%)!important;
+}
+html body.research-workspace.research-workspace.research-workspace .archive-toolbar__search input:focus,
+html body.research-workspace.research-workspace.research-workspace input[type="search"]:focus,
+html body.research-workspace.research-workspace.research-workspace input[type="text"]:focus,
+html body.research-workspace.research-workspace.research-workspace textarea:focus,
+html body.research-workspace.research-workspace.research-workspace select:focus{
+  border-color:rgba(189,249,255,.62)!important;
+  box-shadow:var(--liquid-focus)!important;
+}
+
+/* Homepage intelligence surfaces. */
+html body.research-workspace.research-workspace.research-workspace.home-workspace .workspace-status-card,
+html body.research-workspace.research-workspace.research-workspace.home-workspace .result-card.aegis-halo{
+  background:
+    radial-gradient(circle at 18% -8%,rgba(235,254,255,.22),transparent 36%),
+    radial-gradient(circle at 96% 18%,rgba(191,167,255,.13),transparent 35%),
+    var(--liquid-fill-strong)!important;
+  border-color:rgba(255,255,255,.38)!important;
+  border-radius:30px!important;
+  box-shadow:0 28px 72px rgba(0,8,26,.26),0 8px 24px rgba(0,27,60,.12),inset 0 1px 1px rgba(255,255,255,.58),inset 0 -1px 1px rgba(2,22,52,.14)!important;
+}
+html body.research-workspace.research-workspace.research-workspace.home-workspace .section.ash>.wrap,
+html body.research-workspace.research-workspace.research-workspace.home-workspace #evidence>.wrap,
+html body.research-workspace.research-workspace.research-workspace.home-workspace #method>.wrap,
+html body.research-workspace.research-workspace.research-workspace.home-workspace main>.section:last-of-type>.wrap{
+  background:
+    linear-gradient(145deg,rgba(255,255,255,.17),rgba(194,225,255,.07) 54%,rgba(255,255,255,.11))!important;
+  background-color:rgba(165,207,241,.07)!important;
+  border:1px solid rgba(255,255,255,.27)!important;
+  border-radius:28px!important;
+  box-shadow:var(--liquid-shadow-soft)!important;
+  backdrop-filter:blur(28px) saturate(170%)!important;
+  -webkit-backdrop-filter:blur(28px) saturate(170%)!important;
+}
+html body.research-workspace.research-workspace.research-workspace.home-workspace .workspace-boundary,
+html body.research-workspace.research-workspace.research-workspace.home-workspace .research-alert{
+  background:linear-gradient(145deg,rgba(255,239,184,.10),rgba(255,255,255,.08))!important;
+  border:1px solid rgba(255,219,133,.24)!important;
+  border-radius:20px!important;
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.32)!important;
+}
+
+/* Archive dossier surface and pills. */
+html body.research-workspace.research-workspace.research-workspace.archive-workspace .archive-stats.archive-toolbar{
+  background:linear-gradient(145deg,rgba(255,255,255,.20),rgba(190,224,255,.085) 62%,rgba(255,255,255,.13))!important;
+  border:1px solid rgba(255,255,255,.32)!important;
+  border-radius:28px!important;
+  box-shadow:var(--liquid-shadow)!important;
+  backdrop-filter:blur(32px) saturate(180%)!important;
+  -webkit-backdrop-filter:blur(32px) saturate(180%)!important;
+}
+html body.research-workspace.research-workspace.research-workspace.archive-workspace .archive-filter{
+  min-height:44px!important;
+}
+html body.research-workspace.research-workspace.research-workspace.archive-workspace .archive-filter[data-filter="all"]{
+  min-width:44px!important;
+  height:44px!important;
+}
+html body.research-workspace.research-workspace.research-workspace.archive-workspace .archive-category{
+  background:
+    linear-gradient(145deg,rgba(255,255,255,.18),rgba(194,226,255,.075) 58%,rgba(255,255,255,.11))!important;
+  border-color:rgba(255,255,255,.27)!important;
+}
+html body.research-workspace.research-workspace.research-workspace.archive-workspace .archive-card.phase-personalized{
+  background:linear-gradient(135deg,rgba(255,255,255,.13),rgba(182,220,252,.055))!important;
+  border-color:rgba(236,248,255,.18)!important;
+  border-radius:18px!important;
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.25),0 7px 18px rgba(0,10,30,.10)!important;
+}
+html body.research-workspace.research-workspace.research-workspace.archive-workspace .archive-card.phase-personalized:hover{
+  background:linear-gradient(135deg,rgba(255,255,255,.19),rgba(178,222,255,.085))!important;
+  border-color:rgba(222,250,255,.38)!important;
+  box-shadow:0 14px 34px rgba(0,10,30,.17),inset 0 1px 1px rgba(255,255,255,.40)!important;
+}
+
+/* Status chips stay chromatic, but the material remains glass rather than solid paint. */
+html body.research-workspace.research-workspace.research-workspace .status-badge,
+html body.research-workspace.research-workspace.research-workspace .verdict-chip{
+  min-height:30px!important;
+  padding:6px 11px!important;
+  border-radius:999px!important;
+  border:1px solid rgba(203,246,255,.28)!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.20),rgba(115,231,255,.08))!important;
+  color:var(--rw-accent)!important;
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.40),0 6px 16px rgba(0,9,28,.11)!important;
+  backdrop-filter:blur(18px) saturate(170%)!important;
+  -webkit-backdrop-filter:blur(18px) saturate(170%)!important;
+}
+html body.research-workspace.research-workspace.research-workspace .status-badge--pass,
+html body.research-workspace.research-workspace.research-workspace .verdict-chip--pass{
+  color:var(--rw-pass)!important;
+  border-color:rgba(146,247,175,.34)!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.18),rgba(83,222,125,.09))!important;
+}
+html body.research-workspace.research-workspace.research-workspace .status-badge--fail,
+html body.research-workspace.research-workspace.research-workspace .verdict-chip--fail{
+  color:var(--rw-fail)!important;
+  border-color:rgba(255,166,176,.33)!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,111,126,.08))!important;
+}
+
+/* Frozen and historical evidence surfaces. */
+html body.research-workspace.research-workspace.research-workspace .phase-verdict-panel{
+  background:
+    radial-gradient(circle at 10% -5%,rgba(255,255,255,.17),transparent 40%),
+    var(--liquid-fill-strong)!important;
+}
+html body.research-workspace.research-workspace.research-workspace .phase-detail__metrics-band{
+  background:transparent!important;
+  border:0!important;
+  gap:12px!important;
+}
+html body.research-workspace.research-workspace.research-workspace .phase-metric,
+html body.research-workspace.research-workspace.research-workspace.archive-shell .metric-card,
+html body.research-workspace.research-workspace.research-workspace.phase11-polish .metric{
+  background:var(--liquid-fill)!important;
+  border:1px solid rgba(255,255,255,.24)!important;
+  border-radius:20px!important;
+  box-shadow:var(--liquid-shadow-soft)!important;
+  backdrop-filter:blur(24px) saturate(170%)!important;
+  -webkit-backdrop-filter:blur(24px) saturate(170%)!important;
+}
+html body.research-workspace.research-workspace.research-workspace .phase-detail__panel--evidence{
+  background:
+    linear-gradient(145deg,rgba(255,255,255,.16),rgba(194,168,255,.095) 62%,rgba(255,255,255,.10))!important;
+  border-color:rgba(218,202,255,.28)!important;
+}
+html body.research-workspace.research-workspace.research-workspace .phase-detail__context,
+html body.research-workspace.research-workspace.research-workspace .limits-list li{
+  background:linear-gradient(145deg,rgba(255,250,224,.11),rgba(255,255,255,.07))!important;
+  border-color:rgba(255,218,128,.22)!important;
+}
+html body.research-workspace.research-workspace.research-workspace .phase-hash,
+html body.research-workspace.research-workspace.research-workspace code{
+  background:rgba(219,230,255,.075)!important;
+  border-color:rgba(205,188,255,.20)!important;
+}
+
+/* Editorial imagery gets a clear polished rim instead of a dark frame. */
+html body.research-workspace.research-workspace.research-workspace .research-photo__frame,
+html body.research-workspace.research-workspace.research-workspace .phase-editorial-photo__frame{
+  border:1px solid rgba(255,255,255,.34)!important;
+  border-radius:24px!important;
+  background:rgba(214,235,252,.09)!important;
+  box-shadow:0 22px 48px rgba(0,8,24,.22),inset 0 1px 1px rgba(255,255,255,.50),inset 0 -1px 1px rgba(3,24,52,.14)!important;
+  overflow:hidden!important;
+}
+html body.research-workspace.research-workspace.research-workspace .research-photo img,
+html body.research-workspace.research-workspace.research-workspace .phase-editorial-photo img{
+  filter:saturate(1.02) contrast(1.02) brightness(1.01)!important;
+}
+
+/* Mobile navigation becomes a large optical sheet while preserving all behavior. */
+@media(max-width:900px){
+  html body.research-workspace.research-workspace.research-workspace .mobile-menu-sheet,
+  html body.research-workspace.research-workspace.research-workspace .archive-menu-sheet,
+  html body.research-workspace.research-workspace.research-workspace.home-workspace #mobileMenuSheet{
+    background:
+      radial-gradient(circle at 20% 8%,rgba(121,232,255,.18),transparent 34%),
+      radial-gradient(circle at 88% 34%,rgba(191,160,255,.15),transparent 32%),
+      rgba(7,20,38,.82)!important;
+    color:var(--rw-text)!important;
+    border:0!important;
+    backdrop-filter:blur(40px) saturate(185%)!important;
+    -webkit-backdrop-filter:blur(40px) saturate(185%)!important;
+  }
+  html body.research-workspace.research-workspace.research-workspace .mobile-menu-links a,
+  html body.research-workspace.research-workspace.research-workspace .archive-menu-links a{
+    color:var(--rw-text)!important;
+    border-color:rgba(255,255,255,.14)!important;
+  }
+  html body.research-workspace.research-workspace.research-workspace .mobile-menu-toggle,
+  html body.research-workspace.research-workspace.research-workspace .mobile-menu-close,
+  html body.research-workspace.research-workspace.research-workspace .archive-menu-toggle,
+  html body.research-workspace.research-workspace.research-workspace .archive-menu-close{
+    border-radius:999px!important;
+    border:1px solid rgba(255,255,255,.34)!important;
+    background:linear-gradient(180deg,rgba(255,255,255,.23),rgba(188,224,255,.09))!important;
+    color:var(--rw-text)!important;
+    box-shadow:var(--liquid-shadow-pill)!important;
+    backdrop-filter:blur(20px) saturate(180%)!important;
+    -webkit-backdrop-filter:blur(20px) saturate(180%)!important;
+  }
+}
+
+/* Keep text contrast high through translucent material. */
+html body.research-workspace.research-workspace.research-workspace h1,
+html body.research-workspace.research-workspace.research-workspace h2,
+html body.research-workspace.research-workspace.research-workspace h3,
+html body.research-workspace.research-workspace.research-workspace h4,
+html body.research-workspace.research-workspace.research-workspace strong{
+  color:var(--rw-text)!important;
+}
+html body.research-workspace.research-workspace.research-workspace p,
+html body.research-workspace.research-workspace.research-workspace .copy,
+html body.research-workspace.research-workspace.research-workspace .hero-deck,
+html body.research-workspace.research-workspace.research-workspace .deck,
+html body.research-workspace.research-workspace.research-workspace .lede,
+html body.research-workspace.research-workspace.research-workspace .phase-detail__summary{
+  color:var(--rw-body)!important;
+}
+html body.research-workspace.research-workspace.research-workspace .eyebrow,
+html body.research-workspace.research-workspace.research-workspace .kicker,
+html body.research-workspace.research-workspace.research-workspace .signature-kicker,
+html body.research-workspace.research-workspace.research-workspace .story-label,
+html body.research-workspace.research-workspace.research-workspace .workspace-context,
+html body.research-workspace.research-workspace.research-workspace .archive-meta-line,
+html body.research-workspace.research-workspace.research-workspace .archive-filter-summary,
+html body.research-workspace.research-workspace.research-workspace .workspace-status-meta,
+html body.research-workspace.research-workspace.research-workspace figcaption{
+  color:var(--rw-muted)!important;
+}
+
+@media(max-width:680px){
+  html body.research-workspace.research-workspace.research-workspace .site-header,
+  html body.research-workspace.research-workspace.research-workspace .signature-nav,
+  html body.research-workspace.research-workspace.research-workspace.archive-shell .top,
+  html body.research-workspace.research-workspace.research-workspace.phase11-polish .site-header{
+    border-radius:22px!important;
+  }
+  html body.research-workspace.research-workspace.research-workspace .workspace-status-card,
+  html body.research-workspace.research-workspace.research-workspace .archive-category,
+  html body.research-workspace.research-workspace.research-workspace .phase-verdict-panel,
+  html body.research-workspace.research-workspace.research-workspace .phase-detail__context{
+    border-radius:22px!important;
+  }
+  html body.research-workspace.research-workspace.research-workspace .research-photo__frame,
+  html body.research-workspace.research-workspace.research-workspace .phase-editorial-photo__frame{
+    border-radius:18px!important;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  html body.research-workspace.research-workspace.research-workspace::before,
+  html body.research-workspace.research-workspace.research-workspace::after{
+    animation:none!important;
+    transform:none!important;
+  }
+  html body.research-workspace.research-workspace.research-workspace .button,
+  html body.research-workspace.research-workspace.research-workspace .archive-filter,
+  html body.research-workspace.research-workspace.research-workspace .archive-card.phase-personalized,
+  html body.research-workspace.research-workspace.research-workspace .evidence-item{
+    transition:none!important;
+    transform:none!important;
+  }
+}
