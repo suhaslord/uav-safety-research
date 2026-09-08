@@ -120,3 +120,57 @@ body .phase-detail #phaseContent > .phase-editorial-photo{
 @media(prefers-reduced-motion:reduce){
   .phase-editorial-photo *{scroll-behavior:auto!important}
 }
+
+/* Phase 11 still carried a few high-specificity light-theme surfaces. */
+html body.research-workspace.phase11-polish.phase11-polish::before,
+html body.research-workspace.phase11-polish.phase11-polish::after{
+  display:block!important;
+}
+html body.research-workspace.phase11-polish.phase11-polish main,
+html body.research-workspace.phase11-polish.phase11-polish .hero,
+html body.research-workspace.phase11-polish.phase11-polish .section,
+html body.research-workspace.phase11-polish.phase11-polish .section.ash,
+html body.research-workspace.phase11-polish.phase11-polish .section.dark,
+html body.research-workspace.phase11-polish.phase11-polish .metrics{
+  background:transparent!important;
+  background-image:none!important;
+  color:var(--rw-text)!important;
+}
+html body.research-workspace.phase11-polish.phase11-polish .hero{
+  border-bottom-color:rgba(186,230,253,.14)!important;
+}
+html body.research-workspace.phase11-polish.phase11-polish .metrics{
+  border-top:1px solid rgba(186,230,253,.12)!important;
+  border-bottom:1px solid rgba(186,230,253,.12)!important;
+  background:rgba(7,16,31,.50)!important;
+  backdrop-filter:blur(16px)!important;
+  -webkit-backdrop-filter:blur(16px)!important;
+}
+html body.research-workspace.phase11-polish.phase11-polish .metric span{
+  color:var(--rw-muted)!important;
+}
+html body.research-workspace.phase11-polish.phase11-polish .metric strong{
+  color:var(--rw-text)!important;
+}
+html body.research-workspace.phase11-polish.phase11-polish .result-card,
+html body.research-workspace.phase11-polish.phase11-polish .threshold-card,
+html body.research-workspace.phase11-polish.phase11-polish .card,
+html body.research-workspace.phase11-polish.phase11-polish .evidence-item{
+  background:rgba(15,23,42,.58)!important;
+  color:var(--rw-text)!important;
+  border-color:rgba(186,230,253,.14)!important;
+}
+html body.research-workspace.phase11-polish.phase11-polish .result-card p,
+html body.research-workspace.phase11-polish.phase11-polish .threshold-card p,
+html body.research-workspace.phase11-polish.phase11-polish .card p{
+  color:var(--rw-body)!important;
+}
+html body.research-workspace.phase11-polish.phase11-polish .phase-editorial-photo__frame{
+  background:#07101f!important;
+  border-color:rgba(186,230,253,.14)!important;
+}
+html body.research-workspace.phase11-polish.phase11-polish .phase-editorial-photo__context,
+html body.research-workspace.phase11-polish.phase11-polish .phase-editorial-photo__why,
+html body.research-workspace.phase11-polish.phase11-polish .phase-editorial-photo__credit{
+  color:var(--rw-muted)!important;
+}
