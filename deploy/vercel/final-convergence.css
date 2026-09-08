@@ -247,3 +247,139 @@ body.research-workspace.home-workspace #timeline .text-link{
     grid-template-columns:repeat(6,minmax(44px,1fr))!important;
   }
 }
+
+/* --------------------------------------------------------------------------
+   Tesla-safe Liquid Glass overlay
+   Material only: no layout, spacing, sizing, typography, or routing changes.
+   -------------------------------------------------------------------------- */
+body.research-workspace{
+  --lg-light:rgba(255,255,255,.64);
+  --lg-light-strong:rgba(255,255,255,.76);
+  --lg-light-soft:rgba(255,255,255,.46);
+  --lg-dark:rgba(19,25,34,.48);
+  --lg-rim:rgba(255,255,255,.82);
+  --lg-rim-soft:rgba(170,199,222,.34);
+  --lg-cyan:rgba(97,218,255,.18);
+  --lg-violet:rgba(166,132,255,.11);
+  --lg-shadow:0 14px 34px rgba(31,49,67,.11),inset 0 1px 0 rgba(255,255,255,.94),inset 0 -1px 0 rgba(95,125,148,.10);
+  --lg-shadow-control:0 7px 18px rgba(31,49,67,.10),inset 0 1px 0 rgba(255,255,255,.90),inset 0 -1px 0 rgba(95,125,148,.09);
+  --lg-shadow-hover:0 18px 40px rgba(31,49,67,.15),inset 0 1px 0 rgba(255,255,255,.98),inset 0 -1px 0 rgba(95,125,148,.12);
+  --lg-transition:160ms cubic-bezier(.2,.7,.2,1);
+}
+
+/* Floating command surfaces retain the original Tesla geometry. */
+html body.research-workspace.research-workspace .site-header,
+html body.research-workspace.research-workspace .signature-nav,
+html body.research-workspace.research-workspace.archive-shell .top{
+  background-color:rgba(250,252,255,.72)!important;
+  background-image:
+    radial-gradient(circle at 14% -35%,var(--lg-cyan),transparent 42%),
+    radial-gradient(circle at 88% -50%,var(--lg-violet),transparent 40%),
+    linear-gradient(145deg,rgba(255,255,255,.82),rgba(245,250,255,.55))!important;
+  border-color:rgba(164,190,212,.28)!important;
+  box-shadow:var(--lg-shadow)!important;
+  -webkit-backdrop-filter:blur(18px) saturate(1.28)!important;
+  backdrop-filter:blur(18px) saturate(1.28)!important;
+}
+
+/* Primary research surfaces: existing dimensions and radii are untouched. */
+html body.research-workspace.research-workspace.home-workspace .workspace-status-card,
+html body.research-workspace.research-workspace.home-workspace .research-alert,
+html body.research-workspace.research-workspace.home-workspace .section.ash > .wrap,
+html body.research-workspace.research-workspace.archive-workspace .archive-category,
+html body.research-workspace.research-workspace .phase-verdict-panel,
+html body.research-workspace.research-workspace .phase-detail__metrics-band,
+html body.research-workspace.research-workspace .phase-detail__context{
+  background-color:var(--lg-light)!important;
+  background-image:
+    radial-gradient(circle at 8% 0%,var(--lg-cyan),transparent 34%),
+    radial-gradient(circle at 96% 100%,var(--lg-violet),transparent 32%),
+    linear-gradient(145deg,rgba(255,255,255,.72),rgba(245,250,255,.42))!important;
+  border-color:rgba(160,188,211,.25)!important;
+  box-shadow:var(--lg-shadow)!important;
+  -webkit-backdrop-filter:blur(18px) saturate(1.22)!important;
+  backdrop-filter:blur(18px) saturate(1.22)!important;
+  transition:box-shadow var(--lg-transition),border-color var(--lg-transition),background-color var(--lg-transition)!important;
+}
+
+/* Editorial imagery gets the optical rim without altering its crop or size. */
+html body.research-workspace.research-workspace .research-photo__frame,
+html body.research-workspace.research-workspace .phase-editorial-photo__frame{
+  border-color:rgba(157,187,210,.34)!important;
+  box-shadow:0 12px 30px rgba(31,49,67,.10),inset 0 1px 0 rgba(255,255,255,.78)!important;
+  -webkit-backdrop-filter:blur(12px) saturate(1.16)!important;
+  backdrop-filter:blur(12px) saturate(1.16)!important;
+}
+
+/* Search and filter controls use Apple-like clear capsules inside Tesla sizing. */
+html body.research-workspace.research-workspace.archive-workspace .archive-toolbar__search input,
+html body.research-workspace.research-workspace.archive-workspace .archive-filter,
+html body.research-workspace.research-workspace.archive-workspace .archive-reset,
+html body.research-workspace.research-workspace.archive-workspace .category-nav a,
+html body.research-workspace.research-workspace .mobile-menu-toggle,
+html body.research-workspace.research-workspace .mobile-menu-close,
+html body.research-workspace.research-workspace .archive-menu-toggle,
+html body.research-workspace.research-workspace .archive-menu-close{
+  background-color:rgba(255,255,255,.68)!important;
+  background-image:
+    radial-gradient(circle at 20% -40%,rgba(116,222,255,.22),transparent 44%),
+    linear-gradient(145deg,rgba(255,255,255,.84),rgba(241,248,253,.46))!important;
+  border-color:rgba(151,181,205,.32)!important;
+  box-shadow:var(--lg-shadow-control)!important;
+  -webkit-backdrop-filter:blur(16px) saturate(1.24)!important;
+  backdrop-filter:blur(16px) saturate(1.24)!important;
+  transition:box-shadow var(--lg-transition),border-color var(--lg-transition),background-color var(--lg-transition)!important;
+}
+
+html body.research-workspace.research-workspace.archive-workspace .archive-filter:hover,
+html body.research-workspace.research-workspace.archive-workspace .archive-reset:hover,
+html body.research-workspace.research-workspace.archive-workspace .category-nav a:hover,
+html body.research-workspace.research-workspace .mobile-menu-toggle:hover,
+html body.research-workspace.research-workspace .mobile-menu-close:hover,
+html body.research-workspace.research-workspace .archive-menu-toggle:hover,
+html body.research-workspace.research-workspace .archive-menu-close:hover{
+  border-color:rgba(99,193,226,.50)!important;
+  box-shadow:var(--lg-shadow-hover)!important;
+}
+
+/* Status pills keep the existing semantic colors; only their material changes. */
+html body.research-workspace.research-workspace .verdict-chip,
+html body.research-workspace.research-workspace .status-badge{
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.72),0 5px 14px rgba(31,49,67,.08)!important;
+  -webkit-backdrop-filter:blur(12px) saturate(1.18)!important;
+  backdrop-filter:blur(12px) saturate(1.18)!important;
+}
+
+/* The full-screen mobile sheet stays light Tesla, but becomes optically translucent. */
+@media (max-width:900px){
+  html body.research-workspace.research-workspace .mobile-menu-sheet,
+  html body.research-workspace.research-workspace .archive-menu-sheet,
+  html body.research-workspace.home-workspace.home-workspace #mobileMenuSheet{
+    background-color:rgba(248,251,254,.86)!important;
+    background-image:
+      radial-gradient(circle at 8% 4%,rgba(105,219,255,.18),transparent 34%),
+      radial-gradient(circle at 92% 92%,rgba(174,143,255,.10),transparent 34%),
+      linear-gradient(145deg,rgba(255,255,255,.90),rgba(244,249,253,.80))!important;
+    -webkit-backdrop-filter:blur(22px) saturate(1.22)!important;
+    backdrop-filter:blur(22px) saturate(1.22)!important;
+  }
+}
+
+/* Focus remains obvious and research-blue without changing control geometry. */
+html body.research-workspace.research-workspace :is(a,button,input,select,textarea):focus-visible{
+  outline-color:#2f8fff!important;
+  box-shadow:0 0 0 3px rgba(47,143,255,.16),0 8px 22px rgba(47,143,255,.10)!important;
+}
+
+@media (prefers-reduced-motion:reduce){
+  html body.research-workspace.research-workspace .workspace-status-card,
+  html body.research-workspace.research-workspace .research-alert,
+  html body.research-workspace.research-workspace .archive-category,
+  html body.research-workspace.research-workspace .phase-verdict-panel,
+  html body.research-workspace.research-workspace .phase-detail__metrics-band,
+  html body.research-workspace.research-workspace .phase-detail__context,
+  html body.research-workspace.research-workspace .archive-filter,
+  html body.research-workspace.research-workspace .category-nav a{
+    transition:none!important;
+  }
+}
