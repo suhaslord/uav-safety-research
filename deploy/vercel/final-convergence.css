@@ -208,6 +208,14 @@ body.research-workspace.home-workspace #timeline .text-link{
     min-height:44px!important;
     justify-content:center!important;
   }
+  html body.research-workspace.research-workspace.archive-workspace .category-nav a:first-child{
+    width:44px!important;
+    min-width:44px!important;
+    max-width:none!important;
+    flex:0 0 44px!important;
+    box-sizing:border-box!important;
+    justify-content:center!important;
+  }
 
   /* Keep all 13 lineage dots visible instead of clipping half the sequence. */
   html body.research-workspace.home-workspace .home-lineage{
@@ -230,5 +238,12 @@ body.research-workspace.home-workspace #timeline .text-link{
   html body.research-workspace.home-workspace .home-lineage__caption{
     width:100%!important;
     min-width:0!important;
+  }
+}
+
+/* 320px-class phones cannot fit seven 44px lineage targets inside the inset card. */
+@media (max-width:340px){
+  html body.research-workspace.home-workspace .home-lineage__track{
+    grid-template-columns:repeat(6,minmax(44px,1fr))!important;
   }
 }
