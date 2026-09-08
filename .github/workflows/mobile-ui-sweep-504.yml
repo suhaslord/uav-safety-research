@@ -17,6 +17,7 @@ on:
 permissions:
   contents: read
 
+# Hard gate for the Tesla MD + Liquid Glass repair branch.
 jobs:
   mobile-grade:
     runs-on: ubuntu-latest
