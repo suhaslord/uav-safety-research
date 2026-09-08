@@ -1,3 +1,4 @@
+import re
 from pathlib import Path
 
 CSS = Path("deploy/vercel/final-convergence.css").read_text(encoding="utf-8")
@@ -7,6 +8,16 @@ MARKER = "Tesla-safe Liquid Glass overlay"
 def overlay() -> str:
     assert MARKER in CSS
     return CSS.split(MARKER, 1)[1]
+
+
+def declarations(layer: str) -> list[str]:
+    # Only inspect CSS declarations inside blocks. This deliberately ignores
+    # media-query conditions such as `@media (max-width:900px)`.
+    props = []
+    for block in re.findall(r"\{([^{}]*)\}", layer, flags=re.S):
+        for match in re.finditer(r"(?:^|;)\s*([\w-]+)\s*:", block):
+            props.append(match.group(1).lower())
+    return props
 
 
 def test_liquid_glass_overlay_is_present():
@@ -20,27 +31,34 @@ def test_liquid_glass_overlay_is_present():
 
 
 def test_overlay_does_not_rewrite_tesla_geometry_or_type():
-    layer = overlay()
-    forbidden = (
+    forbidden = {
         "grid-template",
-        "font-size:",
-        "line-height:",
-        "letter-spacing:",
-        "text-transform:",
-        "border-radius:",
-        "padding:",
-        "padding-",
-        "margin:",
-        "margin-",
-        "width:",
-        "min-width:",
-        "max-width:",
-        "height:",
-        "min-height:",
-        "max-height:",
-    )
-    for token in forbidden:
-        assert token not in layer, f"Liquid Glass overlay must not alter Tesla geometry/type: {token}"
+        "grid-template-columns",
+        "grid-template-rows",
+        "font-size",
+        "line-height",
+        "letter-spacing",
+        "text-transform",
+        "border-radius",
+        "padding",
+        "padding-top",
+        "padding-right",
+        "padding-bottom",
+        "padding-left",
+        "margin",
+        "margin-top",
+        "margin-right",
+        "margin-bottom",
+        "margin-left",
+        "width",
+        "min-width",
+        "max-width",
+        "height",
+        "min-height",
+        "max-height",
+    }
+    touched = forbidden.intersection(declarations(overlay()))
+    assert not touched, f"Liquid Glass overlay must not alter Tesla geometry/type: {sorted(touched)}"
 
 
 def test_overlay_keeps_light_tesla_material_and_semantic_statuses():
