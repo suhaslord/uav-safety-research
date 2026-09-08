@@ -124,6 +124,29 @@
       </div>
     </section>
 
+    <section class="section ash" id="researchers" aria-labelledby="researchers-title">
+      <div class="wrap">
+        <div class="section-head"><p class="eyebrow">For researchers</p><div><h2 id="researchers-title">Evaluate AegisLand in five minutes.</h2><p class="copy">A compact view of the strongest result, the evidence boundary, and the questions where outside critique would be most useful.</p></div></div>
+
+        <div class="three method-steps">
+          <article class="card"><span class="tag">01 · Investigates</span><h3>When confidence stops tracking error.</h3><p>AegisLand deliberately degrades simulated UAV landing estimates and compares actual error with reported uncertainty.</p></article>
+          <article class="card"><span class="tag">02 · Strongest result</span><h3>Phase 22 transferred without refitting.</h3><p>The frozen additive model passed 10/10 locked gates on the final synthetic 32-cell holdout, with RMSE-surface R² 0.8319 and MAE-surface R² 0.7744.</p></article>
+          <article class="card"><span class="tag">03 · Current limit</span><h3>Simulation evidence only.</h3><p>No real-sensor equivalence, physical-flight safety, certification, controller-tuning, or operational claim is made.</p></article>
+        </div>
+
+        <div class="section-head"><p class="eyebrow">Open research questions</p><div><h2>Where should the next evidence come from?</h2><p class="copy">These are intentionally unresolved rather than presented as implied results.</p></div></div>
+        <div class="evidence-list" aria-label="Open AegisLand research questions">
+          <div class="evidence-item"><span>Calibration under shift</span><strong>How quickly does uncertainty coverage fail under realistic camera, lighting, and scene changes?</strong></div>
+          <div class="evidence-item"><span>Recovery guarantees</span><strong>Can recoverability after a perception fault be expressed and checked as a formal invariant?</strong></div>
+          <div class="evidence-item"><span>Transfer</span><strong>Which uncertainty relationships survive across vehicles, landing scenes, and estimator settings?</strong></div>
+          <div class="evidence-item"><span>Sim-to-real gap</span><strong>Which conclusions break first when synthetic evidence meets real sensing and timing behavior?</strong></div>
+        </div>
+
+        <div class="research-alert" role="note"><div class="research-alert__label">Feedback welcome</div><p>If one benchmark, failure case, or validation check would make this study harder to fool, that is the most useful feedback.</p><a href="https://github.com/suhaslord/uav-safety-research/issues/new" target="_blank" rel="noreferrer">Suggest a benchmark →</a></div>
+        <div class="actions"><a class="button primary signature-button" href="/phases/phase22/">Inspect strongest result</a><a class="button secondary signature-button" href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">Open GitHub ↗</a></div>
+      </div>
+    </section>
+
     <section class="section ash" id="method">
       <div class="wrap">
         <div class="section-head"><p class="eyebrow">Method</p><div><h2>Freeze first. Then evaluate.</h2><p class="copy">Thresholds and coefficients lock before protected evidence opens. A failed gate stays failed.</p></div></div>
@@ -156,7 +179,7 @@
     </section>
   </main>
 
-  <footer class="footer"><p>AegisLand · frozen simulation-only research</p><div class="footer-links"><a href="/phases/">Archive</a><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub ↗</a><a href="/phases/phase22/">Phase 22</a></div></footer>
+  <footer class="footer"><p>AegisLand · frozen simulation-only research</p><div class="footer-links"><a href="#researchers">For researchers</a><a href="/phases/">Archive</a><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub ↗</a><a href="/phases/phase22/">Phase 22</a></div></footer>
 
   <script src="/frozen-lineage.js?v=3"></script>
   <script>
