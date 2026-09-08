@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - aegis-mobile-ui-sweep
+      - aegis-premium-glass-cockpit
     paths:
       - 'deploy/vercel/**'
       - 'dashboard/**'
