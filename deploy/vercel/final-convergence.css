@@ -147,10 +147,10 @@ body.research-workspace .phase-detail__hero .phase-identity-chip ~ .workspace-co
   display:none!important;
 }
 
-/* Context media should feel intentionally centered rather than accidentally cropped left. */
+/* Keep frozen-phase context media centered and at the same desktop proportion as earlier phases. */
 body.research-workspace .phase-detail > .phase-editorial-photo,
 body.research-workspace .phase-detail #phaseContent > .phase-editorial-photo{
-  width:min(1040px,100%)!important;
+  width:min(960px,100%)!important;
   margin-left:auto!important;
   margin-right:auto!important;
 }
