@@ -1,134 +1,237 @@
-# AegisLand
+# AegisLand — UAV Safety Research
 
-I built AegisLand to test one question:
+AegisLand is a **simulation-only UAV landing safety research project**.
 
-> **If a landing camera is confidently wrong, can independent evidence and calibrated uncertainty expose the error without making the system unusably conservative?**
+The project asks a simple question:
 
-This repository is a simulation study, not flight software. The useful part is the experiment record: what changed, what was frozen, what evidence was allowed to influence development, which gates passed, which gates failed, and which holdouts stayed untouched until their preregistered stage.
+> **When a landing camera becomes stale, degraded, or confidently wrong, can independent evidence and calibrated uncertainty reveal that failure before the system trusts it too much?**
 
-## Current result: Phase 12 Iteration 3
+The goal is not to prove that an aircraft is safe to fly. The goal is to build a careful experimental record showing **when a perception-and-uncertainty approach works, when it fails, and whether the result survives new evidence without retuning**.
 
-**Phase 12 is closed. Iteration 3 passed development, transfer, protected validation, and final unseen replication without retuning after candidate freeze.**
+**Live research cockpit:** https://aegisland-research-cockpit.vercel.app/
 
-The Phase 12 lineage was created after Phase 11 P14R missed one locked protected H4 lateral tail-efficiency gate (`2.4354x` vs `<= 2.25x`). Phase 11 remained closed. Phase 12 used fresh scale-fit/calibration/development/transfer/protected/final evidence and never reused the Phase 11 protected seed.
+---
 
-### Final holdout — seed `935935`
+## What are we trying to answer?
 
-| Final check | Result |
+### Main research question
+
+Can a UAV landing system recognize when its visual position estimate should **not** be trusted, while still remaining useful enough to avoid unnecessary holds or aborts?
+
+### The questions behind the project
+
+1. **Safety supervision** — Can confidence and independent evidence stop unsafe landing decisions before touchdown?
+2. **Perception robustness** — What happens when camera measurements become noisy, biased, ambiguous, or temporarily unavailable?
+3. **External validity** — Do results that look strong in one simulation setting survive harder geometry, appearance, and simulator shifts?
+4. **Uncertainty calibration** — Can uncertainty intervals stay honest without becoming so wide that the system is unusable?
+5. **Latency** — What does stale perception do to position error, short-horizon residual error, and uncertainty behavior?
+6. **Context effects** — Which predefined environmental factors explain why a method works better in simple scenes than difficult ones?
+7. **Frozen transfer** — Can a simple model predict behavior in fresh synthetic contexts **without being refit after seeing them**?
+
+The next meaningful research question is broader external validity: **does the same behavior transfer to a meaningfully different simulator, sensor model, or real recorded camera dataset while preserving the same evidence discipline?**
+
+---
+
+## Current result — frozen through Phase 22
+
+The current scientific lineage is frozen through **Phase 22: Frozen Additive Context Transfer**.
+
+Phase 22 asked:
+
+> **Can a simple additive model predict a fresh 32-cell context surface without refitting?**
+
+It passed development, transfer, protected validation, and the one-shot final holdout.
+
+| Final Phase 22 check | Result |
 |---|---:|
-| Useful availability | **98.57% — PASS** |
-| Lateral 95% coverage | **95.53% — PASS** |
-| Altitude 95% coverage | **95.22% — PASS** |
-| Calibration MACE | **0.01751 — PASS** |
-| Lateral median interval width / p95 error | **0.5613x — PASS** |
-| Lateral p95 interval width / p95 error | **2.23035x — PASS** (`<= 2.25x`) |
-| Altitude median interval width / p95 error | **0.7768x — PASS** |
-| Altitude p95 interval width / p95 error | **1.7291x — PASS** |
-| Rescue recovery | **95.43% — PASS** |
-| Diagnostic AUROC | **0.9833** |
+| RMSE-surface cellwise R² | **0.8319** |
+| MAE-surface cellwise R² | **0.7744** |
+| Stable-sign accuracy on eligible cells | **100%** |
+| Locked gates | **10 / 10 PASS** |
 
-The final H4 lateral p95 result is close to its locked boundary, which is why the unchanged protected and final replications matter. No threshold was relaxed and no post-hoc interval multiplier was added.
+Frozen identities:
 
-## What changed in Phase 12
+- scientific head: `668d065714dde279857bc0e196f0ef7cc5e182ed`
+- Phase 22 result SHA-256: `0ddc968b8bd48c2de6d904194b417854913389a8927cff0b15b96c6501f8294c`
+- Phase 22 candidate SHA-256: `62e75d7b39088c2e66f1cc6be4d180501b79632f2f6847af1fbe0bd96be17551`
 
-The Phase 11 point estimator, bounded continuity path, independent rescue, velocity caps, innovation scales, availability logic, and gate definitions stayed fixed. Phase 12 changed only the uncertainty model.
+This does **not** mean every phase passed. Negative results are intentionally preserved. For example, the external-validity and paired-degradation studies in Phases 13A and 13B failed their locked criteria, and several latency hypotheses in Phases 14–18 also failed before later narrower questions succeeded.
 
-The first two development iterations improved the targeted lateral H4 p95 ratio but still failed it:
+That is part of the point of AegisLand: **a failed preregistered question stays failed instead of being rewritten after the result is known.**
 
-- v1 severity-conditioned normalized conformal: `2.3620x` — FAIL
-- v2 continuity-scale contrast shrinkage: `2.3485x` — FAIL
+---
 
-Seen-only forensics showed that the largest continuity widths were poorly aligned with the largest actual errors, while normalized lateral anchor innovation was a much stronger inference-visible indicator of error heteroscedasticity than severity. Iteration 3 therefore added one bounded continuity-only lateral reliability coordinate derived from anchor innovation and fit its low-capacity normalization using scale-fit evidence only.
+## Research map
 
-No neural model, optimizer sweep, development-selected coefficient, calibration weakening, gate change, point-estimator change, rescue change, or threshold movement was introduced.
-
-## Frozen Iteration 3 identity
-
-- scientific Git SHA: `8d0617a83d699cd14eae6194ce3a86a5c034dfbc`
-- candidate SHA-256: `e2372ca597cdd983f098f1a45524c077798114c59a62bf9faccefd17b67a4991`
-- method: `continuity_lateral_innovation_residual_normalized_robust_conformal`
-- frozen invariant suite: `35 passed`
-- broad CI on frozen scientific SHA: PASS
-
-### Replication progression
-
-| Stage | Seed | Lateral H4 p95 | Lateral 95% coverage | Verdict |
-|---|---:|---:|---:|---|
-| Development | `907907` | `2.16845x` | `94.95%` | PASS |
-| Transfer | `913913` | `2.05804x` | `94.50%` | PASS |
-| Protected validation | `924924` | `2.21245x` | `95.40%` | PASS |
-| Final holdout | `935935` | **`2.23035x`** | **`95.53%`** | **PASS** |
-
-No scientific code or candidate content changed after freeze.
-
-## Evidence ledger
-
-Permanently seen in Phase 12:
-
-- scale-fit `880880`
-- calibration A `891891`
-- calibration B `902902`
-- development-only `907907`
-- transfer `913913` — exposed once after development PASS
-- protected `924924` — exposed once after transfer PASS
-- final `935935` — exposed once after protected PASS
-
-Untouched / forbidden throughout Phase 12:
-
-- Phase 11 protected `858858` — never reused or reevaluated
-- retired Phase 11 P15-v2 `869869` — never exposed
-
-## How the evidence changed over time
-
-| Phase | Evidence | What I learned |
+| Area | Phases | Main question |
 |---|---|---|
-| 6B | Synthetic landing holdout | selective intervention can help in the defined synthetic benchmark |
-| 7 | Stress-factor experiments | redundancy assumptions break under some mismatches |
-| 8 | PX4/Gazebo trace comparison | the external trace was a diagnostic mismatch, not a validation pass |
-| 9 | Genuine Gazebo camera frames | strong detection does not automatically give trustworthy metric geometry |
-| 10 | Temporal estimate + calibrated uncertainty | uncertainty improved; point-error target failed |
-| 10R | New geometry + appearance holdout | mean error improved, but tail, misses, and shift calibration failed |
-| 11 | Fresh transfer + protected validation | availability and coverage recovered; locked lateral tail efficiency still failed |
-| **12** | Fresh scale-fit/calibration + development → transfer → protected → final | **innovation-conditioned continuity uncertainty passed the locked simulation-study gates across the full frozen progression** |
+| Safety architecture | 1–4 | Can confidence, temporal logic, and independent evidence prevent unsafe actions? |
+| Perception + robustness | 5–6B | Does the architecture still work when the system must reason from degraded image-derived measurements? |
+| External validation | 7–10R | How much of the apparent result depends on the simulator, camera geometry, and environmental shift? |
+| Reliability + calibration | 11–13C | Can availability and uncertainty stay trustworthy under protected and harder-domain evidence? |
+| Latency + error dynamics | 14–19 | What does stale perception change, and which latency effects actually replicate? |
+| Context structure + transfer | 20–22 | Which context factors attenuate performance, and can that structure predict fresh contexts without refitting? |
 
-## Reproducing the repository
+Browse every phase and its verdict in the **research archive**:
+
+https://aegisland-research-cockpit.vercel.app/phases/
+
+---
+
+# How to run AegisLand
+
+## 1. Requirements
+
+You need:
+
+- **Python 3.10+**
+- **Git**
+- a terminal such as PowerShell, Command Prompt, Terminal, or bash
+
+No physical UAV is required. The core research code runs in simulation.
+
+---
+
+## 2. Clone the repository
 
 ```bash
 git clone https://github.com/suhaslord/uav-safety-research.git
 cd uav-safety-research
+```
+
+---
+
+## 3. Create a virtual environment
+
+```bash
 python -m venv .venv
-# macOS / Linux: source .venv/bin/activate
-# Windows PowerShell: .\.venv\Scripts\Activate.ps1
+```
+
+Activate it.
+
+### Windows PowerShell
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
+
+### macOS / Linux
+
+```bash
+source .venv/bin/activate
+```
+
+---
+
+## 4. Install the project
+
+```bash
+python -m pip install --upgrade pip
 pip install -e ".[dev]"
-pytest
+```
+
+This installs the package plus the development test dependency.
+
+---
+
+## 5. Run the tests
+
+```bash
+pytest -q
+```
+
+A clean test run verifies that the repository behaves as expected in your environment. It does **not** establish flight safety.
+
+---
+
+## 6. Run a small Monte Carlo experiment
+
+For a quick local research run:
+
+```bash
+python scripts/run_experiments.py --episodes 20 --seed 2026 --out results/demo
+```
+
+This compares the baseline and supervised landing behavior across the repository's simulated perception-degradation profiles.
+
+Generated outputs are written to `results/demo/`, including:
+
+- `episodes.csv` — episode-level results
+- `summary.csv` — aggregated metrics
+- `summary.md` — readable summary table
+- `unsafe_touchdown_rate.png`
+- `success_rate.png`
+- `run_metadata.json`
+
+For a larger run, increase `--episodes` while keeping the seed fixed when you want reproducible comparisons.
+
+Example:
+
+```bash
+python scripts/run_experiments.py --episodes 100 --seed 2026 --out results/run_100
+```
+
+---
+
+## 7. Run the research cockpit locally
+
+```bash
 python scripts/serve_dashboard.py
 ```
 
-Useful records:
+Then open:
 
+```text
+http://127.0.0.1:8765
+```
+
+Press `Ctrl+C` in the terminal to stop the local server.
+
+The production version is available at:
+
+https://aegisland-research-cockpit.vercel.app/
+
+---
+
+## Reproducing the frozen scientific record
+
+The simple Monte Carlo command above is the easiest way to understand the codebase, but it is **not a replacement for the sealed phase-specific evaluations** used in the later research lineage.
+
+For the frozen scientific record:
+
+1. Read the phase's preregistration or final report before running anything.
+2. Keep development, transfer, protected, and final evidence roles separate.
+3. Do not tune a method after protected or final evidence has been exposed.
+4. Do not reinterpret a failed gate as a pass because a later phase succeeded.
+5. Preserve frozen code, candidate hashes, seeds, and result artifacts when making a replication claim.
+
+Useful starting points:
+
+- [Reproducibility protocol](docs/reproducibility.md)
 - [Phase 12 Iteration 3 final report](docs/phase12_iteration3_final_report.md)
 - [Phase 12 Iteration 3 preregistration](docs/phase12_iteration3_preregistration.md)
 - [Phase 12 width-tail forensics](docs/phase12_width_tail_forensics.md)
-- [Phase 12 development log](docs/phase12_development_log.md)
 - [Phase 11 final report](docs/phase11_final_report.md)
-- [Reproducibility protocol](docs/reproducibility.md)
-- [Live research cockpit](https://aegisland-research-cockpit.vercel.app/)
+- [Research cockpit](https://aegisland-research-cockpit.vercel.app/)
+- [Full phase archive](https://aegisland-research-cockpit.vercel.app/phases/)
 
-The canonical production UI bundle is under `deploy/vercel/`. Historical dashboard assets remain in `dashboard/` because earlier phases are part of the research record.
+The canonical production UI bundle is under `deploy/vercel/`. Historical dashboard assets remain under `dashboard/` because earlier phases are part of the research record.
 
-## Limits I do not want this project to hide
+---
 
-- **Simulation only.** This has not been validated on a physical aircraft or hardware camera.
-- **Safety acceptance is false.** Passing simulation-study gates is not a flight-safety or certification claim.
-- **Controller tuning is not authorized from this result.** Phase 12 evaluates uncertainty behavior around a frozen estimator lineage.
-- The final H4 lateral p95 ratio, `2.23035x`, passes but is close to the locked `2.25x` maximum.
-- The study does not establish real-sensor rescue equivalence, autonomous landing safety, operational reliability, or production readiness.
-- Passing CI tests says the software runs as tested. It does not make the system flight-safe.
+## What this project does **not** claim
 
-## Next question
+- **Simulation only.** The project has not demonstrated safety on a physical aircraft.
+- **No certification claim.** Passing experimental gates is not regulatory or flight-safety approval.
+- **No production-readiness claim.** The research results do not establish operational reliability.
+- **No real-sensor equivalence claim.** Synthetic and Gazebo evidence cannot automatically be generalized to real cameras.
+- **No controller-tuning authorization.** A positive research result does not authorize deployment or flight-controller changes.
+- **CI is software evidence, not safety evidence.** Passing tests shows that the code ran as tested; it does not prove the UAV is safe.
 
-Phase 12 is now closed. No more Phase 12 tuning or evidence exposure is authorized.
+---
 
-Any follow-on study should start a **new preregistered lineage with fresh evidence**. A legitimate next question is whether the same uncertainty-allocation idea transfers to a meaningfully different simulator, sensor model, or real recorded camera dataset while preserving the same evidence hygiene.
+## In one sentence
 
-**Safety note:** AegisLand is educational, simulation-only research. It is not validated flight-control software and should not be used to operate a physical aircraft.
+**AegisLand studies how to recognize when UAV landing perception should not be trusted, then tests whether those conclusions survive harder evidence without moving the rules after seeing the results.**
+
+> **Safety note:** AegisLand is educational, simulation-only research. It is not validated flight-control software and should not be used to operate a physical aircraft.
