@@ -17,6 +17,75 @@
   <link rel="stylesheet" href="/phase-personalization.css?v=1" />
   <link rel="stylesheet" href="/phase-editorial-media.css?v=1" />
   <link rel="stylesheet" href="/research-workspace.css?v=1" />
+  <style id="legacy-apple-tesla-polish">
+    /* Keep Phase 1–10 on the same Apple × Tesla control language as later phases. */
+    html body.research-workspace.archive-shell #phaseHero .actions .button.blue{
+      min-height:46px!important;
+      padding-inline:20px!important;
+      border:1px solid #171a20!important;
+      border-radius:999px!important;
+      background:#171a20!important;
+      color:#fff!important;
+      box-shadow:0 10px 24px rgba(23,26,32,.14)!important;
+      font-weight:600!important;
+    }
+    html body.research-workspace.archive-shell #phaseHero .actions .button.blue:hover{
+      background:#000!important;
+      border-color:#000!important;
+      transform:translateY(-1px)!important;
+    }
+    html body.research-workspace.archive-shell #phaseHero .actions .button.ash{
+      min-height:46px!important;
+      padding-inline:20px!important;
+      border:1px solid rgba(23,26,32,.09)!important;
+      border-radius:999px!important;
+      background:rgba(255,255,255,.72)!important;
+      color:#171a20!important;
+      box-shadow:0 8px 22px rgba(23,26,32,.07),inset 0 1px 0 rgba(255,255,255,.92)!important;
+      -webkit-backdrop-filter:blur(20px) saturate(1.25)!important;
+      backdrop-filter:blur(20px) saturate(1.25)!important;
+      font-weight:600!important;
+    }
+    html body.research-workspace.archive-shell #phaseHero .actions .button.ash:hover{
+      background:rgba(255,255,255,.92)!important;
+      border-color:rgba(23,26,32,.15)!important;
+      transform:translateY(-1px)!important;
+    }
+    html body.research-workspace.archive-shell .archive-menu-toggle,
+    html body.research-workspace.archive-shell .archive-menu-close{
+      min-width:44px!important;
+      min-height:44px!important;
+      padding:0 14px!important;
+      border:1px solid rgba(23,26,32,.075)!important;
+      border-radius:999px!important;
+      background:rgba(255,255,255,.68)!important;
+      color:#171a20!important;
+      box-shadow:0 6px 18px rgba(23,26,32,.06),inset 0 1px 0 rgba(255,255,255,.9)!important;
+      -webkit-backdrop-filter:blur(18px) saturate(1.2)!important;
+      backdrop-filter:blur(18px) saturate(1.2)!important;
+      font:inherit!important;
+      font-weight:600!important;
+    }
+    html body.research-workspace.archive-shell .archive-menu-links a.primary{
+      color:#fff!important;
+      background:#171a20!important;
+      border-radius:999px!important;
+      padding-inline:16px!important;
+      margin-top:10px!important;
+      border-bottom:0!important;
+    }
+    @media(max-width:700px){
+      html body.research-workspace.archive-shell #phaseHero .actions{
+        gap:10px!important;
+      }
+      html body.research-workspace.archive-shell #phaseHero .actions .button.blue,
+      html body.research-workspace.archive-shell #phaseHero .actions .button.ash{
+        width:100%!important;
+        justify-content:center!important;
+        box-sizing:border-box!important;
+      }
+    }
+  </style>
 </head>
 <body class="archive-shell phase-polish-shell research-workspace">
   <div class="boot" id="archiveBoot" role="status" aria-live="polite">
