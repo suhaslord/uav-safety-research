@@ -1,274 +1,126 @@
-/*
-  Final AegisLand convergence layer.
-  Purpose: remove cross-template UI bugs and make all phase pages read as one product.
-  Scientific content, verdicts, hashes, evidence boundaries, and phase data are untouched.
-*/
+@import url('/final-convergence-base.css?v=1');
 
-/* Mobile controls must never leak into desktop layout. */
-@media (min-width:701px){
-  body.research-workspace .mobile-menu-toggle,
-  body.research-workspace .mobile-menu-sheet{
+/* UI bug sweep 2: breakpoint continuity and visual cleanup. */
+@media (min-width:901px){
+  html body.research-workspace.research-workspace .mobile-menu-toggle,
+  html body.research-workspace.research-workspace .mobile-menu-sheet,
+  html body.research-workspace.research-workspace .archive-menu-toggle,
+  html body.research-workspace.research-workspace .archive-menu-sheet{
     display:none!important;
   }
 }
 
-/* Shared phase title scale: evidence outranks marketing-sized display type. */
-body.research-workspace.archive-shell .hero h1,
-body.research-workspace.phase11-polish .hero h1,
-body.research-workspace .phase-detail__hero h1{
-  font-size:clamp(38px,4vw,48px)!important;
-  line-height:1.06!important;
-  letter-spacing:-.03em!important;
-  max-width:920px!important;
-}
-
-/* A labeled, predictable metadata block on every phase. */
-body.research-workspace .phase-role-card{
-  grid-template-columns:minmax(150px,.34fr) minmax(0,1fr) minmax(120px,.28fr)!important;
-  gap:22px!important;
-  padding:16px 18px!important;
-  border:1px solid #e1e3e6!important;
-  border-radius:8px!important;
-  background:#f5f6f8!important;
-}
-body.research-workspace .phase-role-card__question{
-  display:grid!important;
-  gap:3px!important;
-  margin:0!important;
-}
-body.research-workspace .phase-role-card__question-label{
-  display:block;
-  color:#5c5e62;
-  font-size:11.5px;
-  line-height:15px;
-  font-weight:500;
-}
-body.research-workspace .phase-role-card__question-text{
-  display:block;
-  color:#393c41;
-  font-size:14px;
-  line-height:21px;
-}
-
-/* Legacy chronology: normal document flow on desktop, compact disclosure on phone. */
-body.research-workspace.archive-shell .phase-rail-section{
-  position:relative!important;
-  top:auto!important;
-  z-index:2!important;
-  background:#fff!important;
-  border-top:1px solid #eceeef!important;
-  border-bottom:1px solid #e1e3e6!important;
-  box-shadow:none!important;
-}
-body.research-workspace.archive-shell .phase-rail{
-  min-height:64px!important;
-  overflow-x:auto!important;
-  scrollbar-width:thin;
-}
-body.research-workspace.archive-shell .rail-step{
-  min-width:74px!important;
-  padding:11px 7px!important;
-}
-.phase-progress-compact{
-  display:none;
-  width:100%;
-  min-height:46px;
-  padding:0 14px;
-  align-items:center;
-  justify-content:space-between;
-  gap:14px;
-  border:0;
-  background:#f5f6f8;
-  color:#171a20;
-  font:inherit;
-  text-align:left;
-}
-.phase-progress-compact span{font-size:12px;font-weight:500}
-.phase-progress-compact strong{font-size:12px;font-weight:500;color:#3559c7}
-
-/* Legacy pages were far too tall relative to the frozen record family. */
-body.research-workspace.archive-shell .hero{
-  padding-top:104px!important;
-  padding-bottom:64px!important;
-}
-body.research-workspace.archive-shell .section{
-  padding-top:70px!important;
-  padding-bottom:70px!important;
-}
-body.research-workspace.archive-shell .section-head{
-  margin-bottom:28px!important;
-}
-body.research-workspace.archive-shell .metrics,
-body.research-workspace.archive-shell .metric-cards{
-  margin-top:26px!important;
-}
-body.research-workspace.archive-shell .architecture,
-body.research-workspace.archive-shell .evidence-layout{
-  margin-top:24px!important;
-}
-
-/* One bottom-navigation component. Old template-specific endings are removed. */
-body.research-workspace.archive-shell .switcher,
-body.research-workspace.phase11-polish .phase11-jump,
-body.research-workspace .phase-detail__nav{
-  display:none!important;
-}
-.phase-unified-nav{
-  width:min(1320px,calc(100% - 64px));
-  margin:42px auto 28px;
-  padding:20px 0 0;
-  border-top:1px solid #e1e3e6;
-  display:grid;
-  grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
-  gap:10px;
-  align-items:stretch;
-}
-.phase-unified-nav a{
-  min-height:48px;
-  display:flex;
-  align-items:center;
-  gap:8px;
-  padding:11px 14px;
-  border:1px solid #e1e3e6;
-  border-radius:6px;
-  background:#fff;
-  color:#171a20;
-  text-decoration:none;
-  font-size:13px;
-  font-weight:500;
-  line-height:1.35;
-}
-.phase-unified-nav a:hover{background:#f5f6f8}
-.phase-unified-nav a:focus-visible{outline:2px solid #3559c7;outline-offset:2px}
-.phase-unified-nav__prev{justify-content:flex-start}
-.phase-unified-nav__archive{justify-content:center;min-width:108px}
-.phase-unified-nav__next{justify-content:flex-end;text-align:right;background:#3559c7!important;color:#fff!important;border-color:#3559c7!important}
-.phase-unified-nav__next:hover{background:#2b49a6!important}
-
-/* Context photographs support the record; they never become the biggest claim on the page. */
-body.research-workspace .phase-editorial-photo{
-  width:min(960px,calc(100% - 64px))!important;
-  margin-left:auto!important;
-  margin-right:auto!important;
-  margin-bottom:44px!important;
-}
-body.research-workspace .phase-editorial-photo__frame{
-  aspect-ratio:16 / 8!important;
-  max-height:420px!important;
-  border-radius:8px!important;
-}
-body.research-workspace .phase-detail > .phase-editorial-photo,
-body.research-workspace .phase-detail #phaseContent > .phase-editorial-photo{
-  width:min(960px,100%)!important;
-  margin-left:0!important;
-  margin-right:auto!important;
-}
-body.research-workspace .phase-editorial-photo figcaption{
-  font-size:12px!important;
-  line-height:1.5!important;
-}
-
-/* Frozen pages: make the verdict/finding dominant and keep archival policy compact. */
-body.research-workspace .phase-detail{
-  padding-top:82px!important;
-}
-body.research-workspace .phase-detail__hero{
-  padding-top:28px!important;
-  padding-bottom:48px!important;
-  gap:48px!important;
-}
-body.research-workspace .phase-detail__body{
-  margin-top:46px!important;
-  gap:46px!important;
-}
-body.research-workspace .phase-detail__metrics-band{
-  margin-top:36px!important;
-}
-body.research-workspace .phase-detail__context{
-  margin-top:42px!important;
-  padding:28px 32px!important;
-  border-radius:8px!important;
-}
-body.research-workspace .phase-detail__context-grid{
-  gap:36px!important;
-}
-body.research-workspace .phase-detail__context-grid h2{
-  font-size:clamp(24px,2.4vw,30px)!important;
-  line-height:1.12!important;
-  max-width:520px!important;
-}
-body.research-workspace .phase-detail__context-grid p{
-  font-size:14px!important;
-  line-height:1.62!important;
-}
-body.research-workspace .phase-hash,
-body.research-workspace .provenance code,
-body.research-workspace .signature-footer code{
-  font-size:12.5px!important;
-  line-height:1.55!important;
-  overflow-wrap:anywhere!important;
-  word-break:break-word!important;
-}
-
-/* Phase 11 should occupy the same visual density as the neighboring archive records. */
-body.research-workspace.phase11-polish .hero{
-  padding-top:104px!important;
-  padding-bottom:62px!important;
-}
-body.research-workspace.phase11-polish .section{
-  padding-top:70px!important;
-  padding-bottom:70px!important;
-}
-body.research-workspace.phase11-polish .hero-deck{
-  max-width:760px!important;
-}
-body.research-workspace.phase11-polish .result-card,
-body.research-workspace.phase11-polish .threshold-card{
-  border-radius:8px!important;
-  box-shadow:none!important;
-}
-
-/* Homepage: keep the strong top result, reduce lower-page drag. */
-body.research-workspace.home-workspace .section{
-  padding-top:72px!important;
-  padding-bottom:72px!important;
-}
-body.research-workspace.home-workspace #question{
-  padding-top:82px!important;
-}
-body.research-workspace.home-workspace .section.ash>.wrap,
-body.research-workspace.home-workspace #evidence>.wrap{
-  padding-top:48px!important;
-  padding-bottom:48px!important;
-}
-body.research-workspace.home-workspace main>.section:last-of-type{
-  padding-top:58px!important;
-  padding-bottom:58px!important;
-}
-
-/* Archive mobile navigation should clearly behave like a horizontal control strip. */
-body.research-workspace.archive-workspace .category-nav{
-  scroll-snap-type:x proximity;
-  scroll-padding-inline:4px;
-}
-body.research-workspace.archive-workspace .category-nav a{
-  scroll-snap-align:start;
-}
-body.research-workspace.archive-workspace .archive-card.phase-personalized{
-  cursor:pointer;
-}
-body.research-workspace.archive-workspace .archive-card.phase-personalized:focus-within{
-  outline:2px solid #3559c7;
-  outline-offset:3px;
-}
-
-@media (max-width:700px){
-  body.research-workspace .phase-role-card{
-    grid-template-columns:1fr!important;
-    gap:10px!important;
+@media (max-width:900px){
+  html body.research-workspace.research-workspace .site-nav,
+  html body.research-workspace.research-workspace .header-actions,
+  html body.research-workspace.research-workspace .signature-nav__links,
+  html body.research-workspace.research-workspace.archive-shell .top .nav{
+    display:none!important;
   }
-  body.research-workspace .phase-role-card__signal{text-align:left!important}
+  html body.research-workspace.research-workspace .mobile-menu-toggle,
+  html body.research-workspace.research-workspace .archive-menu-toggle,
+  html body.research-workspace.home-workspace.home-workspace #mobileMenuToggle{
+    display:inline-flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    margin-left:auto!important;
+    min-width:44px!important;
+    min-height:44px!important;
+  }
 
+  /* 768px previously sat between desktop and phone CSS, leaving no usable menu. */
+  html body.research-workspace.research-workspace .mobile-menu-sheet,
+  html body.research-workspace.research-workspace .archive-menu-sheet,
+  html body.research-workspace.home-workspace.home-workspace #mobileMenuSheet{
+    position:fixed!important;
+    inset:0!important;
+    z-index:140!important;
+    display:flex!important;
+    flex-direction:column!important;
+    box-sizing:border-box!important;
+    width:100vw!important;
+    max-width:100vw!important;
+    height:100dvh!important;
+    padding:22px 20px 28px!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    background:#fff!important;
+    color:#171a20!important;
+    opacity:0!important;
+    visibility:hidden!important;
+    transform:translateY(-8px)!important;
+    pointer-events:none!important;
+  }
+  html body.research-workspace.research-workspace .mobile-menu-sheet[aria-hidden="false"],
+  html body.research-workspace.research-workspace .archive-menu-sheet[aria-hidden="false"],
+  html body.research-workspace.research-workspace .mobile-menu-sheet.open,
+  html body.research-workspace.research-workspace .mobile-menu-sheet.is-open,
+  html body.research-workspace.research-workspace .archive-menu-sheet.open,
+  html body.research-workspace.research-workspace .archive-menu-sheet.is-open,
+  html body.research-workspace.home-workspace.home-workspace #mobileMenuSheet[aria-hidden="false"],
+  html body.research-workspace.home-workspace.home-workspace #mobileMenuSheet.open,
+  html body.research-workspace.home-workspace.home-workspace #mobileMenuSheet.is-open{
+    opacity:1!important;
+    visibility:visible!important;
+    transform:none!important;
+    pointer-events:auto!important;
+  }
+  body.research-workspace.menu-open{overflow:hidden!important}
+  body.research-workspace .mobile-menu-head,
+  body.research-workspace .archive-menu-head{
+    display:flex!important;
+    align-items:center!important;
+    justify-content:space-between!important;
+    gap:16px!important;
+    padding-bottom:18px!important;
+    border-bottom:1px solid #e2e3e3!important;
+  }
+  body.research-workspace .mobile-menu-close,
+  body.research-workspace .archive-menu-close{
+    min-width:44px!important;
+    min-height:44px!important;
+  }
+  body.research-workspace .mobile-menu-links,
+  body.research-workspace .archive-menu-links{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:0!important;
+    margin-top:14px!important;
+  }
+  body.research-workspace .mobile-menu-links a,
+  body.research-workspace .archive-menu-links a{
+    display:flex!important;
+    align-items:center!important;
+    min-height:50px!important;
+    padding:0 4px!important;
+    border-bottom:1px solid #eceeef!important;
+    color:#171a20!important;
+  }
+  body.research-workspace .mobile-menu-meta,
+  body.research-workspace .archive-menu-meta{
+    margin-top:auto!important;
+    padding-top:22px!important;
+    display:flex!important;
+    flex-wrap:wrap!important;
+    gap:8px!important;
+  }
+  body.research-workspace .mobile-menu-meta a,
+  body.research-workspace .archive-menu-meta a{
+    min-height:44px!important;
+    display:inline-flex!important;
+    align-items:center!important;
+    padding:0 14px!important;
+  }
+
+  body.research-workspace .workspace-context{
+    column-gap:10px!important;
+    row-gap:4px!important;
+  }
+  body.research-workspace .workspace-context span+span::before{
+    content:none!important;
+  }
+
+  /* The 12-step early-phase rail is too wide for tablets. Use its compact disclosure. */
   body.research-workspace.archive-shell .phase-rail-section{
     border-top:0!important;
   }
@@ -281,91 +133,73 @@ body.research-workspace.archive-workspace .archive-card.phase-personalized:focus
     padding-bottom:6px!important;
   }
   body.research-workspace.archive-shell .phase-rail-section.is-open .phase-rail{
-    display:flex!important;
+    display:grid!important;
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    overflow:visible!important;
   }
-  body.research-workspace.archive-shell .phase-rail-section.is-open .phase-progress-compact strong::after{
-    content:" · Close";
-  }
-  body.research-workspace.archive-shell .hero{
-    padding-top:76px!important;
-    padding-bottom:46px!important;
-  }
-  body.research-workspace.archive-shell .section,
-  body.research-workspace.phase11-polish .section{
-    padding-top:54px!important;
-    padding-bottom:54px!important;
-  }
-  body.research-workspace.archive-shell .section-head{
-    margin-bottom:22px!important;
-  }
-
-  .phase-unified-nav{
-    width:calc(100% - 28px);
-    margin-top:30px;
-    padding-top:16px;
-    grid-template-columns:1fr;
-  }
-  .phase-unified-nav a{
-    width:100%;
-    min-height:48px;
-    justify-content:center;
-    text-align:center;
-  }
-  .phase-unified-nav__archive{grid-row:2}
-  .phase-unified-nav__next{grid-row:3}
-
-  body.research-workspace .phase-editorial-photo,
-  body.research-workspace .phase-detail > .phase-editorial-photo,
-  body.research-workspace .phase-detail #phaseContent > .phase-editorial-photo{
-    width:calc(100% - 28px)!important;
-    margin-left:auto!important;
-    margin-right:auto!important;
-    margin-bottom:30px!important;
-  }
-  body.research-workspace .phase-editorial-photo__frame{
-    aspect-ratio:16 / 9!important;
-    max-height:250px!important;
-  }
-
-  body.research-workspace .phase-detail{
-    padding-top:66px!important;
-  }
-  body.research-workspace .phase-detail__hero{
-    padding-top:18px!important;
-    padding-bottom:34px!important;
-    gap:24px!important;
-  }
-  body.research-workspace .phase-detail__body{
-    margin-top:34px!important;
-    gap:28px!important;
-  }
-  body.research-workspace .phase-detail__context{
-    margin-top:30px!important;
-    padding:22px 20px!important;
-  }
-  body.research-workspace .phase-detail__context-grid{
-    gap:16px!important;
-  }
-  body.research-workspace .phase-detail__context-grid h2{
-    font-size:24px!important;
-  }
-
-  body.research-workspace.home-workspace .section{
-    padding-top:56px!important;
-    padding-bottom:56px!important;
-  }
-  body.research-workspace.home-workspace #question{
-    padding-top:62px!important;
-  }
-
-  body.research-workspace.archive-workspace .category-nav{
-    margin-right:-14px;
-    padding-right:28px;
-    padding-bottom:8px;
+  body.research-workspace.archive-shell .phase-rail-section.is-open .rail-step{
+    min-width:0!important;
   }
 }
 
-@media (prefers-reduced-motion:reduce){
-  .phase-progress-compact,
-  .phase-unified-nav a{transition:none!important}
+/* The phase identity chip already carries category/identity; don't repeat it. */
+body.research-workspace .phase-detail__hero .phase-identity-chip ~ .workspace-context{
+  display:none!important;
+}
+
+/* Context media should feel intentionally centered rather than accidentally cropped left. */
+body.research-workspace .phase-detail > .phase-editorial-photo,
+body.research-workspace .phase-detail #phaseContent > .phase-editorial-photo{
+  width:min(1040px,100%)!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+}
+
+/* Small text links are still controls; keep their tap targets usable. */
+body.research-workspace.home-workspace #timeline .text-link{
+  min-height:44px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+}
+
+@media (max-width:700px){
+  body.research-workspace .phase-detail > .phase-editorial-photo,
+  body.research-workspace .phase-detail #phaseContent > .phase-editorial-photo{
+    width:calc(100% - 28px)!important;
+  }
+
+  /* Archive categories wrap instead of looking cut off beyond the phone edge. */
+  html body.research-workspace.archive-workspace .category-nav{
+    margin-right:0!important;
+    padding-right:0!important;
+    overflow-x:visible!important;
+    flex-wrap:wrap!important;
+    white-space:normal!important;
+  }
+  html body.research-workspace.archive-workspace .category-nav a{
+    min-height:44px!important;
+  }
+
+  /* Keep all 13 lineage dots visible instead of clipping half the sequence. */
+  html body.research-workspace.home-workspace .home-lineage{
+    overflow-x:visible!important;
+  }
+  html body.research-workspace.home-workspace .home-lineage__track{
+    width:100%!important;
+    min-width:0!important;
+    grid-template-columns:repeat(7,minmax(44px,1fr))!important;
+    row-gap:2px!important;
+  }
+  html body.research-workspace.home-workspace .home-lineage__track::before{
+    display:none!important;
+  }
+  html body.research-workspace.home-workspace .home-lineage__node{
+    width:100%!important;
+    min-width:44px!important;
+    min-height:44px!important;
+  }
+  html body.research-workspace.home-workspace .home-lineage__caption{
+    width:100%!important;
+    min-width:0!important;
+  }
 }
