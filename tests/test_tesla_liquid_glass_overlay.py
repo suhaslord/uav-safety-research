@@ -23,8 +23,12 @@ def test_apple_tesla_hybrid_layer_is_present():
 
 def test_hybrid_uses_monochrome_tesla_palette_not_ai_neon():
     design = layer().lower()
-    assert "cyan" not in design
-    assert "violet" not in design
+    # Guard against the actual old neon material tokens/colors rather than
+    # matching harmless prose in comments such as "no cyan".
+    assert "--lg-cyan" not in design
+    assert "--lg-violet" not in design
+    assert "rgba(97,218,255" not in design
+    assert "rgba(166,132,255" not in design
     assert "#e82127" in design
     assert "#171a20" in design
     assert "rgba(255,255,255" in design
