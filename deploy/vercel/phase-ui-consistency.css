@@ -145,6 +145,14 @@ body.research-workspace .phase-role-card{
   body.research-workspace.archive-workspace .archive-filter{
     min-height:44px!important;
   }
+  body.research-workspace.archive-workspace .archive-filter[data-filter="all"]{
+    width:44px!important;
+    min-width:44px!important;
+    max-width:none!important;
+    flex:0 0 44px!important;
+    box-sizing:border-box!important;
+    padding-inline:0!important;
+  }
 
   /* The same hero diagram type scale is used on every legacy phase. */
   body.research-workspace.archive-shell .hero-scene .scene-label,
