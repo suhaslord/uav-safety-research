@@ -174,3 +174,58 @@ html body.research-workspace.phase11-polish.phase11-polish .phase-editorial-phot
 html body.research-workspace.phase11-polish.phase11-polish .phase-editorial-photo__credit{
   color:var(--rw-muted)!important;
 }
+
+/* Historical phases 1-10R still inherited an opaque white hero from the legacy archive skin.
+   Clear that paint so the shared Liquid Glass material sits over the same dark optical field
+   as the homepage, archive, Phase 11, and frozen phases. */
+html body.research-workspace.archive-shell.archive-shell::before,
+html body.research-workspace.archive-shell.archive-shell::after{
+  display:block!important;
+}
+html body.research-workspace.archive-shell.archive-shell main,
+html body.research-workspace.archive-shell.archive-shell .hero,
+html body.research-workspace.archive-shell.archive-shell .section,
+html body.research-workspace.archive-shell.archive-shell .section.ash,
+html body.research-workspace.archive-shell.archive-shell .section.dark{
+  background:transparent!important;
+  background-color:transparent!important;
+  background-image:none!important;
+  color:var(--rw-text)!important;
+}
+html body.research-workspace.archive-shell.archive-shell .hero{
+  border-bottom-color:rgba(255,255,255,.16)!important;
+}
+html body.research-workspace.archive-shell.archive-shell .hero h1,
+html body.research-workspace.archive-shell.archive-shell .hero h2,
+html body.research-workspace.archive-shell.archive-shell .hero h3,
+html body.research-workspace.archive-shell.archive-shell .hero strong{
+  color:var(--rw-text)!important;
+}
+html body.research-workspace.archive-shell.archive-shell .hero p,
+html body.research-workspace.archive-shell.archive-shell .hero .deck,
+html body.research-workspace.archive-shell.archive-shell .hero .copy,
+html body.research-workspace.archive-shell.archive-shell .hero .lede{
+  color:var(--rw-body)!important;
+}
+html body.research-workspace.archive-shell.archive-shell .hero .eyebrow,
+html body.research-workspace.archive-shell.archive-shell .hero .kicker,
+html body.research-workspace.archive-shell.archive-shell .hero .meta,
+html body.research-workspace.archive-shell.archive-shell .hero .crumbs{
+  color:var(--rw-muted)!important;
+}
+html body.research-workspace.archive-shell.archive-shell .phase-role-card,
+html body.research-workspace.archive-shell.archive-shell .finding,
+html body.research-workspace.archive-shell.archive-shell .evidence-story,
+html body.research-workspace.archive-shell.archive-shell .architecture,
+html body.research-workspace.archive-shell.archive-shell .changes>*{
+  color:var(--rw-text)!important;
+}
+html body.research-workspace.archive-shell.archive-shell .phase-editorial-photo__frame{
+  background:rgba(214,235,252,.09)!important;
+  border-color:rgba(255,255,255,.34)!important;
+}
+html body.research-workspace.archive-shell.archive-shell .phase-editorial-photo__context,
+html body.research-workspace.archive-shell.archive-shell .phase-editorial-photo__why,
+html body.research-workspace.archive-shell.archive-shell .phase-editorial-photo__credit{
+  color:var(--rw-muted)!important;
+}
