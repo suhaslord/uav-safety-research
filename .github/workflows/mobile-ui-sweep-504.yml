@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - aegis-mobile-ui-sweep
-      - aegis-premium-glass-cockpit
+      - aegis-tesla-liquid-glass-repair
     paths:
       - 'deploy/vercel/**'
       - 'dashboard/**'
