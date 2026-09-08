@@ -162,6 +162,11 @@ body.research-workspace.home-workspace #timeline .text-link{
   align-items:center!important;
 }
 
+/* Static phase pages render synchronously; the artificial splash caused real blank-page flashes. */
+body.research-workspace.archive-shell #archiveBoot{
+  display:none!important;
+}
+
 @media (max-width:700px){
   /* Small-phone header must size its border box to the viewport, not 100% plus inherited padding. */
   html body.research-workspace.home-workspace.home-workspace .site-header{
@@ -195,7 +200,7 @@ body.research-workspace.home-workspace #timeline .text-link{
     width:calc(100% - 28px)!important;
   }
 
-  /* Archive categories wrap instead of looking cut off beyond the phone edge. */
+  /* Archive categories wrap without clipping full category names. */
   html body.research-workspace.archive-workspace .category-nav{
     margin-right:0!important;
     padding-right:0!important;
@@ -206,14 +211,6 @@ body.research-workspace.home-workspace #timeline .text-link{
   html body.research-workspace.archive-workspace .category-nav a{
     min-width:44px!important;
     min-height:44px!important;
-    justify-content:center!important;
-  }
-  html body.research-workspace.research-workspace.archive-workspace .category-nav a:first-child{
-    width:44px!important;
-    min-width:44px!important;
-    max-width:none!important;
-    flex:0 0 44px!important;
-    box-sizing:border-box!important;
     justify-content:center!important;
   }
 
@@ -311,7 +308,7 @@ html body.research-workspace.research-workspace .phase-editorial-photo__frame{
   backdrop-filter:blur(12px) saturate(1.16)!important;
 }
 
-/* Search and filter controls use Apple-like clear capsules inside Tesla sizing. */
+/* Search and filter controls use Apple-like clear glass inside Tesla sizing. */
 html body.research-workspace.research-workspace.archive-workspace .archive-toolbar__search input,
 html body.research-workspace.research-workspace.archive-workspace .archive-filter,
 html body.research-workspace.research-workspace.archive-workspace .archive-reset,
@@ -329,6 +326,15 @@ html body.research-workspace.research-workspace .archive-menu-close{
   -webkit-backdrop-filter:blur(16px) saturate(1.24)!important;
   backdrop-filter:blur(16px) saturate(1.24)!important;
   transition:box-shadow var(--lg-transition),border-color var(--lg-transition),background-color var(--lg-transition)!important;
+}
+
+/* Active archive filter keeps Tesla's blue semantic state instead of white-on-glass. */
+html body.research-workspace.research-workspace.archive-workspace .archive-filter[aria-pressed="true"]{
+  background-color:rgba(53,89,199,.88)!important;
+  background-image:linear-gradient(145deg,rgba(77,117,232,.94),rgba(53,89,199,.82))!important;
+  border-color:rgba(53,89,199,.48)!important;
+  color:#fff!important;
+  box-shadow:0 8px 20px rgba(53,89,199,.18),inset 0 1px 0 rgba(255,255,255,.38)!important;
 }
 
 html body.research-workspace.research-workspace.archive-workspace .archive-filter:hover,
