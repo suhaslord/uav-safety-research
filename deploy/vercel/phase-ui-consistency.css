@@ -1,3 +1,5 @@
+@import url('/liquid-glass.css?v=1');
+
 /*
   Cross-template UI consistency pass for the phase archive.
   Visual-only: no research data, verdicts, hashes, or scientific copy are changed.
@@ -134,6 +136,115 @@ body.research-workspace.archive-shell .architecture span{
 body.research-workspace .phase-role-card{
   border:1px solid #e3e5e9!important;
   box-shadow:none!important;
+}
+
+/* Historical role-card labels must remain readable over translucent Liquid Glass.
+   Legacy personalization colors were designed for white cards and become too dark here. */
+html body.research-workspace.archive-shell.archive-shell .phase-role-card__label span,
+html body.research-workspace.archive-shell.archive-shell .phase-role-card__question-label,
+html body.research-workspace.archive-shell.archive-shell .phase-role-card__signal span{
+  color:var(--rw-muted,#a7bdcf)!important;
+}
+html body.research-workspace.archive-shell.archive-shell .phase-role-card__label strong,
+html body.research-workspace.archive-shell.archive-shell .phase-role-card__question,
+html body.research-workspace.archive-shell.archive-shell .phase-role-card__question-text{
+  color:var(--rw-body,#d9e7f3)!important;
+}
+html body.research-workspace.archive-shell.archive-shell .phase-role-card__signal strong{
+  color:var(--rw-accent,#73e7ff)!important;
+}
+
+/* Final historical convergence. The legacy presentation stylesheet still painted large
+   white desktop/tablet surfaces after the shared Liquid Glass layer. Neutralize those
+   surfaces here, late in the cascade, without touching any research content. */
+html body.research-workspace.archive-shell.archive-shell .program-goal,
+html body.research-workspace.archive-shell.archive-shell .switcher{
+  background:transparent!important;
+  background-color:transparent!important;
+  background-image:none!important;
+  color:var(--rw-text,#f5fbff)!important;
+  border-color:rgba(255,255,255,.16)!important;
+}
+html body.research-workspace.archive-shell.archive-shell .program-goal-copy h2,
+html body.research-workspace.archive-shell.archive-shell .program-goal-copy strong{
+  color:var(--rw-text,#f5fbff)!important;
+}
+html body.research-workspace.archive-shell.archive-shell .program-goal-copy p{
+  color:var(--rw-body,#d9e7f3)!important;
+}
+html body.research-workspace.archive-shell.archive-shell .program-goal-copy .kicker{
+  color:var(--rw-muted,#a7bdcf)!important;
+}
+html body.research-workspace.archive-shell.archive-shell .program-pillars,
+html body.research-workspace.archive-shell.archive-shell .program-pillars>div{
+  background:linear-gradient(145deg,rgba(255,255,255,.16),rgba(190,221,255,.07))!important;
+  color:var(--rw-text,#f5fbff)!important;
+  border-color:rgba(255,255,255,.24)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.36)!important;
+  backdrop-filter:blur(20px) saturate(160%)!important;
+  -webkit-backdrop-filter:blur(20px) saturate(160%)!important;
+}
+html body.research-workspace.archive-shell.archive-shell .program-pillars span{
+  color:var(--rw-muted,#a7bdcf)!important;
+}
+html body.research-workspace.archive-shell.archive-shell .program-pillars strong{
+  color:var(--rw-text,#f5fbff)!important;
+}
+
+html body.research-workspace.archive-shell.archive-shell .changes article,
+html body.research-workspace.archive-shell.archive-shell .shift>div,
+html body.research-workspace.archive-shell.archive-shell .arch-step,
+html body.research-workspace.archive-shell.archive-shell .metric-card,
+html body.research-workspace.archive-shell.archive-shell .next-reason,
+html body.research-workspace.archive-shell.archive-shell .source,
+html body.research-workspace.archive-shell.archive-shell .switch-nav a,
+html body.research-workspace.archive-shell.archive-shell .switcher .next{
+  background:linear-gradient(145deg,rgba(255,255,255,.16),rgba(190,221,255,.07))!important;
+  color:var(--rw-text,#f5fbff)!important;
+  border-color:rgba(255,255,255,.26)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.38)!important;
+  backdrop-filter:blur(20px) saturate(160%)!important;
+  -webkit-backdrop-filter:blur(20px) saturate(160%)!important;
+}
+html body.research-workspace.archive-shell.archive-shell .changes article h3,
+html body.research-workspace.archive-shell.archive-shell .changes article strong,
+html body.research-workspace.archive-shell.archive-shell .shift>div h3,
+html body.research-workspace.archive-shell.archive-shell .shift>div strong,
+html body.research-workspace.archive-shell.archive-shell .arch-step,
+html body.research-workspace.archive-shell.archive-shell .arch-step strong,
+html body.research-workspace.archive-shell.archive-shell .metric-card strong,
+html body.research-workspace.archive-shell.archive-shell .source strong{
+  color:var(--rw-text,#f5fbff)!important;
+}
+html body.research-workspace.archive-shell.archive-shell .changes article p,
+html body.research-workspace.archive-shell.archive-shell .shift>div p,
+html body.research-workspace.archive-shell.archive-shell .arch-step span,
+html body.research-workspace.archive-shell.archive-shell .metric-card span,
+html body.research-workspace.archive-shell.archive-shell .next-reason span,
+html body.research-workspace.archive-shell.archive-shell .next-reason p,
+html body.research-workspace.archive-shell.archive-shell .source span{
+  color:var(--rw-body,#d9e7f3)!important;
+}
+html body.research-workspace.archive-shell.archive-shell .source i{
+  color:var(--rw-accent,#73e7ff)!important;
+}
+html body.research-workspace.archive-shell.archive-shell .finding blockquote{
+  color:var(--rw-text,#f5fbff)!important;
+}
+html body.research-workspace.archive-shell.archive-shell .evidence-copy,
+html body.research-workspace.archive-shell.archive-shell .evidence-facts>div,
+html body.research-workspace.archive-shell.archive-shell .limits-list li,
+html body.research-workspace.archive-shell.archive-shell .architecture-note{
+  color:var(--rw-body,#d9e7f3)!important;
+  border-color:rgba(255,255,255,.18)!important;
+}
+html body.research-workspace.archive-shell.archive-shell .phase-visual,
+html body.research-workspace.archive-shell.archive-shell .phase-visual figcaption{
+  background:linear-gradient(145deg,rgba(255,255,255,.13),rgba(190,221,255,.055))!important;
+  border-color:rgba(255,255,255,.22)!important;
+}
+html body.research-workspace.archive-shell.archive-shell .phase-visual figcaption{
+  color:var(--rw-muted,#a7bdcf)!important;
 }
 
 @media(max-width:700px){

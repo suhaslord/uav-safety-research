@@ -1,3 +1,5 @@
+@import url('/liquid-glass.css?v=1');
+
 /*
   Homepage editorial media layer.
   The photographs are public-domain NASA context imagery only; no scientific evidence is inferred from them.
@@ -228,4 +230,76 @@ body.research-workspace.home-workspace .mobile-menu-close{min-width:44px!importa
     min-width:572px!important;
     font-size:11px!important;
   }
+}
+
+@media(prefers-reduced-motion:reduce){
+  .home-lineage__node{transition:none!important}
+}
+
+/* Premium glass conflict resolution: out-rank the legacy light-theme selectors. */
+html body.research-workspace.home-workspace.home-workspace::before,
+html body.research-workspace.home-workspace.home-workspace::after{
+  display:block!important;
+}
+html body.research-workspace.home-workspace.home-workspace .hero,
+html body.research-workspace.home-workspace.home-workspace .section,
+html body.research-workspace.home-workspace.home-workspace .section.ash,
+html body.research-workspace.home-workspace.home-workspace .section.dark,
+html body.research-workspace.home-workspace.home-workspace #evidence{
+  background:transparent!important;
+  background-image:none!important;
+  color:var(--rw-text)!important;
+}
+html body.research-workspace.home-workspace.home-workspace .result-card,
+html body.research-workspace.home-workspace.home-workspace .card{
+  background:rgba(15,23,42,.56)!important;
+  color:var(--rw-text)!important;
+  border:1px solid rgba(186,230,253,.14)!important;
+  box-shadow:0 10px 34px rgba(0,0,0,.24),inset 0 1px 0 rgba(255,255,255,.028)!important;
+  backdrop-filter:blur(16px) saturate(125%)!important;
+  -webkit-backdrop-filter:blur(16px) saturate(125%)!important;
+}
+html body.research-workspace.home-workspace.home-workspace .workspace-status-card,
+html body.research-workspace.home-workspace.home-workspace .result-card.aegis-halo{
+  background:linear-gradient(155deg,rgba(15,23,42,.84),rgba(8,20,37,.68))!important;
+  border:1px solid rgba(186,230,253,.16)!important;
+  box-shadow:0 24px 80px rgba(0,0,0,.34),0 0 68px rgba(8,145,178,.10),inset 0 1px 0 rgba(255,255,255,.04)!important;
+}
+html body.research-workspace.home-workspace.home-workspace .section.ash>.wrap,
+html body.research-workspace.home-workspace.home-workspace #evidence>.wrap,
+html body.research-workspace.home-workspace.home-workspace #method>.wrap,
+html body.research-workspace.home-workspace.home-workspace main>.section:last-of-type>.wrap{
+  background:linear-gradient(145deg,rgba(15,23,42,.64),rgba(8,16,32,.54))!important;
+  border:1px solid rgba(186,230,253,.14)!important;
+  color:var(--rw-text)!important;
+}
+html body.research-workspace.home-workspace.home-workspace .card p,
+html body.research-workspace.home-workspace.home-workspace .workspace-boundary,
+html body.research-workspace.home-workspace.home-workspace .workspace-status-meta{
+  color:var(--rw-body)!important;
+}
+html body.research-workspace.home-workspace.home-workspace .workspace-measure span,
+html body.research-workspace.home-workspace.home-workspace .home-lineage__head span,
+html body.research-workspace.home-workspace.home-workspace .home-lineage__caption,
+html body.research-workspace.home-workspace.home-workspace .research-photo__context,
+html body.research-workspace.home-workspace.home-workspace .research-photo__credit{
+  color:var(--rw-muted)!important;
+}
+html body.research-workspace.home-workspace.home-workspace .workspace-status-head,
+html body.research-workspace.home-workspace.home-workspace .workspace-measures,
+html body.research-workspace.home-workspace.home-workspace .home-lineage,
+html body.research-workspace.home-workspace.home-workspace #method .method-steps,
+html body.research-workspace.home-workspace.home-workspace #method .method-steps .card{
+  border-color:rgba(186,230,253,.14)!important;
+}
+html body.research-workspace.home-workspace.home-workspace #method .method-steps .card,
+html body.research-workspace.home-workspace.home-workspace #method .method-steps .card+.card{
+  background:rgba(8,16,32,.20)!important;
+  box-shadow:none!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+}
+html body.research-workspace.home-workspace.home-workspace .research-photo__frame{
+  background:#07101f!important;
+  border-color:rgba(186,230,253,.14)!important;
 }
