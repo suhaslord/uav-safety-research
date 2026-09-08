@@ -68,10 +68,11 @@ try {
     add('home-preserves-pass-fail-record', passRows === 6 && failRows === 7, { passRows, failRows });
 
     const homeText = await page.locator('main').innerText();
-    add('home-old-thesis-restored', /Evidence before confidence/i.test(homeText), { excerpt: homeText.slice(0, 280) });
-    add('home-professor-framing-visible', /Research question/i.test(homeText) && /Main purpose/i.test(homeText) && /\bProblem\b/i.test(homeText) && /Main conclusion/i.test(homeText));
+    add('home-current-thesis-visible', /Why AegisLand exists/i.test(homeText) && /Can a UAV tell when its landing estimate is no longer trustworthy/i.test(homeText), { excerpt: homeText.slice(0, 320) });
+    add('home-current-project-framing-visible', /What the project does/i.test(homeText) && /Find when landing perception becomes confidently wrong/i.test(homeText) && /Main conclusion/i.test(homeText));
+    add('home-researcher-brief-visible', /For researchers/i.test(homeText) && /Evaluate AegisLand in five minutes/i.test(homeText) && /Open research questions/i.test(homeText) && /Feedback welcome/i.test(homeText));
     add('home-phase22-final-visible', /0\.8319/.test(homeText) && /0\.7744/.test(homeText) && /10\s+locked gates/i.test(homeText) && /100%/.test(homeText), { excerpt: homeText.slice(0, 900) });
-    add('home-science-is-explicitly-frozen', /No Phase 23 is implied or authorized/i.test(homeText), { excerpt: homeText.slice(-500) });
+    add('home-science-is-explicitly-frozen', /Frozen through Phase 22; no Phase 23 is authorized/i.test(homeText) && /668d065714dde279857bc0e196f0ef7cc5e182ed/.test(homeText), { excerpt: homeText.slice(-600) });
     add('home-claim-boundary-visible', /simulation_only=true/.test(homeText) && /safety_acceptance=false/.test(homeText) && /controller_tuning_allowed=false/.test(homeText));
     const phase23Links = await page.locator('a[href*="phase23"]').count();
     add('home-does-not-link-new-phase', phase23Links === 0, { phase23Links });
