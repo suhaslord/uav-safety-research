@@ -186,6 +186,18 @@ html body.research-workspace.home-workspace .research-photo--inline{margin-top:6
 html body.research-workspace.home-workspace .research-photo--inline .research-photo__frame{border-radius:26px!important}
 html body.research-workspace.home-workspace .boundary-flags{margin-top:16px!important}
 
+/* Grid children must be allowed to shrink; the frozen SHA may wrap instead of widening the viewport. */
+html body.research-workspace.home-workspace .boundary-grid,
+html body.research-workspace.home-workspace .boundary-grid>*{
+  min-width:0!important;
+}
+html body.research-workspace.home-workspace .boundary-grid code,
+html body.research-workspace.home-workspace .boundary-flags{
+  max-width:100%!important;
+  overflow-wrap:anywhere!important;
+  word-break:break-word!important;
+}
+
 @media(max-width:1040px){
   html body.research-workspace.home-workspace .wrap,
   html body.research-workspace.home-workspace .hero-grid,
@@ -201,8 +213,8 @@ html body.research-workspace.home-workspace .boundary-flags{margin-top:16px!impo
   html body.research-workspace.home-workspace .workspace-status-card,
   html body.research-workspace.home-workspace .result-card.aegis-halo{max-width:720px!important;justify-self:start!important}
   html body.research-workspace.home-workspace .research-photo--hero{margin-top:64px!important}
-  html body.research-workspace.home-workspace .section{padding:96px 0!important}
-  html body.research-workspace.home-workspace #evidence{padding:32px 0 96px!important}
+  html body.research-workspace.home-workspace .section{padding:96px 0 88px!important}
+  html body.research-workspace.home-workspace #evidence{padding:32px 0 88px!important}
   html body.research-workspace.home-workspace .section.ash>.wrap,
   html body.research-workspace.home-workspace #evidence>.wrap{padding:48px!important}
   html body.research-workspace.home-workspace .section-head{grid-template-columns:1fr!important;gap:12px!important;margin-bottom:40px!important}
@@ -292,6 +304,15 @@ html body.research-workspace.home-workspace .boundary-flags{margin-top:16px!impo
   html body.research-workspace.home-workspace .section h2{font-size:34px!important;line-height:1.08!important}
   html body.research-workspace.home-workspace .goal-grid,
   html body.research-workspace.home-workspace .boundary-grid{gap:32px!important}
+  html body.research-workspace.home-workspace .boundary-grid .actions{
+    min-width:0!important;
+    grid-template-columns:1fr!important;
+  }
+  html body.research-workspace.home-workspace .boundary-grid .actions a{
+    width:100%!important;
+    min-width:0!important;
+    justify-content:center!important;
+  }
   html body.research-workspace.home-workspace .research-alert{grid-template-columns:1fr!important;gap:10px!important;margin-bottom:32px!important}
   html body.research-workspace.home-workspace .evidence-list{grid-template-columns:1fr!important}
   html body.research-workspace.home-workspace .three{grid-template-columns:1fr!important;gap:16px!important}
