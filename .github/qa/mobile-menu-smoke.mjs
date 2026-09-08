@@ -54,7 +54,7 @@ try {
 
     const text = await page.locator('body').innerText();
     add('home-phase22-visible', /Frozen through Phase 22/i.test(text) && text.includes('0.8319') && text.includes('0.7744'));
-    add('home-professor-framing-visible', /Research question/i.test(text) && /Main purpose/i.test(text) && /Main conclusion/i.test(text));
+    add('home-current-project-framing-visible', /What the project does/i.test(text) && /Find when landing perception becomes confidently wrong/i.test(text) && /Main conclusion/i.test(text));
     add('home-claim-boundary-visible', text.includes('simulation_only=true') && text.includes('safety_acceptance=false') && text.includes('controller_tuning_allowed=false'));
     await page.close();
   }
@@ -94,7 +94,7 @@ try {
       await page.waitForTimeout(160);
       add(`${item.name}-menu-opens`, await toggle.getAttribute('aria-expanded') === 'true');
       const sheet = page.locator('#mobileMenuSheet');
-      add(`${item.name}-menu-sheet-visible`, await sheet.getAttribute('aria-hidden') === 'false');
+      add(`${item.name}-menu-sheet-visible', await sheet.getAttribute('aria-hidden') === 'false');
       add(`${item.name}-menu-expected-link`, await sheet.locator(`a[href="${item.expected}"]`).count() >= 1, { expected: item.expected });
       await page.keyboard.press('Escape');
       await page.waitForTimeout(160);
