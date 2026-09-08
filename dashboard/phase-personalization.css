@@ -177,15 +177,3 @@ body.research-workspace.phase11-polish .hero-deck{font-size:17px!important;line-
 
 @media(max-width:420px){.category-nav{gap:6px}}
 @media(prefers-reduced-motion:reduce){.archive-card.phase-personalized::before{transition:none}}
-
-/* Keep dossier rows compatible with the shared 5-column archive record layout. */
-html body.research-workspace.research-workspace.archive-workspace .archive-category__cards{
-  display:block!important;
-  min-width:0!important;
-  max-width:100%!important;
-}
-html body.research-workspace.research-workspace.archive-workspace .archive-card.phase-personalized{
-  box-sizing:border-box!important;
-  min-width:0!important;
-  max-width:100%!important;
-}
