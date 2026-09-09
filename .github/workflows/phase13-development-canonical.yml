@@ -1,0 +1,149 @@
+name: Phase 13 canonical zero-shot Thirteen-Domain Gauntlet development
+
+on:
+  push:
+    branches: [phase13/external-validity-domain-shift]
+    paths:
+      - .github/workflows/phase13-development-canonical.yml
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  FROZEN_PHASE12_DEV_RUN_ID: '34004695243'
+  FROZEN_PHASE12_CANDIDATE_SHA256: e2372ca597cdd983f098f1a45524c077798114c59a62bf9faccefd17b67a4991
+  CANONICAL_PHASE13_DEV_SEED: '948948'
+
+jobs:
+  development:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Refuse a second canonical Phase 13 development exposure
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          COUNT=$(gh api \
+            -H 'Accept: application/vnd.github+json' \
+            '/repos/${{ github.repository }}/actions/artifacts?name=phase13-development-canonical&per_page=100' \
+            --jq '[.artifacts[] | select(.expired == false)] | length')
+          test "$COUNT" = "0" || { echo "Canonical Phase 13 development artifact already exists; refusing a second exposure"; exit 1; }
+
+      - name: Check out final amended preregistered head
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install exact execution dependencies and verify pre-evidence invariants
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+          pip install scipy==1.16.2
+          python - <<'PY'
+          import pandas as pd
+          import scipy
+          value = pd.Series([1.0, 2.0, 3.0, 4.0]).corr(
+              pd.Series([4.0, 1.0, 3.0, 2.0]), method='spearman'
+          )
+          assert value is not None
+          assert scipy.__version__ == '1.16.2'
+          print('SPEARMAN_RUNTIME_READY=true')
+          PY
+          python -m compileall -q \
+            scripts/run_phase13_external_validity_gauntlet.py \
+            scripts/run_phase13_external_validity_gauntlet_remediation1.py \
+            scripts/run_phase13_external_validity_gauntlet_remediation2.py \
+            scripts/run_phase12_adaptive_normalized_conformal.py \
+            scripts/run_phase12_adaptive_normalized_conformal_v2.py \
+            scripts/run_phase12_adaptive_normalized_conformal_v3.py
+          pytest -q \
+            tests/test_phase11_p9_soft_update_direct_conformal.py \
+            tests/test_phase11_p14_bounded_independent_rescue.py \
+            tests/test_phase11_p14r_robust_group_envelope.py \
+            tests/test_phase12_adaptive_normalized_conformal.py \
+            tests/test_phase12_adaptive_normalized_conformal_v2.py \
+            tests/test_phase12_adaptive_normalized_conformal_v3.py \
+            tests/test_phase13_external_validity_gauntlet.py \
+            tests/test_phase13_execution_remediation1.py \
+            tests/test_phase13_execution_remediation2.py
+          test -f docs/phase13_execution_amendment_01.md
+          test -f docs/phase13_execution_amendment_02.md
+          grep -q '946946' docs/phase13_execution_amendment_01.md
+          grep -q '947947' docs/phase13_execution_amendment_02.md
+          grep -q '948948' docs/phase13_execution_amendment_02.md
+          grep -q '9981606849' docs/phase13_execution_amendment_01.md
+          grep -q '9981658507' docs/phase13_execution_amendment_02.md
+
+      - name: Recover exact frozen Phase 12 candidate
+        uses: actions/download-artifact@v4
+        with:
+          name: phase12-development-v3
+          path: frozen_phase12_candidate_artifact
+          github-token: ${{ github.token }}
+          repository: suhaslord/uav-safety-research
+          run-id: ${{ env.FROZEN_PHASE12_DEV_RUN_ID }}
+
+      - name: Verify frozen predecessor and canonical scientific head
+        run: |
+          CANDIDATE=$(find frozen_phase12_candidate_artifact -path '*/results/phase12_candidate_v3/candidate_freeze.json' -print -quit)
+          test -n "$CANDIDATE"
+          echo "$FROZEN_PHASE12_CANDIDATE_SHA256  $CANDIDATE" | sha256sum -c -
+          echo "CANDIDATE=$CANDIDATE" >> "$GITHUB_ENV"
+          echo "PHASE13_SCIENTIFIC_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Expose canonical Phase 13 development evidence exactly once
+        run: |
+          rm -rf results/phase13_development_canonical
+          python scripts/run_phase13_external_validity_gauntlet_remediation2.py \
+            --stage dev \
+            --candidate "$CANDIDATE" \
+            --out results/phase13_development_canonical \
+            --git-sha "$PHASE13_SCIENTIFIC_SHA" 2>&1 | tee phase13-development-canonical.log
+          test -f results/phase13_development_canonical/dev_result.json
+          test -f results/phase13_development_canonical/manifest.json
+          test -f results/phase13_development_canonical/dev_paired_control_frames.csv
+          test -f results/phase13_development_canonical/dev_shifted_frames.csv
+
+      - name: Verify result boundary and record scientific verdict
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          r = json.loads(Path('results/phase13_development_canonical/dev_result.json').read_text())
+          assert r['schema'] == 'aegisland.phase13.external-validity-gauntlet.dev-result.v1'
+          assert r['domain_count'] == 13
+          assert len(r['domain_names']) == 13
+          assert r['evaluated_seed_seen_after_run'] == int(os.environ['CANONICAL_PHASE13_DEV_SEED'])
+          assert r['frozen_phase12_candidate_sha256'] == os.environ['FROZEN_PHASE12_CANDIDATE_SHA256']
+          assert r['scientific_git_sha'] == os.environ['PHASE13_SCIENTIFIC_SHA']
+          assert r['zero_shot'] is True
+          assert r['adaptation_performed'] is False
+          assert r['recalibration_performed'] is False
+          assert r['simulation_only'] is True
+          assert r['safety_acceptance'] is False
+          assert r['controller_tuning_allowed'] is False
+          assert set(r['phase13_gates']) == {
+              'g13_1_paired_control_integrity',
+              'g13_2_zero_shot_shifted_primary_gates',
+              'g13_3_thirteen_domain_honesty',
+              'g13_4_no_catastrophic_domain',
+              'g13_5_reliability_mechanism_survives_shift',
+              'g13_6_zero_adaptation',
+          }
+          print('PHASE13_CANONICAL_DEVELOPMENT_PERMANENTLY_SEEN=true')
+          print('PHASE13_CANONICAL_DEVELOPMENT_PASS=' + str(bool(r['phase13_pass'])).lower())
+          print(json.dumps(r['phase13_gates'], indent=2, sort_keys=True))
+          PY
+
+      - name: Upload permanent canonical Phase 13 development evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase13-development-canonical
+          path: |
+            results/phase13_development_canonical/
+            phase13-development-canonical.log
+          if-no-files-found: error
+          retention-days: 90
