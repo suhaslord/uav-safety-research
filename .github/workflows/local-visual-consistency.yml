@@ -18,6 +18,7 @@ on:
       - 'dashboard/phases/**'
       - '.github/qa/local-vercel-server.mjs'
       - '.github/qa/visual-consistency-smoke.mjs'
+      - '.github/qa/mobile-overflow-diagnostic.mjs'
       - '.github/qa/editorial-media-smoke.mjs'
       - '.github/qa/exhaustive-visual-audit.mjs'
       - '.github/qa/capture-corrected-screenshots.mjs'
@@ -35,6 +36,7 @@ on:
       - 'dashboard/phases/**'
       - '.github/qa/local-vercel-server.mjs'
       - '.github/qa/visual-consistency-smoke.mjs'
+      - '.github/qa/mobile-overflow-diagnostic.mjs'
       - '.github/qa/editorial-media-smoke.mjs'
       - '.github/qa/exhaustive-visual-audit.mjs'
       - '.github/qa/capture-corrected-screenshots.mjs'
@@ -76,6 +78,12 @@ jobs:
           done
           cat /tmp/aegis-local-server.log
           exit 1
+
+      - name: Diagnose mobile overflow
+        continue-on-error: true
+        env:
+          QA_BASE_URL: http://127.0.0.1:4173
+        run: node .github/qa/mobile-overflow-diagnostic.mjs
 
       - name: Run visual consistency smoke
         env:

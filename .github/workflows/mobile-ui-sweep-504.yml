@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - aegis-mobile-ui-sweep
+      - aegis-tesla-liquid-glass-repair
     paths:
       - 'deploy/vercel/**'
       - 'dashboard/**'
@@ -16,6 +17,7 @@ on:
 permissions:
   contents: read
 
+# Hard gate for the Tesla MD + Liquid Glass repair branch.
 jobs:
   mobile-grade:
     runs-on: ubuntu-latest

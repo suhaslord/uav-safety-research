@@ -1,25 +1,24 @@
 @import url('/final-convergence-base.css?v=1');
 
-/* UI bug sweep 2: breakpoint continuity and visual cleanup. */
+/* --------------------------------------------------------------------------
+   Cross-template bug fixes that stay independent from the visual direction.
+   -------------------------------------------------------------------------- */
 @media (min-width:901px){
-  html body.research-workspace.research-workspace .mobile-menu-toggle,
-  html body.research-workspace.research-workspace .mobile-menu-sheet,
-  html body.research-workspace.research-workspace .archive-menu-toggle,
-  html body.research-workspace.research-workspace .archive-menu-sheet{
-    display:none!important;
-  }
+  html body.research-workspace .mobile-menu-toggle,
+  html body.research-workspace .mobile-menu-sheet,
+  html body.research-workspace .archive-menu-toggle,
+  html body.research-workspace .archive-menu-sheet{display:none!important}
 }
 
 @media (max-width:900px){
-  html body.research-workspace.research-workspace .site-nav,
-  html body.research-workspace.research-workspace .header-actions,
-  html body.research-workspace.research-workspace .signature-nav__links,
-  html body.research-workspace.research-workspace.archive-shell .top .nav{
-    display:none!important;
-  }
-  html body.research-workspace.research-workspace .mobile-menu-toggle,
-  html body.research-workspace.research-workspace .archive-menu-toggle,
-  html body.research-workspace.home-workspace.home-workspace #mobileMenuToggle{
+  html body.research-workspace .site-nav,
+  html body.research-workspace .header-actions,
+  html body.research-workspace .signature-nav__links,
+  html body.research-workspace.archive-shell .top .nav{display:none!important}
+
+  html body.research-workspace .mobile-menu-toggle,
+  html body.research-workspace .archive-menu-toggle,
+  html body.research-workspace.home-workspace #mobileMenuToggle{
     display:inline-flex!important;
     align-items:center!important;
     justify-content:center!important;
@@ -28,43 +27,37 @@
     min-height:44px!important;
   }
 
-  /* 768px previously sat between desktop and phone CSS, leaving no usable menu. */
-  html body.research-workspace.research-workspace .mobile-menu-sheet,
-  html body.research-workspace.research-workspace .archive-menu-sheet,
-  html body.research-workspace.home-workspace.home-workspace #mobileMenuSheet{
+  html body.research-workspace .mobile-menu-sheet,
+  html body.research-workspace .archive-menu-sheet,
+  html body.research-workspace.home-workspace #mobileMenuSheet{
     position:fixed!important;
-    inset:0!important;
     z-index:140!important;
     display:flex!important;
     flex-direction:column!important;
     box-sizing:border-box!important;
-    width:100vw!important;
-    max-width:100vw!important;
-    height:100dvh!important;
-    padding:22px 20px 28px!important;
     overflow-y:auto!important;
     overflow-x:hidden!important;
-    background:#fff!important;
-    color:#171a20!important;
     opacity:0!important;
     visibility:hidden!important;
-    transform:translateY(-8px)!important;
+    transform:translateY(-10px) scale(.985)!important;
     pointer-events:none!important;
   }
-  html body.research-workspace.research-workspace .mobile-menu-sheet[aria-hidden="false"],
-  html body.research-workspace.research-workspace .archive-menu-sheet[aria-hidden="false"],
-  html body.research-workspace.research-workspace .mobile-menu-sheet.open,
-  html body.research-workspace.research-workspace .mobile-menu-sheet.is-open,
-  html body.research-workspace.research-workspace .archive-menu-sheet.open,
-  html body.research-workspace.research-workspace .archive-menu-sheet.is-open,
-  html body.research-workspace.home-workspace.home-workspace #mobileMenuSheet[aria-hidden="false"],
-  html body.research-workspace.home-workspace.home-workspace #mobileMenuSheet.open,
-  html body.research-workspace.home-workspace.home-workspace #mobileMenuSheet.is-open{
+
+  html body.research-workspace .mobile-menu-sheet[aria-hidden="false"],
+  html body.research-workspace .archive-menu-sheet[aria-hidden="false"],
+  html body.research-workspace .mobile-menu-sheet.open,
+  html body.research-workspace .mobile-menu-sheet.is-open,
+  html body.research-workspace .archive-menu-sheet.open,
+  html body.research-workspace .archive-menu-sheet.is-open,
+  html body.research-workspace.home-workspace #mobileMenuSheet[aria-hidden="false"],
+  html body.research-workspace.home-workspace #mobileMenuSheet.open,
+  html body.research-workspace.home-workspace #mobileMenuSheet.is-open{
     opacity:1!important;
     visibility:visible!important;
     transform:none!important;
     pointer-events:auto!important;
   }
+
   body.research-workspace.menu-open{overflow:hidden!important}
   body.research-workspace .mobile-menu-head,
   body.research-workspace .archive-menu-head{
@@ -72,130 +65,54 @@
     align-items:center!important;
     justify-content:space-between!important;
     gap:16px!important;
-    padding-bottom:18px!important;
-    border-bottom:1px solid #e2e3e3!important;
   }
   body.research-workspace .mobile-menu-close,
-  body.research-workspace .archive-menu-close{
-    min-width:44px!important;
-    min-height:44px!important;
-  }
+  body.research-workspace .archive-menu-close{min-width:44px!important;min-height:44px!important}
   body.research-workspace .mobile-menu-links,
-  body.research-workspace .archive-menu-links{
-    display:grid!important;
-    grid-template-columns:1fr!important;
-    gap:0!important;
-    margin-top:14px!important;
-  }
+  body.research-workspace .archive-menu-links{display:grid!important;grid-template-columns:1fr!important;gap:0!important}
   body.research-workspace .mobile-menu-links a,
-  body.research-workspace .archive-menu-links a{
-    display:flex!important;
-    align-items:center!important;
-    min-height:50px!important;
-    padding:0 4px!important;
-    border-bottom:1px solid #eceeef!important;
-    color:#171a20!important;
-  }
+  body.research-workspace .archive-menu-links a{display:flex!important;align-items:center!important;min-height:54px!important}
   body.research-workspace .mobile-menu-meta,
-  body.research-workspace .archive-menu-meta{
-    margin-top:auto!important;
-    padding-top:22px!important;
-    display:flex!important;
-    flex-wrap:wrap!important;
-    gap:8px!important;
-  }
+  body.research-workspace .archive-menu-meta{margin-top:auto!important;display:flex!important;flex-wrap:wrap!important;gap:8px!important}
   body.research-workspace .mobile-menu-meta a,
-  body.research-workspace .archive-menu-meta a{
-    min-height:44px!important;
-    display:inline-flex!important;
-    align-items:center!important;
-    padding:0 14px!important;
-  }
+  body.research-workspace .archive-menu-meta a{min-height:44px!important;display:inline-flex!important;align-items:center!important}
 
-  body.research-workspace .workspace-context{
-    column-gap:10px!important;
-    row-gap:4px!important;
-  }
-  body.research-workspace .workspace-context span+span::before{
-    content:none!important;
-  }
+  body.research-workspace .workspace-context{column-gap:10px!important;row-gap:4px!important}
+  body.research-workspace .workspace-context span+span::before{content:none!important}
 
-  /* The 12-step early-phase rail is too wide for tablets. Use its compact disclosure. */
-  body.research-workspace.archive-shell .phase-rail-section{
-    border-top:0!important;
-  }
-  body.research-workspace.archive-shell .phase-progress-compact{
-    display:flex!important;
-  }
-  body.research-workspace.archive-shell .phase-rail{
-    display:none!important;
-    min-height:0!important;
-    padding-bottom:6px!important;
-  }
+  body.research-workspace.archive-shell .phase-rail-section{border-top:0!important}
+  body.research-workspace.archive-shell .phase-progress-compact{display:flex!important}
+  body.research-workspace.archive-shell .phase-rail{display:none!important;min-height:0!important;padding-bottom:6px!important}
   body.research-workspace.archive-shell .phase-rail-section.is-open .phase-rail{
     display:grid!important;
     grid-template-columns:repeat(4,minmax(0,1fr))!important;
     overflow:visible!important;
   }
-  body.research-workspace.archive-shell .phase-rail-section.is-open .rail-step{
-    min-width:0!important;
-  }
+  body.research-workspace.archive-shell .phase-rail-section.is-open .rail-step{min-width:0!important}
 }
 
-/* The phase identity chip already carries category/identity; don't repeat it. */
-body.research-workspace .phase-detail__hero .phase-identity-chip ~ .workspace-context{
-  display:none!important;
-}
-
-/* Keep frozen-phase context media centered and at the same desktop proportion as earlier phases. */
+body.research-workspace .phase-detail__hero .phase-identity-chip ~ .workspace-context{display:none!important}
 body.research-workspace .phase-detail > .phase-editorial-photo,
 body.research-workspace .phase-detail #phaseContent > .phase-editorial-photo{
   width:min(960px,100%)!important;
   margin-left:auto!important;
   margin-right:auto!important;
 }
-
-/* Small text links are still controls; keep their tap targets usable. */
-body.research-workspace.home-workspace #timeline .text-link{
-  min-height:44px!important;
-  display:inline-flex!important;
-  align-items:center!important;
-}
+body.research-workspace.home-workspace #timeline .text-link{min-height:44px!important;display:inline-flex!important;align-items:center!important}
+body.research-workspace.archive-shell #archiveBoot{display:none!important}
 
 @media (max-width:700px){
-  /* Small-phone header must size its border box to the viewport, not 100% plus inherited padding. */
-  html body.research-workspace.home-workspace.home-workspace .site-header{
-    width:100vw!important;
-    max-width:100vw!important;
+  html body.research-workspace.home-workspace .site-header{
     min-width:0!important;
     box-sizing:border-box!important;
-    left:0!important;
-    right:0!important;
-    padding-inline:10px!important;
-    gap:6px!important;
   }
-  html body.research-workspace.home-workspace.home-workspace .site-header .brand{
-    min-width:0!important;
-    max-width:calc(100vw - 76px)!important;
-  }
-  html body.research-workspace.home-workspace.home-workspace #mobileMenuToggle{
-    flex:0 0 auto!important;
-    margin-left:auto!important;
-  }
-
-  /* Mobile actions and source records use full 44px touch height across legacy templates. */
+  html body.research-workspace.home-workspace .site-header .brand{min-width:0!important;max-width:calc(100vw - 96px)!important}
+  html body.research-workspace.home-workspace #mobileMenuToggle{flex:0 0 auto!important;margin-left:auto!important}
   html body.research-workspace a.button,
-  html body.research-workspace a.source{
-    min-height:44px!important;
-    box-sizing:border-box!important;
-  }
-
+  html body.research-workspace a.source{min-height:44px!important;box-sizing:border-box!important}
   body.research-workspace .phase-detail > .phase-editorial-photo,
-  body.research-workspace .phase-detail #phaseContent > .phase-editorial-photo{
-    width:calc(100% - 28px)!important;
-  }
+  body.research-workspace .phase-detail #phaseContent > .phase-editorial-photo{width:calc(100% - 28px)!important}
 
-  /* Archive categories wrap instead of looking cut off beyond the phone edge. */
   html body.research-workspace.archive-workspace .category-nav{
     margin-right:0!important;
     padding-right:0!important;
@@ -208,42 +125,505 @@ body.research-workspace.home-workspace #timeline .text-link{
     min-height:44px!important;
     justify-content:center!important;
   }
-  html body.research-workspace.research-workspace.archive-workspace .category-nav a:first-child{
-    width:44px!important;
-    min-width:44px!important;
-    max-width:none!important;
-    flex:0 0 44px!important;
-    box-sizing:border-box!important;
-    justify-content:center!important;
-  }
 
-  /* Keep all 13 lineage dots visible instead of clipping half the sequence. */
-  html body.research-workspace.home-workspace .home-lineage{
-    overflow-x:visible!important;
-  }
+  html body.research-workspace.home-workspace .home-lineage{overflow-x:visible!important}
   html body.research-workspace.home-workspace .home-lineage__track{
     width:100%!important;
     min-width:0!important;
     grid-template-columns:repeat(7,minmax(44px,1fr))!important;
     row-gap:2px!important;
   }
-  html body.research-workspace.home-workspace .home-lineage__track::before{
-    display:none!important;
-  }
-  html body.research-workspace.home-workspace .home-lineage__node{
-    width:100%!important;
-    min-width:44px!important;
-    min-height:44px!important;
-  }
-  html body.research-workspace.home-workspace .home-lineage__caption{
-    width:100%!important;
-    min-width:0!important;
-  }
+  html body.research-workspace.home-workspace .home-lineage__track::before{display:none!important}
+  html body.research-workspace.home-workspace .home-lineage__node{width:100%!important;min-width:44px!important;min-height:44px!important}
+  html body.research-workspace.home-workspace .home-lineage__caption{width:100%!important;min-width:0!important}
 }
 
-/* 320px-class phones cannot fit seven 44px lineage targets inside the inset card. */
 @media (max-width:340px){
-  html body.research-workspace.home-workspace .home-lineage__track{
-    grid-template-columns:repeat(6,minmax(44px,1fr))!important;
+  html body.research-workspace.home-workspace .home-lineage__track{grid-template-columns:repeat(6,minmax(44px,1fr))!important}
+}
+
+/* --------------------------------------------------------------------------
+   Apple x Tesla hybrid layer
+
+   Apple language: milky glass, generous radii, soft depth, floating navigation,
+   pill controls, calm spacing, system typography, restrained motion.
+   Tesla theme: white / charcoal / graphite foundation with sparse Tesla red.
+   No cyan, violet, neon, or generic AI-dashboard treatment.
+   -------------------------------------------------------------------------- */
+body.research-workspace{
+  --at-ink:#171a20;
+  --at-ink-2:#393c41;
+  --at-muted:#6e6e73;
+  --at-faint:#8e8e93;
+  --at-bg:#f5f5f7;
+  --at-bg-2:#fbfbfd;
+  --at-red:#e82127;
+  --at-red-dark:#c9151b;
+  --at-glass:rgba(255,255,255,.68);
+  --at-glass-strong:rgba(255,255,255,.82);
+  --at-glass-soft:rgba(255,255,255,.52);
+  --at-line:rgba(23,26,32,.09);
+  --at-line-strong:rgba(23,26,32,.14);
+  --at-shadow:0 18px 55px rgba(23,26,32,.09),0 2px 10px rgba(23,26,32,.045),inset 0 1px 0 rgba(255,255,255,.9);
+  --at-shadow-soft:0 10px 30px rgba(23,26,32,.07),0 1px 6px rgba(23,26,32,.04),inset 0 1px 0 rgba(255,255,255,.88);
+  --at-shadow-hover:0 24px 68px rgba(23,26,32,.12),0 4px 14px rgba(23,26,32,.055),inset 0 1px 0 rgba(255,255,255,.96);
+  --at-radius-xl:30px;
+  --at-radius-lg:24px;
+  --at-radius-md:18px;
+  --at-radius-sm:14px;
+  --at-ease:240ms cubic-bezier(.2,.75,.25,1);
+  --rw-accent:var(--at-red)!important;
+  --rw-text:var(--at-ink)!important;
+  --rw-body:var(--at-ink-2)!important;
+  --rw-muted:var(--at-muted)!important;
+  background:
+    radial-gradient(circle at 50% -20%,rgba(255,255,255,.96),transparent 38rem),
+    linear-gradient(180deg,#fff 0,var(--at-bg-2) 38rem,var(--at-bg) 100%)!important;
+  color:var(--at-ink)!important;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Arial,sans-serif!important;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+
+body.research-workspace main{background:transparent!important}
+body.research-workspace .section.ash{background:transparent!important}
+body.research-workspace .section{border-color:transparent!important}
+body.research-workspace h1,
+body.research-workspace h2,
+body.research-workspace h3{
+  color:var(--at-ink)!important;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",Arial,sans-serif!important;
+}
+body.research-workspace h1{font-weight:650!important;letter-spacing:-.045em!important}
+body.research-workspace h2{font-weight:620!important;letter-spacing:-.035em!important}
+body.research-workspace h3{font-weight:600!important;letter-spacing:-.018em!important}
+body.research-workspace .copy,
+body.research-workspace .hero-deck,
+body.research-workspace p{color:var(--at-ink-2)}
+body.research-workspace .eyebrow,
+body.research-workspace .kicker,
+body.research-workspace .signature-kicker{color:var(--at-muted)!important;letter-spacing:.08em!important}
+body.research-workspace a{transition:color var(--at-ease),background-color var(--at-ease),border-color var(--at-ease),box-shadow var(--at-ease),transform var(--at-ease)}
+
+/* Floating Apple navigation with Tesla identity. */
+html body.research-workspace .site-header,
+html body.research-workspace .signature-nav,
+html body.research-workspace.archive-shell .top{
+  position:fixed!important;
+  top:14px!important;
+  left:50%!important;
+  right:auto!important;
+  transform:translateX(-50%)!important;
+  width:min(calc(100% - 28px),1280px)!important;
+  max-width:1280px!important;
+  min-height:62px!important;
+  box-sizing:border-box!important;
+  padding:0 18px!important;
+  border:1px solid rgba(255,255,255,.76)!important;
+  border-radius:22px!important;
+  background:rgba(250,250,252,.72)!important;
+  box-shadow:0 12px 40px rgba(23,26,32,.10),inset 0 1px 0 rgba(255,255,255,.94)!important;
+  -webkit-backdrop-filter:blur(28px) saturate(1.42)!important;
+  backdrop-filter:blur(28px) saturate(1.42)!important;
+}
+body.research-workspace .site-header::after,
+body.research-workspace .signature-nav::after,
+body.research-workspace.archive-shell .top::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  border-radius:inherit;
+  box-shadow:inset 0 0 0 1px rgba(23,26,32,.035);
+}
+body.research-workspace .brand,
+body.research-workspace .signature-brand,
+body.research-workspace.archive-shell .word{font-weight:700!important;letter-spacing:.16em!important;color:var(--at-ink)!important}
+body.research-workspace .brand-mark,
+body.research-workspace .signature-brand__mark,
+body.research-workspace .aegis-mini-mark{background:var(--at-red)!important;color:#fff!important;border-color:transparent!important;box-shadow:none!important}
+body.research-workspace .site-nav a,
+body.research-workspace .signature-nav__links a,
+body.research-workspace.archive-shell .top .nav a{color:var(--at-ink-2)!important;font-weight:520!important}
+body.research-workspace .site-nav a:hover,
+body.research-workspace .signature-nav__links a:hover,
+body.research-workspace.archive-shell .top .nav a:hover{color:var(--at-red)!important}
+
+/* Tesla-black primary controls, Apple pill geometry. */
+body.research-workspace .button,
+body.research-workspace .signature-button,
+body.research-workspace .top-btn,
+body.research-workspace .workspace-action,
+body.research-workspace .phase-unified-nav a,
+body.research-workspace .switch-nav a,
+body.research-workspace .switcher .next{
+  border-radius:999px!important;
+  min-height:46px!important;
+  padding-inline:20px!important;
+  font-weight:580!important;
+  box-shadow:none!important;
+}
+body.research-workspace .button.primary,
+body.research-workspace .signature-button.primary,
+body.research-workspace .top-btn.primary,
+body.research-workspace .workspace-action.primary{
+  color:#fff!important;
+  background:var(--at-ink)!important;
+  border-color:var(--at-ink)!important;
+}
+body.research-workspace .button.primary:hover,
+body.research-workspace .signature-button.primary:hover,
+body.research-workspace .top-btn.primary:hover,
+body.research-workspace .workspace-action.primary:hover{
+  background:#000!important;
+  border-color:#000!important;
+  transform:translateY(-1px);
+  box-shadow:0 10px 25px rgba(23,26,32,.16)!important;
+}
+body.research-workspace .button.secondary,
+body.research-workspace .button.outline,
+body.research-workspace .signature-button.secondary,
+body.research-workspace .top-btn:not(.primary){
+  color:var(--at-ink)!important;
+  background:rgba(255,255,255,.66)!important;
+  border:1px solid var(--at-line)!important;
+  box-shadow:var(--at-shadow-soft)!important;
+  -webkit-backdrop-filter:blur(20px) saturate(1.3)!important;
+  backdrop-filter:blur(20px) saturate(1.3)!important;
+}
+body.research-workspace .button.secondary:hover,
+body.research-workspace .button.outline:hover,
+body.research-workspace .signature-button.secondary:hover{
+  border-color:var(--at-line-strong)!important;
+  background:rgba(255,255,255,.88)!important;
+  transform:translateY(-1px);
+}
+
+/* Homepage: Apple product-page depth with Tesla monochrome. */
+body.research-workspace.home-workspace .hero{padding-top:136px!important}
+body.research-workspace.home-workspace .hero h1{font-size:clamp(46px,6.2vw,78px)!important;line-height:.99!important;max-width:900px!important}
+body.research-workspace.home-workspace .hero-deck{font-size:clamp(18px,2vw,23px)!important;line-height:1.48!important;max-width:720px!important;color:var(--at-muted)!important}
+body.research-workspace .workspace-context{gap:8px!important}
+body.research-workspace .workspace-context span{
+  display:inline-flex!important;
+  align-items:center!important;
+  min-height:30px!important;
+  padding:0 11px!important;
+  border:1px solid rgba(23,26,32,.07)!important;
+  border-radius:999px!important;
+  background:rgba(255,255,255,.56)!important;
+  color:var(--at-muted)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.88)!important;
+  -webkit-backdrop-filter:blur(16px)!important;
+  backdrop-filter:blur(16px)!important;
+}
+body.research-workspace .workspace-context span+span::before{display:none!important}
+
+body.research-workspace .workspace-status-card,
+body.research-workspace .result-card,
+body.research-workspace .threshold-card,
+body.research-workspace .research-alert,
+body.research-workspace .phase-verdict-panel,
+body.research-workspace .phase-detail__metrics-band,
+body.research-workspace .phase-detail__context,
+body.research-workspace .phase-role-card{
+  border:1px solid rgba(255,255,255,.72)!important;
+  border-radius:var(--at-radius-xl)!important;
+  background:var(--at-glass)!important;
+  box-shadow:var(--at-shadow)!important;
+  -webkit-backdrop-filter:blur(28px) saturate(1.34)!important;
+  backdrop-filter:blur(28px) saturate(1.34)!important;
+}
+body.research-workspace.home-workspace .workspace-status-card{padding:28px!important}
+body.research-workspace .workspace-boundary{
+  border-radius:var(--at-radius-md)!important;
+  background:rgba(23,26,32,.045)!important;
+  border:1px solid rgba(23,26,32,.055)!important;
+}
+body.research-workspace .status-badge{
+  border-radius:999px!important;
+  box-shadow:none!important;
+  -webkit-backdrop-filter:blur(12px)!important;
+  backdrop-filter:blur(12px)!important;
+}
+body.research-workspace .home-lineage{border-radius:var(--at-radius-lg)!important;background:rgba(255,255,255,.44)!important;border-color:rgba(23,26,32,.07)!important}
+
+/* Apple-like grouped content cards. */
+body.research-workspace .section.ash > .wrap{
+  border:1px solid rgba(255,255,255,.70)!important;
+  border-radius:34px!important;
+  background:rgba(255,255,255,.54)!important;
+  box-shadow:var(--at-shadow)!important;
+  -webkit-backdrop-filter:blur(30px) saturate(1.28)!important;
+  backdrop-filter:blur(30px) saturate(1.28)!important;
+}
+body.research-workspace .three .card,
+body.research-workspace .goal-point,
+body.research-workspace .evidence-item,
+body.research-workspace .metric,
+body.research-workspace .metric-card,
+body.research-workspace .story-pair article,
+body.research-workspace .changes article,
+body.research-workspace .limits-list li,
+body.research-workspace .architecture,
+body.research-workspace .shift,
+body.research-workspace .phase-visual,
+body.research-workspace .finding{
+  border:1px solid rgba(23,26,32,.07)!important;
+  border-radius:var(--at-radius-lg)!important;
+  background:rgba(255,255,255,.58)!important;
+  box-shadow:0 8px 24px rgba(23,26,32,.05),inset 0 1px 0 rgba(255,255,255,.88)!important;
+  -webkit-backdrop-filter:blur(20px) saturate(1.22)!important;
+  backdrop-filter:blur(20px) saturate(1.22)!important;
+}
+body.research-workspace .evidence-item{padding:18px 20px!important}
+body.research-workspace .research-alert{padding:18px 20px!important}
+body.research-workspace .research-alert__label{color:var(--at-red)!important}
+
+/* Editorial media: Apple hardware-card finish, no futuristic color cast. */
+body.research-workspace .research-photo__frame,
+body.research-workspace .phase-editorial-photo__frame{
+  overflow:hidden!important;
+  border:1px solid rgba(255,255,255,.80)!important;
+  border-radius:28px!important;
+  background:#e9e9eb!important;
+  box-shadow:0 22px 58px rgba(23,26,32,.12),inset 0 1px 0 rgba(255,255,255,.7)!important;
+}
+body.research-workspace .research-photo img,
+body.research-workspace .phase-editorial-photo img{transition:transform 700ms cubic-bezier(.2,.7,.2,1),filter 300ms ease}
+body.research-workspace .research-photo figcaption,
+body.research-workspace .phase-editorial-photo figcaption{color:var(--at-faint)!important}
+
+/* Archive: glass search toolbar + rounded grouped phase rows. */
+body.research-workspace.archive-workspace .archive-main{padding-top:106px!important}
+body.research-workspace.archive-workspace .archive-hero{border-bottom:0!important;padding-top:56px!important}
+body.research-workspace.archive-workspace .archive-hero h1{font-size:clamp(44px,6vw,72px)!important;line-height:1.01!important;font-weight:650!important;letter-spacing:-.045em!important;max-width:980px!important}
+body.research-workspace.archive-workspace .archive-hero p{font-size:17px!important;line-height:1.58!important;color:var(--at-muted)!important}
+body.research-workspace.archive-workspace .archive-stats.archive-toolbar{
+  position:relative!important;
+  padding:16px!important;
+  border:1px solid rgba(255,255,255,.76)!important;
+  border-radius:24px!important;
+  background:rgba(255,255,255,.66)!important;
+  box-shadow:var(--at-shadow-soft)!important;
+  -webkit-backdrop-filter:blur(24px) saturate(1.3)!important;
+  backdrop-filter:blur(24px) saturate(1.3)!important;
+}
+body.research-workspace.archive-workspace .archive-toolbar__search input,
+body.research-workspace.archive-workspace .archive-filter,
+body.research-workspace.archive-workspace .archive-reset,
+body.research-workspace.archive-workspace .category-nav a{
+  border:1px solid rgba(23,26,32,.075)!important;
+  border-radius:999px!important;
+  background:rgba(255,255,255,.68)!important;
+  color:var(--at-ink-2)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9)!important;
+  -webkit-backdrop-filter:blur(18px) saturate(1.25)!important;
+  backdrop-filter:blur(18px) saturate(1.25)!important;
+}
+body.research-workspace.archive-workspace .archive-toolbar__search input{border-radius:16px!important}
+body.research-workspace.archive-workspace .archive-filter[aria-pressed="true"]{
+  background:var(--at-ink)!important;
+  color:#fff!important;
+  border-color:var(--at-ink)!important;
+  box-shadow:0 8px 20px rgba(23,26,32,.13)!important;
+}
+body.research-workspace.archive-workspace .category-nav a:hover,
+body.research-workspace.archive-workspace .archive-filter:hover{color:var(--at-red)!important;border-color:rgba(232,33,39,.28)!important}
+body.research-workspace.archive-workspace .archive-filter[aria-pressed="true"]:hover{color:#fff!important}
+body.research-workspace.archive-workspace .archive-category{
+  padding:24px!important;
+  border:1px solid rgba(255,255,255,.72)!important;
+  border-radius:28px!important;
+  background:rgba(255,255,255,.56)!important;
+  box-shadow:var(--at-shadow-soft)!important;
+  -webkit-backdrop-filter:blur(24px) saturate(1.25)!important;
+  backdrop-filter:blur(24px) saturate(1.25)!important;
+}
+body.research-workspace.archive-workspace .archive-category+.archive-category{margin-top:24px!important}
+body.research-workspace.archive-workspace .archive-card.phase-personalized{
+  padding-left:14px!important;
+  padding-right:14px!important;
+  border-radius:16px!important;
+  border-bottom-color:rgba(23,26,32,.065)!important;
+  transition:background-color var(--at-ease),transform var(--at-ease)!important;
+}
+body.research-workspace.archive-workspace .archive-card.phase-personalized:hover{
+  background:rgba(255,255,255,.76)!important;
+  transform:translateX(2px);
+}
+body.research-workspace.archive-workspace .archive-card__open{color:var(--at-red)!important}
+
+/* Phase pages: turn evidence blocks into calm Apple cards while keeping Tesla hierarchy. */
+body.research-workspace .phase-detail{padding-top:102px!important}
+body.research-workspace .phase-detail__hero h1,
+body.research-workspace.phase11-polish .hero h1,
+body.research-workspace.archive-shell .hero h1{letter-spacing:-.04em!important;font-weight:650!important}
+body.research-workspace .phase-detail__panel{
+  border:1px solid rgba(255,255,255,.72)!important;
+  border-radius:var(--at-radius-lg)!important;
+  background:rgba(255,255,255,.54)!important;
+  box-shadow:var(--at-shadow-soft)!important;
+  -webkit-backdrop-filter:blur(22px) saturate(1.24)!important;
+  backdrop-filter:blur(22px) saturate(1.24)!important;
+  padding:24px!important;
+}
+body.research-workspace .phase-detail__panel--evidence{border-left:1px solid rgba(255,255,255,.72)!important}
+body.research-workspace .phase-evidence-row{border-color:rgba(23,26,32,.075)!important}
+body.research-workspace .phase-identity-chip{
+  display:inline-flex!important;
+  border:1px solid rgba(23,26,32,.07)!important;
+  border-radius:999px!important;
+  background:rgba(255,255,255,.62)!important;
+  padding:7px 11px!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9)!important;
+}
+body.research-workspace .phase-identity-chip::before{background:var(--at-red)!important;border-radius:50%!important}
+body.research-workspace .phase-unified-nav{
+  border-radius:24px!important;
+  background:rgba(255,255,255,.62)!important;
+  border:1px solid rgba(255,255,255,.72)!important;
+  box-shadow:var(--at-shadow-soft)!important;
+  -webkit-backdrop-filter:blur(24px)!important;
+  backdrop-filter:blur(24px)!important;
+}
+body.research-workspace .phase-unified-nav a:hover{color:var(--at-red)!important}
+
+/* Legacy Phase 1-10 surfaces. */
+body.research-workspace.archive-shell .hero,
+body.research-workspace.phase11-polish .hero{background:transparent!important}
+body.research-workspace.archive-shell .phase-progress-compact{
+  border-radius:18px!important;
+  border:1px solid rgba(23,26,32,.075)!important;
+  background:rgba(255,255,255,.66)!important;
+  box-shadow:var(--at-shadow-soft)!important;
+  -webkit-backdrop-filter:blur(20px)!important;
+  backdrop-filter:blur(20px)!important;
+}
+body.research-workspace.archive-shell .source{
+  border-radius:999px!important;
+  background:rgba(255,255,255,.68)!important;
+  border-color:rgba(23,26,32,.08)!important;
+}
+
+/* Tesla red only for navigation / emphasis, never for PASS semantics. */
+body.research-workspace .text-link,
+body.research-workspace .archive-card__open,
+body.research-workspace .phase-role-card__signal strong{color:var(--at-red)!important}
+body.research-workspace .text-link:hover{color:var(--at-red-dark)!important}
+body.research-workspace .verdict-chip--pass,
+body.research-workspace .status-badge--pass{color:var(--rw-pass,#2e7d4f)!important}
+body.research-workspace .verdict-chip--fail{color:var(--rw-fail,#b42318)!important}
+
+/* Mobile becomes a floating Apple sheet instead of a flat full-screen slab. */
+@media (max-width:900px){
+  html body.research-workspace .site-header,
+  html body.research-workspace .signature-nav,
+  html body.research-workspace.archive-shell .top{
+    top:8px!important;
+    width:calc(100% - 16px)!important;
+    min-height:56px!important;
+    padding:0 12px!important;
+    border-radius:18px!important;
   }
+
+  html body.research-workspace .mobile-menu-sheet,
+  html body.research-workspace .archive-menu-sheet,
+  html body.research-workspace.home-workspace #mobileMenuSheet{
+    inset:8px!important;
+    width:calc(100vw - 16px)!important;
+    max-width:calc(100vw - 16px)!important;
+    height:calc(100dvh - 16px)!important;
+    padding:20px!important;
+    border:1px solid rgba(255,255,255,.80)!important;
+    border-radius:28px!important;
+    background:rgba(248,248,250,.84)!important;
+    box-shadow:0 30px 90px rgba(23,26,32,.18),inset 0 1px 0 rgba(255,255,255,.94)!important;
+    -webkit-backdrop-filter:blur(34px) saturate(1.42)!important;
+    backdrop-filter:blur(34px) saturate(1.42)!important;
+  }
+  body.research-workspace .mobile-menu-head,
+  body.research-workspace .archive-menu-head{padding-bottom:14px!important;border-bottom:1px solid rgba(23,26,32,.08)!important}
+  body.research-workspace .mobile-menu-links,
+  body.research-workspace .archive-menu-links{margin-top:10px!important}
+  body.research-workspace .mobile-menu-links a,
+  body.research-workspace .archive-menu-links a{
+    padding:0 8px!important;
+    border-bottom:1px solid rgba(23,26,32,.07)!important;
+    color:var(--at-ink)!important;
+    font-size:17px!important;
+    font-weight:560!important;
+  }
+  body.research-workspace .mobile-menu-links a:hover,
+  body.research-workspace .archive-menu-links a:hover{color:var(--at-red)!important}
+  body.research-workspace .mobile-menu-meta,
+  body.research-workspace .archive-menu-meta{padding-top:18px!important}
+  body.research-workspace .mobile-menu-meta a,
+  body.research-workspace .archive-menu-meta a{
+    padding:0 14px!important;
+    border-radius:999px!important;
+    background:rgba(255,255,255,.70)!important;
+    border:1px solid rgba(23,26,32,.07)!important;
+  }
+
+  body.research-workspace.home-workspace .hero{padding-top:104px!important}
+  body.research-workspace.home-workspace .hero h1{font-size:clamp(40px,11vw,58px)!important;line-height:1.01!important}
+  body.research-workspace.archive-workspace .archive-main{padding-top:84px!important}
+  body.research-workspace .phase-detail{padding-top:82px!important}
+}
+
+@media (max-width:700px){
+  body.research-workspace .section.ash > .wrap{border-radius:26px!important}
+  body.research-workspace .workspace-status-card,
+  body.research-workspace .result-card,
+  body.research-workspace .threshold-card,
+  body.research-workspace .research-alert,
+  body.research-workspace .phase-verdict-panel,
+  body.research-workspace .phase-detail__metrics-band,
+  body.research-workspace .phase-detail__context,
+  body.research-workspace .phase-role-card{border-radius:24px!important}
+  body.research-workspace .research-photo__frame,
+  body.research-workspace .phase-editorial-photo__frame{border-radius:22px!important}
+  body.research-workspace.archive-workspace .archive-category{padding:16px!important;border-radius:24px!important}
+  body.research-workspace.archive-workspace .archive-stats.archive-toolbar{padding:12px!important;border-radius:20px!important}
+  body.research-workspace .phase-detail__panel{padding:18px!important;border-radius:20px!important}
+}
+
+/* Premium hover behavior only where a cursor exists. */
+@media (hover:hover) and (pointer:fine){
+  body.research-workspace .workspace-status-card:hover,
+  body.research-workspace .result-card:hover,
+  body.research-workspace .threshold-card:hover,
+  body.research-workspace .three .card:hover,
+  body.research-workspace .goal-point:hover,
+  body.research-workspace .phase-detail__panel:hover{
+    transform:translateY(-2px);
+    box-shadow:var(--at-shadow-hover)!important;
+  }
+  body.research-workspace .research-photo:hover img,
+  body.research-workspace .phase-editorial-photo:hover img{transform:scale(1.012)}
+}
+
+html body.research-workspace :is(a,button,input,select,textarea):focus-visible{
+  outline:2px solid var(--at-red)!important;
+  outline-offset:3px!important;
+  box-shadow:0 0 0 5px rgba(232,33,39,.12)!important;
+}
+
+@media (prefers-reduced-motion:reduce){
+  body.research-workspace *,
+  body.research-workspace *::before,
+  body.research-workspace *::after{
+    scroll-behavior:auto!important;
+    transition:none!important;
+    animation:none!important;
+  }
+  body.research-workspace .research-photo:hover img,
+  body.research-workspace .phase-editorial-photo:hover img,
+  body.research-workspace .workspace-status-card:hover,
+  body.research-workspace .result-card:hover,
+  body.research-workspace .threshold-card:hover,
+  body.research-workspace .three .card:hover,
+  body.research-workspace .goal-point:hover,
+  body.research-workspace .phase-detail__panel:hover{transform:none!important}
 }
