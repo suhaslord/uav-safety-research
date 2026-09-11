@@ -122,7 +122,7 @@ def test_every_phase_has_one_distinct_local_context_photo() -> None:
         assert 'src="/phase-editorial-media.js?v=' in shell
 
 
-def test_workspace_uses_original_light_research_system() -> None:
+def test_workspace_preserves_light_research_structure_under_current_visual_layer() -> None:
     css = _read("deploy/vercel/research-workspace.css")
     home = _read("deploy/vercel/research-home.css")
     identity = _read("dashboard/phase-personalization.css")
@@ -132,7 +132,7 @@ def test_workspace_uses_original_light_research_system() -> None:
     assert "font-size:clamp(34px,4vw,40px)" in css
     assert "background:rgba(255,255,255,.96)" in css
     assert "text-transform:none" in css
-    assert "--rw-accent:#3559c7" in home
-    assert "min-height:610px!important" in home
-    assert "grid-template-columns:repeat(13,minmax(0,1fr))" in home
-    assert "--phase-accent:#3559c7!important" in identity
+    assert "--home-max:1200px" in home
+    assert "min-height:0!important" in home
+    assert "grid-template-columns:repeat(6,minmax(0,1fr))!important" in home
+    assert "--phase-accent:#3559c7" in identity
