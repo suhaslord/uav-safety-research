@@ -146,7 +146,16 @@
         controls.onchange=()=>{const selected=[...controls.querySelectorAll('input:checked')].map(x=>data.series[Number(x.dataset.series)]);if(selected.length)drawChart(figure,{...data,series:selected});else figure.innerHTML='<p>Select a line to show the chart.</p>';};
         const count=Math.max(...data.series.map(line=>line.values.length));
         const inspect=document.createElement('div');inspect.innerHTML=`<label for="lab-inspect">Inspect one chart position</label><input id="lab-inspect" class="lab-inspect" type="range" min="0" max="${count-1}" value="0" step="1"><div class="lab-point-readout" role="status"></div>`;figure.after(inspect);
-        const showPoint=()=>{const i=Number(inspect.querySelector('input').value);inspect.querySelector('.lab-point-readout').textContent=(data.rows[i]?.Context? 'Combination '+i+': '+data.rows[i].Context:'Chart position '+i)+'. '+data.series.map(line=>line.label+': '+fmt(line.values[i]??null)).join('; ');};inspect.oninput=showPoint;showPoint();
+        const showPoint=()=>{const i=Number(inspect.querySelector('input').value);inspect.querySelector('.lab-point-readout').textContent=(data.rows[i]?.Context? 'Combination '+i+': '+data.rows[i].Context:'Chart position '+i)+'. '+data.series.map(line=>line.label+': '+fmt(line.values[i]??null)).join('; ');};inspect.oninput=()=>{showPoint();markPoint(Number(inspect.querySelector('input').value));};showPoint();
+        const markPoint=i=>{
+          const svg=figure.querySelector('svg');if(!svg)return;
+          const width=svg.viewBox.baseVal.width,x=54+i/Math.max(1,count-1)*(width-78);
+          let cursor=svg.querySelector('.lab-crosshair');if(!cursor){cursor=document.createElementNS('http://www.w3.org/2000/svg','line');cursor.setAttribute('class','lab-crosshair');cursor.setAttribute('y1','24');cursor.setAttribute('y2','244');cursor.setAttribute('stroke','#50545a');cursor.setAttribute('stroke-dasharray','4 4');svg.append(cursor);}cursor.setAttribute('x1',x);cursor.setAttribute('x2',x);
+        };
+        const pointAt=event=>{const svg=figure.querySelector('svg');if(!svg)return;const rect=svg.getBoundingClientRect(),width=svg.viewBox.baseVal.width;const x=(event.clientX-rect.left)/rect.width*width;const i=Math.max(0,Math.min(count-1,Math.round((x-54)/(width-78)*(count-1))));inspect.querySelector('input').value=i;showPoint();markPoint(i);};
+        figure.addEventListener('pointermove',event=>{if(event.pointerType==='mouse')pointAt(event);});figure.addEventListener('pointerdown',pointAt);
+        figure.tabIndex=0;figure.setAttribute('aria-label','Interactive chart. Use left and right arrow keys to inspect readings.');figure.addEventListener('keydown',event=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;event.preventDefault();const input=inspect.querySelector('input');input.value=event.key==='Home'?0:event.key==='End'?count-1:Math.max(0,Math.min(count-1,Number(input.value)+(event.key==='ArrowRight'?1:-1)));showPoint();markPoint(Number(input.value));});
+        const hint=document.createElement('p');hint.className='lab-chart-hint';hint.textContent='Point or tap the chart to inspect a reading. Keyboard: left and right arrows.';figure.before(hint);
       }
       if(data.image) {
         const canvas=resultsEl.querySelector('canvas'), ctx=canvas.getContext('2d'), im=ctx.createImageData(96,96);

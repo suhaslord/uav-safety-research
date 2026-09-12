@@ -57,46 +57,19 @@
     motion.addEventListener('change', () => { if (motion.matches) pause(); });
   }
 
-  const replaceExplainerWithNasa = ({ captionId, videoId, title, lead, copy, source }) => {
-    const caption = document.getElementById(captionId);
-    const figure = caption?.closest('.explainer-film');
-    const original = figure?.querySelector('video');
-    if (!caption || !figure || !original) return;
-
-    const iframe = document.createElement('iframe');
-    iframe.src = `https://www.youtube-nocookie.com/embed/${videoId}?rel=0`;
-    iframe.title = title;
-    iframe.loading = 'lazy';
-    iframe.referrerPolicy = 'strict-origin-when-cross-origin';
-    iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
-    iframe.allowFullscreen = true;
-    iframe.style.display = 'block';
-    iframe.style.width = '100%';
-    iframe.style.aspectRatio = '16 / 9';
-    iframe.style.border = '0';
-    iframe.style.borderRadius = '4px';
-    iframe.style.background = '#f4f4f4';
-    original.replaceWith(iframe);
-
-    caption.innerHTML = `<strong>${lead}</strong> ${copy} <a href="${source}" target="_blank" rel="noreferrer">NASA source</a><span>NASA context only — not AegisLand experimental evidence.</span>`;
-  };
-
-  replaceExplainerWithNasa({
-    captionId: 'uncertainty-caption',
-    videoId: '0Kc01cV7vCU',
-    title: 'NASA Safeguard System: An Assured Safety Net Technology for UAS',
-    lead: 'NASA context: an independent safety net.',
-    copy: 'NASA’s Safeguard work shows how separate safety logic can monitor a UAS for unsafe boundary behavior instead of relying only on the primary autonomy.',
-    source: 'https://www.nasa.gov/wp-content/uploads/2022/08/sensor_solutions_508.pdf'
-  });
-
-  replaceExplainerWithNasa({
-    captionId: 'evaluation-caption',
-    videoId: 'cF2S81xmGr0',
-    title: 'NASA Flight Test Series Provides a UAS Road Map',
-    lead: 'NASA context: test before you trust.',
-    copy: 'This NASA UAS flight-test video fits the evaluation section: define the test, collect evidence, and keep the result separate from the claim you want to make.',
-    source: 'https://www.nasa.gov/wp-content/uploads/2022/08/sensor_solutions_508.pdf'
+  document.querySelectorAll('.explainer-film video').forEach(video=>{
+    video.loop=true;
+    let visible=false, manualPause=false, automaticAction=false;
+    video.addEventListener('pause',()=>{if(!automaticAction&&visible)manualPause=true;});
+    video.addEventListener('play',()=>{manualPause=false;});
+    const pause=()=>{automaticAction=true;video.pause();queueMicrotask(()=>automaticAction=false);};
+    const sync=()=>{
+      if(!visible||document.hidden||motion.matches||navigator.connection?.saveData){pause();return;}
+      if(!manualPause)video.play().catch(()=>{});
+    };
+    if('IntersectionObserver' in window)new IntersectionObserver(([entry])=>{visible=entry.isIntersecting;sync();},{threshold:.45}).observe(video);
+    document.addEventListener('visibilitychange',sync);motion.addEventListener('change',sync);
+    const message=document.createElement('p');message.hidden=true;message.setAttribute('role','status');message.textContent='Video unavailable. The explanation below covers the same idea.';video.after(message);video.addEventListener('error',()=>message.hidden=false);
   });
 
   const track = document.getElementById('chapterTrack');

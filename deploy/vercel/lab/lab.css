@@ -139,3 +139,7 @@
 .lab-chart-controls + .lab-chart .lab-legend { display:none; }
 .lab-result-context summary { padding:4px 0 10px; }
 @media(max-width:760px) { .experiment-lab:not(.lab-explained) .lab-summary > div { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:16px; align-items:center; } .experiment-lab:not(.lab-explained) .lab-summary dd { margin:0; font-size:26px; } }
+.lab-chart { cursor:crosshair; }
+.lab-chart:focus-visible { outline:2px solid #3457b2; outline-offset:6px; }
+.lab-chart-hint { color:#50545a; font-size:13px!important; margin-top:12px!important; }
+.lab-crosshair { pointer-events:none; }
