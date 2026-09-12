@@ -207,7 +207,7 @@ try {
   add('archive-13-frozen-13-historical', archive.frozenCards === 13 && archive.historicalCards === 13, archive);
   add('archive-preserves-6-pass-7-fail', archive.frozenPass === 6 && archive.frozenFail === 7, archive);
   add('archive-personalizes-all-records', archive.identities === 26 && archive.questions === 26 && archive.signals === 26, archive);
-  add('archive-category-thesis-visible', /One research program\. Six distinct chapters/i.test(archive.text), archive);
+  add('archive-category-thesis-visible', /One question\. Six chapters/i.test(archive.text), archive);
   add('archive-continuity-visible', /Every phase stays part of the story/i.test(archive.text), archive);
 
   const identityChecks = {
