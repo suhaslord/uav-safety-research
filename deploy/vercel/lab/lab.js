@@ -19,14 +19,61 @@
   const colors = ['#3457b2','#171a20','#9a6225'];
   let phase = document.body.dataset.phase || location.pathname.match(/(?:\/phases\/|\/)(phase\d+[a-z]*)(?:\/|\.html|$)/i)?.[1]?.toLowerCase() || new URLSearchParams(location.search).get('phase') || 'phase1';
   if (!catalog[phase]) phase = 'phase1';
-  let worker, requestId=0, result=null, timer, busy=false;
+  let worker, requestId=0, result=null, timer, busy=false, baseline=null;
+
+  const questions = {
+    phase1:'Can a safety check stop a bad landing?', phase2:'Does looking at recent readings help?', phase3:'Can a second opinion catch a mistake?', phase4:'Why is this research step missing?', phase5:'What happens when the camera struggles?',
+    phase6:'Can the camera find the landing pad?', phase6b:'Does a confident reading deserve our trust?', phase7:'What if the drone reacts more slowly?', phase8:'How different are two sets of errors?', phase9:'How much can camera errors matter?', phase10:'Can recent readings improve a position estimate?', phase10r:'What happens when the measurements get worse?',
+    phase11:'How often does an error range cover the truth?', phase12:'Can we adjust an error range to the conditions?', phase13a:'Does an error range still work in new conditions?', phase13b:'How much does coverage fall in new conditions?', phase13c:'What happens when readings arrive late?',
+    phase14:'How wide must the allowed error range be?', phase15:'Is the chosen error range wide enough?', phase16:'How do old readings affect the next error?', phase17:'What if our error model has the wrong setting?', phase18:'Which of two error models fits better?', phase19:'How do the two models compare across many errors?',
+    phase20:'Which conditions contribute to the change?', phase21:'Do conditions act alone or together?', phase22:'Can a simple model predict new measurements?'
+  };
+  const lessons = {
+    landing:'A simulated drone tries to land twice with the same random conditions: once with the baseline method, and once with Aegis. Compare the outcomes. A small batch cannot prove that a real drone is safe.',
+    camera:'The computer draws a landing pad, adds the chosen camera problems, then tries to locate it. Confidence is the estimator’s score; a high score does not guarantee a correct reading.',
+    dynamics:'Both models receive the same movement command. One reacts immediately; the other has a delay and disturbances. The gap shows why a simple model can miss real movement.',
+    trace:'Two generated sets of errors are compared. Add a consistent offset or increase the spread to see how the measures respond. These are synthetic examples, not captured flight data.',
+    temporal:'An estimate is a best guess of position. This experiment feeds imperfect readings to the original estimator and compares its guess with a position we know, because we generated it.',
+    uncertainty:'An error range is like saying “the answer is probably within this much.” Coverage measures how often that range actually contains the generated error. New conditions can make that promise less reliable.',
+    residual:'An error model uses the current error to predict the next one. The residual is what it misses. This simplified equation helps explain the research, but does not simulate the whole aircraft.',
+    context:'Five conditions each switch on or off, giving 32 combinations. You set how much each condition changes a made-up advantage score. The original analysis methods then explain that constructed example.',
+    gap:'The archive has no recorded experiment for Phase 4. It is kept visible so the missing step is not mistaken for a successful test.'
+  };
+  const help = {
+    seed:'Same seed and settings repeat the same random example.',samples:'More generated readings give a larger example, not a safety guarantee.',episodes:'Each trial runs both methods with the same seed.',offset:'Sideways distance from the landing-pad center. Negative means the other side.',altitude:'Starting height above the ground, in meters.',noise:'Random measurement variation. Larger values make readings less consistent.',bias:'A consistent measurement offset. Unlike noise, it does not average away.',dropout:'Fraction of readings missing: 0.1 means about 10%.',severity:'Strength of the simulated degradation or movement command.',lag:'How many frames old the reading is. Zero means no delay.',tau:'Time for the actuator response to build. Larger means slower.',coefficient:'How strongly the current error predicts the next one.',alternative:'A second coefficient to compare on the same generated errors.',coverage:'Desired fraction inside the range: 0.95 means 95%.',shift:'Multiplier on test noise relative to the reference conditions.',radius:'Distance from the center to either end of the allowed interval.',interaction:'Extra change when edge and angled view occur together.',edge:'Effect assigned to a landing pad near the image edge.',oblique:'Effect assigned to viewing the pad at an angle.',dim:'Effect assigned to dim lighting.',blur_noise:'Effect assigned to blur or image noise.',low_contrast:'Effect assigned to a pad that blends into the background.'
+  };
+  const metricHelp = {
+    'First-order variance':['Effects acting alone','Share of variation in the constructed surface explained by individual conditions. Observation noise does not change this structural measure.'],
+    'Interaction variance':['Effects working together','Share of constructed variation from combinations of conditions. This is not the fraction of unsafe flights.'],
+    'Parseval error':['Calculation consistency','Numerical mismatch in an exact mathematical identity. Near zero means the calculation agrees with itself, not that a drone is safe.'],
+    'Prediction R²':['How well predictions fit','1 is a perfect match to these observations; 0 is as good as their average. Negative means worse than that average. This is not an accuracy percentage.'],
+    'Prediction RMSE':['Typical prediction error','Root mean squared error in the constructed score. Lower is closer; large errors count more.'],
+    'Shapley efficiency error':['Attribution consistency','Difference between total assigned contributions and the endpoint change. Near zero checks the accounting.'],
+    'Endpoint attenuation':['Total change across conditions','Difference between no conditions active and all five active, in percentage points of the constructed score.'],
+    'Context cells':['Condition combinations','All 32 on/off combinations of five conditions.'],
+    'Minimum invariant half-width':['Required half-width','Calculated from this sample’s residual bound and the chosen coefficient. It is not a whole-aircraft guarantee.'],
+    'Aegis successful landings':['Aegis successful landings','Successful simulated outcomes divided by the number of trials.'],
+    'Available frames':['Readings available','Share of generated frames where the estimator returned a measurement.'],
+    'Mean confidence':['Average confidence score','The estimator’s confidence, which can be high even when a reading is wrong.']
+  };
+  function explainMetric(m) {
+    return metricHelp[m.label] || [m.label, /RMSE/.test(m.label)?'Root mean squared error: lower is closer to the reference, with larger mistakes weighted more heavily.':/coverage/i.test(m.label)?'Fraction of generated errors inside the estimated range. Compare with the target; this is not a guarantee on future data.':/unsafe/i.test(m.label)?'Count of simulated unsafe touchdowns in this batch. Zero in a small batch does not establish safety.':/bound/i.test(m.label)?'An estimate based on this generated sample and the selected coverage.': 'Computed from this run only. See the method details and exact data below.'];
+  }
+  function addGuide(main) {
+    const guide=document.createElement('section'); guide.className='aegis-guide'; guide.id='understand-aegis';
+    const isPhase=/phase\d/i.test(location.pathname), group=catalog[phase][1];
+    guide.innerHTML=`<div class="lab-shell"><div class="guide-intro"><h2>${isPhase?esc(questions[phase]):'A drone can be confident—and still be wrong.'}</h2><p>${isPhase?esc(lessons[group]):'AegisLand studies how a computer estimates where a drone should land, what happens when that estimate is wrong, and whether another check can notice the mistake. The work uses computer simulations.'}</p></div><div class="guide-columns"><div><h3>Start with the idea</h3><p>Think of parking with a blurry reversing camera. A clear-looking answer may still be wrong. Here, the question is whether the software knows enough to trust its answer.</p><a href="#experiment-lab">Try it with your own settings →</a></div><div><h3>Read the research</h3><p>Each “phase” is one step in the investigation. PASS means it met that step’s stated checks. FAIL means it did not. Neither is a certificate that a real aircraft is safe.</p><a href="/phases/">Browse the steps →</a></div><div><h3>Keep the two kinds of results apart</h3><p>The published record is fixed (“frozen”). Your browser experiments create new examples. They never replace the published findings.</p><details><summary>Explain the research words</summary><dl><dt>Estimate</dt><dd>A calculated guess, such as where the landing pad is.</dd><dt>Ground truth</dt><dd>The known answer used to check a guess.</dd><dt>Noise / bias</dt><dd>Random variation / a consistent offset.</dd><dt>RMSE / MAE</dt><dd>Two ways to summarize error. RMSE weights large mistakes more; MAE averages their sizes.</dd><dt>Holdout</dt><dd>Data set aside to evaluate a model after it is fixed.</dd><dt>Residual</dt><dd>The part left over after a model’s prediction.</dd><dt>Coverage</dt><dd>How often an estimated range contains the error being checked.</dd><dt>Percentage point (pp)</dt><dd>The difference between two percentages: 30% minus 20% is 10 percentage points.</dd></dl></details></div></div></div>`;
+    const first=main.firstElementChild; first?first.after(guide):main.append(guide);
+  }
+
   function start() {
     if (document.getElementById('experiment-lab')) return;
     const main = document.querySelector('main');
     if (!main) return;
+    addGuide(main);
     const section=document.createElement('section');
     section.id='experiment-lab'; section.className='experiment-lab'; section.setAttribute('aria-labelledby','lab-title');
-    section.innerHTML=`<div class="lab-shell"><div class="lab-heading"><div><h2 id="lab-title">Run an experiment.</h2><p>Change the conditions. See what changes. Runs stay in your browser, separate from the frozen research record.</p></div><a class="lab-record" href="/phases/${phase}/">Read ${label(phase)} →</a></div><div class="lab-layout"><form class="lab-controls"><div class="lab-field"><label for="lab-phase">Research phase</label><select id="lab-phase">${Object.entries(catalog).map(([s,[name]])=>`<option value="${s}" ${s===phase?'selected':''}>${label(s)} · ${name}</option>`).join('')}</select></div><fieldset id="lab-fields" aria-label="Experiment inputs"></fieldset><div class="lab-actions"><button class="lab-run" type="submit">Run experiment</button><button class="lab-cancel" type="button" hidden>Cancel</button><button class="lab-reset" type="button">Reset</button></div><p class="lab-status" role="status" aria-live="polite">Ready. Python loads on your first run.</p></form><div class="lab-results" aria-busy="false"><div class="lab-empty"><h3>Your conditions. New results.</h3><p>Choose a phase and adjust its inputs, then run the experiment. You’ll get computed metrics, a chart, and downloadable data.</p></div></div></div></div>`;
+    section.innerHTML=`<div class="lab-shell"><div class="lab-heading"><div><h2 id="lab-title">Make the experiment yours.</h2><p>Choose a question, try a starting scenario, then change one setting at a time. Each run calculates a new example in your browser.</p></div><a class="lab-record" href="/phases/${phase}/">Read ${label(phase)} →</a></div><div class="lab-layout"><form class="lab-controls"><div class="lab-field"><label for="lab-phase">What would you like to explore?</label><select id="lab-phase">${Object.entries(catalog).map(([s,[name]])=>`<option value="${s}" ${s===phase?'selected':''}>${label(s)} · ${questions[s]}</option>`).join('')}</select></div><div class="lab-field"><label for="lab-preset">Starting scenario</label><select id="lab-preset"><option value="default">Balanced example</option><option value="gentle">Small disturbances</option><option value="stress">Stronger disturbances</option><option value="custom">Custom settings</option></select><p class="lab-preset-note">Presets are examples, not difficulty levels or validated flight conditions.</p></div><fieldset id="lab-fields" aria-label="Experiment inputs"></fieldset><div class="lab-actions"><button class="lab-run" type="submit">Run experiment</button><button class="lab-cancel" type="button" hidden>Cancel</button><button class="lab-reset" type="button">Reset</button></div><p class="lab-status" role="status" aria-live="polite">Ready. Python loads on your first run.</p></form><div class="lab-results" aria-busy="false"><div class="lab-empty"><h3>What will this test tell you?</h3><p>${esc(lessons[catalog[phase][1]])}</p></div></div></div></div>`;
     main.appendChild(section);
     const fieldsEl=section.querySelector('#lab-fields'), resultsEl=section.querySelector('.lab-results'), status=section.querySelector('.lab-status');
     const form=section.querySelector('form'), phaseSelect=section.querySelector('#lab-phase');
@@ -36,28 +83,37 @@
       let names=[...(groups[group]||[])];
       if(phase==='phase10r') names.push('bias','shift');
       if(phase.startsWith('phase13')) names.push('lag');
+      if(group==='residual'&&!['phase14','phase15'].includes(phase)) names=names.filter(n=>!['coverage','radius'].includes(n));
+      if(group==='dynamics') names=names.filter(n=>n!=='altitude');
       fieldsEl.innerHTML=names.map(name=>{
         if(name==='condition') return `<div class="lab-field"><label for="lab-condition">Camera condition</label><select id="lab-condition" name="condition">${['clean','blur','low_light','occlusion','mixed'].map(x=>`<option value="${x}" ${x==='mixed'?'selected':''}>${x.replace('_',' ')}</option>`).join('')}</select></div>`;
-        const [title,value,min,max,step]=fields[name];
-        return `<div class="lab-field"><label for="lab-${name}">${title}</label><input id="lab-${name}" name="${name}" type="number" value="${value}" min="${min}" max="${max}" step="${step}" required></div>`;
+        let [title,value,min,max,step]=fields[name];
+        if(group==='context'&&name==='noise'){title='Observation noise';value=.015;step=.005;}
+        const hint=group==='context'&&name==='noise'?'Random variation added to fresh observations only. It does not alter the constructed surface or its variance shares.':help[name];
+        return `<div class="lab-field"><label for="lab-${name}">${title}</label><div class="lab-input-pair">${name!=='seed'?`<input type="range" aria-label="${title} slider" data-for="${name}" min="${min}" max="${max}" step="${step}" value="${value}">`: ''}<input id="lab-${name}" name="${name}" type="number" value="${value}" min="${min}" max="${max}" step="${step}" aria-describedby="help-${name}" required></div><small id="help-${name}">${esc(hint)}</small></div>`;
       }).join('');
       if(group==='gap') fieldsEl.innerHTML='<p>Phase 4 has no recorded implementation or experiment. The archive preserves this provenance gap.</p>';
       if(group==='context') {
         const noise=section.querySelector('[name=noise]');noise.value='.015';noise.step='.005';
         section.querySelector('[for=lab-noise]').textContent='Observation noise';
       }
+      section.querySelector('#lab-preset').disabled=group==='gap';
       runButton.disabled=group==='gap';
       section.querySelector('.lab-record').href=`/phases/${phase}/`;
       section.querySelector('.lab-record').textContent=`Read ${label(phase)} →`;
       status.textContent=group==='gap'?'No test exists for this phase.':'Ready. Python loads on your first run.';
-      if(group==='camera') section.querySelector('[name=samples]').max='128';
+      if(group==='camera') {section.querySelector('[name=samples]').max='128';section.querySelector('[data-for=samples]').max='128';}
+      const advanced=document.createElement('details');advanced.className='lab-advanced';advanced.innerHTML='<summary>Repeatability & sample size</summary><div class="lab-advanced-fields"></div>';
+      for(const key of ['samples','episodes','seed']) {const input=fieldsEl.querySelector('[name='+key+']');if(input) advanced.lastElementChild.append(input.closest('.lab-field'));}
+      fieldsEl.append(advanced);
+      section.querySelector('#lab-preset').value='default';
       const scope=section.querySelector('.lab-scope')||document.createElement('p');
       scope.className='lab-scope';
       const scopes={landing:'Runs the original landing simulation with your conditions.',camera:'Runs original camera and observability components on generated frames; not the full landing loop.',dynamics:'Runs the original Phase 7 plant model against the point-mass plant.',trace:'A synthetic diagnostic. Full PX4/Gazebo and camera-capture pipelines require external simulator evidence.',temporal:'Runs the original AegisT10 estimator on your generated measurement sequence.',uncertainty:'A core-method exercise with fresh synthetic data; not the frozen fitted candidate.',residual:'A scalar residual and recoverability exercise; not a full frozen phase evaluation.',context:'Original analysis functions on a surface you define. These are not the published frozen coefficients.',gap:'No recorded experiment exists.'};
       scope.textContent=scopes[group];fieldsEl.before(scope);
     }
     function setBusy(value) {
-      busy=value; fieldsEl.disabled=value; phaseSelect.disabled=value;
+      busy=value; fieldsEl.disabled=value; phaseSelect.disabled=value;section.querySelector('#lab-preset').disabled=value||phase==='phase4';
       runButton.disabled=value||catalog[phase][1]==='gap'; cancelButton.hidden=!value;
       section.querySelector('.lab-reset').disabled=value;
       resultsEl.setAttribute('aria-busy',String(value));
@@ -71,10 +127,22 @@
       a.href=url;a.download=`aegisland-${result.phase}-seed-${result.inputs.seed}.${extension}`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
     }
     function render(data) {
+      data.series.forEach((line,i)=>{line.color=colors[i%colors.length];});
       result=data;
       const keys=Object.keys(data.rows[0]||{});
-      resultsEl.innerHTML=`<p class="lab-help">${label(data.phase)} · Exploratory run · Seed ${data.inputs.seed}</p><h3>${esc(data.title)}</h3><p class="lab-stale" hidden>Inputs changed. Run again to update these results.</p><dl class="lab-summary">${data.metrics.map(m=>`<div><dt>${esc(m.label)}</dt><dd>${esc(fmt(m.value))}<span>${esc(m.unit)}</span></dd></div>`).join('')}</dl>${data.series.length?'<figure class="lab-chart"></figure>':''}${data.image?'<figure class="lab-image"><canvas width="96" height="96" aria-label="Generated synthetic camera frame"></canvas><figcaption>Last generated camera frame. Rendered by the original synthetic landing-pad model.</figcaption></figure>':''}${data.attribution?`<div class="lab-attribution">${Object.entries(data.attribution).map(([k,v])=>`<span>${esc(k.replace('_',' '))}: <strong>${fmt(v*100)} pp</strong></span>`).join('')}</div>`:''}<p class="lab-note">${esc(data.note)}</p><div class="lab-output-actions"><button type="button" class="lab-json">Download JSON</button><button type="button" class="lab-csv">Download CSV</button></div><details><summary>Inspect all ${data.rows.length} rows</summary><div class="lab-table" tabindex="0" role="region" aria-label="Experiment data"><table><thead><tr>${keys.map(k=>`<th scope="col">${esc(k)}</th>`).join('')}</tr></thead><tbody>${data.rows.map(r=>`<tr>${keys.map(k=>`<td>${esc(fmt(r[k]))}</td>`).join('')}</tr>`).join('')}</tbody></table></div></details>`;
-      if(data.series.length) drawChart(resultsEl.querySelector('.lab-chart'),data);
+      resultsEl.innerHTML=`<p class="lab-help">${label(data.phase)} · Exploratory run · Seed ${data.inputs.seed}</p><h3>${esc(questions[data.phase])}</h3><p class="lab-takeaway">${esc(lessons[catalog[data.phase][1]])}</p><p class="lab-stale" hidden>Inputs changed. Run again to update these results.</p><dl class="lab-summary">${data.metrics.map(m=>`<div><dt>${esc(explainMetric(m)[0])}</dt><dd>${esc(m.value===null?'Unavailable':new Intl.NumberFormat('en-US',{maximumFractionDigits:2}).format(m.value))}<span>${esc(m.unit)}</span></dd><p class="lab-metric-help">${esc(explainMetric(m)[1])}</p></div>`).join('')}</dl>${data.series.length?'<figure class="lab-chart"></figure>':''}${data.image?'<figure class="lab-image"><canvas width="96" height="96" aria-label="Generated synthetic camera frame"></canvas><figcaption>Last generated camera frame. Rendered by the original synthetic landing-pad model.</figcaption></figure>':''}${data.attribution?`<div class="lab-attribution">${Object.entries(data.attribution).map(([k,v])=>`<span>${esc(k.replace('_',' '))}: <strong>${fmt(v*100)} pp</strong></span>`).join('')}</div>`:''}<div class="lab-comparison"></div><details class="lab-method"><summary>How this result was calculated</summary><p class="lab-note">${esc(data.note)}</p><p class="lab-note">Technical metrics: ${data.metrics.map(m=>esc(m.label)).join(', ')}. Seed ${data.inputs.seed}. Original source ${esc(data.source_commit.slice(0,7))}.</p></details><div class="lab-output-actions"><button type="button" class="lab-save">Keep this run for comparison</button><button type="button" class="lab-json">Download JSON</button><button type="button" class="lab-csv">Download CSV</button></div><details><summary>Inspect all ${data.rows.length} rows</summary><div class="lab-table" tabindex="0" role="region" aria-label="Experiment data"><table><thead><tr>${keys.map(k=>`<th scope="col">${esc(k)}</th>`).join('')}</tr></thead><tbody>${data.rows.map(r=>`<tr>${keys.map(k=>`<td>${esc(fmt(r[k]))}</td>`).join('')}</tr>`).join('')}</tbody></table></div></details>`;
+      renderComparison();
+      resultsEl.querySelector('.lab-save').onclick=()=>{baseline=structuredClone(result);renderComparison();status.textContent='Run kept for this tab. Change a setting and run again to compare.';};
+      if(data.series.length) {
+        const figure=resultsEl.querySelector('.lab-chart');drawChart(figure,data);
+        const controls=document.createElement('div');controls.className='lab-chart-controls';
+        controls.innerHTML=data.series.map((line,i)=>`<label><input type="checkbox" checked data-series="${i}">${esc(line.label)}</label>`).join('');
+        figure.before(controls);
+        controls.onchange=()=>{const selected=[...controls.querySelectorAll('input:checked')].map(x=>data.series[Number(x.dataset.series)]);if(selected.length)drawChart(figure,{...data,series:selected});else figure.innerHTML='<p>Select a line to show the chart.</p>';};
+        const count=Math.max(...data.series.map(line=>line.values.length));
+        const inspect=document.createElement('div');inspect.innerHTML=`<label for="lab-inspect">Inspect one chart position</label><input id="lab-inspect" class="lab-inspect" type="range" min="0" max="${count-1}" value="0" step="1"><div class="lab-point-readout" role="status"></div>`;figure.after(inspect);
+        const showPoint=()=>{const i=Number(inspect.querySelector('input').value);inspect.querySelector('.lab-point-readout').textContent=(data.rows[i]?.Context? 'Combination '+i+': '+data.rows[i].Context:'Chart position '+i)+'. '+data.series.map(line=>line.label+': '+fmt(line.values[i]??null)).join('; ');};inspect.oninput=showPoint;showPoint();
+      }
       if(data.image) {
         const canvas=resultsEl.querySelector('canvas'), ctx=canvas.getContext('2d'), im=ctx.createImageData(96,96);
         data.image.flat().forEach((v,i)=>{im.data[i*4]=im.data[i*4+1]=im.data[i*4+2]=v;im.data[i*4+3]=255;});ctx.putImageData(im,0,0);
@@ -85,12 +153,29 @@
         download([keys,...result.rows.map(r=>keys.map(k=>r[k]))].map(row=>row.map(cell).join(',')).join('\r\n'),'text/csv','csv');
       };
     }
-    phaseSelect.onchange=()=>{phase=phaseSelect.value;result=null;controls();resultsEl.innerHTML='<div class="lab-empty"><h3>'+esc(catalog[phase][0])+'</h3><p>'+(phase==='phase4'?'Read the phase record for the documented gap.':'Adjust the inputs and run a new experiment. Results will appear here.')+'</p></div>';};
-    form.addEventListener('input',()=>{if(result) resultsEl.querySelector('.lab-stale').hidden=false;});
-    section.querySelector('.lab-reset').onclick=()=>{controls();if(result)resultsEl.querySelector('.lab-stale').hidden=false;};
+    function renderComparison() {
+      const target=resultsEl.querySelector('.lab-comparison'); if(!target)return;
+      if(!baseline||baseline.phase!==result.phase) {target.innerHTML='<p>Keep a run, change one setting, and run again to compare the numbers.</p>';return;}
+      const changed=Object.keys(result.inputs).filter(k=>baseline.inputs[k]!==result.inputs[k]);
+      target.innerHTML=`<h4>Compared with your kept run</h4><p>${changed.length?'Changed: '+changed.map(k=>esc(k==='noise'&&catalog[result.phase][1]==='context'?'Observation noise':fields[k]?.[0]||k)+': '+esc(baseline.inputs[k])+' → '+esc(result.inputs[k])).join('; '):'Same settings as the kept run.'} Kept in this tab only.</p><div class="lab-table"><table><thead><tr><th>Measure</th><th>Kept run</th><th>Current run</th><th>Change</th></tr></thead><tbody>${result.metrics.map(m=>{const old=baseline.metrics.find(x=>x.label===m.label);return `<tr><th>${esc(explainMetric(m)[0])}</th><td>${fmt(old?.value??null)}</td><td>${fmt(m.value)}</td><td>${old&&old.value!==null&&m.value!==null?fmt(m.value-old.value):'Unavailable'} ${esc(m.unit==='%'?'pp':m.unit)}</td></tr>`;}).join('')}</tbody></table></div><button type="button" class="lab-clear">Clear kept run</button>`;
+      target.querySelector('.lab-clear').onclick=()=>{baseline=null;renderComparison();};
+    }
+    const preset=section.querySelector('#lab-preset');
+    preset.onchange=()=>{
+      const choice=preset.value;if(choice==='custom')return;
+      controls();preset.value=choice;
+      const group=catalog[phase][1];
+      const adjustments=choice==='gentle'?{noise:group==='context'?.01:.05,bias:0,dropout:0,severity:.5,lag:0,tau:.1,shift:1,interaction:0}:choice==='stress'?{noise:group==='context'?.06:.5,bias:.6,dropout:.3,severity:2,lag:6,tau:.8,shift:3,interaction:.15}:{};
+      for(const [key,value] of Object.entries(adjustments)){const input=fieldsEl.querySelector('[name='+key+']');if(input){input.value=value;const slider=fieldsEl.querySelector('[data-for='+key+']');if(slider)slider.value=value;}}
+      markStale();
+    };
+    function markStale(){if(result){resultsEl.querySelector('.lab-stale').hidden=false;status.textContent='Settings changed. The results below still belong to the previous run.';}}
+    phaseSelect.onchange=()=>{phase=phaseSelect.value;result=null;controls();resultsEl.innerHTML='<div class="lab-empty"><h3>'+esc(questions[phase])+'</h3><p>'+esc(lessons[catalog[phase][1]])+'</p></div>'; };
+    form.addEventListener('input',event=>{const el=event.target;if(el.dataset.for){const input=fieldsEl.querySelector('[name='+el.dataset.for+']');input.value=el.value;}else if(el.name){const slider=fieldsEl.querySelector('[data-for='+el.name+']');if(slider&&el.value!=='')slider.value=el.value;}if(el.closest('#lab-fields'))preset.value='custom';markStale();});
+    section.querySelector('.lab-reset').onclick=()=>{controls();markStale();};
     cancelButton.onclick=()=>{requestId++;clearTimeout(timer);worker?.terminate();worker=null;setBusy(false);status.textContent='Run cancelled. Adjust inputs or run again.';};
     form.onsubmit=event=>{
-      event.preventDefault();if(busy||!form.reportValidity()||phase==='phase4')return;
+      event.preventDefault();for(const invalid of fieldsEl.querySelectorAll(':invalid')){const details=invalid.closest('details');if(details)details.open=true;}if(busy||!form.reportValidity()||phase==='phase4')return;
       const inputs={phase};new FormData(form).forEach((v,k)=>{inputs[k]=k==='condition'?v:Number(v);});
       setBusy(true);status.dataset.error='false';status.textContent='Preparing experiment…';
       const id=++requestId;
@@ -107,7 +192,7 @@
     controls();
     // One entry action near the phase introduction; preserve all recorded content.
     const heading=main.querySelector('h1');
-    if(heading){const a=document.createElement('a');a.href='#experiment-lab';a.className='lab-entry';a.textContent='Run an experiment';heading.parentElement.appendChild(a);}
+    if(heading){const a=document.createElement('a');a.href='#experiment-lab';a.className='lab-entry';a.textContent='Run an experiment';heading.parentElement.appendChild(a);const intro=document.createElement('a');intro.href='#understand-aegis';intro.className='lab-intro-link';intro.textContent='New here? Start with the explanation';heading.parentElement.appendChild(intro);}
     if(location.hash==='#experiment-lab') section.scrollIntoView();
   }
   function drawChart(figure,data) {
@@ -119,7 +204,7 @@
     const right=width-24;
     const x=i=>54+i/Math.max(1,n-1)*(right-54),y=v=>24+(max-v)/(max-min)*220;
     const ticks=Array.from({length:5},(_,i)=>min+(max-min)*i/4);
-    figure.innerHTML=`<div class="lab-legend">${data.series.map((s,i)=>`<span><i style="background:${colors[i%3]}"></i>${esc(s.label)}</span>`).join('')}</div><svg viewBox="0 0 ${width} 290" role="img" aria-label="${esc(data.y_label)} by ${esc(data.x_label)}. Exact values are available in the data table.">${ticks.map(v=>`<line x1="54" x2="${right}" y1="${y(v)}" y2="${y(v)}" stroke="#e2e3e3"/><text x="46" y="${y(v)+4}" text-anchor="end">${Number(v.toPrecision(3))}</text>`).join('')}${data.series.map((s,j)=>{let open=false;const d=s.values.map((v,i)=>{if(!Number.isFinite(v)){open=false;return '';}const c=open?'L':'M';open=true;return `${c}${x(i).toFixed(2)},${y(v).toFixed(2)}`;}).join(' ');return `<path d="${d}" fill="none" stroke="${colors[j%3]}" stroke-width="1.8"/>`;}).join('')}<text x="54" y="265">0</text><text x="${right}" y="265" text-anchor="end">${n-1}</text><text x="${width/2}" y="285" text-anchor="middle">${esc(data.x_label)}</text></svg><figcaption>${esc(data.y_label)}. Gaps indicate unavailable estimates.</figcaption>`;
+    figure.innerHTML=`<div class="lab-legend">${data.series.map((s,i)=>`<span><i style="background:${s.color||colors[i%3]}"></i>${esc(s.label)}</span>`).join('')}</div><svg viewBox="0 0 ${width} 290" role="img" aria-label="${esc(data.y_label)} by ${esc(data.x_label)}. Exact values are available in the data table.">${ticks.map(v=>`<line x1="54" x2="${right}" y1="${y(v)}" y2="${y(v)}" stroke="#e2e3e3"/><text x="46" y="${y(v)+4}" text-anchor="end">${Number(v.toPrecision(3))}</text>`).join('')}${data.series.map((s,j)=>{let open=false;const d=s.values.map((v,i)=>{if(!Number.isFinite(v)){open=false;return '';}const c=open?'L':'M';open=true;return `${c}${x(i).toFixed(2)},${y(v).toFixed(2)}`;}).join(' ');return `<path d="${d}" fill="none" stroke="${s.color||colors[j%3]}" stroke-width="1.8"/>`;}).join('')}<text x="54" y="265">0</text><text x="${right}" y="265" text-anchor="end">${n-1}</text><text x="${width/2}" y="285" text-anchor="middle">${esc(data.x_label)}</text></svg><figcaption>${esc(data.y_label)}. ${catalog[data.phase][1]==='context'?'Each horizontal position is a different on/off combination, not a moment in time. The exact condition names are in the data table.':'Gaps indicate unavailable estimates.'}</figcaption>`;
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
 })();

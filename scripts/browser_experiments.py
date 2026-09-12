@@ -36,7 +36,7 @@ def validated(raw):
     return out
 
 def metric(label, value, unit=''):
-    return {'label': label, 'value': float(value), 'unit': unit}
+    return {'label': label, 'value': float(value) if value is not None else None, 'unit': unit}
 
 def series(label, values):
     return {'label': label, 'values': [float(x) if np.isfinite(x) else None for x in values]}
@@ -83,7 +83,7 @@ def camera(p, progress):
         errors.append(np.nan if err is None else err)
         confidences.append(m.raw_confidence)
     finite = np.asarray(errors)[np.isfinite(errors)]
-    result = output('Synthetic camera measurement test', [metric('Available frames', len(finite) / len(rows) * 100, '%'), metric('Mean confidence', np.mean(confidences)), metric('Lateral RMSE', np.sqrt(np.mean(finite ** 2)) if len(finite) else 0, 'm')], rows, [series('Lateral measurement error', errors)], 'Runs the original Phase 6 renderer and estimator; Phase 6B adds its original sharpness and altitude-observability methods. This tests perception components, not the full landing loop.', 'Frame')
+    result = output('Synthetic camera measurement test', [metric('Available frames', len(finite) / len(rows) * 100, '%'), metric('Mean confidence', np.mean(confidences)), metric('Lateral RMSE', np.sqrt(np.mean(finite ** 2)) if len(finite) else None, 'm')], rows, [series('Lateral measurement error', errors)], 'Runs the original Phase 6 renderer and estimator; Phase 6B adds its original sharpness and altitude-observability methods. This tests perception components, not the full landing loop.', 'Frame')
     result['image'] = (np.clip(frame, 0, 1) * 255).astype(int).tolist()
     return result
 

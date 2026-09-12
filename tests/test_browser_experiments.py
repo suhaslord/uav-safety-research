@@ -66,3 +66,23 @@ def test_frozen_landing_runner_is_used(lab):
     result=lab.run({'phase':'phase1','episodes':1})
     assert result['rows'][0]['Aegis outcome']==original.outcome
     assert result['rows'][0]['Final lateral error (m)']==original.final_x_error
+
+def test_camera_no_measurements_has_no_error_estimate(lab, monkeypatch):
+    from types import SimpleNamespace
+    from uav_safety.image_temporal import Phase6PadEstimator
+    monkeypatch.setattr(Phase6PadEstimator, 'estimate', lambda self, frame: SimpleNamespace(valid=False, raw_confidence=0))
+    result = lab.run({'phase':'phase6', 'samples':32})
+    assert result['metrics'][0]['value'] == 0
+    assert result['metrics'][2]['value'] is None
+
+def test_observation_noise_does_not_change_structural_analysis(lab):
+    a=lab.run({'phase':'phase21', 'noise':.01})
+    b=lab.run({'phase':'phase21', 'noise':.5})
+    assert a['metrics'] == b['metrics']
+    assert a['rows'] != b['rows']
+
+def test_interaction_changes_structural_share(lab):
+    a=lab.run({'phase':'phase21', 'interaction':0})
+    b=lab.run({'phase':'phase21', 'interaction':.2})
+    assert a['metrics'][1]['value'] < 1e-10
+    assert b['metrics'][1]['value'] > a['metrics'][1]['value']

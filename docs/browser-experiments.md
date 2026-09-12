@@ -36,3 +36,10 @@ node --check deploy/vercel/lab/worker.js
 ```
 
 Commit the generated bundle with adapter changes. The existing Vercel release workflow includes everything under `deploy/vercel/` and the shared dashboard taxonomy; no server credentials are shipped to the browser.
+
+
+## Guided controls and comparisons
+
+The interface adds plain-language questions for all phases, a site-wide introduction and glossary, sliders with numeric input, and three starting scenarios. Presets are synthetic examples, not validated flight conditions. Sample count and seed are under repeatability settings. The browser keeps one completed run in memory for a same-phase metric comparison; percentages are compared in percentage points. This is a paired settings comparison, not a statistical significance test. Reloading the tab clears the kept run.
+
+Series can be hidden independently, and a chart-position slider reports exact values and context names. Context positions are discrete combinations, not time. Phase 20/21 structural measures operate on the constructed surface; observation noise affects the fresh observations only. No camera measurements produces an unavailable RMSE, never a zero-error claim.
