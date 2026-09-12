@@ -143,3 +143,16 @@
 .lab-chart:focus-visible { outline:2px solid #3457b2; outline-offset:6px; }
 .lab-chart-hint { color:#50545a; font-size:13px!important; margin-top:12px!important; }
 .lab-crosshair { pointer-events:none; }
+.lab-stack-table th:first-child { min-width:160px; white-space:normal; }
+.lab-stack-table th:not(:first-child),.lab-stack-table td { min-width:110px; }
+.lab-stack-table th button { display:block; min-height:32px; padding:4px 8px; font-size:12px; margin-top:6px; }
+.lab-stack-table .lab-setting-row { background:#f8f8f8; }
+.lab-stack-plot select { display:block; width:100%; max-width:360px; height:44px; padding:8px 12px; border:1px solid #c5c7ca; background:white; color:#171a20; border-radius:4px; font:14px Arial,sans-serif; margin-top:8px; }
+.lab-stack-chart { margin:24px 0 12px; }
+.lab-stack-chart svg { width:100%; display:block; }
+.lab-stack-chart text { font:12px Arial,sans-serif; fill:#50545a; }
+.lab-stack-chart figcaption,.lab-stack-plot p { font-size:12px!important; color:#50545a; }
+.lab-stack-plot label { font-size:14px; }
+.lab-comparison .lab-table { margin-bottom:16px; }
+.lab-stack-scroll-hint { display:none; }
+@media(max-width:760px) { .lab-stack-scroll-hint { display:block; margin-top:10px!important; font-size:12px!important; } }
