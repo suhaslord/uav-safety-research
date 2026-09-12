@@ -27,10 +27,10 @@
   // Shared exploratory runner. Frozen records remain unchanged.
   if (!document.querySelector('script[data-aegis-experiment-lab]')) {
     const style = document.createElement('link');
-    style.rel = 'stylesheet'; style.href = '/lab/lab.css?v=4';
+    style.rel = 'stylesheet'; style.href = '/lab/lab.css?v=5';
     document.head.appendChild(style);
     const runner = document.createElement('script');
-    runner.src = '/lab/lab.js?v=4'; runner.dataset.aegisExperimentLab = '';
+    runner.src = '/lab/lab.js?v=5'; runner.dataset.aegisExperimentLab = '';
     document.head.appendChild(runner);
   }
 

@@ -156,3 +156,11 @@
 .lab-comparison .lab-table { margin-bottom:16px; }
 .lab-stack-scroll-hint { display:none; }
 @media(max-width:760px) { .lab-stack-scroll-hint { display:block; margin-top:10px!important; font-size:12px!important; } }
+.lab-shell > .lab-comparison { width:100%; margin-top:48px; scroll-margin-top:130px; }
+.lab-shell > .lab-comparison h4 { font-size:28px; letter-spacing:-.02em; }
+.lab-shell > .lab-comparison .lab-stack-chart { max-width:100%; }
+.lab-shell > .lab-comparison .lab-stack-chart svg { width:100%; max-height:420px; }
+.lab-stack-plot { margin:24px 0; }
+.lab-stack-plot summary { cursor:pointer; padding:12px 0; font-size:16px; }
+.lab-shell > .lab-comparison .lab-stack-table table { font-size:14px; }
+@media(max-width:760px) { .lab-shell > .lab-comparison { margin-top:28px; } .lab-shell > .lab-comparison h4 { font-size:24px; } }
