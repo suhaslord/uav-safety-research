@@ -172,13 +172,13 @@
 
     if (document.body.classList.contains('archive-shell')) {
       const nav = document.querySelector('.top .nav');
-      if (nav) nav.innerHTML = '<a href="#snapshot">Overview</a><a href="#finding">Finding</a><a href="#evidence">Evidence</a><a href="#limits">Limits</a><a href="#changes">Method</a>';
+      if (nav) nav.innerHTML = '<a href="#snapshot">Overview</a><a href="#finding">Finding</a><a href="#evidence">Evidence</a><a href="#limits">Limits</a><a href="#experiment-lab">Experiment</a><a href="#changes">Method</a>';
       return;
     }
 
     if (document.body.classList.contains('phase11-polish')) {
       const nav = document.querySelector('.site-nav');
-      if (nav) nav.innerHTML = '<a href="#result">Overview</a><a href="#evidence">Evidence</a><a href="#boundary">Limits</a><a href="#method">Method</a><a href="#provenance">Provenance</a>';
+      if (nav) nav.innerHTML = '<a href="#result">Overview</a><a href="#evidence">Evidence</a><a href="#boundary">Limits</a><a href="#experiment-lab">Experiment</a><a href="#method">Method</a><a href="#provenance">Provenance</a>';
       return;
     }
 
@@ -191,7 +191,7 @@
     const context = document.querySelector('.phase-detail__context');
     if (context) context.id = 'limits';
     const nav = document.querySelector('.signature-nav__links');
-    if (nav) nav.innerHTML = '<a href="#overview">Overview</a><a href="#finding">Finding</a><a href="#evidence">Evidence</a><a href="#limits">Limits</a><a href="/phases/">Archive</a><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub ↗</a>';
+    if (nav) nav.innerHTML = '<a href="#overview">Overview</a><a href="#finding">Finding</a><a href="#evidence">Evidence</a><a href="#limits">Limits</a><a href="#experiment-lab">Experiment</a><a href="/phases/">Archive</a><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub ↗</a>';
   };
 
   const addLegacyProgressDisclosure = () => {

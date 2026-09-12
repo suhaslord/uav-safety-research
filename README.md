@@ -10,6 +10,8 @@ The goal is not to prove that an aircraft is safe to fly. The goal is to build a
 
 **Live research cockpit:** https://aegisland-research-cockpit.vercel.app/
 
+**Interactive experiments:** Open a phase and select **Run an experiment** to vary inputs, compute exploratory results in your browser, and download JSON or CSV. The panel states which original components it runs and which full evaluations require external evidence. These runs stay separate from frozen scientific results. See [browser experiment scope](docs/browser-experiments.md).
+
 ---
 
 ## What are we trying to answer?
