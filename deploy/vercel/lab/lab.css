@@ -136,3 +136,6 @@
 .lab-empty { min-height:240px; }
 @media(min-width:761px) { .lab-layout { grid-template-columns:340px minmax(0,1fr); } .lab-results { position:sticky; top:130px; } }
 @media(prefers-reduced-motion:reduce) { html { scroll-behavior:auto!important; } }
+.lab-chart-controls + .lab-chart .lab-legend { display:none; }
+.lab-result-context summary { padding:4px 0 10px; }
+@media(max-width:760px) { .experiment-lab:not(.lab-explained) .lab-summary > div { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:16px; align-items:center; } .experiment-lab:not(.lab-explained) .lab-summary dd { margin:0; font-size:26px; } }
