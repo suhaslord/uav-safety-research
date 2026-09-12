@@ -378,3 +378,22 @@ html body.research-workspace.archive-workspace .archive-hero { padding-top: 40px
   html body.research-workspace.archive-workspace .archive-card.phase-personalized { padding-inline: 0 !important; }
 }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto !important; } }
+
+/* Acknowledgments describe confirmed workspace contributions. */
+html body.home-workspace .supporters-section { background: #fff; color: #171a20; scroll-margin-top: 80px; }
+.supporters-intro { max-width: 720px; }
+.supporters-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 48px; margin-top: 48px; }
+.supporter { min-width: 0; padding: 28px 0 0; border-top: 1px solid #d0d1d2; }
+html body.home-workspace .supporter .supporter-kind { margin: 0 0 18px; color: #5c5e62; font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+html body.home-workspace .supporter h3 { margin: 0 0 16px; font-size: clamp(24px, 3vw, 32px); line-height: 1.2; font-weight: 600; letter-spacing: -.025em; }
+.supporter h3 a { color: inherit; text-decoration: none; }
+.supporter h3 a:hover { text-decoration: underline; text-underline-offset: 6px; }
+.supporter h3 a:focus-visible { outline: 2px solid #3457b1; outline-offset: 6px; }
+.supporter h3 span { display: inline-block; margin-left: 8px; font-size: 20px; font-weight: 400; }
+html body.home-workspace .supporter p { max-width: 44ch; margin: 0; color: #5c5e62; font-size: 15px; line-height: 1.6; }
+html body.home-workspace .supporter .supporter-confirmation { margin-top: 20px; font-size: 12px; }
+html body.home-workspace .supporters-note { max-width: 76ch; margin: 40px 0 0; color: #5c5e62; font-size: 12px; line-height: 1.65; }
+@media (max-width: 640px) {
+  .supporters-grid { grid-template-columns: minmax(0, 1fr); gap: 32px; margin-top: 32px; }
+  html body.home-workspace .supporters-note { margin-top: 32px; }
+}
