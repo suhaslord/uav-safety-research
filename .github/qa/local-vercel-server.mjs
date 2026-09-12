@@ -7,6 +7,7 @@ const dashboardRoot = path.resolve('dashboard');
 const port = Number(process.env.PORT || 4173);
 
 const types = {
+  '.json': 'application/json; charset=utf-8',
   '.html': 'text/html; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
   '.js': 'application/javascript; charset=utf-8',
@@ -29,6 +30,7 @@ const dashboardAssets = new Set([
 ]);
 
 const deployAssets = new Set([
+  'lab/lab.js', 'lab/lab.css', 'lab/worker.js', 'lab/python-bundle.json',
   'phase-explorer.js', 'presentation.js', 'presentation.css', 'aegisland.css', 'signature.css', 'research-home.css', 'research-media.css', 'phase-polish.css',
   'phase-polish-fixes.css', 'phase-polish-v2.css', 'phase-ui-consistency.css', 'final-convergence.css', 'final-convergence-base.css', 'craft-polish.css', 'frozen-lineage.js',
   'research-workspace.css', 'research-workspace.js'
