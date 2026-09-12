@@ -61,7 +61,7 @@
     const frame=document.createElement('div');frame.className='nasa-film-frame';video.before(frame);frame.append(video);
     video.id ||= `nasa-film-${index}`;video.controls=false;video.loop=true;
     const button=document.createElement('button');button.type='button';button.className='film-toggle';button.setAttribute('aria-controls',video.id);frame.append(button);
-    const options=document.createElement('details');options.className='nasa-player-options';options.innerHTML='<summary>Playback options</summary><label><input type="checkbox"> Show sound, captions and fullscreen controls</label>';frame.after(options);
+    const options=document.createElement('details');options.className='nasa-player-options';options.innerHTML='<summary>Playback options</summary><label><input type="checkbox"> Show timeline and fullscreen controls</label>';frame.after(options);
     options.querySelector('input').onchange=e=>{video.controls=e.target.checked;frame.classList.toggle('native-controls',video.controls);};
     let visible=false,manualPause=false,request=0;
     const label=()=>button.textContent=video.paused?'Play video':'Pause video';
