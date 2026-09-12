@@ -17,13 +17,14 @@
   <link rel="stylesheet" href="/research-workspace.css?v=2">
   <link rel="stylesheet" href="/research-home.css?v=2">
   <link rel="stylesheet" href="/research-media.css?v=3">
+  <link rel="stylesheet" href="/presentation.css?v=2" data-presentation-theme>
 </head>
-<body class="research-workspace home-workspace">
+<body class="research-workspace home-workspace" data-presentation="photo-led">
   <a class="skip-link" href="#main">Skip to research result</a>
   <header class="site-header signature-nav">
-    <a class="brand signature-brand" href="#top" aria-label="AegisLand home"><span class="brand-mark" aria-hidden="true">A</span><span>AEGISLAND</span></a>
+    <a class="brand signature-brand" href="#top" aria-label="AegisLand home"><span>AEGISLAND</span></a>
     <nav class="site-nav signature-nav__links" aria-label="Primary navigation">
-      <a href="#evidence">Evidence</a><a href="#method">Method</a><a href="#timeline">Lineage</a>
+      <a href="#purpose">About</a><a href="#evidence">Findings</a><a href="#method">Method</a><a href="#timeline">Research</a>
     </nav>
     <div class="header-actions"><a href="/phases/">Archive</a><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub</a></div>
     <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-expanded="false" aria-controls="mobileMenuSheet">Menu</button>
@@ -31,7 +32,7 @@
 
   <nav class="mobile-menu-sheet" id="mobileMenuSheet" aria-label="Mobile navigation" aria-hidden="true">
     <div class="mobile-menu-head"><strong>AEGISLAND</strong><button class="mobile-menu-close" type="button" aria-label="Close navigation">Close</button></div>
-    <div class="mobile-menu-links"><a href="#status">Current result</a><a href="#evidence">Evidence</a><a href="#method">Method</a><a href="#timeline">Lineage</a><a href="/phases/phase22/">Phase 22</a></div>
+    <div class="mobile-menu-links"><a href="#status">Current result</a><a href="#purpose">About</a><a href="#evidence">Findings</a><a href="#method">Method</a><a href="#timeline">Research</a><a href="/phases/phase22/">Phase 22</a></div>
     <div class="mobile-menu-meta"><a href="/phases/">Archive</a><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub ↗</a></div>
   </nav>
 
@@ -39,31 +40,14 @@
     <section class="hero" id="top" aria-labelledby="hero-title">
       <div class="wrap hero-grid">
         <div>
-          <div class="workspace-context" aria-label="Research context"><span>Research cockpit</span><span>UAV landing perception</span><span>Frozen through Phase 22</span></div>
+          <div class="workspace-context" aria-label="Research context"><span>AegisLand · UAV landing perception</span><span>Frozen through Phase 22</span></div>
           <p class="eyebrow">Evidence before confidence.</p>
-          <h1 id="hero-title">Can the system tell when a landing estimate stops being trustworthy?</h1>
-          <p class="hero-deck">AegisLand tests degraded UAV landing perception in simulation. Error, uncertainty, and failed gates stay separate and traceable.</p>
-          <div class="actions"><a class="button primary signature-button" href="/phases/phase22/">Review Phase 22</a><a class="button secondary signature-button" href="/phases/">Browse research archive</a></div>
+          <h1 id="hero-title">When confidence gets it wrong.</h1>
+          <p class="hero-deck">We test what happens when a simulated drone’s landing estimate gets worse, but its confidence doesn’t.</p>
+          <div class="actions"><a class="button primary signature-button" href="/phases/phase22/">Review Phase 22</a><a class="button secondary signature-button" href="/phases/">Explore the research</a></div>
         </div>
 
-        <aside class="workspace-status-card result-card aegis-halo" id="status" aria-label="Current research status">
-          <div class="workspace-status-head">
-            <div><p class="eyebrow">Current result</p><strong>Phase 22 final holdout</strong></div>
-            <span class="status-badge status-badge--pass">10 / 10 locked gates passed</span>
-          </div>
-          <div class="workspace-measures" aria-label="Phase 22 final metrics">
-            <div class="workspace-measure"><span>RMSE-surface R²</span><strong>0.8319</strong></div>
-            <div class="workspace-measure"><span>MAE-surface R²</span><strong>0.7744</strong></div>
-            <div class="workspace-measure"><span>Stable-sign accuracy</span><strong>100%</strong></div>
-          </div>
-          <div class="workspace-boundary"><strong>Evidence boundary</strong>Simulation-only result. Not physical-flight safety acceptance. Not authorized for controller tuning.</div>
-          <div class="workspace-status-meta">Final synthetic 32-cell holdout · transferred without refitting</div>
-          <div class="home-lineage" aria-label="Frozen Phase 12 through Phase 22 verdict lineage">
-            <div class="home-lineage__head"><span>Frozen lineage · Phase 12 → Phase 22</span><strong>6 PASS / 7 FAIL</strong></div>
-            <div class="home-lineage__track" id="homeLineage"></div>
-            <div class="home-lineage__caption" aria-hidden="true"><span>Phase 12</span><span>Phase 22</span></div>
-          </div>
-        </aside>
+
       </div>
 
       <figure class="research-photo research-photo--hero" data-editorial-photo>
@@ -78,10 +62,81 @@
       </figure>
     </section>
 
+    <section class="section result-section" aria-label="Latest research result">
+      <div class="wrap result-film-grid">
+        <aside class="workspace-status-card result-card aegis-halo" id="status" aria-label="Current research status">
+          <div class="workspace-status-head">
+            <div><p class="eyebrow">Current result</p><strong>Phase 22 final holdout</strong></div>
+            <span class="status-badge status-badge--pass">10 / 10 locked gates passed</span>
+          </div>
+          <div class="workspace-measures" aria-label="Phase 22 final metrics">
+            <div class="workspace-measure"><span>RMSE-surface R²</span><strong>0.8319</strong></div>
+            <div class="workspace-measure"><span>MAE-surface R²</span><strong>0.7744</strong></div>
+            <div class="workspace-measure"><span>Stable-sign accuracy</span><strong>100%</strong></div>
+          </div>
+          <div class="workspace-boundary"><strong>Evidence boundary</strong>This is a simulation result. It does not establish flight safety or authorize controller tuning.</div>
+          <div class="workspace-status-meta">Final synthetic 32-cell holdout · model transferred without refitting</div>
+          <div class="home-lineage" aria-label="Frozen Phase 12 through Phase 22 verdict lineage">
+            <div class="home-lineage__head"><span>Phase 12 → Phase 22</span><strong>6 PASS / 7 FAIL</strong></div>
+            <div class="home-lineage__track" id="homeLineage"></div>
+            <div class="home-lineage__caption" aria-hidden="true"><span>Phase 12</span><span>Phase 22</span></div>
+          </div>
+        </aside>
+        <figure class="research-film" aria-labelledby="film-caption">
+          <div class="research-film__frame">
+            <video id="researchFilm" muted loop playsinline preload="none" poster="/film/aerocast-poster.jpg" aria-label="NASA AEROcAST drone flight footage" aria-describedby="film-caption">
+              <source data-src="/film/aerocast-flight.mp4" type="video/mp4">
+            </video>
+            <button class="film-toggle" id="filmToggle" type="button" aria-controls="researchFilm" hidden>Play video</button>
+            <p class="film-error" id="filmError" role="status" hidden>Video unavailable. You can still view the research and the NASA source.</p>
+          </div>
+          <figcaption id="film-caption">NASA AEROcAST flight footage. Visual context only; this is not an AegisLand experiment. <a href="https://images.nasa.gov/details/AFRC-2023-14003-01_Alta_X_First_Mission_Jay1" target="_blank" rel="noreferrer">NASA source</a></figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="chapter-showcase" id="chapters" aria-labelledby="chapters-title">
+      <div class="wrap chapter-heading"><div><p class="eyebrow">Explore the work</p><h2 id="chapters-title">One question. Six chapters.</h2></div><a href="/phases/">See every phase</a></div>
+      <div class="chapter-track" id="chapterTrack" tabindex="0" aria-label="Research chapters; scroll horizontally to explore">
+        <article class="chapter-card" id="chapter-01">
+          <img src="/media/phase01-context.jpg" alt="" loading="lazy" decoding="async" width="1280" height="852">
+          <span class="chapter-card__range">Phase 1–4</span>
+          <div class="chapter-card__body"><h3>Safety architecture</h3><p>Can a separate safety layer catch a bad landing estimate?</p><div class="actions"><a class="button primary" href="/phases/phase1/">Explore chapter</a><a class="button secondary" href="/phases/">All phases</a></div></div>
+        </article>
+        <article class="chapter-card" id="chapter-02">
+          <img src="/media/acero-uav-flight.jpg" alt="" loading="lazy" decoding="async" width="1280" height="852">
+          <span class="chapter-card__range">Phase 5–6B</span>
+          <div class="chapter-card__body"><h3>Perception</h3><p>From simulated state errors to images and confidence.</p><div class="actions"><a class="button primary" href="/phases/phase6b/">Explore chapter</a><a class="button secondary" href="/phases/">All phases</a></div></div>
+        </article>
+        <article class="chapter-card" id="chapter-03">
+          <img src="/media/phase08-context.jpg" alt="" loading="lazy" decoding="async" width="1280" height="852">
+          <span class="chapter-card__range">Phase 7–10R</span>
+          <div class="chapter-card__body"><h3>External validation</h3><p>Test the assumptions against PX4, Gazebo, and camera data.</p><div class="actions"><a class="button primary" href="/phases/phase10r/">Explore chapter</a><a class="button secondary" href="/phases/">All phases</a></div></div>
+        </article>
+        <article class="chapter-card" id="chapter-04">
+          <img src="/media/stereo-uav-preflight.jpg" alt="" loading="lazy" decoding="async" width="1280" height="852">
+          <span class="chapter-card__range">Phase 11–13C</span>
+          <div class="chapter-card__body"><h3>Reliability</h3><p>Check how uncertainty holds up when conditions change.</p><div class="actions"><a class="button primary" href="/phases/phase11/">Explore chapter</a><a class="button secondary" href="/phases/">All phases</a></div></div>
+        </article>
+        <article class="chapter-card" id="chapter-05">
+          <img src="/media/phase16-context.jpg" alt="" loading="lazy" decoding="async" width="1280" height="852">
+          <span class="chapter-card__range">Phase 14–19</span>
+          <div class="chapter-card__body"><h3>Latency</h3><p>What happens when an estimate arrives too late?</p><div class="actions"><a class="button primary" href="/phases/phase16/">Explore chapter</a><a class="button secondary" href="/phases/">All phases</a></div></div>
+        </article>
+        <article class="chapter-card" id="chapter-06">
+          <img src="/media/phase22-context.jpg" alt="" loading="lazy" decoding="async" width="1280" height="852">
+          <span class="chapter-card__range">Phase 20–22</span>
+          <div class="chapter-card__body"><h3>Transfer</h3><p>Test the frozen model in new synthetic contexts.</p><div class="actions"><a class="button primary" href="/phases/phase22/">Explore chapter</a><a class="button secondary" href="/phases/">All phases</a></div></div>
+        </article>
+      </div>
+      <div class="wrap chapter-controls" id="chapterControls" hidden><button type="button" id="chapterPrev" aria-label="Previous research chapter" aria-controls="chapterTrack">←</button><span id="chapterPosition" role="status" aria-live="polite">1 / 6</span><button type="button" id="chapterNext" aria-label="Next research chapter" aria-controls="chapterTrack">→</button></div>
+      <p class="wrap chapter-credit">NASA context photographs, not experimental evidence. Credits and source links are available on each phase page.</p>
+    </section>
+
     <section class="section ash" id="evidence">
       <div class="wrap">
-        <div class="research-alert" role="note"><div class="research-alert__label">Key caution</div><p>A stale estimate can be less accurate while its old uncertainty width barely moves. Residual structure is not proof that latency improved accuracy.</p><a href="/phases/phase16/">Review Phase 16 →</a></div>
-        <div class="section-head"><p class="eyebrow">Main conclusion</p><div><h2>A stale estimate can be worse even when confidence barely changes.</h2><p class="copy">Later phases found repeatable residual structure, but that does not erase the underlying level error.</p></div></div>
+        <div class="research-alert" role="note"><div class="research-alert__label">Key caution</div><p>An old estimate can become less accurate without showing much more uncertainty. A predictable residual does not mean the delay improved accuracy.</p><a href="/phases/phase16/">Review Phase 16 →</a></div>
+        <div class="section-head"><p class="eyebrow">Main conclusion</p><div><h2>The estimate gets worse. Confidence barely moves.</h2><p class="copy">Later tests found patterns in the residuals. Those patterns did not undo the error in the estimate itself.</p></div></div>
         <div class="evidence-list" aria-label="Evidence supporting the current conclusion"><a class="evidence-item" href="/phases/phase16/"><span>Phase 16 · staleness mechanism</span><strong>Staleness worsened lateral error and coverage.</strong></a><a class="evidence-item" href="/phases/phase19/"><span>Phase 19 · residual effect</span><strong>One-step residual advantage replicated.</strong></a><a class="evidence-item" href="/phases/phase20/"><span>Phase 20 · factor decomposition</span><strong>Predefined modifiers explained attenuation.</strong></a><a class="evidence-item" href="/phases/phase21/"><span>Phase 21 · context spectrum</span><strong>The context surface was mostly first-order.</strong></a><a class="evidence-item" href="/phases/phase22/"><span>Phase 22 · final transfer</span><strong>The additive model passed 10/10 gates without refitting.</strong></a></div>
 
         <figure class="research-photo research-photo--inline research-photo--inline-right" data-editorial-photo>
@@ -99,15 +154,15 @@
 
     <section class="section" id="question">
       <div class="wrap goal-grid">
-        <div><p class="eyebrow">Research question</p><h2>Can uncertainty still tell the truth when the estimate degrades?</h2><p class="copy">We track three signals separately: absolute error, interval width, and one-step residual behavior.</p></div>
+        <div><p class="eyebrow">Research question</p><h2>Does the uncertainty match the error?</h2><p class="copy">We compare three things: the actual error, the reported uncertainty interval, and how the residual changes from one step to the next.</p></div>
         <div class="goal-points"><div class="goal-point"><strong>Uncertainty</strong><span>Does the interval still cover the actual error?</span></div><div class="goal-point"><strong>Absolute error</strong><span>How much does staleness hurt accuracy?</span></div><div class="goal-point"><strong>Short-horizon behavior</strong><span>Does local residual structure remain predictable?</span></div></div>
       </div>
     </section>
 
     <section class="section" id="purpose">
       <div class="wrap goal-grid">
-        <div><p class="eyebrow">Main purpose</p><h2>Keep every result — especially failures.</h2><p class="copy">Each phase is frozen before the next evidence role opens. Later success never rewrites an earlier miss.</p></div>
-        <div class="goal-points"><div class="goal-point"><strong>Problem</strong><span>A model can be confidently wrong.</span></div><div class="goal-point"><strong>Question</strong><span>Which signals still deserve trust under shift?</span></div><div class="goal-point"><strong>Rule</strong><span>Development, protected validation, and final holdout stay separate.</span></div></div>
+        <div><p class="eyebrow">Main purpose</p><h2>Keep every result — especially failures.</h2><p class="copy">We lock each phase before opening the next set of evidence. A later success does not erase an earlier failure.</p></div>
+        <div class="goal-points"><div class="goal-point"><strong>Problem</strong><span>A model can be confidently wrong.</span></div><div class="goal-point"><strong>Question</strong><span>Which signals remain useful when conditions change?</span></div><div class="goal-point"><strong>Rule</strong><span>Development, protected validation, and final holdout stay separate.</span></div></div>
       </div>
 
       <div class="wrap">
@@ -126,7 +181,7 @@
 
     <section class="section ash" id="researchers" aria-labelledby="researchers-title">
       <div class="wrap">
-        <div class="section-head"><p class="eyebrow">For researchers</p><div><h2 id="researchers-title">Evaluate AegisLand in five minutes.</h2><p class="copy">A compact view of the strongest result, the evidence boundary, and the questions where outside critique would be most useful.</p></div></div>
+        <div class="section-head"><p class="eyebrow">For researchers</p><div><h2 id="researchers-title">Start with the results.</h2><p class="copy">Here’s the strongest result, what it does and doesn’t show, and the questions we still need to answer.</p></div></div>
 
         <div class="three method-steps">
           <article class="card"><span class="tag">01 · Investigates</span><h3>When confidence stops tracking error.</h3><p>AegisLand deliberately degrades simulated UAV landing estimates and compares actual error with reported uncertainty.</p></article>
@@ -134,7 +189,7 @@
           <article class="card"><span class="tag">03 · Current limit</span><h3>Simulation evidence only.</h3><p>No real-sensor equivalence, physical-flight safety, certification, controller-tuning, or operational claim is made.</p></article>
         </div>
 
-        <div class="section-head"><p class="eyebrow">Open research questions</p><div><h2>Where should the next evidence come from?</h2><p class="copy">These are intentionally unresolved rather than presented as implied results.</p></div></div>
+        <div class="section-head"><p class="eyebrow">Open research questions</p><div><h2>What should we test next?</h2><p class="copy">These questions are still open.</p></div></div>
         <div class="evidence-list" aria-label="Open AegisLand research questions">
           <div class="evidence-item"><span>Calibration under shift</span><strong>How quickly does uncertainty coverage fail under realistic camera, lighting, and scene changes?</strong></div>
           <div class="evidence-item"><span>Recovery guarantees</span><strong>Can recoverability after a perception fault be expressed and checked as a formal invariant?</strong></div>
@@ -142,14 +197,14 @@
           <div class="evidence-item"><span>Sim-to-real gap</span><strong>Which conclusions break first when synthetic evidence meets real sensing and timing behavior?</strong></div>
         </div>
 
-        <div class="research-alert" role="note"><div class="research-alert__label">Feedback welcome</div><p>If one benchmark, failure case, or validation check would make this study harder to fool, that is the most useful feedback.</p><a href="https://github.com/suhaslord/uav-safety-research/issues/new" target="_blank" rel="noreferrer">Suggest a benchmark →</a></div>
+        <div class="research-alert" role="note"><div class="research-alert__label">Feedback welcome</div><p>Have a benchmark or failure case we should try? We’d like to hear it.</p><a href="https://github.com/suhaslord/uav-safety-research/issues/new" target="_blank" rel="noreferrer">Suggest a benchmark →</a></div>
         <div class="actions"><a class="button primary signature-button" href="/phases/phase22/">Inspect strongest result</a><a class="button secondary signature-button" href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">Open GitHub ↗</a></div>
       </div>
     </section>
 
     <section class="section ash" id="method">
       <div class="wrap">
-        <div class="section-head"><p class="eyebrow">Method</p><div><h2>Freeze first. Then evaluate.</h2><p class="copy">Thresholds and coefficients lock before protected evidence opens. A failed gate stays failed.</p></div></div>
+        <div class="section-head"><p class="eyebrow">Method</p><div><h2>Freeze first. Then evaluate.</h2><p class="copy">We set the thresholds and coefficients before looking at protected test data. If a check fails, it stays failed.</p></div></div>
         <div class="method-visual-grid">
           <figure class="research-photo research-photo--method" data-editorial-photo>
             <div class="research-photo__frame">
@@ -163,7 +218,7 @@
           </figure>
           <div class="three method-steps">
             <article class="card"><h3>Lock the evaluation conditions.</h3><p>Freeze the candidate, thresholds, and scientific code.</p><span class="tag">01 · Freeze</span></article>
-            <article class="card"><h3>Keep evidence separate from interpretation.</h3><p>Do not reuse development data as protected or final evidence.</p><span class="tag">02 · Separate</span></article>
+            <article class="card"><h3>Use separate data for each evaluation stage.</h3><p>Development data cannot also count as protected validation or final test data.</p><span class="tag">02 · Separate</span></article>
             <article class="card"><h3>Leave failures visible.</h3><p>Failed phases remain failed in the archive.</p><span class="tag">03 · Preserve</span></article>
           </div>
         </div>
@@ -171,11 +226,11 @@
     </section>
 
     <section class="section" id="timeline">
-      <div class="wrap"><div class="rail-head"><div><p class="eyebrow">Frozen evidence lineage</p><h2>Every pass and failure stays visible.</h2><p class="copy">Frozen through Phase 22. Later results do not upgrade earlier verdicts.</p></div><a class="text-link" href="/phases/">Open full archive →</a></div><div class="evidence-list" id="evidenceSpine" aria-live="polite"></div></div>
+      <div class="wrap"><div class="rail-head"><div><p class="eyebrow">The research so far</p><h2>Every pass and failure stays visible.</h2><p class="copy">Frozen through Phase 22. Later results do not upgrade earlier verdicts.</p></div><a class="text-link" href="/phases/">Open full archive →</a></div><div class="evidence-list" id="evidenceSpine" aria-live="polite"></div></div>
     </section>
 
     <section class="section ash">
-      <div class="wrap boundary-grid"><div><p class="eyebrow">Evidence boundary</p><h2>The interface can change. The science cannot.</h2><p class="copy signature-section__intro">No Phase 23 is implied or authorized. The record is frozen through Phase 22 at scientific head <code>668d065714dde279857bc0e196f0ef7cc5e182ed</code>.</p><p class="copy">No physical-flight safety, certification, production-readiness, real-sensor-equivalence, controller-improvement, physical-causality, or operational-safety claim is made.</p><code class="boundary-flags">simulation_only=true · safety_acceptance=false · controller_tuning_allowed=false</code></div><div class="actions"><a class="button primary signature-button" href="/phases/phase22/">Inspect current evidence</a><a class="button secondary signature-button" href="/phases/">Browse all phases</a></div></div>
+      <div class="wrap boundary-grid"><div><p class="eyebrow">Evidence boundary</p><h2>What these results can tell us.</h2><p class="copy signature-section__intro">The research record ends at Phase 22. No Phase 23 is implied or authorized. The frozen scientific commit is <code>668d065714dde279857bc0e196f0ef7cc5e182ed</code>.</p><p class="copy">No physical-flight safety, certification, production-readiness, real-sensor-equivalence, controller-improvement, physical-causality, or operational-safety claim is made.</p><code class="boundary-flags">simulation_only=true · safety_acceptance=false · controller_tuning_allowed=false</code></div><div class="actions"><a class="button primary signature-button" href="/phases/phase22/">Inspect current evidence</a><a class="button secondary signature-button" href="/phases/">Browse all phases</a></div></div>
     </section>
   </main>
 
@@ -225,6 +280,7 @@
       document.addEventListener('keydown', (e) => { if (e.key === 'Escape') set(false); });
     })();
   </script>
-  <script src="/research-workspace.js?v=2"></script>
+  <script src="/research-workspace.js?v=3"></script>
+  <script src="/presentation.js?v=1" defer></script>
 </body>
 </html>
