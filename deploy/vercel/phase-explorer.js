@@ -21,7 +21,7 @@
       <div id="explorerBrowse"><div class="explorer-search"><label for="phaseQuickSearch">Search all 26 records</label><input type="search" id="phaseQuickSearch" placeholder="Try Phase 10R, latency, or coverage" autocomplete="off"></div>
       <p class="explorer-count" role="status"></p><div class="explorer-groups"></div><p class="explorer-empty" hidden>No matching phases. Try a phase number or a shorter search.</p></div>
       <div id="explorerCompare" hidden><p class="compare-note">Compare the questions and recorded outcomes. Each phase tests different conditions; these results aren’t a ranking.</p>
-      <div class="compare-selects"><label>First phase<select id="compareFirst">${options(current || 'phase21')}</select></label><label>Second phase<select id="compareSecond">${options(current === 'phase22' ? 'phase21' : 'phase22')}</select></label></div><div class="compare-table-wrap"></div></div>
+      <div class="compare-selects"><label>First phase<select id="compareFirst" aria-label="First phase">${options(current || 'phase21')}</select></label><label>Second phase<select id="compareSecond" aria-label="Second phase">${options(current === 'phase22' ? 'phase21' : 'phase22')}</select></label></div><div class="compare-table-wrap"></div></div>
       <div class="explorer-footer"><span>26 records · every pass, failure, and naming gap</span><a href="/phases/">Open full archive →</a></div>`;
     const groups = dialog.querySelector('.explorer-groups');
     taxonomy.categories.forEach(category => {
@@ -78,6 +78,8 @@
     const open = event => {
       opener = event.currentTarget;
       setMode('browse');
+      search.value = '';
+      filter();
       dialog.showModal();
       document.documentElement.classList.add('phase-explorer-open');
       search.focus();
