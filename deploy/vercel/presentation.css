@@ -453,3 +453,13 @@ html body .explorer-count { margin:0 0 8px; font-size:13px; }
 .explorer-list { min-width:0; }
 .phase-explorer :is(button,input,a):focus-visible { outline:2px solid #3457b2; outline-offset:3px; }
 @media(max-width:700px) { html body .phase-explorer { width:100%; height:100dvh; max-height:100dvh; padding:24px 20px; } .explorer-directory { grid-template-columns:1fr; gap:20px; } .explorer-chapters { flex-direction:row; overflow-x:auto; padding-bottom:8px; } .explorer-chapters button { flex:0 0 180px; } .explorer-phase { grid-template-columns:65px minmax(0,1fr) 16px; gap:12px; } .explorer-phase .explorer-status { grid-column:2; max-width:none; margin-top:-6px; } .explorer-phase .explorer-arrow { grid-column:3; grid-row:1/3; } }
+.nasa-film-frame { position:relative; overflow:hidden; background:#f4f4f4; }
+.nasa-film-frame video { display:block; width:100%; height:auto; border-radius:0; }
+.nasa-film-frame .film-toggle { z-index:2; }
+.nasa-film-frame.native-controls .film-toggle { bottom:72px; }
+html body.home-workspace .explainer-film figcaption { padding-top:12px; font-size:13px; }
+.nasa-player-options { font:12px/1.5 Arial,sans-serif; color:#50545a; margin-top:10px; }
+.nasa-player-options summary { cursor:pointer; width:max-content; }
+.nasa-player-options label { display:flex; align-items:center; gap:8px; padding:10px 0; }
+.nasa-player-options input { accent-color:#3457b2; }
+.nasa-player-options :is(summary,input):focus-visible { outline:2px solid #3457b2; outline-offset:4px; }

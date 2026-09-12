@@ -57,19 +57,22 @@
     motion.addEventListener('change', () => { if (motion.matches) pause(); });
   }
 
-  document.querySelectorAll('.explainer-film video').forEach(video=>{
-    video.loop=true;
-    let visible=false, manualPause=false, automaticAction=false;
-    video.addEventListener('pause',()=>{if(!automaticAction&&visible)manualPause=true;});
-    video.addEventListener('play',()=>{manualPause=false;});
-    const pause=()=>{automaticAction=true;video.pause();queueMicrotask(()=>automaticAction=false);};
-    const sync=()=>{
-      if(!visible||document.hidden||motion.matches||navigator.connection?.saveData){pause();return;}
-      if(!manualPause)video.play().catch(()=>{});
-    };
-    if('IntersectionObserver' in window)new IntersectionObserver(([entry])=>{visible=entry.isIntersecting;sync();},{threshold:.45}).observe(video);
-    document.addEventListener('visibilitychange',sync);motion.addEventListener('change',sync);
-    const message=document.createElement('p');message.hidden=true;message.setAttribute('role','status');message.textContent='Video unavailable. The explanation below covers the same idea.';video.after(message);video.addEventListener('error',()=>message.hidden=false);
+  document.querySelectorAll('.explainer-film video').forEach((video,index)=>{
+    const frame=document.createElement('div');frame.className='nasa-film-frame';video.before(frame);frame.append(video);
+    video.id ||= `nasa-film-${index}`;video.controls=false;video.loop=true;
+    const button=document.createElement('button');button.type='button';button.className='film-toggle';button.setAttribute('aria-controls',video.id);frame.append(button);
+    const options=document.createElement('details');options.className='nasa-player-options';options.innerHTML='<summary>Playback options</summary><label><input type="checkbox"> Show sound, captions and fullscreen controls</label>';frame.after(options);
+    options.querySelector('input').onchange=e=>{video.controls=e.target.checked;frame.classList.toggle('native-controls',video.controls);};
+    let visible=false,manualPause=false,request=0;
+    const label=()=>button.textContent=video.paused?'Play video':'Pause video';
+    const pause=()=>{request++;video.pause();label();};
+    const play=async()=>{const id=++request;button.textContent='Loading…';try{await video.play();if(id!==request||!visible||document.hidden)video.pause();}catch{}label();};
+    const sync=()=>{if(!visible||document.hidden){pause();return;}if(!manualPause&&!motion.matches&&!navigator.connection?.saveData)play();};
+    button.onclick=()=>{if(video.paused){manualPause=false;play();}else{manualPause=true;pause();}};
+    video.addEventListener('play',label);video.addEventListener('pause',label);label();
+    if('IntersectionObserver' in window)new IntersectionObserver(([entry])=>{visible=entry.isIntersecting;sync();},{threshold:.25}).observe(video);else visible=true;
+    document.addEventListener('visibilitychange',sync);motion.addEventListener('change',()=>{if(motion.matches)pause();else sync();});
+    const message=document.createElement('p');message.hidden=true;message.setAttribute('role','status');message.textContent='Video unavailable. Use the NASA source link below to view the original.';frame.after(message);video.addEventListener('error',()=>{message.hidden=false;button.hidden=true;});
   });
 
   const track = document.getElementById('chapterTrack');
