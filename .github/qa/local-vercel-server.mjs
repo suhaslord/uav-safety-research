@@ -28,7 +28,7 @@ const dashboardAssets = new Set([
 ]);
 
 const deployAssets = new Set([
-  'aegisland.css', 'signature.css', 'research-home.css', 'research-media.css', 'phase-polish.css',
+  'presentation.css', 'aegisland.css', 'signature.css', 'research-home.css', 'research-media.css', 'phase-polish.css',
   'phase-polish-fixes.css', 'phase-polish-v2.css', 'phase-ui-consistency.css', 'final-convergence.css', 'final-convergence-base.css', 'craft-polish.css', 'frozen-lineage.js',
   'research-workspace.css', 'research-workspace.js'
 ]);

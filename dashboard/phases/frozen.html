@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#0b1118">
+  <meta name="theme-color" content="#ffffff">
   <meta name="description" content="AegisLand frozen simulation-only research phase detail.">
   <title>AegisLand — Frozen phase</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=5">
@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="/phase-personalization.css?v=1">
   <link rel="stylesheet" href="/phase-editorial-media.css?v=1">
   <link rel="stylesheet" href="/research-workspace.css?v=1">
+  <link rel="stylesheet" href="/presentation.css?v=1" data-presentation-theme>
 </head>
 <body class="phase-polish-shell research-workspace">
   <a class="skip-link" href="#phaseRoot">Skip to phase result</a>
@@ -84,14 +85,14 @@
         <section class="phase-detail__body">
           <article class="phase-detail__panel">
             <span class="phase-detail__eyebrow">Recorded finding</span>
-            <h2>What this phase supports.</h2>
+            <h2>What we found.</h2>
             <p>${phase.finding}</p>
             <div class="claim-boundary"><b>EVIDENCE BOUNDARY //</b> ${lineage.boundary.statement}</div>
           </article>
           <aside class="phase-detail__panel phase-detail__panel--evidence">
-            <span class="phase-detail__eyebrow">Source integrity</span>
+            <span class="phase-detail__eyebrow">Check the source</span>
             <div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><h2 style="font-size:24px;margin:0">Frozen record</h2><span class="verdict-chip ${verdictClass}">${phase.verdict}</span></div>
-            <p>This page is tied to the frozen lineage. Hashes are shown when the phase record publishes them; later phases cannot rewrite this verdict.</p>
+            <p>This page follows the frozen record. Where available, hashes identify the exact evidence files. Later work cannot change this verdict.</p>
             ${hashes || '<div class="phase-hash">No phase-specific result hash is published in this compact lineage record.</div>'}
           </aside>
         </section>
@@ -100,7 +101,7 @@
 
         <section class="phase-detail__context">
           <div class="phase-detail__context-grid">
-            <div><span class="phase-detail__eyebrow">Why it stays frozen</span><h2>${phase.note}</h2></div>
+            <div><span class="phase-detail__eyebrow">Why the result stays unchanged</span><h2>${phase.note}</h2></div>
             <p>A later phase can ask a new question, but it cannot go back and change this result. Passes and failures stay visible so the lineage can be checked without hindsight edits.</p>
           </div>
         </section>
@@ -127,8 +128,8 @@
       document.addEventListener('keydown', (event) => { if (event.key === 'Escape') set(false); });
     })();
   </script>
-  <script src="/phase-personalization.js?v=1"></script>
+  <script src="/phase-personalization.js?v=2"></script>
   <script src="/phase-editorial-media.js?v=1"></script>
-  <script src="/research-workspace.js?v=1"></script>
+  <script src="/research-workspace.js?v=3"></script>
 </body>
 </html>
