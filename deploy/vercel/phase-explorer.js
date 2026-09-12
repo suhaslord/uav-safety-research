@@ -16,17 +16,20 @@
     dialog.className = 'phase-explorer';
     dialog.setAttribute('aria-labelledby', 'explorerTitle');
     dialog.innerHTML = `
-      <div class="explorer-heading"><div><p>AEGISLAND RESEARCH</p><h2 id="explorerTitle">Find your next phase.</h2></div><button type="button" class="explorer-close" aria-label="Close phase browser">Close ×</button></div>
+      <div class="explorer-heading"><div><h2 id="explorerTitle">Explore the research.</h2><p class="explorer-intro">Choose a chapter, or search for a question.</p></div><button type="button" class="explorer-close" aria-label="Close phase browser">Close</button></div>
       <div class="explorer-modes" role="group" aria-label="Phase browser view"><button type="button" data-mode="browse" aria-pressed="true">Browse phases</button><button type="button" data-mode="compare" aria-pressed="false">Compare phases</button></div>
       <div id="explorerBrowse"><div class="explorer-search"><label for="phaseQuickSearch">Search all 26 records</label><input type="search" id="phaseQuickSearch" placeholder="Try Phase 10R, latency, or coverage" autocomplete="off"></div>
-      <p class="explorer-count" role="status"></p><div class="explorer-groups"></div><p class="explorer-empty" hidden>No matching phases. Try a phase number or a shorter search.</p></div>
+      <div class="explorer-directory"><nav class="explorer-chapters" aria-label="Research chapters"></nav><div class="explorer-list"><p class="explorer-count" role="status"></p><div class="explorer-groups"></div></div></div><p class="explorer-empty" hidden>No matching phases. Try a phase number or a shorter search.</p></div>
       <div id="explorerCompare" hidden><p class="compare-note">Compare the questions and recorded outcomes. Each phase tests different conditions; these results aren’t a ranking.</p>
       <div class="compare-selects"><label>First phase<select id="compareFirst" aria-label="First phase">${options(current || 'phase21')}</select></label><label>Second phase<select id="compareSecond" aria-label="Second phase">${options(current === 'phase22' ? 'phase21' : 'phase22')}</select></label></div><div class="compare-table-wrap"></div></div>
       <div class="explorer-footer"><span>26 records · every pass, failure, and naming gap</span><a href="/phases/">Open full archive →</a></div>`;
     const groups = dialog.querySelector('.explorer-groups');
+    let selectedCategory=taxonomy.bySlug[current]?.category||taxonomy.categories[0].id;
+    const chapters=dialog.querySelector('.explorer-chapters');
+    chapters.innerHTML=taxonomy.categories.map(c=>`<button type="button" data-category="${c.id}" aria-pressed="${c.id===selectedCategory}">${escape(c.name)}<span>${slugs.filter(s=>taxonomy.bySlug[s].category===c.id).length} phases</span></button>`).join('');
     taxonomy.categories.forEach(category => {
       const section = document.createElement('section');
-      section.className = 'explorer-group';
+      section.className = 'explorer-group';section.dataset.category=category.id;
       section.innerHTML = `<h3>${escape(category.name)}</h3>`;
       slugs.filter(slug => taxonomy.bySlug[slug].category === category.id).forEach(slug => {
         const meta = taxonomy.bySlug[slug];
@@ -35,7 +38,7 @@
         link.className = 'explorer-phase';
         link.dataset.search = `${label(slug)} ${slug} ${meta.identity} ${meta.question} ${meta.signal} ${category.name}`.toLowerCase();
         if (current === slug) link.setAttribute('aria-current', 'page');
-        link.innerHTML = `<span>${label(slug)} <small>${escape(status(slug))}</small></span><strong>${escape(meta.identity)}</strong><span class="explorer-arrow" aria-hidden="true">↗</span>`;
+        link.innerHTML = `<span class="explorer-phase-number">${label(slug)}</span><strong>${escape(meta.identity)}<span class="explorer-question">${escape(meta.question)}</span></strong><small class="explorer-status">${escape(status(slug))}</small><span class="explorer-arrow" aria-hidden="true">→</span>`;
         section.append(link);
       });
       groups.append(section);
@@ -44,15 +47,17 @@
     const search = dialog.querySelector('input');
     const filter = () => {
       const query = search.value.trim().toLowerCase();
+      chapters.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(!query&&b.dataset.category===selectedCategory)));
       let count = 0;
       dialog.querySelectorAll('.explorer-phase').forEach(link => {
-        link.hidden = !link.dataset.search.includes(query);
+        link.hidden = query?!link.dataset.search.includes(query):link.closest('.explorer-group').dataset.category!==selectedCategory;
         if (!link.hidden) count++;
       });
       dialog.querySelectorAll('.explorer-group').forEach(group => { group.hidden = !group.querySelector('.explorer-phase:not([hidden])'); });
-      dialog.querySelector('.explorer-count').textContent = `${count} of 26 phases`;
+      dialog.querySelector('.explorer-count').textContent = query?`${count} matching phases across all chapters`:`${count} phases in this chapter`;
       dialog.querySelector('.explorer-empty').hidden = count !== 0;
     };
+    chapters.addEventListener('click',event=>{const button=event.target.closest('[data-category]');if(!button)return;selectedCategory=button.dataset.category;search.value='';filter();});
     search.addEventListener('input', filter);
     filter();
     const compare = () => {
