@@ -17,7 +17,7 @@
   <link rel="stylesheet" href="/research-workspace.css?v=2">
   <link rel="stylesheet" href="/research-home.css?v=2">
   <link rel="stylesheet" href="/research-media.css?v=3">
-  <link rel="stylesheet" href="/presentation.css?v=1" data-presentation-theme>
+  <link rel="stylesheet" href="/presentation.css?v=2" data-presentation-theme>
 </head>
 <body class="research-workspace home-workspace" data-presentation="photo-led">
   <a class="skip-link" href="#main">Skip to research result</a>
@@ -63,7 +63,7 @@
     </section>
 
     <section class="section result-section" aria-label="Latest research result">
-      <div class="wrap">
+      <div class="wrap result-film-grid">
         <aside class="workspace-status-card result-card aegis-halo" id="status" aria-label="Current research status">
           <div class="workspace-status-head">
             <div><p class="eyebrow">Current result</p><strong>Phase 22 final holdout</strong></div>
@@ -82,7 +82,55 @@
             <div class="home-lineage__caption" aria-hidden="true"><span>Phase 12</span><span>Phase 22</span></div>
           </div>
         </aside>
+        <figure class="research-film" aria-labelledby="film-caption">
+          <div class="research-film__frame">
+            <video id="researchFilm" muted loop playsinline preload="none" poster="/film/aerocast-poster.jpg" aria-label="NASA AEROcAST drone flight footage" aria-describedby="film-caption">
+              <source data-src="/film/aerocast-flight.mp4" type="video/mp4">
+            </video>
+            <button class="film-toggle" id="filmToggle" type="button" aria-controls="researchFilm" hidden>Play video</button>
+            <p class="film-error" id="filmError" role="status" hidden>Video unavailable. You can still view the research and the NASA source.</p>
+          </div>
+          <figcaption id="film-caption">NASA AEROcAST flight footage. Visual context only; this is not an AegisLand experiment. <a href="https://images.nasa.gov/details/AFRC-2023-14003-01_Alta_X_First_Mission_Jay1" target="_blank" rel="noreferrer">NASA source</a></figcaption>
+        </figure>
       </div>
+    </section>
+
+    <section class="chapter-showcase" id="chapters" aria-labelledby="chapters-title">
+      <div class="wrap chapter-heading"><div><p class="eyebrow">Explore the work</p><h2 id="chapters-title">One question. Six chapters.</h2></div><a href="/phases/">See every phase</a></div>
+      <div class="chapter-track" id="chapterTrack" tabindex="0" aria-label="Research chapters; scroll horizontally to explore">
+        <article class="chapter-card" id="chapter-01">
+          <img src="/media/phase01-context.jpg" alt="" loading="lazy" decoding="async" width="1280" height="852">
+          <span class="chapter-card__range">Phase 1–4</span>
+          <div class="chapter-card__body"><h3>Safety architecture</h3><p>Can a separate safety layer catch a bad landing estimate?</p><div class="actions"><a class="button primary" href="/phases/phase1/">Explore chapter</a><a class="button secondary" href="/phases/">All phases</a></div></div>
+        </article>
+        <article class="chapter-card" id="chapter-02">
+          <img src="/media/acero-uav-flight.jpg" alt="" loading="lazy" decoding="async" width="1280" height="852">
+          <span class="chapter-card__range">Phase 5–6B</span>
+          <div class="chapter-card__body"><h3>Perception</h3><p>From simulated state errors to images and confidence.</p><div class="actions"><a class="button primary" href="/phases/phase6b/">Explore chapter</a><a class="button secondary" href="/phases/">All phases</a></div></div>
+        </article>
+        <article class="chapter-card" id="chapter-03">
+          <img src="/media/phase08-context.jpg" alt="" loading="lazy" decoding="async" width="1280" height="852">
+          <span class="chapter-card__range">Phase 7–10R</span>
+          <div class="chapter-card__body"><h3>External validation</h3><p>Test the assumptions against PX4, Gazebo, and camera data.</p><div class="actions"><a class="button primary" href="/phases/phase10r/">Explore chapter</a><a class="button secondary" href="/phases/">All phases</a></div></div>
+        </article>
+        <article class="chapter-card" id="chapter-04">
+          <img src="/media/stereo-uav-preflight.jpg" alt="" loading="lazy" decoding="async" width="1280" height="852">
+          <span class="chapter-card__range">Phase 11–13C</span>
+          <div class="chapter-card__body"><h3>Reliability</h3><p>Check how uncertainty holds up when conditions change.</p><div class="actions"><a class="button primary" href="/phases/phase11/">Explore chapter</a><a class="button secondary" href="/phases/">All phases</a></div></div>
+        </article>
+        <article class="chapter-card" id="chapter-05">
+          <img src="/media/phase16-context.jpg" alt="" loading="lazy" decoding="async" width="1280" height="852">
+          <span class="chapter-card__range">Phase 14–19</span>
+          <div class="chapter-card__body"><h3>Latency</h3><p>What happens when an estimate arrives too late?</p><div class="actions"><a class="button primary" href="/phases/phase16/">Explore chapter</a><a class="button secondary" href="/phases/">All phases</a></div></div>
+        </article>
+        <article class="chapter-card" id="chapter-06">
+          <img src="/media/phase22-context.jpg" alt="" loading="lazy" decoding="async" width="1280" height="852">
+          <span class="chapter-card__range">Phase 20–22</span>
+          <div class="chapter-card__body"><h3>Transfer</h3><p>Test the frozen model in new synthetic contexts.</p><div class="actions"><a class="button primary" href="/phases/phase22/">Explore chapter</a><a class="button secondary" href="/phases/">All phases</a></div></div>
+        </article>
+      </div>
+      <div class="wrap chapter-controls" id="chapterControls" hidden><button type="button" id="chapterPrev" aria-label="Previous research chapter" aria-controls="chapterTrack">←</button><span id="chapterPosition" role="status" aria-live="polite">1 / 6</span><button type="button" id="chapterNext" aria-label="Next research chapter" aria-controls="chapterTrack">→</button></div>
+      <p class="wrap chapter-credit">NASA context photographs, not experimental evidence. Credits and source links are available on each phase page.</p>
     </section>
 
     <section class="section ash" id="evidence">
@@ -233,5 +281,6 @@
     })();
   </script>
   <script src="/research-workspace.js?v=3"></script>
+  <script src="/presentation.js?v=1" defer></script>
 </body>
 </html>

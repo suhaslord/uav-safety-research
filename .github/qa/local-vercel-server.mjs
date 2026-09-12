@@ -15,7 +15,8 @@ const types = {
   '.jpg': 'image/jpeg',
   '.jpeg': 'image/jpeg',
   '.png': 'image/png',
-  '.webp': 'image/webp'
+  '.webp': 'image/webp',
+  '.mp4': 'video/mp4'
 };
 
 const dashboardAssets = new Set([
@@ -28,7 +29,7 @@ const dashboardAssets = new Set([
 ]);
 
 const deployAssets = new Set([
-  'presentation.css', 'aegisland.css', 'signature.css', 'research-home.css', 'research-media.css', 'phase-polish.css',
+  'presentation.js', 'presentation.css', 'aegisland.css', 'signature.css', 'research-home.css', 'research-media.css', 'phase-polish.css',
   'phase-polish-fixes.css', 'phase-polish-v2.css', 'phase-ui-consistency.css', 'final-convergence.css', 'final-convergence-base.css', 'craft-polish.css', 'frozen-lineage.js',
   'research-workspace.css', 'research-workspace.js'
 ]);
@@ -69,6 +70,10 @@ const server = http.createServer(async (req, res) => {
   if (p.startsWith('/dashboard/')) {
     const relative = p.slice('/dashboard/'.length);
     if (!relative.includes('..')) return sendFile(res, path.join(dashboardRoot, relative));
+  }
+  if (p.startsWith('/film/')) {
+    const relative = p.slice('/film/'.length);
+    if (!relative.includes('..') && !relative.includes('/')) return sendFile(res, path.join(deployRoot, 'film', relative));
   }
   if (p.startsWith('/media/')) {
     const relative = p.slice('/media/'.length);
