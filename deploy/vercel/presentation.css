@@ -405,3 +405,18 @@ html body.home-workspace .explainer-film { max-width: 960px; margin: 0 auto; }
 html body.home-workspace .explainer-film figcaption { padding: 18px 0 0; color: #5c5e62; font-size: 14px; line-height: 1.6; }
 .explainer-film figcaption strong { color: #171a20; }
 .explainer-film figcaption span { display: block; margin-top: 6px; font-size: 12px; }
+/* A quieter opening scene and a contained chapter rail. */
+html body.research-workspace.home-workspace.home-workspace #top { min-height: min(780px,calc(100svh - 56px))!important; padding-top: clamp(40px,7vh,80px)!important; }
+html body.research-workspace.home-workspace.home-workspace #top :is(.workspace-context,.eyebrow) { display:none!important; }
+html body.research-workspace.home-workspace.home-workspace #top .hero-grid { width:min(850px,calc(100% - 48px))!important; }
+html body.research-workspace.home-workspace.home-workspace #top .hero-deck { max-width:540px!important; line-height:1.5!important; }
+html body.research-workspace.home-workspace.home-workspace #top .research-photo__frame::after { background:linear-gradient(180deg,rgba(8,24,38,.66),rgba(8,24,38,.12) 65%,rgba(8,24,38,.52)); }
+html body.research-workspace.home-workspace.home-workspace #top .research-photo img { transform-origin:center center; }
+.chapter-track { max-width:1280px; margin-inline:auto; padding-inline:24px; scroll-padding-inline:24px; scrollbar-width:none; }
+.chapter-track::-webkit-scrollbar { display:none; }
+.chapter-card { flex-basis:calc(100% - 48px); min-height:440px; border-radius:4px; }
+.chapter-card:hover img { transform:none; }
+.chapter-showcase .eyebrow { display:none; }
+html body.research-workspace.home-workspace.home-workspace .section { padding-block:56px!important; }
+@media(max-width:760px) { .chapter-card { flex-basis:100%; min-height:380px; padding:24px; } .chapter-track { padding-inline:20px; scroll-padding-inline:20px; } html body.research-workspace.home-workspace.home-workspace #top h1 { font-size:38px!important; } }
+@media(prefers-reduced-motion:reduce) { html { scroll-behavior:auto!important; } .chapter-card img { transition:none!important; } }

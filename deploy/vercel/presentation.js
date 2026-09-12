@@ -137,16 +137,16 @@
     update();
   }
 
-  if ('IntersectionObserver' in window) {
-    const reveal = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
-        if (!motion.matches && entry.target.animate) {
-          entry.target.animate([{ opacity: .6, transform: 'translateY(16px)' }, { opacity: 1, transform: 'translateY(0)' }], { duration: 550, easing: 'cubic-bezier(.2,.65,.3,1)' });
-        }
-        reveal.unobserve(entry.target);
-      });
-    }, { threshold: .12 });
-    document.querySelectorAll('.chapter-heading, .section-head, .research-photo--inline, .method-visual-grid').forEach((element) => reveal.observe(element));
+  // The photo recedes as the visitor leaves the opening scene. Native scrolling stays intact.
+  const hero=document.querySelector('#top'), photo=hero?.querySelector('.research-photo img');
+  let pending=false;
+  const frame=()=>{
+    pending=false;if(!hero||!photo)return;
+    const progress=Math.max(0,Math.min(1,-hero.getBoundingClientRect().top/hero.offsetHeight));
+    photo.style.transform=motion.matches?'none':`scale(${1.025-progress*.025}) translateY(${progress*24}px)`;
+  };
+  if(hero&&photo){
+    addEventListener('scroll',()=>{if(!pending){pending=true;requestAnimationFrame(frame);}},{passive:true});
+    motion.addEventListener('change',frame);frame();
   }
 })();

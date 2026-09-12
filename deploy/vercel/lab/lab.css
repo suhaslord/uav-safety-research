@@ -112,3 +112,27 @@
 @media(max-width:760px) { .lab-layout,.guide-intro,.guide-columns { grid-template-columns:1fr; gap:28px; } .lab-shell { width:calc(100% - 40px); } .aegis-guide { padding:40px 0; } .lab-controls { padding:24px; } .lab-controls fieldset { display:flex; } .lab-summary div { display:block; } .lab-results { scroll-margin-top:120px; } .guide-intro { margin-bottom:28px; } }
 .lab-intro-link { display:inline-flex; align-items:center; min-height:44px; margin:12px 20px; color:#171a20; font:14px Arial,Helvetica,sans-serif; text-underline-offset:4px; }
 @media(min-width:761px) { .lab-actions { position:sticky; bottom:0; background:#f4f4f4; padding-block:12px; z-index:1; } }
+/* Compact reading and experiments: detail remains one action away. */
+.aegis-guide { padding:32px 0; }
+.guide-intro { margin-bottom:8px; gap:32px; }
+.aegis-guide h2 { font-size:clamp(24px,2.4vw,32px); margin-bottom:12px; }
+.guide-more > summary { padding:8px 0; margin-top:0; }
+.guide-more .guide-columns { margin-top:20px; }
+.lab-help-toggle { display:flex!important; align-items:center; gap:10px; margin:12px 0 24px!important; font-size:14px!important; }
+.lab-help-toggle input { width:18px; height:18px; padding:0; accent-color:#3457b2; }
+.experiment-lab:not(.lab-explained) .lab-field small,
+.experiment-lab:not(.lab-explained) .lab-metric-help { display:none; }
+.lab-controls .lab-field { margin-bottom:18px; }
+.lab-controls { padding:24px; }
+.lab-scope { margin-bottom:16px!important; }
+.lab-preset-note { display:none; }
+.lab-advanced + .lab-advanced { border-top:0; }
+.lab-advanced summary { padding:14px 0; }
+.lab-status { min-height:0; margin-top:10px!important; }
+.lab-actions { margin-top:12px; }
+.lab-results .lab-takeaway { font-size:14px; line-height:1.55; }
+.lab-summary { margin:20px 0; }
+.lab-results .lab-summary { padding:20px 0; }
+.lab-empty { min-height:240px; }
+@media(min-width:761px) { .lab-layout { grid-template-columns:340px minmax(0,1fr); } .lab-results { position:sticky; top:130px; } }
+@media(prefers-reduced-motion:reduce) { html { scroll-behavior:auto!important; } }
