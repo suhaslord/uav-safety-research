@@ -397,3 +397,11 @@ html body.home-workspace .supporters-note { max-width: 76ch; margin: 40px 0 0; c
   .supporters-grid { grid-template-columns: minmax(0, 1fr); gap: 32px; margin-top: 32px; }
   html body.home-workspace .supporters-note { margin-top: 32px; }
 }
+
+/* Optional, silent explainers beside the concepts they demonstrate. */
+html body.home-workspace .explainer-wrap { margin-top: 48px; }
+html body.home-workspace .explainer-film { max-width: 960px; margin: 0 auto; }
+.explainer-film video { display: block; width: 100%; height: auto; aspect-ratio: 16/9; background: #f4f4f4; border-radius: 4px; }
+html body.home-workspace .explainer-film figcaption { padding: 18px 0 0; color: #5c5e62; font-size: 14px; line-height: 1.6; }
+.explainer-film figcaption strong { color: #171a20; }
+.explainer-film figcaption span { display: block; margin-top: 6px; font-size: 12px; }
