@@ -44,9 +44,13 @@ def build(output, base_path):
         text = file.read_text()
         text = text.replace('https://aegisland-research-cockpit.vercel.app', origin)
         if base:
-            text = re.sub(r'''(["'`])/(?!/)(?=[A-Za-z0-9?#]|["'`])''',
+            if file.suffix != '.css':
+                text = re.sub(r'''(["'`])/(?!/)(?=[A-Za-z0-9?#]|["'`])''',
+                              lambda match: match[1] + base + '/', text)
+            # CSS strings also contain visible punctuation such as content: '/'.
+            # Only url() values are paths in a stylesheet.
+            text = re.sub(r'''(url\(\s*["']?)/(?!/)''',
                           lambda match: match[1] + base + '/', text)
-            text = re.sub(r'url\(/(?!/)', 'url(' + base + '/', text)
         file.write_text(text)
     (output / '.nojekyll').touch()
     (output / '404.html').write_text(f'''<!doctype html>
