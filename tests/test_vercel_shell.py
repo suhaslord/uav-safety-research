@@ -99,7 +99,7 @@ def test_phase_archive_uses_shared_tesla_polish_without_rewriting_lineage() -> N
     assert 'href="/phase-editorial-media.css?v=' in phase
     assert 'href="/signature.css?v=' not in archive
     assert 'href="/signature.css?v=' not in frozen
-    assert "One research program. Six distinct chapters." in archive
+    assert "One question. Six chapters." in archive
     assert "Research categories" in archive
 
 
@@ -156,8 +156,8 @@ def test_frozen_archive_replaces_current_frontier_bridge_without_breaking_legacy
     assert 'src="/phase-editorial-media.js?v=' in frozen
     assert "phase(?:12|13a|13b|13c|1[4-9]|2[0-2])" in frozen
 
-    assert phase.rfind('src="/phase-personalization.js?v=1"') > phase.rfind('src="/aegis-current.js"')
-    assert phase.rfind('src="/phase-editorial-media.js?v=1"') > phase.rfind('src="/phase-personalization.js?v=1"')
+    assert phase.rfind('src="/phase-personalization.js?v=') > phase.rfind('src="/aegis-current.js"')
+    assert phase.rfind('src="/phase-editorial-media.js?v=1"') > phase.rfind('src="/phase-personalization.js?v=')
 
 
 def test_phase10r_logic_is_loaded_by_the_shared_phase_template() -> None:

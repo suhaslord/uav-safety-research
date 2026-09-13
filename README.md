@@ -10,6 +10,8 @@ The goal is not to prove that an aircraft is safe to fly. The goal is to build a
 
 **Live research cockpit:** https://aegisland-research-cockpit.vercel.app/
 
+**Interactive experiments:** Open a phase and select **Run an experiment** to vary inputs, compute exploratory results in your browser, and download JSON or CSV. The panel states which original components it runs and which full evaluations require external evidence. These runs stay separate from frozen scientific results. See [browser experiment scope](docs/browser-experiments.md).
+
 ---
 
 ## What are we trying to answer?
@@ -173,7 +175,7 @@ python scripts/run_experiments.py --episodes 100 --seed 2026 --out results/run_1
 
 ---
 
-## 7. Run the research cockpit locally
+## 7. Preview the historical dashboard locally
 
 ```bash
 python scripts/serve_dashboard.py
@@ -187,7 +189,7 @@ http://127.0.0.1:8765
 
 Press `Ctrl+C` in the terminal to stop the local server.
 
-The production version is available at:
+This helper serves the historical `dashboard/` directory. The current production presentation lives under `deploy/vercel/` and uses Vercel routing, including archive routes; the helper does not reproduce that deployment. For the current published cockpit, use:
 
 https://aegisland-research-cockpit.vercel.app/
 
@@ -204,6 +206,15 @@ For the frozen scientific record:
 3. Do not tune a method after protected or final evidence has been exposed.
 4. Do not reinterpret a failed gate as a pass because a later phase succeeded.
 5. Preserve frozen code, candidate hashes, seeds, and result artifacts when making a replication claim.
+
+Repository navigation:
+
+- `src/` — simulation and research implementation.
+- `scripts/` — experiments, reporting, and local preview utilities.
+- `tests/` — software checks.
+- `docs/`, `experiments/`, and `results/` — protocols, study context, and committed evidence.
+- `deploy/vercel/` — current production presentation and routing.
+- `dashboard/` — historical dashboard and archive assets.
 
 Useful starting points:
 

@@ -7,6 +7,7 @@ const dashboardRoot = path.resolve('dashboard');
 const port = Number(process.env.PORT || 4173);
 
 const types = {
+  '.json': 'application/json; charset=utf-8',
   '.html': 'text/html; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
   '.js': 'application/javascript; charset=utf-8',
@@ -15,7 +16,8 @@ const types = {
   '.jpg': 'image/jpeg',
   '.jpeg': 'image/jpeg',
   '.png': 'image/png',
-  '.webp': 'image/webp'
+  '.webp': 'image/webp',
+  '.mp4': 'video/mp4'
 };
 
 const dashboardAssets = new Set([
@@ -28,7 +30,8 @@ const dashboardAssets = new Set([
 ]);
 
 const deployAssets = new Set([
-  'aegisland.css', 'signature.css', 'research-home.css', 'research-media.css', 'phase-polish.css',
+  'lab/lab.js', 'lab/lab.css', 'lab/worker.js', 'lab/python-bundle.json',
+  'phase-explorer.js', 'presentation.js', 'presentation.css', 'aegisland.css', 'signature.css', 'research-home.css', 'research-media.css', 'phase-polish.css',
   'phase-polish-fixes.css', 'phase-polish-v2.css', 'phase-ui-consistency.css', 'final-convergence.css', 'final-convergence-base.css', 'craft-polish.css', 'frozen-lineage.js',
   'research-workspace.css', 'research-workspace.js'
 ]);
@@ -69,6 +72,10 @@ const server = http.createServer(async (req, res) => {
   if (p.startsWith('/dashboard/')) {
     const relative = p.slice('/dashboard/'.length);
     if (!relative.includes('..')) return sendFile(res, path.join(dashboardRoot, relative));
+  }
+  if (p.startsWith('/film/')) {
+    const relative = p.slice('/film/'.length);
+    if (!relative.includes('..') && !relative.includes('/')) return sendFile(res, path.join(deployRoot, 'film', relative));
   }
   if (p.startsWith('/media/')) {
     const relative = p.slice('/media/'.length);

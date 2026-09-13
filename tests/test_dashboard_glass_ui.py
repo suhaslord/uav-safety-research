@@ -53,6 +53,4 @@ def test_vercel_home_is_native_frozen_archive_using_tesla_style_source():
     assert 'href="/research-home.css?v=' in SHELL
     assert 'src="/frozen-lineage.js?v=' in SHELL
     assert ".home-lineage__track" in HOME
-    # The current editorial homepage intentionally sizes to content instead of
-    # preserving the retired 610px minimum-height contract.
-    assert "min-height:0!important" in HOME
+    assert "min-height:610px!important" in HOME
