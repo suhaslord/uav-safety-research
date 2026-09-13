@@ -2,6 +2,16 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 
 const outputDir = path.resolve(process.env.AEGIS_EDITORIAL_MEDIA_DIR || 'deploy/vercel/media');
+const minJpegBytes = 50_000;
+const maxTrailingBytesAfterEoi = 1024;
+const attemptsPerSource = 2;
+const requestTimeoutMs = 30_000;
+const sofMarkers = new Set([
+  0xc0, 0xc1, 0xc2, 0xc3,
+  0xc5, 0xc6, 0xc7,
+  0xc9, 0xca, 0xcb,
+  0xcd, 0xce, 0xcf
+]);
 
 const commonsRedirect = (title) =>
   `https://commons.wikimedia.org/wiki/Special:Redirect/file/${encodeURIComponent(title)}?width=1280`;
@@ -58,33 +68,125 @@ const assets = [
   stereo('phase22-context.jpg', 'NHQ202105050014', 'Phase 22 locked-transfer context')
 ];
 
-const looksLikeJpeg = (buffer) =>
-  buffer.length > 50_000 && buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff;
+function validateJpeg(buffer, label = 'JPEG') {
+  if (buffer.length <= minJpegBytes) {
+    throw new Error(`${label} is too small (${buffer.length} bytes)`);
+  }
+  if (buffer[0] !== 0xff || buffer[1] !== 0xd8) {
+    throw new Error(`${label} is missing the JPEG SOI marker`);
+  }
+
+  let offset = 2;
+  let sawSof = false;
+  let sawSos = false;
+  let width = 0;
+  let height = 0;
+
+  while (offset < buffer.length) {
+    if (buffer[offset] !== 0xff) {
+      throw new Error(`${label} has invalid marker alignment at byte ${offset}`);
+    }
+
+    while (offset < buffer.length && buffer[offset] === 0xff) offset += 1;
+    if (offset >= buffer.length) throw new Error(`${label} ends inside a marker`);
+
+    const marker = buffer[offset++];
+    if (marker === 0xd9) break;
+    if (marker === 0x01 || (marker >= 0xd0 && marker <= 0xd7)) continue;
+
+    if (offset + 2 > buffer.length) throw new Error(`${label} has a truncated marker length`);
+    const segmentLength = buffer.readUInt16BE(offset);
+    if (segmentLength < 2) throw new Error(`${label} has an invalid marker length`);
+
+    const segmentStart = offset + 2;
+    const segmentEnd = offset + segmentLength;
+    if (segmentEnd > buffer.length) throw new Error(`${label} has a truncated marker segment`);
+
+    if (sofMarkers.has(marker)) {
+      if (segmentLength < 7) throw new Error(`${label} has an invalid SOF segment`);
+      height = buffer.readUInt16BE(segmentStart + 1);
+      width = buffer.readUInt16BE(segmentStart + 3);
+      if (!width || !height) throw new Error(`${label} has invalid dimensions ${width}x${height}`);
+      sawSof = true;
+    }
+
+    if (marker === 0xda) {
+      sawSos = true;
+      offset = segmentEnd;
+      break;
+    }
+
+    offset = segmentEnd;
+  }
+
+  if (!sawSof) throw new Error(`${label} is missing a JPEG frame header`);
+  if (!sawSos) throw new Error(`${label} is missing JPEG scan data`);
+
+  let eoiOffset = -1;
+  for (let index = buffer.length - 2; index >= offset; index -= 1) {
+    if (buffer[index] === 0xff && buffer[index + 1] === 0xd9) {
+      eoiOffset = index;
+      break;
+    }
+  }
+  if (eoiOffset < 0) throw new Error(`${label} is truncated before the JPEG EOI marker`);
+
+  const trailingBytes = buffer.length - (eoiOffset + 2);
+  if (trailingBytes > maxTrailingBytesAfterEoi) {
+    throw new Error(`${label} has ${trailingBytes} unexpected bytes after JPEG EOI`);
+  }
+
+  return { width, height };
+}
+
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+async function fetchSource(url, asset, attempt) {
+  const response = await fetch(url, {
+    redirect: 'follow',
+    signal: AbortSignal.timeout(requestTimeoutMs),
+    headers: {
+      'cache-control': 'no-cache',
+      'user-agent': 'AegisLandResearchCockpit/2.1 (licensed NASA editorial media fetch)'
+    }
+  });
+  if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+
+  const buffer = Buffer.from(await response.arrayBuffer());
+  const dimensions = validateJpeg(buffer, `${asset.file} attempt ${attempt}`);
+  return { buffer, dimensions };
+}
 
 async function download(asset) {
   let lastError;
+
   for (const url of asset.urls) {
-    try {
-      const response = await fetch(url, {
-        redirect: 'follow',
-        headers: {
-          'user-agent': 'AegisLandResearchCockpit/2.0 (licensed NASA editorial media fetch)'
-        }
-      });
-      if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
-      const buffer = Buffer.from(await response.arrayBuffer());
-      if (!looksLikeJpeg(buffer)) throw new Error(`unexpected payload (${buffer.length} bytes)`);
-      const target = path.join(outputDir, asset.file);
-      const temporary = `${target}.tmp`;
-      await fs.writeFile(temporary, buffer);
-      await fs.rename(temporary, target);
-      console.log(`✓ ${asset.label}: ${asset.file} (${Math.round(buffer.length / 1024)} KiB)`);
-      return;
-    } catch (error) {
-      lastError = error;
-      console.warn(`Media fetch failed for ${asset.file} from ${url}: ${error.message}`);
+    for (let attempt = 1; attempt <= attemptsPerSource; attempt += 1) {
+      try {
+        const { buffer, dimensions } = await fetchSource(url, asset, attempt);
+        const target = path.join(outputDir, asset.file);
+        const temporary = `${target}.tmp`;
+        await fs.writeFile(temporary, buffer);
+
+        // Re-read before rename so a short/partial filesystem write can never be published.
+        const written = await fs.readFile(temporary);
+        validateJpeg(written, `${asset.file} staged file`);
+        await fs.rename(temporary, target);
+
+        console.log(
+          `✓ ${asset.label}: ${asset.file} (${dimensions.width}x${dimensions.height}, ${Math.round(buffer.length / 1024)} KiB)`
+        );
+        return;
+      } catch (error) {
+        lastError = error;
+        console.warn(
+          `Media fetch failed for ${asset.file} from ${url} (attempt ${attempt}/${attemptsPerSource}): ${error.message}`
+        );
+        if (attempt < attemptsPerSource) await delay(500 * attempt);
+      }
     }
   }
+
   throw new Error(`Unable to fetch ${asset.file}: ${lastError?.message || 'unknown error'}`);
 }
 
@@ -99,6 +201,15 @@ async function runPool(items, concurrency = 4) {
   await Promise.all(workers);
 }
 
+async function validateOutput() {
+  for (const asset of assets) {
+    const target = path.join(outputDir, asset.file);
+    const buffer = await fs.readFile(target);
+    validateJpeg(buffer, `${asset.file} final file`);
+  }
+}
+
 await fs.mkdir(outputDir, { recursive: true });
 await runPool(assets, 4);
-console.log(`✓ Editorial media ready: ${assets.length} local NASA photographs`);
+await validateOutput();
+console.log(`✓ Editorial media ready: ${assets.length} structurally valid local NASA photographs`);
