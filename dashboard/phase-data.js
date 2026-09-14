@@ -3,7 +3,7 @@ const PHASES = {
     label: "Phase 1 · Aegis V1",
     era: "Foundation",
     title: "Can a simple safety layer stop a bad landing?",
-    lede: "The first experiment compared a normal landing controller with a supervisor that could HOLD or ABORT when perception looked risky. We tested it across clean, blurred, dark, occluded, and mixed conditions.",
+    lede: "The first experiment compared a normal landing controller with a separate supervisor that could HOLD or ABORT when perception looked risky. We tested clean, blurred, dark, occluded, and mixed conditions.",
     status: "Frozen original experiment",
     role: "simulation-only · 5,000 episodes",
     change: [
@@ -12,9 +12,9 @@ const PHASES = {
       "Reported safety and availability separately"
     ],
     before: "The controller acted directly on the perception estimate.",
-    after: "A separate supervisor could pause or abort when risk crossed frozen thresholds.",
+    after: "A separate supervisor could pause or abort when risk crossed the frozen thresholds.",
     metrics: [["Mixed unsafe", "82.8% → 0%"], ["Mixed abort", "0% → 100%"], ["Main lesson", "Safety ≠ availability"]],
-    finding: "V1 stopped the unsafe touchdowns in the hardest mixed condition, but it did so by aborting every time. That made the tradeoff obvious: a system can look safe simply because it refuses to finish the task.",
+    finding: "V1 stopped unsafe touchdowns in the hardest mixed condition, but only by aborting every time. That exposed the tradeoff right away: a system can look safe simply because it refuses to finish the task.",
     source: "Phase 1 preregistration + V1 findings",
     sourceUrl: "https://github.com/suhaslord/uav-safety-research/blob/phase10-temporal-metric-perception/docs/v1_findings_and_v2_plan.md"
   },
@@ -23,7 +23,7 @@ const PHASES = {
     label: "Phase 2 · Aegis V2",
     era: "Foundation",
     title: "Stop overreacting to one bad frame.",
-    lede: "V2 made the supervisor less jumpy. Instead of treating one ugly measurement as a crisis, it filtered risk over time and required the problem to persist before escalating.",
+    lede: "V2 made the supervisor less jumpy. Instead of treating one bad measurement like a crisis, it watched risk over time and waited to see whether the problem persisted before escalating.",
     status: "Fixed V2 result",
     role: "simulation-only · 7,500 episodes",
     change: [
@@ -34,7 +34,7 @@ const PHASES = {
     before: "One severe observation could trigger a long hold or an abort.",
     after: "Risk had to stay high long enough to justify escalation.",
     metrics: [["Mixed abort", "100% → 0%"], ["Occlusion abort", "94.6% → 0%"], ["Mixed unsafe", "84.8%"]],
-    finding: "V2 fixed the availability disaster from V1, but it revealed a harder problem: a sensor can be consistently wrong. Temporal smoothing helps with spikes; it does not automatically expose a steady bias.",
+    finding: "V2 fixed the availability problem from V1, but uncovered a harder issue: a sensor can be wrong in a consistent way. Smoothing helps with spikes; it does not automatically reveal a steady bias.",
     source: "V2 frozen results",
     sourceUrl: "https://github.com/suhaslord/uav-safety-research/blob/phase10-temporal-metric-perception/docs/v2_results.md"
   },
@@ -43,7 +43,7 @@ const PHASES = {
     label: "Phase 3 · Aegis V3",
     era: "Foundation",
     title: "Give vision a second opinion.",
-    lede: "V3 added an independent reference estimate. When vision and the reference disagreed for long enough, the system could treat that disagreement as evidence of bias instead of trusting one internally consistent stream.",
+    lede: "V3 added an independent reference estimate. If vision and the reference disagreed for long enough, that disagreement became evidence of bias instead of letting one internally consistent stream speak for itself.",
     status: "Frozen held-out result",
     role: "simulation-only · 10,000 episodes",
     change: [
@@ -54,7 +54,7 @@ const PHASES = {
     before: "The system had only one corrupted observation stream to reason about.",
     after: "A second error pattern made persistent visual bias observable.",
     metrics: [["Mixed success", "97.6%"], ["Mixed unsafe", "2.4%"], ["Occlusion unsafe", "1.4%"]],
-    finding: "V3 was the first big architecture win. The important part was not another filter; it was independent evidence. A second estimator exposed errors the first one could not diagnose by looking only at itself.",
+    finding: "V3 was the first major architecture improvement. The key was not another filter; it was independent evidence. A second estimator exposed errors the first one could not diagnose by looking only at itself.",
     source: "V3 frozen results",
     sourceUrl: "https://github.com/suhaslord/uav-safety-research/blob/phase10-temporal-metric-perception/docs/v3_results.md"
   },
@@ -63,18 +63,18 @@ const PHASES = {
     label: "Phase 4 · Naming gap",
     era: "Foundation",
     title: "There is no standalone Phase 4 result.",
-    lede: "The early work was named V1, V2, and V3. The repository then resumes explicit phase numbering at Phase 5. The archive keeps that gap instead of inventing a milestone that never happened.",
+    lede: "The early work was named V1, V2, and V3, then the repository resumed explicit phase numbering at Phase 5. The archive keeps that gap instead of inventing a milestone that never happened.",
     status: "No standalone phase",
     role: "historical lineage · no invented result",
     change: [
       "Keep the original naming history",
-      "Do not invent a result for visual neatness",
-      "Treat the gap as part of provenance"
+      "Do not invent a result just to make the timeline look cleaner",
+      "Keep the gap as part of the research record"
     ],
     before: "The early experiments were versioned as V1, V2, and V3.",
     after: "The next explicit numbered milestone is Phase 5.",
     metrics: [["Standalone result", "None"], ["Invented metrics", "0"], ["Archive policy", "Gap preserved"]],
-    finding: "A clean-looking timeline is not more important than an accurate one. There was no separate Phase 4 experiment, so the archive says that plainly.",
+    finding: "An accurate timeline matters more than a perfectly neat one. There was no separate Phase 4 experiment, so the archive says that plainly.",
     source: "Repository research checkpoint",
     sourceUrl: "https://github.com/suhaslord/uav-safety-research/blob/phase10-temporal-metric-perception/docs/research_checkpoint_2026-08-10.md"
   },
@@ -83,7 +83,7 @@ const PHASES = {
     label: "Phase 5 · Robustness",
     era: "Perception + robustness",
     title: "Push V3 harder, then move from abstract errors to pixels.",
-    lede: "Phase 5 swept new seeds, stronger degradation, reference quality, dropout, and persistent bias. It also introduced a 96×96 synthetic landing-pad image benchmark so perception could finally fail for image-level reasons.",
+    lede: "Phase 5 tested new random seeds, stronger degradation, reference quality, dropout, and persistent bias. It also added a 96×96 synthetic landing-pad image benchmark so perception could fail for image-level reasons, not just abstract state errors.",
     status: "Completed robustness study",
     role: "simulation-only · stress + synthetic images",
     change: [
@@ -92,9 +92,9 @@ const PHASES = {
       "Added the first synthetic landing-pad renderer and pixel estimator"
     ],
     before: "V3 had strong frozen results, but perception was still represented as abstract corrupted measurements.",
-    after: "The controller was stress-tested more broadly and the project gained its first real image-derived measurements.",
+    after: "The controller faced a broader stress test, and the project gained its first image-derived measurements.",
     metrics: [["Mixed V3 success", "97.6% mean"], ["Mixed V3 unsafe", "2.4% mean"], ["Image valid outputs", "100% — too willing"]],
-    finding: "V3 held up well under the broader simulation sweeps. The new image estimator exposed a different failure: it almost never admitted uncertainty. It kept returning a valid answer even when the answer was bad.",
+    finding: "V3 held up well in the broader simulation sweeps. The new image estimator exposed a different problem: it almost never admitted uncertainty. It kept returning a valid-looking answer even when that answer was bad.",
     source: "Phase 5 results",
     sourceUrl: "https://github.com/suhaslord/uav-safety-research/blob/phase10-temporal-metric-perception/docs/phase5_results.md"
   },
@@ -103,7 +103,7 @@ const PHASES = {
     label: "Phase 6 · Image perception",
     era: "Perception + robustness",
     title: "Run the landing loop from image-derived measurements.",
-    lede: "Phase 6 connected synthetic image sequences to confidence calibration, tracking, reacquisition, velocity estimation, redundant checks, and the frozen Aegis supervisor.",
+    lede: "Phase 6 connected synthetic image sequences to confidence calibration, tracking, reacquisition, velocity estimates, redundant checks, and the frozen Aegis supervisor.",
     status: "Frozen held-out result",
     role: "synthetic-image simulation",
     change: [
@@ -114,7 +114,7 @@ const PHASES = {
     before: "The best controller result still depended on abstract state estimates.",
     after: "Landing decisions came from a complete synthetic image-sequence pipeline.",
     metrics: [["Mixed success", "92%"], ["Mixed unsafe", "7%"], ["Bad-frame rejection", "Still weak"]],
-    finding: "The full system became safer even though the frame-level confidence still missed many bad images. In other words, the architecture could absorb some perception mistakes without actually recognizing every mistake when it happened.",
+    finding: "The full system became safer even though frame-level confidence still missed many bad images. The architecture could absorb some perception mistakes without actually recognizing every mistake when it happened.",
     source: "Phase 6 frozen results",
     sourceUrl: "https://github.com/suhaslord/uav-safety-research/blob/phase10-temporal-metric-perception/docs/phase6_results.md"
   },
@@ -123,7 +123,7 @@ const PHASES = {
     label: "Phase 6B · Selective confidence",
     era: "Perception + robustness",
     title: "Stop judging the whole image with one confidence score.",
-    lede: "Phase 6B split lateral-position confidence from altitude/scale confidence. If vision was useful for one component but not the other, the system could keep the good part and substitute only the weak part.",
+    lede: "Phase 6B separated lateral-position confidence from altitude/scale confidence. If vision was useful for one part but weak for the other, the system could keep the useful information and replace only the unreliable part.",
     status: "Frozen held-out result",
     role: "synthetic-image simulation · component selective",
     change: [
@@ -132,9 +132,9 @@ const PHASES = {
       "Allowed component-specific abstention and reference takeover"
     ],
     before: "One global confidence score could throw away useful lateral information just because altitude looked weak, or the other way around.",
-    after: "Each geometry component could be accepted or rejected on its own evidence.",
+    after: "Each geometry component could be accepted or rejected using its own evidence.",
     metrics: [["Mixed success", "99%"], ["Mixed unsafe", "1%"], ["Occlusion unsafe", "4%"]],
-    finding: "The split confidence design worked better than one all-or-nothing score. It became the strongest frozen synthetic-image landing result, while still leaving clear weaknesses in low light and mixed lateral rejection.",
+    finding: "The split-confidence design worked better than one all-or-nothing score. It became the strongest frozen synthetic-image landing result, while still showing clear weaknesses in low light and mixed lateral rejection.",
     source: "Phase 6B frozen results",
     sourceUrl: "https://github.com/suhaslord/uav-safety-research/blob/phase10-temporal-metric-perception/docs/phase6b_results.md"
   },
@@ -143,7 +143,7 @@ const PHASES = {
     label: "Phase 7 · External validity stress",
     era: "External validation",
     title: "Make the simulator less forgiving.",
-    lede: "Phase 7 stopped chasing another easy percentage point and attacked the assumptions underneath the earlier results: sensor timing, stale state, common-mode faults, actuator lag, rate limits, drag, and colored disturbances.",
+    lede: "Phase 7 stopped chasing a nicer headline number and tested the assumptions underneath the earlier results: sensor timing, stale state, shared faults, actuator lag, rate limits, drag, and colored disturbances.",
     status: "Audited development milestone",
     role: "simulation-only · development evidence",
     change: [
@@ -152,9 +152,9 @@ const PHASES = {
       "Added actuator lag, rate limits, nonlinear drag, and colored disturbances"
     ],
     before: "Earlier experiments still used relatively clean timing and simplified dynamics.",
-    after: "Sensors arrived at different rates, could become stale or jointly wrong, and drove a harder plant model.",
+    after: "Sensors arrived at different rates, could become stale or fail together, and drove a harder plant model.",
     metrics: [["Factorial", "200 episodes"], ["New stresses", "Bias / dropout / latency"], ["Outcome", "Weak cells preserved"]],
-    finding: "Phase 7 did what a robustness phase should do: it found weak cells and kept them. The value was not a prettier score; it was a harder environment that made brittle assumptions easier to see.",
+    finding: "Phase 7 found weak cases and kept them in the record. That mattered more than improving the score: the harder environment made brittle assumptions much easier to see.",
     source: "Phase 7 PR #10",
     sourceUrl: "https://github.com/suhaslord/uav-safety-research/pull/10"
   },
@@ -163,7 +163,7 @@ const PHASES = {
     label: "Phase 8 · Higher-fidelity validation",
     era: "External validation",
     title: "Compare the internal simulator with PX4 and Gazebo.",
-    lede: "Phase 8 built a common trace format so AegisLand output could be compared with a real PX4 SITL + Gazebo run using frozen comparison thresholds.",
+    lede: "Phase 8 created a common trace format so AegisLand output could be compared directly with a PX4 SITL + Gazebo run using frozen comparison thresholds.",
     status: "Merged external-simulator evidence",
     role: "simulation-only · PX4/Gazebo",
     change: [
@@ -174,7 +174,7 @@ const PHASES = {
     before: "The important conclusions still came from AegisLand's own simulator family.",
     after: "Internal traces could be compared directly with an outside simulator trace.",
     metrics: [["Close", "1"], ["Mismatch", "9"], ["Overall", "diagnostic_mismatch"]],
-    finding: "The answer was mostly mismatch. That was useful. Instead of retuning until the two simulators looked similar, the project kept the disagreement and treated it as evidence that the internal model was not yet externally representative.",
+    finding: "Most of the comparisons showed a mismatch, and that was useful. Instead of retuning until the simulators looked alike, the project kept the disagreement as evidence that the internal model was not yet externally representative.",
     source: "Phase 8 PX4/Gazebo PR #12",
     sourceUrl: "https://github.com/suhaslord/uav-safety-research/pull/12"
   },
@@ -183,7 +183,7 @@ const PHASES = {
     label: "Phase 9 · External perception",
     era: "External validation",
     title: "Use actual Gazebo camera frames.",
-    lede: "Phase 9 preserved raw Gazebo camera bytes and hashes, fixed camera-pose provenance, and ran ArUco/quad detection plus PnP geometry on the first valid external-camera trace.",
+    lede: "Phase 9 preserved the raw Gazebo camera bytes and hashes, fixed the camera-pose provenance, and ran ArUco/quad detection with PnP geometry on the first valid external-camera trace.",
     status: "Audited seen-camera evidence",
     role: "simulation-only · external_perception_seen",
     change: [
@@ -192,9 +192,9 @@ const PHASES = {
       "Linked metric geometry to camera pose and explicit uncertainty"
     ],
     before: "PX4/Gazebo had tested navigation behavior, but not the AegisLand camera model itself.",
-    after: "The project had traceable measurements from genuine simulator-camera frames.",
+    after: "The project now had traceable measurements from genuine simulator-camera frames.",
     metrics: [["Visible observations", "25 / 25"], ["Lateral MAE", "0.998 m"], ["Altitude MAE", "1.520 m"]],
-    finding: "Detection worked on the seen trace, but metric geometry was not good enough. The biggest errors came from the seven quad-fallback measurements, which made the next target clear: protect the estimator from ambiguous fallback geometry.",
+    finding: "Detection worked on the seen trace, but the metric geometry was not accurate enough. The largest errors came from the seven quad-fallback measurements, which made the next target clear: protect the estimator from ambiguous fallback geometry.",
     source: "Phase 9 PR #13",
     sourceUrl: "https://github.com/suhaslord/uav-safety-research/pull/13"
   },
@@ -202,8 +202,8 @@ const PHASES = {
   phase10: {
     label: "Phase 10 · AegisT10",
     era: "Current frontier",
-    title: "Make metric perception temporal, then freeze it before the new trajectory.",
-    lede: "AegisT10 kept the Phase 9 camera front end, added causal state over time, and calibrated uncertainty on development data before running once on a new 11-segment PX4/Gazebo holdout.",
+    title: "Add memory to metric perception, then freeze it before the new trajectory.",
+    lede: "AegisT10 kept the Phase 9 camera front end, added causal state over time, and calibrated uncertainty on development data before one run on a new 11-segment PX4/Gazebo holdout.",
     status: "Frozen holdout complete",
     role: "simulation-only · phase10_holdout_unseen",
     change: [
@@ -211,10 +211,10 @@ const PHASES = {
       "Added explicit reject/predict behavior for ambiguous fallback geometry",
       "Froze source-aware uncertainty calibration on development evidence"
     ],
-    before: "Phase 9 solved each camera observation independently and its reprojection-based uncertainty was far too confident.",
+    before: "Phase 9 solved each camera observation independently, and its reprojection-based uncertainty was far too confident.",
     after: "AegisT10 could protect an existing track from ambiguous fallback geometry and report better-calibrated uncertainty.",
     metrics: [["Holdout lateral MAE", "0.0277 m"], ["Holdout altitude MAE", "0.0157 m"], ["Substantial-win gate", "Not passed"]],
-    finding: "The holdout did not reproduce the big development point-error gain because all 15 usable measurements were already high-quality ArUco detections. The useful result was uncertainty: normalized residual medians were 0.65 lateral and 0.52 altitude. The unchanged front end still missed five of 20 truth-visible frames.",
+    finding: "The holdout did not reproduce the large development improvement in point error because all 15 usable measurements were already high-quality ArUco detections. The useful result was the uncertainty calibration: normalized residual medians were 0.65 lateral and 0.52 altitude. The unchanged front end still missed five of 20 truth-visible frames.",
     source: "Phase 10 frozen holdout result",
     sourceUrl: "https://github.com/suhaslord/uav-safety-research/blob/phase10-temporal-metric-perception/docs/phase10_frozen_holdout_result.md"
   }
