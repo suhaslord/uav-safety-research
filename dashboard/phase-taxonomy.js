@@ -40,7 +40,7 @@
       label: '01 · Safety architecture',
       name: 'Safety architecture',
       range: 'Phase 1 → Phase 4',
-      description: 'The project starts here: add a safety layer, make it less reactive, bring in independent evidence, and keep the real gap in the research record.',
+      description: 'The first experiments built a separate safety check, fixed its tendency to overreact, and added an independent estimate. The missing Phase 4 stays missing.',
       accent: '#3e6ae1',
       tint: '#eef3ff'
     },
@@ -49,7 +49,7 @@
       label: '02 · Perception + robustness',
       name: 'Perception + robustness',
       range: 'Phase 5 → Phase 6B',
-      description: 'Move from abstract error signals to actual image-based estimates, then test how confidence, tracking, and partial uncertainty behave.',
+      description: 'Here the project moves from abstract corrupted measurements to rendered images. The main question becomes whether confidence can tell which parts of an image estimate are actually trustworthy.',
       accent: '#4d6f9d',
       tint: '#f0f4f8'
     },
@@ -58,7 +58,7 @@
       label: '03 · External validation',
       name: 'External validation',
       range: 'Phase 7 → Phase 10R',
-      description: 'Make the simulation harder, compare it with PX4 and Gazebo, and see what breaks when camera geometry and conditions shift.',
+      description: 'The simulator gets less forgiving, then its traces and camera estimates are checked against PX4 and Gazebo. Several mismatches are kept rather than tuned away.',
       accent: '#416b78',
       tint: '#eef5f6'
     },
@@ -67,7 +67,7 @@
       label: '04 · Reliability + calibration',
       name: 'Reliability + calibration',
       range: 'Phase 11 → Phase 13C',
-      description: 'Ask whether the system can stay useful without becoming overconfident, then test whether those uncertainty claims hold in harder conditions.',
+      description: 'These phases test whether uncertainty remains useful under stricter validation. Some checks pass, others fail, and the later attribution work starts from those failures instead of erasing them.',
       accent: '#5a6484',
       tint: '#f1f2f7'
     },
@@ -76,7 +76,7 @@
       label: '05 · Latency + error dynamics',
       name: 'Latency + error dynamics',
       range: 'Phase 14 → Phase 19',
-      description: 'Separate the damage caused by stale estimates from the short-term patterns left in the residuals, while keeping failed ideas in the record.',
+      description: 'This part separates two questions that are easy to mix up: what stale estimates do to the error itself, and what short-term pattern remains in the residuals.',
       accent: '#596f63',
       tint: '#f1f5f2'
     },
@@ -85,44 +85,44 @@
       label: '06 · Context structure + transfer',
       name: 'Context structure + transfer',
       range: 'Phase 20 → Phase 22',
-      description: 'Break down which synthetic conditions matter, study how those effects combine, and test whether a frozen model carries over without being refit.',
+      description: 'The last three phases break the hard context into predefined factors, measure their interactions, and finally ask whether a model frozen beforehand can predict a fresh 32-cell context surface.',
       accent: '#365f8d',
       tint: '#eef4fa'
     }
   ];
 
   const bySlug = {
-    phase1: { category: 'safety-architecture', identity: 'The safety gate', question: 'Can a confidence check stop an unsafe action before touchdown?', signal: 'HOLD / ABORT' },
-    phase2: { category: 'safety-architecture', identity: 'The stabilizer', question: 'Can the supervisor avoid overreacting to one bad frame?', signal: 'Temporal risk' },
-    phase3: { category: 'safety-architecture', identity: 'The second opinion', question: 'What changes when vision gets an independent second estimate?', signal: 'Disagreement' },
-    phase4: { category: 'safety-architecture', identity: 'The missing phase', question: 'What should the archive show when a numbered experiment never existed?', signal: 'No invented result' },
+    phase1: { category: 'safety-architecture', identity: 'First safety supervisor', question: 'Can a separate confidence check stop a risky touchdown?', signal: 'HOLD / ABORT' },
+    phase2: { category: 'safety-architecture', identity: 'Risk over time', question: 'What changes if one bad frame is not enough to trigger an escalation?', signal: 'Temporal risk' },
+    phase3: { category: 'safety-architecture', identity: 'Independent reference', question: 'Can a second estimate expose bias that vision cannot see by itself?', signal: 'Disagreement' },
+    phase4: { category: 'safety-architecture', identity: 'The numbering gap', question: 'How should the archive handle a phase that was never run?', signal: 'No invented result' },
 
-    phase5: { category: 'perception-robustness', identity: 'The stress test', question: 'Does the design still hold up under stronger stress and the first move to pixels?', signal: 'Robustness' },
-    phase6: { category: 'perception-robustness', identity: 'The image loop', question: 'Can image-based measurements drive the full simulated landing loop?', signal: 'Pixels → control' },
-    phase6b: { category: 'perception-robustness', identity: 'The selective confidence layer', question: 'What if lateral position looks reliable but altitude does not?', signal: 'Component confidence' },
+    phase5: { category: 'perception-robustness', identity: 'Broader stress + pixels', question: 'Does V3 survive a wider stress test, and what breaks when measurements start coming from images?', signal: 'Robustness' },
+    phase6: { category: 'perception-robustness', identity: 'Image-driven loop', question: 'Can a full simulated landing run on measurements extracted from image sequences?', signal: 'Pixels → control' },
+    phase6b: { category: 'perception-robustness', identity: 'Split confidence', question: 'What if lateral position is usable while altitude is not?', signal: 'Component confidence' },
 
-    phase7: { category: 'external-validation', identity: 'The realism stress test', question: 'How much of the result depends on an overly forgiving simulator?', signal: 'Latency + faults' },
-    phase8: { category: 'external-validation', identity: 'The simulator comparison', question: 'How closely does the internal simulator match PX4 and Gazebo?', signal: 'Trace mismatch' },
-    phase9: { category: 'external-validation', identity: 'The camera geometry test', question: 'What happens when the estimator uses real Gazebo camera frames?', signal: 'PnP geometry' },
-    phase10: { category: 'external-validation', identity: 'The temporal estimator', question: 'Can recent state protect metric perception when the camera geometry is ambiguous?', signal: 'Causal tracking' },
-    phase10r: { category: 'external-validation', identity: 'The shifted holdout', question: 'Do the strong average gains survive when geometry and appearance both change?', signal: 'Tail + coverage' },
+    phase7: { category: 'external-validation', identity: 'Harder simulator', question: 'Which earlier results depended on convenient timing, sensing, or dynamics?', signal: 'Latency + faults' },
+    phase8: { category: 'external-validation', identity: 'PX4/Gazebo comparison', question: 'Where do the internal traces agree with PX4/Gazebo, and where do they not?', signal: 'Trace mismatch' },
+    phase9: { category: 'external-validation', identity: 'Camera-frame geometry', question: 'How accurate is the metric estimate when it starts from Gazebo camera frames?', signal: 'PnP geometry' },
+    phase10: { category: 'external-validation', identity: 'Stateful metric estimator', question: 'Can recent state protect a good track when fallback camera geometry is ambiguous?', signal: 'Causal tracking' },
+    phase10r: { category: 'external-validation', identity: 'Shifted holdout', question: 'Do the average gains survive a holdout where both appearance and geometry move?', signal: 'Tail + coverage' },
 
-    phase11: { category: 'reliability-calibration', identity: 'The protected reliability test', question: 'Can availability recover without hiding uncertainty problems?', signal: 'Protected gates' },
-    phase12: { category: 'reliability-calibration', identity: 'The uncertainty baseline', question: 'Can normalized conformal uncertainty serve as a stable frozen reference?', signal: 'Coverage' },
-    phase13a: { category: 'reliability-calibration', identity: 'The validity stress test', question: 'Does the frozen uncertainty result survive a harder external-validity challenge?', signal: 'FAIL preserved' },
-    phase13b: { category: 'reliability-calibration', identity: 'The paired degradation test', question: 'Do the locked claims still hold under paired degradation?', signal: 'FAIL preserved' },
-    phase13c: { category: 'reliability-calibration', identity: 'The attribution test', question: 'Which frozen synthetic factor contributes most to the coverage failure?', signal: 'Latency attribution' },
+    phase11: { category: 'reliability-calibration', identity: 'Protected reliability check', question: 'Can availability improve without covering up an uncertainty problem?', signal: 'Protected gates' },
+    phase12: { category: 'reliability-calibration', identity: 'Frozen uncertainty reference', question: 'Is normalized conformal uncertainty stable enough to freeze as the baseline?', signal: 'Coverage' },
+    phase13a: { category: 'reliability-calibration', identity: 'External-validity challenge', question: 'Does that frozen uncertainty result survive a harder validation setting?', signal: 'FAIL preserved' },
+    phase13b: { category: 'reliability-calibration', identity: 'Paired degradation check', question: 'Do the locked claims survive when degradations are paired?', signal: 'FAIL preserved' },
+    phase13c: { category: 'reliability-calibration', identity: 'Failure attribution', question: 'Within the frozen synthetic setup, which tested factor contributes most to the coverage loss?', signal: 'Latency attribution' },
 
-    phase14: { category: 'latency-dynamics', identity: 'The bridge attempt', question: 'Can uncertainty width be turned into a useful recoverability bound?', signal: '0 admitted' },
-    phase15: { category: 'latency-dynamics', identity: 'The feasibility check', question: 'Is the preregistered latency frontier actually outside the historical range?', signal: 'Frontier test' },
-    phase16: { category: 'latency-dynamics', identity: 'The staleness test', question: 'What does a two-frame-old estimate do to the actual error level?', signal: 'Level error' },
-    phase17: { category: 'latency-dynamics', identity: 'The coefficient mismatch test', question: 'Does the useful coefficient change when the context changes?', signal: 'Context mismatch' },
-    phase18: { category: 'latency-dynamics', identity: 'The protected confirmation', question: 'Does the residual advantage survive the protected q90 checks?', signal: 'Protected FAIL' },
-    phase19: { category: 'latency-dynamics', identity: 'The residual effect', question: 'Does the narrower residual advantage repeat across the full error distribution?', signal: 'RMSE / MAE' },
+    phase14: { category: 'latency-dynamics', identity: 'Recoverability bridge attempt', question: 'Can uncertainty width support a useful recoverability bound?', signal: '0 admitted' },
+    phase15: { category: 'latency-dynamics', identity: 'Frontier feasibility check', question: 'Does the preregistered latency frontier actually fall outside the historical analysis range?', signal: 'Frontier test' },
+    phase16: { category: 'latency-dynamics', identity: 'Stale-estimate experiment', question: 'How much does a two-frame delay change the error level itself?', signal: 'Level error' },
+    phase17: { category: 'latency-dynamics', identity: 'Context mismatch', question: 'Does the useful latency coefficient carry from the simple context into the hard one?', signal: 'Context mismatch' },
+    phase18: { category: 'latency-dynamics', identity: 'Protected residual check', question: 'Does the residual improvement still clear the protected q90 requirements?', signal: 'Protected FAIL' },
+    phase19: { category: 'latency-dynamics', identity: 'Residual distribution test', question: 'Does the narrower residual effect repeat across RMSE and MAE on fresh splits?', signal: 'RMSE / MAE' },
 
-    phase20: { category: 'context-transfer', identity: 'The factor breakdown', question: 'Which predefined conditions explain the drop from simple to hard contexts?', signal: 'Shapley' },
-    phase21: { category: 'context-transfer', identity: 'The context spectrum', question: 'Is the context surface mostly driven by individual factors or their interactions?', signal: 'Walsh–Hadamard' },
-    phase22: { category: 'context-transfer', identity: 'The frozen transfer model', question: 'Can a simple additive model predict a fresh context cube without being refit?', signal: '10 / 10 gates' }
+    phase20: { category: 'context-transfer', identity: 'Five-factor breakdown', question: 'How is the simple-to-hard drop distributed across the five predefined conditions?', signal: 'Shapley' },
+    phase21: { category: 'context-transfer', identity: 'Main effects vs. interactions', question: 'How much of the context surface comes from individual factors, and how much from interactions?', signal: 'Walsh–Hadamard' },
+    phase22: { category: 'context-transfer', identity: 'Frozen additive transfer', question: 'Can the model predict a new context cube without being fit again?', signal: '10 / 10 gates' }
   };
 
   const categoryById = Object.fromEntries(categories.map(category => [category.id, category]));
