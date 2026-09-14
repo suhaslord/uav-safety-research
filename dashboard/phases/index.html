@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#ffffff">
-  <meta name="description" content="AegisLand research lineage through Phase 22, organized by research category with frozen passes, failures, and foundational work preserved.">
+  <meta name="description" content="Browse the AegisLand research record from Phase 1 through the frozen Phase 22 result, including passes, failures, and the missing Phase 4 entry.">
   <title>AegisLand — Research Phase Archive</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=5">
   <link rel="stylesheet" href="/aegisland.css?v=4">
@@ -18,49 +18,49 @@
   <link rel="stylesheet" href="/presentation.css?v=8" data-presentation-theme>
 </head>
 <body class="phase-polish-shell research-workspace archive-workspace">
-  <a class="skip-link" href="#main">Skip to phase archive</a>
+  <a class="skip-link" href="#main">Skip to the phase archive</a>
   <header class="signature-nav">
     <a class="signature-brand" href="/" aria-label="AegisLand home"><span class="signature-brand__mark" aria-hidden="true"></span><span>AEGISLAND</span></a>
-    <nav class="signature-nav__links" aria-label="Archive navigation"><a href="#categories">Categories</a><a href="/phases/phase22/">Current evidence</a><a href="/">Research home</a><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub ↗</a></nav>
+    <nav class="signature-nav__links" aria-label="Archive navigation"><a href="#categories">Categories</a><a href="/phases/phase22/">Phase 22</a><a href="/">Research home</a><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub ↗</a></nav>
     <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-expanded="false" aria-controls="mobileMenuSheet">Menu</button>
   </header>
 
   <nav class="mobile-menu-sheet" id="mobileMenuSheet" aria-label="Mobile navigation" aria-hidden="true">
     <div class="mobile-menu-head"><strong>AEGISLAND</strong><button class="mobile-menu-close" type="button" aria-label="Close navigation">Close</button></div>
-    <div class="mobile-menu-links"><a href="#categories">Research categories</a><a href="/phases/phase22/">Current evidence</a><a href="/">Research home</a></div>
+    <div class="mobile-menu-links"><a href="#categories">Research categories</a><a href="/phases/phase22/">Phase 22</a><a href="/">Research home</a></div>
     <div class="mobile-menu-meta"><a href="/">Home</a><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub ↗</a></div>
   </nav>
 
   <main class="signature-shell archive-main" id="main">
     <section class="archive-hero">
-      <div class="workspace-context" aria-label="Archive context"><span>Evidence archive</span><span>Phase 1 → Phase 22</span><span>Simulation only</span></div>
-      <div class="signature-kicker">Research lineage</div>
-      <h1>One question. Six chapters.</h1>
-      <p>Follow the work from safety architecture and perception to external validation, reliability, latency dynamics, and context transfer. Every phase stays part of the story. Results, failures, and the naming gap stay in order within each chapter.</p>
+      <div class="workspace-context" aria-label="Archive context"><span>Research record</span><span>Phase 1 → Phase 22</span><span>Simulation only</span></div>
+      <div class="signature-kicker">How the work developed</div>
+      <h1>The archive keeps the detours, not just the wins.</h1>
+      <p>The project starts with a small landing supervisor and ends with a frozen additive transfer model. Between them are simulator mismatches, calibration failures, abandoned ideas, and narrower questions that came directly from those misses. Nothing is reordered to make the path look cleaner than it was.</p>
       <div class="archive-meta-line"><span><strong>26</strong> phase records</span><span><strong>6</strong> research categories</span><span><strong>13</strong> frozen Phase 12–22 records</span><span><strong>6 PASS / 7 FAIL</strong> frozen verdicts</span></div>
       <nav class="category-nav" id="categoryNav" aria-label="Research categories"></nav>
     </section>
 
     <section class="archive-stats archive-toolbar" aria-label="Archive search and filters">
-      <div class="archive-toolbar__search"><label for="archiveSearch">Search</label><input id="archiveSearch" type="search" placeholder="phase, question, finding, signal…" autocomplete="off" spellcheck="false"></div>
+      <div class="archive-toolbar__search"><label for="archiveSearch">Find a phase</label><input id="archiveSearch" type="search" placeholder="Search a phase, question, result, or signal…" autocomplete="off" spellcheck="false"></div>
       <div class="archive-filter-group" role="group" aria-label="Filter phase records">
-        <button class="archive-filter" type="button" data-filter="all" aria-pressed="true">All</button>
+        <button class="archive-filter" type="button" data-filter="all" aria-pressed="true">All records</button>
         <button class="archive-filter" type="button" data-filter="pass" aria-pressed="false">Frozen PASS</button>
         <button class="archive-filter" type="button" data-filter="fail" aria-pressed="false">Frozen FAIL</button>
-        <button class="archive-filter" type="button" data-filter="historical" aria-pressed="false">Foundational</button>
+        <button class="archive-filter" type="button" data-filter="historical" aria-pressed="false">Earlier work</button>
       </div>
       <div class="archive-filter-summary" id="archiveResultCount" aria-live="polite">Showing all 26 phase records.</div>
     </section>
 
     <div class="archive-empty-state" id="archiveEmptyState" hidden role="status">
-      <strong>No phase records match.</strong>
-      <span>Try a phase number, research question, or clear the active verdict filter.</span>
-      <button class="archive-reset" id="archiveReset" type="button">Clear search and filters</button>
+      <strong>Nothing in the archive matches that search.</strong>
+      <span>Try a phase number, a research term, or remove the active verdict filter.</span>
+      <button class="archive-reset" id="archiveReset" type="button">Reset archive search</button>
     </div>
 
     <div class="archive-groups" id="categories">
       <div id="archiveCategories"></div>
-      <section class="claim-boundary"><b>ARCHIVE BOUNDARY //</b> simulation_only=true · safety_acceptance=false · controller_tuning_allowed=false<br>This archive reports synthetic simulation studies and their frozen evidence states. It does not establish physical-flight safety, certification relevance, production readiness, real-sensor equivalence, controller improvement, or operational safety.</section>
+      <section class="claim-boundary"><b>ARCHIVE LIMIT //</b> simulation_only=true · safety_acceptance=false · controller_tuning_allowed=false<br>Every experiment shown here is synthetic. The archive does not establish real-flight safety, certification relevance, production readiness, equivalence to physical sensors, controller improvement, or operational safety.</section>
     </div>
   </main>
 
@@ -76,19 +76,19 @@
       const nav = document.getElementById('categoryNav');
 
       const legacy = {
-        phase1: ['Phase 1', 'Safety supervisor', 'Introduced a separate HOLD / ABORT safety layer and exposed the safety-versus-availability tradeoff.'],
-        phase2: ['Phase 2', 'Temporal filtering', 'Added persistence and hysteresis so one bad frame could not dominate the supervisor.'],
-        phase3: ['Phase 3', 'Independent reference', 'Added a second estimator so persistent visual bias became observable through disagreement.'],
-        phase4: ['Phase 4', 'Naming gap', 'Preserves the real repository history instead of inventing a missing experiment.'],
-        phase5: ['Phase 5', 'Robustness + pixels', 'Stress-tested V3 broadly and introduced the first synthetic landing-pad image estimator.'],
-        phase6: ['Phase 6', 'Image perception loop', 'Connected image-derived measurements, confidence, tracking, and the landing controller.'],
-        phase6b: ['Phase 6B', 'Selective confidence', 'Split lateral and altitude confidence so useful geometry could survive partial uncertainty.'],
-        phase7: ['Phase 7', 'External-validity stress', 'Added asynchronous sensing, latency, stale state, shared faults, and stronger dynamics.'],
-        phase8: ['Phase 8', 'PX4/Gazebo comparison', 'Compared internal traces directly with higher-fidelity PX4 SITL + Gazebo evidence.'],
-        phase9: ['Phase 9', 'External camera perception', 'Moved metric perception onto genuine Gazebo camera frames and exposed fallback-geometry error.'],
-        phase10: ['Phase 10', 'Temporal metric perception', 'Protected causal state from ambiguous geometry and made uncertainty more honest.'],
-        phase10r: ['Phase 10R', 'Frozen shift holdout', 'Mean ambiguous-view error improved, but tail risk, availability, and coverage still failed locked gates.'],
-        phase11: ['Phase 11', 'Protected reliability result', 'Recovered high availability and coverage while preserving one locked lateral tail-efficiency failure.']
+        phase1: ['Phase 1', 'First safety supervisor', 'A separate HOLD / ABORT layer stopped risky touchdowns, but the earliest version often did so by refusing to finish the landing.'],
+        phase2: ['Phase 2', 'Risk over time', 'Persistence and hysteresis reduced the supervisor’s tendency to treat a single bad frame as a crisis.'],
+        phase3: ['Phase 3', 'Independent reference', 'A second estimate made persistent visual bias visible through disagreement instead of asking vision to judge itself.'],
+        phase4: ['Phase 4', 'The numbering gap', 'There was no standalone Phase 4 experiment. The archive leaves the gap instead of inventing one.'],
+        phase5: ['Phase 5', 'Broader stress + pixels', 'V3 faced wider stress sweeps while the project introduced its first synthetic landing-pad image estimator.'],
+        phase6: ['Phase 6', 'Image-driven landing loop', 'Image-derived measurements, tracking, confidence, and the landing controller ran together in one simulated loop.'],
+        phase6b: ['Phase 6B', 'Split confidence', 'Lateral and altitude confidence were separated so one weak geometry component did not automatically discard the other.'],
+        phase7: ['Phase 7', 'Harder simulator', 'Asynchronous sensing, stale state, latency, shared faults, actuator limits, and stronger dynamics removed several convenient assumptions.'],
+        phase8: ['Phase 8', 'PX4/Gazebo comparison', 'Internal traces were compared directly with PX4 SITL + Gazebo, and the mismatches were kept rather than tuned away.'],
+        phase9: ['Phase 9', 'Gazebo camera perception', 'Metric perception moved onto Gazebo camera frames, where ambiguous fallback geometry produced the largest errors.'],
+        phase10: ['Phase 10', 'Stateful metric perception', 'Recent state protected an existing track from ambiguous geometry and improved the calibration of reported uncertainty.'],
+        phase10r: ['Phase 10R', 'Shifted holdout', 'Average ambiguous-view error improved, but tail risk, availability, and coverage still missed locked gates.'],
+        phase11: ['Phase 11', 'Protected reliability check', 'Availability and coverage recovered strongly, while one locked lateral tail-efficiency requirement still failed.']
       };
 
       const order = [
@@ -152,7 +152,7 @@
             <div class="archive-card__identity">${record.meta.identity}</div>
             <div><h3>${record.title}</h3><p>${record.summary}</p><p class="archive-card__question">${record.meta.question}</p></div>
             <span class="archive-card__signal">${record.meta.signal}</span>
-            <span class="archive-card__open">Open →</span>`;
+            <span class="archive-card__open">Read phase →</span>`;
           cards.appendChild(card);
         });
         root.appendChild(section);
