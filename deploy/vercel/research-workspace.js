@@ -141,11 +141,75 @@
   const compactPhaseBoilerplate = () => {
     if (!location.pathname.startsWith('/phases/')) return;
     const evidence = document.querySelector('.phase-detail__panel--evidence p');
-    if (evidence) evidence.textContent = 'Hashes tie this page to the frozen record; later phases cannot change the verdict.';
+    if (evidence) evidence.textContent = 'The hashes link this page to the frozen record. Later phases do not change this verdict.';
     const context = document.querySelector('.phase-detail__context-grid p');
-    if (context) context.textContent = 'Later phases may ask new questions, but this verdict stays unchanged.';
+    if (context) context.textContent = 'Later phases can ask new questions, but this result stays fixed.';
     const findingHeading = [...document.querySelectorAll('.phase-detail__panel h2')].find((node) => node.textContent.trim() === 'What this phase supports.');
-    if (findingHeading) findingHeading.textContent = 'Supported finding';
+    if (findingHeading) findingHeading.textContent = 'What this phase shows';
+  };
+
+  const humanizePublicCopy = () => {
+    const replacements = new Map([
+      ['Evidence before confidence.', 'Check the evidence before trusting the confidence.'],
+      ['When confidence gets it wrong.', 'What happens when confidence is wrong?'],
+      ['Review Phase 22', 'See Phase 22'],
+      ['Run an experiment', 'Try an experiment'],
+      ['Current result', 'Latest result'],
+      ['Explore the work', 'Follow the research'],
+      ['One question. Six chapters.', 'One question, followed through six chapters.'],
+      ['Explore chapter', 'View chapter'],
+      ['Key caution', 'Important caveat'],
+      ['Main conclusion', 'What we found'],
+      ['Research question', 'The question'],
+      ['Research lineage', 'How the research developed'],
+      ['Current evidence', 'Latest result'],
+      ['Evidence archive', 'Research archive'],
+      ['No phase records match.', 'No phases match that search.'],
+      ['Clear search and filters', 'Clear filters'],
+      ['Central question', 'Main question'],
+      ['View timeline', 'See timeline'],
+      ['Open →', 'View phase →'],
+      ['Make the experiment yours.', 'Try the experiment yourself.'],
+      ['What will this test tell you?', 'What does this test show?'],
+      ['The basics & research glossary', 'The basics and a quick glossary'],
+      ['Read the research', 'See the research'],
+      ['Browse the steps →', 'Browse the phases →']
+    ]);
+
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+      acceptNode(node) {
+        const parent = node.parentElement;
+        if (!parent || parent.closest('script,style,code,pre')) return NodeFilter.FILTER_REJECT;
+        const trimmed = node.nodeValue.trim();
+        return replacements.has(trimmed) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+      }
+    });
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach((node) => {
+      const original = node.nodeValue;
+      const trimmed = original.trim();
+      node.nodeValue = original.replace(trimmed, replacements.get(trimmed));
+    });
+
+    document.querySelectorAll('input[placeholder="phase, question, finding, signal…"]').forEach((input) => {
+      input.placeholder = 'Search by phase, question, or finding…';
+    });
+
+    const archiveBoundary = document.querySelector('.claim-boundary');
+    if (archiveBoundary && !archiveBoundary.dataset.humanized) {
+      archiveBoundary.dataset.humanized = 'true';
+      archiveBoundary.innerHTML = '<b>WHAT THIS ARCHIVE DOES NOT CLAIM //</b> Everything here comes from synthetic simulation studies. These results do not prove physical-flight safety, certification readiness, production readiness, real-sensor equivalence, controller improvement, or safe real-world operation.';
+    }
+
+    const homeDescription = document.querySelector('meta[name="description"]');
+    if (homeDescription && document.body.classList.contains('home-workspace')) {
+      homeDescription.setAttribute('content', 'AegisLand follows a simulation-only UAV landing-perception research project from its early safety architecture through the frozen Phase 22 result.');
+    }
+    const ogDescription = document.querySelector('meta[property="og:description"]');
+    if (ogDescription && document.body.classList.contains('home-workspace')) {
+      ogDescription.setAttribute('content', 'See the AegisLand UAV landing-perception research process, including the experiments that passed, the ones that failed, and the frozen results through Phase 22.');
+    }
   };
 
   const labelRoleQuestion = () => {
@@ -158,7 +222,7 @@
       question.textContent = '';
       const label = document.createElement('span');
       label.className = 'phase-role-card__question-label';
-      label.textContent = 'Central question';
+      label.textContent = 'Main question';
       const value = document.createElement('span');
       value.className = 'phase-role-card__question-text';
       value.textContent = text;
@@ -204,7 +268,7 @@
     button.type = 'button';
     button.className = 'phase-progress-compact';
     button.setAttribute('aria-expanded', 'false');
-    button.innerHTML = `<span>${phaseLabel(slug)} · early research sequence</span><strong>View timeline</strong>`;
+    button.innerHTML = `<span>${phaseLabel(slug)} · earlier research</span><strong>See timeline</strong>`;
     button.addEventListener('click', () => {
       const open = !section.classList.contains('is-open');
       section.classList.toggle('is-open', open);
@@ -228,7 +292,7 @@
     const prevLink = document.createElement('a');
     prevLink.className = 'phase-unified-nav__prev';
     prevLink.href = prev ? `/phases/${prev}/` : '/';
-    prevLink.textContent = prev ? `← ${phaseLabel(prev)}` : '← Research home';
+    prevLink.textContent = prev ? `← ${phaseLabel(prev)}` : '← Home';
 
     const archiveLink = document.createElement('a');
     archiveLink.className = 'phase-unified-nav__archive';
@@ -238,7 +302,7 @@
     const nextLink = document.createElement('a');
     nextLink.className = 'phase-unified-nav__next';
     nextLink.href = next ? `/phases/${next}/` : '/';
-    nextLink.textContent = next ? `${phaseLabel(next)} →` : 'Research home →';
+    nextLink.textContent = next ? `${phaseLabel(next)} →` : 'Home →';
 
     nav.append(prevLink, archiveLink, nextLink);
     const footer = document.querySelector('footer');
@@ -264,6 +328,7 @@
     normalizeThemeColor();
     normalizeCurrentLinks();
     compactPhaseBoilerplate();
+    humanizePublicCopy();
     labelRoleQuestion();
     normalizePhaseNavigation();
     addLegacyProgressDisclosure();
@@ -275,6 +340,7 @@
   normalizeThemeColor();
   normalizeCurrentLinks();
   compactPhaseBoilerplate();
+  humanizePublicCopy();
   manageMobileMenus();
   normalizeEditorialFallbacks();
 
