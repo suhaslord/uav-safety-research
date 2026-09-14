@@ -141,39 +141,41 @@
   const compactPhaseBoilerplate = () => {
     if (!location.pathname.startsWith('/phases/')) return;
     const evidence = document.querySelector('.phase-detail__panel--evidence p');
-    if (evidence) evidence.textContent = 'The hashes link this page to the frozen record. Later phases do not change this verdict.';
+    if (evidence) evidence.textContent = 'The hashes tie this page to its frozen evidence. A later phase may ask a different question, but it cannot change this verdict.';
     const context = document.querySelector('.phase-detail__context-grid p');
-    if (context) context.textContent = 'Later phases can ask new questions, but this result stays fixed.';
+    if (context) context.textContent = 'This result belongs to the conditions tested here. Later work can narrow or extend the question; it does not rewrite this record.';
     const findingHeading = [...document.querySelectorAll('.phase-detail__panel h2')].find((node) => node.textContent.trim() === 'What this phase supports.');
-    if (findingHeading) findingHeading.textContent = 'What this phase shows';
+    if (findingHeading) findingHeading.textContent = 'What the result supports';
   };
 
   const humanizePublicCopy = () => {
     const replacements = new Map([
       ['Evidence before confidence.', 'Check the evidence before trusting the confidence.'],
       ['When confidence gets it wrong.', 'What happens when confidence is wrong?'],
-      ['Review Phase 22', 'See Phase 22'],
-      ['Run an experiment', 'Try an experiment'],
-      ['Current result', 'Latest result'],
-      ['Explore the work', 'Follow the research'],
-      ['One question. Six chapters.', 'One question, followed through six chapters.'],
-      ['Explore chapter', 'View chapter'],
-      ['Key caution', 'Important caveat'],
-      ['Main conclusion', 'What we found'],
-      ['Research question', 'The question'],
-      ['Research lineage', 'How the research developed'],
-      ['Current evidence', 'Latest result'],
-      ['Evidence archive', 'Research archive'],
-      ['No phase records match.', 'No phases match that search.'],
-      ['Clear search and filters', 'Clear filters'],
-      ['Central question', 'Main question'],
-      ['View timeline', 'See timeline'],
-      ['Open →', 'View phase →'],
-      ['Make the experiment yours.', 'Try the experiment yourself.'],
-      ['What will this test tell you?', 'What does this test show?'],
-      ['The basics & research glossary', 'The basics and a quick glossary'],
-      ['Read the research', 'See the research'],
-      ['Browse the steps →', 'Browse the phases →']
+      ['Review Phase 22', 'Read Phase 22'],
+      ['Run an experiment', 'Try the experiment'],
+      ['Current result', 'Latest frozen result'],
+      ['Explore the work', 'Follow how the work changed'],
+      ['One question. Six chapters.', 'Six stretches of work, each caused by the last one.'],
+      ['Explore chapter', 'Open this part of the record'],
+      ['Key caution', 'Do not mix these results'],
+      ['Main conclusion', 'Result that shaped the later work'],
+      ['Research question', 'Question being tested'],
+      ['Research lineage', 'How the work developed'],
+      ['Current evidence', 'Latest frozen evidence'],
+      ['Evidence archive', 'Research record'],
+      ['No phase records match.', 'Nothing in the archive matches that search.'],
+      ['Clear search and filters', 'Reset archive search'],
+      ['Central question', 'Question being tested'],
+      ['View timeline', 'Open the timeline'],
+      ['Open →', 'Read phase →'],
+      ['Make the experiment yours.', 'Change the inputs and see what moves.'],
+      ['What will this test tell you?', 'What does this run actually test?'],
+      ['The basics & research glossary', 'Terms used in this phase'],
+      ['Read the research', 'Open the research record'],
+      ['Browse the steps →', 'Browse the phases →'],
+      ['What this phase supports.', 'What the result supports'],
+      ['What this phase shows', 'What the result supports']
     ]);
 
     const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
@@ -192,23 +194,23 @@
       node.nodeValue = original.replace(trimmed, replacements.get(trimmed));
     });
 
-    document.querySelectorAll('input[placeholder="phase, question, finding, signal…"]').forEach((input) => {
-      input.placeholder = 'Search by phase, question, or finding…';
+    document.querySelectorAll('input[placeholder="phase, question, finding, signal…"], input[placeholder="Search by phase, question, or finding…"]').forEach((input) => {
+      input.placeholder = 'Search a phase, question, result, or signal…';
     });
 
     const archiveBoundary = document.querySelector('.claim-boundary');
     if (archiveBoundary && !archiveBoundary.dataset.humanized) {
       archiveBoundary.dataset.humanized = 'true';
-      archiveBoundary.innerHTML = '<b>WHAT THIS ARCHIVE DOES NOT CLAIM //</b> Everything here comes from synthetic simulation studies. These results do not prove physical-flight safety, certification readiness, production readiness, real-sensor equivalence, controller improvement, or safe real-world operation.';
+      archiveBoundary.innerHTML = '<b>ARCHIVE LIMIT //</b> Everything here comes from synthetic simulation. The results do not establish real-flight safety, certification relevance, production readiness, equivalence to physical sensors, controller improvement, or operational safety.';
     }
 
     const homeDescription = document.querySelector('meta[name="description"]');
     if (homeDescription && document.body.classList.contains('home-workspace')) {
-      homeDescription.setAttribute('content', 'AegisLand follows a simulation-only UAV landing-perception research project from its early safety architecture through the frozen Phase 22 result.');
+      homeDescription.setAttribute('content', 'AegisLand documents a simulation-only study of UAV landing perception, including failed tests and the frozen result through Phase 22.');
     }
     const ogDescription = document.querySelector('meta[property="og:description"]');
     if (ogDescription && document.body.classList.contains('home-workspace')) {
-      ogDescription.setAttribute('content', 'See the AegisLand UAV landing-perception research process, including the experiments that passed, the ones that failed, and the frozen results through Phase 22.');
+      ogDescription.setAttribute('content', 'Follow the AegisLand landing-perception experiments from the first safety supervisor through the frozen Phase 22 transfer result.');
     }
   };
 
@@ -222,7 +224,7 @@
       question.textContent = '';
       const label = document.createElement('span');
       label.className = 'phase-role-card__question-label';
-      label.textContent = 'Main question';
+      label.textContent = 'Question being tested';
       const value = document.createElement('span');
       value.className = 'phase-role-card__question-text';
       value.textContent = text;
@@ -236,7 +238,7 @@
 
     if (document.body.classList.contains('archive-shell')) {
       const nav = document.querySelector('.top .nav');
-      if (nav) nav.innerHTML = '<a href="#snapshot">Overview</a><a href="#finding">Finding</a><a href="#evidence">Evidence</a><a href="#limits">Limits</a><a href="#experiment-lab">Experiment</a><a href="#changes">Method</a>';
+      if (nav) nav.innerHTML = '<a href="#snapshot">Overview</a><a href="#finding">Result</a><a href="#evidence">Evidence</a><a href="#limits">Limits</a><a href="#experiment-lab">Experiment</a><a href="#changes">Method</a>';
       return;
     }
 
@@ -255,7 +257,7 @@
     const context = document.querySelector('.phase-detail__context');
     if (context) context.id = 'limits';
     const nav = document.querySelector('.signature-nav__links');
-    if (nav) nav.innerHTML = '<a href="#overview">Overview</a><a href="#finding">Finding</a><a href="#evidence">Evidence</a><a href="#limits">Limits</a><a href="#experiment-lab">Experiment</a><a href="/phases/">Archive</a><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub ↗</a>';
+    if (nav) nav.innerHTML = '<a href="#overview">Overview</a><a href="#finding">Result</a><a href="#evidence">Evidence</a><a href="#limits">Limits</a><a href="#experiment-lab">Experiment</a><a href="/phases/">Archive</a><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub ↗</a>';
   };
 
   const addLegacyProgressDisclosure = () => {
@@ -268,7 +270,7 @@
     button.type = 'button';
     button.className = 'phase-progress-compact';
     button.setAttribute('aria-expanded', 'false');
-    button.innerHTML = `<span>${phaseLabel(slug)} · earlier research</span><strong>See timeline</strong>`;
+    button.innerHTML = `<span>${phaseLabel(slug)} · earlier part of the project</span><strong>Open timeline</strong>`;
     button.addEventListener('click', () => {
       const open = !section.classList.contains('is-open');
       section.classList.toggle('is-open', open);
