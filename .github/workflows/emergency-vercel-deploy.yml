@@ -92,11 +92,11 @@ jobs:
           grep -q 'Don Richey / NASA Ames Research Center' .vercel-release/index.html
           grep -q 'Joel Kowsky / NASA' .vercel-release/index.html
           ! grep -q '<img[^>]*src="https://' .vercel-release/index.html
-          grep -q 'Evidence before confidence.' .vercel-release/index.html
+          grep -q 'A camera can be wrong before confidence admits it.' .vercel-release/index.html
           grep -q 'Frozen through Phase 22' .vercel-release/index.html
-          grep -q 'Research question' .vercel-release/index.html
-          grep -q 'Main purpose' .vercel-release/index.html
-          grep -q 'Main conclusion' .vercel-release/index.html
+          grep -q 'The measurement problem' .vercel-release/index.html
+          grep -q 'Why the archive keeps the misses' .vercel-release/index.html
+          grep -q 'The result that shaped the later work' .vercel-release/index.html
           grep -q 'home-lineage__track' .vercel-release/index.html
           grep -q '6 PASS / 7 FAIL' .vercel-release/index.html
           grep -q '0.8319' .vercel-release/index.html
@@ -119,7 +119,7 @@ jobs:
           grep -q 'src="/phase-editorial-media.js?v=' .vercel-release/phase11.html
           ! grep -q 'href="/signature.css?v=' .vercel-release/dashboard/phases/index.html
           ! grep -q 'href="/signature.css?v=' .vercel-release/dashboard/phases/frozen.html
-          grep -q 'Every phase stays part of the story.' .vercel-release/dashboard/phases/index.html
+          grep -q 'The archive keeps the detours, not just the wins.' .vercel-release/dashboard/phases/index.html
 
           node - <<'NODE'
           global.window = {};
@@ -177,10 +177,10 @@ jobs:
           test "$(printf '%s' "$PUBLIC_HTML" | grep -o 'Visual context — not AegisLand experimental evidence' | wc -l)" -eq 4
           printf '%s' "$PUBLIC_HTML" | grep 'Don Richey / NASA Ames Research Center' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep 'Joel Kowsky / NASA' > /dev/null
-          printf '%s' "$PUBLIC_HTML" | grep 'Evidence before confidence.' > /dev/null
-          printf '%s' "$PUBLIC_HTML" | grep 'Research question' > /dev/null
-          printf '%s' "$PUBLIC_HTML" | grep 'Main purpose' > /dev/null
-          printf '%s' "$PUBLIC_HTML" | grep 'Main conclusion' > /dev/null
+          printf '%s' "$PUBLIC_HTML" | grep 'A camera can be wrong before confidence admits it.' > /dev/null
+          printf '%s' "$PUBLIC_HTML" | grep 'The measurement problem' > /dev/null
+          printf '%s' "$PUBLIC_HTML" | grep 'Why the archive keeps the misses' > /dev/null
+          printf '%s' "$PUBLIC_HTML" | grep 'The result that shaped the later work' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep 'Frozen through Phase 22' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep 'home-lineage__track' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep '0.8319' > /dev/null
@@ -217,10 +217,10 @@ jobs:
           echo "✓ Frozen lineage asset: exact 6 PASS / 7 FAIL record and Phase 22 identities present"
 
           ARCHIVE_HTML=$(curl --fail --silent --show-error --location "$PUBLIC_URL/phases/")
-          printf '%s' "$ARCHIVE_HTML" | grep 'Every phase stays part of the story.' > /dev/null
+          printf '%s' "$ARCHIVE_HTML" | grep 'The archive keeps the detours, not just the wins.' > /dev/null
           printf '%s' "$ARCHIVE_HTML" | grep 'href="/phase-polish.css?v=' > /dev/null
           ! printf '%s' "$ARCHIVE_HTML" | grep 'href="/signature.css?v=' > /dev/null
-          echo "✓ Archive: polished phase index present"
+          echo "✓ Archive: rewritten phase index present"
 
           for PHASE in phase12 phase13a phase13b phase13c phase14 phase15 phase16 phase17 phase18 phase19 phase20 phase21 phase22; do
             PHASE_HTML=$(curl --fail --silent --show-error --location "$PUBLIC_URL/phases/$PHASE/")
