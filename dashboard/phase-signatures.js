@@ -1,6 +1,6 @@
 (() => {
   const ORDER = ["phase1","phase2","phase3","phase4","phase5","phase6","phase6b","phase7","phase8","phase9","phase10"];
-  const GOAL = "AegisLand studies how autonomous aerial systems can make safer decisions under uncertainty. Rather than chasing success alone, the research focuses on trustworthy perception, calibrated confidence, controlled abstention, and evidence you can inspect phase by phase.";
+  const GOAL = "The project keeps asking the same practical question in different ways: when should the landing system believe its own estimate, and when should it stop? Each phase changes one piece of that problem, records what broke, and leaves the result in place.";
 
   const keyFromLocation = () => {
     const match = location.pathname.match(/\/(phase(?:1|2|3|4|5|6|6b|7|8|9|10))\/?$/i);
@@ -18,7 +18,7 @@
     phase7: "External-validity factorial experiment matrix",
     phase8: "PX4/Gazebo trace-validation outcome board",
     phase9: "Camera detection versus metric geometry result",
-    phase10: "Current frontier: frozen temporal metric perception and calibrated uncertainty"
+    phase10: "Frozen temporal metric perception and calibrated uncertainty"
   };
 
   const barRow = (label, value, text, accent = false) => `
@@ -52,7 +52,7 @@
       <div class="sig-legend"><span><i class="raw-dot"></i>instantaneous risk</span><span><i class="smooth-dot"></i>filtered risk</span></div>`,
 
     phase3: () => `
-      <div class="sig-head"><span>DUAL-ESTIMATOR BREAKTHROUGH</span><strong>Independent error structure</strong></div>
+      <div class="sig-head"><span>TWO ESTIMATORS, ONE DISAGREEMENT</span><strong>Independent error structure</strong></div>
       <div class="sig-fusion">
         <div class="sig-source visual"><small>01</small><strong>Vision</strong><span>biased stream</span></div>
         <div class="sig-source reference"><small>02</small><strong>Reference</strong><span>independent stream</span></div>
@@ -71,7 +71,7 @@
       <div class="sig-caption">The discontinuity is shown because it is part of the real archive.</div>`,
 
     phase5: () => `
-      <div class="sig-head"><span>ROBUSTNESS EXPANSION</span><strong>Mixed degradation sweep</strong></div>
+      <div class="sig-head"><span>ROBUSTNESS SWEEP</span><strong>Mixed degradation sweep</strong></div>
       <svg class="sig-stress" viewBox="0 0 430 250" aria-hidden="true">
         <g class="grid"><line x1="40" y1="34" x2="40" y2="205"/><line x1="40" y1="205" x2="410" y2="205"/><line x1="40" y1="120" x2="410" y2="120"/></g>
         <polyline pathLength="1" class="stress-line" points="40,48 114,54 188,52 262,50 336,58 410,64"/>
@@ -81,7 +81,7 @@
       <div class="sig-statline"><span>V3 success</span><strong>99 → 92%</strong><span>as stress increased</span></div>`,
 
     phase6: () => `
-      <div class="sig-head"><span>IMAGE PERCEPTION ENTERS THE LOOP</span><strong>Pixel → control</strong></div>
+      <div class="sig-head"><span>CAMERA MEASUREMENTS ENTER THE LOOP</span><strong>Pixel → control</strong></div>
       <div class="sig-camera-pipeline">
         <div class="sig-camera-frame"><span class="pad"></span><span class="target-box"></span><small>96×96 image</small></div>
         <i class="sig-arrow">→</i>
@@ -92,7 +92,7 @@
       <div class="sig-statline"><span>Mixed success</span><strong>63 → 92%</strong><span>image-only → image+Aegis</span></div>`,
 
     phase6b: () => `
-      <div class="sig-head"><span>COMPONENT CONFIDENCE</span><strong>Mixed held-out selective audit</strong></div>
+      <div class="sig-head"><span>SPLIT CONFIDENCE</span><strong>Mixed held-out selective audit</strong></div>
       <div class="sig-split">
         <div class="sig-confidence-lane"><span>Lateral coverage</span><i><b style="--v:96.6%"></b><em style="--gate:80%"></em></i><strong>96.6%</strong></div>
         <div class="sig-confidence-lane"><span>Altitude coverage</span><i><b style="--v:.85%"></b><em style="--gate:80%"></em></i><strong>0.85%</strong></div>
@@ -101,7 +101,7 @@
       <div class="sig-statline"><span>Mixed success</span><strong>57 → 94 → 99%</strong><span>image-only · P6 · P6B</span></div>`,
 
     phase7: () => `
-      <div class="sig-head"><span>EXTERNAL-VALIDITY STRESS</span><strong>Factorial development design</strong></div>
+      <div class="sig-head"><span>HARDER SIMULATOR CONDITIONS</span><strong>Factorial development design</strong></div>
       <div class="sig-matrix-wrap">
         <div class="sig-matrix-labels rows"><span>clean</span><span>low light</span><span>occlusion</span><span>mixed</span></div>
         <div class="sig-matrix">${matrixCells()}</div>
@@ -111,7 +111,7 @@
       <div class="sig-statline"><span>Design</span><strong>4 × 5 × 2</strong><span>40 condition/fault/plant cells</span></div>`,
 
     phase8: () => `
-      <div class="sig-head"><span>PX4 / GAZEBO TRACE VALIDATION</span><strong>External resemblance result</strong></div>
+      <div class="sig-head"><span>PX4 / GAZEBO TRACE COMPARISON</span><strong>External resemblance result</strong></div>
       <div class="sig-outcome-board">
         <div><span>close</span><strong>1</strong><i style="--v:7%"></i></div>
         <div><span>watch</span><strong>2</strong><i style="--v:14%"></i></div>
@@ -121,7 +121,7 @@
       <div class="sig-caption">Overall diagnostic: mismatch. The negative result stayed frozen.</div>`,
 
     phase9: () => `
-      <div class="sig-head"><span>GENUINE CAMERA EVIDENCE</span><strong>Detection ≠ metric geometry</strong></div>
+      <div class="sig-head"><span>GAZEBO CAMERA TRACE</span><strong>Detection ≠ metric geometry</strong></div>
       <div class="sig-camera-geometry">
         <div class="sig-camera-result"><div class="mini-target"><i></i><b></b></div><span>visible → observed</span><strong>25 / 25</strong><small>0 false positives</small></div>
         <div class="sig-divider"></div>
@@ -130,7 +130,7 @@
       <div class="sig-caption">The target was seen reliably on this trace; geometry remained the bottleneck.</div>`,
 
     phase10: () => `
-      <div class="frontier-topline"><span>CURRENT FRONTIER</span><strong>FROZEN HOLDOUT</strong></div>
+      <div class="frontier-topline"><span>PHASE 10 RESULT</span><strong>FROZEN HOLDOUT</strong></div>
       <div class="frontier-core" aria-hidden="true">
         <span class="frontier-ring r1"></span><span class="frontier-ring r2"></span><span class="frontier-ring r3"></span>
         <svg class="frontier-trace" viewBox="0 0 260 260"><path pathLength="1" d="M28 180 C54 84 97 206 132 116 S201 61 234 108"/></svg>
@@ -142,7 +142,7 @@
         <div><span>truth-visible observed</span><strong>15 / 20</strong></div>
         <div><span>point-error win gate</span><strong>not passed</strong></div>
       </div>
-      <div class="frontier-foot"><span>Phase 9 uncertainty was overconfident</span><strong>Phase 10 made uncertainty substantially more honest.</strong></div>`
+      <div class="frontier-foot"><span>Phase 9 uncertainty was overconfident</span><strong>The uncertainty fit improved; the point-error win gate still did not pass.</strong></div>`
   };
 
   function goalBlock() {
@@ -151,15 +151,15 @@
     section.setAttribute("aria-labelledby", "programGoalTitle");
     section.innerHTML = `
       <div class="program-goal-copy">
-        <p class="kicker">Our goal</p>
-        <h2 id="programGoalTitle">Make autonomous perception worthy of trust.</h2>
+        <p class="kicker">Why this project exists</p>
+        <h2 id="programGoalTitle">Know when the estimate is not good enough.</h2>
         <p>${GOAL}</p>
       </div>
       <div class="program-pillars" aria-label="AegisLand research priorities">
-        <div><span>01</span><strong>Trust only when justified</strong></div>
-        <div><span>02</span><strong>Detect uncertainty before unsafe action</strong></div>
-        <div><span>03</span><strong>Preserve safety without hiding failures</strong></div>
-        <div><span>04</span><strong>Show evidence phase by phase</strong></div>
+        <div><span>01</span><strong>Compare confidence with measured error</strong></div>
+        <div><span>02</span><strong>Stop or abstain when evidence gets weak</strong></div>
+        <div><span>03</span><strong>Keep failed tests in the record</strong></div>
+        <div><span>04</span><strong>Change one question at a time</strong></div>
       </div>`;
     return section;
   }
@@ -191,7 +191,7 @@
       if (copy && !copy.querySelector(".frontier-badge")) {
         const badge = document.createElement("div");
         badge.className = "frontier-badge";
-        badge.innerHTML = `<span>Current frontier</span><strong>Phase 10 · AegisT10</strong>`;
+        badge.innerHTML = `<span>Frozen Phase 10 record</span><strong>Phase 10 · AegisT10</strong>`;
         copy.prepend(badge);
       }
     }
