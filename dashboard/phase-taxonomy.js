@@ -24,7 +24,8 @@
   const themeColor = document.querySelector('meta[name="theme-color"]');
   if (themeColor) themeColor.setAttribute('content', '#ffffff');
 
-  // Shared exploratory runner. Frozen records remain unchanged.
+  // Shared exploratory runner. Frozen records remain unchanged. The live panel is
+  // immediately replaced by current-data.js with the protected KIOS real-image benchmark.
   if (!document.querySelector('script[data-aegis-experiment-lab]')) {
     const style = document.createElement('link');
     style.rel = 'stylesheet'; style.href = '/lab/lab.css?v=5';
@@ -32,6 +33,11 @@
     const runner = document.createElement('script');
     runner.src = '/lab/lab.js?v=5'; runner.dataset.aegisExperimentLab = '';
     document.head.appendChild(runner);
+  }
+  if (!document.querySelector('script[data-aegis-current-data]')) {
+    const current = document.createElement('script');
+    current.src = '/lab/current-data.js?v=1'; current.dataset.aegisCurrentData = '';
+    document.head.appendChild(current);
   }
 
   const categories = [
