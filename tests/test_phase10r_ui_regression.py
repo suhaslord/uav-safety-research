@@ -32,7 +32,7 @@ def test_phase10r_retains_its_own_frozen_holdout_record() -> None:
     patch = _read("dashboard/phase10r-archive.js")
 
     assert 'label: "Phase 10R · Frozen holdout"' in patch
-    assert 'title: "Mean error fell. Trust still broke under distribution shift."' in patch
+    assert 'title: "Mean error improved, but the hard cases still failed the locked checks."' in patch
     assert '79.2%' in patch
     assert '20.0%' in patch
     assert 'Final verdict: mixed / failed overall' in patch
