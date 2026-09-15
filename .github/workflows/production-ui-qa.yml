@@ -1,6 +1,6 @@
 name: Production UI QA
 
-# Final post-READY production verification.
+# Post-deployment production verification for the real-data homepage plus the full phase archive.
 on:
   push:
     branches: [main]
@@ -36,30 +36,24 @@ jobs:
           npm install --no-save playwright@1.55.0
           npx playwright install --with-deps chromium
 
-      - name: Wait for live UI consistency release
+      - name: Wait for real-data production release
         shell: bash
         run: |
           set -euo pipefail
           BASE='https://aegisland-research-cockpit.vercel.app'
-          HOME_URL="$BASE/?ui_consistency_ready=1"
-          CSS_URL="$BASE/phase-ui-consistency.css?v=1"
-          for i in {1..60}; do
+          HOME_URL="$BASE/?real_data_ready=1"
+          for i in {1..90}; do
             HTML=$(curl --fail --silent --show-error --location "$HOME_URL" || true)
-            rm -f /tmp/ui-consistency.css /tmp/ui-consistency.headers
-            if printf '%s' "$HTML" | grep -q 'data-editorial-media="local-v2"' \
-              && curl --fail --silent --show-error --location --dump-header /tmp/ui-consistency.headers "$CSS_URL" -o /tmp/ui-consistency.css \
-              && grep -qi '^content-type: text/css' /tmp/ui-consistency.headers \
-              && grep -q 'Cross-template UI consistency pass' /tmp/ui-consistency.css \
-              && grep -q '#phaseLimitations span' /tmp/ui-consistency.css; then
-              for ASSET in acero-uav-flight.jpg acero-ground-control.jpg stereo-uav-preflight.jpg acero-uav-landing.jpg phase01-context.jpg phase22-context.jpg; do
-                curl --fail --silent --show-error --location "$BASE/media/$ASSET" >/dev/null
-              done
-              echo '✓ live UI consistency release and editorial media are ready'
+            if printf '%s' "$HTML" | grep -q 'data-site-shell="native real-data"' \
+              && printf '%s' "$HTML" | grep -q 'KIOS Aerial Landing Pad' \
+              && printf '%s' "$HTML" | grep -q '422 REAL VIDEO FRAMES' \
+              && printf '%s' "$HTML" | grep -q '30.6%'; then
+              echo '✓ real-data homepage is live'
               exit 0
             fi
             sleep 2
           done
-          echo 'Timed out waiting for the live UI consistency release.'
+          echo 'Timed out waiting for the real-data production release.'
           exit 1
 
       - name: Run production browser QA
@@ -67,22 +61,22 @@ jobs:
           QA_BASE_URL: https://aegisland-research-cockpit.vercel.app
         run: node .github/qa/production-ui-qa.mjs
 
-      - name: Run exhaustive 84-screenshot visual audit
+      - name: Run exhaustive screenshot audit
         env:
           QA_BASE_URL: https://aegisland-research-cockpit.vercel.app
         run: node .github/qa/exhaustive-visual-audit.mjs
 
-      - name: Run editorial media smoke
+      - name: Run phase editorial media smoke
         env:
           QA_BASE_URL: https://aegisland-research-cockpit.vercel.app
         run: node .github/qa/editorial-media-smoke.mjs
 
-      - name: Run mobile menu interaction smoke
+      - name: Run mobile interaction smoke
         env:
           QA_BASE_URL: https://aegisland-research-cockpit.vercel.app
         run: node .github/qa/mobile-menu-smoke.mjs
 
-      - name: Upload screenshots, video, and report
+      - name: Upload screenshots and reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
