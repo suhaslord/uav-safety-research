@@ -7,15 +7,16 @@ def _read(path: str) -> str:
     return (ROOT / path).read_text(encoding="utf-8")
 
 
-def test_home_primary_action_opens_current_evidence_and_scopes_phase22_status() -> None:
+def test_home_prioritizes_current_real_data_evidence() -> None:
     html = _read("deploy/vercel/index.html")
-    assert '>See the Phase 22 result</a>' in html
-    assert 'href="/phases/phase22/"' in html
-    assert "10 / 10 locked gates passed" in html
-    assert "6 PASS / 7 FAIL" in html
-    assert 'id="homeLineage"' in html
-    assert "workspace-status-actions" not in html
-    assert "workspace-brief-strip" not in html
+    assert "KIOS Aerial Landing Pad" in html
+    assert "422 REAL VIDEO FRAMES" in html
+    assert "76.8%" in html
+    assert "30.6%" in html
+    assert "0.2176" in html
+    assert "The synthetic heuristic does not transfer well" in html
+    assert 'href="https://doi.org/10.5281/zenodo.13682584"' in html
+    assert 'href="/phases/"' in html
 
 
 def test_archive_has_semantic_frozen_filters_search_and_empty_state() -> None:
@@ -38,7 +39,7 @@ def test_frozen_phase_prioritizes_finding_before_secondary_metrics() -> None:
     assert finding < metrics < context
 
 
-def test_workspace_interaction_layer_is_loaded_across_public_shells() -> None:
+def test_workspace_style_is_loaded_across_public_shells() -> None:
     shells = [
         _read("deploy/vercel/index.html"),
         _read("dashboard/phases/index.html"),
@@ -48,31 +49,22 @@ def test_workspace_interaction_layer_is_loaded_across_public_shells() -> None:
     ]
     for html in shells:
         assert 'href="/research-workspace.css?v=' in html
+
+    interactive_shells = shells[1:]
+    for html in interactive_shells:
         assert 'src="/research-workspace.js?v=' in html
 
 
-def test_home_editorial_media_is_local_credited_and_context_only() -> None:
+def test_home_uses_dataset_evidence_instead_of_editorial_context_photos() -> None:
     html = _read("deploy/vercel/index.html")
-    css = _read("deploy/vercel/research-media.css")
-    fetcher = _read("deploy/vercel/fetch-editorial-media.mjs")
-
-    assert 'data-editorial-media="local-v2"' in html
-    for filename in (
-        "acero-uav-flight.jpg",
-        "acero-ground-control.jpg",
-        "stereo-uav-preflight.jpg",
-        "acero-uav-landing.jpg",
-    ):
-        assert f'src="/media/{filename}"' in html
-        assert filename in fetcher
-    assert '<img src="https://' not in html
-    assert html.count("Visual context — not AegisLand experimental evidence") == 4
-    assert html.count("Public domain") == 4
-    assert html.count("data-image-fallback") == 4
-    assert html.count("Don Richey / NASA Ames Research Center") == 3
-    assert html.count("Joel Kowsky / NASA") == 1
-    assert "aspect-ratio:16 / 9" in css
-    assert "research-photo--inline" in css
+    assert "/media/acero-uav-flight.jpg" not in html
+    assert "/media/acero-ground-control.jpg" not in html
+    assert "/media/stereo-uav-preflight.jpg" not in html
+    assert "/media/acero-uav-landing.jpg" not in html
+    assert "Why no raw frame gallery here?" in html
+    assert "does not state a reusable image license" in html
+    assert "422 real-video" in html
+    assert "Raw dataset" not in html or "not" in html
 
 
 def test_every_phase_has_one_distinct_local_context_photo() -> None:
