@@ -82,10 +82,19 @@ body .phase-detail #phaseContent > .phase-editorial-photo{
   margin-top:-28px;
 }
 
+/* Keep contextual media on the same responsive ratios even when a later
+   presentation layer has more-specific frame rules. */
+html body.research-workspace.phase-reading .phase-editorial-photo .phase-editorial-photo__frame{
+  aspect-ratio:16 / 7!important;
+}
+
 @media(max-width:1040px){
   .phase-editorial-photo{width:min(100% - 44px,1040px);margin-bottom:44px}
   body .phase-detail > .phase-editorial-photo,
   body .phase-detail #phaseContent > .phase-editorial-photo{width:100%}
+  html body.research-workspace.phase-reading .phase-editorial-photo .phase-editorial-photo__frame{
+    aspect-ratio:2 / 1!important;
+  }
 }
 
 @media(max-width:700px){
@@ -97,6 +106,9 @@ body .phase-detail #phaseContent > .phase-editorial-photo{
   body .phase-detail > .phase-editorial-photo,
   body .phase-detail #phaseContent > .phase-editorial-photo{width:100%}
   .phase-editorial-photo__frame{border-radius:8px}
+  html body.research-workspace.phase-reading .phase-editorial-photo .phase-editorial-photo__frame{
+    aspect-ratio:16 / 9!important;
+  }
   .phase-editorial-photo figcaption{
     grid-template-columns:1fr;
     gap:5px;
