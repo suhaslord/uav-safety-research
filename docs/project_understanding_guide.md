@@ -2,6 +2,8 @@
 
 This document is the **start-here explanation of the project at a block level**. The goal is to be able to explain each part clearly before adding more complexity.
 
+![AegisLand research cockpit](assets/readme/frame_home.png)
+
 ## 1. The project in plain English
 
 AegisLand studies a simple safety question:
@@ -62,6 +64,8 @@ In `src/uav_safety/image_perception.py`, `blur` is implemented as repeated **3x3
 
 This is intentionally simple. It should be described as a controlled blur-like degradation, **not** as a calibrated model of drone vibration, lens defocus, water on a lens, or a specific real camera failure.
 
+For the current learning stage, blur, low light, occlusion, and mixed degradation should be treated as **blocks with adjustable severity**. A detailed physical derivation of each effect is future work, not a requirement for understanding the system now.
+
 ## 5. What the image "detector" actually is
 
 The current pixel front end is **not a neural network** and it does not use OpenCV.
@@ -81,6 +85,8 @@ The main libraries used by this benchmark are:
 - pandas
 - Matplotlib
 
+At this stage, the important skill is being able to **use the tools correctly and explain the input/output behavior**. A full mathematical derivation of every algorithm can come later as the linear algebra, probability, and calculus background becomes stronger.
+
 ## 6. What the dataset is
 
 The first pixel benchmark does **not** use an external real-world dataset.
@@ -92,6 +98,14 @@ It generates synthetic 96x96 grayscale landing-pad frames from randomized latera
 - 1,500 images were evaluated total.
 
 That makes this a controlled synthetic benchmark, not a real-camera validation.
+
+To generate the actual condition examples locally:
+
+```bash
+python scripts/run_image_perception_benchmark.py --samples 300 --seed 606060 --out results/image_perception
+```
+
+The script produces `results/image_perception/example_conditions.png`, along with the raw sample table, summary table, and plots. That generated figure is the preferred image to show when explaining what the five pixel-level conditions look like.
 
 ## 7. Current pixel-benchmark result
 
@@ -109,6 +123,10 @@ The most important result is not that blur made the benchmark fail. In this simp
 
 That means a major research issue is not just image quality. It is whether the system knows **when not to trust its own estimate**.
 
+![Later Phase 6B perception result](assets/readme/chart_phase6b_light.png)
+
+The image above is from later perception work. It is useful context, but it should not be presented as if it were the original Phase 5 benchmark.
+
 ## 8. What "baseline" means
 
 There are two baselines in different parts of the project.
@@ -123,7 +141,90 @@ In the control experiments, the **baseline architecture** attempts the landing w
 
 Whenever results are shown, the document should say which baseline is being discussed.
 
-## 9. What the project currently claims
+## 9. How to document every block
+
+For each important component, use the same small template:
+
+### Purpose
+
+What job does this block perform in one sentence?
+
+### Input
+
+What exact values or objects enter the block?
+
+### Transformation
+
+What does the block do at a high level? Avoid hiding behind the phrase “the algorithm.”
+
+### Output
+
+What exact values leave the block and which later block consumes them?
+
+### Assumptions
+
+What has been simplified? What should not be interpreted as real-world physics?
+
+### Code pointer
+
+Which file/class/function implements the block?
+
+### Reference
+
+If deeper knowledge is needed, link a paper, textbook section, library documentation page, or other reliable technical resource.
+
+### Example
+
+Give one concrete input/output example that could be explained to a non-technical person.
+
+This template should be used whenever a component is expanded in the future.
+
+## 10. How to communicate an experiment
+
+Every experiment should be understandable in this order:
+
+1. **Problem:** what are we trying to learn?
+2. **Data:** what frames, states, or samples are being used?
+3. **Method:** what blocks/algorithms process the data?
+4. **Experiment:** what is changed and what is held fixed?
+5. **Metric:** what numerical outcome answers the question?
+6. **Result:** what actually happened?
+7. **Limitation:** what does the result not prove?
+8. **Next step:** what is the smallest useful follow-up?
+
+This mirrors the structure of a research paper without forcing the project to become a paper yet.
+
+## 11. Current learning/research scope
+
+The immediate goal is **system-level understanding**, not deep mathematical specialization in one degradation model.
+
+For now:
+
+- understand how each block connects to the next;
+- become comfortable with NumPy, pandas, Matplotlib, and running/reading the benchmark code;
+- know how to run a detector/estimator and interpret its output;
+- document assumptions and limitations;
+- organize results clearly;
+- explain the project without technical jargon.
+
+Later, after stronger linear algebra, probability, calculus, and imaging background, a narrower component could be studied in depth—for example a physically meaningful motion-blur model or a more advanced perception method.
+
+## 12. Paper-style learning without forcing a paper
+
+A useful future habit is to read strong research papers mainly for their **structure**:
+
+- abstract / problem statement;
+- related context;
+- dataset or experimental evidence;
+- method;
+- evaluation protocol;
+- results;
+- limitations;
+- conclusion.
+
+The current project should borrow that organization now. A formal paper submission is a later decision, only after the technical understanding and evidence support a focused claim.
+
+## 13. What the project currently claims
 
 Supported:
 
@@ -140,9 +241,7 @@ Not supported:
 - certification or deployment readiness;
 - the claim that these results directly transfer to spacecraft landing.
 
-## 10. What to focus on next
-
-Before starting a deeper research question, the immediate work is organizational and explanatory:
+## 14. Work completed from the research feedback
 
 - [x] define the project in plain English;
 - [x] write the high-level system pipeline;
@@ -151,16 +250,20 @@ Before starting a deeper research question, the immediate work is organizational
 - [x] document the exact pixel estimator instead of calling it a generic detector;
 - [x] state what the dataset really is;
 - [x] collect the key Phase 5 image results in one place;
-- [ ] add a few clean-vs-degraded example images next to the benchmark explanation;
-- [ ] create one compact figure showing the full pipeline and where each metric is measured;
-- [ ] reorganize the public results page so the problem, data, method, experiment, result, and limitation appear in that order;
-- [ ] practice a 60-second non-technical explanation without referring to the website.
+- [x] reorganize the root README into problem → data → method → experiment → result → limitation;
+- [x] add existing project/result visuals to the root README and this guide;
+- [x] add a repeatable documentation template for each block;
+- [x] add a research-experiment communication template;
+- [ ] keep improving individual block documentation with references as needed;
+- [ ] run the image benchmark locally when a fresh `example_conditions.png` is needed for a presentation/update;
+- [ ] practice the 60-second explanation without referring to the website;
+- [ ] only later choose a narrow paper-style research question if the evidence justifies it.
 
-## 11. 60-second explanation
+## 15. 60-second explanation
 
-> AegisLand is a simulation project about safer autonomous drone landing. A landing system has to estimate where the drone is, but those estimates can become unreliable when visual information gets degraded or stale. I simulate those failures and compare a normal landing system with a supervised system that looks at confidence and independent evidence before deciding whether to continue, slow down, or abort. I also built a small synthetic image benchmark that generates landing-pad images under conditions like blur, low light, and occlusion. The current image estimator is intentionally simple and rule-based. One important result is that under harder mixed degradation it can still return a valid answer even when its error becomes much larger, which shows why knowing when not to trust perception is an important part of the problem.
+> AegisLand is a simulation project about safer autonomous drone landing. A landing system has to estimate where the drone is, but those estimates can become unreliable when visual information gets degraded or stale. I simulate those failures and compare a normal landing system with a supervised system that looks at confidence and independent evidence before deciding whether to continue, hold, or abort. I also built a small synthetic image benchmark that generates landing-pad images under conditions like blur, low light, and occlusion. The current image estimator is intentionally simple and rule-based. One important result is that under harder mixed degradation it can still return a valid answer even when its error becomes much larger, which shows why knowing when not to trust perception is an important part of the problem.
 
-## 12. Code pointers
+## 16. Code pointers
 
 Start here when reviewing the implementation:
 
@@ -169,5 +272,6 @@ Start here when reviewing the implementation:
 3. `src/uav_safety/perception.py` — abstract perception stress profiles.
 4. `docs/methodology.md` — high-level simulation and safety-supervisor methodology.
 5. `docs/phase5_results.md` — first synthetic image benchmark and measured limitations.
+6. `README.md` — public-facing problem/data/method/result/limitation explanation.
 
 The goal is to understand these files well enough to explain what each block receives, what it changes, and what it returns.
