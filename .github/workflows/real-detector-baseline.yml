@@ -12,6 +12,7 @@ on:
       - 'scripts/prepare_kios_real_yolo_split.py'
       - 'scripts/build_real_image_stress_suite.py'
       - 'scripts/train_real_landing_detector.py'
+      - 'tests/test_real_landing_dataset.py'
       - 'tests/test_real_split.py'
 
 permissions:
