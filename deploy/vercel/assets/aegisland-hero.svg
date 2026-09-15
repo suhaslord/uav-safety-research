@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">AegisLand autonomous landing research visual</title>
+  <desc id="desc">Minimal monochrome aerial landing scene with a centered landing pad, perception frame, and subtle drone silhouette.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f7f7f7"/>
+      <stop offset="0.55" stop-color="#e9eaec"/>
+      <stop offset="1" stop-color="#d7d9dc"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="54%" r="48%">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.92"/>
+      <stop offset="0.6" stop-color="#ffffff" stop-opacity="0.34"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="soft" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="18"/>
+    </filter>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="18" stdDeviation="24" flood-color="#000" flood-opacity="0.16"/>
+    </filter>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <ellipse cx="800" cy="500" rx="640" ry="330" fill="url(#glow)"/>
+
+  <g opacity="0.28" stroke="#8b8f94" stroke-width="2" fill="none">
+    <path d="M140 610C390 550 520 568 730 640S1110 720 1460 602"/>
+    <path d="M90 682C372 626 544 650 754 718S1140 780 1510 684"/>
+    <path d="M220 500C450 456 570 474 742 532S1054 606 1382 510"/>
+  </g>
+
+  <g filter="url(#shadow)">
+    <ellipse cx="800" cy="594" rx="298" ry="114" fill="#bfc2c6" opacity="0.36"/>
+    <ellipse cx="800" cy="566" rx="260" ry="92" fill="#f8f8f8" stroke="#7b7f84" stroke-width="3"/>
+    <ellipse cx="800" cy="566" rx="184" ry="62" fill="#e4e5e7" stroke="#a0a3a7" stroke-width="2"/>
+    <path d="M744 605V527h31v28h50v-28h31v78h-31v-24h-50v24z" fill="#1f2022"/>
+  </g>
+
+  <g fill="none" stroke="#1f2022" stroke-width="3" opacity="0.75">
+    <path d="M502 420h104M502 420v78M1098 420H994M1098 420v78M502 712h104M502 712v-78M1098 712H994M1098 712v-78"/>
+  </g>
+
+  <g transform="translate(800 252)" fill="#26282b" opacity="0.84">
+    <rect x="-78" y="-12" width="156" height="24" rx="12"/>
+    <circle cx="-105" cy="0" r="28" fill="none" stroke="#26282b" stroke-width="8"/>
+    <circle cx="105" cy="0" r="28" fill="none" stroke="#26282b" stroke-width="8"/>
+    <rect x="-18" y="-21" width="36" height="42" rx="11"/>
+  </g>
+
+  <g font-family="Arial, Helvetica, sans-serif" fill="#1d1f21">
+    <text x="104" y="118" font-size="24" font-weight="700" letter-spacing="6">AEGISLAND</text>
+    <text x="104" y="156" font-size="15" letter-spacing="3" fill="#65696e">REAL-IMAGE LANDING PERCEPTION</text>
+  </g>
+
+  <g transform="translate(1160 705)" font-family="Arial, Helvetica, sans-serif">
+    <rect width="318" height="92" rx="16" fill="#f9f9f9" fill-opacity="0.82" stroke="#c9cbcf"/>
+    <text x="24" y="34" font-size="13" letter-spacing="2.2" fill="#676b70">SYSTEM VIEW</text>
+    <text x="24" y="62" font-size="18" font-weight="600" fill="#1f2022">image → model → decision</text>
+  </g>
+</svg>
