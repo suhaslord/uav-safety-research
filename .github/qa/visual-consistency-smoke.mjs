@@ -68,11 +68,11 @@ try {
     add('home-preserves-pass-fail-record', passRows === 6 && failRows === 7, { passRows, failRows });
 
     const homeText = await page.locator('main').innerText();
-    add('home-current-thesis-visible', /When confidence gets it wrong/i.test(homeText) && /Does the uncertainty match the error/i.test(homeText), { excerpt: homeText.slice(0, 320) });
-    add('home-current-project-framing-visible', /Main purpose/i.test(homeText) && /Keep every result/i.test(homeText) && /Main conclusion/i.test(homeText));
-    add('home-researcher-brief-visible', /For researchers/i.test(homeText) && /Start with the results/i.test(homeText) && /Open research questions/i.test(homeText) && /Feedback welcome/i.test(homeText));
+    add('home-current-thesis-visible', /What happens when the estimate drifts but the uncertainty does not/i.test(homeText) && /A drone can be confident—and still be wrong/i.test(homeText), { excerpt: homeText.slice(0, 500) });
+    add('home-current-project-framing-visible', /Latest frozen result/i.test(homeText) && /The result that shaped the later work/i.test(homeText) && /Six stretches of work, each caused by the last one/i.test(homeText));
+    add('home-researcher-brief-visible', /Limit of the evidence/i.test(homeText) && /Terms used in this phase/i.test(homeText) && /Latest frozen result/i.test(homeText));
     add('home-phase22-final-visible', /0\.8319/.test(homeText) && /0\.7744/.test(homeText) && /10\s+locked gates/i.test(homeText) && /100%/.test(homeText), { excerpt: homeText.slice(0, 900) });
-    add('home-science-is-explicitly-frozen', /The research record ends at Phase 22\. No Phase 23 is implied or authorized/i.test(homeText) && /668d065714dde279857bc0e196f0ef7cc5e182ed/.test(homeText), { excerpt: homeText.slice(-600) });
+    add('home-science-is-explicitly-frozen', /Phase 12\s*→\s*Phase 22/i.test(homeText) && /6 PASS \/ 7 FAIL/i.test(homeText) && /Phase 22 is a simulation result/i.test(homeText), { excerpt: homeText.slice(0, 1200) });
     add('home-claim-boundary-visible', /simulation_only=true/.test(homeText) && /safety_acceptance=false/.test(homeText) && /controller_tuning_allowed=false/.test(homeText));
     const phase23Links = await page.locator('a[href*="phase23"]').count();
     add('home-does-not-link-new-phase', phase23Links === 0, { phase23Links });
@@ -105,16 +105,16 @@ try {
     add('archive-preserves-6-pass-7-fail', frozenPass === 6 && frozenFail === 7, { frozenPass, frozenFail });
     add('archive-personalizes-every-card', identities === 26 && questions === 26 && signals === 26, { identities, questions, signals });
     add('archive-uses-polished-tesla-shell', archivePolish === 1 && archivePersonalization === 1 && archiveSignature === 0, { archivePolish, archivePersonalization, archiveSignature });
-    add('archive-has-category-led-thesis', /One question\. Six chapters/i.test(archiveText));
+    add('archive-has-category-led-thesis', /The archive keeps the detours, not just the wins/i.test(archiveText));
 
     const phaseChecks = [
-      ['/phases/phase1/', /The safety gate/i, /HOLD \/ ABORT/i],
-      ['/phases/phase10r/', /The shift holdout/i, /Tail \+ coverage/i],
-      ['/phases/phase11/', /The protected reliability pass/i, /Protected gates/i],
-      ['/phases/phase12/', /The uncertainty baseline/i, /2\.23035/],
-      ['/phases/phase13a/', /The validity gauntlet/i, /External-Validity Gauntlet/i],
-      ['/phases/phase18/', /The protected confirmation/i, /protected validation missed two q90 gates/i],
-      ['/phases/phase22/', /The frozen transfer model/i, /0\.8319/]
+      ['/phases/phase1/', /First safety supervisor/i, /HOLD \/ ABORT/i],
+      ['/phases/phase10r/', /Shifted holdout/i, /Tail \+ coverage/i],
+      ['/phases/phase11/', /Protected reliability check/i, /Protected gates/i],
+      ['/phases/phase12/', /Frozen uncertainty reference/i, /2\.23035/],
+      ['/phases/phase13a/', /External-validity challenge/i, /External-Validity Gauntlet/i],
+      ['/phases/phase18/', /Protected residual check/i, /missed two q90 checks/i],
+      ['/phases/phase22/', /Frozen additive transfer/i, /0\.8319/]
     ];
     for (const [route, identity, evidence] of phaseChecks) {
       await page.goto(BASE + route, { waitUntil: 'domcontentloaded', timeout: 45000 });
@@ -132,7 +132,7 @@ try {
     await page.waitForTimeout(250);
     const phase12Text = await page.locator('main').innerText();
     add('phase12-locked-verdict-visible', /PASS/.test(phase12Text));
-    add('phase12-boundary-visible', /Synthetic, frozen simulation evidence only/i.test(phase12Text));
+    add('phase12-boundary-visible', /Frozen result\. No retuning/i.test(phase12Text));
 
     await page.goto(BASE + '/phases/phase22/', { waitUntil: 'domcontentloaded', timeout: 45000 });
     await page.waitForTimeout(250);

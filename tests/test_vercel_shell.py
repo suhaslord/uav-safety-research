@@ -21,7 +21,9 @@ def test_vercel_home_is_native_frozen_archive_shell() -> None:
     assert "simulation_only=true" in html
     assert "safety_acceptance=false" in html
     assert "controller_tuning_allowed=false" in html
-    assert "No Phase 23 is implied or authorized" in html
+    # Keep the scientific boundary semantic instead of coupling QA to retired prose.
+    assert "Phase 22 is a simulation result" in html
+    assert "does not establish real-flight safety or justify controller tuning" in html
 
 
 def test_vercel_routes_use_packaged_frozen_and_legacy_assets() -> None:
@@ -99,8 +101,9 @@ def test_phase_archive_uses_shared_tesla_polish_without_rewriting_lineage() -> N
     assert 'href="/phase-editorial-media.css?v=' in phase
     assert 'href="/signature.css?v=' not in archive
     assert 'href="/signature.css?v=' not in frozen
-    assert "One question. Six chapters." in archive
+    assert "The archive keeps the detours, not just the wins." in archive
     assert "Research categories" in archive
+    assert "6 PASS / 7 FAIL" in archive
 
 
 def test_phase_taxonomy_personalizes_all_26_phase_routes() -> None:
