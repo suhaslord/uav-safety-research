@@ -1,0 +1,67 @@
+name: Real dataset validation
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/real-dataset-validation.yml"
+      - "src/uav_safety/real_landing_dataset.py"
+      - "scripts/run_real_landing_pad_benchmark.py"
+      - "scripts/download_kios_real_landing_dataset.py"
+      - "tests/test_real_landing_dataset.py"
+      - "pyproject.toml"
+
+jobs:
+  real-image-transfer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install project
+        run: python -m pip install -e ".[dev]"
+
+      - name: Run software tests first
+        run: pytest -q tests/test_real_landing_dataset.py
+
+      - name: Install 7-Zip
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y p7zip-full
+
+      - name: Download and verify KIOS dataset
+        run: |
+          python scripts/download_kios_real_landing_dataset.py \
+            --out "$RUNNER_TEMP/kios_landing_pad" \
+            --accept-download \
+            --extract
+
+      - name: Show extracted dataset layout
+        run: |
+          find "$RUNNER_TEMP/kios_landing_pad/extracted" -maxdepth 4 -type d | head -80
+          echo "Images containing 'real' in path:"
+          find "$RUNNER_TEMP/kios_landing_pad/extracted" -type f \
+            \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' \) \
+            | grep -i real | wc -l
+
+      - name: Evaluate frozen baseline on real-video images
+        run: |
+          python scripts/run_real_landing_pad_benchmark.py \
+            --dataset-root "$RUNNER_TEMP/kios_landing_pad/extracted" \
+            --path-contains real \
+            --out results/real_landing_pad
+
+      - name: Show summary
+        run: cat results/real_landing_pad/summary.md
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kios-real-landing-pad-baseline
+          path: results/real_landing_pad/
+          if-no-files-found: error
