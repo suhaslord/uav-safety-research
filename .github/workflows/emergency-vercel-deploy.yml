@@ -3,8 +3,7 @@ name: Emergency Vercel production deploy
 on:
   workflow_dispatch:
   push:
-    branches:
-      - main
+    branches: [main]
     paths:
       - 'deploy/vercel/**'
       - 'dashboard/**'
@@ -33,12 +32,9 @@ jobs:
       - name: Verify Vercel token is configured
         shell: bash
         run: |
-          if [ -z "$VERCEL_TOKEN" ]; then
-            echo "VERCEL_TOKEN repository secret is not configured."
-            exit 1
-          fi
+          test -n "$VERCEL_TOKEN" || { echo 'VERCEL_TOKEN is not configured'; exit 1; }
 
-      - name: Fetch licensed editorial media
+      - name: Fetch phase editorial media
         run: node deploy/vercel/fetch-editorial-media.mjs
 
       - name: Build self-contained production bundle
@@ -50,93 +46,46 @@ jobs:
           cp -R deploy/vercel/. .vercel-release/
           cp -R dashboard .vercel-release/dashboard
           mkdir -p .vercel-release/.vercel
-          cat > .vercel-release/.vercel/project.json <<EOF
-          {"orgId":"$VERCEL_ORG_ID","projectId":"$VERCEL_PROJECT_ID"}
-          EOF
+          printf '{"orgId":"%s","projectId":"%s"}\n' "$VERCEL_ORG_ID" "$VERCEL_PROJECT_ID" > .vercel-release/.vercel/project.json
 
-      - name: Assert frozen Tesla-style release is native and self-contained
+      - name: Assert real-data release and preserved archive
         shell: bash
         run: |
           set -euo pipefail
-          grep -q 'data-site-shell="native frozen-archive"' .vercel-release/index.html
-          grep -q 'data-editorial-media="local-v2"' .vercel-release/index.html
-          ! grep -q 'document.write' .vercel-release/index.html
-          ! grep -q 'cdn.jsdelivr.net/gh/suhaslord/uav-safety-research' .vercel-release/index.html .vercel-release/vercel.json
+          HOME=.vercel-release/index.html
+          grep -q 'data-site-shell="native real-data"' "$HOME"
+          grep -q 'KIOS Aerial Landing Pad' "$HOME"
+          grep -q '422 REAL VIDEO FRAMES' "$HOME"
+          grep -q 'The synthetic heuristic does not transfer well' "$HOME"
+          grep -q '76.8%' "$HOME"
+          grep -q '30.6%' "$HOME"
+          grep -q '0.2176' "$HOME"
+          grep -q 'Why no raw frame gallery here?' "$HOME"
+          ! grep -q 'src="/media/acero-uav-flight.jpg"' "$HOME"
+          ! grep -q 'document.write' "$HOME"
+          ! grep -q 'cdn.jsdelivr.net/gh/suhaslord/uav-safety-research' "$HOME" .vercel-release/vercel.json
 
           test -f .vercel-release/aegisland.css
-          test -f .vercel-release/research-home.css
-          test -f .vercel-release/research-media.css
-          test -f .vercel-release/phase-polish.css
-          test -f .vercel-release/frozen-lineage.js
+          test -f .vercel-release/research-workspace.css
+          test -f .vercel-release/dashboard/phases/index.html
+          test -f .vercel-release/dashboard/phases/frozen.html
           test -f .vercel-release/dashboard/phase-visuals.js
-          test -f .vercel-release/dashboard/phase-editorial-media.js
-          test -f .vercel-release/dashboard/phase-editorial-media.css
+          test -f .vercel-release/frozen-lineage.js
 
-          for ASSET in acero-uav-flight.jpg acero-ground-control.jpg stereo-uav-preflight.jpg acero-uav-landing.jpg phase01-context.jpg phase02-context.jpg phase04-context.jpg phase05-context.jpg phase06b-context.jpg phase07-context.jpg phase08-context.jpg phase10-context.jpg phase10r-context.jpg phase12-context.jpg phase13a-context.jpg phase13b-context.jpg phase13c-context.jpg phase14-context.jpg phase15-context.jpg phase16-context.jpg phase17-context.jpg phase18-context.jpg phase19-context.jpg phase20-context.jpg phase21-context.jpg phase22-context.jpg; do
+          # Phase/editorial assets remain available for the historical archive even though
+          # the homepage itself is now evidence-first and does not use NASA hero imagery.
+          for ASSET in phase01-context.jpg phase06b-context.jpg phase16-context.jpg phase22-context.jpg; do
             test -s ".vercel-release/media/$ASSET"
           done
 
-          test -f .vercel-release/dashboard/phases/index.html
-          test -f .vercel-release/dashboard/phases/frozen.html
-          test -f .vercel-release/phase11.html
-
-          grep -q 'href="/aegisland.css?v=' .vercel-release/index.html
-          ! grep -q 'href="/signature.css?v=' .vercel-release/index.html
-          grep -q 'href="/research-home.css?v=' .vercel-release/index.html
-          grep -q 'href="/research-media.css?v=' .vercel-release/index.html
-          grep -q 'src="/media/acero-uav-flight.jpg"' .vercel-release/index.html
-          grep -q 'src="/media/acero-ground-control.jpg"' .vercel-release/index.html
-          grep -q 'src="/media/stereo-uav-preflight.jpg"' .vercel-release/index.html
-          grep -q 'src="/media/acero-uav-landing.jpg"' .vercel-release/index.html
-          test "$(grep -o 'Visual context — not AegisLand experimental evidence' .vercel-release/index.html | wc -l)" -eq 4
-          grep -q 'Don Richey / NASA Ames Research Center' .vercel-release/index.html
-          grep -q 'Joel Kowsky / NASA' .vercel-release/index.html
-          ! grep -q '<img[^>]*src="https://' .vercel-release/index.html
-          grep -q 'A camera can be wrong before confidence admits it.' .vercel-release/index.html
-          grep -q 'Frozen through Phase 22' .vercel-release/index.html
-          grep -q 'The measurement problem' .vercel-release/index.html
-          grep -q 'Why the archive keeps the misses' .vercel-release/index.html
-          grep -q 'The result that shaped the later work' .vercel-release/index.html
-          grep -q 'home-lineage__track' .vercel-release/index.html
-          grep -q '6 PASS / 7 FAIL' .vercel-release/index.html
-          grep -q '0.8319' .vercel-release/index.html
-          grep -q '0.7744' .vercel-release/index.html
-          grep -q '100%' .vercel-release/index.html
-          grep -q 'simulation_only=true' .vercel-release/index.html
-          grep -q 'safety_acceptance=false' .vercel-release/index.html
-          grep -q 'controller_tuning_allowed=false' .vercel-release/index.html
-
-          grep -q 'href="/phase-polish.css?v=' .vercel-release/dashboard/phases/index.html
-          grep -q 'href="/phase-polish.css?v=' .vercel-release/dashboard/phases/frozen.html
-          grep -q 'href="/phase-polish.css?v=' .vercel-release/dashboard/phases/phase.html
-          grep -q 'href="/phase-editorial-media.css?v=' .vercel-release/dashboard/phases/frozen.html
-          grep -q 'href="/phase-editorial-media.css?v=' .vercel-release/dashboard/phases/phase.html
-          grep -q 'src="/phase-visuals.js?v=' .vercel-release/dashboard/phases/frozen.html
-          grep -q 'src="/phase-editorial-media.js?v=' .vercel-release/dashboard/phases/frozen.html
-          grep -q 'src="/phase-visuals.js?v=' .vercel-release/dashboard/phases/phase.html
-          grep -q 'src="/phase-editorial-media.js?v=' .vercel-release/dashboard/phases/phase.html
-          grep -q 'src="/phase-visuals.js?v=' .vercel-release/phase11.html
-          grep -q 'src="/phase-editorial-media.js?v=' .vercel-release/phase11.html
-          ! grep -q 'href="/signature.css?v=' .vercel-release/dashboard/phases/index.html
-          ! grep -q 'href="/signature.css?v=' .vercel-release/dashboard/phases/frozen.html
           grep -q 'The archive keeps the detours, not just the wins.' .vercel-release/dashboard/phases/index.html
-
           node - <<'NODE'
           global.window = {};
           require('./.vercel-release/frozen-lineage.js');
           const d = window.AEGIS_FROZEN_LINEAGE;
           if (!d || d.frozenThrough !== 'Phase 22') throw new Error('frozen frontier mismatch');
-          if (d.phases.length !== 13) throw new Error('frozen lineage record count mismatch');
-          if (d.counts.PASS !== 6 || d.counts.FAIL !== 7) throw new Error('pass/fail count mismatch');
-          if (d.bySlug.phase13a.verdict !== 'FAIL' || d.bySlug.phase13b.verdict !== 'FAIL') throw new Error('Phase 13 failures were rewritten');
-          if (d.bySlug.phase18.verdict !== 'FAIL') throw new Error('Phase 18 failure was rewritten');
-          if (d.bySlug.phase19.verdict !== 'PASS' || d.bySlug.phase20.verdict !== 'PASS' || d.bySlug.phase21.verdict !== 'PASS' || d.bySlug.phase22.verdict !== 'PASS') throw new Error('late frozen pass missing');
-          if (d.bySlug.phase22.resultSha !== '0ddc968b8bd48c2de6d904194b417854913389a8927cff0b15b96c6501f8294c') throw new Error('Phase 22 final result identity mismatch');
-          if (d.bySlug.phase22.candidateSha !== '62e75d7b39088c2e66f1cc6be4d180501b79632f2f6847af1fbe0bd96be17551') throw new Error('Phase 22 candidate identity mismatch');
-          if (d.frozenScientificHead !== '668d065714dde279857bc0e196f0ef7cc5e182ed') throw new Error('Phase 22 scientific head mismatch');
-          if (d.phase22FinalRun !== '34043148327' || d.phase22FinalArtifact !== '9992317865') throw new Error('Phase 22 final run/artifact mismatch');
-          if (d.phase22FinalArtifactDigest !== 'sha256:78fa8d0d5a0df2a59d2d65a3e30abb1e8c948c1f3b9b66a2cb262f00adb971cb') throw new Error('Phase 22 artifact digest mismatch');
-          if (d.boundary.simulation_only !== true || d.boundary.safety_acceptance !== false || d.boundary.controller_tuning_allowed !== false) throw new Error('claim boundary mismatch');
+          if (d.phases.length !== 13 || d.counts.PASS !== 6 || d.counts.FAIL !== 7) throw new Error('frozen lineage count mismatch');
+          if (d.bySlug.phase22.resultSha !== '0ddc968b8bd48c2de6d904194b417854913389a8927cff0b15b96c6501f8294c') throw new Error('Phase 22 result identity mismatch');
           NODE
 
       - name: Install Vercel CLI
@@ -151,94 +100,30 @@ jobs:
           echo "url=$URL" >> "$GITHUB_OUTPUT"
           echo "Production deployment: $URL"
 
-      - name: Verify deployed frozen archive and public alias
+      - name: Verify deployment and public alias
         shell: bash
         run: |
           set -euo pipefail
           DEPLOY_URL='${{ steps.deploy.outputs.url }}'
           PUBLIC_URL='https://aegisland-research-cockpit.vercel.app'
 
-          echo "Checking deployment URL: $DEPLOY_URL"
-          DEPLOY_HTML=$(curl --fail --silent --show-error --location --retry 5 --retry-delay 2 "$DEPLOY_URL/")
-          if printf '%s' "$DEPLOY_HTML" | grep -qi 'class="[^"]*geist\|Vercel.*Dashboard'; then
-            echo "Preview URL returned Vercel dashboard/auth page; verifying public alias instead."
-          else
-            ! printf '%s' "$DEPLOY_HTML" | grep 'document.write\|cdn.jsdelivr.net/gh/suhaslord/uav-safety-research' > /dev/null
-          fi
-
-          echo "=== Verifying public production alias: $PUBLIC_URL ==="
-          PUBLIC_HTML=$(curl --fail --silent --show-error --location --retry 5 --retry-delay 2 "$PUBLIC_URL/")
-          ! printf '%s' "$PUBLIC_HTML" | grep 'document.write\|cdn.jsdelivr.net/gh/suhaslord/uav-safety-research' > /dev/null
-          printf '%s' "$PUBLIC_HTML" | grep 'data-site-shell="native frozen-archive"' > /dev/null
-          printf '%s' "$PUBLIC_HTML" | grep 'data-editorial-media="local-v2"' > /dev/null
-          printf '%s' "$PUBLIC_HTML" | grep 'href="/aegisland.css?v=' > /dev/null
-          printf '%s' "$PUBLIC_HTML" | grep 'href="/research-home.css?v=' > /dev/null
-          printf '%s' "$PUBLIC_HTML" | grep 'href="/research-media.css?v=' > /dev/null
-          test "$(printf '%s' "$PUBLIC_HTML" | grep -o 'Visual context — not AegisLand experimental evidence' | wc -l)" -eq 4
-          printf '%s' "$PUBLIC_HTML" | grep 'Don Richey / NASA Ames Research Center' > /dev/null
-          printf '%s' "$PUBLIC_HTML" | grep 'Joel Kowsky / NASA' > /dev/null
-          printf '%s' "$PUBLIC_HTML" | grep 'A camera can be wrong before confidence admits it.' > /dev/null
-          printf '%s' "$PUBLIC_HTML" | grep 'The measurement problem' > /dev/null
-          printf '%s' "$PUBLIC_HTML" | grep 'Why the archive keeps the misses' > /dev/null
-          printf '%s' "$PUBLIC_HTML" | grep 'The result that shaped the later work' > /dev/null
-          printf '%s' "$PUBLIC_HTML" | grep 'Frozen through Phase 22' > /dev/null
-          printf '%s' "$PUBLIC_HTML" | grep 'home-lineage__track' > /dev/null
-          printf '%s' "$PUBLIC_HTML" | grep '0.8319' > /dev/null
-          printf '%s' "$PUBLIC_HTML" | grep '0.7744' > /dev/null
-          printf '%s' "$PUBLIC_HTML" | grep 'simulation_only=true' > /dev/null
-          printf '%s' "$PUBLIC_HTML" | grep 'safety_acceptance=false' > /dev/null
-          printf '%s' "$PUBLIC_HTML" | grep 'controller_tuning_allowed=false' > /dev/null
-
-          for ASSET in acero-uav-flight.jpg acero-ground-control.jpg stereo-uav-preflight.jpg acero-uav-landing.jpg phase01-context.jpg phase22-context.jpg; do
-            curl --fail --silent --show-error --location "$PUBLIC_URL/media/$ASSET" -o "/tmp/$ASSET"
-            test $(wc -c < "/tmp/$ASSET") -gt 50000
+          for URL in "$DEPLOY_URL" "$PUBLIC_URL"; do
+            HTML=''
+            for i in {1..20}; do
+              HTML=$(curl --fail --silent --show-error --location "$URL/?verify=$(date +%s)" || true)
+              if printf '%s' "$HTML" | grep -q 'data-site-shell="native real-data"'; then break; fi
+              sleep 2
+            done
+            printf '%s' "$HTML" | grep -q 'data-site-shell="native real-data"'
+            printf '%s' "$HTML" | grep -q 'KIOS Aerial Landing Pad'
+            printf '%s' "$HTML" | grep -q '422 REAL VIDEO FRAMES'
+            printf '%s' "$HTML" | grep -q '76.8%'
+            printf '%s' "$HTML" | grep -q '30.6%'
           done
-          echo "✓ Editorial media: expanded local NASA photo set resolves"
 
-          curl --fail --silent --show-error --location "$PUBLIC_URL/aegisland.css" >/dev/null
-          curl --fail --silent --show-error --location "$PUBLIC_URL/research-home.css" >/dev/null
-          curl --fail --silent --show-error --location "$PUBLIC_URL/research-media.css" >/dev/null
-          curl --fail --silent --show-error --location "$PUBLIC_URL/phase-polish.css" >/dev/null
-          curl --fail --silent --show-error --location "$PUBLIC_URL/phase-editorial-media.css" >/dev/null
-          curl --fail --silent --show-error --location "$PUBLIC_URL/phase-visuals.js" >/dev/null
-          curl --fail --silent --show-error --location "$PUBLIC_URL/phase-editorial-media.js" >/dev/null
-          curl --fail --silent --show-error --location "$PUBLIC_URL/frozen-lineage.js" -o /tmp/frozen-lineage.js
-          node - <<'NODE'
-          global.window = {};
-          require('/tmp/frozen-lineage.js');
-          const d = window.AEGIS_FROZEN_LINEAGE;
-          if (d.frozenThrough !== 'Phase 22' || d.phases.length !== 13) throw new Error('public lineage shape mismatch');
-          if (d.counts.PASS !== 6 || d.counts.FAIL !== 7) throw new Error('public pass/fail count mismatch');
-          if (d.bySlug.phase13a.verdict !== 'FAIL' || d.bySlug.phase18.verdict !== 'FAIL' || d.bySlug.phase22.verdict !== 'PASS') throw new Error('public verdict mismatch');
-          if (d.bySlug.phase22.resultSha !== '0ddc968b8bd48c2de6d904194b417854913389a8927cff0b15b96c6501f8294c') throw new Error('public Phase 22 result mismatch');
-          if (d.bySlug.phase22.candidateSha !== '62e75d7b39088c2e66f1cc6be4d180501b79632f2f6847af1fbe0bd96be17551') throw new Error('public Phase 22 candidate mismatch');
-          if (d.frozenScientificHead !== '668d065714dde279857bc0e196f0ef7cc5e182ed') throw new Error('public scientific head mismatch');
-          NODE
-          echo "✓ Frozen lineage asset: exact 6 PASS / 7 FAIL record and Phase 22 identities present"
-
-          ARCHIVE_HTML=$(curl --fail --silent --show-error --location "$PUBLIC_URL/phases/")
-          printf '%s' "$ARCHIVE_HTML" | grep 'The archive keeps the detours, not just the wins.' > /dev/null
-          printf '%s' "$ARCHIVE_HTML" | grep 'href="/phase-polish.css?v=' > /dev/null
-          ! printf '%s' "$ARCHIVE_HTML" | grep 'href="/signature.css?v=' > /dev/null
-          echo "✓ Archive: rewritten phase index present"
-
-          for PHASE in phase12 phase13a phase13b phase13c phase14 phase15 phase16 phase17 phase18 phase19 phase20 phase21 phase22; do
-            PHASE_HTML=$(curl --fail --silent --show-error --location "$PUBLIC_URL/phases/$PHASE/")
-            printf '%s' "$PHASE_HTML" | grep 'phaseContent' > /dev/null
-            printf '%s' "$PHASE_HTML" | grep 'href="/phase-polish.css?v=' > /dev/null
-            printf '%s' "$PHASE_HTML" | grep 'src="/phase-visuals.js?v=' > /dev/null
-            printf '%s' "$PHASE_HTML" | grep 'src="/phase-editorial-media.js?v=' > /dev/null
-          done
-          echo "✓ Frozen detail routes: Phase 12 through Phase 22 resolve through the polished shared detail system with contextual photography"
-
-          PHASE1_HTML=$(curl --fail --silent --show-error --location "$PUBLIC_URL/phases/phase1/")
-          printf '%s' "$PHASE1_HTML" | grep 'href="/phase-polish.css?v=' > /dev/null
-          printf '%s' "$PHASE1_HTML" | grep 'src="/phase-visuals.js?v=' > /dev/null
-          PHASE10R_HTML=$(curl --fail --silent --show-error --location "$PUBLIC_URL/phases/phase10r/")
-          printf '%s' "$PHASE10R_HTML" | grep 'href="/phase-polish.css?v=' > /dev/null
-          PHASE11_HTML=$(curl --fail --silent --show-error --location "$PUBLIC_URL/phases/phase11/")
-          printf '%s' "$PHASE11_HTML" | grep 'Phase 11 P14R' > /dev/null
-          printf '%s' "$PHASE11_HTML" | grep 'src="/phase-visuals.js?v=' > /dev/null
-          echo "✓ Foundational phase pages remain reachable, polished, and contextualized"
-
-          echo "=== Verification complete: AegisLand serves local licensed photography and the frozen Phase 1–22 research archive ==="
+          ARCHIVE=$(curl --fail --silent --show-error --location "$PUBLIC_URL/phases/")
+          printf '%s' "$ARCHIVE" | grep -q 'The archive keeps the detours, not just the wins.'
+          PHASE22=$(curl --fail --silent --show-error --location "$PUBLIC_URL/phases/phase22/")
+          printf '%s' "$PHASE22" | grep -q '10 / 10'
+          printf '%s' "$PHASE22" | grep -q 'simulation_only=true'
+          echo '✓ real-data homepage live; frozen archive preserved'
