@@ -4,6 +4,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 MOTION = (ROOT / "dashboard" / "glass-ui.css").read_text(encoding="utf-8")
 SHELL = (ROOT / "deploy" / "vercel" / "index.html").read_text(encoding="utf-8")
+HOME = (ROOT / "deploy" / "vercel" / "research-home.css").read_text(encoding="utf-8")
 
 
 def test_phase_hero_text_is_kept_out_of_moving_svg_geometry():
@@ -41,14 +42,15 @@ def test_motion_layer_does_not_reintroduce_glass_materials():
     assert not (ROOT / "dashboard" / "glass-refraction.css").exists()
 
 
-def test_vercel_home_is_native_real_data_research_shell():
-    assert 'data-site-shell="native real-data"' in SHELL
+def test_vercel_home_is_native_frozen_archive_using_tesla_style_source():
+    assert 'data-site-shell="native frozen-archive"' in SHELL
     assert "document.write" not in SHELL
     assert "cdn.jsdelivr.net" not in SHELL
+    assert "const motion=`${base}glass-ui.css`;" not in SHELL
     assert "glass-refraction.css" not in SHELL
     assert 'href="/aegisland.css?v=' in SHELL
+    assert 'href="/signature.css?v=' not in SHELL
     assert 'href="/research-home.css?v=' in SHELL
-    assert "KIOS Aerial Landing Pad" in SHELL
-    assert "422 REAL VIDEO FRAMES" in SHELL
-    assert "30.6%" in SHELL
-    assert "The synthetic heuristic does not transfer well" in SHELL
+    assert 'src="/frozen-lineage.js?v=' in SHELL
+    assert ".home-lineage__track" in HOME
+    assert "min-height:610px!important" in HOME

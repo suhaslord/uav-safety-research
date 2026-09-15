@@ -5,21 +5,25 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_vercel_home_is_native_real_data_shell() -> None:
+def test_vercel_home_is_native_frozen_archive_shell() -> None:
     html = (ROOT / "deploy" / "vercel" / "index.html").read_text(encoding="utf-8")
 
-    assert 'data-site-shell="native real-data"' in html
+    assert 'data-site-shell="native frozen-archive"' in html
+    assert 'data-editorial-media="local-v2"' in html
     assert "document.write" not in html
     assert "cdn.jsdelivr.net/gh/suhaslord/uav-safety-research" not in html
     assert "const rev=" not in html
-    assert "KIOS Aerial Landing Pad" in html
-    assert "422 REAL VIDEO FRAMES" in html
-    assert "The synthetic heuristic does not transfer well" in html
-    assert "76.8%" in html
-    assert "30.6%" in html
-    assert "0.2176" in html
-    assert "The simulation archive stays intact" in html
-    assert "not validated flight-control software or a certification claim" in html
+    assert 'id="evidenceSpine"' in html
+    assert 'src="/frozen-lineage.js?v=' in html
+    assert "Frozen through Phase 22" in html
+    assert "0.8319" in html
+    assert "0.7744" in html
+    assert "simulation_only=true" in html
+    assert "safety_acceptance=false" in html
+    assert "controller_tuning_allowed=false" in html
+    # Keep the scientific boundary semantic instead of coupling QA to retired prose.
+    assert "Phase 22 is a simulation result" in html
+    assert "does not establish real-flight safety or justify controller tuning" in html
 
 
 def test_vercel_routes_use_packaged_frozen_and_legacy_assets() -> None:

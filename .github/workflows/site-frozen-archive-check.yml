@@ -1,4 +1,4 @@
-name: Research site presentation check
+name: Frozen archive presentation check
 
 on:
   pull_request:
@@ -23,37 +23,34 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
-      - name: Assert current homepage and frozen archive presentation
+      - name: Assert frozen archive presentation
         shell: bash
         run: |
           set -euo pipefail
-
-          # Current research homepage: real-image evidence first.
-          grep -q 'data-site-shell="native real-data"' deploy/vercel/index.html
+          grep -q 'data-site-shell="native frozen-archive"' deploy/vercel/index.html
+          grep -q 'data-editorial-media="local-v2"' deploy/vercel/index.html
           grep -q 'href="/aegisland.css?v=' deploy/vercel/index.html
+          ! grep -q 'href="/signature.css?v=' deploy/vercel/index.html
           grep -q 'href="/research-home.css?v=' deploy/vercel/index.html
-          grep -q 'KIOS Aerial Landing Pad' deploy/vercel/index.html
-          grep -q '422 REAL VIDEO FRAMES' deploy/vercel/index.html
-          grep -q 'The synthetic heuristic does not transfer well' deploy/vercel/index.html
-          grep -q '76.8%' deploy/vercel/index.html
-          grep -q '30.6%' deploy/vercel/index.html
-          grep -q '0.2176' deploy/vercel/index.html
-          grep -q 'Why no raw frame gallery here?' deploy/vercel/index.html
-          grep -q 'The simulation archive stays intact.' deploy/vercel/index.html
-          ! grep -q 'src="/media/acero-uav-flight.jpg"' deploy/vercel/index.html
-          ! grep -q 'document.write' deploy/vercel/index.html
-          ! grep -q 'cdn.jsdelivr.net/gh/suhaslord/uav-safety-research' deploy/vercel/index.html
+          grep -q 'href="/research-media.css?v=' deploy/vercel/index.html
+          grep -q 'AegisLand · UAV landing perception' deploy/vercel/index.html
+          grep -q 'What happens when the estimate drifts but the uncertainty does not?' deploy/vercel/index.html
+          grep -q 'See the Phase 22 result' deploy/vercel/index.html
+          grep -q 'Frozen through Phase 22' deploy/vercel/index.html
+          grep -q 'Phase 22 is a simulation result' deploy/vercel/index.html
+          grep -q 'home-lineage__track' deploy/vercel/index.html
+          grep -q '6 PASS / 7 FAIL' deploy/vercel/index.html
+          test "$(grep -o 'Visual context — not AegisLand experimental evidence' deploy/vercel/index.html | wc -l)" -eq 4
 
-          # The historical archive remains frozen and independently inspectable.
           test -f deploy/vercel/phase-polish.css
-          test -f deploy/vercel/frozen-lineage.js
+          test -f deploy/vercel/research-home.css
+          test -f deploy/vercel/research-media.css
           test -f dashboard/phase-taxonomy.js
           test -f dashboard/phase-personalization.css
           test -f dashboard/phase-personalization.js
           test -f dashboard/phase-visuals.js
           test -f dashboard/phase-editorial-media.css
           test -f dashboard/phase-editorial-media.js
-
           grep -q 'href="/phase-polish.css?v=' dashboard/phases/index.html
           grep -q 'href="/phase-polish.css?v=' dashboard/phases/frozen.html
           grep -q 'href="/phase-polish.css?v=' dashboard/phases/phase.html
@@ -66,12 +63,19 @@ jobs:
           grep -q 'src="/phase-visuals.js?v=' dashboard/phases/phase.html
           grep -q 'src="/phase-editorial-media.js?v=' dashboard/phases/frozen.html
           grep -q 'src="/phase-editorial-media.js?v=' dashboard/phases/phase.html
+          ! grep -q 'href="/signature.css?v=' dashboard/phases/index.html
+          ! grep -q 'href="/signature.css?v=' dashboard/phases/frozen.html
           grep -q 'The archive keeps the detours, not just the wins.' dashboard/phases/index.html
           grep -q 'Research categories' dashboard/phases/index.html
+          grep -q 'const phase = lineage && lineage.bySlug\[slug\]' dashboard/phases/frozen.html
+          grep -q 'phase-taxonomy.js' dashboard/phases/frozen.html
+          grep -q 'phase-personalization.js' dashboard/phases/frozen.html
 
           grep -q "phase1: { category: 'safety-architecture'" dashboard/phase-taxonomy.js
           grep -q "phase22: { category: 'context-transfer'" dashboard/phase-taxonomy.js
           test "$(grep -c "id: '.*'" dashboard/phase-taxonomy.js)" -ge 6
+          grep -q 'phase1:' dashboard/phase-visuals.js
+          grep -q 'phase22:' dashboard/phase-visuals.js
           test "$(grep -o "phase[0-9][0-9a-z]*:" dashboard/phase-visuals.js | wc -l)" -eq 26
 
           grep -q "slug: 'phase13a'" deploy/vercel/frozen-lineage.js
@@ -82,9 +86,21 @@ jobs:
           grep -q '0ddc968b8bd48c2de6d904194b417854913389a8927cff0b15b96c6501f8294c' deploy/vercel/frozen-lineage.js
           grep -q '62e75d7b39088c2e66f1cc6be4d180501b79632f2f6847af1fbe0bd96be17551' deploy/vercel/frozen-lineage.js
           grep -q '668d065714dde279857bc0e196f0ef7cc5e182ed' deploy/vercel/frozen-lineage.js
+          grep -q 'sha256:78fa8d0d5a0df2a59d2d65a3e30abb1e8c948c1f3b9b66a2cb262f00adb971cb' deploy/vercel/frozen-lineage.js
+
           test "$(grep -c "verdict: 'PASS'" deploy/vercel/frozen-lineage.js)" -eq 6
           test "$(grep -c "verdict: 'FAIL'" deploy/vercel/frozen-lineage.js)" -eq 7
 
           grep -q '/dashboard/phases/frozen.html' deploy/vercel/vercel.json
           grep -q '/dashboard/phase-taxonomy.js' deploy/vercel/vercel.json
+          grep -q '/dashboard/phase-personalization.css' deploy/vercel/vercel.json
+          grep -q '/dashboard/phase-personalization.js' deploy/vercel/vercel.json
           grep -q '/dashboard/phase-visuals.js' deploy/vercel/vercel.json
+          grep -q '/dashboard/phase-editorial-media.css' deploy/vercel/vercel.json
+          grep -q '/dashboard/phase-editorial-media.js' deploy/vercel/vercel.json
+          grep -q '0.8319' deploy/vercel/index.html
+          grep -q '0.7744' deploy/vercel/index.html
+          grep -q '100%' deploy/vercel/index.html
+          grep -q 'simulation_only=true' deploy/vercel/index.html
+          grep -q 'safety_acceptance=false' deploy/vercel/index.html
+          grep -q 'controller_tuning_allowed=false' deploy/vercel/index.html
