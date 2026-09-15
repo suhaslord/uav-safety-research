@@ -21,6 +21,7 @@ The goal is **not** to claim a real aircraft is safe. The goal is to understand:
 - what goes into each part of the system;
 - what comes out of it;
 - how different degradation blocks affect the result;
+- how the blocks interact;
 - when confidence is useful or misleading;
 - which conclusions survive harder and previously unseen evidence.
 
@@ -34,7 +35,24 @@ This README is intentionally organized like a simple research report:
 
 **problem → data → method → experiment → result → limitation → next step**
 
-The deeper phase-by-phase scientific record is still preserved separately. For a block-level explanation of the implementation, see **[Project Understanding Guide](docs/project_understanding_guide.md)**.
+The deeper phase-by-phase scientific record is still preserved separately. For a block-level explanation of the implementation, see **[Project Understanding Guide](docs/project_understanding_guide.md)**. For the input/output contracts, block interactions, learning references, and the non-technical explanation test, see **[Block-Level Reference Map](docs/block_reference_map.md)**.
+
+### Current research-development rule
+
+The current priority is **understanding, documenting, and organizing what already exists**, not adding complexity.
+
+Before going deeper into any component, the documentation should make clear:
+
+1. what the block is for;
+2. what its input is;
+3. what it does at a high level;
+4. what its output is;
+5. how that output interacts with the next block;
+6. what assumptions/limitations it has;
+7. where the implementation lives;
+8. which reliable paper, textbook, or technical documentation should be used to learn more.
+
+The project should also be explainable to someone who does not know image processing or computer vision. Deeper mathematics, physical characterization of one degradation, and a formal research paper are **future work after that understanding is strong**.
 
 ---
 
@@ -69,7 +87,7 @@ flowchart LR
     A[True lateral offset + altitude] --> B[Synthetic 96×96 image]
     B --> C[Degradation block]
     C --> D[Threshold-based pad estimator]
-    D --> E[Estimated lateral position + confidence + validity]
+    D --> E[Estimated lateral position + confidence + valid/invalid]
 ```
 
 ### What each block receives and returns
@@ -85,6 +103,23 @@ flowchart LR
 | Metrics | completed episode | measures safety, error, success, aborts, etc. | experiment results |
 
 The point of documenting the project this way is to make every component explainable without hiding behind “the algorithm.”
+
+### How the blocks interact
+
+The handoff matters as much as each block by itself:
+
+```text
+truth state
+  → image / perception observation
+  → controlled degradation
+  → estimate + confidence + validity
+  → supervisor decision
+  → controller command
+  → next simulated state
+  → saved metrics
+```
+
+A block's output should be the next block's documented input. A result should not depend on an unexplained hidden signal or on information that would not be available at that stage of the system.
 
 ---
 
@@ -111,6 +146,8 @@ There are two different uses of degradation names in the repository:
 
 Neither should be described as a calibrated physical model of drone vibration, defocus, water on a lens, or a specific camera failure.
 
+![Phase 5 image conditions](results/phase5_images/figures/example_conditions.png)
+
 ---
 
 ## 4. Current image-estimation baseline
@@ -134,6 +171,8 @@ The benchmark mainly uses:
 
 This is the right level of baseline for the current goal: understand the input, output, and system behavior first; deeper algorithmic and mathematical analysis can come later.
 
+For learning resources for these blocks, see the [Block-Level Reference Map](docs/block_reference_map.md).
+
 ---
 
 ## 5. First pixel-benchmark results
@@ -156,6 +195,10 @@ That leads to a more useful question:
 
 > **Can the system recognize when its own perception estimate is unreliable?**
 
+![Mean error by image condition](results/phase5_images/figures/mean_error_by_condition.png)
+
+![Failure rate by image condition](results/phase5_images/figures/failure_rate_by_condition.png)
+
 ### Later image/perception work
 
 ![Phase 6B result view](docs/assets/readme/chart_phase6b_light.png)
@@ -166,7 +209,7 @@ The repository later expanded the perception work beyond the first standalone im
 
 ## 6. Baselines: two different meanings
 
-“Baseline” is used in two places, so the README now separates them explicitly.
+“Baseline” is used in two places, so the README separates them explicitly.
 
 ### Image-estimation baseline
 
@@ -189,14 +232,19 @@ The immediate checklist is:
 - [x] explain the project in plain English;
 - [x] document the high-level pipeline;
 - [x] identify the input and output of each main block;
+- [x] document how the blocks interact;
 - [x] document what the degradation labels actually mean;
 - [x] document the exact current image estimator;
 - [x] state what dataset/frames are actually being used;
 - [x] put the main early image results in one place;
 - [x] add useful visual examples/results to the README;
 - [x] organize the README as problem → data → method → experiment → result → limitation;
+- [x] add a per-block template covering purpose, input, transformation, output, interaction, assumptions, code, evidence, and reference;
+- [x] add reliable learning references for the current tools/blocks;
+- [x] add a non-technical explanation test;
+- [x] separate future deep research/paper ideas from current work;
 - [ ] keep improving the documentation until each block can be explained without looking at the code;
-- [ ] use papers and technical documentation as references whenever going deeper into one component;
+- [ ] practice the 60-second explanation without the website;
 - [ ] later, after the system-level understanding is strong, decide whether one narrow question is worth turning into a formal paper-style project.
 
 The goal right now is **not to force a paper**. It is to build enough understanding that a future research question would have a clear foundation.
@@ -206,6 +254,20 @@ The goal right now is **not to force a paper**. It is to build enough understand
 ## 8. 60-second explanation
 
 > AegisLand is a simulation project about safer autonomous drone landing. A landing system has to estimate where the drone is, but those estimates can become unreliable when visual information gets degraded or stale. I simulate those problems and compare a normal landing system with a supervised system that looks at confidence and independent evidence before deciding whether to continue, hold, or abort. I also built a small synthetic image benchmark with conditions like blur, low light, and occlusion. The image estimator is intentionally simple and rule-based. One important result is that under harder mixed degradation it can still return a valid answer even when its error becomes much larger, which shows why knowing when not to trust perception is an important part of the problem.
+
+### Non-technical understanding check
+
+Before calling a block understood, be able to answer these without code:
+
+- What problem does this block solve?
+- What goes into it?
+- What happens inside it at a high level?
+- What comes out?
+- Which block uses that output next?
+- What can make it misleading?
+- What part is synthetic/simulated versus real?
+- What result tests it?
+- What reliable source would you use to learn the block more deeply?
 
 ---
 
@@ -256,6 +318,18 @@ Browse the full archive: https://aegisland-research-cockpit.vercel.app/phases/
 ![Uncertainty analysis](docs/assets/readme/chart_uncertainty_light.png)
 
 These figures belong to later phases of the frozen research record. They are included here to make the evidence easier to navigate, not to collapse different experiments into one result.
+
+---
+
+## 11. Paper-style organization now, paper later
+
+The repository should learn from research-paper structure now:
+
+**abstract/problem → evidence/data → method → experiment → metrics → results → limitations → conclusion/references**
+
+That does **not** mean a formal paper should be written immediately. A paper-style project becomes a future option only after the existing system is understood clearly and a narrow question is supported by evidence.
+
+Potential deeper topics—such as physically characterizing motion blur, modeling camera failure physics, or replacing the simple estimator with a learned vision model—are kept in the [future research parking lot](docs/block_reference_map.md#8-future-research-parking-lot) rather than mixed into current requirements.
 
 ---
 
@@ -352,6 +426,7 @@ For frozen results:
 Useful starting points:
 
 - [Project Understanding Guide](docs/project_understanding_guide.md)
+- [Block-Level Reference Map](docs/block_reference_map.md)
 - [Methodology](docs/methodology.md)
 - [Phase 5 image/perception results](docs/phase5_results.md)
 - [Reproducibility protocol](docs/reproducibility.md)
