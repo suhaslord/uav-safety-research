@@ -1,0 +1,13 @@
+{
+  "dataset": "KIOS Aerial Landing Pad, Unreal Engine Dataset — real-video subset",
+  "dataset_doi": "10.5281/zenodo.13682584",
+  "dataset_archive_md5": "865515c2d8f5e9cd9b2ee1e1ec294270",
+  "evaluation": "frozen ThresholdPadEstimator transfer; no retraining or tuning",
+  "workflow_run": 34930371598,
+  "samples": 422,
+  "valid_rate": 0.7677725118483413,
+  "x_center_mae_norm": 0.21755987595488668,
+  "x_center_p95_norm": 0.5145950117504481,
+  "x_inside_box_rate": 0.3055555555555556,
+  "mean_confidence": 0.5204849534270602
+}
