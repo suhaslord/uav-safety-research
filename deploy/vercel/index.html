@@ -3,24 +3,23 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#ffffff">
+  <meta name="theme-color" content="#050607">
   <meta name="description" content="AegisLand tests UAV landing perception on 422 real landing-pad video frames after an initial synthetic benchmark.">
   <link rel="canonical" href="https://aegisland-research-cockpit.vercel.app/">
   <meta property="og:title" content="AegisLand — Real-image UAV landing research">
-  <meta property="og:description" content="A real-image transfer test of UAV landing-pad perception, with the full earlier simulation archive preserved.">
+  <meta property="og:description" content="A protected real-image evaluation of UAV landing-pad perception, with the full earlier simulation archive preserved.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://aegisland-research-cockpit.vercel.app/">
+  <meta property="og:image" content="https://aegisland-research-cockpit.vercel.app/assets/real-image-track.svg">
   <title>AegisLand — Real-image UAV landing research</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=5">
   <link rel="stylesheet" href="/aegisland.css?v=4">
   <link rel="stylesheet" href="/research-workspace.css?v=2">
   <link rel="stylesheet" href="/research-home.css?v=2">
   <link rel="stylesheet" href="/presentation.css?v=9">
-  <style>
-    .data-hero{padding:88px 0 48px}.data-kicker{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px}.data-chip{border:1px solid var(--line,#d8dde5);border-radius:999px;padding:7px 11px;font-size:.82rem}.data-hero h1{max-width:900px;margin:0 0 18px;font-size:clamp(2.6rem,7vw,6rem);line-height:.94;letter-spacing:-.055em}.data-deck{max-width:760px;font-size:1.13rem;line-height:1.7}.data-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:30px 0}.data-stat{border:1px solid var(--line,#d8dde5);border-radius:18px;padding:22px;background:var(--surface,#fff)}.data-stat span{display:block;font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;opacity:.68}.data-stat strong{display:block;margin-top:8px;font-size:1.75rem}.result-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.result-grid .data-stat strong.bad{font-size:2rem}.simple-flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:24px 0}.flow-node{border:1px solid var(--line,#d8dde5);border-radius:12px;padding:10px 13px}.flow-arrow{opacity:.5}.note{border-left:3px solid currentColor;padding:4px 0 4px 18px;max-width:780px}.old-inputs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-top:18px}.old-inputs figure{margin:0;border:1px solid var(--line,#d8dde5);border-radius:12px;overflow:hidden}.old-inputs img{display:block;width:100%;aspect-ratio:1;object-fit:cover}.old-inputs figcaption{padding:8px 10px;font-size:.78rem}.mini-links{display:flex;gap:18px;flex-wrap:wrap}.site-footer{padding:42px 0 60px;border-top:1px solid var(--line,#d8dde5);margin-top:64px}@media(max-width:760px){.data-hero{padding-top:54px}.data-grid,.result-grid{grid-template-columns:1fr}.old-inputs{grid-template-columns:repeat(2,minmax(0,1fr))}.data-hero h1{font-size:clamp(2.4rem,14vw,4.4rem)}}
-  </style>
+  <link rel="stylesheet" href="/real-track.css?v=1">
 </head>
-<body class="research-workspace home-workspace">
+<body class="research-workspace home-workspace real-data-home">
   <a class="skip-link" href="#main">Skip to research</a>
   <header class="site-header signature-nav">
     <a class="brand signature-brand" href="#top" aria-label="AegisLand home"><span>AEGISLAND</span></a>
@@ -31,56 +30,87 @@
   </header>
 
   <main id="main">
-    <section class="data-hero" id="top">
-      <div class="wrap">
-        <div class="data-kicker"><span class="data-chip">REAL-IMAGE TRACK</span><span class="data-chip">KIOS · 2024</span><span class="data-chip">422 REAL VIDEO FRAMES</span></div>
-        <h1>Now testing AegisLand on real landing-pad images.</h1>
-        <p class="data-deck">The first synthetic benchmark was useful, but too simple. The current track uses the <strong>KIOS Aerial Landing Pad, Unreal Engine Dataset</strong> and starts with its 422-image real-video subset.</p>
-        <div class="actions"><a class="button primary signature-button" href="https://doi.org/10.5281/zenodo.13682584" target="_blank" rel="noreferrer">Dataset source ↗</a><a class="button secondary signature-button" href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/real_dataset_track.md" target="_blank" rel="noreferrer">Evaluation protocol</a></div>
-      </div>
-    </section>
-
-    <section class="section" id="dataset" aria-labelledby="dataset-title">
-      <div class="wrap">
-        <div class="section-head"><p class="eyebrow">Dataset</p><div><h2 id="dataset-title">Actual camera footage with landing-pad annotations.</h2><p class="copy">The archive includes simulation and real footage. This first transfer test uses only the <strong>real-video subset</strong> and its YOLO landing-pad boxes.</p></div></div>
-        <div class="data-grid">
-          <div class="data-stat"><span>Real frames tested</span><strong>422</strong></div>
-          <div class="data-stat"><span>Annotation format</span><strong>YOLO</strong></div>
-          <div class="data-stat"><span>First evaluation</span><strong>No tuning</strong></div>
+    <section class="rt-hero" id="top" aria-labelledby="hero-title">
+      <figure class="rt-hero__media">
+        <img src="/assets/real-image-track.svg" alt="Original AegisLand visualization of the real-image landing-pad benchmark">
+      </figure>
+      <div class="rt-hero__content">
+        <p class="rt-kicker">Real-image track · KIOS 2024 · 422 annotated frames</p>
+        <h1 id="hero-title">From synthetic tests to actual camera data.</h1>
+        <p class="rt-hero__deck">AegisLand now evaluates landing-pad perception on the KIOS real-video subset with a protected temporal test split. The image above is an original project visualization, not a copied dataset frame.</p>
+        <div class="rt-hero__actions">
+          <a class="rt-button rt-button--light" href="https://doi.org/10.5281/zenodo.13682584" target="_blank" rel="noreferrer">Open dataset source ↗</a>
+          <a class="rt-button rt-button--dark" href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/real_dataset_track.md" target="_blank" rel="noreferrer">Evaluation protocol</a>
         </div>
-        <p class="note"><strong>Why no raw frame gallery here?</strong> The Zenodo record makes the dataset publicly downloadable but does not state a reusable image license on the record page. AegisLand uses the frames for the benchmark without republishing them. The source link above shows the exact dataset used.</p>
       </div>
     </section>
 
-    <section class="section ash" id="status" aria-labelledby="result-title">
-      <div class="wrap">
-        <div class="section-head"><p class="eyebrow">First real-image result</p><div><h2 id="result-title">The synthetic heuristic does not transfer well.</h2><p class="copy">We froze the old threshold-centroid estimator and ran it on all 422 real-video frames. No retraining or tuning was allowed before this result.</p></div></div>
-        <div class="result-grid" aria-label="Real-image transfer metrics">
-          <div class="data-stat"><span>Valid estimate rate</span><strong class="bad">76.8%</strong></div>
-          <div class="data-stat"><span>Horizontal-center MAE</span><strong class="bad">0.2176</strong><small>image widths</small></div>
-          <div class="data-stat"><span>Prediction inside pad box</span><strong class="bad">30.6%</strong></div>
-          <div class="data-stat"><span>P95 horizontal error</span><strong>0.5146</strong><small>image widths</small></div>
-          <div class="data-stat"><span>Mean confidence</span><strong>0.520</strong></div>
-          <div class="data-stat"><span>Images evaluated</span><strong>422 / 422</strong></div>
+    <section class="rt-section" id="dataset" aria-labelledby="dataset-title">
+      <div class="rt-wrap">
+        <div class="rt-section__head">
+          <p class="rt-eyebrow">Dataset first</p>
+          <h2 id="dataset-title">Actual camera footage with landing-pad annotations.</h2>
+          <p class="rt-section__copy">The KIOS archive mixes simulation and real footage. This research track starts with the <strong>422 real-video frames</strong> and their YOLO landing-pad annotations before adding any new model claim.</p>
         </div>
-        <p class="note" style="margin-top:26px"><strong>What this means:</strong> the 96×96 synthetic benchmark was too easy to represent real camera imagery. That failure is useful evidence — it tells us the next baseline needs to be built and evaluated on real images instead of making the synthetic test more complicated.</p>
-        <p><a href="https://github.com/suhaslord/uav-safety-research/blob/main/results/real_landing_pad/summary.md" target="_blank" rel="noreferrer">Open the saved result →</a></p>
+        <div class="rt-stat-grid">
+          <div class="rt-stat"><span>Real frames</span><strong>422</strong><small>Real-video subset</small></div>
+          <div class="rt-stat"><span>Development train</span><strong>252</strong><small>First 60% per source sequence</small></div>
+          <div class="rt-stat"><span>Validation</span><strong>64</strong><small>Next 15%</small></div>
+          <div class="rt-stat"><span>Embargo</span><strong>20</strong><small>5% unused temporal gap</small></div>
+          <div class="rt-stat"><span>Protected test</span><strong>86</strong><small>Final 20%</small></div>
+          <div class="rt-stat"><span>Annotation format</span><strong>YOLO</strong><small>Single landing-pad target</small></div>
+        </div>
+        <p class="rt-callout"><strong>Why no raw frame gallery here?</strong> The Zenodo record makes the dataset publicly downloadable but does not state a reusable image license on the record page. AegisLand uses the frames for the benchmark without republishing them. The site and GitHub instead use an original AegisLand visualization, and the source link above shows the exact dataset used.</p>
       </div>
     </section>
 
-    <section class="section" id="method" aria-labelledby="method-title">
-      <div class="wrap">
-        <div class="section-head"><p class="eyebrow">Method</p><div><h2 id="method-title">Freeze first. Test second.</h2><p class="copy">The point of this run was not to make the old algorithm look good. It was to see whether the existing synthetic baseline transferred at all.</p></div></div>
-        <div class="simple-flow" aria-label="Real-image evaluation pipeline"><span class="flow-node">real image</span><span class="flow-arrow">→</span><span class="flow-node">unchanged estimator</span><span class="flow-arrow">→</span><span class="flow-node">position + confidence</span><span class="flow-arrow">→</span><span class="flow-node">YOLO ground truth</span><span class="flow-arrow">→</span><span class="flow-node">error metrics</span></div>
-        <p>The estimator predicts a horizontal position, not a full bounding box, so this first transfer test reports horizontal-center error rather than object-detection mAP.</p>
-        <div class="mini-links"><a href="https://github.com/suhaslord/uav-safety-research/blob/main/src/uav_safety/real_landing_dataset.py" target="_blank" rel="noreferrer">Evaluator code ↗</a><a href="https://github.com/suhaslord/uav-safety-research/blob/main/.github/workflows/real-dataset-validation.yml" target="_blank" rel="noreferrer">Reproducible workflow ↗</a></div>
+    <section class="rt-section rt-section--soft" id="status" aria-labelledby="result-title">
+      <div class="rt-wrap">
+        <div class="rt-section__head">
+          <p class="rt-eyebrow">Frozen-transfer result</p>
+          <h2 id="result-title">The old synthetic heuristic does not transfer well.</h2>
+          <p class="rt-section__copy">Before training anything new, the old threshold-centroid estimator was frozen and run on all 422 real-video frames. <strong>No retraining or tuning</strong> was allowed before this result.</p>
+        </div>
+        <div class="rt-stat-grid" aria-label="Real-image transfer metrics">
+          <div class="rt-stat"><span>Valid estimate rate</span><strong>76.8%</strong><small>422 / 422 evaluated</small></div>
+          <div class="rt-stat"><span>Horizontal-center MAE</span><strong>0.2176</strong><small>Image widths</small></div>
+          <div class="rt-stat"><span>Inside annotated pad box</span><strong>30.6%</strong><small>Valid predictions</small></div>
+          <div class="rt-stat"><span>P95 horizontal error</span><strong>0.5146</strong><small>Image widths</small></div>
+          <div class="rt-stat"><span>Mean confidence</span><strong>0.520</strong><small>Frozen heuristic</small></div>
+          <div class="rt-stat"><span>First evaluation</span><strong>No tuning</strong><small>Negative transfer result</small></div>
+        </div>
+        <p class="rt-callout"><strong>What this means:</strong> the 96×96 synthetic benchmark was too easy to represent real camera imagery. That failure is useful evidence: the real-image detector has to be trained and evaluated on a protected split rather than making the toy benchmark more complicated.</p>
+        <div class="rt-links"><a href="https://github.com/suhaslord/uav-safety-research/blob/main/results/real_landing_pad/summary.md" target="_blank" rel="noreferrer">Open saved transfer result ↗</a></div>
       </div>
     </section>
 
-    <section class="section ash" id="purpose" aria-labelledby="synthetic-title">
-      <div class="wrap">
-        <div class="section-head"><p class="eyebrow">Earlier sanity check</p><div><h2 id="synthetic-title">The synthetic dataset is now the warm-up, not the main evidence.</h2><p class="copy">Phase 5 generated 1,500 small grayscale frames across clean, blur, low light, occlusion, and mixed conditions. It helped build the pipeline, but the real-data result shows its limitation.</p></div></div>
-        <div class="old-inputs" aria-label="Earlier synthetic benchmark inputs">
+    <section class="rt-section rt-section--dark" id="method" aria-labelledby="method-title">
+      <div class="rt-wrap">
+        <div class="rt-section__head">
+          <p class="rt-eyebrow">Protected experiment</p>
+          <h2 id="method-title">Split. Train. Freeze. Stress-test.</h2>
+          <p class="rt-section__copy">Neighboring video frames should not leak randomly into both training and test. Each source sequence is split in time, with an unused embargo gap before the protected final segment.</p>
+        </div>
+        <div class="rt-flow" aria-label="Protected real-image detector pipeline">
+          <div class="rt-flow__node"><span>01 · Input</span><strong>KIOS real-video frames</strong></div>
+          <div class="rt-flow__node"><span>02 · Split</span><strong>Temporal development + embargo + test</strong></div>
+          <div class="rt-flow__node"><span>03 · Baseline</span><strong>Single-class landing-pad detector</strong></div>
+          <div class="rt-flow__node"><span>04 · Freeze</span><strong>Lock weights before test scoring</strong></div>
+          <div class="rt-flow__node"><span>05 · Stress</span><strong>Clean, blur, low light, noise, occlusion, mixed</strong></div>
+        </div>
+        <p class="rt-callout"><strong>QA catch:</strong> the first detector workflow exposed a source-label class mismatch that caused Ultralytics to discard many frames. The ingestion code now rewrites only the selected landing-pad boxes as class 0, and the protected detector workflow is being rerun before any detector metric is published.</p>
+        <div class="rt-links"><a href="https://github.com/suhaslord/uav-safety-research/blob/main/scripts/prepare_kios_real_yolo_split.py" target="_blank" rel="noreferrer">Split + label code ↗</a><a href="https://github.com/suhaslord/uav-safety-research/blob/main/.github/workflows/real-detector-baseline.yml" target="_blank" rel="noreferrer">Detector workflow ↗</a></div>
+      </div>
+    </section>
+
+    <section class="rt-section" id="purpose" aria-labelledby="synthetic-title">
+      <div class="rt-wrap">
+        <div class="rt-section__head">
+          <p class="rt-eyebrow">Earlier sanity check</p>
+          <h2 id="synthetic-title">The synthetic dataset is the warm-up, not the main evidence.</h2>
+          <p class="rt-section__copy">Phase 5 generated 1,500 small grayscale frames across clean, blur, low light, occlusion, and mixed conditions. It helped build the experimental pipeline; the real-data transfer test showed its limitation.</p>
+        </div>
+        <div class="rt-synthetic" aria-label="Earlier synthetic benchmark inputs">
           <figure><img src="https://raw.githubusercontent.com/suhaslord/uav-safety-research/main/docs/assets/readme/dataset/clean.png" alt="Synthetic clean landing-pad image"><figcaption>Clean</figcaption></figure>
           <figure><img src="https://raw.githubusercontent.com/suhaslord/uav-safety-research/main/docs/assets/readme/dataset/blur.png" alt="Synthetic blurred landing-pad image"><figcaption>Blur</figcaption></figure>
           <figure><img src="https://raw.githubusercontent.com/suhaslord/uav-safety-research/main/docs/assets/readme/dataset/low_light.png" alt="Synthetic low-light landing-pad image"><figcaption>Low light</figcaption></figure>
@@ -90,26 +120,34 @@
       </div>
     </section>
 
-    <section class="section" id="next" aria-labelledby="next-title">
-      <div class="wrap">
-        <div class="section-head"><p class="eyebrow">Next experiment</p><div><h2 id="next-title">Build the real-image baseline correctly.</h2><p class="copy">The same 422 frames should not be repeatedly tuned on and then called a clean test. The next stage will separate development from evaluation before training a proper detector or segmentation model.</p></div></div>
-        <div class="evidence-list">
-          <div class="evidence-item"><span>1 · Split</span><strong>Create a protected real-image evaluation split.</strong></div>
-          <div class="evidence-item"><span>2 · Baseline</span><strong>Train or fit a proper landing-pad detector/segmenter only on development data.</strong></div>
-          <div class="evidence-item"><span>3 · Freeze</span><strong>Lock the model and thresholds before the held-out run.</strong></div>
-          <div class="evidence-item"><span>4 · Robustness</span><strong>Then test blur, low light, occlusion, and noise on held-out real images.</strong></div>
+    <section class="rt-section rt-section--soft" id="next" aria-labelledby="next-title">
+      <div class="rt-wrap rt-split">
+        <div>
+          <p class="rt-eyebrow">Next evidence</p>
+          <h2 id="next-title">Publish only the clean rerun.</h2>
+          <p class="rt-section__copy">The protected detector result stays unpublished until the corrected ingestion run confirms that the expected train, validation, and test frames are actually used.</p>
+        </div>
+        <div class="rt-steps">
+          <div class="rt-step"><span>Done</span><strong>Freeze a 252 / 64 / 20 / 86 temporal split.</strong></div>
+          <div class="rt-step"><span>Done</span><strong>Catch and fix multi-class source-label leakage into the one-class baseline.</strong></div>
+          <div class="rt-step"><span>Running</span><strong>Retrain the landing-pad detector on the corrected development labels.</strong></div>
+          <div class="rt-step"><span>Then</span><strong>Report clean protected-test performance and the five held-out stress conditions.</strong></div>
         </div>
       </div>
     </section>
 
-    <section class="section ash" id="timeline" aria-labelledby="archive-title">
-      <div class="wrap">
-        <div class="section-head"><p class="eyebrow">Earlier research</p><div><h2 id="archive-title">The simulation archive stays intact.</h2><p class="copy">Phases 1–22, including failed experiments, remain preserved as the history that led to this real-image track.</p></div></div>
-        <div class="actions"><a class="button primary" href="/phases/">Open phase archive</a><a class="button secondary" href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">Open GitHub ↗</a></div>
+    <section class="rt-section" id="timeline" aria-labelledby="archive-title">
+      <div class="rt-wrap">
+        <div class="rt-section__head">
+          <p class="rt-eyebrow">Research record</p>
+          <h2 id="archive-title">The earlier simulation work stays intact.</h2>
+          <p class="rt-section__copy">Phases 1–22, including failed experiments, remain preserved as the history that led to the real-image track instead of being rewritten after later results.</p>
+        </div>
+        <div class="rt-links"><a href="/phases/">Open phase archive →</a><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">Open GitHub ↗</a></div>
       </div>
     </section>
   </main>
 
-  <footer class="site-footer"><div class="wrap"><strong>AEGISLAND</strong><p>Research software — not validated flight-control software or a certification claim.</p></div></footer>
+  <footer class="site-footer"><div class="rt-wrap"><strong>AEGISLAND</strong><p>Research software — not validated flight-control software or a certification claim.</p></div></footer>
 </body>
 </html>
