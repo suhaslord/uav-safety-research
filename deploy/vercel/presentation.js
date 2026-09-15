@@ -3,6 +3,15 @@
 
   const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
+  // Keep every live experiment panel on the current protected KIOS benchmark while
+  // leaving the frozen historical phase records untouched.
+  if (!document.querySelector('script[data-aegis-current-data]')) {
+    const current = document.createElement('script');
+    current.src = '/lab/current-data.js?v=1';
+    current.dataset.aegisCurrentData = '';
+    document.head.appendChild(current);
+  }
+
   // The homepage intentionally uses NASA editorial context. Those images are normally
   // materialized into /media by the editorial-media fetch step. Direct Vercel/Git
   // previews do not always run that step, so use the canonical NASA originals as a
@@ -159,8 +168,8 @@
   }
 
   // Add the research-understanding layer requested in the September review:
-  // block-level inputs/outputs, system handoffs, a plain-English test, and real
-  // committed project visuals. This is explanation/documentation, not new evidence.
+  // block-level inputs/outputs, system handoffs, a plain-English test, and the
+  // actual previous test inputs plus the current protected real-data result.
   const main = document.querySelector('main');
   const purpose = document.getElementById('purpose');
   if (main && !document.getElementById('understanding')) {
@@ -174,27 +183,54 @@
           <p class="eyebrow">Understand the system before making it more complicated</p>
           <div>
             <h2 id="understanding-title">Input → block → output → next block.</h2>
-            <p class="copy">The current priority is to understand every part of AegisLand at both the block level and the system level: what goes in, what happens at a high level, what comes out, and how that output changes the next block. Deeper optics, detector mathematics, and a paper-style extension come after that foundation is clear.</p>
+            <p class="copy">AegisLand now has two clearly separated evidence tracks: the earlier synthetic-image experiments and the current KIOS real-video detector benchmark. The old phase records stay frozen; new live experiments use the real dataset.</p>
           </div>
         </div>
         <div class="evidence-list" aria-label="Block-level project explanation">
-          <div class="evidence-item"><span>1 · Camera / synthetic image</span><strong>Input: landing scene and vehicle state → Output: image observation.</strong></div>
-          <div class="evidence-item"><span>2 · Controlled degradation</span><strong>Input: image → Output: blurred, dimmed, occluded, noisy, stale, or mixed observation.</strong></div>
-          <div class="evidence-item"><span>3 · Rule-based estimator</span><strong>Input: grayscale image → Output: lateral estimate, confidence, and valid/invalid flag.</strong></div>
-          <div class="evidence-item"><span>4 · Safety supervisor</span><strong>Input: estimate + confidence/risk signals → Output: proceed, hold, or abort.</strong></div>
-          <div class="evidence-item"><span>5 · Controller + simulation</span><strong>Input: perceived state + safety decision → Output: commanded motion and the next simulated state.</strong></div>
-          <div class="evidence-item"><span>6 · Evaluation</span><strong>Input: completed run → Output: error, safety, availability, success/abort, and frozen research metrics.</strong></div>
+          <div class="evidence-item"><span>1 · Camera / image source</span><strong>Before: generated 96×96 landing-pad images. Now: KIOS real-video landing-pad frames.</strong></div>
+          <div class="evidence-item"><span>2 · Controlled degradation</span><strong>Input: protected real test frame → Output: clean, blur, low-light, noise, occlusion, or mixed condition.</strong></div>
+          <div class="evidence-item"><span>3 · Perception model</span><strong>Before: threshold + weighted centroid. Now: YOLO11n landing-pad detector trained only on the development split.</strong></div>
+          <div class="evidence-item"><span>4 · Protected split</span><strong>252 train + 64 validation + 20 embargoed + 86 protected test frames.</strong></div>
+          <div class="evidence-item"><span>5 · Evaluation</span><strong>Precision, recall, mAP50, and mAP50–95 on the protected real test frames.</strong></div>
+          <div class="evidence-item"><span>6 · Evidence boundary</span><strong>Current results are perception benchmarks, not real-flight safety or certification evidence.</strong></div>
         </div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-top:32px">
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:20px;margin-top:32px">
           <figure class="research-photo" style="margin:0">
-            <div class="research-photo__frame"><img src="https://raw.githubusercontent.com/suhaslord/uav-safety-research/main/docs/assets/readme/frame_phase6b.png" alt="AegisLand Phase 6B perception and robustness research view" loading="lazy" decoding="async"></div>
-            <figcaption><span class="research-photo__context">Committed AegisLand project visual</span><span class="research-photo__credit">Phase 6B perception / robustness view · presentation only, not new evidence</span></figcaption>
+            <div style="padding:16px;border:1px solid #e2e3e5;border-radius:8px;background:#fff">
+              <div style="font:700 13px Arial,Helvetica,sans-serif;margin-bottom:12px">BEFORE · ACTUAL SYNTHETIC TEST INPUTS</div>
+              <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px">
+                <img src="https://raw.githubusercontent.com/suhaslord/uav-safety-research/main/docs/assets/readme/dataset/clean.png" alt="Old clean synthetic landing-pad test image" loading="lazy" decoding="async" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px">
+                <img src="https://raw.githubusercontent.com/suhaslord/uav-safety-research/main/docs/assets/readme/dataset/blur.png" alt="Old blur synthetic landing-pad test image" loading="lazy" decoding="async" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px">
+                <img src="https://raw.githubusercontent.com/suhaslord/uav-safety-research/main/docs/assets/readme/dataset/low_light.png" alt="Old low-light synthetic landing-pad test image" loading="lazy" decoding="async" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px">
+                <img src="https://raw.githubusercontent.com/suhaslord/uav-safety-research/main/docs/assets/readme/dataset/occlusion.png" alt="Old occlusion synthetic landing-pad test image" loading="lazy" decoding="async" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px">
+                <img src="https://raw.githubusercontent.com/suhaslord/uav-safety-research/main/docs/assets/readme/dataset/mixed.png" alt="Old mixed synthetic landing-pad test image" loading="lazy" decoding="async" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px">
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin-top:6px;font:600 10px Arial,Helvetica,sans-serif;color:#666;text-align:center"><span>Clean</span><span>Blur</span><span>Low light</span><span>Occlusion</span><span>Mixed</span></div>
+            </div>
+            <figcaption><span class="research-photo__context">The exact synthetic image conditions used in the earlier pixel benchmark</span><span class="research-photo__credit">Historical evidence only — these are no longer the active dataset.</span></figcaption>
           </figure>
+
           <figure class="research-photo" style="margin:0">
-            <div class="research-photo__frame"><img src="https://raw.githubusercontent.com/suhaslord/uav-safety-research/main/docs/assets/readme/chart_phase6b_light.png" alt="AegisLand Phase 6B result chart" loading="lazy" decoding="async"></div>
-            <figcaption><span class="research-photo__context">Committed AegisLand result visual</span><span class="research-photo__credit">Use the phase report for the exact method, evidence boundary, and interpretation</span></figcaption>
+            <div style="padding:16px;border:1px solid #e2e3e5;border-radius:8px;background:#fff">
+              <div style="font:700 13px Arial,Helvetica,sans-serif;margin-bottom:5px">NOW · ACTUAL KIOS PROTECTED TEST</div>
+              <div style="font:12px Arial,Helvetica,sans-serif;color:#666;margin-bottom:12px">86 held-out real-video frames · same frames across every stress condition</div>
+              <table style="width:100%;border-collapse:collapse;font:12px Arial,Helvetica,sans-serif">
+                <thead><tr><th style="text-align:left;padding:7px 5px;border-bottom:1px solid #ddd">Condition</th><th style="text-align:right;padding:7px 5px;border-bottom:1px solid #ddd">Precision</th><th style="text-align:right;padding:7px 5px;border-bottom:1px solid #ddd">Recall</th><th style="text-align:right;padding:7px 5px;border-bottom:1px solid #ddd">mAP50</th></tr></thead>
+                <tbody>
+                  <tr><td style="padding:7px 5px">Clean</td><td style="text-align:right">0.796</td><td style="text-align:right">0.384</td><td style="text-align:right">0.427</td></tr>
+                  <tr><td style="padding:7px 5px">Blur</td><td style="text-align:right">0.844</td><td style="text-align:right">0.378</td><td style="text-align:right">0.413</td></tr>
+                  <tr><td style="padding:7px 5px">Low light</td><td style="text-align:right">0.787</td><td style="text-align:right">0.372</td><td style="text-align:right">0.417</td></tr>
+                  <tr><td style="padding:7px 5px">Noise</td><td style="text-align:right">0.895</td><td style="text-align:right">0.398</td><td style="text-align:right">0.433</td></tr>
+                  <tr><td style="padding:7px 5px">Occlusion</td><td style="text-align:right">0.622</td><td style="text-align:right">0.326</td><td style="text-align:right">0.348</td></tr>
+                  <tr><td style="padding:7px 5px;font-weight:700">Mixed</td><td style="text-align:right;font-weight:700">0.597</td><td style="text-align:right;font-weight:700">0.186</td><td style="text-align:right;font-weight:700">0.185</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <figcaption><span class="research-photo__context">Current real-image detector benchmark</span><span class="research-photo__credit">KIOS real-video subset · temporal split · 86 protected test frames · mixed degradation is the main failure.</span></figcaption>
           </figure>
         </div>
+
         <div class="research-alert" role="note" style="margin-top:32px">
           <div class="research-alert__label">Non-technical understanding test</div>
           <p>If someone who does not know image processing or computer vision asks what the project does, the explanation should still make sense. If a block cannot be explained simply without hiding behind “AI” or “the algorithm,” it needs better documentation first.</p>
