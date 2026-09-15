@@ -63,6 +63,28 @@ def read_yolo_boxes(path: Path, class_id: int | None = None) -> tuple[YoloBox, .
     return tuple(boxes)
 
 
+def write_single_class_yolo(path: Path, boxes: Iterable[YoloBox]) -> int:
+    """Write selected YOLO boxes as a clean single-class label file.
+
+    KIOS label files can contain an additional class besides the landing pad.
+    The real detector is intentionally a one-class landing-pad baseline, so the
+    already-selected target boxes are rewritten to class ``0`` rather than
+    copying unrelated source-label rows into the derived dataset.
+    """
+
+    selected = tuple(boxes)
+    if not selected:
+        raise ValueError(f"Cannot write an empty target label file: {path}")
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    rows = [
+        f"0 {box.x_center:.10g} {box.y_center:.10g} {box.width:.10g} {box.height:.10g}"
+        for box in selected
+    ]
+    path.write_text("\n".join(rows) + "\n", encoding="utf-8")
+    return len(rows)
+
+
 def _label_candidates(image_path: Path, root: Path) -> Iterable[Path]:
     yield image_path.with_suffix(".txt")
 
