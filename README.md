@@ -146,7 +146,7 @@ There are two different uses of degradation names in the repository:
 
 Neither should be described as a calibrated physical model of drone vibration, defocus, water on a lens, or a specific camera failure.
 
-![Phase 5 image conditions](results/phase5_images/figures/example_conditions.png)
+Run the synthetic image benchmark below to generate fresh condition examples and plots locally from the actual benchmark code.
 
 ---
 
@@ -194,10 +194,6 @@ The clearest failure appeared under **mixed degradation**: the error increased s
 That leads to a more useful question:
 
 > **Can the system recognize when its own perception estimate is unreliable?**
-
-![Mean error by image condition](results/phase5_images/figures/mean_error_by_condition.png)
-
-![Failure rate by image condition](results/phase5_images/figures/failure_rate_by_condition.png)
 
 ### Later image/perception work
 
