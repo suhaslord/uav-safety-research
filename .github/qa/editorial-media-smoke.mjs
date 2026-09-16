@@ -84,7 +84,10 @@ try {
             const rect = frame.getBoundingClientRect();
             return rect.height > 0 ? rect.width / rect.height : 0;
           }),
-          remoteImageCount: [...document.images].filter((img) => /^https?:\/\//i.test(img.getAttribute('src') || '')).length
+          // This smoke test owns only editorial/context photography. Dataset evidence
+          // can be sourced independently without weakening the local-media contract
+          // for the NASA editorial figures themselves.
+          remoteImageCount: images.filter((img) => /^https?:\/\//i.test(img.getAttribute('src') || '')).length
         };
       }, expectedContext);
 
