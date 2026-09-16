@@ -31,11 +31,11 @@ replace_once(
 replace_once(
     "test/val/val_group_test.cpp",
     """TEST_F(ValidateGroup, GroupWaitEventsNumEvents) {\n""",
-    """TEST_F(ValidateGroup, AsyncCopyOpenCLExecutionScopeMustBeWorkgroup) {\n  const std::string ss = R\"(\n      %a = OpGroupAsyncCopy %event %uint_1 %workgroup_float_var %cross_float_var %uint64_1 %uint64_1 %null_event\n  )\";\n  CompileSuccessfully(GenerateShaderCode(ss), SPV_ENV_OPENCL_2_0);\n  EXPECT_EQ(SPV_ERROR_INVALID_DATA,\n            ValidateInstructions(SPV_ENV_OPENCL_2_0));\n  EXPECT_THAT(\n      getDiagnosticString(),\n      HasSubstr(\"OpGroupAsyncCopy: in OpenCL environment Execution Scope must \"\n                \"be Workgroup\"));\n}\n\nTEST_F(ValidateGroup, GroupWaitEventsNumEvents) {\n""",
+    """TEST_F(ValidateGroup, AsyncCopyOpenCLExecutionScopeMustBeWorkgroup) {\n  const std::string ss = R\"(\n      %a = OpGroupAsyncCopy %event %uint_1 %workgroup_float_var %cross_float_var %uint64_1 %uint64_1 %null_event\n  )\";\n  CompileSuccessfully(GenerateShaderCode(ss), SPV_ENV_OPENCL_2_0);\n  EXPECT_EQ(SPV_ERROR_INVALID_DATA,\n            ValidateInstructions(SPV_ENV_OPENCL_2_0));\n  EXPECT_THAT(\n      getDiagnosticString(),\n      HasSubstr(\"GroupAsyncCopy: in OpenCL environment Execution Scope must \"\n                \"be Workgroup\"));\n}\n\nTEST_F(ValidateGroup, GroupWaitEventsNumEvents) {\n""",
 )
 
 replace_once(
     "test/val/val_group_test.cpp",
     """TEST_F(ValidateGroup, GroupWaitEventsEventList) {\n""",
-    """TEST_F(ValidateGroup, GroupWaitEventsOpenCLExecutionScopeMustBeWorkgroup) {\n  const std::string ss = R\"(\n    %a = OpVariable %func_event_ptr Function\n    OpGroupWaitEvents %uint_1 %uint_1 %a\n  )\";\n  CompileSuccessfully(GenerateShaderCode(ss), SPV_ENV_OPENCL_2_0);\n  EXPECT_EQ(SPV_ERROR_INVALID_DATA,\n            ValidateInstructions(SPV_ENV_OPENCL_2_0));\n  EXPECT_THAT(\n      getDiagnosticString(),\n      HasSubstr(\"OpGroupWaitEvents: in OpenCL environment Execution Scope must \"\n                \"be Workgroup\"));\n}\n\nTEST_F(ValidateGroup, GroupWaitEventsEventList) {\n""",
+    """TEST_F(ValidateGroup, GroupWaitEventsOpenCLExecutionScopeMustBeWorkgroup) {\n  const std::string ss = R\"(\n    %a = OpVariable %func_event_ptr Function\n    OpGroupWaitEvents %uint_1 %uint_1 %a\n  )\";\n  CompileSuccessfully(GenerateShaderCode(ss), SPV_ENV_OPENCL_2_0);\n  EXPECT_EQ(SPV_ERROR_INVALID_DATA,\n            ValidateInstructions(SPV_ENV_OPENCL_2_0));\n  EXPECT_THAT(\n      getDiagnosticString(),\n      HasSubstr(\"GroupWaitEvents: in OpenCL environment Execution Scope must \"\n                \"be Workgroup\"));\n}\n\nTEST_F(ValidateGroup, GroupWaitEventsEventList) {\n""",
 )
