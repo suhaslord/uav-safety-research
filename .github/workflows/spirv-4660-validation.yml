@@ -31,12 +31,15 @@ jobs:
           python3 utils/git-sync-deps
           git rev-parse HEAD | tee ../experiments/spirv_4660/upstream_head.txt
 
-      - name: Apply candidate patch
+      - name: Apply candidate edits and export patch
         run: |
+          cp experiments/spirv_4660/apply_issue4660.py spirv-tools/apply_issue4660.py
           cd spirv-tools
-          git apply --check ../experiments/spirv_4660/issue4660.patch
-          git apply ../experiments/spirv_4660/issue4660.patch
+          python3 apply_issue4660.py
+          rm apply_issue4660.py
           git diff --check
+          git diff -- source/val/validate_group.cpp source/val/validate_scopes.cpp test/val/val_group_test.cpp > ../SPIRV-Tools-4660-tested.patch
+          test -s ../SPIRV-Tools-4660-tested.patch
 
       - name: Configure and build validator test target
         run: |
@@ -54,3 +57,12 @@ jobs:
         run: |
           cd spirv-tools
           ./build/test/val/test_val_fghijklmnop
+
+      - name: Upload tested patch
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: spirv-tools-4660-tested-patch
+          path: SPIRV-Tools-4660-tested.patch
+          if-no-files-found: error
+          retention-days: 30
