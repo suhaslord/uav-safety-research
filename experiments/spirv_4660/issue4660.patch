@@ -1,0 +1,83 @@
+diff --git a/source/val/validate_group.cpp b/source/val/validate_group.cpp
+--- a/source/val/validate_group.cpp
++++ b/source/val/validate_group.cpp
+@@
+ spv_result_t ValidateGroupAsyncCopy(ValidationState_t& _,
+                                     const Instruction* inst) {
++  if (auto error =
++          ValidateExecutionScope(_, inst, inst->GetOperandAs<uint32_t>(2))) {
++    return error;
++  }
++
+   if (_.FindDef(inst->type_id())->opcode() != spv::Op::OpTypeEvent) {
+     return _.diag(SPV_ERROR_INVALID_DATA, inst)
+            << "The result type must be OpTypeEvent.";
+@@
+ spv_result_t ValidateGroupWaitEvents(ValidationState_t& _,
+                                      const Instruction* inst) {
++  if (auto error =
++          ValidateExecutionScope(_, inst, inst->GetOperandAs<uint32_t>(0))) {
++    return error;
++  }
++
+   const uint32_t num_events_id = _.GetOperandTypeId(inst, 1);
+   if (!_.IsIntScalarType(num_events_id, 32)) {
+     return _.diag(SPV_ERROR_INVALID_DATA, inst)
+diff --git a/source/val/validate_scopes.cpp b/source/val/validate_scopes.cpp
+--- a/source/val/validate_scopes.cpp
++++ b/source/val/validate_scopes.cpp
+@@
+-  // TODO(atgoo@github.com) Add checks for OpenCL and OpenGL environments.
++  // OpenCL specific rules.
++  if (spvIsOpenCLEnv(_.context()->target_env) &&
++      (opcode == spv::Op::OpGroupAsyncCopy ||
++       opcode == spv::Op::OpGroupWaitEvents) &&
++      value != spv::Scope::Workgroup) {
++    return _.diag(SPV_ERROR_INVALID_DATA, inst)
++           << spvOpcodeString(opcode)
++           << ": in OpenCL environment Execution Scope must be Workgroup";
++  }
++
++  // TODO(atgoo@github.com) Add checks for OpenGL environments.
+ 
+   // General SPIRV rules
+diff --git a/test/val/val_group_test.cpp b/test/val/val_group_test.cpp
+--- a/test/val/val_group_test.cpp
++++ b/test/val/val_group_test.cpp
+@@
+ TEST_F(ValidateGroup, AsyncCopyStride64Bit) {
+@@
+ }
++
++TEST_F(ValidateGroup, AsyncCopyOpenCLExecutionScopeMustBeWorkgroup) {
++  const std::string ss = R"(
++      %a = OpGroupAsyncCopy %event %uint_1 %workgroup_float_var %cross_float_var %uint64_1 %uint64_1 %null_event
++  )";
++  CompileSuccessfully(GenerateShaderCode(ss), SPV_ENV_OPENCL_2_0);
++  EXPECT_EQ(SPV_ERROR_INVALID_DATA,
++            ValidateInstructions(SPV_ENV_OPENCL_2_0));
++  EXPECT_THAT(
++      getDiagnosticString(),
++      HasSubstr("OpGroupAsyncCopy: in OpenCL environment Execution Scope must "
++                "be Workgroup"));
++}
+ 
+ TEST_F(ValidateGroup, GroupWaitEventsNumEvents) {
+@@
+ }
++
++TEST_F(ValidateGroup, GroupWaitEventsOpenCLExecutionScopeMustBeWorkgroup) {
++  const std::string ss = R"(
++    %a = OpVariable %func_event_ptr Function
++    OpGroupWaitEvents %uint_1 %uint_1 %a
++  )";
++  CompileSuccessfully(GenerateShaderCode(ss), SPV_ENV_OPENCL_2_0);
++  EXPECT_EQ(SPV_ERROR_INVALID_DATA,
++            ValidateInstructions(SPV_ENV_OPENCL_2_0));
++  EXPECT_THAT(
++      getDiagnosticString(),
++      HasSubstr("OpGroupWaitEvents: in OpenCL environment Execution Scope must "
++                "be Workgroup"));
++}
+ 
+ TEST_F(ValidateGroup, GroupWaitEventsEventList) {
