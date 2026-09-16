@@ -1,0 +1,37 @@
+name: LightSail 2 real telemetry
+
+on:
+  push:
+    branches:
+      - research/lightsail2-real-telemetry
+    paths:
+      - "experiments/lightsail2_real/**"
+      - ".github/workflows/lightsail2-real-telemetry.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Clone public telemetry mirror
+        run: git clone --depth 1 https://github.com/jschloemer/satellite-data-repo.git satellite-data-repo
+      - name: Extract normalized LightSail 2 frames
+        run: |
+          mkdir -p experiments/lightsail2_real/results
+          unzip -o satellite-data-repo/Lightsail-2/normalized_frames.json.zip -d experiments/lightsail2_real/input
+          find experiments/lightsail2_real/input -type f -maxdepth 2 -print
+          JSON=$(find experiments/lightsail2_real/input -type f -name '*.json' | head -1)
+          test -n "$JSON"
+          python3 experiments/lightsail2_real/analyze_normalized_frames.py "$JSON" --out-dir experiments/lightsail2_real/results
+      - name: Upload real-data results
+        uses: actions/upload-artifact@v4
+        with:
+          name: lightsail2-real-telemetry-results
+          path: experiments/lightsail2_real/results/
+          if-no-files-found: error
+          retention-days: 30
