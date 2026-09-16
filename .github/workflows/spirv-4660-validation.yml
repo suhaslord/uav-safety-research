@@ -1,0 +1,56 @@
+name: SPIR-V #4660 validation
+
+on:
+  push:
+    branches:
+      - research/spirv-4660-validation
+    paths:
+      - "experiments/spirv_4660/**"
+      - ".github/workflows/spirv-4660-validation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends cmake ninja-build python3 git
+
+      - name: Clone current SPIRV-Tools and sync dependencies
+        run: |
+          git clone https://github.com/KhronosGroup/SPIRV-Tools.git spirv-tools
+          cd spirv-tools
+          python3 utils/git-sync-deps
+          git rev-parse HEAD | tee ../experiments/spirv_4660/upstream_head.txt
+
+      - name: Apply candidate patch
+        run: |
+          cd spirv-tools
+          git apply --check ../experiments/spirv_4660/issue4660.patch
+          git apply ../experiments/spirv_4660/issue4660.patch
+          git diff --check
+
+      - name: Configure and build validator test target
+        run: |
+          cd spirv-tools
+          cmake -S . -B build -G Ninja -DSPIRV_WERROR=OFF
+          cmake --build build --target test_val_fghijklmnop -j2
+
+      - name: Run focused #4660 tests
+        run: |
+          cd spirv-tools
+          ./build/test/val/test_val_fghijklmnop \
+            --gtest_filter='ValidateGroup.AsyncCopyOpenCLExecutionScopeMustBeWorkgroup:ValidateGroup.GroupWaitEventsOpenCLExecutionScopeMustBeWorkgroup'
+
+      - name: Run full validator target
+        run: |
+          cd spirv-tools
+          ./build/test/val/test_val_fghijklmnop
