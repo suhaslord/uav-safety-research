@@ -1,0 +1,138 @@
+name: Phase 13C Thirteen-Contrast Compound Attribution final
+
+on:
+  push:
+    branches: [phase13c/compound-interaction-attribution]
+    paths:
+      - .github/workflows/phase13c-final.yml
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  FROZEN_PHASE12_DEV_RUN_ID: '34004695243'
+  FROZEN_PHASE12_CANDIDATE_SHA256: e2372ca597cdd983f098f1a45524c077798114c59a62bf9faccefd17b67a4991
+  PHASE13C_DEVELOPMENT_SCIENTIFIC_SHA: de181594cbf451f42424ef61f3139351ad0946cd
+  PHASE13C_FINAL_SEED: '1313138'
+
+jobs:
+  final:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Require prior Phase 13C evidence and refuse second final exposure
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for NAME in phase13c-development phase13c-transfer phase13c-protected; do
+            COUNT=$(gh api \
+              -H 'Accept: application/vnd.github+json' \
+              "/repos/${{ github.repository }}/actions/artifacts?name=$NAME&per_page=100" \
+              --jq '[.artifacts[] | select(.expired == false)] | length')
+            test "$COUNT" -ge 1 || { echo "$NAME evidence missing"; exit 1; }
+          done
+          FINAL_COUNT=$(gh api \
+            -H 'Accept: application/vnd.github+json' \
+            '/repos/${{ github.repository }}/actions/artifacts?name=phase13c-final&per_page=100' \
+            --jq '[.artifacts[] | select(.expired == false)] | length')
+          test "$FINAL_COUNT" = "0" || { echo "Phase 13C final artifact already exists; refusing second exposure"; exit 1; }
+
+      - name: Check out final-authorization head
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Verify protected confirmation and exact scientific implementation
+        run: |
+          test -f docs/phase13c_protected_result.md
+          test -f docs/phase13c_final_authorization.md
+          grep -q 'A — fixed two-frame latency' docs/phase13c_protected_result.md
+          grep -q '1313138' docs/phase13c_final_authorization.md
+          git diff --exit-code "$PHASE13C_DEVELOPMENT_SCIENTIFIC_SHA" -- \
+            scripts/run_phase13c_compound_attribution.py \
+            scripts/run_phase13c_compound_attribution_remediation1.py \
+            docs/phase13c_preregistration.md \
+            docs/phase13c_execution_amendment_01.md
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+          python -m compileall -q \
+            scripts/run_phase13c_compound_attribution.py \
+            scripts/run_phase13c_compound_attribution_remediation1.py
+          python - <<'PY'
+          import pytest
+          from scripts import run_phase13c_compound_attribution_remediation1 as remediation
+          remediation.install_execution_remediation()
+          raise SystemExit(pytest.main(['-q',
+              'tests/test_phase13c_compound_attribution.py',
+              'tests/test_phase13c_execution_remediation1.py',
+          ]))
+          PY
+
+      - name: Recover exact frozen Phase 12 candidate
+        uses: actions/download-artifact@v4
+        with:
+          name: phase12-development-v3
+          path: frozen_phase12_candidate_artifact
+          github-token: ${{ github.token }}
+          repository: suhaslord/uav-safety-research
+          run-id: ${{ env.FROZEN_PHASE12_DEV_RUN_ID }}
+
+      - name: Verify candidate identity and freeze final scientific identity
+        run: |
+          CANDIDATE=$(find frozen_phase12_candidate_artifact -path '*/results/phase12_candidate_v3/candidate_freeze.json' -print -quit)
+          test -n "$CANDIDATE"
+          echo "$FROZEN_PHASE12_CANDIDATE_SHA256  $CANDIDATE" | sha256sum -c -
+          echo "CANDIDATE=$CANDIDATE" >> "$GITHUB_ENV"
+          echo "PHASE13C_SCIENTIFIC_SHA=$PHASE13C_DEVELOPMENT_SCIENTIFIC_SHA" >> "$GITHUB_ENV"
+
+      - name: Expose Phase 13C final evidence exactly once
+        run: |
+          rm -rf results/phase13c_final
+          python scripts/run_phase13c_compound_attribution_remediation1.py \
+            --stage final \
+            --candidate "$CANDIDATE" \
+            --out results/phase13c_final \
+            --git-sha "$PHASE13C_SCIENTIFIC_SHA" 2>&1 | tee phase13c-final.log
+          test -f results/phase13c_final/final_result.json
+          test -f results/phase13c_final/manifest.json
+          test -f results/phase13c_final/final_control_frames.csv
+          test -f results/phase13c_final/final_contrast_frames.csv
+
+      - name: Verify final boundary and record replication verdict
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          r = json.loads(Path('results/phase13c_final/final_result.json').read_text())
+          assert r['schema'] == 'aegisland.phase13c.compound-attribution.final-result.v1'
+          assert r['evaluated_seed_seen_after_run'] == int(os.environ['PHASE13C_FINAL_SEED'])
+          assert r['families'] == list(range(1465, 1489))
+          assert r['scientific_git_sha'] == os.environ['PHASE13C_DEVELOPMENT_SCIENTIFIC_SHA']
+          assert r['frozen_phase12_candidate_sha256'] == os.environ['FROZEN_PHASE12_CANDIDATE_SHA256']
+          assert r['contrast_count'] == 13
+          assert r['zero_adaptation'] is True
+          assert r['simulation_only'] is True
+          assert r['safety_acceptance'] is False
+          assert r['controller_tuning_allowed'] is False
+          print('PHASE13C_FINAL_PERMANENTLY_SEEN=true')
+          print('PHASE13C_FINAL_GATES_PASS=' + str(bool(r['phase13c_pass'])).lower())
+          print('PHASE13C_FINAL_LARGEST_SINGLETON=' + str(r['attribution']['largest_singleton_loss_component']))
+          print('PHASE13C_FINAL_LARGEST_LOO=' + str(r['attribution']['largest_leave_one_out_recovery_component']))
+          print(json.dumps(r['gates'], indent=2, sort_keys=True))
+          print(json.dumps(r['attribution'], indent=2, sort_keys=True))
+          PY
+
+      - name: Upload permanent Phase 13C final evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase13c-final
+          path: |
+            results/phase13c_final/
+            phase13c-final.log
+          if-no-files-found: error
+          retention-days: 90
