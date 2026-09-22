@@ -1,5 +1,6 @@
-﻿import { chromium } from 'playwright';
+import { chromium } from 'playwright';
 import fs from 'node:fs/promises';
+import fsSync from 'node:fs';
 import path from 'node:path';
 
 const BASE = process.env.QA_BASE_URL || 'https://aegisland-research-cockpit.vercel.app';
@@ -9,7 +10,11 @@ let failed = 0;
 const add = (name, ok, details = {}) => { results.push({ name, ok, ...details }); if (!ok) failed += 1; };
 
 await fs.mkdir(path.join(OUT, 'screenshots'), { recursive: true });
-const browser = await chromium.launch({ headless: true, executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe' });
+const launchOptions = { headless: true };
+if (process.platform === 'win32' && fsSync.existsSync('C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe')) {
+  launchOptions.executablePath = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
+}
+const browser = await chromium.launch(launchOptions);
 try {
   const context = await browser.newContext({ viewport:{ width:390, height:844 }, isMobile:true, hasTouch:true, reducedMotion:'reduce' });
 

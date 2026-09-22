@@ -1,5 +1,6 @@
-﻿import { chromium } from 'playwright';
+import { chromium } from 'playwright';
 import fs from 'node:fs/promises';
+import fsSync from 'node:fs';
 import path from 'node:path';
 
 const BASE = process.env.QA_BASE_URL || 'https://aegisland-research-cockpit.vercel.app';
@@ -37,7 +38,11 @@ const add = (name, ok, details = {}) => {
 };
 const safeName = (route) => route === '/' ? 'home' : route.replace(/^\/+|\/+$/g, '').replaceAll('/', '-');
 
-const browser = await chromium.launch({ headless: true, executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe' });
+const launchOptions = { headless: true };
+if (process.platform === 'win32' && fsSync.existsSync('C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe')) {
+  launchOptions.executablePath = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
+}
+const browser = await chromium.launch(launchOptions);
 try {
   // Production QA may race deployment on a main push. Wait for the frozen site identity.
   const readinessContext = await browser.newContext({ viewport: { width: 1280, height: 800 }, reducedMotion: 'reduce' });

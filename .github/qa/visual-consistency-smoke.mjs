@@ -1,4 +1,5 @@
 import { chromium } from 'playwright';
+import fsSync from 'node:fs';
 
 const BASE = process.env.QA_BASE_URL || 'http://127.0.0.1:4173';
 const results = [];
@@ -15,7 +16,11 @@ const routes = [
   '/phases/phase21/', '/phases/phase22/'
 ];
 
-const browser = await chromium.launch({ headless: true, executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe' });
+const launchOptions = { headless: true };
+if (process.platform === 'win32' && fsSync.existsSync('C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe')) {
+  launchOptions.executablePath = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
+}
+const browser = await chromium.launch(launchOptions);
 try {
   for (const viewport of [
     { name: 'desktop', width: 1440, height: 1000 },
