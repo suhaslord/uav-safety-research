@@ -14,4 +14,8 @@ node_modules/
 package-lock.json
 qa-artifacts/
 corrected-visual-artifacts/
-deploy/vercel/media/
+deploy/vercel/media/*
+!deploy/vercel/media/perception/
+data/
+temp_*/
+*.pt

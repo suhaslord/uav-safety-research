@@ -80,7 +80,7 @@ const server = http.createServer(async (req, res) => {
   }
   if (p.startsWith('/media/')) {
     const relative = p.slice('/media/'.length);
-    if (!relative.includes('..') && !relative.includes('/')) return sendFile(res, path.join(deployRoot, 'media', relative));
+    if (!relative.includes('..')) return sendFile(res, path.join(deployRoot, 'media', relative));
   }
 
   const asset = p.replace(/^\//, '');

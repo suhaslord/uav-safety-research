@@ -1,0 +1,52 @@
+{
+  "phase": "phase23",
+  "title": "Phase 23 \u00b7 Robust Sim-to-Real Landing Perception",
+  "dataset": "KIOS Aerial Landing Pad, Unreal Engine Dataset (2024)",
+  "model": "yolo11n-phase23-robust",
+  "imgsz": 480,
+  "epochs": 25,
+  "metrics": {
+    "clean": {
+      "condition": "clean",
+      "precision": 0.7169366595101914,
+      "recall": 0.5930232558139535,
+      "map50": 0.5551842475528265,
+      "map50_95": 0.222675649160523
+    },
+    "blur": {
+      "condition": "blur",
+      "precision": 0.7767043066419625,
+      "recall": 0.5697674418604651,
+      "map50": 0.5856935328390723,
+      "map50_95": 0.26072868086794815
+    },
+    "low_light": {
+      "condition": "low_light",
+      "precision": 0.6350042374323621,
+      "recall": 0.4418604651162791,
+      "map50": 0.4237094746641194,
+      "map50_95": 0.1853822097303784
+    },
+    "noise": {
+      "condition": "noise",
+      "precision": 0.8673997411378811,
+      "recall": 0.5465116279069767,
+      "map50": 0.5962109670974421,
+      "map50_95": 0.2362342942765497
+    },
+    "occlusion": {
+      "condition": "occlusion",
+      "precision": 0.301165277441983,
+      "recall": 0.2441860465116279,
+      "map50": 0.13755217164117528,
+      "map50_95": 0.024963801126388796
+    },
+    "mixed": {
+      "condition": "mixed",
+      "precision": 0.48680888971219216,
+      "recall": 0.08139534883720931,
+      "map50": 0.12942432214764854,
+      "map50_95": 0.030013973197337014
+    }
+  }
+}

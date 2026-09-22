@@ -41,6 +41,8 @@ def download(path: Path) -> None:
 
 def extract(archive: Path, destination: Path) -> None:
     seven_zip = shutil.which("7z") or shutil.which("7zz")
+    if not seven_zip and Path("C:/Program Files/7-Zip/7z.exe").exists():
+        seven_zip = "C:/Program Files/7-Zip/7z.exe"
     if not seven_zip:
         raise SystemExit("7z/7zz was not found. Install 7-Zip (Windows) or p7zip-full (Linux), then rerun with --extract.")
     destination.mkdir(parents=True, exist_ok=True)
