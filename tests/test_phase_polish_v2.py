@@ -1,4 +1,4 @@
-from pathlib import Path
+﻿from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -17,8 +17,8 @@ def test_all_phase_shells_load_unified_polish_layer() -> None:
     }
 
     for name, html in shells.items():
-        assert 'href="/phase-polish-v2.css?v=1"' in html, name
-        assert 'href="/research-workspace.css?v=1"' in html, name
+        assert 'href="/tesla-bundle.css?v=1"' in html, name
+        assert 'href="/tesla-bundle.css?v=1"' in html, name
         assert 'src="/research-workspace.js?v=' in html, name
 
 

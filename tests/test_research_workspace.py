@@ -1,4 +1,4 @@
-from pathlib import Path
+﻿from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -47,7 +47,7 @@ def test_workspace_interaction_layer_is_loaded_across_public_shells() -> None:
         _read("deploy/vercel/phase11.html"),
     ]
     for html in shells:
-        assert 'href="/research-workspace.css?v=' in html
+        assert 'href="/tesla-bundle.css?v=' in html
         assert 'src="/research-workspace.js?v=' in html
 
 
@@ -117,7 +117,7 @@ def test_every_phase_has_one_distinct_local_context_photo() -> None:
     assert "object-fit:cover" in css
 
     for shell in (phase, frozen, phase11):
-        assert 'href="/phase-editorial-media.css?v=' in shell
+        assert 'href="/tesla-bundle.css?v=' in shell
         assert 'src="/phase-visuals.js?v=' in shell
         assert 'src="/phase-editorial-media.js?v=' in shell
 
@@ -136,3 +136,4 @@ def test_workspace_uses_original_light_research_system() -> None:
     assert "min-height:610px!important" in home
     assert "grid-template-columns:repeat(13,minmax(0,1fr))" in home
     assert "--phase-accent:#3559c7!important" in identity
+

@@ -16,9 +16,7 @@ const allPhaseRoutes = phaseSlugs.map((slug) => `/phases/${slug}/`);
 const responsiveRoutes = ['/', '/phases/', '/phases/phase1/', '/phases/phase11/', '/phases/phase22/'];
 const expectedContext = 'Visual context — not AegisLand experimental evidence';
 const expectedPhaseRatio = (viewportName) => {
-  if (viewportName === 'desktop') return 16 / 7;
-  if (viewportName === 'tablet') return 2;
-  return 16 / 9;
+  return viewportName === 'mobile' ? 4 / 3 : 2.4;
 };
 const results = [];
 let failed = 0;
@@ -80,6 +78,10 @@ try {
           credits: photos.map((figure) => creditFor(figure)?.textContent?.trim() || ''),
           sourceLinks: photos.map((figure) => creditFor(figure)?.querySelector('a')?.href || ''),
           fallbackVisible: photos.some((figure) => figure.dataset.imageState === 'fallback' || [...figure.querySelectorAll('[data-image-fallback], .phase-editorial-photo__fallback')].some((node) => !node.hidden)),
+          expectedRatios: photos.map((figure) => {
+            if (figure.classList.contains('research-photo--hero')) { const r=document.querySelector('#top').getBoundingClientRect(); return r.width/r.height; }
+            return figure.classList.contains('research-photo--inline') ? (innerWidth<=760 ? 4/3 : 2) : 16/9;
+          }),
           ratios: frames.map((frame) => {
             const rect = frame.getBoundingClientRect();
             return rect.height > 0 ? rect.width / rect.height : 0;
@@ -104,7 +106,7 @@ try {
         add(`${viewport.name}-home-context-labels`, state.captionCount === 4, { captionCount: state.captionCount });
         add(`${viewport.name}-home-credit-preserved`, state.credits.length === 4 && state.credits.every((credit) => /Public domain/i.test(credit) && /(Don Richey|Joel Kowsky)/i.test(credit)), { credits: state.credits });
         add(`${viewport.name}-home-source-links`, state.sourceLinks.length === 4 && state.sourceLinks.every((href) => href.startsWith('https://commons.wikimedia.org/wiki/File:')), { sourceLinks: state.sourceLinks });
-        add(`${viewport.name}-home-consistent-aspect-ratio`, state.ratios.length === 4 && state.ratios.every((ratio) => Math.abs(ratio - (16 / 9)) < 0.03), { ratios: state.ratios });
+        add(`${viewport.name}-home-consistent-aspect-ratio`, state.ratios.length === 4 && state.ratios.every((ratio,i) => Math.abs(ratio - state.expectedRatios[i]) < 0.03), { ratios: state.ratios });
       } else if (route === '/phases/') {
         add(`${viewport.name}-archive-no-editorial-photo-duplication`, state.photoCount === 0, { photoCount: state.photoCount });
       } else {

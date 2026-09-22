@@ -12,3 +12,6 @@ results/demo/
 
 node_modules/
 package-lock.json
+qa-artifacts/
+corrected-visual-artifacts/
+deploy/vercel/media/

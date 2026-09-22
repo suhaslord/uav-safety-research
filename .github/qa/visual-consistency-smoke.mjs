@@ -15,7 +15,7 @@ const routes = [
   '/phases/phase21/', '/phases/phase22/'
 ];
 
-const browser = await chromium.launch({ headless: true });
+const browser = await chromium.launch({ headless: true, executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe' });
 try {
   for (const viewport of [
     { name: 'desktop', width: 1440, height: 1000 },
@@ -173,3 +173,4 @@ try {
 
 console.log(JSON.stringify({ base: BASE, passed: results.filter(result => result.ok).length, failed, results }, null, 2));
 if (failed) process.exitCode = 1;
+

@@ -20,7 +20,7 @@ const viewports = [
 ];
 
 await fs.mkdir(OUT, { recursive: true });
-const browser = await chromium.launch({ headless: true });
+const browser = await chromium.launch({ headless: true, executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe' });
 try {
   for (const vp of viewports) {
     const context = await browser.newContext({

@@ -159,7 +159,7 @@
       ['One question. Six chapters.', 'Six stretches of work, each caused by the last one.'],
       ['Explore chapter', 'Open this part of the record'],
       ['Key caution', 'Do not mix these results'],
-      ['Main conclusion', 'Result that shaped the later work'],
+      // ['Main conclusion', 'Result that shaped the later work'],
       ['Research question', 'Question being tested'],
       ['Research lineage', 'How the work developed'],
       ['Current evidence', 'Latest frozen evidence'],

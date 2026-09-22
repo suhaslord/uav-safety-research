@@ -4,22 +4,22 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_legacy_phase_template_keeps_canonical_responsive_base_plus_polish_guardrails():
-    phase = (ROOT / "dashboard/phases/phase.html").read_text()
+    phase = (ROOT / "dashboard/phases/phase.html").read_text(encoding="utf-8")
     assert 'phase-responsive.css' in phase
     assert 'href="/phase-polish.css?v=' in phase
     assert 'href="/phase-polish-fixes.css?v=' in phase
-    assert 'href="/research-workspace.css?v=' in phase
+    assert 'href="/tesla-bundle.css?v=' in phase
     assert 'tesla-mobile.css' not in phase
     assert 'tesla-phase-mobile.css' not in phase
     assert 'class="archive-shell phase-polish-shell research-workspace"' in phase
 
 
 def test_frozen_archive_uses_shared_polish_plus_research_workspace_instead_of_signature_stack():
-    index = (ROOT / "dashboard/phases/index.html").read_text()
-    frozen = (ROOT / "dashboard/phases/frozen.html").read_text()
+    index = (ROOT / "dashboard/phases/index.html").read_text(encoding="utf-8")
+    frozen = (ROOT / "dashboard/phases/frozen.html").read_text(encoding="utf-8")
 
     assert 'href="/phase-polish.css?v=' in index
-    assert 'href="/research-workspace.css?v=' in index
+    assert 'href="/tesla-bundle.css?v=' in index
     assert 'href="/signature.css?v=' not in index
     assert 'phase-responsive.css' not in index
     assert 'tesla-mobile.css' not in index
@@ -28,7 +28,7 @@ def test_frozen_archive_uses_shared_polish_plus_research_workspace_instead_of_si
 
     assert 'href="/phase-polish.css?v=' in frozen
     assert 'href="/phase-polish-fixes.css?v=' in frozen
-    assert 'href="/research-workspace.css?v=' in frozen
+    assert 'href="/tesla-bundle.css?v=' in frozen
     assert 'href="/signature.css?v=' not in frozen
     assert 'phase-responsive.css' not in frozen
     assert 'tesla-mobile.css' not in frozen

@@ -1,4 +1,4 @@
-import { chromium } from 'playwright';
+﻿import { chromium } from 'playwright';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
@@ -9,7 +9,7 @@ let failed = 0;
 const add = (name, ok, details = {}) => { results.push({ name, ok, ...details }); if (!ok) failed += 1; };
 
 await fs.mkdir(path.join(OUT, 'screenshots'), { recursive: true });
-const browser = await chromium.launch({ headless: true });
+const browser = await chromium.launch({ headless: true, executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe' });
 try {
   const context = await browser.newContext({ viewport:{ width:390, height:844 }, isMobile:true, hasTouch:true, reducedMotion:'reduce' });
 
@@ -105,6 +105,7 @@ try {
 
 const summary = { base:BASE, passed:results.filter((result) => result.ok).length, failed, results };
 await fs.writeFile(path.join(OUT,'mobile-navigation-summary.json'), JSON.stringify(summary,null,2));
-await fs.appendFile(path.join(OUT,'summary.md'), `\n\n## Mobile navigation\n\n- Passed: ${summary.passed}\n- Failed: ${summary.failed}\n${results.map((result) => `- ${result.ok ? 'PASS' : 'FAIL'} — ${result.name}`).join('\n')}\n`);
+await fs.appendFile(path.join(OUT,'summary.md'), `\n\n## Mobile navigation\n\n- Passed: ${summary.passed}\n- Failed: ${summary.failed}\n${results.map((result) => `- ${result.ok ? 'PASS' : 'FAIL'} â€” ${result.name}`).join('\n')}\n`);
 console.log(JSON.stringify(summary,null,2));
 if (failed) process.exitCode = 1;
+

@@ -234,5 +234,7 @@ def run(raw, progress=lambda done, total: None):
             result['title'] = 'Camera-error sensitivity diagnostic'
             result['metrics'] = [metric('Lateral bias', np.mean(b), 'm'), metric('Shifted error p95', np.quantile(np.abs(b),.95), 'm'), metric('Within 0.45 m', np.mean(np.abs(b)<=.45)*100, '%')]
             result['note'] = 'A synthetic error-distribution sensitivity exercise for interpreting camera traces. This does not execute ArUco/PnP detection or capture Gazebo frames; the full Phase 9 pipeline requires those external inputs.'
+    kind = ('Original closed-loop landing simulation' if phase in ('phase1','phase2','phase3','phase5') else 'Original components with synthetic inputs' if phase in ('phase6','phase6b','phase7','phase10','phase10r') else 'Simplified method demonstration — not the full phase evaluation')
+    result['execution_kind'] = kind
     result.update({'schema': 'aegisland.browser-experiment.v1', 'phase': phase, 'inputs': p, 'exploratory': True, 'simulation_only': True, 'frozen_evidence_modified': False, 'runtime': 'Python + NumPy', 'source_commit': '668d065f4312e33e2d21ca7a7ee76d4d6d5617b3'})
     return json.loads(json.dumps(result, allow_nan=False, default=lambda x: x.item() if hasattr(x, 'item') else str(x)))

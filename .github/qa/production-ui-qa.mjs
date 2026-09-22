@@ -1,4 +1,4 @@
-import { chromium } from 'playwright';
+﻿import { chromium } from 'playwright';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
@@ -37,7 +37,7 @@ const add = (name, ok, details = {}) => {
 };
 const safeName = (route) => route === '/' ? 'home' : route.replace(/^\/+|\/+$/g, '').replaceAll('/', '-');
 
-const browser = await chromium.launch({ headless: true });
+const browser = await chromium.launch({ headless: true, executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe' });
 try {
   // Production QA may race deployment on a main push. Wait for the frozen site identity.
   const readinessContext = await browser.newContext({ viewport: { width: 1280, height: 800 }, reducedMotion: 'reduce' });
@@ -94,21 +94,11 @@ try {
       const status = response?.status() || 0;
       add(`${vp.name}-${route}-status`, status >= 200 && status < 400, { status });
 
-      // The Method photograph is deliberately native-lazy. Before the generic
-      // broken-image check, scroll editorial photos into view and wait for the
-      // browser to either decode them or activate the product fallback.
-      if (route === '/') {
-        const figures = page.locator('[data-editorial-photo]');
-        const count = await figures.count();
-        for (let index = 0; index < count; index += 1) {
-          await figures.nth(index).scrollIntoViewIfNeeded();
-          await page.waitForFunction((photoIndex) => {
-            const figure = document.querySelectorAll('[data-editorial-photo]')[photoIndex];
-            if (!figure) return false;
-            const image = figure.querySelector('img');
-            return figure.dataset.imageState === 'fallback' || !image || (image.complete && image.naturalWidth > 0 && image.naturalHeight > 0);
-          }, index, { timeout: 10000 }).catch(() => {});
-        }
+      // Load every image before testing it, including native-lazy carousel slides.
+      const images = page.locator('img');
+      for (let index=0; index<await images.count(); index++) {
+        await images.nth(index).scrollIntoViewIfNeeded();
+        await page.waitForFunction(i => { const image=document.images[i];return image?.complete && image.naturalWidth>0; }, index, {timeout:12000}).catch(()=>{});
       }
 
       const state = await page.evaluate(() => {
@@ -270,7 +260,7 @@ const summary = [
   `- Failed: ${report.failedChecks}`,
   `- Screenshots: ${report.screenshots.length}`,
   '',
-  ...report.errors.map((error) => `- FAIL — ${error.name}: ${JSON.stringify(error)}`)
+  ...report.errors.map((error) => `- FAIL â€” ${error.name}: ${JSON.stringify(error)}`)
 ].join('\n');
 await fs.writeFile(path.join(OUT, 'summary.md'), summary);
 console.log(summary);

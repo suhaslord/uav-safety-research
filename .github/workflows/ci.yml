@@ -34,6 +34,8 @@ jobs:
         run: node --check phase8_dashboard/app.js
       - name: Unit tests
         run: pytest -q
+      - name: Browser experiment state regression tests
+        run: node --test tests/browser_state.test.mjs
       - name: V3 smoke benchmark
         run: python scripts/run_v3_comparison.py --episodes 2 --seed 12345 --profiles clean mixed --out /tmp/aegis-v3-smoke
       - name: Robustness smoke benchmark
