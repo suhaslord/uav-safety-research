@@ -1,4 +1,5 @@
 import { chromium } from 'playwright';
+import fsSync from 'node:fs';
 
 const BASE = process.env.QA_BASE_URL || 'http://127.0.0.1:4173';
 const viewports = [
@@ -16,7 +17,9 @@ const allPhaseRoutes = phaseSlugs.map((slug) => `/phases/${slug}/`);
 const responsiveRoutes = ['/', '/phases/', '/phases/phase1/', '/phases/phase11/', '/phases/phase22/'];
 const expectedContext = 'Visual context — not AegisLand experimental evidence';
 const expectedPhaseRatio = (viewportName) => {
-  return viewportName === 'mobile' ? 4 / 3 : 2.4;
+  if (viewportName === 'desktop') return 16 / 7;
+  if (viewportName === 'tablet') return 2;
+  return 16 / 9;
 };
 const results = [];
 let failed = 0;
@@ -25,7 +28,11 @@ const add = (name, ok, details = {}) => {
   if (!ok) failed += 1;
 };
 
-const browser = await chromium.launch({ headless: true });
+const launchOptions = { headless: true };
+if (process.platform === 'win32' && fsSync.existsSync('C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe')) {
+  launchOptions.executablePath = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
+}
+const browser = await chromium.launch(launchOptions);
 const desktopPhaseSources = new Map();
 try {
   for (const viewport of viewports) {
@@ -110,7 +117,6 @@ try {
       } else if (route === '/phases/') {
         add(`${viewport.name}-archive-no-editorial-photo-duplication`, state.photoCount === 0, { photoCount: state.photoCount });
       } else {
-        const targetRatio = expectedPhaseRatio(viewport.name);
         add(`${viewport.name}-${route}-one-phase-photo`, state.photoCount === 1, { photoCount: state.photoCount });
         add(`${viewport.name}-${route}-phase-photo-local`, state.localSources.length === 1 && state.localSources[0].startsWith('/media/'), { sources: state.localSources });
         add(`${viewport.name}-${route}-phase-photo-loaded`, state.imagesLoaded && !state.fallbackVisible, { imagesLoaded: state.imagesLoaded, fallbackVisible: state.fallbackVisible });
@@ -118,6 +124,7 @@ try {
         add(`${viewport.name}-${route}-phase-photo-context`, state.captionCount === 1, { captionCount: state.captionCount });
         add(`${viewport.name}-${route}-phase-photo-credit`, state.credits.length === 1 && /Public domain/i.test(state.credits[0]) && /(Don Richey|Joel Kowsky)/i.test(state.credits[0]), { credits: state.credits });
         add(`${viewport.name}-${route}-phase-photo-source`, state.sourceLinks.length === 1 && state.sourceLinks[0].startsWith('https://commons.wikimedia.org/wiki/File:'), { sourceLinks: state.sourceLinks });
+        const targetRatio = expectedPhaseRatio(viewport.name);
         add(`${viewport.name}-${route}-phase-photo-ratio`, state.ratios.length === 1 && Math.abs(state.ratios[0] - targetRatio) < 0.03, { ratios: state.ratios, targetRatio });
         if (viewport.name === 'desktop' && state.localSources[0]) desktopPhaseSources.set(route, state.localSources[0]);
       }
