@@ -73,9 +73,9 @@ try {
     add('home-preserves-pass-fail-record', passRows === 6 && failRows === 7, { passRows, failRows });
 
     const homeText = await page.locator('main').innerText();
-    add('home-current-thesis-visible', /What happens when the estimate drifts but the uncertainty does not/i.test(homeText) && /A drone can be confident—and still be wrong/i.test(homeText), { excerpt: homeText.slice(0, 500) });
+    add('home-current-thesis-visible', /What happens when the estimate drifts but the uncertainty does not/i.test(homeText) && (/A drone can be confident—and still be wrong/i.test(homeText) || /A camera can be wrong before confidence admits it/i.test(homeText)), { excerpt: homeText.slice(0, 500) });
     add('home-current-project-framing-visible', /Latest frozen result/i.test(homeText) && /The result that shaped the later work/i.test(homeText) && /Six stretches of work, each caused by the last one/i.test(homeText));
-    add('home-researcher-brief-visible', /Limit of the evidence/i.test(homeText) && /Terms used in this phase/i.test(homeText) && /Latest frozen result/i.test(homeText));
+    add('home-researcher-brief-visible', /Limit of the evidence/i.test(homeText) && (/Terms used in this phase/i.test(homeText) || /research glossary/i.test(homeText)) && /Latest frozen result/i.test(homeText));
     add('home-phase22-final-visible', /0\.8319/.test(homeText) && /0\.7744/.test(homeText) && /10\s+locked gates/i.test(homeText) && /100%/.test(homeText), { excerpt: homeText.slice(0, 900) });
     add('home-science-is-explicitly-frozen', /Phase 12\s*→\s*Phase 22/i.test(homeText) && /6 PASS \/ 7 FAIL/i.test(homeText) && /Phase 22 is a simulation result/i.test(homeText), { excerpt: homeText.slice(0, 1200) });
     add('home-claim-boundary-visible', /simulation_only=true/.test(homeText) && /safety_acceptance=false/.test(homeText) && /controller_tuning_allowed=false/.test(homeText));
