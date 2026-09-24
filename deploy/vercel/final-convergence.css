@@ -20,6 +20,11 @@
   html body.research-workspace.home-workspace .header-actions{
     display:flex!important;
   }
+  /* A later global compact-header rule hides actions below 1100px. Keep the
+     homepage controls visible at desktop widths where the mobile menu is off. */
+  html body.research-workspace.home-workspace.home-workspace .site-header .header-actions{
+    display:flex!important;
+  }
 }
 
 @media (max-width:900px){
