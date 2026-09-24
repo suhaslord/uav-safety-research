@@ -43,6 +43,7 @@ jobs:
           test "$(grep -o 'Visual context — not AegisLand experimental evidence' deploy/vercel/index.html | wc -l)" -eq 4
 
           test -f deploy/vercel/phase-polish.css
+          test -f deploy/vercel/phase-reading-responsive.css
           test -f deploy/vercel/research-home.css
           test -f deploy/vercel/research-media.css
           test -f dashboard/phase-taxonomy.js
@@ -54,6 +55,9 @@ jobs:
           grep -q 'href="/phase-polish.css?v=' dashboard/phases/index.html
           grep -q 'href="/phase-polish.css?v=' dashboard/phases/frozen.html
           grep -q 'href="/phase-polish.css?v=' dashboard/phases/phase.html
+          grep -q 'href="/phase-reading-responsive.css?v=' dashboard/phases/frozen.html
+          grep -q 'href="/phase-reading-responsive.css?v=' dashboard/phases/phase.html
+          grep -q 'href="/phase-reading-responsive.css?v=' deploy/vercel/phase11.html
           grep -q 'href="/phase-personalization.css?v=' dashboard/phases/index.html
           grep -q 'href="/phase-personalization.css?v=' dashboard/phases/frozen.html
           grep -q 'href="/phase-personalization.css?v=' dashboard/phases/phase.html
