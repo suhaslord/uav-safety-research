@@ -144,6 +144,8 @@ try {
     add('home-preserves-pass-fail-record', passRows === 6 && failRows === 7, { passRows, failRows });
 
     const homeText = await page.locator('main').innerText();
+    const heroOverlay = await page.locator('#top .research-photo__frame').evaluate(element => getComputedStyle(element, '::after').backgroundImage);
+    add('home-hero-photo-shaded-for-readable-copy', /linear-gradient/i.test(heroOverlay), { heroOverlay });
     add('home-current-thesis-visible', /What happens when the estimate drifts but the uncertainty does not/i.test(homeText) && (/A drone can be confident—and still be wrong/i.test(homeText) || /A camera can be wrong before confidence admits it/i.test(homeText)), { excerpt: homeText.slice(0, 500) });
     add('home-current-project-framing-visible', /Latest frozen result/i.test(homeText) && /The result that shaped the later work/i.test(homeText) && /Six stretches of work, each caused by the last one/i.test(homeText));
     add('home-researcher-brief-visible', /Limit of the evidence/i.test(homeText) && (/Terms used in this phase/i.test(homeText) || /research glossary/i.test(homeText)) && /Latest frozen result/i.test(homeText));
