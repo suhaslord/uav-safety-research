@@ -24,6 +24,7 @@ const browser = await chromium.launch(launchOptions);
 try {
   for (const viewport of [
     { name: 'desktop', width: 1440, height: 1000 },
+    { name: 'small-desktop', width: 1180, height: 1000 },
     { name: 'compact', width: 1040, height: 1000 },
     { name: 'tablet', width: 820, height: 1180 }
   ]) {
@@ -50,6 +51,11 @@ try {
           if (!element || getComputedStyle(element).display !== 'grid') return null;
           return getComputedStyle(element).gridTemplateColumns.trim().split(/\s+/).filter(Boolean).length;
         })(),
+        phaseStoryColumns: (() => {
+          const element = document.querySelector('body.archive-shell .story-pair');
+          if (!element || getComputedStyle(element).display !== 'grid') return null;
+          return getComputedStyle(element).gridTemplateColumns.trim().split(/\s+/).filter(Boolean).length;
+        })(),
         phaseBodyColumns: (() => {
           const element = document.querySelector('.phase-detail__body');
           if (!element || getComputedStyle(element).display !== 'grid') return null;
@@ -63,8 +69,9 @@ try {
         add(`${viewport.name}-${route}-personalization-style`, state.personalization, { personalization: state.personalization });
         add(`${viewport.name}-${route}-responsive-phase-style`, state.responsivePhaseStyle, { responsivePhaseStyle: state.responsivePhaseStyle });
         if (viewport.name !== 'desktop') {
-          add(`${viewport.name}-${route}-phase-layout-has-room`, state.phaseHeroColumns === 1 && (state.phaseBodyColumns === null || state.phaseBodyColumns === 1), {
+          add(`${viewport.name}-${route}-phase-layout-has-room`, state.phaseHeroColumns === 1 && (state.phaseStoryColumns === null || state.phaseStoryColumns === 1) && (state.phaseBodyColumns === null || state.phaseBodyColumns === 1), {
             heroColumns: state.phaseHeroColumns,
+            storyColumns: state.phaseStoryColumns,
             bodyColumns: state.phaseBodyColumns
           });
         }
