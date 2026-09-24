@@ -10,6 +10,18 @@
   }
 }
 
+/* The base bundle hides desktop navigation through 980px. Restore the homepage
+   header between its tablet menu cutoff and that inherited breakpoint. */
+@media (min-width:901px) and (max-width:980px){
+  html body.research-workspace.home-workspace .site-header{
+    grid-template-columns:auto minmax(0,1fr) auto!important;
+  }
+  html body.research-workspace.home-workspace .site-nav,
+  html body.research-workspace.home-workspace .header-actions{
+    display:flex!important;
+  }
+}
+
 @media (max-width:900px){
   html body.research-workspace.research-workspace .site-nav,
   html body.research-workspace.research-workspace .header-actions,

@@ -43,6 +43,14 @@ try {
     }
     await context.close();
   }
+
+  const compactDesktopContext = await browser.newContext({ viewport: { width: 940, height: 1000 }, reducedMotion: 'reduce' });
+  const compactDesktopPage = await compactDesktopContext.newPage();
+  await compactDesktopPage.goto(`${BASE}/`, { waitUntil: 'domcontentloaded', timeout: 45000 });
+  await compactDesktopPage.waitForTimeout(1200);
+  await compactDesktopPage.screenshot({ path: path.join(OUT, 'signature-home-compact-desktop.png'), fullPage: true });
+  await compactDesktopPage.close();
+  await compactDesktopContext.close();
 } finally {
   await browser.close();
 }
