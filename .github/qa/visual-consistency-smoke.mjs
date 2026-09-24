@@ -56,6 +56,48 @@ try {
     await context.close();
   }
 
+  // The desktop navigation used to disappear from 901px through 980px.
+  // Check the homepage inside that range, between the existing tablet/desktop sizes.
+  {
+    const context = await browser.newContext({ viewport: { width: 940, height: 1000 }, reducedMotion: 'reduce' });
+    const page = await context.newPage();
+    const response = await page.goto(BASE + '/', { waitUntil: 'domcontentloaded', timeout: 45000 });
+    await page.waitForFunction(
+      () => document.documentElement.dataset.finalConvergence === 'ready',
+      null,
+      { timeout: 15000 }
+    ).catch(() => {});
+    const navigation = await page.evaluate(() => {
+      const visible = (element) => {
+        if (!element) return false;
+        const rect = element.getBoundingClientRect();
+        const style = getComputedStyle(element);
+        return rect.width > 0 && rect.height > 0 && style.display !== 'none' && style.visibility !== 'hidden';
+      };
+      const header = document.querySelector('.site-header');
+      const brand = header?.querySelector('.brand');
+      const nav = header?.querySelector('.site-nav');
+      const actions = header?.querySelector('.header-actions');
+      const overlap = (left, right) => {
+        if (!visible(left) || !visible(right)) return false;
+        const a = left.getBoundingClientRect();
+        const b = right.getBoundingClientRect();
+        return a.left < b.right - 2 && b.left < a.right - 2 && a.top < b.bottom - 2 && b.top < a.bottom - 2;
+      };
+      return {
+        navVisible: visible(nav),
+        navLinkCount: nav?.querySelectorAll('a').length || 0,
+        actionsVisible: visible(actions),
+        mobileToggleVisible: visible(document.querySelector('#mobileMenuToggle')),
+        headerOverlap: overlap(brand, nav) || overlap(nav, actions),
+        horizontalOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth
+      };
+    });
+    add('home-940-navigation-continuity', !!response && response.status() < 400 && navigation.navVisible && navigation.navLinkCount >= 5 && navigation.actionsVisible && !navigation.mobileToggleVisible && !navigation.headerOverlap && navigation.horizontalOverflow <= 2, { ...navigation, status: response?.status() || 0 });
+    await page.close();
+    await context.close();
+  }
+
   {
     const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'reduce' });
     const page = await context.newPage();
@@ -178,4 +220,3 @@ try {
 
 console.log(JSON.stringify({ base: BASE, passed: results.filter(result => result.ok).length, failed, results }, null, 2));
 if (failed) process.exitCode = 1;
-
