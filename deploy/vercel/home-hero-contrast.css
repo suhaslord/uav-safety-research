@@ -1,0 +1,9 @@
+/* Preserve the photo-led hero while keeping its centered white copy readable. */
+html body.research-workspace.home-workspace #top .research-photo__frame::after {
+  background: linear-gradient(
+    180deg,
+    rgba(7, 19, 32, .72) 0%,
+    rgba(7, 19, 32, .76) 48%,
+    rgba(7, 19, 32, .82) 100%
+  ) !important;
+}
