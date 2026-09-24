@@ -46,7 +46,7 @@ try {
         personalization: [...document.querySelectorAll('link[rel="stylesheet"]')].some(link => (link.getAttribute('href') || '').startsWith('/phase-personalization.css')),
         responsivePhaseStyle: [...document.querySelectorAll('link[rel="stylesheet"]')].some(link => (link.getAttribute('href') || '').startsWith('/phase-reading-responsive.css')),
         phaseHeroColumns: (() => {
-          const element = document.querySelector('.phase-detail__hero, .hero-grid');
+          const element = document.querySelector('body.archive-shell .hero, .phase-detail__hero, .hero-grid');
           if (!element || getComputedStyle(element).display !== 'grid') return null;
           return getComputedStyle(element).gridTemplateColumns.trim().split(/\s+/).filter(Boolean).length;
         })(),

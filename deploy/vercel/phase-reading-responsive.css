@@ -1,11 +1,21 @@
 /* Keep individual phase stories readable before their content columns get tight. */
 @media (max-width: 1040px) {
   html body.research-workspace.phase-reading .phase-detail__hero,
-  html body.research-workspace.archive-shell .hero-grid,
+  html body.research-workspace.archive-shell .hero,
   html body.research-workspace.phase11-polish .hero-grid {
     grid-template-columns: minmax(0, 1fr) !important;
     align-items: start !important;
     gap: 30px !important;
+  }
+
+  html body.research-workspace.archive-shell .hero-copy {
+    max-width: 780px !important;
+  }
+
+  html body.research-workspace.archive-shell .story-pair,
+  html body.research-workspace.archive-shell .changes {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 22px !important;
   }
 
   html body.research-workspace.phase-reading .phase-detail__body {
@@ -34,6 +44,12 @@
     padding: 24px 0 0 !important;
     border-top: 1px solid var(--rw-line, #e2e3e3) !important;
     border-left: 0 !important;
+  }
+}
+
+@media (min-width: 801px) and (max-width: 1040px) {
+  html body.research-workspace.archive-shell .object {
+    width: min(34vw, 300px) !important;
   }
 }
 
