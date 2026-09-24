@@ -1,0 +1,96 @@
+/* Keep individual phase stories readable before their content columns get tight. */
+html body.research-workspace.archive-shell .hero {
+  display: grid !important;
+  grid-template-columns: minmax(0, 660px) minmax(0, 1fr) !important;
+  gap: clamp(32px, 5vw, 72px) !important;
+  align-items: center !important;
+}
+
+html body.research-workspace.archive-shell .hero-meta {
+  grid-column: 1 / -1 !important;
+}
+
+@media (max-width: 1180px) {
+  html body.research-workspace.archive-shell .hero {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  html body.research-workspace.archive-shell .hero-copy {
+    max-width: 780px !important;
+  }
+
+  html body.research-workspace.archive-shell .story-pair {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 22px !important;
+  }
+}
+
+@media (max-width: 1040px) {
+  html body.research-workspace.phase-reading .phase-detail__hero,
+  html body.research-workspace.archive-shell .hero,
+  html body.research-workspace.phase11-polish .hero-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+    align-items: start !important;
+    gap: 30px !important;
+  }
+
+  html body.research-workspace.archive-shell .changes {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 22px !important;
+  }
+
+  html body.research-workspace.phase-reading .phase-detail__body {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 30px !important;
+    margin-top: 32px !important;
+    padding-block: 54px !important;
+  }
+
+  html body.research-workspace.phase-reading .phase-detail__context-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 20px !important;
+  }
+
+  html body.research-workspace.phase-reading .phase-detail__hero .phase-role-card {
+    grid-column: auto !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  html body.research-workspace.phase-reading .phase-detail__hero .phase-role-card > * {
+    grid-column: auto !important;
+    grid-row: auto !important;
+  }
+
+  html body.research-workspace.phase-reading .phase-detail__panel--evidence {
+    padding: 24px 0 0 !important;
+    border-top: 1px solid var(--rw-line, #e2e3e3) !important;
+    border-left: 0 !important;
+  }
+}
+
+@media (min-width: 801px) and (max-width: 1180px) {
+  html body.research-workspace.archive-shell .object {
+    width: min(34vw, 340px) !important;
+  }
+}
+
+@media (max-width: 680px) {
+  html body.research-workspace.phase-reading .phase-detail__hero {
+    gap: 22px !important;
+    padding-block: 24px 34px !important;
+  }
+
+  html body.research-workspace.phase-reading .phase-detail__body {
+    gap: 26px !important;
+    margin-top: 24px !important;
+    padding-block: 42px !important;
+  }
+
+  html body.research-workspace.phase-reading .phase-detail__panel {
+    padding: 22px !important;
+  }
+
+  html body.research-workspace.phase-reading .phase-detail__hero .phase-role-card {
+    padding: 18px !important;
+  }
+}

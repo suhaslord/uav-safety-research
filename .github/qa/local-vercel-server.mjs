@@ -33,7 +33,7 @@ const dashboardAssets = new Set([
 const deployAssets = new Set([
   'lab/state.mjs', 'lab/lab.js', 'lab/lab.css', 'lab/worker.js', 'lab/python-bundle.json', 'lab/current-data.js',
   'phase-explorer.js', 'presentation.js', 'presentation.css', 'aegisland.css', 'signature.css', 'research-home.css', 'research-media.css', 'phase-polish.css',
-  'phase-polish-fixes.css', 'phase-polish-v2.css', 'phase-ui-consistency.css', 'final-convergence.css', 'final-convergence-base.css', 'craft-polish.css', 'frozen-lineage.js',
+  'phase-polish-fixes.css', 'phase-polish-v2.css', 'phase-ui-consistency.css', 'final-convergence.css', 'final-convergence-base.css', 'craft-polish.css', 'phase-reading-responsive.css', 'frozen-lineage.js',
   'research-workspace.css', 'research-workspace.js', 'tesla-bundle.css'
 ]);
 

@@ -24,6 +24,8 @@ const browser = await chromium.launch(launchOptions);
 try {
   for (const viewport of [
     { name: 'desktop', width: 1440, height: 1000 },
+    { name: 'small-desktop', width: 1180, height: 1000 },
+    { name: 'compact', width: 1040, height: 1000 },
     { name: 'tablet', width: 820, height: 1180 }
   ]) {
     const context = await browser.newContext({ viewport: { width: viewport.width, height: viewport.height }, reducedMotion: 'reduce' });
@@ -42,13 +44,40 @@ try {
         main: !!document.querySelector('main'),
         h1: document.querySelectorAll('h1').length,
         polish: [...document.querySelectorAll('link[rel="stylesheet"]')].some(link => (link.getAttribute('href') || '').startsWith('/phase-polish.css')),
-        personalization: [...document.querySelectorAll('link[rel="stylesheet"]')].some(link => (link.getAttribute('href') || '').startsWith('/phase-personalization.css'))
+        personalization: [...document.querySelectorAll('link[rel="stylesheet"]')].some(link => (link.getAttribute('href') || '').startsWith('/phase-personalization.css')),
+        responsivePhaseStyle: [...document.querySelectorAll('link[rel="stylesheet"]')].some(link => (link.getAttribute('href') || '').startsWith('/phase-reading-responsive.css')),
+        phaseHeroColumns: (() => {
+          const element = document.querySelector('body.archive-shell .hero, .phase-detail__hero, .hero-grid');
+          if (!element || getComputedStyle(element).display !== 'grid') return null;
+          return getComputedStyle(element).gridTemplateColumns.trim().split(/\s+/).filter(Boolean).length;
+        })(),
+        phaseStoryColumns: (() => {
+          const element = document.querySelector('body.archive-shell .story-pair');
+          if (!element || getComputedStyle(element).display !== 'grid') return null;
+          return getComputedStyle(element).gridTemplateColumns.trim().split(/\s+/).filter(Boolean).length;
+        })(),
+        phaseBodyColumns: (() => {
+          const element = document.querySelector('.phase-detail__body');
+          if (!element || getComputedStyle(element).display !== 'grid') return null;
+          return getComputedStyle(element).gridTemplateColumns.trim().split(/\s+/).filter(Boolean).length;
+        })()
       }));
       add(`${viewport.name}-${route}-no-horizontal-overflow`, state.overflow <= 1, { overflow: state.overflow });
       add(`${viewport.name}-${route}-semantic-shell`, state.main && state.h1 >= 1, { main: state.main, h1: state.h1 });
-      if (/^\/phases\/(phase(?:[1-9]|10|10r|11|1[2-9]|2[0-2]|6b))\/?$/.test(route)) {
+      if (/^\/phases\/(phase(?:[1-9]|10|10r|11|1[2-9][abc]?|2[0-2]|6b))\/?$/.test(route)) {
         add(`${viewport.name}-${route}-shared-phase-polish`, state.polish, { polish: state.polish });
         add(`${viewport.name}-${route}-personalization-style`, state.personalization, { personalization: state.personalization });
+        add(`${viewport.name}-${route}-responsive-phase-style`, state.responsivePhaseStyle, { responsivePhaseStyle: state.responsivePhaseStyle });
+        if (viewport.name !== 'desktop') {
+          const phaseLayoutHasRoom = viewport.name === 'small-desktop'
+            ? state.phaseHeroColumns >= 1 && state.phaseHeroColumns <= 2 && (state.phaseStoryColumns === null || state.phaseStoryColumns === 1) && (state.phaseBodyColumns === null || state.phaseBodyColumns <= 2)
+            : state.phaseHeroColumns === 1 && (state.phaseStoryColumns === null || state.phaseStoryColumns === 1) && (state.phaseBodyColumns === null || state.phaseBodyColumns === 1);
+          add(`${viewport.name}-${route}-phase-layout-has-room`, phaseLayoutHasRoom, {
+            heroColumns: state.phaseHeroColumns,
+            storyColumns: state.phaseStoryColumns,
+            bodyColumns: state.phaseBodyColumns
+          });
+        }
       }
       add(`${viewport.name}-${route}-browser-clean`, browserErrors.length === 0, { browserErrors });
       await page.close();
