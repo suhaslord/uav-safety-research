@@ -69,7 +69,10 @@ try {
         add(`${viewport.name}-${route}-personalization-style`, state.personalization, { personalization: state.personalization });
         add(`${viewport.name}-${route}-responsive-phase-style`, state.responsivePhaseStyle, { responsivePhaseStyle: state.responsivePhaseStyle });
         if (viewport.name !== 'desktop') {
-          add(`${viewport.name}-${route}-phase-layout-has-room`, state.phaseHeroColumns === 1 && (state.phaseStoryColumns === null || state.phaseStoryColumns === 1) && (state.phaseBodyColumns === null || state.phaseBodyColumns === 1), {
+          const phaseLayoutHasRoom = viewport.name === 'small-desktop'
+            ? state.phaseHeroColumns >= 1 && state.phaseHeroColumns <= 2 && (state.phaseStoryColumns === null || state.phaseStoryColumns === 1) && (state.phaseBodyColumns === null || state.phaseBodyColumns <= 2)
+            : state.phaseHeroColumns === 1 && (state.phaseStoryColumns === null || state.phaseStoryColumns === 1) && (state.phaseBodyColumns === null || state.phaseBodyColumns === 1);
+          add(`${viewport.name}-${route}-phase-layout-has-room`, phaseLayoutHasRoom, {
             heroColumns: state.phaseHeroColumns,
             storyColumns: state.phaseStoryColumns,
             bodyColumns: state.phaseBodyColumns
