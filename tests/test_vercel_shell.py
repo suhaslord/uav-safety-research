@@ -43,6 +43,9 @@ def test_vercel_routes_use_packaged_frozen_and_legacy_assets() -> None:
     assert "/dashboard/phase-visuals.js" in destinations
     assert "/dashboard/phase-editorial-media.js" in destinations
     assert "/phase11.html" in destinations
+    assert "/phase24.html" in destinations
+    phase24_sources = {item["source"] for item in rewrites if item["destination"] == "/phase24.html"}
+    assert "/phases/phase24" in phase24_sources and "/phases/phase24/" in phase24_sources
     assert "/phase12.html" not in destinations
 
     frozen_sources = {
@@ -103,10 +106,13 @@ def test_phase_archive_uses_shared_tesla_polish_without_rewriting_lineage() -> N
     assert 'href="/signature.css?v=' not in frozen
     assert "The archive keeps the detours, not just the wins." in archive
     assert "Research categories" in archive
+    assert "<strong>7</strong> research categories" in archive
+    assert "27 phase records" in archive
     assert "6 PASS / 7 FAIL" in archive
+    assert "Phase 24 is a descriptive real-camera reanalysis" in archive
 
 
-def test_phase_taxonomy_personalizes_all_26_phase_routes() -> None:
+def test_phase_taxonomy_personalizes_all_27_phase_routes() -> None:
     taxonomy = (ROOT / "dashboard" / "phase-taxonomy.js").read_text(encoding="utf-8")
     personalization = (ROOT / "dashboard" / "phase-personalization.js").read_text(encoding="utf-8")
     css = (ROOT / "dashboard" / "phase-personalization.css").read_text(encoding="utf-8")
@@ -115,7 +121,7 @@ def test_phase_taxonomy_personalizes_all_26_phase_routes() -> None:
         "phase1", "phase2", "phase3", "phase4", "phase5", "phase6", "phase6b",
         "phase7", "phase8", "phase9", "phase10", "phase10r", "phase11", "phase12",
         "phase13a", "phase13b", "phase13c", "phase14", "phase15", "phase16", "phase17",
-        "phase18", "phase19", "phase20", "phase21", "phase22",
+        "phase18", "phase19", "phase20", "phase21", "phase22", "phase24",
     )
     for slug in expected_slugs:
         assert f"{slug}: {{ category:" in taxonomy
@@ -127,6 +133,7 @@ def test_phase_taxonomy_personalizes_all_26_phase_routes() -> None:
         "reliability-calibration",
         "latency-dynamics",
         "context-transfer",
+        "real-camera-robustness",
     ):
         assert f"id: '{category}'" in taxonomy
 
@@ -169,3 +176,30 @@ def test_phase10r_logic_is_loaded_by_the_shared_phase_template() -> None:
     phase10r = html.index('src="/phase10r-archive.js"')
     scenes = html.index('src="/phase-hero-scenes.js"')
     assert phase10r < scenes
+
+
+def test_phase24_standalone_report_has_charts_provenance_and_method_limits() -> None:
+    report = (ROOT / "deploy" / "vercel" / "phase24.html").read_text(encoding="utf-8")
+    script = (ROOT / "deploy" / "vercel" / "phase24.js").read_text(encoding="utf-8")
+    data = json.loads((ROOT / "deploy" / "vercel" / "data" / "phase24-results.json").read_text(encoding="utf-8"))
+
+    assert 'src="/phase24.js?v=1"' in report
+    assert report.count('data-phase24-chart=') == 4
+    assert "No model was retrained" in report
+    assert "not 516 independent examples" in report
+    assert "confidence intervals" in report
+    assert "Detector precision, recall, and mAP do not demonstrate landing safety" in report
+    assert data["analysis_type"] == "descriptive_reanalysis"
+    assert 'fetch("/data/phase24-results.json"' in script
+
+
+def test_live_perception_panels_and_phase_reading_width_are_balanced() -> None:
+    current = (ROOT / "deploy" / "vercel" / "lab" / "current-data.js").read_text(encoding="utf-8")
+    shared = (ROOT / "deploy" / "vercel" / "phase-ui-consistency.css").read_text(encoding="utf-8")
+
+    assert "width:min(1440px,calc(100% - 64px))" in current
+    assert "grid-template-columns:minmax(0,1fr) minmax(0,1fr)" in current
+    assert "width:min(100%,520px)" in current
+    assert 'href="/phases/phase24/">Read Phase 24' in current
+    assert "width:min(1280px,calc(100% - 48px))" in shared
+    assert "grid-template-columns:minmax(0,1.2fr) minmax(340px,.8fr)" in shared

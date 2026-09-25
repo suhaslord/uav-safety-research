@@ -1,6 +1,6 @@
 # Phase 23 · Robust Sim-to-Real Landing Perception
 
-**Status:** Validated robust real-image model with UAV domain augmentation and 480px resolution.
+**Status:** Detector comparison on the protected KIOS temporal holdout. Gains are condition-dependent and severe-stress regressions remain.
 **Model:** YOLO11n (480px, cosine LR, random erasing, photometrics, rotation)
 **Split:** Protected temporal split (86 test frames)
 
@@ -26,8 +26,8 @@
 
 ## Readout
 
-- **Clean Recall**: Jumped by **+20.9%** (from **38.4%** to **59.3%**), eliminating false-negative misses on high-altitude approach frames.
-- **Clean Detection Quality**: mAP50 increased by **+12.8%** (from **0.427** to **0.555**).
+- **Clean Recall**: Increased by **+20.9 percentage points** (from **38.4%** to **59.3%**); misses remain.
+- **Clean Detection Quality**: mAP50 increased by **+12.9 percentage points** (from **0.427** to **0.555**).
 - **Blur Invariance**: mAP50 under motion blur increased from **0.413** to **0.586** (+17.3%), with recall rising to **57.0%**.
 - **Sensor Noise Robustness**: mAP50 under noise stress improved to **0.596** (vs 0.433 baseline).
-- **Remaining Frontier (Occlusion & Mixed)**: Heavy central occlusion (55% pad obstruction) remains the primary open failure mode, confirming the need for conformal safety fallback mechanisms when visibility drops below threshold.
+- **Remaining Frontier (Occlusion & Mixed)**: mAP50 regressed from **0.348 to 0.138** under occlusion and from **0.185 to 0.129** under mixed stress; recall also fell in both conditions. Aggregate detector metrics do not measure a safety fallback, controller response, or landing safety.

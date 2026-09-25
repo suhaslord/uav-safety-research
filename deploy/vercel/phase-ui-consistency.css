@@ -190,3 +190,35 @@ body.research-workspace .phase-role-card{
 @media(prefers-reduced-motion:reduce){
   body.research-workspace *{scroll-behavior:auto!important}
 }
+
+
+/* Give wide-screen phase stories a readable measure and balanced result columns. */
+body.research-workspace .signature-shell{
+  width:min(1280px,calc(100% - 48px))!important;
+  max-width:1280px!important;
+}
+@media(min-width:1200px){
+  html body.research-workspace.archive-shell .hero,
+  html body.research-workspace.archive-shell .phase-rail-section,
+  html body.research-workspace.archive-shell .section,
+  html body.research-workspace.archive-shell .footer{
+    padding-inline:max(24px,calc((100vw - 1320px)/2))!important;
+  }
+}
+@media(min-width:1041px){
+  body.research-workspace .phase-detail__hero{
+    grid-template-columns:minmax(0,1fr) minmax(280px,340px)!important;
+    gap:clamp(32px,4vw,64px)!important;
+  }
+  body.research-workspace .phase-detail__body{
+    grid-template-columns:minmax(0,1.2fr) minmax(340px,.8fr)!important;
+    gap:clamp(26px,3vw,42px)!important;
+  }
+  body.research-workspace .phase-detail__context-grid{
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+    gap:clamp(32px,5vw,72px)!important;
+  }
+}
+@media(max-width:680px){
+  body.research-workspace .signature-shell{width:calc(100% - 32px)!important}
+}

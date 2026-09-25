@@ -4,7 +4,7 @@
   // Bind the route immediately, before the legacy renderer's DOMContentLoaded handler.
   // This makes Phase 10R render as its own native record instead of falling through
   // the older phase1–phase10 route matcher and visually masquerading as Phase 10.
-  const routeMatch = location.pathname.match(/\/phases\/(phase(?:1|2|3|4|5|6|6b|7|8|9|10r?|11|12|13a|13b|13c|14|15|16|17|18|19|20|21|22))\/?$/i);
+  const routeMatch = location.pathname.match(/\/phases\/(phase(?:1|2|3|4|5|6|6b|7|8|9|10r?|11|12|13a|13b|13c|14|15|16|17|18|19|20|21|22|24))\/?$/i);
   if (routeMatch) document.body.dataset.phase = routeMatch[1].toLowerCase();
 
   // Every archive/detail template already loads this taxonomy before its phase runtime.
@@ -94,6 +94,15 @@
       description: 'The last three phases break the hard context into predefined factors, measure their interactions, and finally ask whether a model frozen beforehand can predict a fresh 32-cell context surface.',
       accent: '#365f8d',
       tint: '#eef4fa'
+    },
+    {
+      id: 'real-camera-robustness',
+      label: '07 · Real-camera robustness',
+      name: 'Real-camera robustness',
+      range: 'Phase 24',
+      description: 'A descriptive reanalysis of the published KIOS detector aggregates: the macro improves while occlusion and mixed stress remain a clear regression frontier.',
+      accent: '#3e6ae1',
+      tint: '#eef3ff'
     }
   ];
 
@@ -128,7 +137,8 @@
 
     phase20: { category: 'context-transfer', identity: 'Five-factor breakdown', question: 'How is the simple-to-hard drop distributed across the five predefined conditions?', signal: 'Shapley' },
     phase21: { category: 'context-transfer', identity: 'Main effects vs. interactions', question: 'How much of the context surface comes from individual factors, and how much from interactions?', signal: 'Walsh–Hadamard' },
-    phase22: { category: 'context-transfer', identity: 'Frozen additive transfer', question: 'Can the model predict a new context cube without being fit again?', signal: '10 / 10 gates' }
+    phase22: { category: 'context-transfer', identity: 'Frozen additive transfer', question: 'Can the model predict a new context cube without being fit again?', signal: '10 / 10 gates' },
+    phase24: { category: 'real-camera-robustness', identity: 'Robustness frontier audit', question: 'Does the Phase 23 average gain hold up under the hardest camera stress?', signal: '4 / 6 mAP50 gains · tail loss preserved' }
   };
 
   const categoryById = Object.fromEntries(categories.map(category => [category.id, category]));

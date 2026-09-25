@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#ffffff">
-  <meta name="description" content="Browse the AegisLand research record from Phase 1 through the frozen Phase 22 result, including passes, failures, and the missing Phase 4 entry.">
+  <meta name="description" content="Browse the AegisLand research record through Phase 24, including frozen simulation results and a descriptive reanalysis of real-camera detector metrics.">
   <title>AegisLand — Research Phase Archive</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=5">
   <link rel="stylesheet" href="/aegisland.css?v=4">
@@ -34,11 +34,11 @@
 
   <main class="signature-shell archive-main" id="main">
     <section class="archive-hero">
-      <div class="workspace-context" aria-label="Archive context"><span>Research record</span><span>Phase 1 → Phase 22</span><span>Simulation only</span></div>
+      <div class="workspace-context" aria-label="Archive context"><span>Research record</span><span>Phase 1 → Phase 24 audit</span><span>Simulation + real-camera reanalysis</span></div>
       <div class="signature-kicker">How the work developed</div>
       <h1>The archive keeps the detours, not just the wins.</h1>
       <p>The project starts with a small landing supervisor and ends with a frozen additive transfer model. Between them are simulator mismatches, calibration failures, abandoned ideas, and narrower questions that came directly from those misses. Nothing is reordered to make the path look cleaner than it was.</p>
-      <div class="archive-meta-line"><span><strong>26</strong> phase records</span><span><strong>6</strong> research categories</span><span><strong>13</strong> frozen Phase 12–22 records</span><span><strong>6 PASS / 7 FAIL</strong> frozen verdicts</span></div>
+      <div class="archive-meta-line"><span><strong>27</strong> phase records</span><span><strong>7</strong> research categories</span><span><strong>13</strong> frozen Phase 12–22 records</span><span><strong>6 PASS / 7 FAIL</strong> frozen verdicts</span></div>
       <nav class="category-nav" id="categoryNav" aria-label="Research categories"></nav>
     </section>
 
@@ -48,9 +48,9 @@
         <button class="archive-filter" type="button" data-filter="all" aria-pressed="true">All records</button>
         <button class="archive-filter" type="button" data-filter="pass" aria-pressed="false">Frozen PASS</button>
         <button class="archive-filter" type="button" data-filter="fail" aria-pressed="false">Frozen FAIL</button>
-        <button class="archive-filter" type="button" data-filter="historical" aria-pressed="false">Earlier work</button>
+        <button class="archive-filter" type="button" data-filter="historical" aria-pressed="false">Non-frozen records</button>
       </div>
-      <div class="archive-filter-summary" id="archiveResultCount" aria-live="polite">Showing all 26 phase records.</div>
+      <div class="archive-filter-summary" id="archiveResultCount" aria-live="polite">Showing all 27 phase records.</div>
     </section>
 
     <div class="archive-empty-state" id="archiveEmptyState" hidden role="status">
@@ -61,11 +61,11 @@
 
     <div class="archive-groups" id="categories">
       <div id="archiveCategories"></div>
-      <section class="claim-boundary"><b>ARCHIVE LIMIT //</b> simulation_only=true · safety_acceptance=false · controller_tuning_allowed=false<br>Every experiment shown here is synthetic. The archive does not establish real-flight safety, certification relevance, production readiness, equivalence to physical sensors, controller improvement, or operational safety.</section>
+      <section class="claim-boundary"><b>ARCHIVE LIMIT //</b> simulation_only=true · safety_acceptance=false · controller_tuning_allowed=false<br>Phases 1–22 record simulation evidence only. Phase 24 reanalyzes aggregate real-camera detector metrics and does not establish landing safety, controller performance, certification relevance, or flight readiness.</section>
     </div>
   </main>
 
-  <footer class="signature-footer"><div class="signature-shell signature-footer__inner"><div>AegisLand · frozen simulation-only research archive</div><div><code>scientific lineage frozen through Phase 22</code></div></div></footer>
+  <footer class="signature-footer"><div class="signature-shell signature-footer__inner"><div>AegisLand · Phase 1–22 simulation lineage frozen; Phase 24 is a descriptive real-camera reanalysis</div><div><code>scientific lineage frozen through Phase 22</code></div></div></footer>
 
   <script src="/phase-taxonomy.js?v=1"></script>
   <script src="/frozen-lineage.js?v=3"></script>
@@ -89,12 +89,13 @@
         phase9: ['Phase 9', 'Gazebo camera perception', 'Metric perception moved onto Gazebo camera frames, where ambiguous fallback geometry produced the largest errors.'],
         phase10: ['Phase 10', 'Stateful metric perception', 'Recent state protected an existing track from ambiguous geometry and improved the calibration of reported uncertainty.'],
         phase10r: ['Phase 10R', 'Shifted holdout', 'Average ambiguous-view error improved, but tail risk, availability, and coverage still missed locked gates.'],
-        phase11: ['Phase 11', 'Protected reliability check', 'Availability and coverage recovered strongly, while one locked lateral tail-efficiency requirement still failed.']
+        phase11: ['Phase 11', 'Protected reliability check', 'Availability and coverage recovered strongly, while one locked lateral tail-efficiency requirement still failed.'],
+        phase24: ['Phase 24', 'Robustness frontier audit', 'A descriptive reanalysis of Phase 23 aggregates: the six-condition mean improves, while occlusion and mixed stress reveal a substantial regression tail. No model was retrained.']
       };
 
       const order = [
         'phase1','phase2','phase3','phase4','phase5','phase6','phase6b','phase7','phase8','phase9','phase10','phase10r','phase11',
-        'phase12','phase13a','phase13b','phase13c','phase14','phase15','phase16','phase17','phase18','phase19','phase20','phase21','phase22'
+        'phase12','phase13a','phase13b','phase13c','phase14','phase15','phase16','phase17','phase18','phase19','phase20','phase21','phase22','phase24'
       ];
 
       const recordFor = (slug) => {
@@ -116,7 +117,7 @@
           label: historical[0],
           title: historical[1],
           summary: historical[2],
-          status: slug === 'phase4' ? 'PROVENANCE' : (slug === 'phase10r' ? 'FAILED HOLDOUT' : (slug === 'phase11' ? 'MIXED / FAIL' : 'ARCHIVE')),
+          status: slug === 'phase24' ? 'REANALYSIS' : (slug === 'phase4' ? 'PROVENANCE' : (slug === 'phase10r' ? 'FAILED HOLDOUT' : (slug === 'phase11' ? 'MIXED / FAIL' : 'ARCHIVE'))),
           statusClass: slug === 'phase10r' || slug === 'phase11' ? 'verdict-chip--fail' : '',
           frozen: false,
           meta
@@ -193,7 +194,7 @@
           section.hidden = !section.querySelector('.archive-card.phase-personalized:not([hidden])');
         });
         emptyState.hidden = visible !== 0;
-        summary.textContent = visible === 26 && !query && activeFilter === 'all' ? 'Showing all 26 phase records.' : `Showing ${visible} of 26 phase records.`;
+        summary.textContent = visible === 27 && !query && activeFilter === 'all' ? 'Showing all 27 phase records.' : `Showing ${visible} of 27 phase records.`;
       };
 
       search.addEventListener('input', applyFilters);

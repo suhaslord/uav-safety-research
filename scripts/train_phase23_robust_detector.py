@@ -147,7 +147,7 @@ def main() -> None:
     md_lines = [
         "# Phase 23 · Robust Sim-to-Real Landing Perception",
         "",
-        "**Status:** Validated robust real-image model with UAV domain augmentation and 480px resolution.",
+        "**Status:** Detector comparison on the protected KIOS temporal holdout. Gains are condition-dependent and severe-stress regressions remain.",
         f"**Model:** YOLO11n ({args.imgsz}px, cosine LR, random erasing, photometrics, rotation)",
         "**Split:** Protected temporal split (86 test frames)",
         "",
@@ -175,11 +175,11 @@ def main() -> None:
         "",
         "## Readout",
         "",
-        f"- **Recall**: Increased from **38.4%** to **{clean_row['recall']*100:.1f}%** on clean held-out camera frames.",
-        f"- **Mixed Degradation Resilience**: mAP50 under mixed stress improved from **0.185** to **{mixed_row['map50']:.3f}**.",
-        f"- **Occlusion Resilience**: mAP50 under partial pad occlusion improved from **0.348** to **{occ_row['map50']:.3f}**.",
+        f"- **Clean recall**: {clean_row['recall'] - 0.384:+.3f} absolute ({(clean_row['recall'] - 0.384)*100:+.1f} percentage points) vs baseline.",
+        f"- **Mixed stress**: mAP50 changed from **0.185** to **{mixed_row['map50']:.3f}** ({mixed_row['map50'] - 0.185:+.3f}); a negative delta is a regression.",
+        f"- **Occlusion**: mAP50 changed from **0.348** to **{occ_row['map50']:.3f}** ({occ_row['map50'] - 0.348:+.3f}); a negative delta is a regression.",
         "",
-        "Phase 23 closes the sim-to-real gap on the KIOS benchmark by training against the specific optical failure modes of drone descent.",
+        "These condition aggregates describe detector metrics on the protected KIOS temporal holdout. They do not establish sim-to-real equivalence, landing safety, controller behavior, or real-flight readiness.",
     ])
 
     summary_md = "\n".join(md_lines) + "\n"
