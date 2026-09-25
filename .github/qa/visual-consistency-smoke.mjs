@@ -13,7 +13,7 @@ const routes = [
   '/phases/phase10/', '/phases/phase10r/', '/phases/phase11/', '/phases/phase12/',
   '/phases/phase13a/', '/phases/phase13b/', '/phases/phase13c/', '/phases/phase14/', '/phases/phase15/',
   '/phases/phase16/', '/phases/phase17/', '/phases/phase18/', '/phases/phase19/', '/phases/phase20/',
-  '/phases/phase21/', '/phases/phase22/'
+  '/phases/phase21/', '/phases/phase22/', '/phases/phase24/'
 ];
 
 const launchOptions = { headless: true };
@@ -177,13 +177,29 @@ try {
     const archivePolish = await page.locator('link[href^="/phase-polish.css"]').count();
     const archivePersonalization = await page.locator('link[href^="/phase-personalization.css"]').count();
     const archiveSignature = await page.locator('link[href^="/signature.css"]').count();
-    add('archive-has-six-research-categories', categories === 6 && categoryNav === 6, { categories, categoryNav });
-    add('archive-has-all-26-phase-records', allCards === 26, { allCards });
-    add('archive-preserves-13-frozen-and-13-historical', frozenCards === 13 && historicalCards === 13, { frozenCards, historicalCards });
+    add('archive-has-seven-research-categories', categories === 7 && categoryNav === 7, { categories, categoryNav });
+    add('archive-has-all-27-phase-records', allCards === 27, { allCards });
+    add('archive-preserves-13-frozen-and-14-historical', frozenCards === 13 && historicalCards === 14, { frozenCards, historicalCards });
     add('archive-preserves-6-pass-7-fail', frozenPass === 6 && frozenFail === 7, { frozenPass, frozenFail });
-    add('archive-personalizes-every-card', identities === 26 && questions === 26 && signals === 26, { identities, questions, signals });
+    add('archive-personalizes-every-card', identities === 27 && questions === 27 && signals === 27, { identities, questions, signals });
     add('archive-uses-polished-tesla-shell', archivePolish === 1 && archivePersonalization === 1 && archiveSignature === 0, { archivePolish, archivePersonalization, archiveSignature });
     add('archive-has-category-led-thesis', /The archive keeps the detours, not just the wins/i.test(archiveText));
+    await page.goto(BASE + '/phases/phase24/', { waitUntil: 'domcontentloaded', timeout: 45000 });
+    await page.waitForFunction(() => {
+      const charts = [...document.querySelectorAll('[data-phase24-chart]')];
+      const rows = document.querySelectorAll('#conditionRows tr').length;
+      return charts.length === 4 && charts.every(chart => chart.querySelector('svg')) && rows === 6
+        && !document.querySelector('#macroMapDelta')?.textContent.includes('Loading');
+    }, null, { timeout: 15000 }).catch(() => {});
+    const phase24 = await page.evaluate(() => ({
+      title: document.querySelector('h1')?.innerText || '',
+      chartCount: document.querySelectorAll('[data-phase24-chart] svg').length,
+      conditionRows: document.querySelectorAll('#conditionRows tr').length,
+      provenance: document.querySelector('.provenance')?.innerText || '',
+      noHorizontalOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth <= 1
+    }));
+    add('phase24-renders-four-data-driven-charts', phase24.chartCount === 4 && phase24.conditionRows === 6, phase24);
+    add('phase24-labels-reanalysis-and-evidence-limits', /What the average hides/i.test(phase24.title) && /Reanalysis only/i.test(phase24.provenance) && phase24.noHorizontalOverflow, phase24);
 
     const phaseChecks = [
       ['/phases/phase1/', /First safety supervisor/i, /HOLD \/ ABORT/i],
@@ -241,7 +257,7 @@ try {
     await page.goto(BASE + '/phases/', { waitUntil: 'domcontentloaded', timeout: 45000 });
     await page.waitForTimeout(300);
     const mobileCategoryLinks = await page.locator('#categoryNav a').count();
-    add('mobile-archive-keeps-all-category-links', mobileCategoryLinks === 6, { mobileCategoryLinks });
+    add('mobile-archive-keeps-all-category-links', mobileCategoryLinks === 7, { mobileCategoryLinks });
     await page.close();
     await context.close();
   }
