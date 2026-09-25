@@ -1,0 +1,173 @@
+{
+  "schema_version": "phase24.robustness-audit.v1",
+  "phase": "Phase 24",
+  "title": "Robustness frontier audit",
+  "analysis_type": "descriptive_reanalysis",
+  "status": "complete_reanalysis_no_new_training",
+  "claim": "The Phase 23 six-condition average improves, while occlusion and mixed stress regress sharply.",
+  "new_model_training": false,
+  "new_predictions_generated": false,
+  "source": {
+    "repository_path": "results/phase23_robust_detector/robustness_comparison.csv",
+    "sha256": "1f93dd35fe383d9a65f85268490d754323da61ca052fa2b4a7363bf481e00073"
+  },
+  "dataset": {
+    "name": "KIOS Aerial Landing Pad, Unreal Engine Dataset (2024)",
+    "total_labeled_frames": 422,
+    "train_frames": 252,
+    "validation_frames": 64,
+    "embargo_frames": 20,
+    "heldout_test_frames": 86,
+    "same_temporal_holdout_reused_across_conditions": true,
+    "condition_views_are_independent_samples": false
+  },
+  "method": {
+    "macro": "Unweighted arithmetic mean of the six published condition-level metrics.",
+    "severe_tail": "Unweighted mean of occlusion and mixed-stress condition metrics.",
+    "confidence_intervals": null,
+    "per_frame_predictions_available": false
+  },
+  "limits": {
+    "safety_acceptance": false,
+    "controller_tuning_allowed": false,
+    "flight_safety_claim": false,
+    "note": "Aggregate detector metrics do not establish landing safety, controller performance, or real-flight readiness."
+  },
+  "summary": {
+    "condition_count": 6,
+    "map50_improved_conditions": [
+      "clean",
+      "blur",
+      "low_light",
+      "noise"
+    ],
+    "map50_regressed_conditions": [
+      "occlusion",
+      "mixed"
+    ],
+    "macro_map50": {
+      "baseline": 0.3702444072180591,
+      "phase23": 0.40462911932371404,
+      "delta": 0.03438471210565491,
+      "relative_percent": 9.287030792447236
+    },
+    "macro_recall": {
+      "baseline": 0.34044486135589486,
+      "phase23": 0.4127906976744186,
+      "delta": 0.07234583631852376,
+      "relative_percent": 21.25038281687992
+    },
+    "severe_tail": {
+      "conditions": [
+        "occlusion",
+        "mixed"
+      ],
+      "macro_map50_baseline": 0.2664081745584655,
+      "macro_map50_phase23": 0.1334882468944119,
+      "macro_map50_delta": -0.13291992766405358,
+      "macro_map50_relative_percent": -49.893336750777216,
+      "macro_recall_baseline": 0.25581395348837205,
+      "macro_recall_phase23": 0.16279069767441862,
+      "macro_recall_delta": -0.09302325581395343,
+      "macro_recall_relative_percent": -36.363636363636346
+    }
+  },
+  "conditions": [
+    {
+      "condition": "clean",
+      "label": "Clean",
+      "baseline": {
+        "recall": 0.3837209302325581,
+        "map50": 0.4266268678118929
+      },
+      "phase23": {
+        "recall": 0.5930232558139535,
+        "map50": 0.5551842475528265
+      },
+      "delta": {
+        "recall": 0.20930232558139544,
+        "map50": 0.12855737974093356
+      }
+    },
+    {
+      "condition": "blur",
+      "label": "Blur",
+      "baseline": {
+        "recall": 0.3776091257554052,
+        "map50": 0.4125908158023844
+      },
+      "phase23": {
+        "recall": 0.5697674418604651,
+        "map50": 0.5856935328390723
+      },
+      "delta": {
+        "recall": 0.19215831610505996,
+        "map50": 0.17310271703668795
+      }
+    },
+    {
+      "condition": "low_light",
+      "label": "Low light",
+      "baseline": {
+        "recall": 0.3720930232558139,
+        "map50": 0.4168491381871624
+      },
+      "phase23": {
+        "recall": 0.4418604651162791,
+        "map50": 0.4237094746641194
+      },
+      "delta": {
+        "recall": 0.06976744186046518,
+        "map50": 0.006860336476956996
+      }
+    },
+    {
+      "condition": "noise",
+      "label": "Noise",
+      "baseline": {
+        "recall": 0.397618181914848,
+        "map50": 0.4325832723899842
+      },
+      "phase23": {
+        "recall": 0.5465116279069767,
+        "map50": 0.5962109670974421
+      },
+      "delta": {
+        "recall": 0.14889344599212873,
+        "map50": 0.16362769470745797
+      }
+    },
+    {
+      "condition": "occlusion",
+      "label": "Occlusion",
+      "baseline": {
+        "recall": 0.3255813953488372,
+        "map50": 0.3479644426407756
+      },
+      "phase23": {
+        "recall": 0.2441860465116279,
+        "map50": 0.13755217164117528
+      },
+      "delta": {
+        "recall": -0.08139534883720928,
+        "map50": -0.2104122709996003
+      }
+    },
+    {
+      "condition": "mixed",
+      "label": "Mixed stress",
+      "baseline": {
+        "recall": 0.1860465116279069,
+        "map50": 0.1848519064761554
+      },
+      "phase23": {
+        "recall": 0.08139534883720931,
+        "map50": 0.12942432214764854
+      },
+      "delta": {
+        "recall": -0.10465116279069758,
+        "map50": -0.05542758432850686
+      }
+    }
+  ]
+}

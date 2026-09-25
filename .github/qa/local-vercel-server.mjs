@@ -34,7 +34,7 @@ const deployAssets = new Set([
   'lab/state.mjs', 'lab/lab.js', 'lab/lab.css', 'lab/worker.js', 'lab/python-bundle.json', 'lab/current-data.js',
   'phase-explorer.js', 'presentation.js', 'presentation.css', 'aegisland.css', 'signature.css', 'research-home.css', 'research-media.css', 'phase-polish.css',
   'phase-polish-fixes.css', 'phase-polish-v2.css', 'phase-ui-consistency.css', 'final-convergence.css', 'final-convergence-base.css', 'craft-polish.css', 'phase-reading-responsive.css', 'home-hero-contrast.css', 'frozen-lineage.js',
-  'research-workspace.css', 'research-workspace.js', 'tesla-bundle.css'
+  'research-workspace.css', 'research-workspace.js', 'tesla-bundle.css', 'phase24.js'
 ]);
 
 const sendFile = async (res, file) => {
@@ -57,6 +57,10 @@ const server = http.createServer(async (req, res) => {
   const p = url.pathname;
 
   // Mirror deploy/vercel/vercel.json: the frozen evidence layer must win before
+  // Standalone Phase 24 descriptive reanalysis has its own chart page.
+  if (/^\/phases\/phase24\/?$/i.test(p)) {
+    return sendFile(res, path.join(deployRoot, 'phase24.html'));
+  }
   // the generic historical phase route.
   if (/^\/phases\/phase(?:12|13a|13b|13c|1[4-9]|2[0-2])\/?$/i.test(p)) {
     return sendFile(res, path.join(dashboardRoot, 'phases', 'frozen.html'));
@@ -81,6 +85,10 @@ const server = http.createServer(async (req, res) => {
   if (p.startsWith('/media/')) {
     const relative = p.slice('/media/'.length);
     if (!relative.includes('..')) return sendFile(res, path.join(deployRoot, 'media', relative));
+  }
+  if (p.startsWith('/data/')) {
+    const relative = p.slice('/data/'.length);
+    if (!relative.includes('..')) return sendFile(res, path.join(deployRoot, 'data', relative));
   }
 
   const asset = p.replace(/^\//, '');

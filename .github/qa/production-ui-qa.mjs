@@ -20,13 +20,14 @@ const frozenSlugs = [
   'phase16', 'phase17', 'phase18', 'phase19', 'phase20', 'phase21', 'phase22'
 ];
 const frozenRoutes = frozenSlugs.map((slug) => `/phases/${slug}/`);
-const routes = ['/', '/phases/', ...legacyRoutes, ...frozenRoutes];
+const phase24Route = '/phases/phase24/';
+const routes = ['/', '/phases/', ...legacyRoutes, ...frozenRoutes, phase24Route];
 const viewports = [
   { name: 'desktop', width: 1440, height: 1000 },
   { name: 'tablet', width: 820, height: 1180 },
   { name: 'mobile', width: 390, height: 844, isMobile: true, hasTouch: true }
 ];
-const screenshotRoutes = new Set(['/', '/phases/', '/phases/phase1/', '/phases/phase13a/', '/phases/phase18/', '/phases/phase22/']);
+const screenshotRoutes = new Set(['/', '/phases/', '/phases/phase1/', '/phases/phase13a/', '/phases/phase18/', '/phases/phase22/', phase24Route]);
 const report = { base: BASE, startedAt: new Date().toISOString(), checks: [], errors: [], warnings: [], screenshots: [] };
 
 await fs.rm(OUT, { recursive: true, force: true });
@@ -115,6 +116,8 @@ try {
           h1: document.querySelectorAll('h1').length,
           text: bodyText,
           title: document.title,
+          phase24Charts: document.querySelectorAll('[data-phase24-chart] svg').length,
+          phase24Provenance: /No model was retrained/.test(bodyText) && /not 516 independent examples/.test(bodyText),
           shell: root.dataset.siteShell || '',
           brokenImages: [...document.images].filter((img) => !img.complete || img.naturalWidth === 0).map((img) => img.currentSrc || img.src),
           missingHashTargets: [...document.querySelectorAll('a[href^="#"]')]
@@ -128,6 +131,10 @@ try {
       add(`${vp.name}-${route}-images-load`, state.brokenImages.length === 0, { brokenImages: state.brokenImages });
       add(`${vp.name}-${route}-hash-targets`, state.missingHashTargets.length === 0, { missing: state.missingHashTargets });
       add(`${vp.name}-${route}-no-placeholder-text`, !/(^|\s)(undefined|null|\[object Object\])(\s|$)/i.test(state.text));
+      if (route === phase24Route) {
+        add(`${vp.name}-phase24-four-accessible-charts`, state.phase24Charts === 4, { charts: state.phase24Charts });
+        add(`${vp.name}-phase24-reanalysis-provenance`, state.phase24Provenance, { provenance: state.phase24Provenance });
+      }
 
       const filteredErrors = browserErrors.filter((entry) => !/favicon|ERR_BLOCKED_BY_CLIENT/i.test(entry));
       const filteredRequests = failedRequests.filter((entry) => !/favicon|github\.com|linkedin\.com/i.test(entry.url));
@@ -197,12 +204,12 @@ try {
     signals: document.querySelectorAll('.archive-card__signal').length,
     text: document.body?.innerText || ''
   }));
-  add('archive-six-research-categories', archive.categories === 6 && archive.categoryNav === 6, archive);
-  add('archive-all-26-records', archive.allCards === 26, archive);
-  add('archive-13-frozen-13-historical', archive.frozenCards === 13 && archive.historicalCards === 13, archive);
+  add('archive-seven-research-categories', archive.categories === 7 && archive.categoryNav === 7, archive);
+  add('archive-all-27-records', archive.allCards === 27, archive);
+  add('archive-13-frozen-14-nonfrozen', archive.frozenCards === 13 && archive.historicalCards === 14, archive);
   add('archive-preserves-6-pass-7-fail', archive.frozenPass === 6 && archive.frozenFail === 7, archive);
-  add('archive-personalizes-all-records', archive.identities === 26 && archive.questions === 26 && archive.signals === 26, archive);
-  add('archive-category-thesis-visible', /One question\. Six chapters|6 research categories|Six stretches of work/i.test(archive.text), archive);
+  add('archive-personalizes-all-records', archive.identities === 27 && archive.questions === 27 && archive.signals === 27, archive);
+  add('archive-category-thesis-visible', /One question\. Seven chapters|7 research categories|Seven stretches of work/i.test(archive.text), archive);
   add('archive-continuity-visible', /Every phase stays part of the story|keeps the detours, not just the wins|Nothing is reordered/i.test(archive.text), archive);
 
   const identityChecks = {

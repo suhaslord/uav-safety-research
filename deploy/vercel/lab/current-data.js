@@ -67,7 +67,7 @@
         synthetic_src: '/media/perception/synthetic_occlusion.png',
         kios_src: '/media/perception/kios_occlusion.jpg',
         synthetic_note: '96×96 partial occlusion · Centroid shifts to visible quadrant (conf: 0.85)',
-        kios_note: 'Central occlusion mask · Both models degrade (Phase 23: 24.4% recall; triggers abort)',
+        kios_note: 'Central occlusion mask · Both detector scores fall; controller response was not measured.',
         baseline: { precision: 0.622, recall: 0.326, map50: 0.348, map5095: 0.166 },
         phase23:  { precision: 0.301, recall: 0.244, map50: 0.138, map5095: 0.025 }
       },
@@ -86,28 +86,28 @@
 
   const pct = value => `${(value * 100).toFixed(1)}%`;
   const signed = value => `${value >= 0 ? '+' : ''}${(value * 100).toFixed(1)} pp`;
-  const phase = () => document.body.dataset.phase || location.pathname.match(/phase\d+[a-z]*/i)?.[0]?.toLowerCase() || 'phase1';
+  const phase = () => document.body.dataset.phase || location.pathname.match(/phase\d+[a-z]*/i)?.[0]?.toLowerCase() || '';
 
   function ensureStyle() {
     if (document.getElementById('aegis-current-data-style')) return;
     const style = document.createElement('style');
     style.id = 'aegis-current-data-style';
     style.textContent = `
-      .current-data-shell{display:grid;gap:28px;width:100%;max-width:100%;min-width:0;box-sizing:border-box}
+      .current-data-shell{display:grid;gap:28px;width:min(1440px,calc(100% - 64px));max-width:1440px;margin-inline:auto;min-width:0;box-sizing:border-box}
       .current-data-meta{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:22px;width:100%;max-width:100%;min-width:0}
       .current-data-pill{display:flex;align-items:center;min-height:48px;border:0;background:#f4f4f4;border-radius:4px;padding:10px 12px;font:600 12px/1.35 Arial,Helvetica,sans-serif;color:#3b3e42;min-width:0}
       .current-data-pill strong{color:#171a20;margin-right:4px}
       .current-data-note{margin:0;color:#5c5e62;font-size:14px;line-height:1.6}
 
       /* Visual Perception Inspector: Tesla clean cards */
-      .perception-inspector{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;margin-top:8px;width:100%;max-width:100%;min-width:0;box-sizing:border-box}
+      .perception-inspector{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;margin-top:8px;width:100%;max-width:100%;min-width:0;box-sizing:border-box}
       .perception-card{background:#f4f4f4;border-radius:6px;padding:20px;display:flex;flex-direction:column;gap:12px;min-width:0;max-width:100%;box-sizing:border-box}
       .perception-card__header{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
       .perception-card__title{font-size:14px;font-weight:600;color:#171a20;letter-spacing:-.01em}
       .perception-card__badge{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;padding:3px 8px;border-radius:3px;background:#e3e5e8;color:#393c41}
       .perception-card__badge--robust{background:#3e6ae1;color:#fff}
       .perception-card__frame{position:relative;background:#0d0e11;border-radius:4px;overflow:hidden;border:1px solid #d0d2d5;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;width:100%;max-width:100%;min-width:0;box-sizing:border-box}
-      .perception-card__frame--square{aspect-ratio:1/1;max-width:320px;margin:0 auto}
+      .perception-card__frame--square{aspect-ratio:1/1;width:min(100%,520px);max-width:520px;margin:0 auto}
       .perception-card__frame img{width:100%;height:100%;object-fit:contain;display:block}
       .perception-card__caption{font-size:12px;line-height:1.45;color:#5c5e62}
       .perception-card__meta{font-size:11px;color:#808285;font-family:monospace;letter-spacing:-.02em;word-break:break-word}
@@ -148,15 +148,24 @@
       .current-data-links{display:flex;gap:12px;flex-wrap:wrap;margin-top:auto;padding-top:12px}
       .current-data-links a{display:inline-flex;align-items:center;min-height:38px;padding:8px 12px;border-radius:4px;background:#fff;color:#171a20;font-size:13px;font-weight:600;text-decoration:none}
       .current-data-links a:hover{background:#e9e9e9}
+      .phase24-callout{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px 28px;align-items:center;padding:22px 24px;border:1px solid #d8e1f2;border-left:3px solid #3e6ae1;border-radius:6px;background:#f8faff}
+      .phase24-callout__eyebrow{grid-column:1/-1;color:#3e6ae1;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+      .phase24-callout p{margin:0;color:#39404a;font-size:15px;line-height:1.55}
+      .phase24-callout strong{color:#171a20}
+      .phase24-callout a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 16px;border-radius:4px;background:#171a20;color:#fff;font-size:13px;font-weight:650;text-decoration:none;white-space:nowrap}
+      .phase24-callout a:hover{background:#3e6ae1}
+      @media(max-width:640px){.phase24-callout{grid-template-columns:1fr;padding:18px}.phase24-callout__eyebrow{grid-column:auto}.phase24-callout a{justify-self:start}}
 
       @media(max-width:900px){
         .current-data-meta{grid-template-columns:repeat(2,minmax(0,1fr))}
+        .current-data-shell{width:min(100% - 40px,1440px)}
         .perception-inspector{grid-template-columns:minmax(0,1fr)}
         .current-data-grid{grid-template-columns:minmax(0,1fr)}
         .current-data-results h3{font-size:22px}
       }
       @media(max-width:640px){
-        .current-data-shell{gap:20px}
+        .current-data-shell{gap:20px;width:calc(100% - 32px)}
+        .perception-card__frame--square{width:min(100%,440px)}
         .current-data-meta{grid-template-columns:1fr;gap:8px}
         .current-data-pill{min-height:44px;font-size:11px}
         .perception-card{padding:16px}
@@ -183,11 +192,11 @@
             <div class="current-data-meta">
               <span class="current-data-pill"><strong>422</strong> labeled real frames</span>
               <span class="current-data-pill"><strong>86</strong> protected test frames</span>
-              <span class="current-data-pill"><strong>+20.9%</strong> Phase 23 clean recall gain</span>
+              <span class="current-data-pill"><strong>+20.9 pp</strong> Phase 23 clean recall change</span>
               <span class="current-data-pill"><strong>Temporal</strong> split + 5% embargo</span>
             </div>
           </div>
-          <a class="lab-record" href="/phases/${slug}/">Read ${slug.replace('phase','Phase ').toUpperCase()} →</a>
+          <a class="lab-record" href="/phases/phase24/">Read Phase 24 →</a>
         </div>
 
         <!-- Visual Perception Inspector: Side-by-side drone camera feeds -->
@@ -216,6 +225,12 @@
             <span class="perception-card__meta" id="kios-feed-meta">Source: Zenodo 13682584 · Model: Phase 23 Robust (480px + UAV Augmentations)</span>
           </article>
         </div>
+
+        <aside class="phase24-callout" aria-label="Phase 24 robustness audit">
+          <span class="phase24-callout__eyebrow">Phase 24 · robustness frontier audit</span>
+          <p><strong>The six-condition macro improves, but the hard tail gets worse.</strong> Phase 23 mAP50 rises by 3.4 percentage points on average; the equally weighted occlusion + mixed-stress average falls by 13.3 points. The report shows every condition.</p>
+          <a href="/phases/phase24/">Open charts and results →</a>
+        </aside>
 
         <div class="current-data-grid">
           <div class="current-data-controls">
@@ -320,7 +335,7 @@
       const mapDelta = condition.phase23.map50 - condition.baseline.map50;
       lab.querySelector('#current-data-delta').innerHTML = activeModel === 'phase23'
         ? `<strong>Phase 23 vs Baseline on ${condition.label}:</strong> Recall changed by ${signed(recallDelta)} (${pct(condition.phase23.recall)} vs ${pct(condition.baseline.recall)}). mAP50 changed by ${signed(mapDelta)}.`
-        : `<strong>Baseline performance on ${condition.label}:</strong> Recall is ${pct(condition.baseline.recall)}, mAP50 is ${condition.baseline.map50.toFixed(3)}. Switch to Phase 23 to see robustness gains.`;
+        : `<strong>Baseline performance on ${condition.label}:</strong> Recall is ${pct(condition.baseline.recall)}, mAP50 is ${condition.baseline.map50.toFixed(3)}. Switch to Phase 23 to compare its metrics on this condition.`;
 
       // Active table row
       lab.querySelectorAll('tbody tr').forEach(tr => tr.classList.toggle('is-active', tr.dataset.condition === key));
