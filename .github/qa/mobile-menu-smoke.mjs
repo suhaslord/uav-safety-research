@@ -52,7 +52,7 @@ try {
 
     const state = await page.evaluate(() => ({ text:document.body.innerText, purposeClarity:document.body.dataset.purposeClarity === 'true', questionRemoved:!document.getElementById('question') }));
     add('home-phase22-visible', /Frozen through Phase 22/i.test(state.text) && state.text.includes('0.8319') && state.text.includes('0.7744'));
-    add('home-current-project-framing-visible', state.purposeClarity && state.questionRemoved && /What the project does/i.test(state.text) && /Find when landing perception becomes confidently wrong/i.test(state.text) && /Main conclusion/i.test(state.text));
+    add('home-current-project-framing-visible', state.purposeClarity && state.questionRemoved && /Why misses stay visible/i.test(state.text) && /When does the camera become confidently wrong/i.test(state.text) && /The finding/i.test(state.text));
     add('home-claim-boundary-visible', state.text.includes('simulation_only=true') && state.text.includes('safety_acceptance=false') && state.text.includes('controller_tuning_allowed=false'));
     await page.close();
   }
