@@ -175,6 +175,8 @@ html body.research-workspace.archive-shell #system .phase-deep-dive{width:min(11
 html body.research-workspace.archive-shell #system .phase-deep-dive{border-color:rgba(255,255,255,.35)}
 html body.research-workspace.phase-reading .phase-detail__context{padding-block:26px!important}
 html body.research-workspace.phase-reading .phase-detail__panel--evidence .copy-disclosure{margin-top:16px}
+html body.research-workspace.phase-reading .phase-detail__source-note{margin:14px 0 10px!important;color:var(--site-muted)!important;font-size:13px!important;line-height:1.5!important}
+html body.research-workspace.phase-reading .phase-hash{overflow-wrap:anywhere!important;font-size:11px!important;line-height:1.45!important}
 body.home-workspace #research-question .goal-grid,
 body.home-workspace #purpose .goal-grid{grid-template-columns:1fr!important}
 body.home-workspace #research-question .goal-grid > div,
