@@ -101,9 +101,9 @@ jobs:
           grep -q 'id="current-audit"' .vercel-release/index.html
           grep -q 'href="/ui-review.css?v=' .vercel-release/index.html
           grep -q 'href="/site-refresh.css?v=' .vercel-release/index.html
-          grep -q 'The measurement problem' .vercel-release/index.html
-          grep -q 'Why the archive keeps the misses' .vercel-release/index.html
-          grep -q 'The result that shaped the later work' .vercel-release/index.html
+          grep -q 'The question' .vercel-release/index.html
+          grep -q 'Why misses stay visible' .vercel-release/index.html
+          grep -q 'The finding' .vercel-release/index.html
           grep -q 'home-lineage__track' .vercel-release/index.html
           grep -q '6 PASS / 7 FAIL' .vercel-release/index.html
           grep -q '0.8319' .vercel-release/index.html
@@ -185,9 +185,9 @@ jobs:
           printf '%s' "$PUBLIC_HTML" | grep 'Don Richey / NASA Ames Research Center' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep 'Joel Kowsky / NASA' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep 'When the camera is sure, but wrong.' > /dev/null
-          printf '%s' "$PUBLIC_HTML" | grep 'The measurement problem' > /dev/null
-          printf '%s' "$PUBLIC_HTML" | grep 'Why the archive keeps the misses' > /dev/null
-          printf '%s' "$PUBLIC_HTML" | grep 'The result that shaped the later work' > /dev/null
+          printf '%s' "$PUBLIC_HTML" | grep 'The question' > /dev/null
+          printf '%s' "$PUBLIC_HTML" | grep 'Why misses stay visible' > /dev/null
+          printf '%s' "$PUBLIC_HTML" | grep 'The finding' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep 'Simulation record frozen through Phase 22' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep 'id="current-audit"' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep 'href="/ui-review.css?v=' > /dev/null
