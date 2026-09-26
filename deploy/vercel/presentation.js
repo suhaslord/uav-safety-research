@@ -167,9 +167,8 @@
     update();
   }
 
-  // Add the research-understanding layer requested in the September review:
-  // block-level inputs/outputs, system handoffs, a plain-English test, and the
-  // actual previous test inputs plus the current protected real-data result.
+  // Add a compact research-understanding layer: keep the visual comparison
+  // open, and put the longer block-level explanation behind one disclosure.
   const main = document.querySelector('main');
   const purpose = document.getElementById('purpose');
   if (main && !document.getElementById('understanding')) {
@@ -180,41 +179,44 @@
     section.innerHTML = `
       <div class="wrap">
         <div class="section-head">
-          <p class="eyebrow">Understand the system before making it more complicated</p>
+          <p class="eyebrow">Two evidence tracks</p>
           <div>
-            <h2 id="understanding-title">Input → block → output → next block.</h2>
-            <p class="copy">AegisLand now has two clearly separated evidence tracks: the earlier synthetic-image experiments and the current KIOS real-video detector benchmark. The old phase records stay frozen; new live experiments use the real dataset.</p>
+            <h2 id="understanding-title">From synthetic pixels to KIOS frames.</h2>
+            <p class="copy">The old simulation record stays separate from the current detector benchmark.</p>
           </div>
         </div>
-        <div class="evidence-list" aria-label="Block-level project explanation">
-          <div class="evidence-item"><span>1 · Camera / image source</span><strong>Before: generated 96×96 landing-pad images. Now: KIOS real-video landing-pad frames.</strong></div>
-          <div class="evidence-item"><span>2 · Controlled degradation</span><strong>Input: protected real test frame → Output: clean, blur, low-light, noise, occlusion, or mixed condition.</strong></div>
-          <div class="evidence-item"><span>3 · Perception model</span><strong>Before: threshold + weighted centroid. Now: YOLO11n landing-pad detector trained only on the development split.</strong></div>
-          <div class="evidence-item"><span>4 · Protected split</span><strong>252 train + 64 validation + 20 embargoed + 86 protected test frames.</strong></div>
-          <div class="evidence-item"><span>5 · Evaluation</span><strong>Precision, recall, mAP50, and mAP50–95 on the protected real test frames.</strong></div>
-          <div class="evidence-item"><span>6 · Evidence boundary</span><strong>Current results are perception benchmarks, not real-flight safety or certification evidence.</strong></div>
-        </div>
+        <details class="copy-disclosure">
+          <summary>See the six-step benchmark path</summary>
+          <div class="evidence-list" aria-label="Block-level project explanation">
+            <div class="evidence-item"><span>1 · Image source</span><strong>Generated landing-pad images → KIOS real-video frames.</strong></div>
+            <div class="evidence-item"><span>2 · Stress conditions</span><strong>Clean, blur, low light, noise, occlusion, and mixed.</strong></div>
+            <div class="evidence-item"><span>3 · Detector</span><strong>Threshold centroid → YOLO11n trained on development data.</strong></div>
+            <div class="evidence-item"><span>4 · Protected split</span><strong>252 train · 64 validation · 20 embargoed · 86 test frames.</strong></div>
+            <div class="evidence-item"><span>5 · Metrics</span><strong>Precision, recall, mAP50, and mAP50–95.</strong></div>
+            <div class="evidence-item"><span>6 · Boundary</span><strong>Perception benchmark, not flight safety or certification evidence.</strong></div>
+          </div>
+        </details>
 
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:20px;margin-top:32px">
           <figure class="research-photo" style="margin:0">
             <div style="padding:16px;border:1px solid #e2e3e5;border-radius:8px;background:#fff">
-              <div style="font:700 13px Arial,Helvetica,sans-serif;margin-bottom:12px">BEFORE · ACTUAL SYNTHETIC TEST INPUTS</div>
+              <div style="font:700 13px Arial,Helvetica,sans-serif;margin-bottom:12px">BEFORE · SYNTHETIC INPUTS</div>
               <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px">
-                <img src="https://raw.githubusercontent.com/suhaslord/uav-safety-research/main/docs/assets/readme/dataset/clean.png" alt="Old clean synthetic landing-pad test image" loading="lazy" decoding="async" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px">
-                <img src="https://raw.githubusercontent.com/suhaslord/uav-safety-research/main/docs/assets/readme/dataset/blur.png" alt="Old blur synthetic landing-pad test image" loading="lazy" decoding="async" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px">
-                <img src="https://raw.githubusercontent.com/suhaslord/uav-safety-research/main/docs/assets/readme/dataset/low_light.png" alt="Old low-light synthetic landing-pad test image" loading="lazy" decoding="async" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px">
-                <img src="https://raw.githubusercontent.com/suhaslord/uav-safety-research/main/docs/assets/readme/dataset/occlusion.png" alt="Old occlusion synthetic landing-pad test image" loading="lazy" decoding="async" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px">
-                <img src="https://raw.githubusercontent.com/suhaslord/uav-safety-research/main/docs/assets/readme/dataset/mixed.png" alt="Old mixed synthetic landing-pad test image" loading="lazy" decoding="async" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px">
+                <img src="/media/perception/synthetic_clean.png" alt="Old clean synthetic landing-pad test image" loading="lazy" decoding="async" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px">
+                <img src="/media/perception/synthetic_blur.png" alt="Old blur synthetic landing-pad test image" loading="lazy" decoding="async" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px">
+                <img src="/media/perception/synthetic_low_light.png" alt="Old low-light synthetic landing-pad test image" loading="lazy" decoding="async" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px">
+                <img src="/media/perception/synthetic_occlusion.png" alt="Old occlusion synthetic landing-pad test image" loading="lazy" decoding="async" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px">
+                <img src="/media/perception/synthetic_mixed.png" alt="Old mixed synthetic landing-pad test image" loading="lazy" decoding="async" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px">
               </div>
               <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin-top:6px;font:600 12px Arial,Helvetica,sans-serif;color:#666;text-align:center"><span>Clean</span><span>Blur</span><span>Low light</span><span>Occlusion</span><span>Mixed</span></div>
             </div>
-            <figcaption><span class="research-photo__context">The exact synthetic image conditions used in the earlier pixel benchmark</span><span class="research-photo__credit">Historical evidence only — these are no longer the active dataset.</span></figcaption>
+            <figcaption><span class="research-photo__context">Earlier synthetic benchmark inputs</span><span class="research-photo__credit">Historical evidence only.</span></figcaption>
           </figure>
 
           <figure class="research-photo" style="margin:0">
             <div style="padding:16px;border:1px solid #e2e3e5;border-radius:8px;background:#fff">
-              <div style="font:700 13px Arial,Helvetica,sans-serif;margin-bottom:5px">NOW · ACTUAL KIOS PROTECTED TEST</div>
-              <div style="font:12px Arial,Helvetica,sans-serif;color:#666;margin-bottom:12px">86 held-out real-video frames · same frames across every stress condition</div>
+              <div style="font:700 13px Arial,Helvetica,sans-serif;margin-bottom:5px">NOW · KIOS PROTECTED TEST</div>
+              <div style="font:12px Arial,Helvetica,sans-serif;color:#666;margin-bottom:12px">86 held-out frames · same split across conditions</div>
               <table style="width:100%;border-collapse:collapse;font:12px Arial,Helvetica,sans-serif">
                 <thead><tr><th style="text-align:left;padding:7px 5px;border-bottom:1px solid #ddd">Condition</th><th style="text-align:right;padding:7px 5px;border-bottom:1px solid #ddd">Precision</th><th style="text-align:right;padding:7px 5px;border-bottom:1px solid #ddd">Recall</th><th style="text-align:right;padding:7px 5px;border-bottom:1px solid #ddd">mAP50</th></tr></thead>
                 <tbody>
@@ -227,14 +229,14 @@
                 </tbody>
               </table>
             </div>
-            <figcaption><span class="research-photo__context">Current real-image detector benchmark</span><span class="research-photo__credit">KIOS real-video subset · temporal split · 86 protected test frames · mixed degradation is the main failure.</span></figcaption>
+            <figcaption><span class="research-photo__context">Current real-image detector benchmark</span><span class="research-photo__credit">KIOS subset · temporal split · mixed stress is the main failure.</span></figcaption>
           </figure>
         </div>
 
         <div class="research-alert" role="note" style="margin-top:32px">
-          <div class="research-alert__label">Non-technical understanding test</div>
-          <p>If someone who does not know image processing or computer vision asks what the project does, the explanation should still make sense. If a block cannot be explained simply without hiding behind “AI” or “the algorithm,” it needs better documentation first.</p>
-          <a href="https://github.com/suhaslord/uav-safety-research#plain-english-explanation" target="_blank" rel="noreferrer">Read the block-by-block README →</a>
+          <div class="research-alert__label">Plain-English check</div>
+          <p>Every block should make sense without hiding behind “AI.”</p>
+          <a href="https://github.com/suhaslord/uav-safety-research#plain-english-explanation" target="_blank" rel="noreferrer">Read the README →</a>
         </div>
       </div>`;
     if (purpose) purpose.before(section);

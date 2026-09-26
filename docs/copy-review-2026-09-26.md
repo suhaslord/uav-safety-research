@@ -14,6 +14,7 @@ The site explained the same research boundary in too many nearby blocks. The hom
 | Phase 11 | Repeated summary sentences cut. | Failed H4 gate, protected metrics, frozen threshold, source hashes. |
 | Phase 12–22 | Repeated source explanation removed; evidence hashes open on request. | Every PASS/FAIL, finding, metric, simulation limit and frozen note. |
 | Phase 23–24 | Shorter chart and table introductions; an existing KIOS occlusion image now grounds Phase 24. | Exact table and chart values, the reused 86-frame test split, reanalysis-only label, safety boundary and source links. |
+| Experiment panel | The block-by-block explanation now opens on request; the synthetic comparison uses local perception assets instead of raw GitHub image URLs. | The before/now image comparison, protected-condition table, metrics and README link. |
 
 A static text count of the initial HTML (excluding scripts, styles, and closed disclosures) fell from **1,558 to 902 words on the homepage**, **661 to 528 on Phase 11**, **508 to 380 on Phase 23**, and **479 to 367 on Phase 24**. The homepage retains ten image tags and three video tags; Phase 24 now has one KIOS frame. Runtime content and disclosure text are not included in those counts.
 
