@@ -206,7 +206,7 @@
                 <img src="https://raw.githubusercontent.com/suhaslord/uav-safety-research/main/docs/assets/readme/dataset/occlusion.png" alt="Old occlusion synthetic landing-pad test image" loading="lazy" decoding="async" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px">
                 <img src="https://raw.githubusercontent.com/suhaslord/uav-safety-research/main/docs/assets/readme/dataset/mixed.png" alt="Old mixed synthetic landing-pad test image" loading="lazy" decoding="async" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px">
               </div>
-              <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin-top:6px;font:600 10px Arial,Helvetica,sans-serif;color:#666;text-align:center"><span>Clean</span><span>Blur</span><span>Low light</span><span>Occlusion</span><span>Mixed</span></div>
+              <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin-top:6px;font:600 12px Arial,Helvetica,sans-serif;color:#666;text-align:center"><span>Clean</span><span>Blur</span><span>Low light</span><span>Occlusion</span><span>Mixed</span></div>
             </div>
             <figcaption><span class="research-photo__context">The exact synthetic image conditions used in the earlier pixel benchmark</span><span class="research-photo__credit">Historical evidence only — these are no longer the active dataset.</span></figcaption>
           </figure>
