@@ -75,6 +75,9 @@ jobs:
           test -f .vercel-release/dashboard/phase-visuals.js
           test -f .vercel-release/dashboard/phase-editorial-media.js
           test -f .vercel-release/dashboard/phase-editorial-media.css
+          for ASSET in synthetic_clean.png synthetic_blur.png synthetic_low_light.png synthetic_occlusion.png synthetic_mixed.png; do
+            test -s ".vercel-release/media/perception/$ASSET"
+          done
 
           for ASSET in acero-uav-flight.jpg acero-ground-control.jpg stereo-uav-preflight.jpg acero-uav-landing.jpg phase01-context.jpg phase02-context.jpg phase04-context.jpg phase05-context.jpg phase06b-context.jpg phase07-context.jpg phase08-context.jpg phase10-context.jpg phase10r-context.jpg phase12-context.jpg phase13a-context.jpg phase13b-context.jpg phase13c-context.jpg phase14-context.jpg phase15-context.jpg phase16-context.jpg phase17-context.jpg phase18-context.jpg phase19-context.jpg phase20-context.jpg phase21-context.jpg phase22-context.jpg; do
             test -s ".vercel-release/media/$ASSET"
@@ -101,6 +104,8 @@ jobs:
           grep -q 'id="current-audit"' .vercel-release/index.html
           grep -q 'href="/ui-review.css?v=' .vercel-release/index.html
           grep -q 'href="/site-refresh.css?v=' .vercel-release/index.html
+          grep -q '/media/perception/synthetic_clean.png' .vercel-release/presentation.js
+          ! grep -q 'raw.githubusercontent.com' .vercel-release/presentation.js
           grep -q 'The question' .vercel-release/index.html
           grep -q 'Why misses stay visible' .vercel-release/index.html
           grep -q 'The finding' .vercel-release/index.html
