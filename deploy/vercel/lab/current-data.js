@@ -16,7 +16,7 @@
       },
       baseline: {
         id: 'baseline',
-        name: 'Phase 22 Baseline YOLO11n',
+        name: 'Detector baseline YOLO11n',
         detail: '320px standard baseline detector without aerial stress augmentations'
       }
     },
@@ -77,7 +77,7 @@
         synthetic_src: '/media/perception/synthetic_mixed.png',
         kios_src: '/media/perception/kios_mixed.jpg',
         synthetic_note: '96×96 compound degradation · Near failure boundary (conf: 0.54)',
-        kios_note: 'Compound environmental stress · Critical failure mode requiring conformal safety gate',
+        kios_note: 'Compound environmental stress · Both detector recall and mAP50 regressed',
         baseline: { precision: 0.597, recall: 0.186, map50: 0.185, map5095: 0.081 },
         phase23:  { precision: 0.487, recall: 0.081, map50: 0.129, map5095: 0.030 }
       }
@@ -196,7 +196,7 @@
               <span class="current-data-pill"><strong>Temporal</strong> split + 5% embargo</span>
             </div>
           </div>
-          <a class="lab-record" href="/phases/phase24/">Read Phase 24 →</a>
+          <a class="lab-record" href="/phases/phase23/">Read Phase 23 →</a>
         </div>
 
         <!-- Visual Perception Inspector: Side-by-side drone camera feeds -->
@@ -238,7 +238,7 @@
               <label>Model evaluation</label>
               <div class="model-switcher" role="group" aria-label="Detector model selection">
                 <button type="button" class="is-active" data-model="phase23">Phase 23 Robust</button>
-                <button type="button" data-model="baseline">Phase 22 Baseline</button>
+                <button type="button" data-model="baseline">Detector baseline</button>
               </div>
             </div>
 
@@ -252,7 +252,7 @@
             <p class="current-data-note" id="condition-description">Untouched protected real-image test split at approach altitude.</p>
 
             <div class="current-data-links">
-              <a href="https://github.com/suhaslord/uav-safety-research/blob/main/results/real_detector/summary.md" target="_blank" rel="noreferrer">Full result →</a>
+              <a href="https://github.com/suhaslord/uav-safety-research/blob/main/results/phase23_robust_detector/summary.md" target="_blank" rel="noreferrer">Phase 23 result →</a>
               <a href="https://doi.org/10.5281/zenodo.13682584" target="_blank" rel="noreferrer">Dataset source →</a>
             </div>
           </div>

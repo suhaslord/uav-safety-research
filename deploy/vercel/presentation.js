@@ -7,7 +7,7 @@
   // leaving the frozen historical phase records untouched.
   if (!document.querySelector('script[data-aegis-current-data]')) {
     const current = document.createElement('script');
-    current.src = '/lab/current-data.js?v=1';
+    current.src = '/lab/current-data.js?v=2';
     current.dataset.aegisCurrentData = '';
     document.head.appendChild(current);
   }

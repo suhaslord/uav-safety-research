@@ -28,6 +28,8 @@
     { "source": "/phases/phase21", "destination": "/dashboard/phases/frozen.html" },
     { "source": "/phases/phase22/", "destination": "/dashboard/phases/frozen.html" },
     { "source": "/phases/phase22", "destination": "/dashboard/phases/frozen.html" },
+    { "source": "/phases/phase23/", "destination": "/phase23.html" },
+    { "source": "/phases/phase23", "destination": "/phase23.html" },
     { "source": "/phases/phase24/", "destination": "/phase24.html" },
     { "source": "/phases/phase24", "destination": "/phase24.html" },
 

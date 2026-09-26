@@ -9,7 +9,7 @@
     const label = slug => slug.replace(/^phase(\d+)(.*)$/, (_, number, suffix) => `Phase ${number}${suffix.toUpperCase()}`);
     const href = slug => `/phases/${slug}/`;
     const escape = text => String(text).replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
-    const status = slug => frozen[slug]?.verdict || ({phase4:'Naming gap',phase10r:'Failed holdout',phase11:'Mixed / failed overall'}[slug] || 'Historical record');
+    const status = slug => frozen[slug]?.verdict || ({phase4:'Naming gap',phase10r:'Failed holdout',phase11:'Mixed / failed overall',phase23:'Detector benchmark',phase24:'Descriptive reanalysis'}[slug] || 'Historical record');
     const options = selected => slugs.map(slug => `<option value="${slug}" ${slug === selected ? 'selected' : ''}>${label(slug)} · ${escape(taxonomy.bySlug[slug].identity)}</option>`).join('');
     const dialog = document.createElement('dialog');
     dialog.id = 'phaseExplorer';
@@ -18,11 +18,11 @@
     dialog.innerHTML = `
       <div class="explorer-heading"><div><h2 id="explorerTitle">Explore the research.</h2><p class="explorer-intro">Choose a chapter, or search for a question.</p></div><button type="button" class="explorer-close" aria-label="Close phase browser">Close</button></div>
       <div class="explorer-modes" role="group" aria-label="Phase browser view"><button type="button" data-mode="browse" aria-pressed="true">Browse phases</button><button type="button" data-mode="compare" aria-pressed="false">Compare phases</button></div>
-      <div id="explorerBrowse"><div class="explorer-search"><label for="phaseQuickSearch">Search all 26 records</label><input type="search" id="phaseQuickSearch" placeholder="Try Phase 10R, latency, or coverage" autocomplete="off"></div>
+      <div id="explorerBrowse"><div class="explorer-search"><label for="phaseQuickSearch">Search all ${slugs.length} records</label><input type="search" id="phaseQuickSearch" placeholder="Try Phase 10R, latency, or coverage" autocomplete="off"></div>
       <div class="explorer-directory"><nav class="explorer-chapters" aria-label="Research chapters"></nav><div class="explorer-list"><p class="explorer-count" role="status"></p><div class="explorer-groups"></div></div></div><p class="explorer-empty" hidden>No matching phases. Try a phase number or a shorter search.</p></div>
       <div id="explorerCompare" hidden><p class="compare-note">Compare the questions and recorded outcomes. Each phase tests different conditions; these results aren’t a ranking.</p>
       <div class="compare-selects"><label>First phase<select id="compareFirst" aria-label="First phase">${options(current || 'phase21')}</select></label><label>Second phase<select id="compareSecond" aria-label="Second phase">${options(current === 'phase22' ? 'phase21' : 'phase22')}</select></label></div><div class="compare-table-wrap"></div></div>
-      <div class="explorer-footer"><span>26 records · every pass, failure, and naming gap</span><a href="/phases/">Open full archive →</a></div>`;
+      <div class="explorer-footer"><span>${slugs.length} records · frozen simulation and separate detector track</span><a href="/phases/">Open full archive →</a></div>`;
     const groups = dialog.querySelector('.explorer-groups');
     let selectedCategory=taxonomy.bySlug[current]?.category||taxonomy.categories[0].id;
     const chapters=dialog.querySelector('.explorer-chapters');
@@ -108,12 +108,12 @@
       const bar = document.createElement('nav');
       bar.className = 'phase-jumpbar';
       bar.setAttribute('aria-label', 'Phase switcher');
-      bar.innerHTML = `<label for="phaseJump">${index + 1} / 26<select id="phaseJump" aria-label="Jump to phase">${options(current)}</select></label><div class="phase-jumpbar__links">${index ? `<a href="${href(slugs[index-1])}" aria-label="Previous phase: ${label(slugs[index-1])}">← Previous</a>` : ''}${index < slugs.length - 1 ? `<a href="${href(slugs[index+1])}" aria-label="Next phase: ${label(slugs[index+1])}">Next →</a>` : '<a href="/phases/">Full archive →</a>'}</div>`;
+      bar.innerHTML = `<label for="phaseJump">${index + 1} / ${slugs.length}<select id="phaseJump" aria-label="Jump to phase">${options(current)}</select></label><div class="phase-jumpbar__links">${index ? `<a href="${href(slugs[index-1])}" aria-label="Previous phase: ${label(slugs[index-1])}">← Previous</a>` : ''}${index < slugs.length - 1 ? `<a href="${href(slugs[index+1])}" aria-label="Next phase: ${label(slugs[index+1])}">Next →</a>` : '<a href="/phases/">Full archive →</a>'}</div>`;
       bar.querySelector('select').addEventListener('change', event => { location.href = href(event.target.value); });
       header?.after(bar);
       // Keep the phase number visible even when legacy identity styling hides metadata.
       const kicker = document.querySelector('.phase-detail__hero .signature-kicker');
-      if (kicker) kicker.textContent = `${label(current)} · ${frozen[current]?.stage || 'Frozen evidence record'}`;
+      if (kicker) kicker.textContent = `${label(current)} · ${frozen[current]?.stage || 'Historical research record'}`;
     }
   };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, {once:true});

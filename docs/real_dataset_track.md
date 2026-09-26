@@ -44,7 +44,7 @@ It does **not** report object-detection mAP because the current baseline does no
 
 The first real-image result is diagnostic. We do not tune the old estimator after seeing the result and then call that same data a clean test.
 
-If the synthetic heuristic transfers poorly, the next stage will create a proper development/test split for a real-image detector or segmentation baseline, freeze that model, and only then evaluate robustness to blur, low light, occlusion, noise, and related distribution shifts on held-out real images.
+The synthetic heuristic transferred poorly. The follow-up now has a protected temporal detector baseline, a [Phase 23 detector comparison](../results/phase23_robust_detector/summary.md), and a [Phase 24 audit of the condition aggregates](../results/phase24_robustness_audit/summary.md). This page documents the initial heuristic check; the later detector results are separate evidence.
 
 ## Reproduce
 

@@ -68,6 +68,8 @@ jobs:
           test -f .vercel-release/research-media.css
           test -f .vercel-release/phase-polish.css
           test -f .vercel-release/ui-review.css
+          test -f .vercel-release/phase-report.css
+          test -f .vercel-release/phase23.html
           test -f .vercel-release/frozen-lineage.js
           test -f .vercel-release/dashboard/phase-visuals.js
           test -f .vercel-release/dashboard/phase-editorial-media.js
@@ -245,6 +247,9 @@ jobs:
           PHASE11_HTML=$(curl --fail --silent --show-error --location "$PUBLIC_URL/phases/phase11/")
           printf '%s' "$PHASE11_HTML" | grep 'Phase 11 P14R' > /dev/null
           printf '%s' "$PHASE11_HTML" | grep 'src="/phase-visuals.js?v=' > /dev/null
+          PHASE23_HTML=$(curl --fail --silent --show-error --location "$PUBLIC_URL/phases/phase23/")
+          printf '%s' "$PHASE23_HTML" | grep 'Phase 23 · KIOS protected detector benchmark' > /dev/null
+          printf '%s' "$PHASE23_HTML" | grep 'href="/phase-report.css?v=' > /dev/null
           echo "✓ Foundational phase pages remain reachable, polished, and contextualized"
 
           echo "=== Verification complete: AegisLand serves local licensed photography and the frozen Phase 1–22 research archive ==="

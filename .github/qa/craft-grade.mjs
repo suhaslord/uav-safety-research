@@ -190,7 +190,7 @@ gate('16 · Frozen source/freeze language is explicit', frozenObs.every((x) => x
 gate('17 · Photography stays contextual, not evidentiary', phaseObs.every((x) => x.metrics.editorialPresent && /not AegisLand experimental evidence/i.test(x.metrics.editorialCaption) && (x.viewport === 'desktop' ? x.metrics.editorialHeight <= 430 : x.metrics.editorialHeight <= 260)), 'captioned context photography under strict size caps');
 const archiveDesktop = obs('desktop','/phases/');
 const archivePhone = obs('phone','/phases/');
-gate('18 · Archive remains a complete six-chapter map', [archiveDesktop,archivePhone].every((x) => x && x.metrics.archiveCategories === 6 && x.metrics.archiveCards === 26 && x.metrics.archiveIdentities === 26 && x.metrics.frozenCards === 13 && x.metrics.historicalCards === 13), '6 categories / 26 phases / 13 frozen + 13 historical');
+gate('18 · Archive includes both research tracks', [archiveDesktop,archivePhone].every((x) => x && x.metrics.archiveCategories === 7 && x.metrics.archiveCards === 28 && x.metrics.archiveIdentities === 28 && x.metrics.frozenCards === 13 && x.metrics.historicalCards === 15), '7 categories / 28 records / 13 frozen + 15 other');
 gate('19 · Phase metadata avoids rounded-card soup', phaseObs.every((x) => x.metrics.roleBackground === 'rgba(0, 0, 0, 0)' || x.metrics.roleBackground === 'transparent'), 'metadata surface is transparent on every phase');
 
 const home = obs('desktop','/');

@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#ffffff">
-  <meta name="description" content="AegisLand documents the frozen Phase 22 UAV landing simulation record and a separate Phase 24 audit of published detector results on camera data.">
+  <meta name="description" content="AegisLand documents the frozen Phase 22 simulation record, a separate Phase 23 detector benchmark, and the Phase 24 audit of its condition results.">
   <link rel="canonical" href="https://aegisland-research-cockpit.vercel.app/">
   <meta property="og:title" content="AegisLand — Research Cockpit">
-  <meta property="og:description" content="Explore the frozen Phase 22 simulation result and the separate Phase 24 detector robustness audit, including condition-level tradeoffs.">
+  <meta property="og:description" content="Explore the frozen Phase 22 simulation result, Phase 23 detector benchmark, and Phase 24 condition-level audit.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://aegisland-research-cockpit.vercel.app/">
   <title>AegisLand — Research Cockpit</title>
@@ -37,7 +37,7 @@
 
   <nav class="mobile-menu-sheet" id="mobileMenuSheet" aria-label="Mobile navigation" aria-hidden="true">
     <div class="mobile-menu-head"><strong>AEGISLAND</strong><button class="mobile-menu-close" type="button" aria-label="Close navigation">Close</button></div>
-    <div class="mobile-menu-links"><a href="#status">Frozen simulation result</a><a href="#purpose">About</a><a href="#evidence">Findings</a><a href="#method">Method</a><a href="#experiment-lab">Experiment</a><a href="#current-audit">Phase 24 audit</a><a href="#timeline">Research</a><a href="/phases/phase22/">Phase 22</a></div>
+    <div class="mobile-menu-links"><a href="#status">Frozen simulation result</a><a href="#purpose">About</a><a href="#evidence">Findings</a><a href="#method">Method</a><a href="#experiment-lab">Experiment</a><a href="/phases/phase23/">Phase 23 detector</a><a href="#current-audit">Phase 24 audit</a><a href="#timeline">Research</a><a href="/phases/phase22/">Phase 22</a></div>
     <div class="mobile-menu-meta"><a href="/phases/">Archive</a><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub ↗</a></div>
   </nav>
 
@@ -48,7 +48,7 @@
           <div class="workspace-context" aria-label="Research context"><span>AegisLand · UAV landing perception</span><span>Simulation record frozen through Phase 22</span></div>
           <p class="eyebrow">A camera can be wrong before confidence admits it.</p>
           <h1 id="hero-title">What happens when the estimate drifts but the uncertainty does not?</h1>
-          <p class="hero-deck">AegisLand follows that problem through simulated UAV landing experiments, including the misses. The scientific simulation record is frozen at Phase 22. A separate Phase 24 audit examines published detector results on real-camera data.</p>
+          <p class="hero-deck">AegisLand follows that problem through simulated UAV landing experiments, including the misses. The scientific simulation record is frozen at Phase 22. A separate Phase 23 detector benchmark and Phase 24 audit examine camera-data results.</p>
           <div class="actions"><a class="button primary signature-button" href="/phases/phase24/">See the Phase 24 audit</a><a class="button secondary signature-button" href="/phases/phase22/">Frozen simulation result</a></div>
         </div>
       </div>
@@ -104,7 +104,7 @@
           <p class="eyebrow">Newer evidence · separate track</p>
           <h2 id="audit-title">The average improved. The hardest views got worse.</h2>
           <p>Phase 24 reanalyzes the Phase 23 detector's published KIOS camera results. Its equal-weight six-condition mAP50 mean rose by 3.4 percentage points, while occlusion and mixed stress together fell by 13.3 points. No model was trained for this audit.</p>
-          <div class="actions"><a class="button primary" href="/phases/phase24/">See the condition charts</a><a class="button secondary" href="/phases/">Browse all phases</a></div>
+          <div class="actions"><a class="button primary" href="/phases/phase24/">See the condition charts</a><a class="button secondary" href="/phases/phase23/">Read the Phase 23 result</a><a class="button secondary" href="/phases/">Browse all phases</a></div>
         </div>
         <div class="current-audit__numbers" aria-label="Phase 24 audit summary">
           <div><span>Six-condition mAP50</span><strong>+3.4 pp</strong><small>Equal-weight average</small></div>
@@ -291,7 +291,7 @@
     </section>
   </main>
 
-  <footer class="footer"><p>AegisLand · frozen simulation-only research</p><div class="footer-links"><a href="#researchers">For researchers</a><a href="#supporters">Supporters</a><a href="/phases/">Archive</a><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub ↗</a><a href="/phases/phase22/">Phase 22</a></div></footer>
+  <footer class="footer"><p>AegisLand · frozen simulation lineage + separate detector track</p><div class="footer-links"><a href="#researchers">For researchers</a><a href="#supporters">Supporters</a><a href="/phases/">Archive</a><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub ↗</a><a href="/phases/phase22/">Phase 22</a><a href="/phases/phase23/">Phase 23</a><a href="/phases/phase24/">Phase 24</a></div></footer>
 
   <script src="/frozen-lineage.js?v=3"></script>
   <script>
@@ -339,7 +339,7 @@
   </script>
   <script src="/research-workspace.js?v=3"></script>
   <script src="/presentation.js?v=4" defer></script>
-  <script src="/phase-taxonomy.js?v=1"></script>
-  <script src="/phase-explorer.js?v=3" defer></script>
+  <script src="/phase-taxonomy.js?v=2"></script>
+  <script src="/phase-explorer.js?v=4" defer></script>
 </body>
 </html>

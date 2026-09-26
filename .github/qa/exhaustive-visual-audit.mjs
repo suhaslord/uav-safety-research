@@ -10,7 +10,7 @@ const phaseSlugs = [
   'phase1','phase2','phase3','phase4','phase5','phase6','phase6b','phase7','phase8','phase9','phase10','phase10r','phase11',
   'phase12','phase13a','phase13b','phase13c','phase14','phase15','phase16','phase17','phase18','phase19','phase20','phase21','phase22'
 ];
-const routes = ['/', '/phases/', ...phaseSlugs.map((slug) => `/phases/${slug}/`), '/phases/phase24/'];
+const routes = ['/', '/phases/', ...phaseSlugs.map((slug) => `/phases/${slug}/`), '/phases/phase23/', '/phases/phase24/'];
 const viewports = [
   { name: 'desktop', width: 1440, height: 1000 },
   { name: 'tablet', width: 820, height: 1180 },
@@ -124,7 +124,7 @@ try {
           return '';
         };
         const unlabeledControls = clickable.filter((el) => !controlName(el)).length;
-        const phasePage = /^\/phases\/phase/i.test(route) && route !== '/phases/phase24/';
+        const phasePage = /^\/phases\/phase/i.test(route) && !['/phases/phase23/', '/phases/phase24/'].includes(route);
         const hero = document.querySelector('main h1')?.closest('section,header,article,div') || document.querySelector('main h1');
         const phaseChip = document.querySelector('.phase-identity-chip');
         const roleCard = document.querySelector('.phase-role-card');

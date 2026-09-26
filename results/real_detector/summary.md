@@ -51,7 +51,7 @@ To address the baseline's low recall on high-altitude approach frames and vulner
 
 ### Architectural & Training Interventions
 
-1. **Resolution Upgrade (320px → 480px)**: Eliminates feature collapse on distant landing pads during early descent.
+1. **Resolution Upgrade (320px → 480px)**: Increases the input resolution used to detect smaller pads in approach frames.
 2. **Aerial Domain Augmentations**:
    - Random 360° in-plane rotation (`degrees=180.0`) to model drone yaw drift.
    - Altitude scale variation (`scale=0.5`) to preserve boundary recognition across approach altitudes.
@@ -71,9 +71,9 @@ To address the baseline's low recall on high-altitude approach frames and vulner
 
 ### Phase 23 Takeaways
 
-- **Clean Recall (+20.9 pp)**: Eliminates over 50% of false-negative misses on real approach footage.
-- **Vibration & Blur Resilience (+17.3 pp mAP50)**: Invariance to UAV motor vibration and rapid descent motion.
-- **Sensor Noise Robustness (+16.3 pp mAP50)**: High detection confidence maintained under high-ISO sensor noise.
-- **Open Safety Boundary**: Heavy 55% central occlusion and compound mixed degradation remain failure modes where perception cannot be trusted, proving that visual perception must be paired with conformal safety abort triggers.
+- **Clean Recall (+20.9 pp)**: The protected clean-frame recall rose from 38.4% to 59.3%; misses remain common.
+- **Blur Condition (+17.3 pp mAP50)**: The measured blur score improved on this test split. This does not establish invariance to all vibration or motion.
+- **Sensor Noise Condition (+16.4 pp mAP50)**: The measured noise score improved on this test split.
+- **Open Safety Boundary**: Occlusion and mixed degradation remain regression conditions. No fallback or controller response was evaluated here.
 
 This remains a research baseline, not evidence of flight safety or certification.
