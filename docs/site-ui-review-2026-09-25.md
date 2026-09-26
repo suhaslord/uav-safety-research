@@ -16,5 +16,8 @@ Scope: live research home, experiment panel, Phase 24, archive, and the shared t
 | Shared phase columns waited too long to stack, squeezing the text/visual and verdict panels. | Earlier phases and frozen phases | Added a shared breakpoint before the columns become narrow, plus minimum width and long-title handling. |
 | Phase 24 was a dead end from Phase 22 and was harder to find from the archive. | Phase navigation | Linked the separate audit from Phase 22's final navigation and the archive header. |
 | Focus visibility and small-screen metric density varied between templates. | Shared UI | Added a consistent keyboard focus ring and responsive metric columns without changing the site's white, charcoal, and blue theme. |
+| Shared phase navigation and experiment links had short tap areas on phones; five synthetic image labels used 10px type. | Home, experiment, phases, Phase 24 | Raised the tap area to at least 44px for the affected shared controls and links; enlarged the labels to 12px. |
 
 Checks to perform on the preview deployment: home at desktop and phone widths; Phase 1, 11, 16, 22, 24; archive search and links; Phase 24 data load, condition chart readability, and no page-level horizontal overflow. The data file remains `deploy/vercel/data/phase24-results.json` and the scientific Phase 12–22 lineage is untouched.
+
+The exhaustive visual audit passed 87/87 screenshots with no blockers before the tap-area follow-up. Its hidden “skip to content” links are intentionally 1px until keyboard focus; native form controls have associated clickable labels. These are reported as advisory small targets by the geometry checker, but enlarging the invisible skip link would expose it at rest. The follow-up fixes the visible shared links and controls.

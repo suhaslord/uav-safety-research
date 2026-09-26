@@ -8,6 +8,15 @@ body.research-workspace .phase-role-card__question-label,
 body.research-workspace .phase-role-card__question-text{display:block}
 body.research-workspace .phase-role-card__question-text{margin-top:5px;line-height:1.5}
 body.research-workspace .phase-role-card__question-label{color:#646a72;font-size:12px}
+/* Shared phone controls need a comfortable hit area, even when the label is short. */
+body.research-workspace .phase-jumpbar select{min-height:44px}
+body.research-workspace .phase-jumpbar__links a{display:inline-flex;align-items:center;min-height:44px;padding-block:0}
+body.research-workspace .aegis-guide a{display:inline-flex;align-items:center;min-height:44px}
+body.research-workspace .experiment-lab .lab-record{display:inline-flex;align-items:center;min-height:44px}
+body.research-workspace .experiment-lab .model-switcher button{min-height:44px}
+body.research-workspace .experiment-lab .current-data-links a{min-height:44px}
+body.home-workspace .supporter h3 a{display:inline-flex;align-items:center;min-height:44px}
+body.home-workspace .research-film figcaption a{display:inline-flex;align-items:center;min-height:44px}
 
 .current-audit{background:#f4f4f4;border-block:1px solid #e2e3e3;scroll-margin-top:72px}
 .current-audit__grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(280px,.65fr);gap:clamp(36px,6vw,96px);align-items:center}
