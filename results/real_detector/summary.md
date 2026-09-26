@@ -53,21 +53,20 @@ To address the baseline's low recall on high-altitude approach frames and vulner
 
 1. **Resolution Upgrade (320px → 480px)**: Increases the input resolution used to detect smaller pads in approach frames.
 2. **Aerial Domain Augmentations**:
-   - Random 360° in-plane rotation (`degrees=180.0`) to model drone yaw drift.
-   - Altitude scale variation (`scale=0.5`) to preserve boundary recognition across approach altitudes.
-   - Aerial perspective mosaic & random erasing (`erasing=0.3`) simulating partial occlusion.
-   - Photometric jitter (`hsv_h=0.015`, `hsv_s=0.5`, `hsv_v=0.4`) and deterministic motion-blur resiliency.
+   - In-plane rotation (`degrees=15.0`) and scale variation (`scale=0.35`).
+   - Mosaic (`mosaic=1.0`), mixup (`mixup=0.15`), and random erasing (`erasing=0.35`).
+   - Photometric jitter (`hsv_h=0.015`, `hsv_s=0.5`, `hsv_v=0.4`). Motion blur is an evaluation condition, not a recorded training augmentation.
 
 ### Comparative Evaluation on 86 Protected Test Frames
 
 | Condition | Baseline Recall | Phase 23 Recall | Recall Delta | Baseline mAP50 | Phase 23 mAP50 | mAP50 Delta |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Clean** | 0.384 | **0.593** | **+20.9 pp** (+54.4% rel) | 0.427 | **0.555** | **+12.8 pp** (+30.0% rel) |
+| **Clean** | 0.384 | **0.593** | **+20.9 pp** (+54.4% rel) | 0.427 | **0.555** | **+12.9 pp** (+30.1% rel) |
 | **Blur** | 0.378 | **0.570** | **+19.2 pp** | 0.413 | **0.586** | **+17.3 pp** |
 | **Low light** | 0.372 | **0.442** | **+7.0 pp** | 0.417 | **0.424** | **+0.7 pp** |
-| **Noise** | 0.398 | **0.547** | **+14.9 pp** | 0.433 | **0.596** | **+16.3 pp** |
-| **Occlusion** | 0.326 | **0.244** | -8.2 pp | 0.348 | **0.138** | -21.0 pp |
-| **Mixed** | 0.186 | **0.081** | -10.5 pp | 0.185 | **0.129** | -5.6 pp |
+| **Noise** | 0.398 | **0.547** | **+14.9 pp** | 0.433 | **0.596** | **+16.4 pp** |
+| **Occlusion** | 0.326 | **0.244** | -8.1 pp | 0.348 | **0.138** | -21.0 pp |
+| **Mixed** | 0.186 | **0.081** | -10.5 pp | 0.185 | **0.129** | -5.5 pp |
 
 ### Phase 23 Takeaways
 

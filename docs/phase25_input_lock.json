@@ -1,0 +1,61 @@
+{
+  "phase22_baseline": {
+    "actions_artifact_id": 10382104202,
+    "actions_run_id": 34932763449,
+    "artifact_name": "kios-real-detector-baseline",
+    "artifact_sha256": "7080c8243c1d7cb85a63f81ea0531eda34dd1f18616f7b4dfdc869a2379c9833",
+    "checkpoint_sha256": "3a1801b192d624f8dcdda4bc5d9a9157309000df67a4c30d62368c37901feddd"
+  },
+  "phase23_robust": {
+    "checkpoint_sha256": null,
+    "status": "blocked_pending_exact_checkpoint_recovery",
+    "recovery_attempt": {
+      "result_commit": "7677bacdae1f3a3b73f9473f5fa51f2059d9525a",
+      "actions_run_id": 35797446835,
+      "actions_artifact_id": 10725155542,
+      "actions_artifact_sha256": "841a1089e6303d909fd3cf118fdf8966e39847be05d00866e74ef6751ea660b6",
+      "archive_contents": [
+        "samples.csv",
+        "summary.json",
+        "summary.md"
+      ],
+      "contains_checkpoint": false
+    }
+  },
+  "phase25_runtime": {
+    "python_version": null,
+    "ultralytics_version": null,
+    "torch_version": null,
+    "status": "blocked_pending_original_version_recovery"
+  },
+  "inference_settings": {
+    "baseline": {
+      "imgsz": 320,
+      "confidence_floor": 0.001,
+      "nms_iou": 0.7,
+      "max_det": 300,
+      "batch": 16,
+      "workers": 2,
+      "device": "cpu"
+    },
+    "phase23": {
+      "imgsz": 480,
+      "confidence_floor": 0.001,
+      "nms_iou": 0.7,
+      "max_det": 300,
+      "batch": 16,
+      "workers": 2,
+      "device": "0"
+    },
+    "metric_tolerance": 0.001,
+    "frame_match_iou": 0.5
+  },
+  "protected_split": {
+    "frame_count": 86,
+    "sequence_counts": {
+      "land_pad": 66,
+      "land_pad2": 20
+    }
+  },
+  "protected_manifest_sha256": "8605cf1cbf9e8769c0324bf066078f9964f232ac3128131c8bd0b689bb7b64b7"
+}
