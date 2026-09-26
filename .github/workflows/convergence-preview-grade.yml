@@ -92,12 +92,12 @@ jobs:
           echo 'Preview did not become ready in time.'
           exit 1
 
-      - name: Capture 280 screenshots and grade convergence
+      - name: Capture full-route screenshots and grade convergence
         env:
           QA_BASE_URL: ${{ steps.deploy.outputs.url }}
         run: node .github/qa/convergence-grade.mjs
 
-      - name: Grade 20 human craft gates on preview
+      - name: Grade 21 human craft gates on preview
         env:
           QA_BASE_URL: ${{ steps.deploy.outputs.url }}
         run: node .github/qa/craft-grade.mjs
@@ -115,7 +115,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: aegisland-preview-20-point-craft-grade
+          name: aegisland-preview-21-point-craft-grade
           path: qa-artifacts/craft-grade/
           if-no-files-found: warn
           retention-days: 14
