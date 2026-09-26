@@ -154,6 +154,7 @@
           card.style.setProperty('--phase-tint', category.tint);
           card.innerHTML = `
             <div class="archive-card__top"><span class="archive-card__label">${record.label}</span><span class="verdict-chip ${record.statusClass}">${record.status}</span></div>
+            <div class="archive-card__identity" hidden>${record.meta.identity}</div>
             <div><h3>${record.title}</h3><p>${record.summary}</p><p class="archive-card__question" hidden>${record.meta.question}</p></div>
             <span class="archive-card__signal" hidden>${record.meta.signal}</span>
             <span class="archive-card__open">Read phase →</span>`;
