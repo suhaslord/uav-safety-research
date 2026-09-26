@@ -9,7 +9,9 @@ def _read(path: str) -> str:
 
 def test_home_primary_action_opens_current_evidence_and_scopes_phase22_status() -> None:
     html = _read("deploy/vercel/index.html")
-    assert '>See the Phase 22 result</a>' in html
+    assert '>See the Phase 24 audit</a>' in html
+    assert 'id="current-audit"' in html
+    assert '>Frozen simulation result</a>' in html
     assert 'href="/phases/phase22/"' in html
     assert "10 / 10 locked gates passed" in html
     assert "6 PASS / 7 FAIL" in html
@@ -136,4 +138,3 @@ def test_workspace_uses_original_light_research_system() -> None:
     assert "min-height:610px!important" in home
     assert "grid-template-columns:repeat(13,minmax(0,1fr))" in home
     assert "--phase-accent:#3559c7!important" in identity
-

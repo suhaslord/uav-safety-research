@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#ffffff">
-  <meta name="description" content="AegisLand documents a simulation-only study of UAV landing perception, including the failed tests and the frozen result through Phase 22.">
+  <meta name="description" content="AegisLand documents the frozen Phase 22 UAV landing simulation record and a separate Phase 24 audit of published detector results on camera data.">
   <link rel="canonical" href="https://aegisland-research-cockpit.vercel.app/">
   <meta property="og:title" content="AegisLand — Research Cockpit">
-  <meta property="og:description" content="Follow the AegisLand landing-perception experiments from the first safety supervisor through the frozen Phase 22 transfer result.">
+  <meta property="og:description" content="Explore the frozen Phase 22 simulation result and the separate Phase 24 detector robustness audit, including condition-level tradeoffs.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://aegisland-research-cockpit.vercel.app/">
   <title>AegisLand — Research Cockpit</title>
@@ -22,13 +22,14 @@
   <script defer src="/lab/lab.js?v=6" data-aegis-experiment-lab></script>
   <link rel="stylesheet" href="/tesla-bundle.css?v=1">
   <link rel="stylesheet" href="/home-hero-contrast.css?v=1">
+  <link rel="stylesheet" href="/ui-review.css?v=1">
 </head>
 <body class="research-workspace home-workspace" data-presentation="photo-led" data-purpose-clarity="true">
   <a class="skip-link" href="#main">Skip to research result</a>
   <header class="site-header signature-nav">
     <a class="brand signature-brand" href="#top" aria-label="AegisLand home"><span>AEGISLAND</span></a>
     <nav class="site-nav signature-nav__links" aria-label="Primary navigation">
-      <a href="#purpose">About</a><a href="#evidence">Findings</a><a href="#method">Method</a><a href="#experiment-lab">Experiment</a><a href="#timeline">Research</a>
+      <a href="#purpose">About</a><a href="#evidence">Findings</a><a href="#method">Method</a><a href="#experiment-lab">Experiment</a><a href="#current-audit">Latest audit</a><a href="#timeline">Research</a>
     </nav>
     <div class="header-actions"><a href="/phases/">Archive</a><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub</a></div>
     <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-expanded="false" aria-controls="mobileMenuSheet">Menu</button>
@@ -36,7 +37,7 @@
 
   <nav class="mobile-menu-sheet" id="mobileMenuSheet" aria-label="Mobile navigation" aria-hidden="true">
     <div class="mobile-menu-head"><strong>AEGISLAND</strong><button class="mobile-menu-close" type="button" aria-label="Close navigation">Close</button></div>
-    <div class="mobile-menu-links"><a href="#status">Latest result</a><a href="#purpose">About</a><a href="#evidence">Findings</a><a href="#method">Method</a><a href="#experiment-lab">Experiment</a><a href="#timeline">Research</a><a href="/phases/phase22/">Phase 22</a></div>
+    <div class="mobile-menu-links"><a href="#status">Frozen simulation result</a><a href="#purpose">About</a><a href="#evidence">Findings</a><a href="#method">Method</a><a href="#experiment-lab">Experiment</a><a href="#current-audit">Phase 24 audit</a><a href="#timeline">Research</a><a href="/phases/phase22/">Phase 22</a></div>
     <div class="mobile-menu-meta"><a href="/phases/">Archive</a><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub ↗</a></div>
   </nav>
 
@@ -44,11 +45,11 @@
     <section class="hero" id="top" aria-labelledby="hero-title">
       <div class="wrap hero-grid">
         <div>
-          <div class="workspace-context" aria-label="Research context"><span>AegisLand · UAV landing perception</span><span>Frozen through Phase 22</span></div>
+          <div class="workspace-context" aria-label="Research context"><span>AegisLand · UAV landing perception</span><span>Simulation record frozen through Phase 22</span></div>
           <p class="eyebrow">A camera can be wrong before confidence admits it.</p>
           <h1 id="hero-title">What happens when the estimate drifts but the uncertainty does not?</h1>
-          <p class="hero-deck">AegisLand follows that problem through a series of simulated UAV landing experiments. Some ideas worked. Several did not. The archive keeps both, ending with a frozen Phase 22 model tested on a fresh synthetic context grid.</p>
-          <div class="actions"><a class="button primary signature-button" href="/phases/phase22/">See the Phase 22 result</a><a class="button secondary signature-button" href="#experiment-lab">Try the experiment</a></div>
+          <p class="hero-deck">AegisLand follows that problem through simulated UAV landing experiments, including the misses. The scientific simulation record is frozen at Phase 22. A separate Phase 24 audit examines published detector results on real-camera data.</p>
+          <div class="actions"><a class="button primary signature-button" href="/phases/phase24/">See the Phase 24 audit</a><a class="button secondary signature-button" href="/phases/phase22/">Frozen simulation result</a></div>
         </div>
       </div>
 
@@ -68,7 +69,7 @@
       <div class="wrap result-film-grid">
         <aside class="workspace-status-card result-card aegis-halo" id="status" aria-label="Current research status">
           <div class="workspace-status-head">
-            <div><p class="eyebrow">Latest frozen result</p><strong>Phase 22 final holdout</strong></div>
+            <div><p class="eyebrow">Frozen simulation result</p><strong>Phase 22 final holdout</strong></div>
             <span class="status-badge status-badge--pass">10 / 10 locked gates passed</span>
           </div>
           <div class="workspace-measures" aria-label="Phase 22 final metrics">
@@ -94,6 +95,22 @@
           </div>
           <figcaption id="film-caption">NASA AEROcAST flight footage. Visual context only; this is not an AegisLand experiment. <a href="https://images.nasa.gov/details/AFRC-2023-14003-01_Alta_X_First_Mission_Jay1" target="_blank" rel="noreferrer">NASA source</a></figcaption>
         </figure>
+      </div>
+    </section>
+
+    <section class="current-audit section" id="current-audit" aria-labelledby="audit-title">
+      <div class="wrap current-audit__grid">
+        <div class="current-audit__intro">
+          <p class="eyebrow">Newer evidence · separate track</p>
+          <h2 id="audit-title">The average improved. The hardest views got worse.</h2>
+          <p>Phase 24 reanalyzes the Phase 23 detector's published KIOS camera results. Its equal-weight six-condition mAP50 mean rose by 3.4 percentage points, while occlusion and mixed stress together fell by 13.3 points. No model was trained for this audit.</p>
+          <div class="actions"><a class="button primary" href="/phases/phase24/">See the condition charts</a><a class="button secondary" href="/phases/">Browse all phases</a></div>
+        </div>
+        <div class="current-audit__numbers" aria-label="Phase 24 audit summary">
+          <div><span>Six-condition mAP50</span><strong>+3.4 pp</strong><small>Equal-weight average</small></div>
+          <div><span>Occlusion + mixed stress</span><strong class="current-audit__loss">−13.3 pp</strong><small>Equal-weight mAP50 change</small></div>
+          <p>One 86-frame temporal test split is reused across conditions. These are detector metrics, not a landing safety result.</p>
+        </div>
       </div>
     </section>
 
@@ -190,7 +207,7 @@
 
     <section class="section ash" id="researchers" aria-labelledby="researchers-title">
       <div class="wrap">
-        <div class="section-head"><p class="eyebrow">For a fast technical read</p><div><h2 id="researchers-title">Start with the frozen result, then read backward.</h2><p class="copy">Phase 22 is the strongest final result, but it only makes sense beside the earlier failures that narrowed the claim.</p></div></div>
+        <div class="section-head"><p class="eyebrow">For a fast technical read</p><div><h2 id="researchers-title">Start with the frozen result, then read backward.</h2><p class="copy">Phase 22 closes the frozen simulation lineage. Read it beside the earlier failures that narrowed the claim; the newer detector audit is a separate evidence track.</p></div></div>
 
         <div class="three method-steps">
           <article class="card"><span class="tag">01 · Studies</span><h3>Confidence under degraded landing perception.</h3><p>The experiments deliberately worsen simulated UAV landing estimates and compare the resulting error with the uncertainty reported around it.</p></article>
@@ -242,11 +259,11 @@
     </section>
 
     <section class="section" id="timeline">
-      <div class="wrap"><div class="rail-head"><div><p class="eyebrow">The frozen record</p><h2>Passes and failures share the same timeline.</h2><p class="copy">The record currently ends at Phase 22. A later pass never upgrades an earlier fail.</p></div><a class="text-link" href="/phases/">Open the phase archive →</a></div><div class="evidence-list" id="evidenceSpine" aria-live="polite"></div></div>
+      <div class="wrap"><div class="rail-head"><div><p class="eyebrow">The frozen simulation record</p><h2>Passes and failures share the same timeline.</h2><p class="copy">This simulation lineage ends at Phase 22. A later pass never upgrades an earlier fail.</p></div><a class="text-link" href="/phases/">Open the phase archive →</a></div><div class="evidence-list" id="evidenceSpine" aria-live="polite"></div></div>
     </section>
 
     <section class="section ash">
-      <div class="wrap boundary-grid"><div><p class="eyebrow">Where the claim stops</p><h2>Phase 22 is the end of this frozen scientific record.</h2><p class="copy signature-section__intro">The archive does not imply a Phase 23. Its frozen scientific commit is <code>668d065714dde279857bc0e196f0ef7cc5e182ed</code>.</p><p class="copy">These simulation results do not establish physical-flight safety, certification, production readiness, real-sensor equivalence, controller improvement, physical causality, or operational safety.</p><code class="boundary-flags">simulation_only=true · safety_acceptance=false · controller_tuning_allowed=false</code></div><div class="actions"><a class="button primary signature-button" href="/phases/phase22/">Inspect Phase 22</a><a class="button secondary signature-button" href="/phases/">Browse the record</a></div></div>
+      <div class="wrap boundary-grid"><div><p class="eyebrow">Where the claim stops</p><h2>Phase 22 is the end of this frozen simulation record.</h2><p class="copy signature-section__intro">Its frozen scientific commit is <code>668d065714dde279857bc0e196f0ef7cc5e182ed</code>. Phase 24 is a separate reanalysis of published detector aggregates.</p><p class="copy">These simulation results do not establish physical-flight safety, certification, production readiness, real-sensor equivalence, controller improvement, physical causality, or operational safety.</p><code class="boundary-flags">simulation_only=true · safety_acceptance=false · controller_tuning_allowed=false</code></div><div class="actions"><a class="button primary signature-button" href="/phases/phase22/">Inspect Phase 22</a><a class="button secondary signature-button" href="/phases/phase24/">Read Phase 24</a></div></div>
     </section>
     <section class="section supporters-section" id="supporters" aria-labelledby="supporters-title">
       <div class="wrap">

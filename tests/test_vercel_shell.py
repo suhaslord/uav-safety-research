@@ -15,7 +15,8 @@ def test_vercel_home_is_native_frozen_archive_shell() -> None:
     assert "const rev=" not in html
     assert 'id="evidenceSpine"' in html
     assert 'src="/frozen-lineage.js?v=' in html
-    assert "Frozen through Phase 22" in html
+    assert "Simulation record frozen through Phase 22" in html
+    assert 'id="current-audit"' in html
     assert "0.8319" in html
     assert "0.7744" in html
     assert "simulation_only=true" in html
@@ -199,7 +200,7 @@ def test_live_perception_panels_and_phase_reading_width_are_balanced() -> None:
 
     assert "width:min(1440px,calc(100% - 64px))" in current
     assert "grid-template-columns:minmax(0,1fr) minmax(0,1fr)" in current
-    assert "width:min(100%,520px)" in current
+    assert ".perception-card__frame--square{aspect-ratio:16/9;width:100%" in current
     assert 'href="/phases/phase24/">Read Phase 24' in current
     assert "width:min(1280px,calc(100% - 48px))" in shared
     assert "grid-template-columns:minmax(0,1.2fr) minmax(340px,.8fr)" in shared

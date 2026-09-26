@@ -1,0 +1,83 @@
+/* Layout corrections shared by the home, archive, and individual phase pages. */
+html{scroll-padding-top:80px}
+body.research-workspace :is(a,button,input,select,summary):focus-visible{outline:2px solid #3457b2!important;outline-offset:3px!important}
+body.research-workspace :is(.wrap,.signature-shell,.lab-shell){max-width:1184px;min-width:0}
+body.research-workspace :is(.chapter-card,.card,.phase-detail__panel,.phase-verdict-panel,.archive-card){min-width:0}
+body.research-workspace :is(.chapter-card h3,.archive-card h3,.phase-detail__hero h1){overflow-wrap:break-word}
+body.research-workspace .phase-role-card__question-label,
+body.research-workspace .phase-role-card__question-text{display:block}
+body.research-workspace .phase-role-card__question-text{margin-top:5px;line-height:1.5}
+body.research-workspace .phase-role-card__question-label{color:#646a72;font-size:12px}
+
+.current-audit{background:#f4f4f4;border-block:1px solid #e2e3e3;scroll-margin-top:72px}
+.current-audit__grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(280px,.65fr);gap:clamp(36px,6vw,96px);align-items:center}
+.current-audit__intro h2{max-width:15ch;margin:12px 0 20px;font-size:clamp(34px,4vw,56px);line-height:1.08;letter-spacing:-.045em;font-weight:550}
+.current-audit__intro>p:not(.eyebrow){max-width:62ch;font-size:17px;line-height:1.65;color:#393c41}
+.current-audit__intro .actions{margin-top:28px;display:flex;flex-wrap:wrap;gap:10px}
+.current-audit__numbers{background:#fff;border:1px solid #e2e3e3;padding:clamp(20px,3vw,34px)}
+.current-audit__numbers>div{padding:17px 0;border-bottom:1px solid #e2e3e3}
+.current-audit__numbers>div:first-child{padding-top:0}
+.current-audit__numbers span,.current-audit__numbers small{display:block;color:#646a72;font-size:12px;line-height:1.45}
+.current-audit__numbers strong{display:block;margin:7px 0;color:#3457b2;font-size:clamp(30px,3vw,40px);font-weight:550;line-height:1.1;font-variant-numeric:tabular-nums;letter-spacing:-.04em}
+.current-audit__numbers strong.current-audit__loss{color:#ad3d34}
+.current-audit__numbers p{margin:20px 0 0;color:#50545a;font-size:13px;line-height:1.6}
+
+/* The lab becomes one readable column before the controls crush the charts. */
+body.home-workspace .experiment-lab .lab-shell{width:min(1184px,calc(100% - 48px))}
+body.home-workspace .experiment-lab .lab-heading{align-items:flex-start;flex-wrap:wrap}
+body.home-workspace .experiment-lab .lab-heading>div{min-width:0;max-width:680px}
+body.home-workspace .experiment-lab .lab-layout{grid-template-columns:minmax(300px,340px) minmax(0,1fr);gap:clamp(24px,4vw,52px)}
+body.home-workspace .experiment-lab .lab-controls{min-width:0}
+body.home-workspace .experiment-lab :is(.lab-field,.lab-input-pair,.lab-results){min-width:0}
+body.home-workspace .experiment-lab .lab-input-pair input[type=number]{max-width:96px}
+body.home-workspace .experiment-lab .lab-welcome{flex-wrap:wrap}
+body.home-workspace .experiment-lab .lab-saved-tools label{min-width:min(220px,100%)}
+body.home-workspace .experiment-lab .lab-chart{overflow-x:auto;scrollbar-width:thin}
+body.home-workspace .experiment-lab .current-data-shell .lab-heading>div{max-width:none;min-width:0}
+body.home-workspace .experiment-lab .current-data-shell .lab-heading p{max-width:65ch}
+body.home-workspace .experiment-lab .current-data-shell .lab-record{flex-shrink:0}
+body.home-workspace .experiment-lab .current-data-shell .perception-inspector{gap:clamp(16px,2.5vw,28px)}
+body.home-workspace .experiment-lab .current-data-shell .perception-card{min-width:0}
+body.home-workspace .experiment-lab .current-data-shell .perception-card__frame--square{aspect-ratio:16/9;width:100%;max-width:none}
+body.home-workspace .experiment-lab .current-data-shell .perception-card__frame--square img{object-fit:contain}
+body.home-workspace .experiment-lab .current-data-shell .current-data-table-wrap{scrollbar-width:thin}
+@media(max-width:1050px){
+  .current-audit__grid{grid-template-columns:minmax(0,1fr)}
+  .current-audit__numbers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 24px}
+  .current-audit__numbers>div{border-bottom:0;padding:0}
+  .current-audit__numbers>div+div{border-left:1px solid #e2e3e3;padding-left:24px}
+  .current-audit__numbers p{grid-column:1/-1;border-top:1px solid #e2e3e3;padding-top:16px}
+  body.home-workspace .experiment-lab .lab-layout{grid-template-columns:minmax(0,1fr)!important;gap:30px}
+  body.home-workspace .experiment-lab .lab-controls{max-width:720px}
+  body.home-workspace .experiment-lab .lab-results{position:static!important;max-width:100%}
+  body.home-workspace .experiment-lab .current-data-shell .current-data-grid{grid-template-columns:minmax(0,1fr)}
+  body.home-workspace .experiment-lab .current-data-shell .current-data-meta{grid-template-columns:repeat(2,minmax(0,1fr))}
+  html body.research-workspace.phase-reading .phase-detail__hero,
+  html body.research-workspace.phase-reading .phase-detail__body,
+  html body.research-workspace.archive-shell .hero{grid-template-columns:minmax(0,1fr)!important;gap:32px!important}
+  html body.research-workspace.phase-reading .phase-detail__hero .phase-role-card{grid-template-columns:minmax(0,1fr)!important}
+  html body.research-workspace.phase-reading .phase-detail__hero .phase-role-card>*{grid-column:auto!important;grid-row:auto!important}
+  body.research-workspace.archive-shell .hero-copy{max-width:800px}
+}
+@media(max-width:700px){
+  body.home-workspace .experiment-lab .lab-shell{width:calc(100% - 32px)}
+  body.home-workspace .experiment-lab .lab-welcome{padding:18px}
+  body.home-workspace .experiment-lab .lab-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+  body.home-workspace .experiment-lab .lab-run{grid-column:1/-1}
+  body.home-workspace .experiment-lab .lab-actions button{min-width:0;padding-inline:8px}
+  body.home-workspace .experiment-lab .lab-chart svg{min-width:520px}
+  body.home-workspace .experiment-lab .current-data-shell .perception-inspector{grid-template-columns:minmax(0,1fr)}
+  body.home-workspace .experiment-lab .current-data-shell .current-data-meta{grid-template-columns:minmax(0,1fr)}
+  body.home-workspace .experiment-lab .current-data-shell .current-data-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .current-audit__numbers{display:block}
+  .current-audit__numbers>div+div{border-left:0;border-top:1px solid #e2e3e3;padding:17px 0 0;margin-top:17px}
+  html body.research-workspace.phase-reading .phase-detail__metrics-band{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  html body.research-workspace.phase-reading .phase-detail__hero h1{font-size:clamp(34px,9vw,48px)!important;line-height:1.08!important}
+  html body.research-workspace.archive-shell .hero{padding-inline:20px!important}
+  body.research-workspace.archive-workspace .archive-filter-group{display:flex;flex-wrap:wrap;gap:8px}
+}
+@media(max-width:420px){
+  html body.research-workspace.phase-reading .phase-detail__metrics-band{grid-template-columns:minmax(0,1fr)!important}
+  body.home-workspace .experiment-lab .lab-saved-tools :is(button,label){width:100%}
+}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}

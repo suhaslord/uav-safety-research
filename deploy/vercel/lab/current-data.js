@@ -107,7 +107,7 @@
       .perception-card__badge{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;padding:3px 8px;border-radius:3px;background:#e3e5e8;color:#393c41}
       .perception-card__badge--robust{background:#3e6ae1;color:#fff}
       .perception-card__frame{position:relative;background:#0d0e11;border-radius:4px;overflow:hidden;border:1px solid #d0d2d5;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;width:100%;max-width:100%;min-width:0;box-sizing:border-box}
-      .perception-card__frame--square{aspect-ratio:1/1;width:min(100%,520px);max-width:520px;margin:0 auto}
+      .perception-card__frame--square{aspect-ratio:16/9;width:100%;max-width:none;margin:0 auto}
       .perception-card__frame img{width:100%;height:100%;object-fit:contain;display:block}
       .perception-card__caption{font-size:12px;line-height:1.45;color:#5c5e62}
       .perception-card__meta{font-size:11px;color:#808285;font-family:monospace;letter-spacing:-.02em;word-break:break-word}
@@ -165,7 +165,7 @@
       }
       @media(max-width:640px){
         .current-data-shell{gap:20px;width:calc(100% - 32px)}
-        .perception-card__frame--square{width:min(100%,440px)}
+        .perception-card__frame--square{width:100%}
         .current-data-meta{grid-template-columns:1fr;gap:8px}
         .current-data-pill{min-height:44px;font-size:11px}
         .perception-card{padding:16px}

@@ -35,8 +35,9 @@ jobs:
           grep -q 'href="/research-media.css?v=' deploy/vercel/index.html
           grep -q 'AegisLand · UAV landing perception' deploy/vercel/index.html
           grep -q 'What happens when the estimate drifts but the uncertainty does not?' deploy/vercel/index.html
-          grep -q 'See the Phase 22 result' deploy/vercel/index.html
-          grep -q 'Frozen through Phase 22' deploy/vercel/index.html
+          grep -q 'Frozen simulation result' deploy/vercel/index.html
+          grep -q 'See the Phase 24 audit' deploy/vercel/index.html
+          grep -q 'Simulation record frozen through Phase 22' deploy/vercel/index.html
           grep -q 'Phase 22 is a simulation result' deploy/vercel/index.html
           grep -q 'home-lineage__track' deploy/vercel/index.html
           grep -q '6 PASS / 7 FAIL' deploy/vercel/index.html
