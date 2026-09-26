@@ -7,7 +7,7 @@ if (!BASE) throw new Error('QA_BASE_URL is required');
 
 const ROOT = path.join('qa-artifacts', 'convergence-grade');
 const SCREENSHOTS = path.join(ROOT, 'screenshots');
-const phaseSlugs = ['phase1','phase2','phase3','phase4','phase5','phase6','phase6b','phase7','phase8','phase9','phase10','phase10r','phase11','phase12','phase13a','phase13b','phase13c','phase14','phase15','phase16','phase17','phase18','phase19','phase20','phase21','phase22'];
+const phaseSlugs = ['phase1','phase2','phase3','phase4','phase5','phase6','phase6b','phase7','phase8','phase9','phase10','phase10r','phase11','phase12','phase13a','phase13b','phase13c','phase14','phase15','phase16','phase17','phase18','phase19','phase20','phase21','phase22','phase23','phase24'];
 const routes = ['/', '/phases/', ...phaseSlugs.map((slug) => `/phases/${slug}/`)];
 const viewports = [
   { name:'desktop', width:1440, height:1000 },
@@ -38,7 +38,12 @@ try {
       let response;
       try {
         response = await page.goto(`${BASE}${route}?convergence_grade=1`, { waitUntil:'domcontentloaded', timeout:45000 });
-        await page.waitForFunction(() => document.documentElement.dataset.finalConvergence === 'ready', null, { timeout:10000 }).catch(() => {});
+        if (!['/phases/phase23/','/phases/phase24/'].includes(route)) {
+          await page.waitForFunction(() => document.documentElement.dataset.finalConvergence === 'ready', null, { timeout:10000 }).catch(() => {});
+        }
+        if (route === '/phases/phase24/') {
+          await page.waitForFunction(() => document.querySelectorAll('[data-phase24-chart] svg').length === 4 && document.querySelectorAll('#conditionRows tr').length === 6, null, { timeout:15000 }).catch(() => {});
+        }
         await page.waitForTimeout(350);
       } catch (error) {
         block(key, 'load-failed', { error:String(error) });
@@ -60,9 +65,10 @@ try {
         };
         const style = (el) => el ? getComputedStyle(el) : null;
         const phasePage = /^\/phases\/phase/i.test(route);
+        const reportPage = ['/phases/phase23/','/phases/phase24/'].includes(route);
         const legacy = document.body.classList.contains('archive-shell');
         const phase11 = document.body.classList.contains('phase11-polish');
-        const frozen = phasePage && !legacy && !phase11;
+        const frozen = phasePage && !legacy && !phase11 && !reportPage;
         const h1 = document.querySelector('h1');
         const editorial = document.querySelector('.phase-editorial-photo');
         const railSection = document.querySelector('.phase-rail-section');
@@ -79,6 +85,12 @@ try {
         const hash = document.querySelector('.phase-hash, .provenance code, .signature-footer code');
         const nav = document.querySelector('.top .nav, .site-nav, .signature-nav__links');
         const navText = nav ? [...nav.querySelectorAll('a')].map((a)=>a.textContent.trim()) : [];
+        const reportLinks = [...document.querySelectorAll('.top .nav a, .record-path a, .hero-links a, .record-links a')].map((a)=>a.getAttribute('href') || '');
+        const phase24ChartCount = document.querySelectorAll('[data-phase24-chart] svg').length;
+        const phase24RowCount = document.querySelectorAll('#conditionRows tr').length;
+        const phase24HasBoundary = (document.body.innerText || '').includes('safety_acceptance=false') && (document.body.innerText || '').includes('controller_tuning_allowed=false');
+        const reportStyles = [...document.querySelectorAll('link[rel="stylesheet"]')].some((link)=> (link.getAttribute('href') || '').startsWith('/phase-report.css'));
+        const reportPhoto = document.querySelector('.report-photo img');
         const brokenImages = [...document.images].filter((img)=>!img.complete || img.naturalWidth===0).map((img)=>img.currentSrc || img.src);
         const ids = [...document.querySelectorAll('[id]')].map((el)=>el.id).filter(Boolean);
         const duplicateIds = [...new Set(ids.filter((id,i)=>ids.indexOf(id)!==i))];
@@ -92,7 +104,7 @@ try {
           scrollHeight:document.documentElement.scrollHeight,
           h1Count:document.querySelectorAll('h1').length,
           h1Size:h1?parseFloat(style(h1).fontSize):0,
-          phasePage,legacy,phase11,frozen,
+          phasePage,reportPage,legacy,phase11,frozen,
           mobileToggleVisible:visible(mobileToggle),
           roleQuestionLabel:roleQuestionLabel?.textContent.trim() || '',
           unifiedVisible:visible(unified),
@@ -106,7 +118,9 @@ try {
           backVisible:visible(back),
           contextHeadingSize:contextHeading?parseFloat(style(contextHeading).fontSize):0,
           hashSize:hash?parseFloat(style(hash).fontSize):0,
-          navText,
+          navText,reportLinks,reportStyles,reportPhotoAlt:reportPhoto?.alt || '',
+          phase23Rows:route === '/phases/phase23/' ? document.querySelectorAll('.table-wrap tbody tr').length : 0,
+          phase24ChartCount,phase24RowCount,phase24HasBoundary,
           brokenImages,duplicateIds,brokenAnchors:[...new Set(brokenAnchors)],smallTargets,
           main:!!document.querySelector('main')
         };
@@ -115,20 +129,26 @@ try {
       const status = response?.status() || 0;
       if (!status || status >= 400) block(key,'bad-status',{status});
       if (!m.main || m.h1Count !== 1) block(key,'semantic-shell',{main:m.main,h1Count:m.h1Count});
-      if (m.ready !== 'ready') block(key,'final-convergence-css-not-ready');
+      if (m.ready !== 'ready' && !m.reportPage) block(key,'final-convergence-css-not-ready');
       if (m.scrollWidth - m.clientWidth > 2) block(key,'horizontal-overflow',{overflow:m.scrollWidth-m.clientWidth});
       if (m.brokenImages.length) block(key,'broken-images',{images:m.brokenImages});
       if (m.duplicateIds.length) block(key,'duplicate-ids',{ids:m.duplicateIds});
       if (m.brokenAnchors.length) block(key,'broken-anchors',{anchors:m.brokenAnchors});
       if (vp.name==='desktop' && m.mobileToggleVisible) block(key,'desktop-mobile-menu-visible');
-      if (vp.name==='phone' && route !== '/phases/' && !m.mobileToggleVisible) warn(key,'phone-menu-not-visible');
+      if (vp.name==='phone' && route !== '/phases/' && !m.reportPage && !m.mobileToggleVisible) warn(key,'phone-menu-not-visible');
       if (vp.name==='phone' && m.smallTargets.length) warn(key,'small-phone-targets',{count:m.smallTargets.length,examples:m.smallTargets.slice(0,8)});
 
       if (m.phasePage) {
-        if (m.roleQuestionLabel !== 'Central question') block(key,'central-question-label-missing');
-        if (!m.unifiedVisible) block(key,'unified-bottom-nav-missing');
         if (vp.name==='desktop' && m.h1Size > 49) block(key,'phase-title-too-large',{size:m.h1Size});
         if (vp.name==='phone' && m.h1Size > 35) block(key,'phone-phase-title-too-large',{size:m.h1Size});
+        if (m.reportPage) {
+          if (!m.reportStyles || !m.reportPhotoAlt || !m.reportLinks.includes('/phases/')) block(key,'detector-report-shell-incomplete');
+          if (route === '/phases/phase23/' && (m.phase23Rows !== 6 || !m.reportLinks.includes('/phases/phase24/'))) block(key,'phase23-condition-record-incomplete',{rows:m.phase23Rows,links:m.reportLinks});
+          if (route === '/phases/phase24/' && (m.phase24ChartCount !== 4 || m.phase24RowCount !== 6 || !m.phase24HasBoundary || !m.reportLinks.includes('/phases/phase23/'))) block(key,'phase24-audit-incomplete',{charts:m.phase24ChartCount,rows:m.phase24RowCount,boundary:m.phase24HasBoundary,links:m.reportLinks});
+        } else {
+          if (m.roleQuestionLabel !== 'Central question') block(key,'central-question-label-missing');
+          if (!m.unifiedVisible) block(key,'unified-bottom-nav-missing');
+        }
         if (m.editorialHeight && vp.name==='desktop' && m.editorialHeight > 430) block(key,'context-photo-too-dominant',{height:m.editorialHeight});
         if (m.editorialHeight && vp.name==='phone' && m.editorialHeight > 260) block(key,'phone-context-photo-too-dominant',{height:m.editorialHeight});
         if (m.legacy) {
@@ -171,8 +191,10 @@ try {
 } finally { await browser.close(); }
 
 const counts = Object.fromEntries(viewports.map((vp)=>[vp.name,report.screenshots.filter((s)=>s.viewport===vp.name).length]));
-if ((counts.desktop||0) !== 140) block('global','desktop-screenshot-count',{count:counts.desktop||0});
-if ((counts.phone||0) !== 140) block('global','phone-screenshot-count',{count:counts.phone||0});
+const expectedScreenshotsPerViewport = routes.length * 5;
+for (const viewport of viewports) {
+  if ((counts[viewport.name] || 0) !== expectedScreenshotsPerViewport) block('global',`${viewport.name}-screenshot-count`,{count:counts[viewport.name] || 0,expected:expectedScreenshotsPerViewport});
+}
 report.finishedAt = new Date().toISOString();
 report.counts = counts;
 report.grade = Math.max(0, 10 - report.blockers.length - report.warnings.length * 0.2);
@@ -181,8 +203,7 @@ const summary = [
   '# AegisLand convergence grade',
   '',
   `- Preview: ${BASE}`,
-  `- Desktop screenshots: ${counts.desktop||0}`,
-  `- Phone screenshots: ${counts.phone||0}`,
+  ...Object.entries(counts).map(([viewport,count]) => `- ${viewport} screenshots: ${count}`),
   `- Blockers: ${report.blockers.length}`,
   `- Warnings: ${report.warnings.length}`,
   `- Grade: ${report.grade.toFixed(1)} / 10`,
