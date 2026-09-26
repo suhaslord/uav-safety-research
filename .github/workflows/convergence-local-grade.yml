@@ -57,7 +57,7 @@ jobs:
           cat /tmp/aegis-local.log
           exit 1
 
-      - name: Capture and analyze strict 560+ screenshot sweep
+      - name: Capture and analyze full-route screenshot sweep
         env:
           QA_BASE_URL: http://127.0.0.1:4173
         run: node .github/qa/ui-bug-sweep-560.mjs
@@ -66,7 +66,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: aegisland-ui-bug-sweep-560
+          name: aegisland-ui-bug-sweep-full
           path: qa-artifacts/
           if-no-files-found: warn
           retention-days: 14

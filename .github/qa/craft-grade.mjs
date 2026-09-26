@@ -6,7 +6,8 @@ const BASE = process.env.QA_BASE_URL;
 if (!BASE) throw new Error('QA_BASE_URL is required');
 
 const ROOT = path.join('qa-artifacts', 'craft-grade');
-const phaseSlugs = ['phase1','phase2','phase3','phase4','phase5','phase6','phase6b','phase7','phase8','phase9','phase10','phase10r','phase11','phase12','phase13a','phase13b','phase13c','phase14','phase15','phase16','phase17','phase18','phase19','phase20','phase21','phase22'];
+const phaseSlugs = ['phase1','phase2','phase3','phase4','phase5','phase6','phase6b','phase7','phase8','phase9','phase10','phase10r','phase11','phase12','phase13a','phase13b','phase13c','phase14','phase15','phase16','phase17','phase18','phase19','phase20','phase21','phase22','phase23','phase24'];
+const reportRoutes = ['/phases/phase23/','/phases/phase24/'];
 const legacySlugs = ['phase1','phase2','phase3','phase4','phase5','phase6','phase6b','phase7','phase8','phase9','phase10','phase10r'];
 const frozenSlugs = ['phase12','phase13a','phase13b','phase13c','phase14','phase15','phase16','phase17','phase18','phase19','phase20','phase21','phase22'];
 const routes = ['/', '/phases/', ...phaseSlugs.map((slug) => `/phases/${slug}/`)];
@@ -51,7 +52,11 @@ try {
         loadError = String(error?.message || error);
       }
 
-      await page.waitForFunction(() => document.documentElement.dataset.finalConvergence === 'ready', null, { timeout:3000 }).catch(() => {});
+      if (route === '/phases/phase24/') {
+        await page.waitForFunction(() => document.querySelectorAll('[data-phase24-chart] svg').length === 4 && document.querySelectorAll('#conditionRows tr').length === 6, null, { timeout:15000 }).catch(() => {});
+      } else if (!reportRoutes.includes(route)) {
+        await page.waitForFunction(() => document.documentElement.dataset.finalConvergence === 'ready', null, { timeout:3000 }).catch(() => {});
+      }
       // Never wait indefinitely on image.decode(). The image-health gate below still
       // catches genuinely broken local images, while this bounded settle keeps the
       // grader deterministic on CI runners.
@@ -68,9 +73,10 @@ try {
         const text = document.body.innerText || '';
         const h1 = document.querySelector('h1');
         const phase = /^\/phases\/phase/i.test(route);
+        const reportPage = ['/phases/phase23/','/phases/phase24/'].includes(route);
         const legacy = document.body.classList.contains('archive-shell');
         const phase11 = document.body.classList.contains('phase11-polish');
-        const frozen = phase && !legacy && !phase11;
+        const frozen = phase && !legacy && !phase11 && !reportPage;
         const role = document.querySelector('.phase-role-card');
         const roleStyle = css(role);
         const roleLabel = document.querySelector('.phase-role-card__label span')?.textContent.trim() || '';
@@ -89,8 +95,10 @@ try {
         const links = [...(unified?.querySelectorAll('a') || [])].map((a) => ({ text:a.textContent.trim(), href:a.getAttribute('href') || '' }));
         const brokenImages = [...document.images].filter((img) => img.complete && img.naturalWidth === 0).map((img) => img.currentSrc || img.src);
         const localStyles = [...document.styleSheets].map((sheet) => sheet.href || '').filter(Boolean);
+        const reportPhoto = document.querySelector('.report-photo img');
+        const reportLinks = [...document.querySelectorAll('.top .nav a, .record-path a, .hero-links a, .record-links a')].map((a)=>a.getAttribute('href') || '');
         return {
-          phase, legacy, phase11, frozen,
+          phase, reportPage, legacy, phase11, frozen,
           main:!!document.querySelector('main'),
           h1Count:document.querySelectorAll('h1').length,
           h1Size:h1 ? parseFloat(css(h1).fontSize) : 0,
@@ -119,6 +127,13 @@ try {
           editorialPresent:!!editorial,
           editorialHeight:editorialFrame?.getBoundingClientRect().height || 0,
           editorialCaption,
+          reportStyles:localStyles.some((href)=>href.includes('/phase-report.css')),
+          reportPhotoAlt:reportPhoto?.alt || '',
+          reportLinks,
+          phase23Rows:route === '/phases/phase23/' ? document.querySelectorAll('.table-wrap tbody tr').length : 0,
+          phase24Charts:document.querySelectorAll('[data-phase24-chart] svg').length,
+          phase24Rows:document.querySelectorAll('#conditionRows tr').length,
+          phase24HasBoundary:text.includes('safety_acceptance=false') && text.includes('controller_tuning_allowed=false'),
           brokenImages,
           archiveCategories:document.querySelectorAll('.archive-category').length,
           archiveCards:document.querySelectorAll('.archive-card.phase-personalized').length,
@@ -160,6 +175,8 @@ try {
 const obs = (viewport, route) => observations.find((x) => x.viewport === viewport && x.route === route);
 const all = (fn) => observations.every(fn);
 const phaseObs = observations.filter((x) => phaseRoutes.includes(x.route));
+const templatePhaseObs = phaseObs.filter((x) => !reportRoutes.includes(x.route));
+const detectorObs = phaseObs.filter((x) => reportRoutes.includes(x.route));
 const legacyObs = observations.filter((x) => legacyRoutes.includes(x.route));
 const frozenObs = observations.filter((x) => frozenRoutes.includes(x.route));
 const desktopObs = observations.filter((x) => x.viewport === 'desktop');
@@ -168,30 +185,30 @@ const phoneObs = observations.filter((x) => x.viewport === 'phone');
 const gates = [];
 const gate = (name, pass, detail) => gates.push({ name, pass:Boolean(pass), detail });
 
-gate('01 · Every public route loads', all((x) => !x.loadError && x.status >= 200 && x.status < 400), '28 routes × desktop/phone');
+gate('01 · Every public route loads', all((x) => !x.loadError && x.status >= 200 && x.status < 400), `${routes.length} routes × desktop/phone`);
 gate('02 · Semantic shell stays intact', all((x) => x.metrics.main && x.metrics.h1Count === 1), 'one <main> and one <h1> on every route');
 gate('03 · No horizontal overflow', all((x) => x.metrics.scrollWidth - x.metrics.clientWidth <= 2), 'desktop and 390px phone');
 gate('04 · Browser console stays clean', all((x) => x.consoleErrors.length === 0), 'no uncaught/page console errors');
 gate('05 · Local assets and loaded images stay healthy', all((x) => x.failedRequests.length === 0 && x.metrics.brokenImages.length === 0), 'no failed local requests or loaded broken images');
 
-gate('06 · Navigation responds by viewport', desktopObs.every((x) => !x.metrics.mobileToggleVisible) && phoneObs.filter((x) => x.route !== '/phases/').every((x) => x.metrics.mobileToggleVisible), 'mobile controls stay on phone only');
+gate('06 · Navigation responds by viewport', desktopObs.every((x) => !x.metrics.mobileToggleVisible) && phoneObs.filter((x) => x.route !== '/phases/' && !reportRoutes.includes(x.route)).every((x) => x.metrics.mobileToggleVisible) && detectorObs.filter((x) => x.viewport === 'phone').every((x) => x.metrics.reportLinks.includes('/phases/')), 'compact menu on phase templates; direct navigation on detector reports');
 gate('07 · Phone controls remain tappable', phoneObs.every((x) => x.metrics.smallTargets.length === 0), 'all visible controls at least 40×40px');
 gate('08 · Phase titles stay editorial, not billboard-sized', phaseObs.every((x) => x.viewport === 'desktop' ? x.metrics.h1Size <= 49 : x.metrics.h1Size <= 35), '≤49px desktop / ≤35px phone');
-gate('09 · Every phase names its actual question', phaseObs.every((x) => x.metrics.roleQuestion === 'Central question'), '26 phase routes, both viewports');
-gate('10 · Every phase has one predictable ending', phaseObs.every((x) => x.metrics.unifiedVisible && x.metrics.unifiedLinks.length === 3 && x.metrics.unifiedLinks.some((l) => l.text === 'All phases')), 'Previous / All phases / Next');
+gate('09 · Every phase names its actual question', templatePhaseObs.every((x) => x.metrics.roleQuestion === 'Central question'), '26 simulation phase pages, both viewports');
+gate('10 · Every phase has one predictable ending', templatePhaseObs.every((x) => x.metrics.unifiedVisible && x.metrics.unifiedLinks.length === 3 && x.metrics.unifiedLinks.some((l) => l.text === 'All phases')), 'Previous / All phases / Next on the simulation phase template');
 
-gate('11 · Craft layer reaches every phase', phaseObs.every((x) => x.metrics.craftReady === 'ready' && x.metrics.styles.some((href) => href.includes('/craft-polish.css'))), 'craft-polish.css loaded on all 26 phase routes');
-gate('12 · Phase metadata reads like an editorial note', phaseObs.every((x) => x.metrics.rolePresent && x.metrics.roleLabel === 'Place in the program' && x.metrics.roleSignal === 'Signal' && x.metrics.roleRadius === 0 && x.metrics.roleBorderTop !== 'none' && x.metrics.roleBorderBottom !== 'none'), 'rule-based metadata; no rounded chatbot card');
+gate('11 · Craft layer reaches every phase', templatePhaseObs.every((x) => x.metrics.craftReady === 'ready' && x.metrics.styles.some((href) => href.includes('/craft-polish.css'))), 'craft-polish.css loaded on all 26 simulation phase routes');
+gate('12 · Phase metadata reads like an editorial note', templatePhaseObs.every((x) => x.metrics.rolePresent && x.metrics.roleLabel === 'Place in the program' && x.metrics.roleSignal === 'Signal' && x.metrics.roleRadius === 0 && x.metrics.roleBorderTop !== 'none' && x.metrics.roleBorderBottom !== 'none'), 'rule-based metadata; no rounded chatbot card');
 gate('13 · Legacy phases no longer repeat generic template headings', legacyObs.every((x) => !x.metrics.genericSnapshot && !x.metrics.genericSystem && !x.metrics.genericEvidence), 'phase-specific context/system language');
 gate('14 · Legacy CTA copy is research-first', legacyObs.every((x) => !x.metrics.genericExplore), 'no “Explore the case study” marketing copy');
 gate('15 · Frozen findings use phase identity', frozenObs.every((x) => !x.metrics.genericSupports), 'no repeated “What this phase supports.”');
 gate('16 · Frozen source/freeze language is explicit', frozenObs.every((x) => x.metrics.lockedSource && x.metrics.fixedRecordLabel), 'Locked source record + Why the record stays fixed');
 
-gate('17 · Photography stays contextual, not evidentiary', phaseObs.every((x) => x.metrics.editorialPresent && /not AegisLand experimental evidence/i.test(x.metrics.editorialCaption) && (x.viewport === 'desktop' ? x.metrics.editorialHeight <= 430 : x.metrics.editorialHeight <= 260)), 'captioned context photography under strict size caps');
+gate('17 · Photography stays contextual, not evidentiary', templatePhaseObs.every((x) => x.metrics.editorialPresent && /not AegisLand experimental evidence/i.test(x.metrics.editorialCaption) && (x.viewport === 'desktop' ? x.metrics.editorialHeight <= 430 : x.metrics.editorialHeight <= 260)), 'captioned context photography under strict size caps');
 const archiveDesktop = obs('desktop','/phases/');
 const archivePhone = obs('phone','/phases/');
 gate('18 · Archive includes both research tracks', [archiveDesktop,archivePhone].every((x) => x && x.metrics.archiveCategories === 7 && x.metrics.archiveCards === 28 && x.metrics.archiveIdentities === 28 && x.metrics.frozenCards === 13 && x.metrics.historicalCards === 15), '7 categories / 28 records / 13 frozen + 15 other');
-gate('19 · Phase metadata avoids rounded-card soup', phaseObs.every((x) => x.metrics.roleBackground === 'rgba(0, 0, 0, 0)' || x.metrics.roleBackground === 'transparent'), 'metadata surface is transparent on every phase');
+gate('19 · Phase metadata avoids rounded-card soup', templatePhaseObs.every((x) => x.metrics.roleBackground === 'rgba(0, 0, 0, 0)' || x.metrics.roleBackground === 'transparent'), 'metadata surface is transparent on every simulation phase');
 
 const home = obs('desktop','/');
 const archive = obs('desktop','/phases/');
@@ -212,6 +229,7 @@ const sciencePass = Boolean(home && archive && phase22)
   && phase22.metrics.bodyText.includes('safety_acceptance=false')
   && phase22.metrics.bodyText.includes('controller_tuning_allowed=false');
 gate('20 · Craft changes never rewrite the science', sciencePass, 'Phase 22 metrics/hashes/boundary + 6 PASS / 7 FAIL frozen lineage');
+gate('21 · Detector pages keep their own evidence track', detectorObs.length === reportRoutes.length * viewports.length && detectorObs.every((x) => x.metrics.reportStyles && x.metrics.reportPhotoAlt && x.metrics.reportLinks.includes('/phases/') && (x.route === '/phases/phase23/' ? x.metrics.phase23Rows === 6 && x.metrics.reportLinks.includes('/phases/phase24/') : x.metrics.phase24Charts === 4 && x.metrics.phase24Rows === 6 && x.metrics.phase24HasBoundary && x.metrics.reportLinks.includes('/phases/phase23/'))), 'Phase 23 condition table and Phase 24 charts, table, and evidence boundary checked at desktop and phone widths');
 
 const passed = gates.filter((g) => g.pass).length;
 const report = { base:BASE, score:passed, total:gates.length, gates, observations, finishedAt:new Date().toISOString() };

@@ -1,4 +1,4 @@
-name: AegisLand mobile UI sweep 504
+name: AegisLand full-route mobile UI sweep
 
 on:
   push:
@@ -54,7 +54,7 @@ jobs:
           cat /tmp/aegis-mobile-local.log
           exit 1
 
-      - name: Capture and analyze 504+ mobile screenshots
+      - name: Capture and analyze all-route mobile screenshots
         env:
           QA_BASE_URL: http://127.0.0.1:4173
         run: node .github/qa/mobile-ui-sweep-504.mjs
@@ -63,7 +63,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: aegisland-mobile-ui-sweep-504
-          path: qa-artifacts/mobile-ui-sweep-504/
+          name: aegisland-mobile-ui-sweep-full
+          path: qa-artifacts/mobile-ui-sweep-full/
           if-no-files-found: warn
           retention-days: 14

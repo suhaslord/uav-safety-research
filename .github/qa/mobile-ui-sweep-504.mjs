@@ -5,10 +5,11 @@ import sharp from 'sharp';
 
 const BASE = process.env.QA_BASE_URL;
 if (!BASE) throw new Error('QA_BASE_URL is required');
-const ROOT = path.join('qa-artifacts','mobile-ui-sweep-504');
+const ROOT = path.join('qa-artifacts','mobile-ui-sweep-full');
 const SHOTS = path.join(ROOT,'screenshots');
-const slugs = ['phase1','phase2','phase3','phase4','phase5','phase6','phase6b','phase7','phase8','phase9','phase10','phase10r','phase11','phase12','phase13a','phase13b','phase13c','phase14','phase15','phase16','phase17','phase18','phase19','phase20','phase21','phase22'];
+const slugs = ['phase1','phase2','phase3','phase4','phase5','phase6','phase6b','phase7','phase8','phase9','phase10','phase10r','phase11','phase12','phase13a','phase13b','phase13c','phase14','phase15','phase16','phase17','phase18','phase19','phase20','phase21','phase22','phase23','phase24'];
 const routes = ['/', '/phases/', ...slugs.map((s)=>`/phases/${s}/`)];
+const reportRoutes = ['/phases/phase23/','/phases/phase24/'];
 const phones = [
   ['phone-320',320,568],['phone-360',360,800],['phone-375',375,667],
   ['phone-390',390,844],['phone-412',412,915],['phone-430',430,932]
@@ -35,7 +36,8 @@ try{
       let response;
       try{
         response=await page.goto(`${BASE}${route}?mobile_ui_sweep=1`,{waitUntil:'domcontentloaded',timeout:45000});
-        await page.waitForFunction(()=>document.documentElement.dataset.finalConvergence==='ready',null,{timeout:12000}).catch(()=>{});
+        if(!reportRoutes.includes(route))await page.waitForFunction(()=>document.documentElement.dataset.finalConvergence==='ready',null,{timeout:12000}).catch(()=>{});
+        if(route==='/phases/phase24/')await page.waitForFunction(()=>document.querySelectorAll('[data-phase24-chart] svg').length===4&&document.querySelectorAll('#conditionRows tr').length===6,null,{timeout:15000}).catch(()=>{});
         await page.waitForTimeout(220);
       }catch(error){block(key,'load-failed',{error:String(error)});}
 
@@ -49,6 +51,7 @@ try{
         const rect=(el)=>{const r=el.getBoundingClientRect();return{left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height};};
         const cw=document.documentElement.clientWidth;
         const text=document.body.innerText;
+        const reportPage=['/phases/phase23/','/phases/phase24/'].includes(route);
         const header=document.querySelector('.site-header,.signature-nav,body.archive-shell .top');
         const toggle=document.querySelector('.mobile-menu-toggle,.archive-menu-toggle');
         const controls=[...document.querySelectorAll('a,button,input,select,textarea,[role="button"]')].filter(visible);
@@ -65,32 +68,40 @@ try{
         const lineage=[...document.querySelectorAll('.home-lineage__node')].filter(visible).map(rect);
         const categories=[...document.querySelectorAll('.category-nav a')].filter(visible).map(rect);
         const boundary=document.querySelector('.boundary-flags');
+        const reportPhoto=document.querySelector('.report-photo img');
+        const reportLinks=[...document.querySelectorAll('.top .nav a,.record-path a,.hero-links a,.record-links a')].map((a)=>a.getAttribute('href')||'');
         const home=route==='/'?{
           purposeClarity:document.body.dataset.purposeClarity==='true',
           questionRemoved:!document.getElementById('question'),
           purposeVisible:visible(document.getElementById('purpose')),
           evidenceVisible:visible(document.getElementById('evidence')),
-          intendedCopy:/What the project does/i.test(text)&&/Find when landing perception becomes confidently wrong/i.test(text)&&/Main conclusion/i.test(text),
+          intendedCopy:/Why misses stay visible/i.test(text)&&/When does the camera become confidently wrong/i.test(text)&&/The finding/i.test(text),
           metrics:/0\.8319/.test(text)&&/0\.7744/.test(text)&&/100%/.test(text),
           claims:/simulation_only=true/.test(text)&&/safety_acceptance=false/.test(text)&&/controller_tuning_allowed=false/.test(text)
         }:null;
         return{
-          ready:document.documentElement.dataset.finalConvergence||'',mainCount:document.querySelectorAll('main').length,h1Count:document.querySelectorAll('h1').length,
+          ready:document.documentElement.dataset.finalConvergence||'',reportPage,mainCount:document.querySelectorAll('main').length,h1Count:document.querySelectorAll('h1').length,
           scrollWidth:document.documentElement.scrollWidth,clientWidth:cw,scrollHeight:document.documentElement.scrollHeight,
           headerRect:header&&visible(header)?rect(header):null,toggleVisible:visible(toggle),toggleRect:toggle&&visible(toggle)?rect(toggle):null,
           under40,under44,offscreen,brokenImages,duplicateIds,brokenAnchors,clipped,fixedOffscreen,
           lineageCount:lineage.length,lineageOffscreen:lineage.filter((x)=>x.left<-3||x.right>cw+3).length,
           categoryOffscreen:categories.filter((x)=>x.left<-3||x.right>cw+3).length,
-          boundaryOffscreen:boundary&&visible(boundary)?(rect(boundary).left<-3||rect(boundary).right>cw+3):false,home
+          boundaryOffscreen:boundary&&visible(boundary)?(rect(boundary).left<-3||rect(boundary).right>cw+3):false,home,
+          reportStyles:[...document.querySelectorAll('link[rel="stylesheet"]')].some((link)=>(link.getAttribute('href')||'').startsWith('/phase-report.css')),
+          reportPhotoAlt:reportPhoto?.alt||'',reportLinks,
+          phase23Rows:route==='/phases/phase23/'?document.querySelectorAll('.table-wrap tbody tr').length:0,
+          phase24Charts:document.querySelectorAll('[data-phase24-chart] svg').length,
+          phase24Rows:document.querySelectorAll('#conditionRows tr').length,
+          phase24HasBoundary:text.includes('safety_acceptance=false')&&text.includes('controller_tuning_allowed=false')
         };
       },{route});
 
       const status=response?.status()||0;
       if(!status||status>=400)block(key,'bad-status',{status});
       if(m.mainCount!==1||m.h1Count!==1)block(key,'semantic-shell',{mainCount:m.mainCount,h1Count:m.h1Count});
-      if(m.ready!=='ready')block(key,'final-convergence-css-not-ready');
+      if(m.ready!=='ready'&&!m.reportPage)block(key,'final-convergence-css-not-ready');
       if(m.scrollWidth-m.clientWidth>2)block(key,'horizontal-overflow',{overflow:m.scrollWidth-m.clientWidth,header:m.headerRect});
-      if(!m.toggleVisible)block(key,'mobile-menu-toggle-missing');
+      if(!m.toggleVisible&&!m.reportPage)block(key,'mobile-menu-toggle-missing');
       if(m.toggleRect&&(m.toggleRect.width<44||m.toggleRect.height<44))block(key,'mobile-menu-toggle-too-small',m.toggleRect);
       if(m.brokenImages.length)block(key,'broken-images',{images:m.brokenImages});
       if(m.duplicateIds.length)block(key,'duplicate-ids',{ids:m.duplicateIds});
@@ -107,6 +118,11 @@ try{
         if(!m.home.purposeClarity||!m.home.questionRemoved||!m.home.purposeVisible||!m.home.evidenceVisible||!m.home.intendedCopy)block(key,'home-purpose-framing-not-visible',m.home);
         if(!m.home.metrics)block(key,'home-final-metrics-not-visible');
         if(!m.home.claims)block(key,'home-claim-boundary-not-visible');
+      }
+      if(m.reportPage){
+        if(!m.reportStyles||!m.reportPhotoAlt||!m.reportLinks.includes('/phases/'))block(key,'detector-report-shell-incomplete');
+        if(route==='/phases/phase23/'&&(m.phase23Rows!==6||!m.reportLinks.includes('/phases/phase24/')))block(key,'phase23-condition-record-incomplete',{rows:m.phase23Rows,links:m.reportLinks});
+        if(route==='/phases/phase24/'&&(m.phase24Charts!==4||m.phase24Rows!==6||!m.phase24HasBoundary||!m.reportLinks.includes('/phases/phase23/')))block(key,'phase24-audit-incomplete',{charts:m.phase24Charts,rows:m.phase24Rows,boundary:m.phase24HasBoundary,links:m.reportLinks});
       }
       const ce=consoleErrors.filter((x)=>!/favicon|ERR_BLOCKED_BY_CLIENT/i.test(x));
       const fr=failedRequests.filter((x)=>!/favicon|github\.com|linkedin\.com|wikimedia\.org/i.test(x.url));

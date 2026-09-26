@@ -10,7 +10,7 @@ const SOURCE = '.github/qa/convergence-grade.mjs';
 const GENERATED = '.github/qa/.convergence-grade-secondary.generated.mjs';
 const PRIMARY_ROOT = path.join('qa-artifacts', 'convergence-grade');
 const SECONDARY_ROOT = path.join('qa-artifacts', 'convergence-grade-secondary');
-const FINAL_ROOT = path.join('qa-artifacts', 'convergence-grade-560');
+const FINAL_ROOT = path.join('qa-artifacts', 'convergence-grade-full');
 
 const run = (script) => new Promise((resolve) => {
   const child = spawn(process.execPath, [script], {
@@ -28,13 +28,7 @@ const secondaryViewports = `const viewports = [
 
 let secondary = source
   .replace("const ROOT = path.join('qa-artifacts', 'convergence-grade');", "const ROOT = path.join('qa-artifacts', 'convergence-grade-secondary');")
-  .replace(/const viewports = \[[\s\S]*?\n\];/, secondaryViewports)
-  .replace(
-    /if \(\(counts\.desktop\|\|0\) !== 140\) block\('global','desktop-screenshot-count',\{count:counts\.desktop\|\|0\}\);\nif \(\(counts\.phone\|\|0\) !== 140\) block\('global','phone-screenshot-count',\{count:counts\.phone\|\|0\}\);/,
-    "if ((counts.laptop||0) !== 140) block('global','laptop-screenshot-count',{count:counts.laptop||0});\nif ((counts.tablet||0) !== 140) block('global','tablet-screenshot-count',{count:counts.tablet||0});"
-  )
-  .replace('`- Desktop screenshots: ${counts.desktop||0}`', '`- Laptop screenshots: ${counts.laptop||0}`')
-  .replace('`- Phone screenshots: ${counts.phone||0}`', '`- Tablet screenshots: ${counts.tablet||0}`');
+  .replace(/const viewports = \[[\s\S]*?\n\];/, secondaryViewports);
 
 if (secondary === source || !secondary.includes("name:'laptop'") || !secondary.includes('convergence-grade-secondary')) {
   throw new Error('Failed to generate secondary convergence scan');
@@ -92,8 +86,11 @@ const readJson = async (file) => JSON.parse(await fs.readFile(file, 'utf8'));
 const primaryReport = await readJson(path.join(PRIMARY_ROOT, 'report.json')).catch(() => null);
 const secondaryReport = await readJson(path.join(SECONDARY_ROOT, 'report.json')).catch(() => null);
 
-const expected = 560;
-const screenshotCountOk = shots.length >= expected;
+const expected = primaryReport && secondaryReport
+  ? primaryReport.routes.length * 5 * Object.keys(primaryReport.counts).length
+    + secondaryReport.routes.length * 5 * Object.keys(secondaryReport.counts).length
+  : 0;
+const screenshotCountOk = expected > 0 && shots.length === expected;
 const oneAnalysisPerScreenshot = imageAnalyses.length === shots.length;
 const combinedBlockers = [
   ...(primaryReport?.blockers || []),
@@ -105,7 +102,7 @@ const combinedWarnings = [
   ...(secondaryReport?.warnings || [])
 ];
 
-if (!screenshotCountOk) combinedBlockers.push({ key: 'global', kind: 'screenshot-count-below-560', count: shots.length });
+if (!screenshotCountOk) combinedBlockers.push({ key: 'global', kind: 'screenshot-count-mismatch', count: shots.length, expected });
 if (!oneAnalysisPerScreenshot) combinedBlockers.push({ key: 'global', kind: 'missing-image-analysis', screenshots: shots.length, analyses: imageAnalyses.length });
 if (primaryCode !== 0) combinedBlockers.push({ key: 'primary-scan', kind: 'primary-grade-failed', exitCode: primaryCode });
 if (secondaryCode !== 0) combinedBlockers.push({ key: 'secondary-scan', kind: 'secondary-grade-failed', exitCode: secondaryCode });
@@ -127,7 +124,7 @@ const report = {
 
 await fs.writeFile(path.join(FINAL_ROOT, 'report.json'), JSON.stringify(report, null, 2));
 const summary = [
-  '# AegisLand 560-screenshot final UI scan',
+  '# AegisLand full multi-viewport UI scan',
   '',
   `- Base: ${BASE}`,
   `- Screenshots captured: ${shots.length}`,
