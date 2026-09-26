@@ -142,8 +142,7 @@
     if (!location.pathname.startsWith('/phases/')) return;
     const evidence = document.querySelector('.phase-detail__panel--evidence p');
     if (evidence) evidence.textContent = 'The hashes tie this page to its frozen evidence. A later phase may ask a different question, but it cannot change this verdict.';
-    const context = document.querySelector('.phase-detail__context-grid p');
-    if (context) context.textContent = 'This result belongs to the conditions tested here. Later work can narrow or extend the question; it does not rewrite this record.';
+    // The phase-specific frozen note already states the precise limit.
     const findingHeading = [...document.querySelectorAll('.phase-detail__panel h2')].find((node) => node.textContent.trim() === 'What this phase supports.');
     if (findingHeading) findingHeading.textContent = 'What the result supports';
   };

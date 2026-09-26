@@ -23,7 +23,7 @@
   <link rel="stylesheet" href="/tesla-bundle.css?v=1">
   <link rel="stylesheet" href="/phase-reading-responsive.css?v=1">
   <link rel="stylesheet" href="/ui-review.css?v=2">
-  <link rel="stylesheet" href="/site-refresh.css?v=1">
+  <link rel="stylesheet" href="/site-refresh.css?v=2">
 </head>
 <body class="phase11-polish research-workspace">
   <a class="skip-link" href="#main">Skip to Phase 11 result</a>
@@ -47,8 +47,8 @@
           <div class="workspace-context"><span>Reliability + calibration</span><span>Phase 11</span><span>Protected evidence</span></div>
           <p class="eyebrow">Phase 11 · P14R · frozen historical result</p>
           <h1 id="phase-title">High availability, good coverage, one tail-efficiency failure.</h1>
-          <p class="hero-deck">P14R fixed most of the availability and uncertainty problems that motivated the phase. It still failed one preregistered protected metric, so the overall verdict stayed failed.</p>
-          <p class="copy">Protected validation reached 98.53% useful availability, 96.17% lateral 95% coverage, 95.82% altitude 95% coverage, and 94.63% rescue recovery. The H4 lateral p95 tail-efficiency ratio was 2.435×, above the frozen 2.25× maximum.</p>
+          <p class="hero-deck">Availability and coverage recovered. One locked tail check failed.</p>
+          <p class="copy">The H4 lateral p95 ratio reached 2.435× against a frozen 2.25× maximum.</p>
           <div class="actions"><a class="button primary" href="#boundary">Inspect failed gate</a><a class="button secondary" href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase11_final_report.md" target="_blank" rel="noreferrer">Read final report</a></div>
         </div>
         <aside class="result-card" aria-label="Phase 11 protected result"><p class="eyebrow">Protected verdict</p><strong class="fail">Mixed / failed overall</strong><p>One locked H4 component missed its limit: lateral p95 interval width / p95 error = <b>2.435×</b>, above the frozen <b>2.25×</b> maximum.</p><div class="safety"><p class="eyebrow">Boundary</p><strong>Not safety accepted</strong><p>simulation_only=true · safety_acceptance=false · controller_tuning_allowed=false</p></div></aside>
@@ -59,27 +59,27 @@
 
     <section class="section" id="boundary">
       <div class="wrap boundary-grid">
-        <div><p class="eyebrow">The failed gate</p><h2>One locked tail metric stopped the phase.</h2><p class="copy">Protected validation passed the required availability, coverage, calibration, rescue, and most efficiency checks. The lateral p95 interval-width / p95-error component did not. Its frozen maximum stayed 2.25× after the 2.435× result was visible.</p><p class="copy">The final P15-v2 holdout was not opened after this failure. Any later work had to start as a new preregistered phase with fresh evidence.</p></div>
+        <div><p class="eyebrow">The failed gate</p><h2>One locked tail metric stopped the phase.</h2><p class="copy">Most protected checks passed. The lateral p95 ratio missed its 2.25× limit at 2.435×.</p><p class="copy">The final holdout stayed closed after the failure.</p></div>
         <div class="threshold-card"><p class="eyebrow">H4 lateral p95 efficiency</p><strong>2.435× <span class="fail">FAIL</span></strong><p>Frozen maximum: 2.25×</p><div class="threshold-chart" role="img" aria-label="Protected H4 lateral p95 interval width to p95 error ratio was 2.435, above the frozen maximum 2.25"><div class="threshold-track"><div class="threshold-fill"></div></div><span class="threshold-limit" aria-hidden="true"></span><span class="threshold-result" aria-hidden="true"></span></div><div class="threshold-foot">Threshold unchanged · no post-protected retuning · no P15 unseen-replication claim.</div></div>
       </div>
     </section>
 
     <section class="section ash">
-      <div class="wrap"><div class="section-head"><p class="eyebrow">Protected gate detail</p><div><h2>The strong metrics and the failed metric belong together.</h2><p class="copy">The result is easiest to judge when the impressive numbers and the disqualifying number are shown in the same evidence block.</p></div></div><div class="evidence-list" aria-label="Selected Phase 11 protected gate outcomes"><div class="evidence-item"><span>H1 useful availability</span><strong>98.53% · PASS</strong></div><div class="evidence-item"><span>H3 calibration MACE</span><strong>0.03678 · PASS</strong></div><div class="evidence-item"><span>H4 lateral median width / p95 error</span><strong>0.855× · PASS</strong></div><div class="evidence-item"><span>H4 lateral p95 width / p95 error</span><strong class="fail">2.435× · FAIL</strong></div><div class="evidence-item"><span>H4 altitude median ratio</span><strong>1.113× · PASS</strong></div><div class="evidence-item"><span>H4 altitude p95 ratio</span><strong>1.833× · PASS</strong></div><div class="evidence-item"><span>Rescue lateral MAE</span><strong>0.0840 m</strong></div><div class="evidence-item"><span>Rescue altitude MAE</span><strong>0.1650 m</strong></div></div></div>
+      <div class="wrap"><div class="section-head"><p class="eyebrow">Protected gate detail</p><div><h2>The strong metrics and the failed metric belong together.</h2><p class="copy">The strong numbers and the failed gate belong together.</p></div></div><div class="evidence-list" aria-label="Selected Phase 11 protected gate outcomes"><div class="evidence-item"><span>H1 useful availability</span><strong>98.53% · PASS</strong></div><div class="evidence-item"><span>H3 calibration MACE</span><strong>0.03678 · PASS</strong></div><div class="evidence-item"><span>H4 lateral median width / p95 error</span><strong>0.855× · PASS</strong></div><div class="evidence-item"><span>H4 lateral p95 width / p95 error</span><strong class="fail">2.435× · FAIL</strong></div><div class="evidence-item"><span>H4 altitude median ratio</span><strong>1.113× · PASS</strong></div><div class="evidence-item"><span>H4 altitude p95 ratio</span><strong>1.833× · PASS</strong></div><div class="evidence-item"><span>Rescue lateral MAE</span><strong>0.0840 m</strong></div><div class="evidence-item"><span>Rescue altitude MAE</span><strong>0.1650 m</strong></div></div></div>
     </section>
 
     <section class="section" id="method">
-      <div class="wrap"><div class="section-head"><p class="eyebrow">What changed</p><div><h2>Three bounded changes defined P14R.</h2><p class="copy">The redesign targeted availability and transfer calibration without letting the rescue path become a recursive source of future state.</p></div></div><div class="three"><article class="card"><h3>Bounded primary path</h3><p>The trusted continuity estimator stayed capped at seven frames and remained nonrecursive.</p><span class="tag">Continuity stays bounded</span></article><article class="card"><h3>Independent rescue</h3><p>Truth-visible observations could be recovered when the primary path was unavailable, without turning rescue output into a future primary anchor.</p><span class="tag">94.63% protected recovery</span></article><article class="card"><h3>Robust uncertainty envelope</h3><p>Groupwise conformal uncertainty was calibrated for compound shift instead of one narrow severity split.</p><span class="tag">Protected coverage near 96%</span></article></div></div>
+      <div class="wrap"><div class="section-head"><p class="eyebrow">What changed</p><div><h2>Three bounded changes defined P14R.</h2><p class="copy">Three changes targeted availability and calibration.</p></div></div><div class="three"><article class="card"><h3>Bounded primary path</h3><p>The trusted continuity estimator stayed capped at seven frames and remained nonrecursive.</p><span class="tag">Continuity stays bounded</span></article><article class="card"><h3>Independent rescue</h3><p>Truth-visible observations could be recovered when the primary path was unavailable, without turning rescue output into a future primary anchor.</p><span class="tag">94.63% protected recovery</span></article><article class="card"><h3>Robust uncertainty envelope</h3><p>Groupwise conformal uncertainty was calibrated for compound shift instead of one narrow severity split.</p><span class="tag">Protected coverage near 96%</span></article></div></div>
     </section>
 
     <section class="section ash">
-      <div class="wrap goal-grid"><div><p class="eyebrow">Fresh seen transfer</p><h2>The redesign recovered availability without giving up coverage.</h2><p class="copy">Every required seen-transfer family passed before protected validation. That was permission to continue the experiment, not permission to call the system safe.</p></div><div class="evidence-list" aria-label="Fresh seen transfer metrics"><div class="evidence-item"><span>Useful availability</span><strong>97.72%</strong></div><div class="evidence-item"><span>Lateral 95% coverage</span><strong>94.76%</strong></div><div class="evidence-item"><span>Altitude 95% coverage</span><strong>94.79%</strong></div><div class="evidence-item"><span>Calibration MACE</span><strong>0.00512</strong></div><div class="evidence-item"><span>Lateral p95 width / p95 error</span><strong>2.169×</strong></div><div class="evidence-item"><span>Seen-transfer status</span><strong>PASS</strong></div></div></div>
+      <div class="wrap goal-grid"><div><p class="eyebrow">Fresh seen transfer</p><h2>The redesign recovered availability without giving up coverage.</h2><p class="copy">Seen transfer passed before protected validation.</p></div><div class="evidence-list" aria-label="Fresh seen transfer metrics"><div class="evidence-item"><span>Useful availability</span><strong>97.72%</strong></div><div class="evidence-item"><span>Lateral 95% coverage</span><strong>94.76%</strong></div><div class="evidence-item"><span>Altitude 95% coverage</span><strong>94.79%</strong></div><div class="evidence-item"><span>Calibration MACE</span><strong>0.00512</strong></div><div class="evidence-item"><span>Lateral p95 width / p95 error</span><strong>2.169×</strong></div><div class="evidence-item"><span>Seen-transfer status</span><strong>PASS</strong></div></div></div>
     </section>
 
     <section class="phase11-jump" aria-label="Adjacent phases"><div class="wrap"><span>Phase 11 sits between the Phase 10R holdout and the frozen Phase 12 conformal study.</span><nav><a class="button secondary" href="/phases/phase10r/">← Phase 10R</a><a class="button primary" href="/phases/phase12/">Phase 12 →</a></nav></div></section>
 
     <section class="section" id="provenance">
-      <div class="wrap"><div class="section-head"><p class="eyebrow">Provenance</p><div><h2>The result stays tied to the frozen artifacts.</h2><p class="copy">The scientific head and candidate digest are published here so the page can be checked against the locked Phase 11 record.</p></div></div><div class="provenance"><div><span>Scientific head</span><code>58b06089a621264afb886f6aee2acaacf8a8709c</code></div><div><span>Candidate SHA-256</span><code>bba1b7be7565b470af80db502e6fa5d969bc86c712e322557c06b30e49bd9c86</code></div><div><span>Candidate artifact</span><strong>#9271909463</strong></div></div><div class="actions"><a class="button primary" href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase11_final_report.md" target="_blank" rel="noreferrer">Read final report</a><a class="button outline" href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">Inspect repository</a></div></div>
+      <div class="wrap"><div class="section-head"><p class="eyebrow">Provenance</p><div><h2>The result stays tied to the frozen artifacts.</h2><p class="copy">Hashes tie this page to the frozen record.</p></div></div><div class="provenance"><div><span>Scientific head</span><code>58b06089a621264afb886f6aee2acaacf8a8709c</code></div><div><span>Candidate SHA-256</span><code>bba1b7be7565b470af80db502e6fa5d969bc86c712e322557c06b30e49bd9c86</code></div><div><span>Candidate artifact</span><strong>#9271909463</strong></div></div><div class="actions"><a class="button primary" href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase11_final_report.md" target="_blank" rel="noreferrer">Read final report</a><a class="button outline" href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">Inspect repository</a></div></div>
     </section>
 
     <section class="section ash">
@@ -88,14 +88,14 @@
   </main>
 
   <footer class="footer"><p>Phase 11 P14R · study closed · simulation only</p><div class="footer-links"><a href="/">Research home</a><a href="/phases/">Archive</a><a href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase11_final_report.md" target="_blank" rel="noreferrer">Final report ↗</a></div></footer>
-  <script src="/phase-taxonomy.js?v=3"></script>
+  <script src="/phase-taxonomy.js?v=4"></script>
   <script src="/phase-visuals.js?v=1"></script>
   <script>
   (()=>{const b=document.getElementById('mobileMenuToggle'),m=document.getElementById('mobileMenuSheet'),c=m.querySelector('.mobile-menu-close');const set=o=>{b.setAttribute('aria-expanded',String(o));m.setAttribute('aria-hidden',String(!o));m.classList.toggle('open',o);document.body.classList.toggle('menu-open',o)};b.addEventListener('click',()=>set(b.getAttribute('aria-expanded')!=='true'));c.addEventListener('click',()=>set(false));m.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>set(false)));document.addEventListener('keydown',e=>{if(e.key==='Escape')set(false)})})();
   </script>
-  <script src="/phase-personalization.js?v=2"></script>
+  <script src="/phase-personalization.js?v=3"></script>
   <script src="/phase-editorial-media.js?v=1"></script>
-  <script src="/research-workspace.js?v=3"></script>
+  <script src="/research-workspace.js?v=4"></script>
   <script src="/frozen-lineage.js?v=3"></script>
   <script src="/phase-explorer.js?v=6" defer></script>
 </body>

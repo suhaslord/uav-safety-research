@@ -19,11 +19,11 @@
   <link rel="stylesheet" href="/research-media.css?v=3">
   <link rel="stylesheet" href="/presentation.css?v=11" data-presentation-theme>
   <link rel="stylesheet" href="/lab/lab.css?v=6">
-  <script defer src="/lab/lab.js?v=8" data-aegis-experiment-lab></script>
+  <script defer src="/lab/lab.js?v=9" data-aegis-experiment-lab></script>
   <link rel="stylesheet" href="/tesla-bundle.css?v=1">
   <link rel="stylesheet" href="/home-hero-contrast.css?v=1">
   <link rel="stylesheet" href="/ui-review.css?v=3">
-  <link rel="stylesheet" href="/site-refresh.css?v=1">
+  <link rel="stylesheet" href="/site-refresh.css?v=2">
 </head>
 <body class="research-workspace home-workspace" data-presentation="photo-led" data-purpose-clarity="true">
   <a class="skip-link" href="#main">Skip to research result</a>
@@ -103,51 +103,51 @@
     <section class="current-audit section" id="current-audit" aria-labelledby="audit-title">
       <div class="wrap current-audit__grid">
         <div class="current-audit__intro">
-          <p class="eyebrow">Newer evidence · separate track</p>
+          <p class="eyebrow">Phase 24 audit · separate track</p>
           <h2 id="audit-title">The average improved. The hardest views got worse.</h2>
-          <p>Phase 24 reanalyzes the Phase 23 detector's published KIOS camera results. Its equal-weight six-condition mAP50 mean rose by 3.4 percentage points, while occlusion and mixed stress together fell by 13.3 points. No model was trained for this audit.</p>
-          <div class="actions"><a class="button primary" href="/phases/phase24/">See the condition charts</a><a class="button secondary" href="/phases/phase23/">Read the Phase 23 result</a><a class="button secondary" href="/phases/">Browse all phases</a></div>
+          <p>The six-condition average rose 3.4 points. Occlusion and mixed stress fell 13.3 points together. Phase 24 only reanalyzes published detector results.</p>
+          <div class="actions"><a class="button primary" href="/phases/phase24/">See the charts</a><a class="button secondary" href="/phases/phase23/">Phase 23 result</a></div>
         </div>
         <div class="current-audit__numbers" aria-label="Phase 24 audit summary">
           <div><span>Six-condition mAP50</span><strong>+3.4 pp</strong><small>Equal-weight average</small></div>
           <div><span>Occlusion + mixed stress</span><strong class="current-audit__loss">−13.3 pp</strong><small>Equal-weight mAP50 change</small></div>
-          <p>One 86-frame temporal test split is reused across conditions. These are detector metrics, not a landing safety result.</p>
+          <p>Same 86 test frames across conditions. Detector metrics only.</p>
         </div>
       </div>
     </section>
 
     <section class="chapter-showcase" id="chapters" aria-labelledby="chapters-title">
-      <div class="wrap chapter-heading"><div><p class="eyebrow">How the project changed</p><h2 id="chapters-title">Six stretches of work, each caused by the last one.</h2></div><a href="/phases/">See every phase</a></div>
+      <div class="wrap chapter-heading"><div><p class="eyebrow">The research path</p><h2 id="chapters-title">Six stretches of work, each caused by the last one.</h2></div><a href="/phases/">Every phase</a></div>
       <div class="chapter-track" id="chapterTrack" tabindex="0" aria-label="Research chapters; scroll horizontally to explore">
         <article class="chapter-card" id="chapter-01">
           <img src="/media/phase01-context.jpg" alt="" loading="lazy" decoding="async" width="1280" height="852">
           <span class="chapter-card__range">Phase 1–4</span>
-          <div class="chapter-card__body"><h3>Safety architecture</h3><p>Start with a separate supervisor, then learn why one confidence stream is not enough.</p><div class="actions"><a class="button primary" href="/phases/phase1/">Start at Phase 1</a></div></div>
+          <div class="chapter-card__body"><h3>Safety architecture</h3><p>A separate check caught risk, then exposed its own limits.</p><div class="actions"><a class="button primary" href="/phases/phase1/">Phase 1</a></div></div>
         </article>
         <article class="chapter-card" id="chapter-02">
           <img src="/media/acero-uav-flight.jpg" alt="" loading="lazy" decoding="async" width="1280" height="852">
           <span class="chapter-card__range">Phase 5–6B</span>
-          <div class="chapter-card__body"><h3>Perception</h3><p>Replace abstract corrupted states with image-derived measurements and split confidence by geometry component.</p><div class="actions"><a class="button primary" href="/phases/phase6b/">See the image work</a></div></div>
+          <div class="chapter-card__body"><h3>Perception</h3><p>Images entered the loop. Confidence split by geometry.</p><div class="actions"><a class="button primary" href="/phases/phase6b/">Phase 6B</a></div></div>
         </article>
         <article class="chapter-card" id="chapter-03">
           <img src="/media/phase08-context.jpg" alt="" loading="lazy" decoding="async" width="1280" height="852">
           <span class="chapter-card__range">Phase 7–10R</span>
-          <div class="chapter-card__body"><h3>External validation</h3><p>Make the simulator harder, compare traces with PX4/Gazebo, and feed the estimator actual Gazebo camera frames.</p><div class="actions"><a class="button primary" href="/phases/phase10r/">See the shifted holdout</a></div></div>
+          <div class="chapter-card__body"><h3>External validation</h3><p>PX4/Gazebo exposed where the internal model missed.</p><div class="actions"><a class="button primary" href="/phases/phase10r/">Phase 10R</a></div></div>
         </article>
         <article class="chapter-card" id="chapter-04">
           <img src="/media/stereo-uav-preflight.jpg" alt="" loading="lazy" decoding="async" width="1280" height="852">
           <span class="chapter-card__range">Phase 11–13C</span>
-          <div class="chapter-card__body"><h3>Reliability</h3><p>Freeze the uncertainty baseline, push it into harder settings, and keep the failures when it stops holding up.</p><div class="actions"><a class="button primary" href="/phases/phase11/">Follow the reliability tests</a></div></div>
+          <div class="chapter-card__body"><h3>Reliability</h3><p>Harder tests kept the failures visible.</p><div class="actions"><a class="button primary" href="/phases/phase11/">Phase 11</a></div></div>
         </article>
         <article class="chapter-card" id="chapter-05">
           <img src="/media/phase16-context.jpg" alt="" loading="lazy" decoding="async" width="1280" height="852">
           <span class="chapter-card__range">Phase 14–19</span>
-          <div class="chapter-card__body"><h3>Latency</h3><p>Separate the damage caused by a stale estimate from the smaller pattern that remains in its one-step residuals.</p><div class="actions"><a class="button primary" href="/phases/phase16/">See what staleness changed</a></div></div>
+          <div class="chapter-card__body"><h3>Latency</h3><p>Stale estimates got worse. Short-term residual patterns remained.</p><div class="actions"><a class="button primary" href="/phases/phase16/">Phase 16</a></div></div>
         </article>
         <article class="chapter-card" id="chapter-06">
           <img src="/media/phase22-context.jpg" alt="" loading="lazy" decoding="async" width="1280" height="852">
           <span class="chapter-card__range">Phase 20–22</span>
-          <div class="chapter-card__body"><h3>Transfer</h3><p>Break the hard context into factors, measure their interactions, then test a frozen additive model on a new context cube.</p><div class="actions"><a class="button primary" href="/phases/phase22/">Open the final transfer</a></div></div>
+          <div class="chapter-card__body"><h3>Transfer</h3><p>A frozen model faced a new context cube.</p><div class="actions"><a class="button primary" href="/phases/phase22/">Phase 22</a></div></div>
         </article>
       </div>
       <div class="wrap chapter-controls" id="chapterControls" hidden><button type="button" id="chapterPrev" aria-label="Previous research chapter" aria-controls="chapterTrack">←</button><span id="chapterPosition" role="status" aria-live="polite">1 / 6</span><button type="button" id="chapterNext" aria-label="Next research chapter" aria-controls="chapterTrack">→</button></div>
@@ -156,9 +156,8 @@
 
     <section class="section ash" id="evidence">
       <div class="wrap">
-        <div class="research-alert" role="note"><div class="research-alert__label">Do not mix these two results</div><p>Staleness made the estimate less accurate. A later residual model could predict part of the short-term error pattern, but that did not make the stale estimate itself better.</p><a href="/phases/phase16/">See the Phase 16 test →</a></div>
-        <div class="section-head"><p class="eyebrow">Main conclusion · The result that shaped the later work</p><div><h2>Error grew before the old uncertainty interval reacted enough.</h2><p class="copy">That gap led to a second question: even when the level error gets worse, is there still structure in how the residual changes from one step to the next? Phases 19–22 follow that narrower question.</p></div></div>
-        <div class="evidence-list" aria-label="Evidence supporting the current conclusion"><a class="evidence-item" href="/phases/phase16/"><span>Phase 16 · stale estimates</span><strong>Lateral error rose and coverage fell.</strong></a><a class="evidence-item" href="/phases/phase19/"><span>Phase 19 · residual distribution</span><strong>The one-step RMSE/MAE advantage repeated on fresh splits.</strong></a><a class="evidence-item" href="/phases/phase20/"><span>Phase 20 · five-factor breakdown</span><strong>Several predefined context factors shared the attenuation.</strong></a><a class="evidence-item" href="/phases/phase21/"><span>Phase 21 · effects and interactions</span><strong>First-order terms explained most, but not all, of the surface.</strong></a><a class="evidence-item" href="/phases/phase22/"><span>Phase 22 · frozen transfer</span><strong>The additive model cleared all 10 locked gates without another fit.</strong></a></div>
+        <div class="section-head"><p class="eyebrow">The finding</p><div><h2>Error grew before uncertainty caught up.</h2><p class="copy">The later residual model found a short-term pattern. It did not repair the stale estimate.</p></div></div>
+        <details class="copy-disclosure"><summary>Trace the evidence across five phases</summary><div class="evidence-list" aria-label="Evidence supporting the current conclusion"><a class="evidence-item" href="/phases/phase16/"><span>Phase 16 · stale estimates</span><strong>Error rose; coverage fell.</strong></a><a class="evidence-item" href="/phases/phase19/"><span>Phase 19 · residual distribution</span><strong>The one-step advantage repeated.</strong></a><a class="evidence-item" href="/phases/phase20/"><span>Phase 20 · five factors</span><strong>Several factors shared the attenuation.</strong></a><a class="evidence-item" href="/phases/phase21/"><span>Phase 21 · interactions</span><strong>First-order terms explained most of the surface.</strong></a><a class="evidence-item" href="/phases/phase22/"><span>Phase 22 · transfer</span><strong>All 10 locked gates passed without refitting.</strong></a></div></details>
 
         <figure class="research-photo research-photo--inline research-photo--inline-right" data-editorial-photo>
           <div class="research-photo__frame">
@@ -175,8 +174,7 @@
 
     <section class="section" id="research-question">
       <div class="wrap goal-grid">
-        <div><p class="eyebrow">What the project does · The measurement problem</p><h2>Find when landing perception becomes confidently wrong.</h2><p class="copy">Research question: Does the uncertainty match the error? We compare three things: the actual error, the reported uncertainty interval, and how the residual changes from one step to the next.</p></div>
-        <div class="goal-points"><div class="goal-point"><strong>Uncertainty</strong><span>Does the interval still cover the actual error?</span></div><div class="goal-point"><strong>Absolute error</strong><span>How much does staleness hurt accuracy?</span></div><div class="goal-point"><strong>Short-horizon behavior</strong><span>Does local residual structure remain predictable?</span></div></div>
+        <div><p class="eyebrow">The question</p><h2>When does the camera become confidently wrong?</h2><p class="copy">We compare the error with the uncertainty the system reports.</p></div>
       </div>
       <div class="wrap explainer-wrap"><figure class="explainer-film">
         <video controls playsinline muted preload="none" width="960" height="540" poster="/film/uncertainty-nasa-poster.jpg" aria-label="NASA drone flight testing" aria-describedby="uncertainty-caption">
@@ -189,8 +187,7 @@
 
     <section class="section" id="purpose">
       <div class="wrap goal-grid">
-        <div><p class="eyebrow">Why the archive keeps the misses</p><h2>A failed gate stays failed, even when the next experiment works.</h2><p class="copy">Each phase is judged under the rule it had when its evidence was opened. Later phases can ask a better question, but they cannot rewrite an earlier verdict.</p></div>
-        <div class="goal-points"><div class="goal-point"><strong>The problem</strong><span>An estimate can look confident while being wrong.</span></div><div class="goal-point"><strong>The moving question</strong><span>When one signal fails, which narrower claim is still supported?</span></div><div class="goal-point"><strong>The rule</strong><span>Development, protected validation, and final holdout evidence are not interchangeable.</span></div></div>
+        <div><p class="eyebrow">Why misses stay visible</p><h2>A failed check stays failed.</h2><p class="copy">Later work can ask a new question. It cannot change the old verdict.</p></div>
       </div>
 
       <div class="wrap">
@@ -209,30 +206,18 @@
 
     <section class="section ash" id="researchers" aria-labelledby="researchers-title">
       <div class="wrap">
-        <div class="section-head"><p class="eyebrow">For a fast technical read</p><div><h2 id="researchers-title">Start with the frozen result, then read backward.</h2><p class="copy">Phase 22 closes the frozen simulation lineage. Read it beside the earlier failures that narrowed the claim; the newer detector audit is a separate evidence track.</p></div></div>
+        <div class="section-head"><p class="eyebrow">For a closer read</p><div><h2 id="researchers-title">Start with Phase 22.</h2><p class="copy">The 10/10 result is simulation only. The Phase 24 detector audit is a separate track.</p></div></div>
 
-        <div class="three method-steps">
-          <article class="card"><span class="tag">01 · Studies</span><h3>Confidence under degraded landing perception.</h3><p>The experiments deliberately worsen simulated UAV landing estimates and compare the resulting error with the uncertainty reported around it.</p></article>
-          <article class="card"><span class="tag">02 · Final result</span><h3>Phase 22 transferred without refitting.</h3><p>The frozen additive model passed 10/10 locked gates on the final synthetic 32-cell holdout. RMSE-surface R² was 0.8319; MAE-surface R² was 0.7744.</p></article>
-          <article class="card"><span class="tag">03 · Boundary</span><h3>The evidence stops at simulation.</h3><p>Nothing here establishes real-sensor equivalence, physical-flight safety, certification, controller improvement, or operational safety.</p></article>
-        </div>
+        <details class="copy-disclosure"><summary>Open research questions</summary><div class="evidence-list" aria-label="Open AegisLand research questions"><div class="evidence-item"><span>Calibration</span><strong>Does coverage survive a bigger camera or lighting shift?</strong></div><div class="evidence-item"><span>Recovery</span><strong>Can recovery be checked as an invariant?</strong></div><div class="evidence-item"><span>Transfer</span><strong>What holds across vehicles and scenes?</strong></div><div class="evidence-item"><span>Physical test</span><strong>Which result breaks first outside simulation?</strong></div></div></details>
 
-        <div class="section-head"><p class="eyebrow">Still unanswered</p><div><h2>Where would the result break first outside this synthetic setup?</h2><p class="copy">The archive answers a narrow sequence of simulation questions. These are some of the gaps it leaves open.</p></div></div>
-        <div class="evidence-list" aria-label="Open AegisLand research questions">
-          <div class="evidence-item"><span>Calibration under shift</span><strong>How quickly does coverage fail when camera geometry, lighting, and scene statistics move farther from the frozen setup?</strong></div>
-          <div class="evidence-item"><span>Recovery guarantees</span><strong>Can recovery after a perception fault be stated and checked as a formal invariant rather than an empirical tendency?</strong></div>
-          <div class="evidence-item"><span>Transfer</span><strong>Which uncertainty relationships remain useful across different vehicles, landing scenes, and estimator settings?</strong></div>
-          <div class="evidence-item"><span>Sim-to-real gap</span><strong>Which conclusion is the first to fail once sensing, timing, and dynamics come from physical hardware?</strong></div>
-        </div>
-
-        <div class="research-alert" role="note"><div class="research-alert__label">Have a hard test case?</div><p>If there is a benchmark or failure mode this archive should confront, open an issue with enough detail to reproduce it.</p><a href="https://github.com/suhaslord/uav-safety-research/issues/new" target="_blank" rel="noreferrer">Suggest a test →</a></div>
+        <div class="research-alert" role="note"><div class="research-alert__label">Have a hard test case?</div><p>Share a reproducible benchmark or failure mode.</p><a href="https://github.com/suhaslord/uav-safety-research/issues/new" target="_blank" rel="noreferrer">Suggest a test →</a></div>
         <div class="actions"><a class="button primary signature-button" href="/phases/phase22/">Read Phase 22</a><a class="button secondary signature-button" href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">Open GitHub ↗</a></div>
       </div>
     </section>
 
     <section class="section ash" id="method">
       <div class="wrap">
-        <div class="section-head"><p class="eyebrow">How a verdict is protected</p><div><h2>Set the rule before opening the evidence that will judge it.</h2><p class="copy">Candidates, thresholds, and coefficients are frozen before protected evaluation. If a locked check misses, the phase records the miss instead of moving the target.</p></div></div>
+        <div class="section-head"><p class="eyebrow">The method</p><div><h2>Set the rule before the test.</h2><p class="copy">Freeze the candidate and thresholds. Open the protected result once. Keep every miss.</p></div></div>
         <div class="method-visual-grid">
           <figure class="research-photo research-photo--method" data-editorial-photo>
             <div class="research-photo__frame">
@@ -245,9 +230,9 @@
             </figcaption>
           </figure>
           <div class="three method-steps">
-            <article class="card"><h3>Freeze what will be judged.</h3><p>The candidate, thresholds, and scientific code are fixed before protected data are opened.</p><span class="tag">01 · Freeze</span></article>
-            <article class="card"><h3>Do not recycle the same evidence.</h3><p>Development data cannot later be counted as protected validation or as the final holdout.</p><span class="tag">02 · Separate</span></article>
-            <article class="card"><h3>Record the miss as a miss.</h3><p>A failed phase can motivate the next experiment, but its own verdict does not change.</p><span class="tag">03 · Preserve</span></article>
+            <article class="card"><h3>Freeze.</h3><p>Lock code and thresholds first.</p><span class="tag">01</span></article>
+            <article class="card"><h3>Separate.</h3><p>Keep development and holdout data apart.</p><span class="tag">02</span></article>
+            <article class="card"><h3>Preserve.</h3><p>Report failed gates as failed.</p><span class="tag">03</span></article>
           </div>
         </div>
       </div>
@@ -261,7 +246,7 @@
     </section>
 
     <section class="section" id="timeline">
-      <div class="wrap"><div class="rail-head"><div><p class="eyebrow">The frozen simulation record</p><h2>Passes and failures share the same timeline.</h2><p class="copy">This simulation lineage ends at Phase 22. A later pass never upgrades an earlier fail.</p></div><a class="text-link" href="/phases/">Open the phase archive →</a></div><div class="evidence-list" id="evidenceSpine" aria-live="polite"></div></div>
+      <div class="wrap"><div class="rail-head"><div><p class="eyebrow">Frozen record</p><h2>Every verdict, in order.</h2></div><a class="text-link" href="/phases/">Phase archive →</a></div><details class="copy-disclosure"><summary>See all 13 frozen verdicts</summary><div class="evidence-list" id="evidenceSpine" aria-live="polite"></div></details></div>
     </section>
 
     <section class="section ash">
@@ -339,9 +324,9 @@
       document.addEventListener('keydown', (e) => { if (e.key === 'Escape') set(false); });
     })();
   </script>
-  <script src="/research-workspace.js?v=3"></script>
+  <script src="/research-workspace.js?v=4"></script>
   <script src="/presentation.js?v=5" defer></script>
-  <script src="/phase-taxonomy.js?v=3"></script>
+  <script src="/phase-taxonomy.js?v=4"></script>
   <script src="/phase-explorer.js?v=6" defer></script>
 </body>
 </html>

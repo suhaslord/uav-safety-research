@@ -21,7 +21,7 @@
   <link rel="stylesheet" href="/tesla-bundle.css?v=1">
   <link rel="stylesheet" href="/phase-reading-responsive.css?v=1">
   <link rel="stylesheet" href="/ui-review.css?v=2">
-  <link rel="stylesheet" href="/site-refresh.css?v=1">
+  <link rel="stylesheet" href="/site-refresh.css?v=2">
 </head>
 <body class="archive-shell phase-polish-shell research-workspace">
   <a class="skip-link" href="#snapshot">Skip to phase research</a>
@@ -41,7 +41,7 @@
     <section class="phase-rail-section" aria-label="Research progression"><div class="phase-rail" id="phaseRail"></div></section>
 
     <section class="section snapshot-section" id="snapshot">
-      <div class="section-head" data-reveal><p class="kicker">Research context</p><h2 id="snapshotTitle">What was this phase trying to fix?</h2></div>
+      <div class="section-head" data-reveal><p class="kicker">Context</p><h2 id="snapshotTitle">The question.</h2></div>
       <div class="snapshot-grid">
         <div class="story-pair" data-reveal><article><span class="story-label">Problem</span><p id="phaseProblem"></p></article><article><span class="story-label">Goal</span><p id="phaseGoal"></p></article></div>
         <figure class="phase-visual" id="phaseOverviewVisual" data-reveal></figure>
@@ -58,31 +58,29 @@
     </section>
 
     <section class="section evidence-section" id="evidence">
-      <div class="section-head" data-reveal><p class="kicker">Evidence</p><h2>What the recorded result actually showed.</h2></div>
+      <div class="section-head" data-reveal><p class="kicker">Evidence</p><h2>The result.</h2></div>
       <div class="evidence-layout"><figure class="phase-visual evidence-visual" id="phaseEvidenceVisual" data-reveal></figure><div class="evidence-story" data-reveal><p class="evidence-copy" id="phaseEvidenceStory"></p><div class="evidence-facts" id="evidenceFacts"></div></div></div>
     </section>
 
     <section class="section ash limits-section" id="limits">
-      <div class="section-head" data-reveal><p class="kicker">Limits</p><h2>What still did not work.</h2></div>
+      <div class="section-head" data-reveal><p class="kicker">Limits</p><h2>What failed.</h2></div>
       <ol class="limits-list" id="phaseLimitations" data-reveal></ol>
     </section>
 
     <section class="section" id="changes">
-      <div class="section-head" data-reveal><p class="kicker">What changed</p><h2>What this phase added, and why.</h2></div>
-      <div class="changes" id="changeList" data-reveal></div><div class="shift" id="phaseShift" data-reveal></div>
+      <details class="copy-disclosure phase-deep-dive"><summary>What changed in this phase</summary><div class="changes" id="changeList" data-reveal></div><div class="shift" id="phaseShift" data-reveal></div></details>
     </section>
 
     <section class="section ash system-section" id="system">
-      <div class="section-head inverse-head" data-reveal><p class="kicker">System detail</p><h2>How this version works.</h2><p class="section-intro" id="systemIntro"></p></div>
-      <div class="architecture" id="phaseArchitecture" data-reveal></div><p class="architecture-note" id="architectureNote" data-reveal></p>
+      <details class="copy-disclosure phase-deep-dive"><summary>How this version works</summary><p class="section-intro" id="systemIntro"></p><div class="architecture" id="phaseArchitecture" data-reveal></div><p class="architecture-note" id="architectureNote" data-reveal></p></details>
     </section>
 
     <section class="switcher"><nav class="switch-nav"><a id="prevPhase" href="#">Previous phase</a><a href="/phases/">All phases</a></nav><a class="next" id="nextPhase" href="#"></a></section>
   </main>
 
-  <script src="/phase-taxonomy.js?v=3"></script>
+  <script src="/phase-taxonomy.js?v=4"></script>
   <script src="/phase-visuals.js?v=1"></script>
-  <script src="/phase-data.js?v=2"></script>
+  <script src="/phase-data.js?v=3"></script>
   <script src="/phase-runtime.js"></script>
   <script src="/phase-signatures.js"></script>
   <script src="/tesla-mobile.js"></script>
@@ -90,10 +88,19 @@
   <script src="/phase10r-archive.js"></script>
   <script src="/phase-hero-scenes.js"></script>
   <script src="/aegis-current.js"></script>
-  <script src="/phase-personalization.js?v=2"></script>
+  <script src="/phase-personalization.js?v=3"></script>
   <script src="/phase-editorial-media.js?v=1"></script>
-  <script src="/research-workspace.js?v=3"></script>
+  <script src="/research-workspace.js?v=4"></script>
   <script src="/frozen-lineage.js?v=3"></script>
+  <script>
+    // A section link should reveal its optional detail before moving focus to it.
+    const revealLinkedSection = () => {
+      const target = document.querySelector(location.hash === '#changes' || location.hash === '#system' ? location.hash + ' details' : '[data-no-match]');
+      if (target) target.open = true;
+    };
+    window.addEventListener('hashchange', revealLinkedSection);
+    revealLinkedSection();
+  </script>
   <script src="/phase-explorer.js?v=6" defer></script>
 </body>
 </html>

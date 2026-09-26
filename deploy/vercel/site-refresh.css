@@ -157,3 +157,29 @@ body:not(.research-workspace) .method-card,body:not(.research-workspace) .chart-
   body:not(.research-workspace) .top{padding-inline:16px}
 }
 @media(prefers-reduced-motion:reduce){body.research-workspace :is(.button,.signature-button,.archive-filter,.category-nav a,.phase-unified-nav a){transition:none!important}}
+
+/* Short summaries keep full source detail one deliberate click away. */
+.copy-disclosure{margin:22px 0 0;border-top:1px solid var(--site-line);border-bottom:1px solid var(--site-line)}
+.copy-disclosure summary{list-style:none;cursor:pointer;padding:18px 34px 18px 0;position:relative;font-size:14px;font-weight:650;line-height:1.4;color:inherit}
+.copy-disclosure summary::-webkit-details-marker{display:none}
+.copy-disclosure summary::after{content:"+";position:absolute;right:4px;top:14px;font-size:24px;font-weight:350;line-height:1}
+.copy-disclosure[open] summary::after{content:"−"}
+.copy-disclosure summary:focus-visible{outline:2px solid var(--site-blue);outline-offset:3px}
+.copy-disclosure > :not(summary){margin-top:8px;margin-bottom:20px}
+.copy-disclosure .evidence-list{margin-top:4px}
+html body.archive-workspace .archive-card__signal[hidden]{display:none!important}
+html body.research-workspace.archive-shell #changes,
+html body.research-workspace.archive-shell #system{padding-block:22px!important}
+html body.research-workspace.archive-shell #changes .phase-deep-dive,
+html body.research-workspace.archive-shell #system .phase-deep-dive{width:min(1180px,calc(100% - 48px));margin:0 auto}
+html body.research-workspace.archive-shell #system .phase-deep-dive{border-color:rgba(255,255,255,.35)}
+html body.research-workspace.phase-reading .phase-detail__context{padding-block:26px!important}
+html body.research-workspace.phase-reading .phase-detail__panel--evidence .copy-disclosure{margin-top:16px}
+html body.research-workspace.phase-reading .phase-detail__source-note{margin:14px 0 10px!important;color:var(--site-muted)!important;font-size:13px!important;line-height:1.5!important}
+html body.research-workspace.phase-reading .phase-hash{overflow-wrap:anywhere!important;font-size:11px!important;line-height:1.45!important}
+body.home-workspace #research-question .goal-grid,
+body.home-workspace #purpose .goal-grid{grid-template-columns:1fr!important}
+body.home-workspace #research-question .goal-grid > div,
+body.home-workspace #purpose .goal-grid > div{max-width:780px}
+body:not(.research-workspace) .report-photo{margin-block:20px 28px}
+body:not(.research-workspace) .report-photo img{max-height:450px;object-fit:cover}
