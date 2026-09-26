@@ -146,7 +146,7 @@ try {
     const homeText = await page.locator('main').innerText();
     const heroOverlay = await page.locator('#top .research-photo__frame').evaluate(element => getComputedStyle(element, '::after').backgroundImage);
     add('home-hero-photo-shaded-for-readable-copy', /linear-gradient/i.test(heroOverlay), { heroOverlay });
-    add('home-current-thesis-visible', /What happens when the estimate drifts but the uncertainty does not/i.test(homeText) && (/A drone can be confident—and still be wrong/i.test(homeText) || /A camera can be wrong before confidence admits it/i.test(homeText)), { excerpt: homeText.slice(0, 500) });
+    add('home-current-thesis-visible', /When the camera is sure, but wrong/i.test(homeText) && /We study when landing estimates drift before their uncertainty catches up/i.test(homeText), { excerpt: homeText.slice(0, 500) });
     add('home-current-project-framing-visible', /Frozen simulation result/i.test(homeText) && /Phase 24.*audit/i.test(homeText) && /Six stretches of work, each caused by the last one/i.test(homeText));
     add('home-researcher-brief-visible', /Limit of the evidence/i.test(homeText) && (/Terms used in this phase/i.test(homeText) || /research glossary/i.test(homeText)) && /Frozen simulation result/i.test(homeText));
     add('home-phase22-final-visible', /0\.8319/.test(homeText) && /0\.7744/.test(homeText) && /10\s+locked gates/i.test(homeText) && /100%/.test(homeText), { excerpt: homeText.slice(0, 900) });
@@ -177,13 +177,17 @@ try {
     const archivePolish = await page.locator('link[href^="/phase-polish.css"]').count();
     const archivePersonalization = await page.locator('link[href^="/phase-personalization.css"]').count();
     const archiveSignature = await page.locator('link[href^="/signature.css"]').count();
+    await page.setViewportSize({ width: 390, height: 844 });
+    const firstCategoryFits = await page.locator('#categoryNav a').first().evaluate((el) => el.scrollWidth <= el.clientWidth + 1);
+    await page.setViewportSize({ width: 1440, height: 1000 });
     add('archive-has-seven-research-categories', categories === 7 && categoryNav === 7, { categories, categoryNav });
+    add('archive-first-category-label-fits-on-phone', firstCategoryFits);
     add('archive-has-all-28-phase-records', allCards === 28, { allCards });
     add('archive-preserves-13-frozen-and-15-other-records', frozenCards === 13 && historicalCards === 15, { frozenCards, historicalCards });
     add('archive-preserves-6-pass-7-fail', frozenPass === 6 && frozenFail === 7, { frozenPass, frozenFail });
     add('archive-personalizes-every-card', identities === 28 && questions === 28 && signals === 28, { identities, questions, signals });
     add('archive-uses-polished-tesla-shell', archivePolish === 1 && archivePersonalization === 1 && archiveSignature === 0, { archivePolish, archivePersonalization, archiveSignature });
-    add('archive-has-category-led-thesis', /The archive keeps the detours, not just the wins/i.test(archiveText));
+    add('archive-has-category-led-thesis', /The complete research record/i.test(archiveText));
     const phase23Card = await page.locator('.archive-card[href="/phases/phase23/"]').count();
     add('archive-links-phase23', phase23Card === 1, { phase23Card });
     await page.goto(BASE + '/phases/phase23/', { waitUntil: 'domcontentloaded', timeout: 45000 });

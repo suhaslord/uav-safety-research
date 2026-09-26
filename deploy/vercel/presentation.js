@@ -241,7 +241,7 @@
     else main.append(section);
 
     const desktopNav = document.querySelector('.site-nav');
-    if (desktopNav && !desktopNav.querySelector('a[href="#understanding"]')) {
+    if (desktopNav && !document.body.classList.contains('home-workspace') && !desktopNav.querySelector('a[href="#understanding"]')) {
       const link = document.createElement('a');
       link.href = '#understanding';
       link.textContent = 'System';

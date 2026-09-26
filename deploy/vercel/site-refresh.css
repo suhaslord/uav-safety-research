@@ -1,0 +1,159 @@
+/* One visual rhythm across the research home, archive, and phase records.
+   The sources and verdicts remain in their own evidence sections. */
+:root{--site-ink:#171a20;--site-muted:#5c626b;--site-line:#e5e7ea;--site-soft:#f4f5f6;--site-blue:#3e6ae1}
+html{scroll-padding-top:76px}
+body{overflow-x:clip}
+body.research-workspace :is(.site-nav a,.signature-nav__links a,.top .nav a){font-size:13px!important;font-weight:550!important;letter-spacing:0!important}
+body.research-workspace :is(.site-nav a,.signature-nav__links a,.top .nav a):hover{background:#f1f2f3!important;color:var(--site-ink)!important}
+body.research-workspace :is(.button,.signature-button,.archive-filter,.category-nav a,.phase-unified-nav a){border-radius:4px!important}
+body.research-workspace :is(.button,.signature-button,.archive-filter,.category-nav a,.phase-unified-nav a):active{transform:translateY(1px)}
+body.research-workspace :is(h1,h2,h3){text-wrap:balance}
+
+/* The first screen has one claim, one short explanation, and clear routes. */
+html body.research-workspace.home-workspace.home-workspace .site-header{height:56px!important;min-height:56px!important;padding-inline:max(24px,calc((100vw - 1280px)/2))!important}
+html body.research-workspace.home-workspace.home-workspace .site-header .site-nav a{padding-inline:13px!important}
+html body.research-workspace.home-workspace.home-workspace #top{
+  min-height:clamp(660px,calc(100dvh - 56px),880px)!important;
+  padding:0 0 72px!important;
+  align-items:flex-start!important;
+  background:#172332!important;
+  isolation:isolate;
+}
+html body.research-workspace.home-workspace.home-workspace #top .hero-grid{
+  width:min(1100px,calc(100% - 48px))!important;
+  margin:0 auto!important;
+  padding-top:clamp(80px,12vh,126px)!important;
+  position:relative;
+  z-index:2;
+  display:block!important;
+  text-align:center;
+}
+html body.research-workspace.home-workspace.home-workspace #top .hero-grid>div{max-width:880px;margin-inline:auto}
+html body.research-workspace.home-workspace.home-workspace #top .workspace-context{
+  margin:0 0 16px!important;justify-content:center!important;color:#fff!important;
+  font-size:12px!important;font-weight:650!important;letter-spacing:.08em!important;text-transform:uppercase;
+}
+html body.research-workspace.home-workspace.home-workspace #top .workspace-context span{font-size:12px!important;color:#fff!important}
+html body.research-workspace.home-workspace.home-workspace #top h1{
+  max-width:900px!important;margin:0 auto!important;color:#fff!important;
+  font-size:clamp(48px,5.9vw,78px)!important;line-height:1.02!important;
+  font-weight:600!important;letter-spacing:-.055em!important;
+}
+html body.research-workspace.home-workspace.home-workspace #top .hero-deck{
+  max-width:620px!important;margin:20px auto 0!important;color:#fff!important;
+  font-size:clamp(17px,1.6vw,20px)!important;line-height:1.45!important;
+  text-wrap:balance;
+}
+html body.research-workspace.home-workspace.home-workspace #top .actions{display:flex!important;justify-content:center!important;gap:10px!important;margin:28px auto 0!important}
+html body.research-workspace.home-workspace.home-workspace #top .button{
+  width:230px!important;min-height:44px!important;padding:10px 16px!important;
+  font-size:14px!important;font-weight:650!important;
+}
+html body.research-workspace.home-workspace.home-workspace #top .hero-track-note{
+  max-width:650px;margin:18px auto 0;color:rgba(255,255,255,.88)!important;
+  font-size:12px;line-height:1.5;letter-spacing:.01em;
+}
+html body.research-workspace.home-workspace.home-workspace #top .research-photo--hero{
+  position:absolute!important;inset:0!important;width:100%!important;height:100%!important;margin:0!important;z-index:-1!important;
+}
+html body.research-workspace.home-workspace.home-workspace #top .research-photo__frame{height:100%!important;min-height:0!important}
+html body.research-workspace.home-workspace.home-workspace #top .research-photo__frame::after{
+  background:linear-gradient(180deg,rgba(7,18,29,.64) 0%,rgba(7,18,29,.43) 33%,rgba(7,18,29,.07) 72%,rgba(7,18,29,.27) 100%)!important;
+}
+html body.research-workspace.home-workspace.home-workspace #top .research-photo img{object-position:center 45%!important}
+html body.research-workspace.home-workspace.home-workspace #top .research-photo figcaption{
+  position:absolute!important;inset:auto 0 0!important;z-index:3!important;
+  padding:14px max(24px,calc((100vw - 1280px)/2))!important;
+  background:linear-gradient(transparent,rgba(7,18,29,.34))!important;
+}
+html body.research-workspace.home-workspace.home-workspace #top .research-photo figcaption :is(span,a){font-size:12px!important;line-height:1.45!important;color:rgba(255,255,255,.96)!important}
+
+/* Let the result be the next chapter after the photo. */
+body.home-workspace .result-section{padding-top:clamp(70px,7vw,112px)!important}
+body.home-workspace .home-section-lead{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,.55fr);gap:8px 60px;align-items:end;margin-bottom:36px}
+body.home-workspace .home-section-lead span{grid-column:1/-1;color:var(--site-muted);font-size:12px;font-weight:650;letter-spacing:.08em;text-transform:uppercase}
+body.home-workspace .home-section-lead h2{max-width:720px;font-size:clamp(38px,5vw,62px);line-height:1.02;letter-spacing:-.05em;font-weight:580}
+body.home-workspace .home-section-lead p{max-width:38ch;margin:0;color:var(--site-muted);font-size:17px;line-height:1.55}
+html body.home-workspace .result-film-grid{gap:0!important;align-items:stretch!important}
+html body.home-workspace .result-film-grid #status{background:var(--site-soft)!important;border:0!important;box-shadow:none!important}
+html body.home-workspace .research-film__frame{border-radius:0!important}
+body.home-workspace .current-audit{background:#fff;border-block:1px solid var(--site-line)}
+body.home-workspace .current-audit__intro h2{font-size:clamp(38px,4.6vw,62px);line-height:1.04;letter-spacing:-.05em}
+body.home-workspace .current-audit__numbers{background:var(--site-soft);border:0;border-radius:4px}
+body.home-workspace .current-audit__intro .actions .button:last-child{background:transparent;border-color:transparent;text-decoration:underline;text-underline-offset:5px}
+body.home-workspace .aegis-guide{background:var(--site-soft);border-bottom:1px solid var(--site-line);padding:44px 0}
+body.home-workspace .aegis-guide h2{font-size:clamp(28px,3vw,38px);font-weight:580}
+body.home-workspace .chapter-showcase{padding-top:clamp(80px,8vw,116px)}
+body.home-workspace .chapter-card .actions .button{min-height:44px}
+
+/* The archive reads like an index, with a usable search instead of stacked labels. */
+html body.research-workspace.archive-workspace .archive-hero{
+  min-height:0!important;padding:72px 0 34px!important;text-align:left!important;
+}
+html body.research-workspace.archive-workspace .archive-hero :is(.workspace-context,.archive-meta-line,.category-nav){justify-content:flex-start!important}
+html body.research-workspace.archive-workspace .archive-hero h1{
+  max-width:850px!important;margin:10px 0 0!important;font-size:clamp(46px,5.8vw,76px)!important;
+  line-height:1.02!important;font-weight:590!important;letter-spacing:-.05em!important;
+}
+html body.research-workspace.archive-workspace .archive-hero>p{max-width:800px!important;margin:18px 0 0!important;font-size:17px!important;line-height:1.55!important}
+html body.research-workspace.archive-workspace .archive-meta-line{gap:12px 24px;margin-top:30px;padding:18px 0;border-top:1px solid var(--site-line)}
+html body.research-workspace.archive-workspace .category-nav{display:flex;flex-wrap:nowrap;overflow:auto;scrollbar-width:thin;gap:8px;padding:4px 0 10px}
+html body.research-workspace.archive-workspace .category-nav a{white-space:nowrap;background:var(--site-soft);border:1px solid transparent}
+html body.research-workspace.research-workspace.archive-workspace .archive-hero .category-nav a:first-child{width:auto!important;min-width:max-content!important;flex:0 0 auto!important}
+html body.research-workspace.archive-workspace .category-nav a:hover{border-color:#c8ccd2}
+html body.research-workspace.archive-workspace .archive-stats.archive-toolbar{gap:16px!important;padding:22px 0!important}
+html body.research-workspace.archive-workspace .archive-toolbar__search{display:block!important}
+html body.research-workspace.archive-workspace .archive-toolbar__search label{position:static!important;display:block;margin:0 0 7px;color:var(--site-ink);font-size:12px;font-weight:650}
+html body.research-workspace.archive-workspace .archive-toolbar__search input{min-height:46px;padding:0 14px!important;font-size:14px}
+html body.research-workspace.archive-workspace .archive-card.phase-personalized{transition:background .2s ease!important}
+html body.research-workspace.archive-workspace .archive-card.phase-personalized:hover{background:#f6f7f8!important}
+html body.research-workspace.archive-workspace .archive-card.phase-personalized h3{font-weight:620!important}
+
+/* A calm, consistent start for every phase family. */
+html body.research-workspace.phase-reading .phase-detail__hero{padding:56px 0 48px!important;align-items:center!important}
+html body.research-workspace.phase-reading .phase-detail__hero h1,
+html body.research-workspace.archive-shell .hero h1,
+html body.research-workspace.phase11-polish .hero h1{font-weight:590!important;letter-spacing:-.05em!important;line-height:1.04!important}
+html body.research-workspace.phase-reading .phase-detail__hero h1{max-width:18ch!important}
+html body.research-workspace.phase-reading .phase-verdict-panel{background:var(--site-soft)!important;border:0!important;border-radius:4px!important;box-shadow:none!important}
+html body.research-workspace.phase-reading .phase-verdict-panel strong{font-variant-numeric:tabular-nums}
+body.research-workspace .phase-editorial-photo__frame{border-radius:4px!important;border:0!important;background:#eef0f2!important}
+html body.research-workspace.phase-reading .phase-editorial-photo .phase-editorial-photo__frame{aspect-ratio:16/8!important}
+body.research-workspace .phase-editorial-photo figcaption{font-size:11px;line-height:1.45}
+html body.research-workspace.archive-shell .hero{min-height:0!important;padding-top:clamp(88px,9vw,124px)!important;padding-bottom:66px!important}
+html body.research-workspace.archive-shell .section{padding-block:clamp(62px,7vw,94px)!important}
+html body.research-workspace.phase11-polish .hero{padding-block:clamp(80px,9vw,120px) 64px!important}
+
+/* The two camera reports use the same navigation and visual scale. */
+body:not(.research-workspace) .top{min-height:56px;padding-inline:max(24px,calc((100vw - 1240px)/2))}
+body:not(.research-workspace) .brand{font-weight:750;letter-spacing:.2em}
+body:not(.research-workspace) .hero{padding-top:clamp(60px,7vw,94px)}
+body:not(.research-workspace) h1{font-weight:590;letter-spacing:-.055em;text-wrap:balance}
+body:not(.research-workspace) .report-photo img{width:100%;max-width:960px}
+body:not(.research-workspace) .method-card,body:not(.research-workspace) .chart-card{box-shadow:none;border-radius:4px}
+
+@media(max-width:1000px){
+  body.home-workspace .home-section-lead{grid-template-columns:1fr;gap:14px}
+  body.home-workspace .home-section-lead span{grid-column:auto}
+}
+@media(max-width:760px){
+  html body.research-workspace.home-workspace.home-workspace .site-header{padding-inline:16px!important}
+  html body.research-workspace.home-workspace.home-workspace #top{min-height:max(670px,calc(100dvh - 56px))!important;padding-bottom:85px!important}
+  html body.research-workspace.home-workspace.home-workspace #top .hero-grid{width:calc(100% - 40px)!important;padding-top:clamp(72px,11vh,112px)!important}
+  html body.research-workspace.home-workspace.home-workspace #top h1{font-size:clamp(42px,10vw,58px)!important;line-height:1.04!important}
+  html body.research-workspace.home-workspace.home-workspace #top .hero-deck{font-size:17px!important}
+  html body.research-workspace.home-workspace.home-workspace #top .actions{display:grid!important;grid-template-columns:1fr!important;max-width:340px}
+  html body.research-workspace.home-workspace.home-workspace #top .button{width:100%!important}
+  html body.research-workspace.home-workspace.home-workspace #top .research-photo--hero{margin:0!important}
+  html body.research-workspace.home-workspace.home-workspace #top .research-photo img{object-position:45% center!important}
+  html body.research-workspace.home-workspace.home-workspace #top .research-photo__frame::after{background:linear-gradient(180deg,rgba(7,18,29,.75),rgba(7,18,29,.45) 42%,rgba(7,18,29,.05) 75%,rgba(7,18,29,.4))!important}
+  html body.research-workspace.home-workspace.home-workspace #top .research-photo figcaption{padding:14px 20px!important}
+  body.home-workspace .home-section-lead h2{font-size:clamp(36px,9vw,50px)}
+  html body.research-workspace.archive-workspace .archive-hero{padding-top:48px!important}
+  html body.research-workspace.archive-workspace .archive-hero h1{font-size:clamp(42px,11vw,58px)!important}
+  html body.research-workspace.archive-workspace .archive-stats.archive-toolbar{padding:18px 0!important}
+  html body.research-workspace.phase-reading .phase-detail__hero{padding-top:34px!important}
+  html body.research-workspace.phase-reading .phase-editorial-photo .phase-editorial-photo__frame{aspect-ratio:16/9!important}
+  body:not(.research-workspace) .top{padding-inline:16px}
+}
+@media(prefers-reduced-motion:reduce){body.research-workspace :is(.button,.signature-button,.archive-filter,.category-nav a,.phase-unified-nav a){transition:none!important}}
