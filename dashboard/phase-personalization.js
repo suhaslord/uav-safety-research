@@ -60,11 +60,10 @@
     if (secondary) secondary.textContent = 'Open source ↗';
   };
 
-  const humanizeFrozenCopy = (meta) => {
-    const identity = sentenceIdentity(meta);
+  const humanizeFrozenCopy = () => {
     const panels = document.querySelectorAll('.phase-detail__body .phase-detail__panel');
     const findingTitle = panels[0]?.querySelector('h2');
-    if (findingTitle) findingTitle.textContent = `What ${identity} tells us.`;
+    if (findingTitle) findingTitle.textContent = 'Finding.';
     const sourceTitle = panels[1]?.querySelector('h2');
     if (sourceTitle) sourceTitle.textContent = 'Locked source record';
     const frozenLabel = document.querySelector('.phase-detail__context .phase-detail__eyebrow');
@@ -123,7 +122,7 @@
       const copy = frozenHero.firstElementChild;
       if (copy && !copy.querySelector('.phase-identity-chip')) copy.prepend(makeChip(category, meta));
       if (!frozenHero.querySelector('.phase-role-card')) frozenHero.appendChild(makeRoleCard(meta));
-      humanizeFrozenCopy(meta);
+      humanizeFrozenCopy();
       return;
     }
 
