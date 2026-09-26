@@ -165,7 +165,6 @@ try {
     await page.waitForTimeout(500);
     const categories = await page.locator('.archive-category').count();
     const categoryNav = await page.locator('#categoryNav a').count();
-    const firstCategoryFits = await page.locator('#categoryNav a').first().evaluate((el) => el.scrollWidth <= el.clientWidth + 1);
     const allCards = await page.locator('.archive-card.phase-personalized').count();
     const frozenCards = await page.locator('.archive-card[data-frozen="true"]').count();
     const historicalCards = await page.locator('.archive-card[data-frozen="false"]').count();
@@ -178,8 +177,11 @@ try {
     const archivePolish = await page.locator('link[href^="/phase-polish.css"]').count();
     const archivePersonalization = await page.locator('link[href^="/phase-personalization.css"]').count();
     const archiveSignature = await page.locator('link[href^="/signature.css"]').count();
+    await page.setViewportSize({ width: 390, height: 844 });
+    const firstCategoryFits = await page.locator('#categoryNav a').first().evaluate((el) => el.scrollWidth <= el.clientWidth + 1);
+    await page.setViewportSize({ width: 1440, height: 1000 });
     add('archive-has-seven-research-categories', categories === 7 && categoryNav === 7, { categories, categoryNav });
-    add('archive-first-category-label-fits', firstCategoryFits);
+    add('archive-first-category-label-fits-on-phone', firstCategoryFits);
     add('archive-has-all-28-phase-records', allCards === 28, { allCards });
     add('archive-preserves-13-frozen-and-15-other-records', frozenCards === 13 && historicalCards === 15, { frozenCards, historicalCards });
     add('archive-preserves-6-pass-7-fail', frozenPass === 6 && frozenFail === 7, { frozenPass, frozenFail });
