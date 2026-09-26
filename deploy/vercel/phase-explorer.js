@@ -97,7 +97,7 @@
       const button = document.createElement('button');
       button.className = 'phase-explorer-trigger';
       button.type = 'button';
-      button.textContent = 'Browse phases';
+      button.textContent = /^\/phases\/?$/.test(location.pathname) ? 'Compare phases' : 'Browse phases';
       button.setAttribute('aria-haspopup', 'dialog');
       button.addEventListener('click', open);
       header.append(button);

@@ -19,17 +19,18 @@
   <link rel="stylesheet" href="/research-media.css?v=3">
   <link rel="stylesheet" href="/presentation.css?v=11" data-presentation-theme>
   <link rel="stylesheet" href="/lab/lab.css?v=6">
-  <script defer src="/lab/lab.js?v=6" data-aegis-experiment-lab></script>
+  <script defer src="/lab/lab.js?v=7" data-aegis-experiment-lab></script>
   <link rel="stylesheet" href="/tesla-bundle.css?v=1">
   <link rel="stylesheet" href="/home-hero-contrast.css?v=1">
   <link rel="stylesheet" href="/ui-review.css?v=3">
+  <link rel="stylesheet" href="/site-refresh.css?v=1">
 </head>
 <body class="research-workspace home-workspace" data-presentation="photo-led" data-purpose-clarity="true">
   <a class="skip-link" href="#main">Skip to research result</a>
   <header class="site-header signature-nav">
     <a class="brand signature-brand" href="#top" aria-label="AegisLand home"><span>AEGISLAND</span></a>
     <nav class="site-nav signature-nav__links" aria-label="Primary navigation">
-      <a href="#purpose">About</a><a href="#evidence">Findings</a><a href="#method">Method</a><a href="#experiment-lab">Experiment</a><a href="#current-audit">Latest audit</a><a href="#timeline">Research</a>
+      <a href="#purpose">About</a><a href="#status">Results</a><a href="#experiment-lab">Experiment</a><a href="#current-audit">Latest audit</a><a href="/phases/">Phases</a>
     </nav>
     <div class="header-actions"><a href="/phases/">Archive</a><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub</a></div>
     <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-expanded="false" aria-controls="mobileMenuSheet">Menu</button>
@@ -45,11 +46,11 @@
     <section class="hero" id="top" aria-labelledby="hero-title">
       <div class="wrap hero-grid">
         <div>
-          <div class="workspace-context" aria-label="Research context"><span>AegisLand · UAV landing perception</span><span>Simulation record frozen through Phase 22</span></div>
-          <p class="eyebrow">A camera can be wrong before confidence admits it.</p>
-          <h1 id="hero-title">What happens when the estimate drifts but the uncertainty does not?</h1>
-          <p class="hero-deck">AegisLand follows that problem through simulated UAV landing experiments, including the misses. The scientific simulation record is frozen at Phase 22. A separate Phase 23 detector benchmark and Phase 24 audit examine camera-data results.</p>
-          <div class="actions"><a class="button primary signature-button" href="/phases/phase24/">See the Phase 24 audit</a><a class="button secondary signature-button" href="/phases/phase22/">Frozen simulation result</a></div>
+          <div class="workspace-context" aria-label="Research context"><span>AegisLand · Landing perception research</span></div>
+          <h1 id="hero-title">When the camera is sure, but wrong.</h1>
+          <p class="hero-deck">We study when landing estimates drift before their uncertainty catches up.</p>
+          <div class="actions"><a class="button primary signature-button" href="/phases/">Explore the research</a><a class="button secondary signature-button" href="/phases/phase24/">Latest audit</a></div>
+          <p class="hero-track-note">Simulation record frozen through Phase 22 · Camera detector work in Phases 23–24</p>
         </div>
       </div>
 
@@ -66,6 +67,7 @@
     </section>
 
     <section class="section result-section" aria-label="Latest research result">
+      <div class="wrap home-section-lead"><span>01 / Frozen simulation record</span><h2>What held up in simulation.</h2><p>Phase 22 passed its locked holdout checks. The result stays within its simulation boundary.</p></div>
       <div class="wrap result-film-grid">
         <aside class="workspace-status-card result-card aegis-halo" id="status" aria-label="Current research status">
           <div class="workspace-status-head">
@@ -120,32 +122,32 @@
         <article class="chapter-card" id="chapter-01">
           <img src="/media/phase01-context.jpg" alt="" loading="lazy" decoding="async" width="1280" height="852">
           <span class="chapter-card__range">Phase 1–4</span>
-          <div class="chapter-card__body"><h3>Safety architecture</h3><p>Start with a separate supervisor, then learn why one confidence stream is not enough.</p><div class="actions"><a class="button primary" href="/phases/phase1/">Start at Phase 1</a><a class="button secondary" href="/phases/">All phases</a></div></div>
+          <div class="chapter-card__body"><h3>Safety architecture</h3><p>Start with a separate supervisor, then learn why one confidence stream is not enough.</p><div class="actions"><a class="button primary" href="/phases/phase1/">Start at Phase 1</a></div></div>
         </article>
         <article class="chapter-card" id="chapter-02">
           <img src="/media/acero-uav-flight.jpg" alt="" loading="lazy" decoding="async" width="1280" height="852">
           <span class="chapter-card__range">Phase 5–6B</span>
-          <div class="chapter-card__body"><h3>Perception</h3><p>Replace abstract corrupted states with image-derived measurements and split confidence by geometry component.</p><div class="actions"><a class="button primary" href="/phases/phase6b/">See the image work</a><a class="button secondary" href="/phases/">All phases</a></div></div>
+          <div class="chapter-card__body"><h3>Perception</h3><p>Replace abstract corrupted states with image-derived measurements and split confidence by geometry component.</p><div class="actions"><a class="button primary" href="/phases/phase6b/">See the image work</a></div></div>
         </article>
         <article class="chapter-card" id="chapter-03">
           <img src="/media/phase08-context.jpg" alt="" loading="lazy" decoding="async" width="1280" height="852">
           <span class="chapter-card__range">Phase 7–10R</span>
-          <div class="chapter-card__body"><h3>External validation</h3><p>Make the simulator harder, compare traces with PX4/Gazebo, and feed the estimator actual Gazebo camera frames.</p><div class="actions"><a class="button primary" href="/phases/phase10r/">See the shifted holdout</a><a class="button secondary" href="/phases/">All phases</a></div></div>
+          <div class="chapter-card__body"><h3>External validation</h3><p>Make the simulator harder, compare traces with PX4/Gazebo, and feed the estimator actual Gazebo camera frames.</p><div class="actions"><a class="button primary" href="/phases/phase10r/">See the shifted holdout</a></div></div>
         </article>
         <article class="chapter-card" id="chapter-04">
           <img src="/media/stereo-uav-preflight.jpg" alt="" loading="lazy" decoding="async" width="1280" height="852">
           <span class="chapter-card__range">Phase 11–13C</span>
-          <div class="chapter-card__body"><h3>Reliability</h3><p>Freeze the uncertainty baseline, push it into harder settings, and keep the failures when it stops holding up.</p><div class="actions"><a class="button primary" href="/phases/phase11/">Follow the reliability tests</a><a class="button secondary" href="/phases/">All phases</a></div></div>
+          <div class="chapter-card__body"><h3>Reliability</h3><p>Freeze the uncertainty baseline, push it into harder settings, and keep the failures when it stops holding up.</p><div class="actions"><a class="button primary" href="/phases/phase11/">Follow the reliability tests</a></div></div>
         </article>
         <article class="chapter-card" id="chapter-05">
           <img src="/media/phase16-context.jpg" alt="" loading="lazy" decoding="async" width="1280" height="852">
           <span class="chapter-card__range">Phase 14–19</span>
-          <div class="chapter-card__body"><h3>Latency</h3><p>Separate the damage caused by a stale estimate from the smaller pattern that remains in its one-step residuals.</p><div class="actions"><a class="button primary" href="/phases/phase16/">See what staleness changed</a><a class="button secondary" href="/phases/">All phases</a></div></div>
+          <div class="chapter-card__body"><h3>Latency</h3><p>Separate the damage caused by a stale estimate from the smaller pattern that remains in its one-step residuals.</p><div class="actions"><a class="button primary" href="/phases/phase16/">See what staleness changed</a></div></div>
         </article>
         <article class="chapter-card" id="chapter-06">
           <img src="/media/phase22-context.jpg" alt="" loading="lazy" decoding="async" width="1280" height="852">
           <span class="chapter-card__range">Phase 20–22</span>
-          <div class="chapter-card__body"><h3>Transfer</h3><p>Break the hard context into factors, measure their interactions, then test a frozen additive model on a new context cube.</p><div class="actions"><a class="button primary" href="/phases/phase22/">Open the final transfer</a><a class="button secondary" href="/phases/">All phases</a></div></div>
+          <div class="chapter-card__body"><h3>Transfer</h3><p>Break the hard context into factors, measure their interactions, then test a frozen additive model on a new context cube.</p><div class="actions"><a class="button primary" href="/phases/phase22/">Open the final transfer</a></div></div>
         </article>
       </div>
       <div class="wrap chapter-controls" id="chapterControls" hidden><button type="button" id="chapterPrev" aria-label="Previous research chapter" aria-controls="chapterTrack">←</button><span id="chapterPosition" role="status" aria-live="polite">1 / 6</span><button type="button" id="chapterNext" aria-label="Next research chapter" aria-controls="chapterTrack">→</button></div>
@@ -340,6 +342,6 @@
   <script src="/research-workspace.js?v=3"></script>
   <script src="/presentation.js?v=4" defer></script>
   <script src="/phase-taxonomy.js?v=2"></script>
-  <script src="/phase-explorer.js?v=4" defer></script>
+  <script src="/phase-explorer.js?v=5" defer></script>
 </body>
 </html>

@@ -110,7 +110,7 @@ def test_phase_archive_uses_shared_tesla_polish_without_rewriting_lineage() -> N
     assert 'href="/phase-editorial-media.css?v=' in phase
     assert 'href="/signature.css?v=' not in archive
     assert 'href="/signature.css?v=' not in frozen
-    assert "The archive keeps the detours, not just the wins." in archive
+    assert "The complete research record." in archive
     assert "Research categories" in archive
     assert "<strong>7</strong> research categories" in archive
     assert "28 phase records" in archive

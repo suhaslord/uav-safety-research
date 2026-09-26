@@ -34,7 +34,7 @@ const deployAssets = new Set([
   'lab/state.mjs', 'lab/lab.js', 'lab/lab.css', 'lab/worker.js', 'lab/python-bundle.json', 'lab/current-data.js',
   'phase-explorer.js', 'presentation.js', 'presentation.css', 'aegisland.css', 'signature.css', 'research-home.css', 'research-media.css', 'phase-polish.css',
   'phase-polish-fixes.css', 'phase-polish-v2.css', 'phase-ui-consistency.css', 'final-convergence.css', 'final-convergence-base.css', 'craft-polish.css', 'phase-reading-responsive.css', 'home-hero-contrast.css', 'frozen-lineage.js',
-  'research-workspace.css', 'research-workspace.js', 'tesla-bundle.css', 'ui-review.css', 'phase-report.css', 'phase24.js'
+  'research-workspace.css', 'research-workspace.js', 'tesla-bundle.css', 'ui-review.css', 'site-refresh.css', 'phase-report.css', 'phase24.js'
 ]);
 
 const sendFile = async (res, file) => {
