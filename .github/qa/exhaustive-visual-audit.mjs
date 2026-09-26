@@ -10,7 +10,7 @@ const phaseSlugs = [
   'phase1','phase2','phase3','phase4','phase5','phase6','phase6b','phase7','phase8','phase9','phase10','phase10r','phase11',
   'phase12','phase13a','phase13b','phase13c','phase14','phase15','phase16','phase17','phase18','phase19','phase20','phase21','phase22'
 ];
-const routes = ['/', '/phases/', ...phaseSlugs.map((slug) => `/phases/${slug}/`), '/phases/phase24/'];
+const routes = ['/', '/phases/', ...phaseSlugs.map((slug) => `/phases/${slug}/`), '/phases/phase23/', '/phases/phase24/'];
 const viewports = [
   { name: 'desktop', width: 1440, height: 1000 },
   { name: 'tablet', width: 820, height: 1180 },
@@ -103,7 +103,13 @@ try {
         };
         const clickable = [...document.querySelectorAll('a,button,input,select,textarea,[role="button"]')].filter((el) => visible(el) && onDocument(el));
         const tinyTargets = clickable
-          .map((el) => ({ tag: el.tagName, text: (el.getAttribute('aria-label') || el.textContent || el.getAttribute('placeholder') || '').trim().slice(0,80), r: rect(el) }))
+          // The skip link is intentionally clipped until keyboard focus. A nested
+          // checkbox uses its wrapping label as the actual touch target.
+          .filter((el) => !el.matches('.skip-link:not(:focus)'))
+          .map((el) => {
+            const target = el.matches('input[type="checkbox"]') ? el.closest('label') || el : el;
+            return { tag: el.tagName, text: (el.getAttribute('aria-label') || target.textContent || el.getAttribute('placeholder') || '').trim().slice(0,80), r: rect(target) };
+          })
           .filter((item) => item.r && (item.r.width < 40 || item.r.height < 40));
         const tinyText = [...document.querySelectorAll('p,li,a,button,span,small,figcaption,dd,dt')]
           .filter((el) => visible(el) && onDocument(el))
@@ -124,7 +130,7 @@ try {
           return '';
         };
         const unlabeledControls = clickable.filter((el) => !controlName(el)).length;
-        const phasePage = /^\/phases\/phase/i.test(route) && route !== '/phases/phase24/';
+        const phasePage = /^\/phases\/phase/i.test(route) && !['/phases/phase23/', '/phases/phase24/'].includes(route);
         const hero = document.querySelector('main h1')?.closest('section,header,article,div') || document.querySelector('main h1');
         const phaseChip = document.querySelector('.phase-identity-chip');
         const roleCard = document.querySelector('.phase-role-card');
@@ -133,7 +139,7 @@ try {
         const main = document.querySelector('main');
         const footer = document.querySelector('footer');
         const consistencyLink = document.querySelector('link[data-aegis-phase-ui-consistency]');
-        const structuralBlocks = [...document.querySelectorAll('main > section, main > article, main > div, main > figure[data-editorial-photo], .phase-detail > figure[data-editorial-photo]')]
+        const structuralBlocks = [...document.querySelectorAll('main > section, main > article, main > div, main > figure[data-editorial-photo], main > figure.report-photo, .phase-detail > figure[data-editorial-photo]')]
           .filter(visible)
           .map((el) => ({ className: el.className || el.tagName, r: rect(el) }))
           .filter((item) => item.r)

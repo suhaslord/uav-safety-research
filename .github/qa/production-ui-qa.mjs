@@ -20,14 +20,15 @@ const frozenSlugs = [
   'phase16', 'phase17', 'phase18', 'phase19', 'phase20', 'phase21', 'phase22'
 ];
 const frozenRoutes = frozenSlugs.map((slug) => `/phases/${slug}/`);
+const phase23Route = '/phases/phase23/';
 const phase24Route = '/phases/phase24/';
-const routes = ['/', '/phases/', ...legacyRoutes, ...frozenRoutes, phase24Route];
+const routes = ['/', '/phases/', ...legacyRoutes, ...frozenRoutes, phase23Route, phase24Route];
 const viewports = [
   { name: 'desktop', width: 1440, height: 1000 },
   { name: 'tablet', width: 820, height: 1180 },
   { name: 'mobile', width: 390, height: 844, isMobile: true, hasTouch: true }
 ];
-const screenshotRoutes = new Set(['/', '/phases/', '/phases/phase1/', '/phases/phase13a/', '/phases/phase18/', '/phases/phase22/', phase24Route]);
+const screenshotRoutes = new Set(['/', '/phases/', '/phases/phase1/', '/phases/phase13a/', '/phases/phase18/', '/phases/phase22/', phase23Route, phase24Route]);
 const report = { base: BASE, startedAt: new Date().toISOString(), checks: [], errors: [], warnings: [], screenshots: [] };
 
 await fs.rm(OUT, { recursive: true, force: true });
@@ -131,6 +132,9 @@ try {
       add(`${vp.name}-${route}-images-load`, state.brokenImages.length === 0, { brokenImages: state.brokenImages });
       add(`${vp.name}-${route}-hash-targets`, state.missingHashTargets.length === 0, { missing: state.missingHashTargets });
       add(`${vp.name}-${route}-no-placeholder-text`, !/(^|\s)(undefined|null|\[object Object\])(\s|$)/i.test(state.text));
+      if (route === phase23Route) {
+        add(`${vp.name}-phase23-committed-comparison`, /59\.3%/.test(state.text) && /Occlusion/.test(state.text) && /separate from the frozen Phase 1–22/.test(state.text));
+      }
       if (route === phase24Route) {
         add(`${vp.name}-phase24-four-accessible-charts`, state.phase24Charts === 4, { charts: state.phase24Charts });
         add(`${vp.name}-phase24-reanalysis-provenance`, state.phase24Provenance, { provenance: state.phase24Provenance });
@@ -165,7 +169,7 @@ try {
       evidenceRows: document.querySelectorAll('#evidenceSpine .evidence-row').length,
       passRows: document.querySelectorAll('#evidenceSpine .evidence-row[data-verdict="PASS"]').length,
       failRows: document.querySelectorAll('#evidenceSpine .evidence-row[data-verdict="FAIL"]').length,
-      noPhase23Link: document.querySelectorAll('a[href*="phase23"]').length === 0,
+      phase23LinkCount: document.querySelectorAll('a[href*="phase23"]').length,
       hasBoundary: text.includes('simulation_only=true') && text.includes('safety_acceptance=false') && text.includes('controller_tuning_allowed=false'),
       hasFinalMetrics: text.includes('0.8319') && text.includes('0.7744') && text.includes('100%'),
       saysFrozen: /Frozen through Phase 22/i.test(text) && (/No Phase 23/i.test(text) || /does not imply a Phase 23/i.test(text) || /scientific commit/i.test(text)),
@@ -179,7 +183,7 @@ try {
   add('home-frozen-lineage-identity', home.dataOk, home);
   add('home-final-metrics-visible', home.hasFinalMetrics, home);
   add('home-claim-boundary-visible', home.hasBoundary, home);
-  add('home-no-phase23', home.noPhase23Link && home.saysFrozen, home);
+  add('home-links-separate-phase23-detector', home.phase23LinkCount > 0 && home.saysFrozen, home);
 
   const archiveCta = page.getByRole('link', { name: /see every phase|inspect every phase|browse all phases/i }).first();
   add('home-archive-cta-exists', await archiveCta.count() === 1);

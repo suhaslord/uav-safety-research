@@ -9,6 +9,14 @@
 
 AegisLand asks: **when landing perception becomes unreliable, can the system recognize that before it trusts a bad estimate?**
 
+## Where the record stands
+
+- [Phase 22](https://aegisland-research-cockpit.vercel.app/phases/phase22/) closes the frozen **simulation** lineage. Its 10 locked transfer gates passed; that result does not establish flight safety.
+- [Phase 23](https://aegisland-research-cockpit.vercel.app/phases/phase23/) compares a robust KIOS detector with an earlier detector baseline on 86 protected test frames. Clean recall improved by 20.9 percentage points, while occlusion and mixed-stress results regressed.
+- [Phase 24](https://aegisland-research-cockpit.vercel.app/phases/phase24/) reanalyzes the committed Phase 23 condition aggregates. The equal-weight mAP50 average rose by 3.4 points, but the occlusion + mixed-stress average fell by 13.3 points. It trained no new model.
+
+The detector source files call the earlier 320px comparator “Phase 22 Baseline.” That detector is separate from the frozen Phase 22 simulation transfer model.
+
 ## Real-image dataset
 
 The current perception track uses the **KIOS Aerial Landing Pad, Unreal Engine Dataset (2024)** and evaluates its **422-image real-video subset** with YOLO landing-pad annotations.
@@ -20,7 +28,7 @@ The current perception track uses the **KIOS Aerial Landing Pad, Unreal Engine D
 
 Raw dataset files are downloaded from Zenodo for evaluation and are not copied into this repository or website.
 
-## First real-image result
+## Initial real-image transfer check (historical)
 
 | Metric | Result |
 | --- | ---: |
@@ -33,7 +41,7 @@ Raw dataset files are downloaded from Zenodo for evaluation and are not copied i
 
 **Result:** the old threshold-centroid heuristic **does not transfer well to real images**. It returned no valid estimate on about 23% of frames, and only about 31% of valid predictions fell horizontally inside the annotated landing-pad box.
 
-That negative result is useful: the synthetic benchmark was too simple to stand in for real camera imagery. The next perception baseline should be built on real images with a protected evaluation split instead of tuning the old heuristic on these same 422 frames.
+That negative result showed why the synthetic benchmark could not stand in for real camera imagery. A separate detector baseline and the Phase 23 comparison were subsequently evaluated on a protected temporal split.
 
 Full result: [`results/real_landing_pad/summary.md`](results/real_landing_pad/summary.md)
 
@@ -45,9 +53,9 @@ real camera image → perception model → estimate + confidence → safety supe
 
 For every block, AegisLand documents **input → operation → output → next handoff** before adding more complexity.
 
-## Current baseline
+## Earlier heuristic baseline
 
-The first transfer test deliberately kept the Phase 5 estimator frozen. It is **rule-based, not a neural network**: it thresholds bright pixels and uses a brightness-weighted horizontal centroid.
+The initial transfer check deliberately kept the Phase 5 estimator frozen. It is **rule-based, not a neural network**: it thresholds bright pixels and uses a brightness-weighted horizontal centroid. The later detector results are linked above.
 
 Because it predicts only horizontal position, this first transfer test reports horizontal-center error — **not object-detection mAP**.
 
@@ -88,19 +96,13 @@ python scripts/run_real_landing_pad_benchmark.py \
 
 The downloader verifies the published dataset archive checksum before evaluation.
 
-## Next research step
+## Detector results and remaining question
 
-Do **not** tune the old heuristic on the same real frames and call that a clean result. Next:
-
-1. define a real-image development/test split;
-2. build a proper landing-pad detector or segmenter on the development data;
-3. freeze it;
-4. evaluate held-out real-image performance;
-5. then apply controlled blur, low light, occlusion, and noise to test real-image distribution shift.
+The protected split and detector comparison are complete: [initial detector baseline](results/real_detector/summary.md), [Phase 23 result](results/phase23_robust_detector/summary.md), and [Phase 24 audit](results/phase24_robustness_audit/summary.md). The hard camera conditions still regress. These aggregate metrics do not tell us how often an individual frame fails or how any controller would respond.
 
 ## Research record
 
-The earlier simulation research remains preserved through Phase 22, including failed phases rather than rewriting them after later experiments succeed.
+The earlier simulation research remains preserved through Phase 22, including failed phases rather than rewriting them after later experiments succeed. Phases 23 and 24 form a separate detector evidence track.
 
 [Project guide](docs/project_understanding_guide.md) · [Block map](docs/block_reference_map.md) · [Methodology](docs/methodology.md) · [Reproducibility](docs/reproducibility.md)
 

@@ -45,6 +45,6 @@ If you have **15 minutes**, add:
 
 ## Current status
 
-Phase 1 infrastructure exists. The main result should not be claimed until the preregistered experiment is run and logged.
+The simulation record is frozen through [Phase 22](https://aegisland-research-cockpit.vercel.app/phases/phase22/), with its failures preserved. The separate real-video detector track has a [Phase 23 comparison](../results/phase23_robust_detector/summary.md) and a [Phase 24 descriptive audit](../results/phase24_robustness_audit/summary.md). For the full sequence, start at the [phase archive](https://aegisland-research-cockpit.vercel.app/phases/). None of these results establishes flight safety.
 
 The project is intentionally structured so that **the research trail is visible**, including assumptions, negative results, methodological criticism, and protocol changes.

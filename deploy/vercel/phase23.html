@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="description" content="Phase 23 compares a robust KIOS landing-pad detector with the earlier detector baseline on one protected temporal test split.">
+  <title>Phase 23 — Robust landing-pad detector · AegisLand</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=5">
+  <link rel="stylesheet" href="/phase-report.css?v=1">
+</head>
+<body>
+  <header class="top"><a class="brand" href="/">AEGISLAND</a><nav class="nav" aria-label="Phase navigation"><a href="/phases/">All phases</a><a href="/phases/phase24/">Phase 24</a><a href="/">Research home</a></nav></header>
+  <nav class="record-path" aria-label="Research track"><strong>Real-camera detector track · Phase 23</strong><a href="/phases/phase24/">Phase 24 audit →</a></nav>
+  <main>
+    <section class="hero">
+      <div class="eyebrow">Phase 23 · KIOS protected detector benchmark</div>
+      <h1>The detector gained recall.</h1>
+      <p class="dek">A 480px YOLO11n detector improved the clean and blur results over the earlier 320px detector. Occlusion and mixed stress got worse.</p>
+      <div class="provenance"><strong>Detector comparison.</strong> The published Phase 23 results use 86 protected test frames from the 422-frame labeled real-video subset. This detector track is separate from the frozen Phase 1–22 simulation record.</div>
+      <div class="hero-links"><a href="#results">Read the conditions ↓</a><a href="/phases/phase24/">See the Phase 24 audit</a><a href="/phases/phase22/">Frozen simulation record</a></div>
+    </section>
+
+    <section class="metrics" aria-label="Selected protected-test results">
+      <div class="metric"><b class="good">59.3%</b><span>Clean recall · +20.9 percentage points vs detector baseline</span></div>
+      <div class="metric"><b class="good">55.5%</b><span>Clean mAP50 · +12.9 percentage points</span></div>
+      <div class="metric"><b class="bad">13.8%</b><span>Occlusion mAP50 · −21.0 percentage points</span></div>
+      <div class="metric"><b class="bad">8.1%</b><span>Mixed-stress recall · −10.5 percentage points</span></div>
+    </section>
+
+    <div class="reading-note"><strong>Read both sides:</strong> clean recall and mAP50 improved, but clean precision fell from 79.6% to 71.7%, and mAP50–95 fell from 27.2% to 22.3%. The 480px model is not a uniform improvement.</div>
+    <div class="section-head"><h2>One holdout, six views</h2><p>The same 86-frame temporal test split is reused under each camera stress. These are six condition views, not 516 independent frames.</p></div>
+    <figure class="report-photo"><img src="/media/perception/kios_clean.jpg" width="1280" height="720" alt="A KIOS downward camera test frame with annotated landing pad and detector box" loading="lazy"><figcaption>KIOS protected-test frame shown as visual context. The condition metrics below come from the committed Phase 23 aggregate results.</figcaption></figure>
+
+    <div class="section-head" id="results"><h2>What changed by condition</h2><p>mAP50 and recall use the same detector comparison. All differences are percentage points (pp).</p></div>
+    <p class="table-scroll-hint">Swipe sideways for every metric →</p>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="Scrollable Phase 23 condition comparison"><table aria-label="Detector baseline and Phase 23 results by condition">
+      <thead><tr><th>Condition</th><th>Baseline mAP50</th><th>Phase 23 mAP50</th><th>mAP50 Δ</th><th>Baseline recall</th><th>Phase 23 recall</th><th>Recall Δ</th></tr></thead>
+      <tbody>
+        <tr><td>Clean</td><td>42.7%</td><td>55.5%</td><td class="pos">+12.9 pp</td><td>38.4%</td><td>59.3%</td><td class="pos">+20.9 pp</td></tr>
+        <tr><td>Blur</td><td>41.3%</td><td>58.6%</td><td class="pos">+17.3 pp</td><td>37.8%</td><td>57.0%</td><td class="pos">+19.2 pp</td></tr>
+        <tr><td>Low light</td><td>41.7%</td><td>42.4%</td><td class="pos">+0.7 pp</td><td>37.2%</td><td>44.2%</td><td class="pos">+7.0 pp</td></tr>
+        <tr><td>Noise</td><td>43.3%</td><td>59.6%</td><td class="pos">+16.4 pp</td><td>39.8%</td><td>54.7%</td><td class="pos">+14.9 pp</td></tr>
+        <tr class="severe"><td>Occlusion</td><td>34.8%</td><td>13.8%</td><td class="neg">−21.0 pp</td><td>32.6%</td><td>24.4%</td><td class="neg">−8.1 pp</td></tr>
+        <tr class="severe"><td>Mixed stress</td><td>18.5%</td><td>12.9%</td><td class="neg">−5.5 pp</td><td>18.6%</td><td>8.1%</td><td class="neg">−10.5 pp</td></tr>
+      </tbody>
+    </table></div>
+    <div class="callout"><strong>The weak tail matters:</strong> mAP50 regressed under occlusion and mixed stress, and recall fell in both. Phase 24 charts the full pattern and reports the equal-weight average alongside the severe-stress average.</div>
+
+    <div class="section-head"><h2>Method and boundary</h2><p>Phase 23 trained a detector; Phase 24 later reanalyzed its committed condition aggregates without new training.</p></div>
+    <section class="method-grid">
+      <article class="method-card"><h3>Two KIOS detectors</h3><p>The comparator is a 320px YOLO11n detector. Phase 23 used a 480px YOLO11n with UAV-oriented image augmentations. The source calls the comparator “Phase 22 Baseline”; it is distinct from the frozen Phase 22 simulation transfer model.</p></article>
+      <article class="method-card"><h3>Temporal split</h3><p>The 422 labeled frames were split into 252 train, 64 validation, 20 embargoed, and 86 protected test frames. Stress conditions reuse the protected test frames.</p></article>
+    </section>
+    <aside class="limits"><strong>Limits:</strong> These are detector metrics on one protected dataset split. They do not demonstrate landing safety, controller behavior, certification, or real-flight readiness. <code>safety_acceptance=false</code> · <code>controller_tuning_allowed=false</code>.</aside>
+    <nav class="record-links" aria-label="Continue reading"><a href="/phases/phase22/">← Frozen Phase 22 simulation</a><a href="/phases/phase24/">Phase 24 audit →</a><a href="/phases/">All phases</a></nav>
+  </main>
+  <footer><span>AEGISLAND · Phase 23 detector benchmark</span><span><a href="https://github.com/suhaslord/uav-safety-research/blob/main/results/phase23_robust_detector/summary.md">Committed result ↗</a></span></footer>
+</body>
+</html>

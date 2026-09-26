@@ -16,7 +16,7 @@ const PHASES = {
     metrics: [["Mixed unsafe", "82.8% → 0%"], ["Mixed abort", "0% → 100%"], ["Main lesson", "Safety ≠ availability"]],
     finding: "The supervisor removed unsafe touchdowns in the hardest mixed condition, but there was a catch: it aborted every single run. Phase 1 made the tradeoff hard to miss. Refusing to finish can make a system look safe without making it useful.",
     source: "Phase 1 preregistration + V1 findings",
-    sourceUrl: "https://github.com/suhaslord/uav-safety-research/blob/phase10-temporal-metric-perception/docs/v1_findings_and_v2_plan.md"
+    sourceUrl: "https://github.com/suhaslord/uav-safety-research/blob/main/docs/v1_findings_and_v2_plan.md"
   },
 
   phase2: {
@@ -36,7 +36,7 @@ const PHASES = {
     metrics: [["Mixed abort", "100% → 0%"], ["Occlusion abort", "94.6% → 0%"], ["Mixed unsafe", "84.8%"]],
     finding: "V2 fixed the all-abort behavior from V1. It also exposed the next problem. A sensor can be wrong in a steady, believable way, and smoothing does not automatically reveal that kind of bias.",
     source: "V2 frozen results",
-    sourceUrl: "https://github.com/suhaslord/uav-safety-research/blob/phase10-temporal-metric-perception/docs/v2_results.md"
+    sourceUrl: "https://github.com/suhaslord/uav-safety-research/blob/main/docs/v2_results.md"
   },
 
   phase3: {
@@ -56,7 +56,7 @@ const PHASES = {
     metrics: [["Mixed success", "97.6%"], ["Mixed unsafe", "2.4%"], ["Occlusion unsafe", "1.4%"]],
     finding: "This was the first large architecture gain. The useful change was not another smoother; it was the second source of evidence. Some errors that looked perfectly consistent from inside the vision stream became obvious once another estimate disagreed with them.",
     source: "V3 frozen results",
-    sourceUrl: "https://github.com/suhaslord/uav-safety-research/blob/phase10-temporal-metric-perception/docs/v3_results.md"
+    sourceUrl: "https://github.com/suhaslord/uav-safety-research/blob/main/docs/v3_results.md"
   },
 
   phase4: {
@@ -76,7 +76,7 @@ const PHASES = {
     metrics: [["Standalone result", "None"], ["Invented metrics", "0"], ["Archive policy", "Gap preserved"]],
     finding: "There is no result to rescue here. Phase 4 did not exist as a separate experiment, so the timeline keeps that fact visible instead of smoothing it over.",
     source: "Repository research checkpoint",
-    sourceUrl: "https://github.com/suhaslord/uav-safety-research/blob/phase10-temporal-metric-perception/docs/research_checkpoint_2026-08-10.md"
+    sourceUrl: "https://github.com/suhaslord/uav-safety-research/blob/main/docs/research_checkpoint_2026-08-10.md"
   },
 
   phase5: {
@@ -96,7 +96,7 @@ const PHASES = {
     metrics: [["Mixed V3 success", "97.6% mean"], ["Mixed V3 unsafe", "2.4% mean"], ["Image valid outputs", "100% — too willing"]],
     finding: "V3 stayed strong in the wider simulation sweeps. The image estimator revealed a different weakness: it almost always returned an answer, even when the answer was poor. Its confidence was too willing.",
     source: "Phase 5 results",
-    sourceUrl: "https://github.com/suhaslord/uav-safety-research/blob/phase10-temporal-metric-perception/docs/phase5_results.md"
+    sourceUrl: "https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase5_results.md"
   },
 
   phase6: {
@@ -116,7 +116,7 @@ const PHASES = {
     metrics: [["Mixed success", "92%"], ["Mixed unsafe", "7%"], ["Bad-frame rejection", "Still weak"]],
     finding: "The overall system improved even though frame-level confidence still failed to catch many bad images. That distinction mattered: the architecture could survive some perception mistakes without actually knowing, frame by frame, which readings were wrong.",
     source: "Phase 6 frozen results",
-    sourceUrl: "https://github.com/suhaslord/uav-safety-research/blob/phase10-temporal-metric-perception/docs/phase6_results.md"
+    sourceUrl: "https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase6_results.md"
   },
 
   phase6b: {
@@ -136,7 +136,7 @@ const PHASES = {
     metrics: [["Mixed success", "99%"], ["Mixed unsafe", "1%"], ["Occlusion unsafe", "4%"]],
     finding: "Splitting the confidence decision worked better than treating the image as all good or all bad. It produced the strongest frozen synthetic-image landing result in this part of the project, while low light and mixed lateral rejection still showed clear weaknesses.",
     source: "Phase 6B frozen results",
-    sourceUrl: "https://github.com/suhaslord/uav-safety-research/blob/phase10-temporal-metric-perception/docs/phase6b_results.md"
+    sourceUrl: "https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase6b_results.md"
   },
 
   phase7: {
@@ -216,6 +216,6 @@ const PHASES = {
     metrics: [["Holdout lateral MAE", "0.0277 m"], ["Holdout altitude MAE", "0.0157 m"], ["Substantial-win gate", "Not passed"]],
     finding: "The big point-error gain from development did not repeat on the holdout because all 15 usable measurements were already high-quality ArUco detections. The more useful result was calibration: normalized residual medians were 0.65 laterally and 0.52 in altitude. The unchanged front end still missed five of 20 truth-visible frames.",
     source: "Phase 10 frozen holdout result",
-    sourceUrl: "https://github.com/suhaslord/uav-safety-research/blob/phase10-temporal-metric-perception/docs/phase10_frozen_holdout_result.md"
+    sourceUrl: "https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase10_frozen_holdout_result.md"
   }
 };

@@ -15,7 +15,7 @@
   <style>
     .archive-empty-state{margin:28px 0 0;padding:24px;border:1px solid var(--rw-line);border-radius:6px;background:var(--rw-surface);display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 24px;align-items:center}.archive-empty-state[hidden]{display:none}.archive-empty-state strong{font-size:15px}.archive-empty-state span{color:var(--rw-muted);font-size:12px}.archive-reset{grid-column:2;grid-row:1/3;min-height:40px;padding:0 13px;border:1px solid var(--rw-line);border-radius:4px;background:var(--rw-surface-2);color:var(--rw-text);font:inherit;font-size:12px;font-weight:650;cursor:pointer}.archive-reset:hover{border-color:#3a4a5a;background:var(--rw-surface-3)}.archive-reset:focus-visible{outline:2px solid var(--rw-accent);outline-offset:3px}@media(max-width:680px){.archive-empty-state{grid-template-columns:1fr}.archive-reset{grid-column:1;grid-row:auto;justify-self:start;margin-top:8px}}
   </style>
-  <link rel="stylesheet" href="/presentation.css?v=10" data-presentation-theme>
+  <link rel="stylesheet" href="/presentation.css?v=11" data-presentation-theme>
   <link rel="stylesheet" href="/tesla-bundle.css?v=1">
   <link rel="stylesheet" href="/ui-review.css?v=2">
 </head>
@@ -38,8 +38,8 @@
       <div class="workspace-context" aria-label="Archive context"><span>Research record</span><span>Phase 1 → Phase 24 audit</span><span>Simulation + real-camera reanalysis</span></div>
       <div class="signature-kicker">How the work developed</div>
       <h1>The archive keeps the detours, not just the wins.</h1>
-      <p>The project starts with a small landing supervisor and ends with a frozen additive transfer model. Between them are simulator mismatches, calibration failures, abandoned ideas, and narrower questions that came directly from those misses. Nothing is reordered to make the path look cleaner than it was.</p>
-      <div class="archive-meta-line"><span><strong>27</strong> phase records</span><span><strong>7</strong> research categories</span><span><strong>13</strong> frozen Phase 12–22 records</span><span><strong>6 PASS / 7 FAIL</strong> frozen verdicts</span></div>
+      <p>The simulation lineage starts with a small landing supervisor and ends with a frozen additive transfer model at Phase 22. A separate KIOS detector benchmark follows in Phase 23, then Phase 24 audits its published condition results. The misses stay in the order they happened.</p>
+      <div class="archive-meta-line"><span><strong>28</strong> phase records</span><span><strong>7</strong> research categories</span><span><strong>13</strong> frozen Phase 12–22 records</span><span><strong>6 PASS / 7 FAIL</strong> frozen verdicts</span></div>
       <nav class="category-nav" id="categoryNav" aria-label="Research categories"></nav>
     </section>
 
@@ -51,7 +51,7 @@
         <button class="archive-filter" type="button" data-filter="fail" aria-pressed="false">Frozen FAIL</button>
         <button class="archive-filter" type="button" data-filter="historical" aria-pressed="false">Non-frozen records</button>
       </div>
-      <div class="archive-filter-summary" id="archiveResultCount" aria-live="polite">Showing all 27 phase records.</div>
+      <div class="archive-filter-summary" id="archiveResultCount" aria-live="polite">Showing all 28 phase records.</div>
     </section>
 
     <div class="archive-empty-state" id="archiveEmptyState" hidden role="status">
@@ -62,13 +62,13 @@
 
     <div class="archive-groups" id="categories">
       <div id="archiveCategories"></div>
-      <section class="claim-boundary"><b>ARCHIVE LIMIT //</b> simulation_only=true · safety_acceptance=false · controller_tuning_allowed=false<br>Phases 1–22 record simulation evidence only. Phase 24 reanalyzes aggregate real-camera detector metrics and does not establish landing safety, controller performance, certification relevance, or flight readiness.</section>
+      <section class="claim-boundary"><b>ARCHIVE LIMIT //</b> safety_acceptance=false · controller_tuning_allowed=false<br>Phases 1–22 record simulation evidence only. Phase 23 compares detectors on protected real-video frames; Phase 24 reanalyzes those aggregate metrics. Neither detector result establishes landing safety, controller performance, certification relevance, or flight readiness.</section>
     </div>
   </main>
 
-  <footer class="signature-footer"><div class="signature-shell signature-footer__inner"><div>AegisLand · Phase 1–22 simulation lineage frozen; Phase 24 is a descriptive real-camera reanalysis</div><div><code>scientific lineage frozen through Phase 22</code></div></div></footer>
+  <footer class="signature-footer"><div class="signature-shell signature-footer__inner"><div>AegisLand · simulation lineage frozen through Phase 22; Phase 23 detector and Phase 24 audit are separate</div><div><code>scientific simulation lineage frozen through Phase 22</code></div></div></footer>
 
-  <script src="/phase-taxonomy.js?v=1"></script>
+  <script src="/phase-taxonomy.js?v=2"></script>
   <script src="/frozen-lineage.js?v=3"></script>
   <script>
     (() => {
@@ -91,12 +91,13 @@
         phase10: ['Phase 10', 'Stateful metric perception', 'Recent state protected an existing track from ambiguous geometry and improved the calibration of reported uncertainty.'],
         phase10r: ['Phase 10R', 'Shifted holdout', 'Average ambiguous-view error improved, but tail risk, availability, and coverage still missed locked gates.'],
         phase11: ['Phase 11', 'Protected reliability check', 'Availability and coverage recovered strongly, while one locked lateral tail-efficiency requirement still failed.'],
+        phase23: ['Phase 23', 'Robust KIOS detector', 'Clean recall improved against the earlier detector baseline, but occlusion and mixed stress regressed on the protected temporal split.'],
         phase24: ['Phase 24', 'Robustness frontier audit', 'A descriptive reanalysis of Phase 23 aggregates: the six-condition mean improves, while occlusion and mixed stress reveal a substantial regression tail. No model was retrained.']
       };
 
       const order = [
         'phase1','phase2','phase3','phase4','phase5','phase6','phase6b','phase7','phase8','phase9','phase10','phase10r','phase11',
-        'phase12','phase13a','phase13b','phase13c','phase14','phase15','phase16','phase17','phase18','phase19','phase20','phase21','phase22','phase24'
+        'phase12','phase13a','phase13b','phase13c','phase14','phase15','phase16','phase17','phase18','phase19','phase20','phase21','phase22','phase23','phase24'
       ];
 
       const recordFor = (slug) => {
@@ -118,7 +119,7 @@
           label: historical[0],
           title: historical[1],
           summary: historical[2],
-          status: slug === 'phase24' ? 'REANALYSIS' : (slug === 'phase4' ? 'PROVENANCE' : (slug === 'phase10r' ? 'FAILED HOLDOUT' : (slug === 'phase11' ? 'MIXED / FAIL' : 'ARCHIVE'))),
+          status: slug === 'phase24' ? 'REANALYSIS' : (slug === 'phase23' ? 'BENCHMARK' : (slug === 'phase4' ? 'PROVENANCE' : (slug === 'phase10r' ? 'FAILED HOLDOUT' : (slug === 'phase11' ? 'MIXED / FAIL' : 'ARCHIVE')))),
           statusClass: slug === 'phase10r' || slug === 'phase11' ? 'verdict-chip--fail' : '',
           frozen: false,
           meta
@@ -195,7 +196,7 @@
           section.hidden = !section.querySelector('.archive-card.phase-personalized:not([hidden])');
         });
         emptyState.hidden = visible !== 0;
-        summary.textContent = visible === 27 && !query && activeFilter === 'all' ? 'Showing all 27 phase records.' : `Showing ${visible} of 27 phase records.`;
+        summary.textContent = visible === 28 && !query && activeFilter === 'all' ? 'Showing all 28 phase records.' : `Showing ${visible} of 28 phase records.`;
       };
 
       search.addEventListener('input', applyFilters);
@@ -230,6 +231,6 @@
     })();
   </script>
   <script src="/research-workspace.js?v=3"></script>
-  <script src="/phase-explorer.js?v=3" defer></script>
+  <script src="/phase-explorer.js?v=4" defer></script>
 </body>
 </html>

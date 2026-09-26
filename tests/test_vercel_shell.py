@@ -1,4 +1,6 @@
+import csv
 import json
+import re
 from pathlib import Path
 
 
@@ -44,7 +46,10 @@ def test_vercel_routes_use_packaged_frozen_and_legacy_assets() -> None:
     assert "/dashboard/phase-visuals.js" in destinations
     assert "/dashboard/phase-editorial-media.js" in destinations
     assert "/phase11.html" in destinations
+    assert "/phase23.html" in destinations
     assert "/phase24.html" in destinations
+    phase23_sources = {item["source"] for item in rewrites if item["destination"] == "/phase23.html"}
+    assert "/phases/phase23" in phase23_sources and "/phases/phase23/" in phase23_sources
     phase24_sources = {item["source"] for item in rewrites if item["destination"] == "/phase24.html"}
     assert "/phases/phase24" in phase24_sources and "/phases/phase24/" in phase24_sources
     assert "/phase12.html" not in destinations
@@ -108,12 +113,12 @@ def test_phase_archive_uses_shared_tesla_polish_without_rewriting_lineage() -> N
     assert "The archive keeps the detours, not just the wins." in archive
     assert "Research categories" in archive
     assert "<strong>7</strong> research categories" in archive
-    assert "27 phase records" in archive
+    assert "28 phase records" in archive
     assert "6 PASS / 7 FAIL" in archive
-    assert "Phase 24 is a descriptive real-camera reanalysis" in archive
+    assert "Phase 23 detector and Phase 24 audit are separate" in archive
 
 
-def test_phase_taxonomy_personalizes_all_27_phase_routes() -> None:
+def test_phase_taxonomy_personalizes_all_28_phase_routes() -> None:
     taxonomy = (ROOT / "dashboard" / "phase-taxonomy.js").read_text(encoding="utf-8")
     personalization = (ROOT / "dashboard" / "phase-personalization.js").read_text(encoding="utf-8")
     css = (ROOT / "dashboard" / "phase-personalization.css").read_text(encoding="utf-8")
@@ -122,7 +127,7 @@ def test_phase_taxonomy_personalizes_all_27_phase_routes() -> None:
         "phase1", "phase2", "phase3", "phase4", "phase5", "phase6", "phase6b",
         "phase7", "phase8", "phase9", "phase10", "phase10r", "phase11", "phase12",
         "phase13a", "phase13b", "phase13c", "phase14", "phase15", "phase16", "phase17",
-        "phase18", "phase19", "phase20", "phase21", "phase22", "phase24",
+        "phase18", "phase19", "phase20", "phase21", "phase22", "phase23", "phase24",
     )
     for slug in expected_slugs:
         assert f"{slug}: {{ category:" in taxonomy
@@ -194,6 +199,46 @@ def test_phase24_standalone_report_has_charts_provenance_and_method_limits() -> 
     assert 'fetch("/data/phase24-results.json"' in script
 
 
+def test_phase23_report_and_phase24_share_a_report_layout() -> None:
+    phase23 = (ROOT / "deploy" / "vercel" / "phase23.html").read_text(encoding="utf-8")
+    phase24 = (ROOT / "deploy" / "vercel" / "phase24.html").read_text(encoding="utf-8")
+    css = (ROOT / "deploy" / "vercel" / "phase-report.css").read_text(encoding="utf-8")
+    assert 'href="/phase-report.css?v=' in phase23
+    assert 'href="/phase-report.css?v=' in phase24
+    assert '.record-path' in css
+    assert 'href="/phases/phase24/"' in phase23
+    assert 'href="/phases/phase23/"' in phase24
+    assert phase23.count('<tr class="severe">') == 2
+    assert "separate from the frozen Phase 1–22 simulation record" in phase23
+
+
+def test_phase23_displayed_condition_table_matches_committed_csv() -> None:
+    html = (ROOT / "deploy" / "vercel" / "phase23.html").read_text(encoding="utf-8")
+    body = re.search(r"<tbody>(.*?)</tbody>", html, re.S)
+    assert body is not None
+    displayed = [
+        [re.sub(r"<[^>]+>", "", cell).strip() for cell in re.findall(r'<td(?: class="[^"]+")?>(.*?)</td>', row, re.S)]
+        for row in re.findall(r'<tr(?: class="severe")?>(.*?)</tr>', body.group(1), re.S)
+    ]
+    with (ROOT / "results" / "phase23_robust_detector" / "robustness_comparison.csv").open(newline="") as source:
+        rows = list(csv.DictReader(source))
+
+    def pct(value: str) -> str:
+        return f"{100 * float(value):.1f}%"
+
+    def pp(value: str) -> str:
+        number = 100 * float(value)
+        return f"{'+' if number >= 0 else '−'}{abs(number):.1f} pp"
+
+    labels = {"clean": "Clean", "blur": "Blur", "low_light": "Low light", "noise": "Noise", "occlusion": "Occlusion", "mixed": "Mixed stress"}
+    expected = [
+        [labels[row["condition"]], pct(row["baseline_map50"]), pct(row["phase23_map50"]), pp(row["map50_gain"]),
+         pct(row["baseline_recall"]), pct(row["phase23_recall"]), pp(row["recall_gain"])]
+        for row in rows
+    ]
+    assert displayed == expected
+
+
 def test_live_perception_panels_and_phase_reading_width_are_balanced() -> None:
     current = (ROOT / "deploy" / "vercel" / "lab" / "current-data.js").read_text(encoding="utf-8")
     shared = (ROOT / "deploy" / "vercel" / "phase-ui-consistency.css").read_text(encoding="utf-8")
@@ -201,6 +246,7 @@ def test_live_perception_panels_and_phase_reading_width_are_balanced() -> None:
     assert "width:min(1440px,calc(100% - 64px))" in current
     assert "grid-template-columns:minmax(0,1fr) minmax(0,1fr)" in current
     assert ".perception-card__frame--square{aspect-ratio:16/9;width:100%" in current
-    assert 'href="/phases/phase24/">Read Phase 24' in current
+    assert 'href="/phases/phase23/">Read Phase 23' in current
+    assert 'href="/phases/phase24/">Open charts and results' in current
     assert "width:min(1280px,calc(100% - 48px))" in shared
     assert "grid-template-columns:minmax(0,1.2fr) minmax(340px,.8fr)" in shared

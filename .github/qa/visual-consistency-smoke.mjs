@@ -13,7 +13,7 @@ const routes = [
   '/phases/phase10/', '/phases/phase10r/', '/phases/phase11/', '/phases/phase12/',
   '/phases/phase13a/', '/phases/phase13b/', '/phases/phase13c/', '/phases/phase14/', '/phases/phase15/',
   '/phases/phase16/', '/phases/phase17/', '/phases/phase18/', '/phases/phase19/', '/phases/phase20/',
-  '/phases/phase21/', '/phases/phase22/', '/phases/phase24/'
+  '/phases/phase21/', '/phases/phase22/', '/phases/phase23/', '/phases/phase24/'
 ];
 
 const launchOptions = { headless: true };
@@ -153,7 +153,7 @@ try {
     add('home-science-is-explicitly-frozen', /Phase 12\s*→\s*Phase 22/i.test(homeText) && /6 PASS \/ 7 FAIL/i.test(homeText) && /Phase 22 is a simulation result/i.test(homeText), { excerpt: homeText.slice(0, 1200) });
     add('home-claim-boundary-visible', /simulation_only=true/.test(homeText) && /safety_acceptance=false/.test(homeText) && /controller_tuning_allowed=false/.test(homeText));
     const phase23Links = await page.locator('a[href*="phase23"]').count();
-    add('home-does-not-link-new-phase', phase23Links === 0, { phase23Links });
+    add('home-links-phase23-detector', phase23Links > 0, { phase23Links });
     await page.close();
     await context.close();
   }
@@ -178,12 +178,22 @@ try {
     const archivePersonalization = await page.locator('link[href^="/phase-personalization.css"]').count();
     const archiveSignature = await page.locator('link[href^="/signature.css"]').count();
     add('archive-has-seven-research-categories', categories === 7 && categoryNav === 7, { categories, categoryNav });
-    add('archive-has-all-27-phase-records', allCards === 27, { allCards });
-    add('archive-preserves-13-frozen-and-14-historical', frozenCards === 13 && historicalCards === 14, { frozenCards, historicalCards });
+    add('archive-has-all-28-phase-records', allCards === 28, { allCards });
+    add('archive-preserves-13-frozen-and-15-other-records', frozenCards === 13 && historicalCards === 15, { frozenCards, historicalCards });
     add('archive-preserves-6-pass-7-fail', frozenPass === 6 && frozenFail === 7, { frozenPass, frozenFail });
-    add('archive-personalizes-every-card', identities === 27 && questions === 27 && signals === 27, { identities, questions, signals });
+    add('archive-personalizes-every-card', identities === 28 && questions === 28 && signals === 28, { identities, questions, signals });
     add('archive-uses-polished-tesla-shell', archivePolish === 1 && archivePersonalization === 1 && archiveSignature === 0, { archivePolish, archivePersonalization, archiveSignature });
     add('archive-has-category-led-thesis', /The archive keeps the detours, not just the wins/i.test(archiveText));
+    const phase23Card = await page.locator('.archive-card[href="/phases/phase23/"]').count();
+    add('archive-links-phase23', phase23Card === 1, { phase23Card });
+    await page.goto(BASE + '/phases/phase23/', { waitUntil: 'domcontentloaded', timeout: 45000 });
+    const phase23 = await page.evaluate(() => ({
+      rows: document.querySelectorAll('main .table-wrap tbody tr').length,
+      source: document.querySelector('footer a')?.getAttribute('href') || '',
+      hasBoundary: /separate from the frozen Phase 1–22 simulation record/i.test(document.querySelector('main')?.innerText || ''),
+      noHorizontalOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth <= 1
+    }));
+    add('phase23-has-committed-results-and-boundary', phase23.rows === 6 && phase23.source.includes('phase23_robust_detector/summary.md') && phase23.hasBoundary && phase23.noHorizontalOverflow, phase23);
     await page.goto(BASE + '/phases/phase24/', { waitUntil: 'domcontentloaded', timeout: 45000 });
     await page.waitForFunction(() => {
       const charts = [...document.querySelectorAll('[data-phase24-chart]')];
