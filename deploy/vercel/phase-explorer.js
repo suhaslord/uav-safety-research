@@ -93,7 +93,7 @@
     dialog.addEventListener('click', event => { if (event.target === dialog) { const r = dialog.getBoundingClientRect(); if (event.clientX < r.left || event.clientX > r.right || event.clientY < r.top || event.clientY > r.bottom) dialog.close(); } });
     dialog.addEventListener('close', () => { document.documentElement.classList.remove('phase-explorer-open'); opener?.focus(); });
     const header = document.querySelector('.site-header, .signature-nav, .top');
-    if (header) {
+    if (header && !document.body.classList.contains('home-workspace')) {
       const button = document.createElement('button');
       button.className = 'phase-explorer-trigger';
       button.type = 'button';
