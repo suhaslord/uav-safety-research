@@ -17,6 +17,7 @@ body.research-workspace .experiment-lab .model-switcher button{min-height:44px}
 body.research-workspace .experiment-lab .current-data-links a{min-height:44px}
 body.home-workspace .supporter h3 a{display:inline-flex;align-items:center;min-height:44px}
 body.home-workspace .research-film figcaption a{display:inline-flex;align-items:center;min-height:44px}
+body.home-workspace .explainer-film figcaption a{display:inline-flex;align-items:center;min-height:44px}
 
 .current-audit{background:#f4f4f4;border-block:1px solid #e2e3e3;scroll-margin-top:72px}
 .current-audit__grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(280px,.65fr);gap:clamp(36px,6vw,96px);align-items:center}
