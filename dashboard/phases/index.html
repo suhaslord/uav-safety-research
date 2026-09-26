@@ -18,7 +18,7 @@
   <link rel="stylesheet" href="/presentation.css?v=11" data-presentation-theme>
   <link rel="stylesheet" href="/tesla-bundle.css?v=1">
   <link rel="stylesheet" href="/ui-review.css?v=2">
-  <link rel="stylesheet" href="/site-refresh.css?v=1">
+  <link rel="stylesheet" href="/site-refresh.css?v=2">
 </head>
 <body class="phase-polish-shell research-workspace archive-workspace">
   <a class="skip-link" href="#main">Skip to the phase archive</a>
@@ -39,13 +39,13 @@
       <div class="workspace-context" aria-label="Archive context"><span>Research record</span><span>Phase 1 → Phase 24 audit</span><span>Simulation + real-camera reanalysis</span></div>
       <div class="signature-kicker">How the work developed</div>
       <h1>The complete research record.</h1>
-      <p>Follow the simulation work through its frozen Phase 22 result, then explore the separate Phase 23 detector benchmark and Phase 24 audit. Every failed check stays visible.</p>
+      <p>Follow the frozen simulation record, then the separate camera detector and audit. Failed checks remain visible.</p>
       <div class="archive-meta-line"><span><strong>28</strong> phase records</span><span><strong>7</strong> research categories</span><span><strong>13</strong> frozen Phase 12–22 records</span><span><strong>6 PASS / 7 FAIL</strong> frozen verdicts</span></div>
       <nav class="category-nav" id="categoryNav" aria-label="Research categories"></nav>
     </section>
 
     <section class="archive-stats archive-toolbar" aria-label="Archive search and filters">
-      <div class="archive-toolbar__search"><label for="archiveSearch">Find a phase</label><input id="archiveSearch" type="search" placeholder="Search a phase, question, result, or signal…" autocomplete="off" spellcheck="false"></div>
+      <div class="archive-toolbar__search"><label for="archiveSearch">Find a phase</label><input id="archiveSearch" type="search" placeholder="Search phases and results…" autocomplete="off" spellcheck="false"></div>
       <div class="archive-filter-group" role="group" aria-label="Filter phase records">
         <button class="archive-filter" type="button" data-filter="all" aria-pressed="true">All records</button>
         <button class="archive-filter" type="button" data-filter="pass" aria-pressed="false">Frozen PASS</button>
@@ -63,7 +63,7 @@
 
     <div class="archive-groups" id="categories">
       <div id="archiveCategories"></div>
-      <section class="claim-boundary"><b>ARCHIVE LIMIT //</b> safety_acceptance=false · controller_tuning_allowed=false<br>Phases 1–22 record simulation evidence only. Phase 23 compares detectors on protected real-video frames; Phase 24 reanalyzes those aggregate metrics. Neither detector result establishes landing safety, controller performance, certification relevance, or flight readiness.</section>
+      <section class="claim-boundary"><b>ARCHIVE LIMIT //</b> safety_acceptance=false · controller_tuning_allowed=false<br>Phases 1–22: simulation only. Phases 23–24: detector results, separate from the simulation lineage. None establish landing safety or flight readiness.</section>
     </div>
   </main>
 
@@ -79,21 +79,21 @@
       const nav = document.getElementById('categoryNav');
 
       const legacy = {
-        phase1: ['Phase 1', 'First safety supervisor', 'A separate HOLD / ABORT layer stopped risky touchdowns, but the earliest version often did so by refusing to finish the landing.'],
-        phase2: ['Phase 2', 'Risk over time', 'Persistence and hysteresis reduced the supervisor’s tendency to treat a single bad frame as a crisis.'],
-        phase3: ['Phase 3', 'Independent reference', 'A second estimate made persistent visual bias visible through disagreement instead of asking vision to judge itself.'],
-        phase4: ['Phase 4', 'The numbering gap', 'There was no standalone Phase 4 experiment. The archive leaves the gap instead of inventing one.'],
-        phase5: ['Phase 5', 'Broader stress + pixels', 'V3 faced wider stress sweeps while the project introduced its first synthetic landing-pad image estimator.'],
-        phase6: ['Phase 6', 'Image-driven landing loop', 'Image-derived measurements, tracking, confidence, and the landing controller ran together in one simulated loop.'],
-        phase6b: ['Phase 6B', 'Split confidence', 'Lateral and altitude confidence were separated so one weak geometry component did not automatically discard the other.'],
-        phase7: ['Phase 7', 'Harder simulator', 'Asynchronous sensing, stale state, latency, shared faults, actuator limits, and stronger dynamics removed several convenient assumptions.'],
-        phase8: ['Phase 8', 'PX4/Gazebo comparison', 'Internal traces were compared directly with PX4 SITL + Gazebo, and the mismatches were kept rather than tuned away.'],
-        phase9: ['Phase 9', 'Gazebo camera perception', 'Metric perception moved onto Gazebo camera frames, where ambiguous fallback geometry produced the largest errors.'],
-        phase10: ['Phase 10', 'Stateful metric perception', 'Recent state protected an existing track from ambiguous geometry and improved the calibration of reported uncertainty.'],
-        phase10r: ['Phase 10R', 'Shifted holdout', 'Average ambiguous-view error improved, but tail risk, availability, and coverage still missed locked gates.'],
-        phase11: ['Phase 11', 'Protected reliability check', 'Availability and coverage recovered strongly, while one locked lateral tail-efficiency requirement still failed.'],
-        phase23: ['Phase 23', 'Robust KIOS detector', 'Clean recall improved against the earlier detector baseline, but occlusion and mixed stress regressed on the protected temporal split.'],
-        phase24: ['Phase 24', 'Robustness frontier audit', 'A descriptive reanalysis of Phase 23 aggregates: the six-condition mean improves, while occlusion and mixed stress reveal a substantial regression tail. No model was retrained.']
+        phase1: ['Phase 1', 'First safety supervisor', 'Stopped unsafe mixed touchdowns, but aborted every run.'],
+        phase2: ['Phase 2', 'Risk over time', 'Reduced aborts. Persistent bias remained.'],
+        phase3: ['Phase 3', 'Independent reference', 'An independent estimate exposed visual bias.'],
+        phase4: ['Phase 4', 'The numbering gap', 'No standalone experiment; the gap stays visible.'],
+        phase5: ['Phase 5', 'Broader stress + pixels', 'Wider stress tests met the first pixel estimator.'],
+        phase6: ['Phase 6', 'Image-driven landing loop', 'Images drove the simulated landing loop.'],
+        phase6b: ['Phase 6B', 'Split confidence', 'Lateral and altitude confidence split.'],
+        phase7: ['Phase 7', 'Harder simulator', 'A harder simulator exposed weak cells.'],
+        phase8: ['Phase 8', 'PX4/Gazebo comparison', 'PX4/Gazebo traces disagreed on nine checks.'],
+        phase9: ['Phase 9', 'Gazebo camera perception', 'Gazebo camera geometry exposed large fallback errors.'],
+        phase10: ['Phase 10', 'Stateful metric perception', 'Tracking improved calibration, but missed a locked gate.'],
+        phase10r: ['Phase 10R', 'Shifted holdout', 'Point error improved; tail, availability, and coverage failed.'],
+        phase11: ['Phase 11', 'Protected reliability check', 'High availability and coverage; one locked tail gate failed.'],
+        phase23: ['Phase 23', 'Robust KIOS detector', 'Clean recall rose; occlusion and mixed stress regressed.'],
+        phase24: ['Phase 24', 'Robustness frontier audit', 'Average mAP50 rose; severe-condition mAP50 fell.']
       };
 
       const order = [
@@ -154,9 +154,8 @@
           card.style.setProperty('--phase-tint', category.tint);
           card.innerHTML = `
             <div class="archive-card__top"><span class="archive-card__label">${record.label}</span><span class="verdict-chip ${record.statusClass}">${record.status}</span></div>
-            <div class="archive-card__identity">${record.meta.identity}</div>
-            <div><h3>${record.title}</h3><p>${record.summary}</p><p class="archive-card__question">${record.meta.question}</p></div>
-            <span class="archive-card__signal">${record.meta.signal}</span>
+            <div><h3>${record.title}</h3><p>${record.summary}</p><p class="archive-card__question" hidden>${record.meta.question}</p></div>
+            <span class="archive-card__signal" hidden>${record.meta.signal}</span>
             <span class="archive-card__open">Read phase →</span>`;
           cards.appendChild(card);
         });

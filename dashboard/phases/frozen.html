@@ -18,7 +18,7 @@
   <link rel="stylesheet" href="/tesla-bundle.css?v=1">
   <link rel="stylesheet" href="/phase-reading-responsive.css?v=1">
   <link rel="stylesheet" href="/ui-review.css?v=2">
-  <link rel="stylesheet" href="/site-refresh.css?v=1">
+  <link rel="stylesheet" href="/site-refresh.css?v=2">
 </head>
 <body class="phase-polish-shell research-workspace">
   <a class="skip-link" href="#phaseRoot">Skip to phase result</a>
@@ -88,16 +88,15 @@
 
         <section class="phase-detail__body">
           <article class="phase-detail__panel">
-            <span class="phase-detail__eyebrow">Recorded finding</span>
-            <h2>What we found.</h2>
+            <span class="phase-detail__eyebrow">Finding</span>
+            <h2>The result.</h2>
             <p>${phase.finding}</p>
             <div class="claim-boundary"><b>EVIDENCE BOUNDARY //</b> ${lineage.boundary.statement}</div>
           </article>
           <aside class="phase-detail__panel phase-detail__panel--evidence">
-            <span class="phase-detail__eyebrow">Check the source</span>
+            <span class="phase-detail__eyebrow">Evidence</span>
             <div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><h2 style="font-size:24px;margin:0">Frozen record</h2><span class="verdict-chip ${verdictClass}">${phase.verdict}</span></div>
-            <p>This page follows the frozen record. Where available, hashes identify the exact evidence files. Later work cannot change this verdict.</p>
-            ${hashes || '<div class="phase-hash">No phase-specific result hash is published in this compact lineage record.</div>'}
+            <details class="copy-disclosure"><summary>Evidence hashes</summary>${hashes || '<div class="phase-hash">No phase-specific result hash is listed in this lineage summary.</div>'}</details>
           </aside>
         </section>
 
@@ -105,8 +104,8 @@
 
         <section class="phase-detail__context">
           <div class="phase-detail__context-grid">
-            <div><span class="phase-detail__eyebrow">Why the result stays unchanged</span><h2>${phase.note}</h2></div>
-            <p>A later phase can ask a new question, but it cannot go back and change this result. Passes and failures stay visible so the lineage can be checked without hindsight edits.</p>
+            <div><span class="phase-detail__eyebrow">Record status</span><h2>Verdict locked.</h2></div>
+            <p>${phase.note}</p>
           </div>
         </section>
 

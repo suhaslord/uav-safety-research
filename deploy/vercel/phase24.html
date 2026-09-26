@@ -7,7 +7,7 @@
   <title>Phase 24 — Robustness frontier audit · AegisLand</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=5">
   <link rel="stylesheet" href="/phase-report.css?v=1">
-  <link rel="stylesheet" href="/site-refresh.css?v=1">
+  <link rel="stylesheet" href="/site-refresh.css?v=2">
   <script src="/phase24.js?v=1" defer></script>
 </head>
 <body>
@@ -17,25 +17,26 @@
     <section class="hero">
       <div class="eyebrow">Phase 24 · KIOS benchmark reanalysis</div>
       <h1>What the average hides.</h1>
-      <p class="dek">The Phase 23 detector raises the six-condition average. Occlusion and mixed stress still lose ground. This audit puts both results on the same page.</p>
-      <div class="provenance"><strong>Reanalysis only.</strong> These charts are calculated from the committed Phase 23 aggregate CSV. No model was retrained and no new predictions were generated.</div>
+      <p class="dek">The average rose. Occlusion and mixed stress got worse.</p>
+      <div class="provenance"><strong>Reanalysis only.</strong> Charts from published Phase 23 aggregates. No model was retrained; no new predictions were made.</div>
       <div class="hero-links"><a href="#charts">Explore the charts ↓</a><a href="/phases/phase23/">Read Phase 23 detector</a><a href="/phases/phase22/">Frozen simulation record</a></div>
     </section>
     <section aria-label="Headline results" class="metrics" id="headlineMetrics">
-      <div class="metric"><b class="good" id="macroMapDelta">Loading</b><span>Equal-weight macro mAP50 change across six conditions</span></div>
-      <div class="metric"><b class="good" id="macroRecallDelta">Loading</b><span>Equal-weight macro recall change across six conditions</span></div>
+      <div class="metric"><b class="good" id="macroMapDelta">Loading</b><span>Six-condition mAP50 change</span></div>
+      <div class="metric"><b class="good" id="macroRecallDelta">Loading</b><span>Six-condition recall change</span></div>
       <div class="metric"><b id="mapWins">Loading</b><span>Conditions with higher Phase 23 mAP50</span></div>
-      <div class="metric"><b class="bad" id="tailMapDelta">Loading</b><span>Occlusion + mixed-stress macro mAP50 change</span></div>
+      <div class="metric"><b class="bad" id="tailMapDelta">Loading</b><span>Severe-condition mAP50 change</span></div>
     </section>
-    <div class="reading-note"><strong>Read the split before the average:</strong> four of six conditions gained mAP50. Occlusion fell by 21.0 percentage points, and mixed stress fell by 5.5. The gains do not carry over to every camera condition.</div>
-    <div class="section-head"><h2>Condition by condition</h2><p>Both model series use the same protected temporal test split. Positive bars favor Phase 23; negative bars show where the gains reverse.</p></div>
+    <div class="reading-note"><strong>Four gained, two regressed.</strong> Occlusion lost 21.0 points; mixed stress lost 5.5.</div>
+    <figure class="report-photo"><img src="/media/perception/kios_occlusion.jpg" width="1280" height="720" alt="KIOS test frame with partial landing-pad occlusion and detector annotation" loading="lazy"><figcaption>KIOS occlusion frame. Visual context; chart values come from the published aggregates.</figcaption></figure>
+    <div class="section-head"><h2>Condition by condition</h2><p>The same 86 test frames are reused across conditions.</p></div>
     <section id="charts" class="chart-grid" aria-label="Performance charts">
       <article class="chart-card chart-card--lead"><div class="chart-title">mAP50 change vs baseline</div><div class="chart-subtitle">Percentage-point difference; the zero line marks no change</div><p class="chart-scroll-hint">Swipe sideways to read every condition →</p><div class="chart" data-phase24-chart="delta"><div class="loading">Preparing chart…</div></div><div class="legend"><span class="positive"><i></i>Gain</span><span class="negative"><i></i>Regression</span></div></article>
       <article class="chart-card"><div class="chart-title">mAP50 by camera condition</div><div class="chart-subtitle">Detection quality at IoU 0.50</div><p class="chart-scroll-hint">Swipe sideways to read every condition →</p><div class="chart" data-phase24-chart="map50"><div class="loading">Preparing chart…</div></div><div class="legend"><span><i></i>Detector baseline (320px)</span><span class="phase23"><i></i>Phase 23 robust</span></div></article>
       <article class="chart-card"><div class="chart-title">Recall by camera condition</div><div class="chart-subtitle">Share of labeled targets detected</div><p class="chart-scroll-hint">Swipe sideways to read every condition →</p><div class="chart" data-phase24-chart="recall"><div class="loading">Preparing chart…</div></div><div class="legend"><span><i></i>Detector baseline (320px)</span><span class="phase23"><i></i>Phase 23 robust</span></div></article>
       <article class="chart-card chart-card--lead"><div class="chart-title">Recall change vs baseline</div><div class="chart-subtitle">Percentage-point difference; the zero line marks no change</div><p class="chart-scroll-hint">Swipe sideways to read every condition →</p><div class="chart" data-phase24-chart="recall-delta"><div class="loading">Preparing chart…</div></div><div class="legend"><span class="positive"><i></i>Gain</span><span class="negative"><i></i>Regression</span></div></article>
     </section>
-    <div class="section-head"><h2>The full frontier</h2><p>Exact condition-level values from the source aggregates. Deltas are percentage points (pp), not relative percent.</p></div>
+    <div class="section-head"><h2>The full frontier</h2><p>Source values. Deltas are percentage points (pp).</p></div>
     <p class="table-scroll-hint">Swipe sideways for every metric →</p>
     <div class="table-wrap" tabindex="0" role="region" aria-label="Scrollable condition metrics table"><table aria-label="Detector baseline and Phase 23 results by condition">
       <thead><tr><th>Condition</th><th>Baseline mAP50</th><th>Phase 23 mAP50</th><th>mAP50 Δ</th><th>Baseline recall</th><th>Phase 23 recall</th><th>Recall Δ</th></tr></thead>
@@ -43,10 +44,10 @@
     </table></div>
     <div class="callout" id="tailReadout"><strong>Severe-stress readout:</strong> Loading…</div>
     <p class="report-lead">The source files call the 320px comparator “Phase 22 Baseline.” That KIOS detector is separate from the frozen Phase 22 simulation transfer model.</p>
-    <div class="section-head"><h2>How to read this</h2><p>The Phase 24 result is a diagnostic summary of already-published detector metrics, not a new experiment.</p></div>
+    <div class="section-head"><h2>How to read this</h2><p>Published detector metrics, reanalyzed.</p></div>
     <section class="method-grid">
-      <article class="method-card"><h3>Macro method</h3><p>We take the unweighted mean across the six condition-level scores. The occlusion + mixed-stress view equally averages those two conditions, so it makes the tail visible rather than letting clean frames dominate.</p></article>
-      <article class="method-card"><h3>One temporal holdout</h3><p>The same 86-frame protected temporal test split is reused across conditions. The six stress views are not 516 independent examples. The dataset contains 422 labeled frames in total.</p></article>
+      <article class="method-card"><h3>Macro method</h3><p>Each of the six conditions counts equally. The severe view averages occlusion and mixed stress.</p></article>
+      <article class="method-card"><h3>One temporal holdout</h3><p>The same 86 protected frames appear in all six conditions. They are not 516 independent examples.</p></article>
     </section>
     <aside class="limits"><strong>Limits:</strong> Per-frame predictions are not in the repository, so no confidence intervals or significance tests are reported. Detector precision, recall, and mAP do not demonstrate landing safety, controller performance, or real-flight readiness. <code>safety_acceptance=false</code> · <code>controller_tuning_allowed=false</code>.</aside>
   </main>

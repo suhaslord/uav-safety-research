@@ -7,7 +7,7 @@
     label: "Phase 10R · Frozen holdout",
     era: "Current frontier",
     title: "Mean error improved, but the hard cases still failed the locked checks.",
-    lede: "The recovery rule was frozen before 12 new geometry trajectories and three appearance conditions were opened. Average ambiguous-view error dropped a lot. The difficult tail, target availability, and uncertainty coverage did not improve enough to pass the preregistered rule.",
+    lede: "The frozen rule faced new geometry and appearance. Typical error improved; the locked tail and coverage checks failed.",
     status: "Latest published frontier · frozen",
     role: "simulation-only · phase10r_frozen_holdout",
     change: [
@@ -22,7 +22,7 @@
       ["Truth-visible miss rate", "20.0%"],
       ["95% coverage", "84.3% / 79.7%"]
     ],
-    finding: "The typical ambiguous-view estimate got much better, but that was not enough for a reliability claim. Lateral p95 barely moved, one in five truth-visible frames was still missed, and the uncertainty intervals under-covered after the geometry and appearance shift.",
+    finding: "Typical ambiguous-view error fell. Tail error, missed frames, and under-coverage kept the verdict failed.",
     source: "Phase 10R frozen holdout result",
     sourceUrl: "https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase10r_frozen_holdout_result.md"
   };

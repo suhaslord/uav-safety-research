@@ -46,7 +46,7 @@
       label: '01 · Safety architecture',
       name: 'Safety architecture',
       range: 'Phase 1 → Phase 4',
-      description: 'The first experiments built a separate safety check, fixed its tendency to overreact, and added an independent estimate. The missing Phase 4 stays missing.',
+      description: 'A separate check, then an independent estimate. Phase 4 remains a numbering gap.',
       accent: '#3e6ae1',
       tint: '#eef3ff'
     },
@@ -55,7 +55,7 @@
       label: '02 · Perception + robustness',
       name: 'Perception + robustness',
       range: 'Phase 5 → Phase 6B',
-      description: 'Here the project moves from abstract corrupted measurements to rendered images. The main question becomes whether confidence can tell which parts of an image estimate are actually trustworthy.',
+      description: 'Images replace abstract measurements. Confidence splits by geometry.',
       accent: '#4d6f9d',
       tint: '#f0f4f8'
     },
@@ -64,7 +64,7 @@
       label: '03 · External validation',
       name: 'External validation',
       range: 'Phase 7 → Phase 10R',
-      description: 'The simulator gets less forgiving, then its traces and camera estimates are checked against PX4 and Gazebo. Several mismatches are kept rather than tuned away.',
+      description: 'Harder simulation meets PX4/Gazebo. The mismatches remain.',
       accent: '#416b78',
       tint: '#eef5f6'
     },
@@ -73,7 +73,7 @@
       label: '04 · Reliability + calibration',
       name: 'Reliability + calibration',
       range: 'Phase 11 → Phase 13C',
-      description: 'These phases test whether uncertainty remains useful under stricter validation. Some checks pass, others fail, and the later attribution work starts from those failures instead of erasing them.',
+      description: 'Tougher validation exposes both useful coverage and failed checks.',
       accent: '#5a6484',
       tint: '#f1f2f7'
     },
@@ -82,7 +82,7 @@
       label: '05 · Latency + error dynamics',
       name: 'Latency + error dynamics',
       range: 'Phase 14 → Phase 19',
-      description: 'This part separates two questions that are easy to mix up: what stale estimates do to the error itself, and what short-term pattern remains in the residuals.',
+      description: 'Stale estimates worsen error. Residual patterns answer a narrower question.',
       accent: '#596f63',
       tint: '#f1f5f2'
     },
@@ -91,7 +91,7 @@
       label: '06 · Context structure + transfer',
       name: 'Context structure + transfer',
       range: 'Phase 20 → Phase 22',
-      description: 'The last three phases break the hard context into predefined factors, measure their interactions, and finally ask whether a model frozen beforehand can predict a fresh 32-cell context surface.',
+      description: 'Five context factors, their interactions, and a frozen transfer test.',
       accent: '#365f8d',
       tint: '#eef4fa'
     },
