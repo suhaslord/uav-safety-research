@@ -99,6 +99,7 @@ html body.research-workspace.archive-workspace .archive-hero>p{max-width:800px!i
 html body.research-workspace.archive-workspace .archive-meta-line{gap:12px 24px;margin-top:30px;padding:18px 0;border-top:1px solid var(--site-line)}
 html body.research-workspace.archive-workspace .category-nav{display:flex;flex-wrap:nowrap;overflow:auto;scrollbar-width:thin;gap:8px;padding:4px 0 10px}
 html body.research-workspace.archive-workspace .category-nav a{white-space:nowrap;background:var(--site-soft);border:1px solid transparent}
+html body.research-workspace.research-workspace.archive-workspace .archive-hero .category-nav a:first-child{width:auto!important;min-width:max-content!important;flex:0 0 auto!important}
 html body.research-workspace.archive-workspace .category-nav a:hover{border-color:#c8ccd2}
 html body.research-workspace.archive-workspace .archive-stats.archive-toolbar{gap:16px!important;padding:22px 0!important}
 html body.research-workspace.archive-workspace .archive-toolbar__search{display:block!important}
