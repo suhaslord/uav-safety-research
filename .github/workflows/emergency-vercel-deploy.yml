@@ -67,6 +67,7 @@ jobs:
           test -f .vercel-release/research-home.css
           test -f .vercel-release/research-media.css
           test -f .vercel-release/phase-polish.css
+          test -f .vercel-release/ui-review.css
           test -f .vercel-release/frozen-lineage.js
           test -f .vercel-release/dashboard/phase-visuals.js
           test -f .vercel-release/dashboard/phase-editorial-media.js
@@ -93,7 +94,9 @@ jobs:
           grep -q 'Joel Kowsky / NASA' .vercel-release/index.html
           ! grep -q '<img[^>]*src="https://' .vercel-release/index.html
           grep -q 'A camera can be wrong before confidence admits it.' .vercel-release/index.html
-          grep -q 'Frozen through Phase 22' .vercel-release/index.html
+          grep -q 'Simulation record frozen through Phase 22' .vercel-release/index.html
+          grep -q 'id="current-audit"' .vercel-release/index.html
+          grep -q 'href="/ui-review.css?v=' .vercel-release/index.html
           grep -q 'The measurement problem' .vercel-release/index.html
           grep -q 'Why the archive keeps the misses' .vercel-release/index.html
           grep -q 'The result that shaped the later work' .vercel-release/index.html
@@ -181,7 +184,9 @@ jobs:
           printf '%s' "$PUBLIC_HTML" | grep 'The measurement problem' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep 'Why the archive keeps the misses' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep 'The result that shaped the later work' > /dev/null
-          printf '%s' "$PUBLIC_HTML" | grep 'Frozen through Phase 22' > /dev/null
+          printf '%s' "$PUBLIC_HTML" | grep 'Simulation record frozen through Phase 22' > /dev/null
+          printf '%s' "$PUBLIC_HTML" | grep 'id="current-audit"' > /dev/null
+          printf '%s' "$PUBLIC_HTML" | grep 'href="/ui-review.css?v=' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep 'home-lineage__track' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep '0.8319' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep '0.7744' > /dev/null
@@ -198,6 +203,7 @@ jobs:
           curl --fail --silent --show-error --location "$PUBLIC_URL/aegisland.css" >/dev/null
           curl --fail --silent --show-error --location "$PUBLIC_URL/research-home.css" >/dev/null
           curl --fail --silent --show-error --location "$PUBLIC_URL/research-media.css" >/dev/null
+          curl --fail --silent --show-error --location "$PUBLIC_URL/ui-review.css" >/dev/null
           curl --fail --silent --show-error --location "$PUBLIC_URL/phase-polish.css" >/dev/null
           curl --fail --silent --show-error --location "$PUBLIC_URL/phase-editorial-media.css" >/dev/null
           curl --fail --silent --show-error --location "$PUBLIC_URL/phase-visuals.js" >/dev/null
