@@ -6,10 +6,11 @@ import sharp from 'sharp';
 const BASE = process.env.QA_BASE_URL;
 if (!BASE) throw new Error('QA_BASE_URL is required');
 
-const ROOT = path.join('qa-artifacts', 'ui-bug-sweep-560');
+const ROOT = path.join('qa-artifacts', 'ui-bug-sweep-full');
 const SCREENSHOTS = path.join(ROOT, 'screenshots');
-const phaseSlugs = ['phase1','phase2','phase3','phase4','phase5','phase6','phase6b','phase7','phase8','phase9','phase10','phase10r','phase11','phase12','phase13a','phase13b','phase13c','phase14','phase15','phase16','phase17','phase18','phase19','phase20','phase21','phase22'];
+const phaseSlugs = ['phase1','phase2','phase3','phase4','phase5','phase6','phase6b','phase7','phase8','phase9','phase10','phase10r','phase11','phase12','phase13a','phase13b','phase13c','phase14','phase15','phase16','phase17','phase18','phase19','phase20','phase21','phase22','phase23','phase24'];
 const routes = ['/', '/phases/', ...phaseSlugs.map((slug) => `/phases/${slug}/`)];
+const reportRoutes = ['/phases/phase23/','/phases/phase24/'];
 const viewports = [
   { name:'desktop', width:1440, height:1000 },
   { name:'laptop', width:1280, height:800 },
@@ -42,7 +43,12 @@ try {
       let response;
       try {
         response = await page.goto(`${BASE}${route}?ui_bug_sweep=1`, { waitUntil:'domcontentloaded', timeout:45000 });
-        await page.waitForFunction(() => document.documentElement.dataset.finalConvergence === 'ready', null, { timeout:10000 }).catch(() => {});
+        if (!reportRoutes.includes(route)) {
+          await page.waitForFunction(() => document.documentElement.dataset.finalConvergence === 'ready', null, { timeout:10000 }).catch(() => {});
+        }
+        if (route === '/phases/phase24/') {
+          await page.waitForFunction(() => document.querySelectorAll('[data-phase24-chart] svg').length === 4 && document.querySelectorAll('#conditionRows tr').length === 6, null, { timeout:15000 }).catch(() => {});
+        }
         await page.waitForTimeout(350);
       } catch (error) {
         block(key, 'load-failed', { error:String(error) });
@@ -69,7 +75,8 @@ try {
           return { left:r.left, right:r.right, top:r.top, bottom:r.bottom, width:r.width, height:r.height };
         };
         const intersects = (a,b) => a && b && Math.max(0,Math.min(a.right,b.right)-Math.max(a.left,b.left)) > 3 && Math.max(0,Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top)) > 3;
-        const header = document.querySelector('.site-header, .signature-nav, body.archive-shell .top');
+        const reportPage = ['/phases/phase23/','/phases/phase24/'].includes(route);
+        const header = document.querySelector('.site-header, .signature-nav, body.archive-shell .top') || (reportPage ? document.querySelector('.top') : null);
         const brand = header?.querySelector('.brand, .signature-brand, .word');
         const mobileToggle = header?.querySelector('.mobile-menu-toggle, .archive-menu-toggle');
         const headerLinks = header ? [...header.querySelectorAll('a')].filter(visible).filter((a) => a !== brand && !a.closest('.brand,.signature-brand')) : [];
@@ -96,7 +103,7 @@ try {
           const s=getComputedStyle(el); return {el,s,text:(el.textContent||'').trim().slice(0,80)};
         }).filter(({el,s}) => !el.closest('.sr-only,[aria-hidden="true"]') && ['hidden','clip'].includes(s.overflowX) && el.scrollWidth > el.clientWidth + 6).map(({el,text})=>({tag:el.tagName,text,scrollWidth:el.scrollWidth,clientWidth:el.clientWidth}));
         const phasePage = /^\/phases\/phase/i.test(route);
-        const frozen = phasePage && !document.body.classList.contains('archive-shell') && !document.body.classList.contains('phase11-polish');
+        const frozen = phasePage && !reportPage && !document.body.classList.contains('archive-shell') && !document.body.classList.contains('phase11-polish');
         const duplicateFrozenContext = frozen && visible(document.querySelector('.phase-detail__hero .phase-identity-chip')) && visible(document.querySelector('.phase-detail__hero .workspace-context'));
         const workspaceContext = document.querySelector('.workspace-context');
         const contextSpans = workspaceContext ? [...workspaceContext.querySelectorAll(':scope > span')].filter(visible) : [];
@@ -112,8 +119,11 @@ try {
         }
         const firstMainVisible = [...document.querySelectorAll('main > *, #phaseRoot > *, .archive-main > *')].find(visible);
         const headerGap = header && firstMainVisible ? firstMainVisible.getBoundingClientRect().top - header.getBoundingClientRect().bottom : 0;
+        const reportPhoto = document.querySelector('.report-photo img');
+        const reportLinks = [...document.querySelectorAll('.top .nav a, .record-path a, .hero-links a, .record-links a')].map((a)=>a.getAttribute('href') || '');
         return {
           ready:document.documentElement.dataset.finalConvergence || '',
+          reportPage,
           main:!!document.querySelector('main'),
           h1Count:document.querySelectorAll('h1').length,
           scrollWidth:document.documentElement.scrollWidth,
@@ -125,14 +135,20 @@ try {
           navRows:navRows.length,
           headerOverlaps,
           brokenImages,duplicateIds,brokenAnchors:[...new Set(brokenAnchors)],smallTargets,offscreenControls,clippedText,
-          duplicateFrozenContext,wrappedContextWithSeparators,asymmetricContextPhoto,headerGap
+          duplicateFrozenContext,wrappedContextWithSeparators,asymmetricContextPhoto,headerGap,
+          reportStyles:[...document.querySelectorAll('link[rel="stylesheet"]')].some((link)=>(link.getAttribute('href') || '').startsWith('/phase-report.css')),
+          reportPhotoAlt:reportPhoto?.alt || '',reportLinks,
+          phase23Rows:route === '/phases/phase23/' ? document.querySelectorAll('.table-wrap tbody tr').length : 0,
+          phase24Charts:document.querySelectorAll('[data-phase24-chart] svg').length,
+          phase24Rows:document.querySelectorAll('#conditionRows tr').length,
+          phase24HasBoundary:(document.body.innerText || '').includes('safety_acceptance=false') && (document.body.innerText || '').includes('controller_tuning_allowed=false')
         };
       }, { route, width:vp.width, hasTouch:!!vp.hasTouch });
 
       const status = response?.status() || 0;
       if (!status || status >= 400) block(key,'bad-status',{status});
       if (!m.main || m.h1Count !== 1) block(key,'semantic-shell',{main:m.main,h1Count:m.h1Count});
-      if (m.ready !== 'ready') block(key,'final-convergence-css-not-ready');
+      if (m.ready !== 'ready' && !m.reportPage) block(key,'final-convergence-css-not-ready');
       if (m.scrollWidth - m.clientWidth > 2) block(key,'horizontal-overflow',{overflow:m.scrollWidth-m.clientWidth});
       if (m.navigationMode === 'none') block(key,'no-reachable-header-navigation');
       if (vp.width >= 901 && m.navigationMode !== 'links') block(key,'desktop-navigation-replaced-or-missing',{mode:m.navigationMode});
@@ -148,6 +164,11 @@ try {
       if (m.wrappedContextWithSeparators) warn(key,'wrapped-context-separators');
       if (m.asymmetricContextPhoto) warn(key,'asymmetric-frozen-context-photo');
       if (m.headerGap > (vp.width <= 900 ? 150 : 190)) warn(key,'large-header-to-content-gap',{gap:m.headerGap});
+      if (m.reportPage) {
+        if (!m.reportStyles || !m.reportPhotoAlt || !m.reportLinks.includes('/phases/')) block(key,'detector-report-shell-incomplete');
+        if (route === '/phases/phase23/' && (m.phase23Rows !== 6 || !m.reportLinks.includes('/phases/phase24/'))) block(key,'phase23-condition-record-incomplete',{rows:m.phase23Rows,links:m.reportLinks});
+        if (route === '/phases/phase24/' && (m.phase24Charts !== 4 || m.phase24Rows !== 6 || !m.phase24HasBoundary || !m.reportLinks.includes('/phases/phase23/'))) block(key,'phase24-audit-incomplete',{charts:m.phase24Charts,rows:m.phase24Rows,boundary:m.phase24HasBoundary,links:m.reportLinks});
+      }
 
       const filteredConsole = consoleErrors.filter((x)=>!/favicon|ERR_BLOCKED_BY_CLIENT/i.test(x));
       const filteredRequests = failedRequests.filter((x)=>!/favicon|github\.com|linkedin\.com/i.test(x.url));
@@ -211,14 +232,14 @@ for (const name of files) {
 }
 
 const standardExpected = routes.length * viewports.length * 5;
-if (files.length < standardExpected) block('global','screenshot-count-below-560',{count:files.length,expected:standardExpected});
+if (files.length < standardExpected) block('global','screenshot-count-below-expected',{count:files.length,expected:standardExpected});
 if (report.imageAnalyses.length !== files.length) block('global','missing-image-analysis',{screenshots:files.length,analyses:report.imageAnalyses.length});
 report.finishedAt = new Date().toISOString();
 report.screenshotCount = files.length;
 report.expectedMinimum = standardExpected;
 await fs.writeFile(path.join(ROOT,'report.json'),JSON.stringify(report,null,2));
 const summary = [
-  '# AegisLand strict 560+ screenshot UI bug sweep',
+  '# AegisLand full-route screenshot UI bug sweep',
   '',
   `- Base: ${BASE}`,
   `- Standard minimum: ${standardExpected}`,
