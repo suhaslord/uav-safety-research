@@ -12,6 +12,8 @@ on:
       - '.github/workflows/production-ui-qa.yml'
       - 'dashboard/**'
       - 'deploy/vercel/**'
+  schedule:
+    - cron: '23 16 * * 1'
   workflow_dispatch:
 
 permissions:
