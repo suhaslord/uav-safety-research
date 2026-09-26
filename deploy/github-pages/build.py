@@ -31,7 +31,7 @@ def build(output, base_path):
         shutil.copyfile(output / destination.lstrip('/'), target)
     taxonomy = (ROOT / 'dashboard/phase-taxonomy.js').read_text()
     slugs = re.findall(r'^    (phase\d+[a-z]*): \{ category:', taxonomy, re.M)
-    assert len(slugs) == 26, 'Unexpected phase count; review the route list'
+    assert len(slugs) == 27, 'Unexpected phase count; review the route list'
     for slug in slugs:
         target = output / 'phases' / slug / 'index.html'
         target.parent.mkdir(parents=True, exist_ok=True)
