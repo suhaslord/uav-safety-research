@@ -103,7 +103,13 @@ try {
         };
         const clickable = [...document.querySelectorAll('a,button,input,select,textarea,[role="button"]')].filter((el) => visible(el) && onDocument(el));
         const tinyTargets = clickable
-          .map((el) => ({ tag: el.tagName, text: (el.getAttribute('aria-label') || el.textContent || el.getAttribute('placeholder') || '').trim().slice(0,80), r: rect(el) }))
+          // The skip link is intentionally clipped until keyboard focus. A nested
+          // checkbox uses its wrapping label as the actual touch target.
+          .filter((el) => !el.matches('.skip-link:not(:focus)'))
+          .map((el) => {
+            const target = el.matches('input[type="checkbox"]') ? el.closest('label') || el : el;
+            return { tag: el.tagName, text: (el.getAttribute('aria-label') || target.textContent || el.getAttribute('placeholder') || '').trim().slice(0,80), r: rect(target) };
+          })
           .filter((item) => item.r && (item.r.width < 40 || item.r.height < 40));
         const tinyText = [...document.querySelectorAll('p,li,a,button,span,small,figcaption,dd,dt')]
           .filter((el) => visible(el) && onDocument(el))
@@ -133,7 +139,7 @@ try {
         const main = document.querySelector('main');
         const footer = document.querySelector('footer');
         const consistencyLink = document.querySelector('link[data-aegis-phase-ui-consistency]');
-        const structuralBlocks = [...document.querySelectorAll('main > section, main > article, main > div, main > figure[data-editorial-photo], .phase-detail > figure[data-editorial-photo]')]
+        const structuralBlocks = [...document.querySelectorAll('main > section, main > article, main > div, main > figure[data-editorial-photo], main > figure.report-photo, .phase-detail > figure[data-editorial-photo]')]
           .filter(visible)
           .map((el) => ({ className: el.className || el.tagName, r: rect(el) }))
           .filter((item) => item.r)

@@ -462,7 +462,7 @@ html body .explorer-count { margin:0 0 8px; font-size:13px; }
 html body.home-workspace .explainer-film figcaption { padding-top:12px; font-size:13px; }
 .nasa-player-options { font:12px/1.5 Arial,sans-serif; color:#50545a; margin-top:10px; }
 .nasa-player-options summary { cursor:pointer; width:max-content; }
-.nasa-player-options label { display:flex; align-items:center; gap:8px; padding:10px 0; }
+.nasa-player-options label { display:flex; align-items:center; gap:8px; min-height:44px; padding:10px 0; cursor:pointer; }
 .nasa-player-options input { accent-color:#3457b2; }
 .nasa-player-options :is(summary,input):focus-visible { outline:2px solid #3457b2; outline-offset:4px; }
 
