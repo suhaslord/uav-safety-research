@@ -100,6 +100,8 @@ The downloader verifies the published dataset archive checksum before evaluation
 
 The protected split and detector comparison are complete: [initial detector baseline](results/real_detector/summary.md), [Phase 23 result](results/phase23_robust_detector/summary.md), and [Phase 24 audit](results/phase24_robustness_audit/summary.md). The hard camera conditions still regress. These aggregate metrics do not tell us how often an individual frame fails or how any controller would respond.
 
+Phase 25 adds a frozen, retrospective frame-level audit protocol and fail-closed prediction pipeline ([protocol](docs/phase25_protocol.md)). The protected frame IDs and baseline checkpoint hash have been recovered from the original Actions artifact. The KIOS image files, exact Phase 23 checkpoint, and original inference package versions still need to be recovered before predictions, figures, or a Phase 25 results page can be published. No frame-level results are fabricated while those inputs are missing.
+
 ## Research record
 
 The earlier simulation research remains preserved through Phase 22, including failed phases rather than rewriting them after later experiments succeed. Phases 23 and 24 form a separate detector evidence track.

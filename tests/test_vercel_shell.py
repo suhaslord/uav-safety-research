@@ -19,6 +19,9 @@ def test_vercel_home_is_native_frozen_archive_shell() -> None:
     assert 'src="/frozen-lineage.js?v=' in html
     assert "Simulation record frozen through Phase 22" in html
     assert 'id="current-audit"' in html
+    assert 'id="phase25"' in html
+    assert '<a class="button primary signature-button" href="/phases/phase25/">Explore Phase 25</a>' in html
+    assert "Protocol ready · results pending" in html
     assert "0.8319" in html
     assert "0.7744" in html
     assert "simulation_only=true" in html
@@ -48,10 +51,13 @@ def test_vercel_routes_use_packaged_frozen_and_legacy_assets() -> None:
     assert "/phase11.html" in destinations
     assert "/phase23.html" in destinations
     assert "/phase24.html" in destinations
+    assert "/phase25.html" in destinations
     phase23_sources = {item["source"] for item in rewrites if item["destination"] == "/phase23.html"}
     assert "/phases/phase23" in phase23_sources and "/phases/phase23/" in phase23_sources
     phase24_sources = {item["source"] for item in rewrites if item["destination"] == "/phase24.html"}
     assert "/phases/phase24" in phase24_sources and "/phases/phase24/" in phase24_sources
+    phase25_sources = {item["source"] for item in rewrites if item["destination"] == "/phase25.html"}
+    assert "/phases/phase25" in phase25_sources and "/phases/phase25/" in phase25_sources
     assert "/phase12.html" not in destinations
 
     frozen_sources = {
@@ -210,6 +216,22 @@ def test_phase23_report_and_phase24_share_a_report_layout() -> None:
     assert 'href="/phases/phase23/"' in phase24
     assert phase23.count('<tr class="severe">') == 2
     assert "separate from the frozen Phase 1–22 simulation record" in phase23
+
+
+def test_phase25_is_featured_as_work_in_progress_without_result_claims() -> None:
+    home = (ROOT / "deploy" / "vercel" / "index.html").read_text(encoding="utf-8")
+    page = (ROOT / "deploy" / "vercel" / "phase25.html").read_text(encoding="utf-8")
+    archive = (ROOT / "dashboard" / "phases" / "index.html").read_text(encoding="utf-8")
+
+    assert home.index('id="phase25"') < home.index('class="section result-section"')
+    assert 'href="/phases/phase25/"' in archive
+    assert "outside the completed records" in archive
+    assert 'href="/phase-report.css?v=' in page
+    assert 'class="atlas-status"' in page
+    assert "The method is frozen" in page
+    assert "The 86-frame set was already used in Phases 23–24" in page
+    assert "These are not Phase 25 predictions or proof of a detector failure" in page
+    assert "exact Phase 23 checkpoint" in page
 
 
 def test_phase23_displayed_condition_table_matches_committed_csv() -> None:

@@ -32,6 +32,8 @@
     { "source": "/phases/phase23", "destination": "/phase23.html" },
     { "source": "/phases/phase24/", "destination": "/phase24.html" },
     { "source": "/phases/phase24", "destination": "/phase24.html" },
+    { "source": "/phases/phase25/", "destination": "/phase25.html" },
+    { "source": "/phases/phase25", "destination": "/phase25.html" },
 
     { "source": "/phases/phase11/", "destination": "/phase11.html" },
     { "source": "/phases/phase11", "destination": "/phase11.html" },
