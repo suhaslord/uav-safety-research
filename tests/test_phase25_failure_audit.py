@@ -52,6 +52,21 @@ def test_matching_rejects_non_finite_scores_and_out_of_frame_labels():
         box_from_yolo(0, 0.95, 0.5, 0.2, 0.2)
 
 
+def test_six_decimal_kios_edge_label_clips_rounding_residue():
+    box = box_from_yolo(0, .361217, .726327, .385932, .547347)
+    assert box.y1 == 1
+    assert box.y0 > 0
+
+
+def test_boundary_collapsed_prediction_counts_as_false_positive():
+    target = Box(0, .2, .2, .8, .8)
+    collapsed = Box(0, 1., .4, 1., .6, .02)
+    matches = match_predictions([target], [collapsed])
+    assert len(matches) == 1
+    assert not matches[0].is_true_positive
+    assert matches[0].iou == 0
+
+
 def test_calibration_keeps_confidence_one_in_the_last_fixed_bin():
     rows, summary = calibration_summary([
         {"confidence": 0.05, "is_true_positive": False},

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#ffffff">
-  <meta name="description" content="Phase 25 Failure Atlas: 86 KIOS frames and 516 generated views verified. Frame-level detector results await the original Phase 23 checkpoint.">
+  <meta name="description" content="Phase 25 Failure Atlas: baseline boxes measured across 86 frames and 516 views. Paired Phase 23 results await the original checkpoint.">
   <title>Phase 25 — Failure Atlas · AegisLand</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=5">
   <link rel="stylesheet" href="/phase-report.css?v=1">
@@ -13,14 +13,15 @@
 </head>
 <body class="atlas">
   <a class="atlas-skip" href="#main">Skip to Phase 25</a>
-  <header class="top"><a class="brand" href="/">AEGISLAND</a><nav class="nav" aria-label="Phase navigation"><a href="/phases/">All phases</a><a href="/phases/phase24/">Phase 24</a><a href="/">Research home</a></nav></header>
+  <header class="top"><a class="brand" href="/">AEGISLAND</a><nav class="nav" aria-label="Phase navigation"><a href="/failure-atlas/">Open Atlas</a><a href="/phases/">All phases</a><a href="/phases/phase24/">Phase 24</a><a href="/">Research home</a></nav></header>
   <nav class="record-path" aria-label="Research track"><strong>Real-camera detector track · Phase 25</strong><a href="/phases/phase24/">← Published aggregate audit</a></nav>
   <main id="main">
     <section class="hero atlas-hero">
       <p class="eyebrow">Phase 25 / Failure Atlas</p>
       <h1>Find the misses behind the average.</h1>
       <p class="dek">Which frames did the robust detector recover, and which did it lose?</p>
-      <div class="atlas-status"><strong>Inputs verified</strong><span>Frame results await the exact Phase 23 model and original inference versions.</span></div>
+      <div class="atlas-status"><strong>Inputs verified · baseline observed</strong><span>Paired outcomes await the exact Phase 23 model and original inference versions.</span></div>
+      <p><a href="/failure-atlas/" style="display:inline-block;background:#14333c;color:#fff;padding:14px 20px;font-weight:700">Explore 516 measured baseline views →</a></p>
     </section>
 
     <section class="atlas-inputs" aria-label="Phase 25 input audit">
@@ -39,12 +40,12 @@
         <div class="atlas-lens__chooser"><span>Change the generated view</span><div class="atlas-condition-controls" data-atlas-controls aria-label="Generated camera conditions"></div><strong data-atlas-delta></strong></div>
         <div class="atlas-lens__chart"><div class="atlas-lens__legend"><span>Published Phase 23 mAP50</span><span><i></i> Baseline</span><span><i></i> Robust</span></div><div data-atlas-chart aria-label="Published Phase 23 condition comparison, loading"></div><p>Scores summarize 86 reused test frames per condition.</p></div>
       </div>
-      <p class="atlas-caption">Blue boxes are source annotations, not either detector’s predictions. This image is an illustration. The chart shows published condition aggregates; Phase 25 frame outcomes remain pending.</p>
+      <p class="atlas-caption">Blue boxes are source annotations, not either detector’s predictions. This image illustrates published condition aggregates. Measured baseline frame outcomes are now in the <a href="/failure-atlas/">interactive Atlas</a>; Phase 23 paired outcomes remain pending.</p>
       <p class="atlas-caption" hidden data-atlas-error>The interactive comparison is unavailable. <a href="/phases/phase24/">Read the published condition audit.</a></p>
     </section>
 
     <section class="atlas-method" aria-labelledby="method-title">
-      <div><span>02 / What we will measure</span><h2 id="method-title">Every pad. Every condition. Both detectors.</h2></div>
+      <div><span>02 / Measured baseline, paired gate pending</span><h2 id="method-title">Every pad. Every condition. Both detectors.</h2></div>
       <ol>
         <li><b>01</b><p>Match predicted boxes to annotated pads one-to-one.</p></li>
         <li><b>02</b><p>Count recovered, regressed, and shared frame outcomes.</p></li>
@@ -54,7 +55,7 @@
 
     <section class="atlas-next" aria-labelledby="next-title">
       <div><span>03 / Publication gate</span><h2 id="next-title">Results come after the inputs.</h2><p>The 86-frame set was already used in Phases 23–24. Phase 25 is a retrospective audit, not a fresh confirmation set.</p></div>
-      <div class="atlas-next__detail"><p>The source images and reconstructed stresses match the frozen input hashes. The original Phase 23 checkpoint and inference versions are still missing; published detector aggregates must also reconcile before frame outcomes can be reported.</p><a href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase25_protocol.md" target="_blank" rel="noreferrer">Read the frozen protocol ↗</a><a href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase26_protocol.md" target="_blank" rel="noreferrer">Phase 26 separate-data plan ↗</a></div>
+      <div class="atlas-next__detail"><p>The source images and reconstructed stresses match frozen hashes. The original Phase 22 checkpoint reproduces all six published baseline aggregates, and its box-level outcomes are available in the Atlas. The original Phase 23 checkpoint and inference versions are still missing; paired results must wait for reconciliation.</p><a href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase25_protocol.md" target="_blank" rel="noreferrer">Read the frozen protocol ↗</a><a href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase26_protocol.md" target="_blank" rel="noreferrer">Phase 26 separate-data plan ↗</a></div>
     </section>
     <p class="atlas-boundary">Detector box correctness cannot establish landing safety or controller performance. No cutoff will be selected from this reused test set.</p>
     <nav class="atlas-continue" aria-label="Continue reading"><a href="/phases/phase24/">← Phase 24 results</a><a href="/phases/">All phase records →</a></nav>

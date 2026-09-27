@@ -9,8 +9,8 @@ def _read(path: str) -> str:
 
 def test_home_actions_feature_phase25_and_scope_phase22_status() -> None:
     html = _read("deploy/vercel/index.html")
-    assert 'href="/phases/phase25/">Explore Phase 25</a>' in html
-    assert 'href="/phases/phase24/">Completed audit</a>' in html
+    assert 'href="/failure-atlas/">Explore Failure Atlas</a>' in html
+    assert 'href="/phases/phase25/">See the evidence</a>' in html
     assert 'href="/phases/">Archive</a>' in html
     assert 'id="current-audit"' in html
     assert '>Frozen simulation result</a>' in html

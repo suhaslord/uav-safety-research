@@ -7,7 +7,7 @@ let failed = 0;
 const add = (name, ok, details = {}) => { results.push({ name, ok, ...details }); if (!ok) failed++; };
 
 const routes = [
-  '/', '/phases/',
+  '/', '/phases/', '/failure-atlas/',
   '/phases/phase1/', '/phases/phase2/', '/phases/phase3/', '/phases/phase4/', '/phases/phase5/',
   '/phases/phase6/', '/phases/phase6b/', '/phases/phase7/', '/phases/phase8/', '/phases/phase9/',
   '/phases/phase10/', '/phases/phase10r/', '/phases/phase11/', '/phases/phase12/',
@@ -154,11 +154,11 @@ try {
     add('home-claim-boundary-visible', /simulation_only=true/.test(homeText) && /safety_acceptance=false/.test(homeText) && /controller_tuning_allowed=false/.test(homeText));
     const phase23Links = await page.locator('a[href*="phase23"]').count();
     add('home-links-phase23-detector', phase23Links > 0, { phase23Links });
-    add('home-features-phase25-with-pending-status',
-      await page.locator('#top a[href="/phases/phase25/"]').count() === 1
+    add('home-features-measured-baseline-atlas',
+      await page.locator('#top a[href="/failure-atlas/"]').count() === 1
         && await page.locator('#phase25 .phase25-feature__images img').count() === 2
         && await page.locator('#phase25 .phase25-feature__proof a[href*="phase25_reconstruction_audit.json"]').count() === 1
-        && /results pending/i.test(await page.locator('#phase25').innerText()));
+        && /Baseline observed · Phase 23 pending/i.test(await page.locator('#phase25').innerText()));
     await page.close();
     await context.close();
   }
@@ -243,6 +243,28 @@ try {
       phase25.controls === 6 && phase25.chartRows === 6
       && phase25.mixedImage === '/media/perception/kios_mixed.jpg'
       && /−5\.5 points/.test(phase25.mixedDelta), phase25);
+
+    await page.goto(BASE + '/failure-atlas/', { waitUntil: 'domcontentloaded', timeout: 45000 });
+    await page.locator('#frame-title').waitFor({ timeout: 15000 });
+    await page.locator('#conditions button').first().waitFor({ timeout: 15000 });
+    const atlas = await page.evaluate(() => ({
+      title: document.querySelector('h1')?.textContent || '',
+      conditions: document.querySelectorAll('#conditions button').length,
+      matrix: document.querySelectorAll('#matrix button').length,
+      score: document.querySelector('#baseline-metrics')?.textContent || '',
+      pending: document.querySelector('.pending-panel')?.textContent || '',
+      overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth
+    }));
+    add('atlas-live-baseline-and-honest-pending', /Every frame/i.test(atlas.title)
+      && atlas.conditions === 6 && atlas.matrix === 516 && /BEST IoU/.test(atlas.score)
+      && /Exact frozen model required/i.test(atlas.pending) && atlas.overflow <= 1, atlas);
+    await page.locator('#conditions button[data-condition="mixed"]').click();
+    await page.locator('#filter-outcome').selectOption('miss');
+    add('atlas-filter-and-condition-work', /MIXED/.test(await page.locator('#frame-sequence').innerText())
+      && /matching views/.test(await page.locator('#match-count').innerText()));
+    await page.locator('[data-open-evidence]').first().click();
+    add('atlas-evidence-opens', await page.locator('#evidence-dialog').evaluate(el => el.open));
+    await page.locator('#close-evidence').click();
 
     const phaseChecks = [
       ['/phases/phase1/', /First safety supervisor/i, /HOLD \/ ABORT/i],

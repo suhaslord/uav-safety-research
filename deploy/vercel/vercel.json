@@ -1,6 +1,8 @@
 {
   "rewrites": [
     { "source": "/favicon.ico", "destination": "/favicon.svg" },
+    { "source": "/failure-atlas/", "destination": "/failure-atlas.html" },
+    { "source": "/failure-atlas", "destination": "/failure-atlas.html" },
 
     { "source": "/phases/phase12/", "destination": "/dashboard/phases/frozen.html" },
     { "source": "/phases/phase12", "destination": "/dashboard/phases/frozen.html" },

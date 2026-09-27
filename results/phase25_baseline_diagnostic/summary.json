@@ -1,0 +1,155 @@
+{
+  "status": "baseline_only_real_predictions",
+  "model": "Phase 22 frozen baseline",
+  "frame_condition_cases": 516,
+  "condition_summary": [
+    {
+      "condition": "clean",
+      "frames": 86,
+      "successful_frames": 53,
+      "tp": 53,
+      "fp": 23676,
+      "fn": 33
+    },
+    {
+      "condition": "blur",
+      "frames": 86,
+      "successful_frames": 45,
+      "tp": 45,
+      "fp": 23812,
+      "fn": 41
+    },
+    {
+      "condition": "low_light",
+      "frames": 86,
+      "successful_frames": 49,
+      "tp": 49,
+      "fp": 23878,
+      "fn": 37
+    },
+    {
+      "condition": "noise",
+      "frames": 86,
+      "successful_frames": 45,
+      "tp": 45,
+      "fp": 20743,
+      "fn": 41
+    },
+    {
+      "condition": "occlusion",
+      "frames": 86,
+      "successful_frames": 53,
+      "tp": 53,
+      "fp": 24277,
+      "fn": 33
+    },
+    {
+      "condition": "mixed",
+      "frames": 86,
+      "successful_frames": 43,
+      "tp": 43,
+      "fp": 19685,
+      "fn": 43
+    }
+  ],
+  "existing_site_frame": "land_pad2__2100.jpg",
+  "site_frame_predictions": {
+    "clean": {
+      "frame_success": true,
+      "gt_count": 1,
+      "tp": 1,
+      "fp": 269,
+      "fn": 0,
+      "top_prediction": {
+        "x0": 0.06224211631165711,
+        "y0": 0.43823362860545656,
+        "x1": 0.40940172318723267,
+        "y1": 0.9956142969359717,
+        "confidence": 0.9382067918777466,
+        "match_iou": 0.8962238335055563,
+        "is_true_positive": true
+      }
+    },
+    "blur": {
+      "frame_success": true,
+      "gt_count": 1,
+      "tp": 1,
+      "fp": 270,
+      "fn": 0,
+      "top_prediction": {
+        "x0": 0.06348743366197941,
+        "y0": 0.43807713471888005,
+        "x1": 0.40858500085402805,
+        "y1": 0.9958501174720343,
+        "confidence": 0.93999844789505,
+        "match_iou": 0.8903708050393292,
+        "is_true_positive": true
+      }
+    },
+    "low_light": {
+      "frame_success": true,
+      "gt_count": 1,
+      "tp": 1,
+      "fp": 249,
+      "fn": 0,
+      "top_prediction": {
+        "x0": 0.06241625796706051,
+        "y0": 0.4381640193117521,
+        "x1": 0.412025567696575,
+        "y1": 0.9977270914290127,
+        "confidence": 0.941697359085083,
+        "match_iou": 0.8993091938888556,
+        "is_true_positive": true
+      }
+    },
+    "noise": {
+      "frame_success": true,
+      "gt_count": 1,
+      "tp": 1,
+      "fp": 253,
+      "fn": 0,
+      "top_prediction": {
+        "x0": 0.06445823785470013,
+        "y0": 0.44225004039371424,
+        "x1": 0.41049649778881,
+        "y1": 0.9967448128373765,
+        "confidence": 0.9328877925872803,
+        "match_iou": 0.8879640689363361,
+        "is_true_positive": true
+      }
+    },
+    "occlusion": {
+      "frame_success": true,
+      "gt_count": 1,
+      "tp": 1,
+      "fp": 299,
+      "fn": 0,
+      "top_prediction": {
+        "x0": 0.03977742213260085,
+        "y0": 0.43384411481367063,
+        "x1": 0.4151474985332997,
+        "y1": 0.9985671663631633,
+        "confidence": 0.7245398163795471,
+        "match_iou": 0.9275565727760896,
+        "is_true_positive": true
+      }
+    },
+    "mixed": {
+      "frame_success": true,
+      "gt_count": 1,
+      "tp": 1,
+      "fp": 287,
+      "fn": 0,
+      "top_prediction": {
+        "x0": 0.0,
+        "y0": 0.0,
+        "x1": 0.536060927938599,
+        "y1": 1.0,
+        "confidence": 0.011988900601863861,
+        "match_iou": 0.39756979231735984,
+        "is_true_positive": false
+      }
+    }
+  },
+  "limits": "Retrospective single-model diagnostic on reconstructed stresses; Phase 23 paired outcomes unavailable. A .001 prediction floor yields many low-score boxes. No threshold tuned on this test set."
+}
