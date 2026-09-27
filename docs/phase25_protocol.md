@@ -41,15 +41,26 @@ The baseline artifact archive SHA-256 is
 The 86-row manifest was extracted from that verified artifact. The KIOS
 images and labels, Phase 23 checkpoint, and original inference package
 versions are external inputs and must be recovered before the run. The runner
-refuses to start until the exact Ultralytics and PyTorch versions are recorded
-in the lock and match the installed packages. Model and data hashes are
-recorded in every successful run manifest.
+refuses to start until Python, Ultralytics, PyTorch, NumPy, and Pillow versions
+are recorded in the lock and match the installed packages. Model and data
+hashes are recorded in every successful run manifest.
 
-The checked Phase 23 Actions artifact (run `35797446835`, artifact
-`10725155542`) contains `samples.csv`, `summary.json`, and `summary.md`, but no
-checkpoint. The recorded train arguments identify the model resolution and
-evaluation settings; they do not substitute for the frozen weights or missing
-runtime version record.
+The run manifest hashes the *supplied* source and stress images. The published
+Phase 23 tables do not provide original per-image hashes, so matching aggregate
+metrics alone cannot prove that rebuilt images are byte-identical to the
+original evaluation images. If the suite is reconstructed, label the eventual
+report as a reconstruction and retain the source archive, generator, seed,
+software versions, and aggregate-reconciliation evidence. Do not describe it
+as an untouched or independently confirmed result.
+
+The checked *related real-image transfer* Actions run `35797446835` (artifact
+`10725155542`) contains `samples.csv`, `summary.json`, and `summary.md`. It was
+not the Phase 23 training run and contains no detector checkpoint. The Phase 23
+training `args.yaml` instead points to a local Windows training directory and
+records device `0`, image size 480, seed `20260922`, and 25 actual training
+epochs. Those arguments do not substitute for the frozen weights or missing
+inference software version record. Recover the original local `weights/best.pt`
+and its provenance before filling the lock.
 
 ## Run sequence
 
@@ -111,6 +122,11 @@ For every frame-condition-model row, retain target count, detection count,
 TP/FP/FN, best IoU, highest score, and whether all targets were found. For
 every predicted box, retain normalized coordinates, confidence, match IoU,
 matched target index, and TP/FP status. Duplicate boxes cannot reuse a target.
+For every annotated target, retain its stable frame and target index, box,
+normalized area and center, whether it was detected, and the matched prediction
+index, score, and IoU when present. A missed target has no matched prediction.
+The target table must reconcile one-to-one with both the prediction and frame
+tables, with unchanged target geometry in every condition and for both models.
 
 Compare the two detectors with four paired frame outcomes: recovered,
 regressed, both succeeded, and both failed. Summarize object-level TP/FP/FN
@@ -124,8 +140,14 @@ Use fixed-width bins and report bin counts, mean score, observed box
 correctness, ECE, and Brier score. These summarize score-versus-localization
 behavior on this reused set; they do not calibrate a safety decision.
 
-Image associations may include target area, normalized target center, mean
-brightness, contrast, and a simple sharpness measure. Treat associations as
+Image associations include scene brightness, contrast, a simple sharpness
+measure, and the largest annotated pad's area and center at frame level. The
+target table separately describes the size and position of *each* pad, so
+multi-pad frames do not hide a missed smaller target. Target-size quartiles
+are assigned once using unique source-frame targets, with tied areas kept in
+the same bin (so a bin may be empty); the figure then reports
+the number of missed targets divided by annotated target-condition cases in
+each quartile, separately for each detector. Treat all associations as
 descriptive. Occlusion and mixed are generated image transformations, not
 evidence about all real-world occlusions or camera conditions.
 
@@ -141,8 +163,15 @@ input is missing or metrics differ by more than the preregistered tolerance
 
 The prediction runner must also verify that every condition contains exactly
 the protected image IDs, that labels are unchanged, and that all expected
-input files have SHA-256 entries in `run_manifest.json`. It must not download,
-regenerate, or overwrite data automatically.
+input files have SHA-256 entries in `run_manifest.json`. Every source label
+must contain only valid, normalized landing-pad boxes. Predictions and reported
+aggregate metrics must be finite and in range. The manifest also pins the
+aggregate reference CSVs, method files, and four prediction table hashes; the
+analyzer checks those table hashes and reconciles target, prediction, and frame
+rows by replaying the frozen matching rule before writing summaries. The
+protocol, generator, runner, helper, protected manifest, input lock, and
+reference tables must be committed at the recorded Git commit before running.
+It must not download, regenerate, or overwrite data automatically.
 
 ## Outputs
 
@@ -150,13 +179,14 @@ On a successful run, `results/phase25_failure_atlas/` contains:
 
 - `run_manifest.json`
 - `prediction_boxes.csv`
+- `ground_truth_targets.csv` (one row per annotated pad, condition, and model)
 - `frame_condition_metrics.csv`
 - `transition_counts.csv`
 - `condition_summary.csv`
 - `confidence_calibration.csv`
 - `confidence_distribution.csv` for correct and incorrect boxes
 - `feature_summary.csv` by detector and condition
-- `failure_by_target_size.csv` for both detectors
+- `failure_by_target_size.csv` with per-target miss rates for both detectors
 - `summary.json` and `summary.md`
 - `figures/` with outcome transitions, failure matrix, confidence reliability,
   and failure rate by target size

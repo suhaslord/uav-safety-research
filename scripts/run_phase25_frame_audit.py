@@ -19,6 +19,22 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT / "scripts"))
 
+METHOD_PATHS = (
+    "docs/phase25_protocol.md",
+    "scripts/phase25_lib.py",
+    "scripts/run_phase25_frame_audit.py",
+    "scripts/analyze_phase25_failures.py",
+    "scripts/build_real_image_stress_suite.py",
+    "scripts/prepare_kios_real_yolo_split.py",
+    "src/uav_safety/real_landing_dataset.py",
+)
+REPRODUCIBILITY_PATHS = METHOD_PATHS + (
+    "docs/phase25_input_lock.json",
+    "results/phase25_failure_atlas/protected_test_manifest.csv",
+    "results/phase23_robust_detector/robustness_metrics.csv",
+    "results/phase23_robust_detector/robustness_comparison.csv",
+)
+
 from phase25_lib import (  # noqa: E402
     CONDITIONS,
     Box,
@@ -63,20 +79,29 @@ def _normalized_predictions(result) -> list[Box]:
     if result.boxes is None or len(result.boxes) == 0:
         return []
     height, width = result.orig_shape
+    if height <= 0 or width <= 0:
+        raise ValueError(f"Invalid prediction image dimensions: {result.orig_shape}")
     xyxy = result.boxes.xyxy.cpu().numpy()
     classes = result.boxes.cls.cpu().numpy()
     confidence = result.boxes.conf.cpu().numpy()
-    return [
-        Box(
-            class_id=int(class_id),
-            x0=float(max(0.0, min(1.0, box[0] / width))),
-            y0=float(max(0.0, min(1.0, box[1] / height))),
-            x1=float(max(0.0, min(1.0, box[2] / width))),
-            y1=float(max(0.0, min(1.0, box[3] / height))),
-            confidence=float(score),
+    normalized = []
+    for box, class_id, score in zip(xyxy, classes, confidence, strict=True):
+        values = [float(value) for value in box]
+        if (len(values) != 4 or any(not math.isfinite(value) for value in values)
+                or not math.isfinite(float(class_id)) or not math.isfinite(float(score))):
+            raise ValueError("Detector returned a non-finite or malformed prediction")
+        if int(class_id) != class_id or int(class_id) < 0 or not 0.0 <= score <= 1.0:
+            raise ValueError("Detector returned an invalid class or confidence")
+        x0, y0, x1, y1 = (
+            max(0.0, min(1.0, values[0] / width)),
+            max(0.0, min(1.0, values[1] / height)),
+            max(0.0, min(1.0, values[2] / width)),
+            max(0.0, min(1.0, values[3] / height)),
         )
-        for box, class_id, score in zip(xyxy, classes, confidence, strict=True)
-    ]
+        if x1 <= x0 or y1 <= y0:
+            raise ValueError("Detector returned a prediction with no area inside the image")
+        normalized.append(Box(int(class_id), x0, y0, x1, y1, float(score)))
+    return normalized
 
 
 def _validate_aggregates(models, inference_settings, metric_tolerance, args, reference, temp_root):
@@ -128,15 +153,12 @@ def _validate_aggregates(models, inference_settings, metric_tolerance, args, ref
             )
             values = _metric_values(metrics)
             expected = expected_by_model[model_name][condition]
-            non_finite = [
-                metric
-                for metric, expected_value in expected.items()
-                if not math.isfinite(expected_value) or not math.isfinite(values[metric])
-            ]
+            non_finite = [metric for metric, value in values.items() if not math.isfinite(value) or not 0.0 <= value <= 1.0]
+            non_finite.extend(metric for metric, value in expected.items() if not math.isfinite(value) or not 0.0 <= value <= 1.0)
             if non_finite:
                 raise RuntimeError(
-                    f"Aggregate reproduction produced non-finite metrics for "
-                    f"{model_name}/{condition}: {', '.join(non_finite)}"
+                    f"Aggregate reproduction produced non-finite or out-of-range metrics for "
+                    f"{model_name}/{condition}: {', '.join(sorted(set(non_finite)))}"
                 )
             mismatches = {
                 metric: {"expected": expected_value, "actual": values[metric]}
@@ -178,6 +200,16 @@ def main() -> int:
         return 2
 
     try:
+        git_commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
+        dirty = subprocess.run(["git", "diff", "--quiet", "HEAD", "--", *REPRODUCIBILITY_PATHS], cwd=ROOT, check=False)
+    except (OSError, subprocess.CalledProcessError) as exc:
+        print(f"Phase 25 input gate: BLOCKED — cannot identify the committed method: {exc}", file=sys.stderr)
+        return 2
+    if dirty.returncode != 0:
+        print("Phase 25 input gate: BLOCKED — commit all protocol, code, and reference changes before running", file=sys.stderr)
+        return 2
+
+    try:
         from ultralytics import YOLO
     except ImportError:
         print("Phase 25 input gate: BLOCKED — install the project's Ultralytics version first", file=sys.stderr)
@@ -189,6 +221,8 @@ def main() -> int:
         "python_version": platform.python_version(),
         "ultralytics_version": importlib.metadata.version("ultralytics"),
         "torch_version": importlib.metadata.version("torch"),
+        "numpy_version": importlib.metadata.version("numpy"),
+        "pillow_version": importlib.metadata.version("pillow"),
     }
     version_mismatches = {
         name: {"locked": runtime_lock[name], "observed": version}
@@ -204,8 +238,12 @@ def main() -> int:
         "phase23": YOLO(str(args.phase23_weights)),
     }
     inference_settings = input_lock["inference_settings"]
-    phase23_reference = _read_csv(ROOT / "results/phase23_robust_detector/robustness_metrics.csv")
-    comparison_reference = _read_csv(ROOT / "results/phase23_robust_detector/robustness_comparison.csv")
+    reference_paths = {
+        "phase23": ROOT / "results/phase23_robust_detector/robustness_metrics.csv",
+        "comparison": ROOT / "results/phase23_robust_detector/robustness_comparison.csv",
+    }
+    phase23_reference = _read_csv(reference_paths["phase23"])
+    comparison_reference = _read_csv(reference_paths["comparison"])
     if set(phase23_reference) != set(CONDITIONS) or set(comparison_reference) != set(CONDITIONS):
         raise ValueError("Committed Phase 23 aggregate tables do not contain the six frozen conditions")
     reference = {"phase23": phase23_reference, "comparison": comparison_reference}
@@ -228,6 +266,9 @@ def main() -> int:
     # No Phase 25 result file is created before all 12 aggregate checks pass.
     metric_rows: list[dict[str, object]] = []
     prediction_rows: list[dict[str, object]] = []
+    target_rows: list[dict[str, object]] = []
+    source_feature_cache: dict[str, dict[str, float | None]] = {}
+    view_feature_cache: dict[tuple[str, str], dict[str, float | None]] = {}
     frame_by_name = {row["image"]: row for row in inventory["frames"]}
     source_image_dir = args.source_root / "images" / "test"
     for model_name in ("baseline", "phase23"):
@@ -257,8 +298,39 @@ def main() -> int:
                     raise RuntimeError(f"No landing-pad target in {label_path}")
                 predictions = _normalized_predictions(result)
                 frame_values, box_rows = frame_metrics(gt, predictions, iou_threshold=0.5)
-                source_features = image_features(source_image_dir / frame["image"], gt)
-                view_features = image_features(image_path, gt)
+                matched = {int(row["matched_gt_index"]): row for row in box_rows if row["is_true_positive"]}
+                for target_index, target in enumerate(gt):
+                    match = matched.get(target_index)
+                    center_x = (target.x0 + target.x1) / 2
+                    center_y = (target.y0 + target.y1) / 2
+                    target_rows.append({
+                        "frame_id": frame["image"],
+                        "sequence": frame["sequence"],
+                        "condition": condition,
+                        "model": model_name,
+                        "target_index": target_index,
+                        "class_id": target.class_id,
+                        "x0": target.x0,
+                        "y0": target.y0,
+                        "x1": target.x1,
+                        "y1": target.y1,
+                        "area_ratio": (target.x1 - target.x0) * (target.y1 - target.y0),
+                        "center_x": center_x,
+                        "center_y": center_y,
+                        "edge_distance": min(center_x, 1 - center_x, center_y, 1 - center_y),
+                        "detected": match is not None,
+                        "matched_prediction_index": match["prediction_index"] if match else None,
+                        "matched_confidence": match["confidence"] if match else None,
+                        "match_iou": match["match_iou"] if match else None,
+                    })
+                frame_id = frame["image"]
+                if frame_id not in source_feature_cache:
+                    source_feature_cache[frame_id] = image_features(source_image_dir / frame_id, gt)
+                view_key = (condition, frame_id)
+                if view_key not in view_feature_cache:
+                    view_feature_cache[view_key] = image_features(image_path, gt)
+                source_features = source_feature_cache[frame_id]
+                view_features = view_feature_cache[view_key]
                 metric_rows.append({
                     "frame_id": frame["image"],
                     "sequence": frame["sequence"],
@@ -281,13 +353,10 @@ def main() -> int:
     if len(metric_rows) != expected_metric_rows:
         raise RuntimeError(f"Expected {expected_metric_rows} frame/model rows, got {len(metric_rows)}")
 
-    try:
-        git_commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
-    except (OSError, subprocess.CalledProcessError):
-        git_commit = "unknown"
     args.out_dir.mkdir(parents=True, exist_ok=True)
     _write_csv(args.out_dir / "aggregate_validation.csv", aggregate_rows)
     _write_csv(args.out_dir / "frame_condition_metrics.csv", metric_rows)
+    _write_csv(args.out_dir / "ground_truth_targets.csv", target_rows)
     if prediction_rows:
         _write_csv(args.out_dir / "prediction_boxes.csv", prediction_rows)
     else:
@@ -295,6 +364,7 @@ def main() -> int:
             "frame_id,sequence,condition,model,prediction_index,class_id,x0,y0,x1,y1,confidence,matched_gt_index,match_iou,is_true_positive\n",
             encoding="utf-8",
         )
+    table_names = ("aggregate_validation.csv", "frame_condition_metrics.csv", "prediction_boxes.csv", "ground_truth_targets.csv")
     manifest = {
         "phase": "phase25",
         "status": "predictions_generated",
@@ -323,13 +393,16 @@ def main() -> int:
             "generator_sha256": sha256_file(ROOT / "scripts/build_real_image_stress_suite.py"),
             "seed": 20260915,
         },
+        "aggregate_reference_sha256": {name: sha256_file(path) for name, path in reference_paths.items()},
+        "method_files_sha256": {name: sha256_file(ROOT / name) for name in METHOD_PATHS},
+        "output_tables_sha256": {name: sha256_file(args.out_dir / name) for name in table_names},
         "input_inventory": inventory["inventory"],
         "inference": inference_settings,
         "aggregate_reproduction_passed": True,
         "confidence_threshold_tuned_on_test": False,
         "model_training_performed": False,
     }
-    (args.out_dir / "run_manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+    (args.out_dir / "run_manifest.json").write_text(json.dumps(manifest, indent=2, allow_nan=False) + "\n", encoding="utf-8")
     print(f"Phase 25 predictions written: {args.out_dir}")
     return 0
 

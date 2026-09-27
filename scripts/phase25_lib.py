@@ -8,6 +8,7 @@ from typing import Iterable, Mapping, Sequence
 import csv
 import hashlib
 import json
+import math
 import re
 
 import numpy as np
@@ -45,15 +46,20 @@ class BoxMatch:
 
 def box_from_yolo(class_id: int, x_center: float, y_center: float, width: float, height: float) -> Box:
     values = (x_center, y_center, width, height)
-    if any(not 0.0 <= value <= 1.0 for value in values) or width <= 0 or height <= 0:
+    if any(not math.isfinite(value) or not 0.0 <= value <= 1.0 for value in values) or width <= 0 or height <= 0:
         raise ValueError("YOLO boxes must be normalized to [0, 1] with positive size")
-    return Box(class_id, x_center - width / 2, y_center - height / 2, x_center + width / 2, y_center + height / 2)
+    box = Box(class_id, x_center - width / 2, y_center - height / 2, x_center + width / 2, y_center + height / 2)
+    if not 0.0 <= box.x0 < box.x1 <= 1.0 or not 0.0 <= box.y0 < box.y1 <= 1.0:
+        raise ValueError("YOLO box extends outside the image")
+    return box
 
 
 def image_features(path: Path, ground_truth: Sequence[Box]) -> dict[str, float | None]:
     """Return simple descriptive image and largest-target features."""
     with Image.open(path) as image:
         gray = np.asarray(image.convert("L"), dtype=np.float64) / 255.0
+    if min(gray.shape) < 2:
+        raise ValueError(f"Image is too small for the sharpness measure: {path}")
     dx = np.diff(gray, axis=1)
     dy = np.diff(gray, axis=0)
     target = max(ground_truth, key=lambda box: (box.x1 - box.x0) * (box.y1 - box.y0), default=None)
@@ -112,10 +118,12 @@ def load_input_lock(path: Path = INPUT_LOCK_PATH) -> dict[str, object]:
             "Exact Phase 23 checkpoint is not locked; recover the original checkpoint, "
             "record its source and SHA-256 in docs/phase25_input_lock.json, then rerun"
         )
+    if not isinstance(phase23.get("checkpoint_source"), str) or not phase23["checkpoint_source"].strip():
+        raise ValueError("Phase 23 checkpoint source is not documented in the input lock")
     runtime = lock.get("phase25_runtime")
     if not isinstance(runtime, dict):
         raise ValueError("Phase 25 runtime versions are missing from the input lock")
-    for package in ("python_version", "ultralytics_version", "torch_version"):
+    for package in ("python_version", "ultralytics_version", "torch_version", "numpy_version", "pillow_version"):
         version = runtime.get(package)
         if not isinstance(version, str) or not version.strip():
             raise ValueError(
@@ -150,6 +158,23 @@ def read_protected_manifest(path: Path) -> list[dict[str, str]]:
     if len(set(image_names)) != len(image_names):
         raise ValueError("Protected manifest contains duplicate image names")
     return rows
+
+
+def _validate_target_label(text: str, path: Path) -> int:
+    """Reject malformed or non-pad labels before running either detector."""
+    count = 0
+    for raw in text.splitlines():
+        parts = raw.split()
+        if len(parts) != 5 or parts[0] != "0":
+            raise ValueError(f"Expected one-class landing-pad YOLO labels in {path}: {raw!r}")
+        try:
+            box_from_yolo(0, *(float(value) for value in parts[1:]))
+        except ValueError as exc:
+            raise ValueError(f"Invalid landing-pad target in {path}: {raw!r}") from exc
+        count += 1
+    if not count:
+        raise ValueError(f"Protected frame has no target labels: {path}")
+    return count
 
 
 def validate_phase25_inputs(
@@ -225,8 +250,7 @@ def validate_phase25_inputs(
     for row in rows:
         label_path = source_labels / row["label"]
         text = label_path.read_text(encoding="utf-8").strip()
-        if not text:
-            raise ValueError(f"Protected frame has no target labels: {label_path}")
+        _validate_target_label(text, label_path)
         source_label_text[row["image"]] = text
         inventory.append({"kind": "source_image", "path": f"source/images/test/{row['image']}", "sha256": sha256_file(source_images / row["image"])})
         inventory.append({"kind": "source_label", "path": f"source/labels/test/{row['label']}", "sha256": sha256_file(label_path)})
@@ -302,8 +326,13 @@ def match_predictions(
     """
     if not 0.0 <= iou_threshold <= 1.0:
         raise ValueError("IoU threshold must be between 0 and 1")
-    if any(box.confidence is None or not 0.0 <= box.confidence <= 1.0 for box in predictions):
-        raise ValueError("Every prediction needs a confidence in [0, 1]")
+    for box in (*ground_truth, *predictions):
+        coords = (box.x0, box.y0, box.x1, box.y1)
+        if (box.class_id < 0 or any(not math.isfinite(value) for value in coords)
+                or not 0.0 <= box.x0 < box.x1 <= 1.0 or not 0.0 <= box.y0 < box.y1 <= 1.0):
+            raise ValueError("Matching requires finite, normalized, positive-area boxes")
+    if any(box.confidence is None or not math.isfinite(box.confidence) or not 0.0 <= box.confidence <= 1.0 for box in predictions):
+        raise ValueError("Every prediction needs a finite confidence in [0, 1]")
     ranked = sorted(range(len(predictions)), key=lambda i: (-float(predictions[i].confidence), i))
     unmatched = set(range(len(ground_truth)))
     matches: dict[int, BoxMatch] = {}
@@ -386,8 +415,11 @@ def calibration_summary(predictions: Sequence[Mapping[str, object]], *, bins: in
     outcomes: list[float] = []
     for row in predictions:
         score = float(row["confidence"])
-        outcome = float(bool(row["is_true_positive"]))
-        if not 0.0 <= score <= 1.0:
+        outcome_value = row["is_true_positive"]
+        if type(outcome_value) is not bool:
+            raise ValueError("Box correctness must be a boolean")
+        outcome = float(outcome_value)
+        if not math.isfinite(score) or not 0.0 <= score <= 1.0:
             raise ValueError("Confidence must be in [0, 1]")
         scores.append(score)
         outcomes.append(outcome)

@@ -8,9 +8,20 @@
   },
   "phase23_robust": {
     "checkpoint_sha256": null,
+    "checkpoint_source": null,
     "status": "blocked_pending_exact_checkpoint_recovery",
+    "training_record": {
+      "repository_path": "results/phase23_robust_detector/training/phase23_robust_yolo11n/args.yaml",
+      "checkpoint_relative_to_recorded_save_dir": "weights/best.pt",
+      "recorded_epochs": 25,
+      "recorded_image_size": 480,
+      "recorded_device": "0",
+      "recorded_seed": 20260922
+    },
     "recovery_attempt": {
       "result_commit": "7677bacdae1f3a3b73f9473f5fa51f2059d9525a",
+      "checked_actions_workflow_name": "real-image-transfer",
+      "is_phase23_training_artifact": false,
       "actions_run_id": 35797446835,
       "actions_artifact_id": 10725155542,
       "actions_artifact_sha256": "841a1089e6303d909fd3cf118fdf8966e39847be05d00866e74ef6751ea660b6",
@@ -26,6 +37,8 @@
     "python_version": null,
     "ultralytics_version": null,
     "torch_version": null,
+    "numpy_version": null,
+    "pillow_version": null,
     "status": "blocked_pending_original_version_recovery"
   },
   "inference_settings": {
