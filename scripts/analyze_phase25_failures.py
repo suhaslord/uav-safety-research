@@ -192,8 +192,8 @@ def _validate_inputs(root: Path, manifest_path: Path) -> tuple[list[dict[str, st
                 or not math.isfinite(overlap) or not 0.0 <= overlap <= 1.0
                 or any(not math.isfinite(value) or not 0.0 <= value <= 1.0 for value in coords)):
             raise ValueError(f"Prediction confidence or normalized coordinates are invalid for {key}")
-        if coords[2] <= coords[0] or coords[3] <= coords[1]:
-            raise ValueError(f"Prediction box has non-positive area for {key}")
+        if coords[2] < coords[0] or coords[3] < coords[1]:
+            raise ValueError(f"Prediction box has inverted coordinates for {key}")
         is_tp = _boolean(row["is_true_positive"])
         matched_value = row["matched_gt_index"]
         if is_tp:

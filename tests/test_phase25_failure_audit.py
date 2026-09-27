@@ -24,6 +24,15 @@ from phase25_lib import (  # noqa: E402
     validate_phase25_inputs,
 )
 from run_phase25_frame_audit import _validate_aggregates  # noqa: E402
+import run_phase25_baseline_diagnostic as baseline_diagnostic  # noqa: E402
+
+
+def test_baseline_reproduction_rejects_changed_inference_runtime(monkeypatch):
+    monkeypatch.setattr(baseline_diagnostic.platform, "python_version", lambda: "0.0.0")
+    monkeypatch.setattr(baseline_diagnostic.importlib.metadata, "version",
+                        lambda name: baseline_diagnostic.FROZEN_RUNTIME[name])
+    with pytest.raises(ValueError, match="Inference runtime differs"):
+        baseline_diagnostic.checked_runtime()
 
 
 def test_frozen_manifest_has_86_frames_and_two_source_sequences():
@@ -50,6 +59,21 @@ def test_matching_rejects_non_finite_scores_and_out_of_frame_labels():
         match_predictions([Box(0, 0.1, 0.1, 0.9, 0.9)], [Box(0, 0.1, 0.1, 0.9, 0.9, float("nan"))])
     with pytest.raises(ValueError, match="outside the image"):
         box_from_yolo(0, 0.95, 0.5, 0.2, 0.2)
+
+
+def test_six_decimal_kios_edge_label_clips_rounding_residue():
+    box = box_from_yolo(0, .361217, .726327, .385932, .547347)
+    assert box.y1 == 1
+    assert box.y0 > 0
+
+
+def test_boundary_collapsed_prediction_counts_as_false_positive():
+    target = Box(0, .2, .2, .8, .8)
+    collapsed = Box(0, 1., .4, 1., .6, .02)
+    matches = match_predictions([target], [collapsed])
+    assert len(matches) == 1
+    assert not matches[0].is_true_positive
+    assert matches[0].iou == 0
 
 
 def test_calibration_keeps_confidence_one_in_the_last_fixed_bin():

@@ -168,6 +168,11 @@ same class, processing predictions by descending confidence. A match at IoU
 ≥ 0.50 is a true positive; unmatched predictions are false positives, and
 unmatched labels are false negatives. A frame succeeds when all its labeled
 targets are matched. Empty-target frames are rejected by input validation.
+Six-decimal source labels may extend up to one millionth beyond an image edge
+after YOLO center/size conversion; clip only that rounding residue to [0, 1].
+Larger out-of-range labels remain invalid.
+Predictions collapsed to zero area at an image boundary after clipping remain
+in the box table as false positives, with IoU zero; they cannot match a target.
 
 For every frame-condition-model row, retain target count, detection count,
 TP/FP/FN, best IoU, highest score, and whether all targets were found. For

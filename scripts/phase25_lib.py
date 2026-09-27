@@ -49,10 +49,13 @@ def box_from_yolo(class_id: int, x_center: float, y_center: float, width: float,
     values = (x_center, y_center, width, height)
     if any(not math.isfinite(value) or not 0.0 <= value <= 1.0 for value in values) or width <= 0 or height <= 0:
         raise ValueError("YOLO boxes must be normalized to [0, 1] with positive size")
-    box = Box(class_id, x_center - width / 2, y_center - height / 2, x_center + width / 2, y_center + height / 2)
-    if not 0.0 <= box.x0 < box.x1 <= 1.0 or not 0.0 <= box.y0 < box.y1 <= 1.0:
+    x0, y0 = x_center - width / 2, y_center - height / 2
+    x1, y1 = x_center + width / 2, y_center + height / 2
+    # KIOS writes six-decimal YOLO labels; one frozen edge box ends at
+    # 1.0000005 after converting its rounded center and height.
+    if not -1e-6 <= x0 < x1 <= 1 + 1e-6 or not -1e-6 <= y0 < y1 <= 1 + 1e-6:
         raise ValueError("YOLO box extends outside the image")
-    return box
+    return Box(class_id, max(0., x0), max(0., y0), min(1., x1), min(1., y1))
 
 
 def image_features(path: Path, ground_truth: Sequence[Box]) -> dict[str, float | None]:
@@ -338,11 +341,18 @@ def match_predictions(
     """
     if not 0.0 <= iou_threshold <= 1.0:
         raise ValueError("IoU threshold must be between 0 and 1")
-    for box in (*ground_truth, *predictions):
+    for box in ground_truth:
         coords = (box.x0, box.y0, box.x1, box.y1)
         if (box.class_id < 0 or any(not math.isfinite(value) for value in coords)
                 or not 0.0 <= box.x0 < box.x1 <= 1.0 or not 0.0 <= box.y0 < box.y1 <= 1.0):
-            raise ValueError("Matching requires finite, normalized, positive-area boxes")
+            raise ValueError("Matching requires finite, normalized, positive-area ground-truth boxes")
+    for box in predictions:
+        coords = (box.x0, box.y0, box.x1, box.y1)
+        if (box.class_id < 0 or any(not math.isfinite(value) for value in coords)
+                or not 0.0 <= box.x0 <= box.x1 <= 1.0 or not 0.0 <= box.y0 <= box.y1 <= 1.0):
+            raise ValueError("Matching requires finite, normalized prediction boxes")
+        # A predicted box can collapse against the image edge after clipping.
+        # Retain it as a false positive rather than silently changing the box count.
     if any(box.confidence is None or not math.isfinite(box.confidence) or not 0.0 <= box.confidence <= 1.0 for box in predictions):
         raise ValueError("Every prediction needs a finite confidence in [0, 1]")
     ranked = sorted(range(len(predictions)), key=lambda i: (-float(predictions[i].confidence), i))
@@ -353,7 +363,8 @@ def match_predictions(
         overlaps = [
             (iou_xyxy(prediction, gt), gt_index)
             for gt_index, gt in enumerate(ground_truth)
-            if gt_index in unmatched and gt.class_id == prediction.class_id
+            if (gt_index in unmatched and gt.class_id == prediction.class_id
+                and prediction.x0 < prediction.x1 and prediction.y0 < prediction.y1)
         ]
         best_iou, best_gt = max(overlaps, default=(0.0, None), key=lambda pair: (pair[0], -(pair[1] or 0)))
         if best_gt is not None and best_iou >= iou_threshold:

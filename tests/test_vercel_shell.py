@@ -25,7 +25,8 @@ def test_phase25_lens_reuses_published_aggregates_without_frame_claims() -> None
     assert 'data-atlas-chart' in phase and 'data-atlas-controls' in phase
     assert 'data-atlas-controls' in home
     assert 'src="/phase25-explorer.js?v=' in phase and 'src="/phase25-explorer.js?v=' in home
-    assert "Phase 25 frame outcomes remain pending" in phase
+    assert "Measured baseline frame outcomes are now" in phase
+    assert "Phase 23 paired outcomes remain pending" in phase
     audit = json.loads((ROOT / "docs/phase25_reconstruction_audit.json").read_text(encoding="utf-8"))
     assert audit["archive_derived_protected_image_count"] == 86
     assert audit["frame_condition_count"] == 516
@@ -50,8 +51,8 @@ def test_vercel_home_is_native_frozen_archive_shell() -> None:
     assert "Simulation record frozen through Phase 22" in html
     assert 'id="current-audit"' in html
     assert 'id="phase25"' in html
-    assert '<a class="button primary signature-button" href="/phases/phase25/">Explore Phase 25</a>' in html
-    assert "Inputs verified · results pending" in html
+    assert '<a class="button primary signature-button" href="/failure-atlas/">Explore Failure Atlas</a>' in html
+    assert "Baseline observed · Phase 23 pending" in html
     assert "0.8319" in html
     assert "0.7744" in html
     assert "simulation_only=true" in html
@@ -82,6 +83,8 @@ def test_vercel_routes_use_packaged_frozen_and_legacy_assets() -> None:
     assert "/phase23.html" in destinations
     assert "/phase24.html" in destinations
     assert "/phase25.html" in destinations
+    assert "/failure-atlas.html" in destinations
+    assert {"/failure-atlas", "/failure-atlas/"} == {item["source"] for item in rewrites if item["destination"] == "/failure-atlas.html"}
     phase23_sources = {item["source"] for item in rewrites if item["destination"] == "/phase23.html"}
     assert "/phases/phase23" in phase23_sources and "/phases/phase23/" in phase23_sources
     phase24_sources = {item["source"] for item in rewrites if item["destination"] == "/phase24.html"}
@@ -259,11 +262,27 @@ def test_phase25_is_featured_as_work_in_progress_without_result_claims() -> None
     assert 'href="/phase-report.css?v=' in page
     assert 'class="atlas-status"' in page
     assert "Inputs verified" in page
-    assert "KIOS inputs hash-checked" in archive
+    assert "KIOS inputs verified" in archive
     assert "Results await the exact model and source images" not in archive
     assert "The 86-frame set was already used in Phases 23–24" in page
     assert "not either detector’s predictions" in page
     assert "original Phase 23 checkpoint" in page
+
+
+def test_failure_atlas_is_baseline_only_with_auditable_tables() -> None:
+    site = json.loads((ROOT / "deploy/vercel/failure-atlas-data.json").read_text())
+    manifest = json.loads((ROOT / "results/phase25_baseline_diagnostic/run_manifest.json").read_text())
+    assert site["status"] == "baseline_only" and site["phase23"] is None
+    assert len(site["frame_ids"]) == 86 and len(site["cases"]) == 516
+    assert site["prediction_rows"] == manifest["prediction_rows"] == 136359
+    assert site["source_hashes"] == manifest["table_sha256"]
+    assert sum(case["count"] for case in site["cases"]) == site["prediction_rows"]
+    assert sum(len(case["boxes"]) + case["omitted"] for case in site["cases"]) == site["prediction_rows"]
+    assert sum(case["tp"] for case in site["cases"]) == sum(box[6] for case in site["cases"] for box in case["boxes"])
+    assert not any("phase23" in case for case in site["cases"])
+    html = (ROOT / "deploy/vercel/failure-atlas.html").read_text()
+    assert 'id="frame-range"' in html and 'id="scatter"' in html
+    assert 'id="evidence-dialog"' in html and 'id="local-files"' in html
 
 
 def test_phase23_displayed_condition_table_matches_committed_csv() -> None:

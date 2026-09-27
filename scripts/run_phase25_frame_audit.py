@@ -102,8 +102,8 @@ def _normalized_predictions(result) -> list[Box]:
             max(0.0, min(1.0, values[2] / width)),
             max(0.0, min(1.0, values[3] / height)),
         )
-        if x1 <= x0 or y1 <= y0:
-            raise ValueError("Detector returned a prediction with no area inside the image")
+        if x1 < x0 or y1 < y0:
+            raise ValueError("Detector returned inverted prediction coordinates")
         normalized.append(Box(int(class_id), x0, y0, x1, y1, float(score)))
     return normalized
 
