@@ -19,7 +19,10 @@ review every flagged pair manually. Verify that the annotation inventory
 includes images with zero targets. Complete this work without detector output.
 
 Run `scripts/audit_phase26_manifest.py` on a local candidate directory and
-an image manifest. Its report is a screen, not automatic independence
+an image manifest. Supply the original checksum-verified KIOS archive too:
+the screen compares all 422 extracted reference JPEGs against a fresh archive
+extraction. Without it, the report is blocked even when names and counts look
+right. Its report is a screen, not automatic independence
 certification: human provenance, license, annotation, and near-match decisions
 remain required. The test partition is accepted only after those reviews and
 an input lock with file hashes and immutable session IDs are committed.
@@ -35,6 +38,7 @@ their capture records:
 
 ```bash
 python scripts/audit_phase26_manifest.py \
+  --reference-archive data/external/kios_landing_pad/airisim_dataset2.7z \
   --reference-root data/external/kios_landing_pad/extracted/airisim_dataset2/Real_images_tight_labels \
   --candidate-root data/external/imav2025/images \
   --manifest data/external/imav2025/capture_manifest.csv \
@@ -47,6 +51,25 @@ python scripts/audit_phase26_manifest.py \
   development-only evidence and acquire a different, separately captured test.
 - If geometry or target semantics fail review, treat IMAV as auxiliary only.
 - Never random-split frames or infer sessions solely from visual similarity.
+
+## Development-only rule lock
+
+When development predictions and reviewed correctness labels exist, export a
+CSV with one row per development image and columns `path,score,correct`.
+`correct` is 1 only when the top prediction matches a target at the frozen
+IoU threshold; it is 0 for negative frames and misses. Then run:
+
+```bash
+python scripts/freeze_phase26_development_rule.py \
+  --manifest data/external/imav2025/capture_manifest.csv \
+  --screen data/external/imav2025/admission_screen.json \
+  --dev-outcomes data/external/imav2025/dev_outcomes.csv \
+  --out data/external/imav2025/development_rule_lock.json
+```
+
+This rejects every test outcome row and records input and rule hashes. It
+does not certify annotation correctness, dataset admission, or test
+performance. Keep the test data sealed while making this choice.
 
 ## Frozen first question
 

@@ -38,7 +38,10 @@ bytes and call it the original Phase 25A run.
 - Paired Phase 25: recover exact Phase 23 `best.pt` and original inference
   versions, then pass all six published aggregate checks before exporting boxes.
 - Phase 26: run the [candidate admission protocol](docs/phase26_imav2025_preregistration.md)
-  before developing a reliability rule or opening a new test set.
+  against the verified official KIOS archive before freezing a development
+  threshold. The development-rule lock rejects test outcome rows. Admission
+  also requires independent session, annotation and rights review before the
+  new test set is opened.
 - v1.0: complete the manuscript, admission/paired-result record or an explicit
   scope amendment, release manifest, citation version and clean-clone check
   before tagging. No v1.0 release is claimed here.
