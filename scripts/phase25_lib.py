@@ -13,6 +13,7 @@ import re
 
 import numpy as np
 from PIL import Image
+from phase25_reconstruction_lock import LOCK_PATH, load_lock, verify_archive, verify_images
 
 
 CONDITIONS = ("clean", "blur", "low_light", "noise", "occlusion", "mixed")
@@ -179,6 +180,7 @@ def _validate_target_label(text: str, path: Path) -> int:
 
 def validate_phase25_inputs(
     *,
+    archive: Path | None = None,
     source_root: Path,
     stress_root: Path,
     baseline_weights: Path,
@@ -192,8 +194,11 @@ def validate_phase25_inputs(
     any dataset files. The caller must supply the original artifacts.
     """
     lock = load_input_lock(input_lock)
+    if archive is None:
+        raise ValueError("The checksum-verified KIOS source archive is required for the reconstruction gate")
     expected_phase23_sha256 = str(lock["phase23_robust"]["checkpoint_sha256"]).lower()
     for name, path in (
+        ("KIOS source archive", archive),
         ("source dataset", source_root),
         ("stress dataset", stress_root),
         ("baseline weights", baseline_weights),
@@ -275,6 +280,10 @@ def validate_phase25_inputs(
             inventory.append({"kind": f"{condition}_image", "path": f"stress/{condition}/images/test/{row['image']}", "sha256": sha256_file(image_dir / row["image"])})
             inventory.append({"kind": f"{condition}_label", "path": f"stress/{condition}/labels/test/{row['label']}", "sha256": sha256_file(label_path)})
 
+    reconstruction = load_lock()
+    verify_archive(archive, reconstruction)
+    condition_digests = verify_images(rows, source_root, stress_root, reconstruction)
+
     return {
         "frame_count": len(rows),
         "condition_count": len(CONDITIONS),
@@ -287,6 +296,9 @@ def validate_phase25_inputs(
         "baseline_weights_sha256": baseline_hash,
         "phase23_weights_sha256": phase23_hash,
         "input_lock_sha256": sha256_file(input_lock),
+        "reconstruction_lock_sha256": sha256_file(LOCK_PATH),
+        "source_archive_sha256": reconstruction["zenodo_archive_sha256"],
+        "condition_image_inventory_sha256": condition_digests,
         "baseline_actions_artifact_id": BASELINE_ARTIFACT_ID,
         "baseline_actions_artifact_sha256": BASELINE_ARTIFACT_SHA256,
         "input_lock": lock,

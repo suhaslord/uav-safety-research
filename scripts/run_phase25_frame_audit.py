@@ -21,7 +21,11 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 METHOD_PATHS = (
     "docs/phase25_protocol.md",
+    "docs/phase25_reconstruction_lock.json",
     "scripts/phase25_lib.py",
+    "scripts/phase25_reconstruction_lock.py",
+    "scripts/audit_kios_reconstruction.py",
+    "scripts/freeze_kios_reconstruction.py",
     "scripts/run_phase25_frame_audit.py",
     "scripts/analyze_phase25_failures.py",
     "scripts/build_real_image_stress_suite.py",
@@ -176,6 +180,7 @@ def _validate_aggregates(models, inference_settings, metric_tolerance, args, ref
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--archive", type=Path, required=True)
     parser.add_argument("--source-root", type=Path, required=True)
     parser.add_argument("--stress-root", type=Path, required=True)
     parser.add_argument("--baseline-weights", type=Path, required=True)
@@ -189,6 +194,7 @@ def main() -> int:
 
     try:
         inventory = validate_phase25_inputs(
+            archive=args.archive,
             source_root=args.source_root,
             stress_root=args.stress_root,
             baseline_weights=args.baseline_weights,
@@ -383,6 +389,9 @@ def main() -> int:
         "sequence_counts": inventory["sequence_counts"],
         "protected_manifest_sha256": inventory["manifest_sha256"],
         "input_lock_sha256": inventory["input_lock_sha256"],
+        "reconstruction_lock_sha256": inventory["reconstruction_lock_sha256"],
+        "source_archive_sha256": inventory["source_archive_sha256"],
+        "condition_image_inventory_sha256": inventory["condition_image_inventory_sha256"],
         "input_lock": inventory["input_lock"],
         "baseline_weights_sha256": inventory["baseline_weights_sha256"],
         "phase23_weights_sha256": inventory["phase23_weights_sha256"],

@@ -9,6 +9,8 @@ import hashlib
 import json
 from pathlib import Path
 
+from phase25_reconstruction_lock import LOCK_PATH, load_lock, verify_archive, verify_images
+
 ROOT = Path(__file__).resolve().parents[1]
 CONDITIONS = ("clean", "blur", "low_light", "noise", "occlusion", "mixed")
 SPLIT_SHA256 = "32623634069c4f3082b79a6a42bca408c636f4b626e5f7691276257999544905"
@@ -28,8 +30,8 @@ def read_csv(path: Path) -> list[dict[str, str]]:
 
 
 def audit(archive: Path, source: Path, stress: Path, baseline: Path) -> dict[str, object]:
-    if digest(archive, "md5") != "865515c2d8f5e9cd9b2ee1e1ec294270":
-        raise ValueError("2024 KIOS Zenodo archive checksum differs from the published MD5")
+    lock = load_lock()
+    verify_archive(archive, lock)
     if digest(baseline) != "3a1801b192d624f8dcdda4bc5d9a9157309000df67a4c30d62368c37901feddd":
         raise ValueError("Phase 22 baseline checkpoint differs from the recovered Actions artifact")
     split = source / "split_manifest.csv"
@@ -46,29 +48,15 @@ def audit(archive: Path, source: Path, stress: Path, baseline: Path) -> dict[str
     if splits != {"train": 252, "val": 64, "embargo": 20, "test": 86}:
         raise ValueError(f"Unexpected temporal split counts: {splits}")
 
-    names = {row["image"] for row in protected}
-    labels = {row["label"] for row in protected}
-    condition_digests: dict[str, str] = {}
-    for condition in CONDITIONS:
-        folder = stress / condition
-        image_dir, label_dir = folder / "images/test", folder / "labels/test"
-        if {path.name for path in image_dir.iterdir() if path.is_file()} != names:
-            raise ValueError(f"Incorrect protected image inventory for {condition}")
-        if {path.name for path in label_dir.iterdir() if path.is_file()} != labels:
-            raise ValueError(f"Incorrect protected label inventory for {condition}")
-        inventory = hashlib.sha256()
-        for row in protected:
-            label_path = label_dir / row["label"]
-            if label_path.read_bytes() != (source / "labels/test" / row["label"]).read_bytes():
-                raise ValueError(f"Source label changed in {condition}: {row['label']}")
-            image_path = image_dir / row["image"]
-            inventory.update(f"{row['image']}:{digest(image_path)}\n".encode())
-        condition_digests[condition] = inventory.hexdigest()
+    condition_digests = verify_images(protected, source, stress, lock)
 
     return {
         "status": "reconstructed_inputs_verified_phase25_predictions_blocked",
         "zenodo_record": "https://zenodo.org/records/13682584",
-        "zenodo_archive_md5": digest(archive, "md5"),
+        "zenodo_archive_md5": lock["zenodo_archive_md5"],
+        "zenodo_archive_sha256": lock["zenodo_archive_sha256"],
+        "reconstruction_lock_sha256": digest(LOCK_PATH),
+        "archive_derived_protected_image_count": len(lock["protected_test_files"]),
         "phase22_baseline_sha256": digest(baseline),
         "split_manifest_sha256": digest(split),
         "protected_manifest_sha256": digest(ROOT / "results/phase25_failure_atlas/protected_test_manifest.csv"),

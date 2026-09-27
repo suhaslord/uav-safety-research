@@ -16,6 +16,7 @@ from phase25_lib import validate_phase25_inputs  # noqa: E402
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--archive", type=Path, required=True, help="The exact checksum-verified KIOS 7z archive")
     parser.add_argument("--source-root", type=Path, required=True, help="Frozen YOLO split root")
     parser.add_argument("--stress-root", type=Path, required=True, help="Frozen six-condition test root")
     parser.add_argument("--baseline-weights", type=Path, required=True)
@@ -29,6 +30,7 @@ def main() -> int:
 
     try:
         inventory = validate_phase25_inputs(
+            archive=args.archive,
             source_root=args.source_root,
             stress_root=args.stress_root,
             baseline_weights=args.baseline_weights,
@@ -49,6 +51,8 @@ def main() -> int:
         "baseline_weights_sha256": inventory["baseline_weights_sha256"],
         "phase23_weights_sha256": inventory["phase23_weights_sha256"],
         "input_lock_sha256": inventory["input_lock_sha256"],
+        "reconstruction_lock_sha256": inventory["reconstruction_lock_sha256"],
+        "source_archive_sha256": inventory["source_archive_sha256"],
         "baseline_actions_artifact_id": inventory["baseline_actions_artifact_id"],
         "baseline_actions_artifact_sha256": inventory["baseline_actions_artifact_sha256"],
         "hashed_data_files": len(inventory["inventory"]),
