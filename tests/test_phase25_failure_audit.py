@@ -132,11 +132,24 @@ def _synthetic_output(tmp_path):
     boxes = []
     targets = []
     aggregates = []
+    reference_paths = {
+        "phase23": ROOT / "results/phase23_robust_detector/robustness_metrics.csv",
+        "comparison": ROOT / "results/phase23_robust_detector/robustness_comparison.csv",
+    }
+    with reference_paths["phase23"].open(newline="", encoding="utf-8") as handle:
+        phase23_reference = {row["condition"]: row for row in csv.DictReader(handle)}
+    with reference_paths["comparison"].open(newline="", encoding="utf-8") as handle:
+        comparison_reference = {row["condition"]: row for row in csv.DictReader(handle)}
     for model in ("baseline", "phase23"):
         for condition in ("clean", "blur", "low_light", "noise", "occlusion", "mixed"):
+            values = (
+                {"precision": 0.5, "recall": comparison_reference[condition]["baseline_recall"],
+                 "map50": comparison_reference[condition]["baseline_map50"], "map50_95": 0.4}
+                if model == "baseline" else
+                {name: phase23_reference[condition][name] for name in ("precision", "recall", "map50", "map50_95")}
+            )
             aggregates.append({
-                "model": model, "condition": condition,
-                "precision": 0.5, "recall": 0.5, "map50": 0.5, "map50_95": 0.4,
+                "model": model, "condition": condition, **values,
             })
     for frame_index, frame in enumerate(manifest):
         span = 0.5 + (frame_index % 7) * 0.05
@@ -203,6 +216,7 @@ def _synthetic_output(tmp_path):
         "phase": "phase25",
         "status": "predictions_generated",
         "aggregate_reproduction_passed": True,
+        "aggregate_reference_sha256": {name: sha256_file(path) for name, path in reference_paths.items()},
         "model_training_performed": False,
         "confidence_threshold_tuned_on_test": False,
         "protected_manifest_sha256": "8605cf1cbf9e8769c0324bf066078f9964f232ac3128131c8bd0b689bb7b64b7",
@@ -282,6 +296,9 @@ def test_analyzer_replays_matching_even_if_table_hashes_are_refreshed(tmp_path):
     ("table", "field", "value", "message"),
     [
         ("aggregate_validation.csv", "precision", "nan", "Invalid aggregate validation metric"),
+        ("aggregate_validation.csv", "recall", "0.999", "Aggregate reproduction disagrees with frozen reference"),
+        ("ground_truth_targets.csv", "matched_confidence", "nan", "Target match details disagree"),
+        ("ground_truth_targets.csv", "match_iou", "nan", "Target match details disagree"),
         ("frame_condition_metrics.csv", "source_brightness_mean", "nan", "Nonfinite image feature"),
         ("frame_condition_metrics.csv", "source_target_area_ratio", "0.01", "Image features differ across paired cases"),
     ],
@@ -305,6 +322,25 @@ def test_analyzer_rejects_corrupt_features_and_metrics_with_refreshed_hashes(tmp
     assert result.returncode == 2
     assert message in result.stderr
     assert not (output / "summary.json").exists()
+
+
+def test_analyzer_rejects_duplicate_aggregate_pair_even_with_twelve_rows(tmp_path):
+    output = _synthetic_output(tmp_path)
+    path = output / "aggregate_validation.csv"
+    with path.open(newline="", encoding="utf-8") as handle:
+        rows = list(csv.DictReader(handle))
+    rows[0] = rows[1].copy()
+    _write_csv(path, rows)
+    manifest_path = output / "run_manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["output_tables_sha256"][path.name] = sha256_file(path)
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    result = subprocess.run(
+        [sys.executable, str(ROOT / "scripts/analyze_phase25_failures.py"), "--results-dir", str(output)],
+        cwd=ROOT, capture_output=True, text=True,
+    )
+    assert result.returncode == 2
+    assert "duplicate or missing model-condition rows" in result.stderr
 
 
 @pytest.mark.parametrize("bad_source", ["observed_metric", "uncompared_metric", "reference_metric"])

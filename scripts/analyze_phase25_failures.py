@@ -136,14 +136,37 @@ def _validate_inputs(root: Path, manifest_path: Path) -> tuple[list[dict[str, st
             raise ValueError(f"Image features differ across paired cases for {view_key}")
         source_features_by_frame[frame_id] = source_values
         view_features_by_case[view_key] = view_values
-    if set(row["condition"] for row in aggregates) != set(CONDITIONS) or set(row["model"] for row in aggregates) != set(MODEL_LABELS):
-        raise ValueError("Aggregate validation table does not contain both models across all conditions")
-    if len(aggregates) != len(CONDITIONS) * len(MODEL_LABELS):
+    expected_aggregate_keys = {(model, condition) for model in MODEL_LABELS for condition in CONDITIONS}
+    if {(row["model"], row["condition"]) for row in aggregates} != expected_aggregate_keys or len(aggregates) != len(expected_aggregate_keys):
         raise ValueError("Aggregate validation table has duplicate or missing model-condition rows")
+    reference_paths = {
+        "phase23": ROOT / "results/phase23_robust_detector/robustness_metrics.csv",
+        "comparison": ROOT / "results/phase23_robust_detector/robustness_comparison.csv",
+    }
+    recorded_reference_hashes = run_manifest.get("aggregate_reference_sha256")
+    if recorded_reference_hashes != {name: sha256_file(path) for name, path in reference_paths.items()}:
+        raise ValueError("Aggregate references differ from the prediction run")
+    phase23_reference = {row["condition"]: row for row in _read_rows(reference_paths["phase23"])}
+    comparison_reference = {row["condition"]: row for row in _read_rows(reference_paths["comparison"])}
+    if set(phase23_reference) != set(CONDITIONS) or set(comparison_reference) != set(CONDITIONS):
+        raise ValueError("Frozen aggregate references do not contain all conditions")
+    tolerance = json.loads((ROOT / "docs/phase25_input_lock.json").read_text(encoding="utf-8"))["inference_settings"]["metric_tolerance"]
+    if not isinstance(tolerance, (float, int)) or not math.isfinite(tolerance) or not 0 <= tolerance <= 0.001:
+        raise ValueError("Invalid aggregate reproduction tolerance")
     for row in aggregates:
         if any(not math.isfinite(float(row[name])) or not 0.0 <= float(row[name]) <= 1.0
                for name in ("precision", "recall", "map50", "map50_95")):
             raise ValueError(f"Invalid aggregate validation metric for {row['model']} / {row['condition']}")
+        condition = row["condition"]
+        expected_metrics = (
+            {"recall": comparison_reference[condition]["baseline_recall"],
+             "map50": comparison_reference[condition]["baseline_map50"]}
+            if row["model"] == "baseline" else
+            {name: phase23_reference[condition][name] for name in ("precision", "recall", "map50", "map50_95")}
+        )
+        if any(not math.isfinite(float(expected)) or abs(float(row[name]) - float(expected)) > tolerance
+               for name, expected in expected_metrics.items()):
+            raise ValueError(f"Aggregate reproduction disagrees with frozen reference for {row['model']} / {condition}")
     box_counts: dict[tuple[str, str, str], list[int]] = {}
     metric_lookup = {(row["frame_id"], row["condition"], row["model"]): row for row in metrics}
     matched_targets: dict[tuple[str, str, str], set[int]] = {}
@@ -243,10 +266,14 @@ def _validate_inputs(root: Path, manifest_path: Path) -> tuple[list[dict[str, st
         if match is None:
             if any(row[name] not in {"", "None"} for name in ("matched_prediction_index", "matched_confidence", "match_iou")):
                 raise ValueError(f"Unmatched target carries prediction details for {key}")
-        elif (int(row["matched_prediction_index"]) != int(match["prediction_index"])
-              or abs(float(row["matched_confidence"]) - float(match["confidence"])) > 1e-9
-              or abs(float(row["match_iou"]) - float(match["match_iou"])) > 1e-9):
-            raise ValueError(f"Target match details disagree with the prediction table for {key}")
+        else:
+            matched_confidence = float(row["matched_confidence"])
+            match_iou = float(row["match_iou"])
+            if (int(row["matched_prediction_index"]) != int(match["prediction_index"])
+                    or not math.isfinite(matched_confidence) or not math.isfinite(match_iou)
+                    or abs(matched_confidence - float(match["confidence"])) > 1e-9
+                    or abs(match_iou - float(match["match_iou"])) > 1e-9):
+                raise ValueError(f"Target match details disagree with the prediction table for {key}")
     for key, row in metric_lookup.items():
         if target_indices.get(key, set()) != set(range(int(row["gt_count"]))):
             raise ValueError(f"Ground-truth target rows do not reconcile for {key}")
