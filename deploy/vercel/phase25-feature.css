@@ -15,6 +15,12 @@
 .phase25-feature__link{display:inline-flex;align-items:center;min-height:44px;padding:9px 17px;background:#3e6ae1;color:#fff;text-decoration:none;font-size:13px;font-weight:650;border-radius:4px;transition:background .2s ease,transform .2s ease}
 .phase25-feature__link:hover{background:#3058bf}.phase25-feature__link:active{transform:translateY(1px)}
 .phase25-feature__copy small{display:block;max-width:39ch;margin-top:24px;color:#636973;font-size:12px;line-height:1.55}
+.phase25-feature__proof,.atlas-inputs{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;align-items:center;gap:10px 26px;border-top:1px solid #e1e5ea;border-bottom:1px solid #e1e5ea}
+.phase25-feature__proof{grid-column:1/-1;margin-top:4px;padding:15px 0}
+.phase25-feature__proof span,.atlas-inputs span{display:block;color:#5a6470;font-size:12px;line-height:1.45}
+.phase25-feature__proof b{color:#171a20;font-size:18px;font-weight:620;font-variant-numeric:tabular-nums;margin-right:4px}
+.phase25-feature__proof a,.atlas-inputs a{display:inline-flex;align-items:center;min-height:44px;color:#3156b2;font-size:12px;font-weight:650;text-decoration:none}
+.phase25-feature__proof a:hover,.atlas-inputs a:hover{text-decoration:underline;text-underline-offset:4px}
 
 body.atlas .atlas-skip{position:absolute;left:16px;top:-100px;z-index:30;background:#fff;padding:10px 16px}
 body.atlas .atlas-skip:focus{top:8px}
@@ -23,6 +29,9 @@ body.atlas .atlas-hero h1{max-width:900px}
 body.atlas .atlas-hero .dek{max-width:760px}
 .atlas-status{display:flex;align-items:center;gap:16px;max-width:880px;margin-top:28px;padding:15px 18px;background:#f3f5f9;border-left:3px solid #3e6ae1;font-size:13px;line-height:1.5}
 .atlas-status strong{white-space:nowrap;color:#3156b2}.atlas-status span{color:#4d5663}
+.atlas-inputs{margin:12px 0 34px;padding:14px 0}
+.atlas-inputs strong{display:block;color:#171a20;font-size:clamp(26px,4vw,38px);font-weight:560;letter-spacing:-.05em;line-height:1.05;font-variant-numeric:tabular-nums}
+.atlas-inputs span{margin-top:4px}
 .atlas-visual{margin-top:24px}.atlas-visual__intro{display:flex;justify-content:space-between;align-items:end;gap:24px;margin-bottom:18px}
 .atlas-visual__intro span,.atlas-method>div>span,.atlas-next>div>span{color:#606a76;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
 .atlas-visual h2,.atlas-method h2,.atlas-next h2{margin:8px 0 0;font-size:clamp(28px,4vw,44px);line-height:1.08;letter-spacing:-.045em;font-weight:560}
@@ -39,6 +48,7 @@ body.atlas .atlas-hero .dek{max-width:760px}
 :is(.phase25-feature a,.atlas a):focus-visible{outline:2px solid #3e6ae1;outline-offset:3px}
 @media(max-width:900px){.phase25-feature__heading{display:block}.phase25-feature__heading>p{max-width:58ch;margin-top:18px}.phase25-feature__body{grid-template-columns:1fr}.phase25-feature__copy{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px 28px}.phase25-feature__copy .phase25-feature__state,.phase25-feature__copy small{grid-column:1/-1}.phase25-feature__copy p{margin:6px 0}.atlas-method,.atlas-next{grid-template-columns:1fr;gap:24px}}
 @media(max-width:600px){.phase25-feature{padding:65px 0}.phase25-feature__heading h2{font-size:clamp(36px,10vw,48px)}.phase25-feature__images,.atlas-visual__pair{gap:5px}.phase25-feature__images figcaption,.atlas-visual__pair figcaption{bottom:8px;left:8px;font-size:10px;padding:5px 7px}.phase25-feature__copy{display:block}.phase25-feature__copy p{margin:17px 0}.phase25-feature__copy small{margin-top:17px}.atlas-status{display:block}.atlas-status span{display:block;margin-top:5px}.atlas-visual__pair img{aspect-ratio:1;object-position:center}.atlas-method{margin-top:60px}.atlas-next{margin-top:65px}.atlas-continue{flex-wrap:wrap;margin-bottom:55px}.atlas-visual h2,.atlas-method h2,.atlas-next h2{font-size:clamp(28px,9vw,38px)}}
+@media(max-width:700px){.phase25-feature__proof,.atlas-inputs{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 16px}.phase25-feature__proof a,.atlas-inputs a{grid-column:1/-1}.atlas-inputs{margin-top:6px}}
 @media(prefers-reduced-motion:reduce){.phase25-feature__link{transition:none}}
 .archive-current{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 30px;align-items:center;margin:0 0 30px;padding:24px 28px;border-top:2px solid #3e6ae1;background:#f3f5f9}
 .archive-current span{grid-column:1/-1;color:#606a76;font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:700}
