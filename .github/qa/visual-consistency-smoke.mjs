@@ -7,7 +7,7 @@ let failed = 0;
 const add = (name, ok, details = {}) => { results.push({ name, ok, ...details }); if (!ok) failed++; };
 
 const routes = [
-  '/', '/phases/', '/failure-atlas/',
+  '/', '/phases/', '/failure-atlas/', '/reproduce/',
   '/phases/phase1/', '/phases/phase2/', '/phases/phase3/', '/phases/phase4/', '/phases/phase5/',
   '/phases/phase6/', '/phases/phase6b/', '/phases/phase7/', '/phases/phase8/', '/phases/phase9/',
   '/phases/phase10/', '/phases/phase10r/', '/phases/phase11/', '/phases/phase12/',

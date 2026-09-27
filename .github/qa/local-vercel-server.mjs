@@ -59,6 +59,9 @@ const server = http.createServer(async (req, res) => {
   if (/^\/failure-atlas\/?$/i.test(p)) {
     return sendFile(res, path.join(deployRoot, 'failure-atlas.html'));
   }
+  if (/^\/reproduce\/?$/i.test(p)) {
+    return sendFile(res, path.join(deployRoot, 'reproduce.html'));
+  }
 
   // Mirror deploy/vercel/vercel.json: the detector reports and frozen evidence
   // pages must win before the generic historical route.

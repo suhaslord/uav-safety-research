@@ -37,10 +37,11 @@ known KIOS frames.
 
 ## Freeze before looking at new outcomes
 
-1. Recover and freeze the original Phase 23 weights and inference environment
-   under `docs/phase25_input_lock.json`. Reconcile both models with published
-   Phase 23 aggregate metrics before interpreting Phase 25 results. The same
-   frozen detectors must be used for Phase 26.
+1. Use the recovered, frozen Phase 22 detector as the minimum Phase 26 model.
+   If the original Phase 23 weights and inference environment are recovered,
+   reconcile all six published aggregates before admitting that detector or
+   interpreting paired Phase 25 results. If recovery fails, record a
+   baseline-only amendment; never replace Phase 23 with a retrained model.
 2. Source a **distinct** labeled real-image development collection and a
    separately collected new evaluation collection. Record origin, permission,
    capture session or video ID, annotation class and quality review, frame
@@ -51,7 +52,8 @@ known KIOS frames.
 3. Before any evaluation results are viewed, specify the detector output to
    score, a frame-level target outcome, a small prespecified set of candidate
    scores, the choice rule and its acceptable tradeoff on development data,
-   missing-detection handling, and the final evaluation summaries. A detector
+   missing-detection and empty-target handling, and the final evaluation
+   summaries. A detector
    confidence is a localization-related score, not a probability of safe
    landing. The rule can flag predictions for review; it cannot certify a
    landing or make an autonomous safety decision.
@@ -69,3 +71,27 @@ Publish a Phase 26 results page only when both independent collection
 manifests, overlap/annotation audits, frozen model and rule hashes, and a
 reproducible evaluation report exist. Until then, keep the site at the Phase 25
 retrospective and describe Phase 26 as a separate-data study in preparation.
+
+## Candidate-specific amendment, before external predictions
+
+The [IMAV 2025 admission plan](phase26_imav2025_preregistration.md) specifies
+the ontology, empty-target policy, prediction-only score, and fallback when
+capture sessions cannot be verified. These rules are provisional until the
+candidate input hashes, session provenance, and annotation audit are recorded.
+No IMAV model outcomes have been inspected or declared independent here.
+
+The first reliability score is the maximum score of the frozen detector's
+post-NMS landing-target predictions; use zero when no prediction exists. It
+must never take ground-truth boxes or labels as inputs. For the primary
+endpoint, assess *afterward* whether the highest-scoring prediction localizes
+an annotated target at IoU >= 0.50. A predicted target on an empty-target
+frame is incorrect. An empty-target frame with no prediction has no correct
+localization to accept: the score is zero and the rule abstains for any positive
+threshold. Report empty-target counts and false predictions separately.
+
+On development data only, choose one strictly positive threshold from the
+prespecified grid in the candidate-specific protocol. Save the entire choice
+trace, selected threshold, code commit, and hashes before opening test data.
+Do not use Phase 25 outcomes to choose that threshold. If session provenance,
+label geometry, near-duplicate adjudication, or rights are unresolved, the
+candidate remains pending or development-only, never an admitted sealed test.

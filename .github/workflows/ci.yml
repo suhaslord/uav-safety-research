@@ -34,6 +34,7 @@ jobs:
           python scripts/build_phase25_site_data.py --check
           node --check deploy/vercel/failure-atlas.js
           python scripts/build_failure_atlas_data.py --check
+          python scripts/reproduce_release.py --skip-site > /dev/null
       - name: Check Phase 8 Trace Lab JavaScript
         run: node --check phase8_dashboard/app.js
       - name: Unit tests
