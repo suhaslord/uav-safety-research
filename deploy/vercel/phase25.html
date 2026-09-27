@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="description" content="Phase 25 Failure Atlas: a retrospective, frame-by-frame audit of two frozen landing-pad detectors. Protocol ready; predictions await recovered original inputs.">
+  <title>Phase 25 — Failure Atlas · AegisLand</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=5">
+  <link rel="stylesheet" href="/phase-report.css?v=1">
+  <link rel="stylesheet" href="/site-refresh.css?v=2">
+  <link rel="stylesheet" href="/phase25-feature.css?v=1">
+</head>
+<body class="atlas">
+  <a class="atlas-skip" href="#main">Skip to Phase 25</a>
+  <header class="top"><a class="brand" href="/">AEGISLAND</a><nav class="nav" aria-label="Phase navigation"><a href="/phases/">All phases</a><a href="/phases/phase24/">Phase 24</a><a href="/">Research home</a></nav></header>
+  <nav class="record-path" aria-label="Research track"><strong>Real-camera detector track · Phase 25</strong><a href="/phases/phase24/">← Published aggregate audit</a></nav>
+  <main id="main">
+    <section class="hero atlas-hero">
+      <p class="eyebrow">Phase 25 / Failure Atlas</p>
+      <h1>Find the misses behind the average.</h1>
+      <p class="dek">Which frames did the robust detector recover, and which did it lose?</p>
+      <div class="atlas-status"><strong>Analysis in progress</strong><span>The method is frozen. Frame-level results await the original model, images, and inference versions.</span></div>
+    </section>
+
+    <section class="atlas-visual" aria-labelledby="visual-title">
+      <div class="atlas-visual__intro"><span>01 / Camera stress</span><h2 id="visual-title">The same pad, a harder view.</h2></div>
+      <div class="atlas-visual__pair">
+        <figure><img src="/media/perception/kios_clean.jpg" alt="Landing pad in a clean camera view used as an illustration of the benchmark setup" width="600" height="600"><figcaption>Clean</figcaption></figure>
+        <figure><img src="/media/perception/kios_occlusion.jpg" alt="The landing pad with a generated occlusion used as an illustration of camera stress" width="600" height="600"><figcaption>Generated occlusion</figcaption></figure>
+      </div>
+      <p class="atlas-caption">Illustrative stress images from the existing KIOS presentation. These are not Phase 25 predictions or proof of a detector failure.</p>
+    </section>
+
+    <section class="atlas-method" aria-labelledby="method-title">
+      <div><span>02 / What we will measure</span><h2 id="method-title">Every pad. Every condition. Both detectors.</h2></div>
+      <ol>
+        <li><b>01</b><p>Match predicted boxes to annotated pads one-to-one.</p></li>
+        <li><b>02</b><p>Count recovered, regressed, and shared frame outcomes.</p></li>
+        <li><b>03</b><p>Check whether detector scores track box correctness.</p></li>
+      </ol>
+    </section>
+
+    <section class="atlas-next" aria-labelledby="next-title">
+      <div><span>03 / Publication gate</span><h2 id="next-title">Results come after the inputs.</h2><p>The 86-frame set was already used in Phases 23–24. Phase 25 is a retrospective audit, not a fresh confirmation set.</p></div>
+      <div class="atlas-next__detail"><p>Still needed: the exact Phase 23 checkpoint, original KIOS source images and labels, and inference software versions. The pipeline checks these and the published aggregates before reporting frame outcomes.</p><a href="https://github.com/suhaslord/uav-safety-research/blob/codex/phase25-failure-atlas-20260926/docs/phase25_protocol.md" target="_blank" rel="noreferrer">Read the frozen protocol ↗</a><a href="https://github.com/suhaslord/uav-safety-research/pull/125" target="_blank" rel="noreferrer">Inspect the implementation ↗</a></div>
+    </section>
+    <p class="atlas-boundary">Detector box correctness cannot establish landing safety or controller performance. No cutoff will be selected from this reused test set.</p>
+    <nav class="atlas-continue" aria-label="Continue reading"><a href="/phases/phase24/">← Phase 24 results</a><a href="/phases/">All phase records →</a></nav>
+  </main>
+  <footer><span>AEGISLAND · Phase 25 retrospective detector audit in progress</span><span><a href="/">Research home</a></span></footer>
+</body>
+</html>

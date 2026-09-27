@@ -14,7 +14,8 @@ const routes = [
   { name: 'phase18-protected-failure', path: '/phases/phase18/' },
   { name: 'phase22-final', path: '/phases/phase22/' },
   { name: 'phase23-detector', path: '/phases/phase23/' },
-  { name: 'phase24-robustness-audit', path: '/phases/phase24/' }
+  { name: 'phase24-robustness-audit', path: '/phases/phase24/' },
+  { name: 'phase25-failure-atlas', path: '/phases/phase25/' }
 ];
 const viewports = [
   { name: 'desktop', width: 1440, height: 1000 },

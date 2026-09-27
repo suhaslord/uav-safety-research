@@ -13,7 +13,7 @@ const routes = [
   '/phases/phase10/', '/phases/phase10r/', '/phases/phase11/', '/phases/phase12/',
   '/phases/phase13a/', '/phases/phase13b/', '/phases/phase13c/', '/phases/phase14/', '/phases/phase15/',
   '/phases/phase16/', '/phases/phase17/', '/phases/phase18/', '/phases/phase19/', '/phases/phase20/',
-  '/phases/phase21/', '/phases/phase22/', '/phases/phase23/', '/phases/phase24/'
+  '/phases/phase21/', '/phases/phase22/', '/phases/phase23/', '/phases/phase24/', '/phases/phase25/'
 ];
 
 const launchOptions = { headless: true };
@@ -154,6 +154,10 @@ try {
     add('home-claim-boundary-visible', /simulation_only=true/.test(homeText) && /safety_acceptance=false/.test(homeText) && /controller_tuning_allowed=false/.test(homeText));
     const phase23Links = await page.locator('a[href*="phase23"]').count();
     add('home-links-phase23-detector', phase23Links > 0, { phase23Links });
+    add('home-features-phase25-with-pending-status',
+      await page.locator('#top a[href="/phases/phase25/"]').count() === 1
+        && await page.locator('#phase25 .phase25-feature__images img').count() === 2
+        && /results pending/i.test(await page.locator('#phase25').innerText()));
     await page.close();
     await context.close();
   }
@@ -214,6 +218,18 @@ try {
     }));
     add('phase24-renders-four-data-driven-charts', phase24.chartCount === 4 && phase24.conditionRows === 6, phase24);
     add('phase24-labels-reanalysis-and-evidence-limits', /What the average hides/i.test(phase24.title) && /Reanalysis only/i.test(phase24.provenance) && phase24.noHorizontalOverflow, phase24);
+    await page.goto(BASE + '/phases/phase25/', { waitUntil: 'domcontentloaded', timeout: 45000 });
+    const phase25 = await page.evaluate(() => ({
+      title: document.querySelector('h1')?.textContent || '',
+      status: document.querySelector('.atlas-status')?.textContent || '',
+      images: document.querySelectorAll('.atlas-visual__pair img').length,
+      text: document.querySelector('main')?.innerText || '',
+      noHorizontalOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth <= 1
+    }));
+    add('phase25-shows-method-and-honest-pending-status',
+      /Find the misses/i.test(phase25.title) && /original model, images, and inference versions/i.test(phase25.status)
+      && phase25.images === 2 && /retrospective audit/i.test(phase25.text)
+      && phase25.noHorizontalOverflow, phase25);
 
     const phaseChecks = [
       ['/phases/phase1/', /First safety supervisor/i, /HOLD \/ ABORT/i],
