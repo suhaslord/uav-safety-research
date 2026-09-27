@@ -52,7 +52,7 @@
   "reference_sha256": "733b2ad47a329c7930d6e317902dcfebf0f423be09f0e219d76ac232c29c3477",
   "protected_manifest_sha256": "8605cf1cbf9e8769c0324bf066078f9964f232ac3128131c8bd0b689bb7b64b7",
   "method_sha256": {
-    "scripts/run_phase25_baseline_diagnostic.py": "ab044e312699975ec7cfac9f5e396ff75ad6d82e2af31b0fdac15f252205de5d",
+    "scripts/run_phase25_baseline_diagnostic.py": "beed9c649008144aaf6bc590ca72de6338eaa4670b5553b9df1d617d4a8a0d58",
     "scripts/phase25_lib.py": "9e215c57a59e2130225ffd3518fcfd657071a483b048af6f64ebef5147e6d6f0",
     "scripts/run_phase25_frame_audit.py": "8727c6c6aafad45895c11518da798e3cb567a07a250db73449de01ceb63eee59",
     "scripts/audit_kios_reconstruction.py": "c99db28554047c7777a5c2ef0c4ec90ecfa2796b98390d07528025e79617479e"

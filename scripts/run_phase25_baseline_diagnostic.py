@@ -30,6 +30,16 @@ REFERENCE = ROOT / "results/phase23_robust_detector/robustness_comparison.csv"
 PROTECTED = ROOT / "results/phase25_failure_atlas/protected_test_manifest.csv"
 INPUT_LOCK = ROOT / "docs/phase25_input_lock.json"
 SAMPLE_FRAME = "land_pad2__2100.jpg"  # Existing site illustration, chosen before inference.
+FROZEN_RUNTIME = {"python": "3.12.14", "torch": "2.9.1", "ultralytics": "8.4.152",
+                  "numpy": "2.5.3", "Pillow": "12.3.0"}
+
+
+def checked_runtime() -> dict[str, str]:
+    actual = {"python": platform.python_version(), **{name: importlib.metadata.version(name)
+              for name in ("torch", "ultralytics", "numpy", "Pillow")}}
+    if actual != FROZEN_RUNTIME:
+        raise ValueError(f"Inference runtime differs from frozen reproduction: {actual} != {FROZEN_RUNTIME}")
+    return actual
 
 
 def read_rows(path: Path) -> list[dict[str, str]]:
@@ -66,6 +76,7 @@ def write_boxes(path: Path, rows: list[dict[str, object]]) -> None:
 def run(args: argparse.Namespace) -> None:
     if args.out.exists() and any(args.out.iterdir()):
         raise ValueError(f"Output exists: {args.out}. Use a new directory.")
+    runtime = checked_runtime()  # A matching aggregate alone cannot prove the same box decisions.
     verified = audit(args.archive, args.source, args.stress, args.baseline)
     lock = json.loads(INPUT_LOCK.read_text(encoding="utf-8"))
     settings = lock["inference_settings"]["baseline"]
@@ -179,8 +190,7 @@ def run(args: argparse.Namespace) -> None:
         "input_verification": {key: value for key, value in verified.items() if key != "limits"},
         "source_archive_sha256": sha256_file(args.archive),
         "checkpoint_sha256": sha256_file(args.baseline),
-        "runtime": {"python": platform.python_version(), **{name: importlib.metadata.version(name)
-                    for name in ("torch", "ultralytics", "numpy", "Pillow")}},
+        "runtime": runtime,
         "inference": settings,
         "matching": "one-to-one, confidence-ranked, class 0, IoU >= 0.50",
         "reference_sha256": sha256_file(REFERENCE),

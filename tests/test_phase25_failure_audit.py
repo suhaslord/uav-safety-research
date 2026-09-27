@@ -24,6 +24,15 @@ from phase25_lib import (  # noqa: E402
     validate_phase25_inputs,
 )
 from run_phase25_frame_audit import _validate_aggregates  # noqa: E402
+import run_phase25_baseline_diagnostic as baseline_diagnostic  # noqa: E402
+
+
+def test_baseline_reproduction_rejects_changed_inference_runtime(monkeypatch):
+    monkeypatch.setattr(baseline_diagnostic.platform, "python_version", lambda: "0.0.0")
+    monkeypatch.setattr(baseline_diagnostic.importlib.metadata, "version",
+                        lambda name: baseline_diagnostic.FROZEN_RUNTIME[name])
+    with pytest.raises(ValueError, match="Inference runtime differs"):
+        baseline_diagnostic.checked_runtime()
 
 
 def test_frozen_manifest_has_86_frames_and_two_source_sequences():
