@@ -102,6 +102,8 @@ The protected split and detector comparison are complete: [initial detector base
 
 Phase 25 has a frozen retrospective [protocol](docs/phase25_protocol.md) and [input audit](docs/phase25_reconstruction_audit.json). The original Phase 22 checkpoint reproduces all six published baseline aggregates and now has [real box-level and frame-level diagnostic results](docs/phase25_baseline_diagnostic.md) across 516 verified views. Explore them in the [Failure Atlas](https://aegisland-research-cockpit.vercel.app/failure-atlas/). The original Phase 23 checkpoint and inference versions are still missing, so paired recovered/regressed outcomes remain pending. This previously used set cannot validate a new reliability rule. Phase 26 has a [separate-data protocol](docs/phase26_protocol.md); its first candidate, the older KIOS archive, failed the [duplicate screen](docs/phase26_candidate_2022_audit.json) on all 422 real frames.
 
+The [reproduction page](https://aegisland-research-cockpit.vercel.app/reproduce/) and [read-only verification command](REPRODUCE.md) check the committed Phase 25A hashes and site snapshots. The [Phase 26 IMAV candidate protocol](docs/phase26_imav2025_preregistration.md) now freezes a prediction-only score, empty-target behavior, and a session-level admission screen before any new test outcomes. IMAV is not yet an admitted independent test set or a published Phase 26 result.
+
 If the original Windows training folder is available, run `py scripts\bundle_phase23_checkpoint.py` there and transfer its ignored `data/external/phase25_inputs/phase23_recovery_bundle.zip` to the audit workspace. The bundle records a candidate hash and observed package versions; aggregate reconciliation still gates any Phase 25 results.
 
 ## Research record

@@ -85,6 +85,7 @@ def test_vercel_routes_use_packaged_frozen_and_legacy_assets() -> None:
     assert "/phase25.html" in destinations
     assert "/failure-atlas.html" in destinations
     assert {"/failure-atlas", "/failure-atlas/"} == {item["source"] for item in rewrites if item["destination"] == "/failure-atlas.html"}
+    assert {"/reproduce", "/reproduce/"} == {item["source"] for item in rewrites if item["destination"] == "/reproduce.html"}
     phase23_sources = {item["source"] for item in rewrites if item["destination"] == "/phase23.html"}
     assert "/phases/phase23" in phase23_sources and "/phases/phase23/" in phase23_sources
     phase24_sources = {item["source"] for item in rewrites if item["destination"] == "/phase24.html"}
