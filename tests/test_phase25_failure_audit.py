@@ -1,6 +1,7 @@
 import csv
 import json
 from collections import Counter
+from types import SimpleNamespace
 from pathlib import Path
 import subprocess
 import sys
@@ -20,6 +21,7 @@ from phase25_lib import (  # noqa: E402
     read_protected_manifest,
     validate_phase25_inputs,
 )
+from run_phase25_frame_audit import _validate_aggregates  # noqa: E402
 
 
 def test_frozen_manifest_has_86_frames_and_two_source_sequences():
@@ -183,3 +185,42 @@ def test_analyzer_reconciles_synthetic_frame_outputs_and_writes_figures(tmp_path
     assert (output / "figures/failure_matrix.png").is_file()
     assert (output / "figures/confidence_reliability.png").is_file()
     assert (output / "confidence_distribution.csv").is_file()
+
+
+@pytest.mark.parametrize("bad_source", ["observed_metric", "reference_metric"])
+def test_aggregate_reproduction_rejects_non_finite_metrics(tmp_path, bad_source):
+    conditions = ("clean", "blur", "low_light", "noise", "occlusion", "mixed")
+    box = SimpleNamespace(mp=0.8, mr=0.75, map50=0.7, map=0.6)
+    if bad_source == "observed_metric":
+        box.mr = float("nan")
+
+    class FakeModel:
+        def val(self, **kwargs):
+            return SimpleNamespace(box=box)
+
+    comparison = {
+        condition: {"baseline_recall": 0.75, "baseline_map50": 0.7}
+        for condition in conditions
+    }
+    phase23 = {
+        condition: {"precision": 0.8, "recall": 0.75, "map50": 0.7, "map50_95": 0.6}
+        for condition in conditions
+    }
+    if bad_source == "reference_metric":
+        comparison["clean"]["baseline_recall"] = float("inf")
+
+    with pytest.raises(
+        RuntimeError,
+        match=r"non-finite metrics for baseline/clean: recall",
+    ):
+        _validate_aggregates(
+            models={"baseline": FakeModel(), "phase23": FakeModel()},
+            inference_settings={
+                "baseline": {"imgsz": 320, "confidence_floor": 0.001, "nms_iou": 0.7, "max_det": 300, "batch": 1, "workers": 0, "device": "cpu"},
+                "phase23": {"imgsz": 480, "confidence_floor": 0.001, "nms_iou": 0.7, "max_det": 300, "batch": 1, "workers": 0, "device": "cpu"},
+            },
+            metric_tolerance=0.001,
+            args=SimpleNamespace(stress_root=tmp_path),
+            reference={"comparison": comparison, "phase23": phase23},
+            temp_root=tmp_path,
+        )
