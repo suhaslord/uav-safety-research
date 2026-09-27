@@ -14,11 +14,14 @@ import hashlib
 import json
 from pathlib import Path
 import re
+from tempfile import TemporaryDirectory
 
 from PIL import Image, ImageOps
 
 SUFFIXES = {".jpg", ".jpeg", ".png", ".bmp", ".tif", ".tiff"}
 FIELDS = {"path", "partition", "session_id", "source_video_id", "target_count", "sha256"}
+OFFICIAL_KIOS_SHA256 = "9d27a3e9616c188fb72a727633705735da5df168ce47efeed389dcb3455fdbdb"
+KIOS_REAL_PREFIX = "airisim_dataset2/Real_images_tight_labels/"
 
 
 def digest(path: Path) -> str:
@@ -49,8 +52,35 @@ def normalized_name(path: Path) -> str:
     return re.sub(r"^\d+_", "", path.name.casefold())
 
 
+def verify_reference_archive(reference_root: Path, references: list[Path], archive: Path) -> str:
+    """Compare *every* supplied real image to the independently verified 7z bytes."""
+    if digest(archive) != OFFICIAL_KIOS_SHA256:
+        raise ValueError("KIOS reference archive differs from the frozen Zenodo download")
+    try:
+        import py7zr
+    except ImportError as exc:
+        raise RuntimeError("Install py7zr to verify the complete KIOS reference inventory") from exc
+    names = {p.relative_to(reference_root).as_posix() for p in references}
+    if any("/" in name for name in names):
+        raise ValueError("KIOS reference images must be directly in Real_images_tight_labels")
+    with TemporaryDirectory(prefix="phase26-kios-reference-") as directory:
+        with py7zr.SevenZipFile(archive) as source:
+            members = {name for name in source.getnames()
+                       if name.startswith(KIOS_REAL_PREFIX) and name.lower().endswith(".jpg")}
+            expected = {KIOS_REAL_PREFIX + name for name in names}
+            if members != expected:
+                raise ValueError("Extracted KIOS image inventory differs from the verified archive")
+            source.extract(path=directory, targets=sorted(expected))
+        extracted = Path(directory) / KIOS_REAL_PREFIX
+        for reference in references:
+            if digest(reference) != digest(extracted / reference.name):
+                raise ValueError(f"Extracted KIOS image differs from verified archive: {reference.name}")
+    return OFFICIAL_KIOS_SHA256
+
+
 def audit(reference_root: Path, candidate_root: Path, manifest_path: Path,
-          expected_reference_count: int = 422, near_distance: int = 8) -> dict[str, object]:
+          expected_reference_count: int = 422, near_distance: int = 8,
+          reference_archive: Path | None = None) -> dict[str, object]:
     if not 0 <= near_distance <= 64:
         raise ValueError("near_distance must be between 0 and 64")
     reference_root, candidate_root = reference_root.resolve(), candidate_root.resolve()
@@ -58,6 +88,8 @@ def audit(reference_root: Path, candidate_root: Path, manifest_path: Path,
     candidates = images_under(candidate_root)
     if len(references) != expected_reference_count or not candidates:
         raise ValueError("Reference count mismatch or no candidate images")
+    archive_sha = (verify_reference_archive(reference_root, references, reference_archive)
+                   if reference_archive is not None else None)
     with manifest_path.open(newline="", encoding="utf-8") as handle:
         reader = csv.DictReader(handle)
         if not reader.fieldnames or not FIELDS.issubset(reader.fieldnames):
@@ -71,6 +103,8 @@ def audit(reference_root: Path, candidate_root: Path, manifest_path: Path,
     videos: dict[str, set[str]] = {}
     image_rows = []
     reasons = []
+    if archive_sha is None:
+        reasons.append("KIOS_reference_archive_not_verified")
     for row in records:
         relative = Path(row["path"])
         path = (candidate_root / relative).resolve()
@@ -146,6 +180,7 @@ def audit(reference_root: Path, candidate_root: Path, manifest_path: Path,
     return {
         "status": "blocked" if reasons else "screened_pending_provenance_ontology_rights_review",
         "candidate_manifest_sha256": digest(manifest_path),
+        "reference_archive_sha256": archive_sha,
         "reference_count": len(references), "candidate_count": len(image_rows),
         "empty_target_count": sum(row["target_count"] == 0 for row in image_rows),
         "dev_count": sum(row["partition"] == "dev" for row in image_rows),
@@ -164,10 +199,12 @@ def main() -> int:
     parser.add_argument("--manifest", type=Path, required=True)
     parser.add_argument("--expected-reference-count", type=int, default=422)
     parser.add_argument("--near-distance", type=int, default=8)
+    parser.add_argument("--reference-archive", type=Path,
+                        help="Official 7z archive; required for a non-blocked screen")
     parser.add_argument("--out", type=Path)
     args = parser.parse_args()
     report = audit(args.reference_root, args.candidate_root, args.manifest,
-                   args.expected_reference_count, args.near_distance)
+                   args.expected_reference_count, args.near_distance, args.reference_archive)
     output = json.dumps(report, indent=2) + "\n"
     if args.out:
         if args.out.exists():
