@@ -8,6 +8,7 @@ import csv
 from datetime import datetime, timezone
 import importlib.metadata
 import json
+import math
 from pathlib import Path
 import platform
 import subprocess
@@ -127,6 +128,16 @@ def _validate_aggregates(models, inference_settings, metric_tolerance, args, ref
             )
             values = _metric_values(metrics)
             expected = expected_by_model[model_name][condition]
+            non_finite = [
+                metric
+                for metric, expected_value in expected.items()
+                if not math.isfinite(expected_value) or not math.isfinite(values[metric])
+            ]
+            if non_finite:
+                raise RuntimeError(
+                    f"Aggregate reproduction produced non-finite metrics for "
+                    f"{model_name}/{condition}: {', '.join(non_finite)}"
+                )
             mismatches = {
                 metric: {"expected": expected_value, "actual": values[metric]}
                 for metric, expected_value in expected.items()
