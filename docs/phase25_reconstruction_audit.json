@@ -1,0 +1,25 @@
+{
+  "status": "reconstructed_inputs_verified_phase25_predictions_blocked",
+  "zenodo_record": "https://zenodo.org/records/13682584",
+  "zenodo_archive_md5": "865515c2d8f5e9cd9b2ee1e1ec294270",
+  "phase22_baseline_sha256": "3a1801b192d624f8dcdda4bc5d9a9157309000df67a4c30d62368c37901feddd",
+  "split_manifest_sha256": "32623634069c4f3082b79a6a42bca408c636f4b626e5f7691276257999544905",
+  "protected_manifest_sha256": "8605cf1cbf9e8769c0324bf066078f9964f232ac3128131c8bd0b689bb7b64b7",
+  "split_counts": {
+    "train": 252,
+    "val": 64,
+    "embargo": 20,
+    "test": 86
+  },
+  "condition_count": 6,
+  "frame_condition_count": 516,
+  "reconstructed_condition_image_inventory_sha256": {
+    "clean": "2412380094b505c1c21e4dfba9333e534d00ac77ac48fcf12b6b72d709c85316",
+    "blur": "7972aa99fa146e976a06a85882ac91e4ff774a872a536c60111e27537a924b90",
+    "low_light": "18b6de1b8d0128a26c2ade3c38cf57ea447c905e8d74e9e43d38def5677ceeba",
+    "noise": "4a87c6a3027af3ea28bb03b5d05698dce5807b152dcba9bb82c43e598e76c48e",
+    "occlusion": "53ded78dc75e3cc119f2094e8395a30b71487f5c0c2a45419bf733cf20030ef3",
+    "mixed": "f04637f9124a56f91fe76e8f249e173aaede0a2a26ec8f905040f179713bc530"
+  },
+  "limits": "Original Phase 23 checkpoint and inference package versions absent; original stress-image hashes unpublished; no detector predictions produced."
+}

@@ -1,0 +1,9 @@
+{
+  "status": "rejected_overlap",
+  "reference_image_count": 422,
+  "candidate_archive_sha256": "e4f77dc9817f81a5adc348e250dcad9db2609b8dfa155d2d9a6e622414e42973",
+  "candidate_image_count": 1921,
+  "reference_exact_byte_matches": 422,
+  "reference_matching_source_names": 422,
+  "limitations": "A pass is not evidence of independence: screen perceptual near-duplicates, source sequences, annotations, rights, and collection history before assigning any development or new evaluation split."
+}
