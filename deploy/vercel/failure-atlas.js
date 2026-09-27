@@ -33,8 +33,10 @@
     els['box-layer'].replaceChildren();
     if(els['show-gt'].checked)for(const box of item.gt) addBox(box,'gt','GT');
     if(els['show-baseline'].checked){
-      // Render the highest scoring boxes first, capped for visual clarity; every result remains counted above.
-      for(const box of item.boxes.slice(0,60)) addBox(box,box[6]?'tp':'fp',`${box[6]?'TP':'FP'} ${value(box[4])}`);
+      // Always draw matched targets, even when their score falls below the display floor.
+      const visible=item.boxes.slice(0,60);
+      for(const box of item.boxes)if(box[6]&&!visible.includes(box))visible.push(box);
+      for(const box of visible) addBox(box,box[6]?'tp':'fp',`${box[6]?'TP':'FP'} ${value(box[4])}`);
     }
     els['baseline-scene'].title=`${item.count} predictions; ${item.omitted} below display score 0.01. Matching uses every box ≥ 0.001.`;
     els['conditions'].querySelectorAll('button').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.condition===condition)));
