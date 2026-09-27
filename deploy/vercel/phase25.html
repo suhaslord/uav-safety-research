@@ -8,7 +8,8 @@
   <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=5">
   <link rel="stylesheet" href="/phase-report.css?v=1">
   <link rel="stylesheet" href="/site-refresh.css?v=2">
-  <link rel="stylesheet" href="/phase25-feature.css?v=1">
+  <link rel="stylesheet" href="/phase25-feature.css?v=2">
+  <script defer src="/phase25-explorer.js?v=1"></script>
 </head>
 <body class="atlas">
   <a class="atlas-skip" href="#main">Skip to Phase 25</a>
@@ -19,16 +20,21 @@
       <p class="eyebrow">Phase 25 / Failure Atlas</p>
       <h1>Find the misses behind the average.</h1>
       <p class="dek">Which frames did the robust detector recover, and which did it lose?</p>
-      <div class="atlas-status"><strong>Analysis in progress</strong><span>The method is frozen. Frame-level results await the original model, images, and inference versions.</span></div>
+      <div class="atlas-status"><strong>Analysis in progress</strong><span>KIOS inputs rebuilt and audited. Frame results await the exact Phase 23 model and original inference versions.</span></div>
     </section>
 
-    <section class="atlas-visual" aria-labelledby="visual-title">
-      <div class="atlas-visual__intro"><span>01 / Camera stress</span><h2 id="visual-title">The same pad, a harder view.</h2></div>
+    <section class="atlas-visual" aria-labelledby="visual-title" data-phase25-explorer>
+      <div class="atlas-visual__intro"><span>01 / Stress lens</span><h2 id="visual-title">One frame. Six camera views.</h2></div>
       <div class="atlas-visual__pair">
-        <figure><img src="/media/perception/kios_clean.jpg" alt="Landing pad in a clean camera view used as an illustration of the benchmark setup" width="600" height="600"><figcaption>Clean</figcaption></figure>
-        <figure><img src="/media/perception/kios_occlusion.jpg" alt="The landing pad with a generated occlusion used as an illustration of camera stress" width="600" height="600"><figcaption>Generated occlusion</figcaption></figure>
+        <figure><img src="/media/perception/kios_clean.jpg" alt="Illustrative clean KIOS frame with its source landing-pad annotation drawn in blue" width="600" height="600"><figcaption>Clean source</figcaption></figure>
+        <figure><img src="/media/perception/kios_occlusion.jpg" alt="Illustrative occluded KIOS frame with its source landing-pad annotation drawn in blue" width="600" height="600" data-atlas-image><figcaption data-atlas-caption>Occlusion</figcaption></figure>
       </div>
-      <p class="atlas-caption">Illustrative stress images from the existing KIOS presentation. These are not Phase 25 predictions or proof of a detector failure.</p>
+      <div class="atlas-lens">
+        <div class="atlas-lens__chooser"><span>Change the generated view</span><div class="atlas-condition-controls" data-atlas-controls aria-label="Generated camera conditions"></div><strong data-atlas-delta></strong></div>
+        <div class="atlas-lens__chart"><div class="atlas-lens__legend"><span>Published Phase 23 mAP50</span><span><i></i> Baseline</span><span><i></i> Robust</span></div><div data-atlas-chart aria-label="Published Phase 23 condition comparison, loading"></div><p>Scores summarize 86 reused test frames per condition.</p></div>
+      </div>
+      <p class="atlas-caption">Blue boxes are source annotations, not either detector’s predictions. This image is an illustration. The chart shows published condition aggregates; Phase 25 frame outcomes remain pending.</p>
+      <p class="atlas-caption" hidden data-atlas-error>The interactive comparison is unavailable. <a href="/phases/phase24/">Read the published condition audit.</a></p>
     </section>
 
     <section class="atlas-method" aria-labelledby="method-title">
@@ -42,7 +48,7 @@
 
     <section class="atlas-next" aria-labelledby="next-title">
       <div><span>03 / Publication gate</span><h2 id="next-title">Results come after the inputs.</h2><p>The 86-frame set was already used in Phases 23–24. Phase 25 is a retrospective audit, not a fresh confirmation set.</p></div>
-      <div class="atlas-next__detail"><p>Still needed: the exact Phase 23 checkpoint, original KIOS source images and labels, and inference software versions. The pipeline checks these and the published aggregates before reporting frame outcomes.</p><a href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase25_protocol.md" target="_blank" rel="noreferrer">Read the frozen protocol ↗</a><a href="https://github.com/suhaslord/uav-safety-research/pull/125" target="_blank" rel="noreferrer">Inspect the implementation ↗</a></div>
+      <div class="atlas-next__detail"><p>Recovered: the baseline model and KIOS split. Still needed: the exact Phase 23 checkpoint and original inference versions. The reconstructed stress images have no published original hashes, so aggregate reconciliation remains mandatory.</p><a href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase25_protocol.md" target="_blank" rel="noreferrer">Read the frozen protocol ↗</a><a href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase26_protocol.md" target="_blank" rel="noreferrer">Phase 26 separate-data plan ↗</a></div>
     </section>
     <p class="atlas-boundary">Detector box correctness cannot establish landing safety or controller performance. No cutoff will be selected from this reused test set.</p>
     <nav class="atlas-continue" aria-label="Continue reading"><a href="/phases/phase24/">← Phase 24 results</a><a href="/phases/">All phase records →</a></nav>

@@ -1,10 +1,31 @@
 import csv
+import hashlib
 import json
 import re
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def test_phase25_lens_reuses_published_aggregates_without_frame_claims() -> None:
+    payload = json.loads((ROOT / "deploy/vercel/phase25-explorer-data.json").read_text(encoding="utf-8"))
+    comparison_path = ROOT / "results/phase23_robust_detector/robustness_comparison.csv"
+    with comparison_path.open(newline="", encoding="utf-8") as handle:
+        comparison = {row["condition"]: row for row in csv.DictReader(handle)}
+    assert payload["status"] == "published_aggregates_only"
+    assert payload["source_sha256"]["comparison"] == hashlib.sha256(comparison_path.read_bytes()).hexdigest()
+    assert len(payload["conditions"]) == 6
+    for item in payload["conditions"]:
+        assert item["baseline_map50"] == float(comparison[item["key"]]["baseline_map50"])
+        assert item["robust_map50"] == float(comparison[item["key"]]["phase23_map50"])
+        assert (ROOT / "deploy/vercel" / item["illustration"].lstrip("/")).is_file()
+    phase = (ROOT / "deploy/vercel/phase25.html").read_text(encoding="utf-8")
+    home = (ROOT / "deploy/vercel/index.html").read_text(encoding="utf-8")
+    assert 'data-atlas-chart' in phase and 'data-atlas-controls' in phase
+    assert 'data-atlas-controls' in home
+    assert 'src="/phase25-explorer.js?v=' in phase and 'src="/phase25-explorer.js?v=' in home
+    assert "Phase 25 frame outcomes remain pending" in phase
 
 
 def test_vercel_home_is_native_frozen_archive_shell() -> None:
@@ -228,9 +249,9 @@ def test_phase25_is_featured_as_work_in_progress_without_result_claims() -> None
     assert "outside the completed records" in archive
     assert 'href="/phase-report.css?v=' in page
     assert 'class="atlas-status"' in page
-    assert "The method is frozen" in page
+    assert "KIOS inputs rebuilt and audited" in page
     assert "The 86-frame set was already used in Phases 23–24" in page
-    assert "These are not Phase 25 predictions or proof of a detector failure" in page
+    assert "not either detector’s predictions" in page
     assert "exact Phase 23 checkpoint" in page
 
 

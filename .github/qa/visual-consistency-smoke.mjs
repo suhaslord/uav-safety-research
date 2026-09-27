@@ -219,17 +219,27 @@ try {
     add('phase24-renders-four-data-driven-charts', phase24.chartCount === 4 && phase24.conditionRows === 6, phase24);
     add('phase24-labels-reanalysis-and-evidence-limits', /What the average hides/i.test(phase24.title) && /Reanalysis only/i.test(phase24.provenance) && phase24.noHorizontalOverflow, phase24);
     await page.goto(BASE + '/phases/phase25/', { waitUntil: 'domcontentloaded', timeout: 45000 });
+    await page.locator('.atlas-visual .atlas-condition-button').first().waitFor({ timeout: 15000 });
+    await page.locator('.atlas-visual [data-atlas-condition="mixed"]').click();
     const phase25 = await page.evaluate(() => ({
       title: document.querySelector('h1')?.textContent || '',
       status: document.querySelector('.atlas-status')?.textContent || '',
       images: document.querySelectorAll('.atlas-visual__pair img').length,
+      controls: document.querySelectorAll('.atlas-visual .atlas-condition-button').length,
+      chartRows: document.querySelectorAll('.atlas-visual .atlas-chart-row').length,
+      mixedImage: document.querySelector('.atlas-visual [data-atlas-image]')?.getAttribute('src'),
+      mixedDelta: document.querySelector('.atlas-visual [data-atlas-delta]')?.textContent,
       text: document.querySelector('main')?.innerText || '',
       noHorizontalOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth <= 1
     }));
     add('phase25-shows-method-and-honest-pending-status',
-      /Find the misses/i.test(phase25.title) && /original model, images, and inference versions/i.test(phase25.status)
+      /Find the misses/i.test(phase25.title) && /exact Phase 23 model and original inference versions/i.test(phase25.status)
       && phase25.images === 2 && /retrospective audit/i.test(phase25.text)
       && phase25.noHorizontalOverflow, phase25);
+    add('phase25-stress-lens-uses-published-aggregates',
+      phase25.controls === 6 && phase25.chartRows === 6
+      && phase25.mixedImage === '/media/perception/kios_mixed.jpg'
+      && /−5\.5 points/.test(phase25.mixedDelta), phase25);
 
     const phaseChecks = [
       ['/phases/phase1/', /First safety supervisor/i, /HOLD \/ ABORT/i],

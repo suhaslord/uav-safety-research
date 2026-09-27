@@ -30,6 +30,8 @@ jobs:
           node --check dashboard/aegis-current.js
           node --check dashboard/phase-personalization.js
           node --check dashboard/phase-editorial-media.js
+          node --check deploy/vercel/phase25-explorer.js
+          python scripts/build_phase25_site_data.py --check
       - name: Check Phase 8 Trace Lab JavaScript
         run: node --check phase8_dashboard/app.js
       - name: Unit tests

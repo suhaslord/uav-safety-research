@@ -68,6 +68,10 @@ try {
             { timeout: 15000 }
           ).catch((error) => pushBlocker(pageKey, 'phase24-charts-not-ready', { error: String(error) }));
         }
+        if (route === '/phases/phase25/') {
+          await page.locator('.atlas-visual .atlas-chart-row').first().waitFor({ timeout: 15000 })
+            .catch((error) => pushBlocker(pageKey, 'phase25-aggregates-not-ready', { error: String(error) }));
+        }
       } catch (error) {
         pushBlocker(pageKey, 'load-failed', { error: String(error) });
       }

@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "status": "published_aggregates_only",
+  "source": "Phase 23 protected condition aggregates; reused in the Phase 24 audit",
+  "source_sha256": {
+    "comparison": "733b2ad47a329c7930d6e317902dcfebf0f423be09f0e219d76ac232c29c3477",
+    "robust": "eb90cdde71ad615b5597e8550086f48a2f23c021765e46dff978258a1743eb99"
+  },
+  "illustration_note": "One KIOS frame with the source annotation drawn in blue; never a detector prediction.",
+  "conditions": [
+    {
+      "key": "clean",
+      "title": "Clean",
+      "illustration": "/media/perception/kios_clean.jpg",
+      "baseline_map50": 0.4266268678118929,
+      "robust_map50": 0.5551842475528265,
+      "baseline_recall": 0.3837209302325581,
+      "robust_recall": 0.5930232558139535
+    },
+    {
+      "key": "blur",
+      "title": "Blur",
+      "illustration": "/media/perception/kios_blur.jpg",
+      "baseline_map50": 0.4125908158023844,
+      "robust_map50": 0.5856935328390723,
+      "baseline_recall": 0.3776091257554052,
+      "robust_recall": 0.5697674418604651
+    },
+    {
+      "key": "low_light",
+      "title": "Low light",
+      "illustration": "/media/perception/kios_low_light.jpg",
+      "baseline_map50": 0.4168491381871624,
+      "robust_map50": 0.4237094746641194,
+      "baseline_recall": 0.3720930232558139,
+      "robust_recall": 0.4418604651162791
+    },
+    {
+      "key": "noise",
+      "title": "Noise",
+      "illustration": "/media/perception/kios_noise.jpg",
+      "baseline_map50": 0.4325832723899842,
+      "robust_map50": 0.5962109670974421,
+      "baseline_recall": 0.397618181914848,
+      "robust_recall": 0.5465116279069767
+    },
+    {
+      "key": "occlusion",
+      "title": "Occlusion",
+      "illustration": "/media/perception/kios_occlusion.jpg",
+      "baseline_map50": 0.3479644426407756,
+      "robust_map50": 0.13755217164117528,
+      "baseline_recall": 0.3255813953488372,
+      "robust_recall": 0.2441860465116279
+    },
+    {
+      "key": "mixed",
+      "title": "Mixed",
+      "illustration": "/media/perception/kios_mixed.jpg",
+      "baseline_map50": 0.1848519064761554,
+      "robust_map50": 0.12942432214764854,
+      "baseline_recall": 0.1860465116279069,
+      "robust_recall": 0.08139534883720931
+    }
+  ]
+}

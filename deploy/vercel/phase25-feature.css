@@ -26,7 +26,7 @@ body.atlas .atlas-hero .dek{max-width:760px}
 .atlas-visual{margin-top:24px}.atlas-visual__intro{display:flex;justify-content:space-between;align-items:end;gap:24px;margin-bottom:18px}
 .atlas-visual__intro span,.atlas-method>div>span,.atlas-next>div>span{color:#606a76;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
 .atlas-visual h2,.atlas-method h2,.atlas-next h2{margin:8px 0 0;font-size:clamp(28px,4vw,44px);line-height:1.08;letter-spacing:-.045em;font-weight:560}
-.atlas-visual__pair{gap:12px}.atlas-visual__pair img{aspect-ratio:1.75;object-position:center 43%}
+.atlas-visual__pair{gap:12px}.atlas-visual__pair img{aspect-ratio:1;object-fit:contain}
 .atlas-caption{margin:12px 0 0;color:#646d78;font-size:12px;line-height:1.5}
 .atlas-method{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:clamp(32px,6vw,100px);margin-top:clamp(70px,8vw,112px);padding:32px 0;border-top:1px solid #e1e5ea;border-bottom:1px solid #e1e5ea}
 .atlas-method ol{list-style:none;margin:0;padding:0}.atlas-method li{display:grid;grid-template-columns:44px minmax(0,1fr);align-items:baseline;gap:14px;padding:17px 0;border-bottom:1px solid #e1e5ea}.atlas-method li:first-child{padding-top:0}.atlas-method li:last-child{border:0;padding-bottom:0}
@@ -47,3 +47,29 @@ body.atlas .atlas-hero .dek{max-width:760px}
 .archive-current a{grid-column:2;grid-row:2/4;display:inline-flex;align-items:center;min-height:44px;padding:9px 16px;background:#3e6ae1;color:#fff;text-decoration:none;border-radius:4px;font-size:13px;font-weight:650}
 .archive-current a:hover{background:#3058bf}
 @media(max-width:680px){.archive-current{display:block;padding:20px}.archive-current strong{display:block;margin:8px 0}.archive-current a{margin-top:15px}}
+
+/* Phase 25 stress lens: the photographs and charts have separate evidence labels. */
+.atlas-condition-controls{display:flex;flex-wrap:wrap;gap:7px}
+.atlas-condition-button{min-height:42px;padding:8px 13px;border:1px solid #d7dce2;border-radius:4px;background:#fff;color:#343d49;font:inherit;font-size:12px;font-weight:650;cursor:pointer;transition:background .18s ease,border-color .18s ease}
+.atlas-condition-button:hover{background:#f2f5fa;border-color:#9eacc3}
+.atlas-condition-button[aria-pressed="true"]{background:#171a20;border-color:#171a20;color:#fff}
+.atlas-condition-button:focus-visible{outline:2px solid #3e6ae1;outline-offset:3px}
+.phase25-feature__copy .atlas-condition-controls{margin:12px 0 8px}
+.phase25-feature__delta{display:block;min-height:26px;color:#3156b2;font-size:12px;line-height:1.4}
+.phase25-feature__delta[data-direction="regressed"],.atlas-lens__chooser strong[data-direction="regressed"]{color:#a34436}
+.phase25-feature__copy .phase25-feature__link{margin-top:12px}
+.atlas-lens{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:clamp(26px,5vw,70px);margin-top:26px;padding:28px 0;border-top:1px solid #e1e5ea;border-bottom:1px solid #e1e5ea}
+.atlas-lens__chooser>span,.atlas-lens__legend>span:first-child{display:block;color:#555f6a;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.atlas-lens__chooser .atlas-condition-controls{margin:14px 0 17px}
+.atlas-lens__chooser strong{display:block;max-width:35ch;min-height:40px;color:#3156b2;font-size:clamp(16px,2vw,21px);line-height:1.35;font-weight:600;letter-spacing:-.025em}
+.atlas-lens__chart{min-width:0}.atlas-lens__legend{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.atlas-lens__legend>span:not(:first-child){display:inline-flex;align-items:center;gap:6px;color:#646d78;font-size:11px}
+.atlas-lens__legend i{display:block;width:10px;height:10px;background:#a1aab6}.atlas-lens__legend span:last-child i{background:#3e6ae1}
+.atlas-chart-row{display:grid;grid-template-columns:76px minmax(0,1fr) 55px;align-items:center;gap:10px;min-height:45px;border-bottom:1px solid #edf0f3;font-size:12px}
+.atlas-chart-row>span:first-child{font-weight:650}.atlas-chart-bars{display:grid;gap:3px}.atlas-chart-track{height:7px;background:#f0f2f5}.atlas-chart-bar{display:block;height:100%;min-width:2px}
+.atlas-chart-bar--baseline{background:#a1aab6}.atlas-chart-bar--robust{background:#3e6ae1}
+.atlas-chart-values{color:#586370;font-size:11px;text-align:right;font-variant-numeric:tabular-nums}
+.atlas-lens__chart p{margin:10px 0 0;color:#646d78;font-size:11px;line-height:1.5}
+@media(max-width:900px){.phase25-feature__copy .atlas-condition-controls,.phase25-feature__delta{grid-column:1/-1}}
+@media(max-width:720px){.atlas-lens{grid-template-columns:1fr;gap:28px}.atlas-lens__legend{gap:9px}.atlas-chart-row{grid-template-columns:68px minmax(0,1fr) 50px}}
+@media(prefers-reduced-motion:reduce){.atlas-condition-button{transition:none}}
