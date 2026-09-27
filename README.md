@@ -102,6 +102,8 @@ The protected split and detector comparison are complete: [initial detector base
 
 Phase 25 adds a frozen, retrospective frame-level audit protocol and fail-closed prediction pipeline ([protocol](docs/phase25_protocol.md)). The exact Phase 22 checkpoint is recovered; the official KIOS archive passed checksum verification, and its reconstructed temporal split matches the original Actions artifact byte for byte ([input audit](docs/phase25_reconstruction_audit.json)). The six-condition stress images were regenerated and inventoried, but original per-image hashes are unavailable. The exact Phase 23 checkpoint and original inference versions are still missing, so no frame-level results are published. The homepage and Phase 25 page offer an interactive visual lens over published aggregate results, clearly labeled as illustrations rather than detector predictions. Phase 26 has a [separate-data protocol](docs/phase26_protocol.md); its first candidate, the older KIOS archive, failed the [duplicate screen](docs/phase26_candidate_2022_audit.json) on all 422 real frames.
 
+If the original Windows training folder is available, run `py scripts\bundle_phase23_checkpoint.py` there and transfer its ignored `data/external/phase25_inputs/phase23_recovery_bundle.zip` to the audit workspace. The bundle records a candidate hash and observed package versions; aggregate reconciliation still gates any Phase 25 results.
+
 ## Research record
 
 The earlier simulation research remains preserved through Phase 22, including failed phases rather than rewriting them after later experiments succeed. Phases 23 and 24 form a separate detector evidence track.

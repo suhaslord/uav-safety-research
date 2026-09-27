@@ -75,6 +75,18 @@ epochs. Those arguments do not substitute for the frozen weights or missing
 inference software version record. Recover the original local `weights/best.pt`
 and its provenance before filling the lock.
 
+From that original Windows checkout, run `py scripts\bundle_phase23_checkpoint.py`
+to package its `best.pt`, the training arguments, SHA-256, and the package
+versions visible to that Python interpreter into an ignored ZIP under
+`data/external/phase25_inputs/`. If the training folder has moved, pass
+`--weights C:\path\to\weights\best.pt`. The recorded save directory is read
+from the committed `args.yaml`; nothing is uploaded automatically. Transfer
+that ZIP privately to the audit workspace. Its environment snapshot is taken
+at recovery time and must not be treated as proof of the original inference
+versions. Compare its checkpoint metadata and hashes with the training record,
+recover original version logs where available, then run the aggregate gate
+before changing the input lock or publishing detector outcomes.
+
 ## Run sequence
 
 Restore the original files to local paths, then run the validator before the
