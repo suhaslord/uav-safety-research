@@ -1,0 +1,458 @@
+{
+  "schema_version": 1,
+  "zenodo_archive_md5": "865515c2d8f5e9cd9b2ee1e1ec294270",
+  "zenodo_archive_sha256": "9d27a3e9616c188fb72a727633705735da5df168ce47efeed389dcb3455fdbdb",
+  "split_manifest_sha256": "32623634069c4f3082b79a6a42bca408c636f4b626e5f7691276257999544905",
+  "protected_test_files": {
+    "land_pad__6500.jpg": {
+      "label": "land_pad__6500.txt",
+      "image_sha256": "f72c47ffb3e3d3345c63da92a5de3a9dd2e9c067dd97461609ab97a9c488e8e1",
+      "label_sha256": "51640b1d3de4656f6fc1afc64a4ee6f2748ebf4805253d426bf9a255b2077bc4"
+    },
+    "land_pad__6525.jpg": {
+      "label": "land_pad__6525.txt",
+      "image_sha256": "31045f31c54082b0022ad67444ff0ed6268ee2f34d201ce412bbb5dafe802352",
+      "label_sha256": "a225e211cd8c78fb20fafc8d2bae4ec34350075954198e5c0976be37f451ca98"
+    },
+    "land_pad__6550.jpg": {
+      "label": "land_pad__6550.txt",
+      "image_sha256": "1f3a2a5b4e074bcd5bb05411ebdabc28392e13c8ad7004d2ab4748d5b488cc08",
+      "label_sha256": "5a1f431305ee0e535c35e9b11bd869aff299fdd8c2092bcaef90b049c2665d8a"
+    },
+    "land_pad__6575.jpg": {
+      "label": "land_pad__6575.txt",
+      "image_sha256": "fa0a6563e3286533256448ed9d067fc016baf5cca1bbe331272d1c0aa4dcdd0b",
+      "label_sha256": "1cdbf293aaf7ae8cb877ff159c3f9acacddcbb27756bd62e05761b9c6d68e5d8"
+    },
+    "land_pad__6600.jpg": {
+      "label": "land_pad__6600.txt",
+      "image_sha256": "95142936d577a13eb25bd70c8b347f3c26737c6880fc1835795e0dd29fc8c617",
+      "label_sha256": "0a888f6e3db22380450ce475077cdc761aea1a93d924b5a8610e1bbf5e01c783"
+    },
+    "land_pad__6625.jpg": {
+      "label": "land_pad__6625.txt",
+      "image_sha256": "393e028560483b5dd13ffebc9e2f554245d8fce9b7a2dfb5f16cecd0d3865400",
+      "label_sha256": "e0331afcb3838a49f63c8b05e8444822a4c4a17297550d14295072767b2eee1e"
+    },
+    "land_pad__6650.jpg": {
+      "label": "land_pad__6650.txt",
+      "image_sha256": "34342350e7251c2f9d95d59ead7a5503d518b01caa11ace5f83e48900557e5d1",
+      "label_sha256": "22128c3eb36a4e736b6d63a0dbf25d5fade603166a4dd06fe1140e4a31876c36"
+    },
+    "land_pad__6675.jpg": {
+      "label": "land_pad__6675.txt",
+      "image_sha256": "4dc8a02d5f8aa1158860b37d93d3a0290dede06cc1d2384547544a417b298251",
+      "label_sha256": "75cbfbb4ed9de149c2e307da2c80e59ff9a36a5ca6153727227e4ada44470930"
+    },
+    "land_pad__6700.jpg": {
+      "label": "land_pad__6700.txt",
+      "image_sha256": "b654087e78b422f9f60dce5c2a40ee77031f498a1ac8b79d346042ebeb9812c1",
+      "label_sha256": "614b9d7d3d2f5ccbc601ed8269ded8c028eefed6ed08ddc1c24cd5c1206ad28c"
+    },
+    "land_pad__6725.jpg": {
+      "label": "land_pad__6725.txt",
+      "image_sha256": "8eabf7fe85e5171edf09c9b7d2f6f6e41f1578aaf09c41f8fdd877a955951d80",
+      "label_sha256": "f843aef58e57e1079596faeb8c6cdd242c1df4fd1dd2dc0f8992a12427eaabaa"
+    },
+    "land_pad__6750.jpg": {
+      "label": "land_pad__6750.txt",
+      "image_sha256": "7e6c77731025866bdc14184d99a06bee656fdae3fe13598a6557cfa6801596e5",
+      "label_sha256": "4ecc60fb612d47f3815ee45761d6b04bdc7eb9b70bc29f08faac99438bafcdb9"
+    },
+    "land_pad__6775.jpg": {
+      "label": "land_pad__6775.txt",
+      "image_sha256": "b2e707df7cafc89711799beea8f9f37c73d4657244f52599c60ea4e72cdf6349",
+      "label_sha256": "76b70d1a5ec5f4e4d1dc1b9176340df264f35f2e22e7801dea90c42faa8e71ec"
+    },
+    "land_pad__6800.jpg": {
+      "label": "land_pad__6800.txt",
+      "image_sha256": "e3378c32f6ca4c39dcfbb73271ab3a6d6feef68a49b88ecf7fa4fc1080bc9cf6",
+      "label_sha256": "cfdcb5e2e7aa3fc57245480f2b3fedc37651f00272a10a86ed3fedb23808eeee"
+    },
+    "land_pad__6825.jpg": {
+      "label": "land_pad__6825.txt",
+      "image_sha256": "799c8e41e0a6c3272c91d7079b8731dd29c1a24eb47d4f758ca6b5842519e9a1",
+      "label_sha256": "6470a60aa4629edfe8401d4f2276e03ce0c5f0f65a3de13d508e44d47213052b"
+    },
+    "land_pad__6850.jpg": {
+      "label": "land_pad__6850.txt",
+      "image_sha256": "1f2b4502a376e6fd09135686c2c17f6446e17e61f9db5391078f180b301caed9",
+      "label_sha256": "74792a134bbddda5ca6a26446077fd3cd26577d5e5ccf3f5c1d9ab472102312d"
+    },
+    "land_pad__7450.jpg": {
+      "label": "land_pad__7450.txt",
+      "image_sha256": "935e3d27cfafbe2c2948aadf31084aea9303a6cf3e5e9d0588765098d0c4bbaf",
+      "label_sha256": "a41402090b64c18347e3a6039e8db77ce203fa4bad005c6adc2999722f1388dc"
+    },
+    "land_pad__7475.jpg": {
+      "label": "land_pad__7475.txt",
+      "image_sha256": "0ea800f36327b9d46e2e00bff45b8a9011e138c0d26bef7ec43360ce7ab0ec91",
+      "label_sha256": "1aa27389e1356d9403ae31f65ff7126170c031f625ef862de0f68cc030aab000"
+    },
+    "land_pad__7500.jpg": {
+      "label": "land_pad__7500.txt",
+      "image_sha256": "2bcff4d1fe5a28745c8bfe1e1c2b0bb36cf59dc1bfa271194780e55b1202661a",
+      "label_sha256": "bfd84ecfbd4ec5d72b0f501e42d1412017adc79d62c8bd517ac5a3296e9cf98a"
+    },
+    "land_pad__7525.jpg": {
+      "label": "land_pad__7525.txt",
+      "image_sha256": "7a14ecea02abbda5318e32edfb98d988e2631ca6dd832b3826b44c346987456e",
+      "label_sha256": "fae75b0bdd0da2a2173b1f8f695b61c180c975b8b20c82de4af92699d16aadee"
+    },
+    "land_pad__7550.jpg": {
+      "label": "land_pad__7550.txt",
+      "image_sha256": "3efc8b6f09ea8d79468015eca5941be8600bc5ffff39e5ed2f0a4e0cacd380a8",
+      "label_sha256": "64b70e917d941aaea741efd961989aef80b398727e3ad7613b7f8ca9013b8c74"
+    },
+    "land_pad__7575.jpg": {
+      "label": "land_pad__7575.txt",
+      "image_sha256": "b19cc7c32ba8bee57c8db43b166e5e359a48a3a7a5a2bfaa5e58080ff808807e",
+      "label_sha256": "6dc94ed95b986caeabfcc7487e14cf03b4fb4b13ec98fe8380643de4025d3b38"
+    },
+    "land_pad__7600.jpg": {
+      "label": "land_pad__7600.txt",
+      "image_sha256": "eb8935519a422de2068c7a232a73917ddbf441909353752284743c1fe9ea1b3b",
+      "label_sha256": "e183472390793264f73d2b3f332dad845e0d9d60a08694f9d428153c75460490"
+    },
+    "land_pad__7625.jpg": {
+      "label": "land_pad__7625.txt",
+      "image_sha256": "58f314b4117f92d4f162e696f56f1b036cbb05e9287a43c1f46578941f41f7a1",
+      "label_sha256": "aaa875ddd2f0957fb2b9c4da67a7912027db8184c088fce971aec07a82012970"
+    },
+    "land_pad__7650.jpg": {
+      "label": "land_pad__7650.txt",
+      "image_sha256": "db2658ddad21f85402934a1111a68fa1f193e84c65e0236d466301a12e2b6eb3",
+      "label_sha256": "27119e6cc6fc57030a61ee8cb893e1b60e63f534054b98a412620722a17c4ef9"
+    },
+    "land_pad__7675.jpg": {
+      "label": "land_pad__7675.txt",
+      "image_sha256": "69dc200d8b80fe8c1159e8f6ee4caeefa118295684b92b24ff79ec4f879af9d6",
+      "label_sha256": "ed90aca892a3cdce05134ddc7296b93779d857214c265c21d1936420c9515aef"
+    },
+    "land_pad__7700.jpg": {
+      "label": "land_pad__7700.txt",
+      "image_sha256": "64a5976b78eacf7afcc088db0567aec83ee2c0e582bda044665b5e499fedf1a8",
+      "label_sha256": "f622f2d0702dbcd74931e960d44d3ded3bf2e4f89cfe50e0351d6c6fda826806"
+    },
+    "land_pad__7725.jpg": {
+      "label": "land_pad__7725.txt",
+      "image_sha256": "24e7b1128bd08328b4494906e2023cdd4b12a9c550574b6b6e3a587d5eb16239",
+      "label_sha256": "07c5f6ae6fdfbc2e8eb929ec09c10656e4f61c9c89d531aebd4df5feb7ba0f57"
+    },
+    "land_pad__7750.jpg": {
+      "label": "land_pad__7750.txt",
+      "image_sha256": "9b97c4bbfd7b2a1717afb1077a80f7de21c04153e487e0167f99ba0e1d431171",
+      "label_sha256": "e71e71dc8f38697d37d835722e93d1af2d2c2ca3b53b2253630ea63af1ef5ed9"
+    },
+    "land_pad__7775.jpg": {
+      "label": "land_pad__7775.txt",
+      "image_sha256": "dbea6822e1c835bb9bb22cce1f55f2668442da9c8f1601deb83fdf578b7f3a99",
+      "label_sha256": "2431eb43bb3b0f0b2f7d4f50193e501e23936c54ae1ff4ff81e9ebe2c1b15eeb"
+    },
+    "land_pad__7800.jpg": {
+      "label": "land_pad__7800.txt",
+      "image_sha256": "138ed68711a50ca358963968fcc5d169082b7b7854f2c695919874112deb84d9",
+      "label_sha256": "7a87632277819d7ac47437d836bbdfc65fdc61d9bfa6e39a2cfc0c10f783ed14"
+    },
+    "land_pad__7825.jpg": {
+      "label": "land_pad__7825.txt",
+      "image_sha256": "f8d83454e0fabdad4e9933c865c10f3fa819a720a919da17a1e4a0b44930bfb1",
+      "label_sha256": "fa69b1c645b47b95c1a67c611c197318e1b431f8a50d433ead1b3c72c8fabaa0"
+    },
+    "land_pad__7850.jpg": {
+      "label": "land_pad__7850.txt",
+      "image_sha256": "a8a85dc7a6ede37037fb7b317f843a61dfea04a70e5f244efda719bac23a8c7e",
+      "label_sha256": "1914977714149ca3512dbbf5b11085cc5bca917dc8f3f709a6e63478eeb265cb"
+    },
+    "land_pad__7875.jpg": {
+      "label": "land_pad__7875.txt",
+      "image_sha256": "58d448e41fee416835285a3242cb26ad9f63a3fd937e2b355da3ec00bec0134d",
+      "label_sha256": "382a4535877851ad6f81a72d77d4dfc42f8633522b2e760dad3955d9815e549d"
+    },
+    "land_pad__7900.jpg": {
+      "label": "land_pad__7900.txt",
+      "image_sha256": "5d1a938f8fea46795d917c2c75b287872451c9c886fcf4f53609323840b5d371",
+      "label_sha256": "09a8a54e1c98155424e003c3df46b2c4085f7395840826499f0a478c23790099"
+    },
+    "land_pad__7925.jpg": {
+      "label": "land_pad__7925.txt",
+      "image_sha256": "b692b231472413740d0551bb2a8dda57170116e5fc534200ec293fb0a7376eda",
+      "label_sha256": "6fac819e94f2b891da38a222c0a0e31059776a01029fcaf417554c241a7945b5"
+    },
+    "land_pad__7950.jpg": {
+      "label": "land_pad__7950.txt",
+      "image_sha256": "6f43a27d3a12872d5559a038d7129eeb701187c4bfc8fb76cd466b3103a4abba",
+      "label_sha256": "96ee3b57f5f46a295614aea5e91c21e4feb7206658ffa198dbd3f2cb1260308b"
+    },
+    "land_pad__7975.jpg": {
+      "label": "land_pad__7975.txt",
+      "image_sha256": "e8626d1f944fd7a5756d63dbd947aa1483d07974138075bfe84aab0266e84659",
+      "label_sha256": "c2f73ab38e8cd0161363ad8cf51cf00c0c8f6b0926d16e03651932f09dd84cb9"
+    },
+    "land_pad__8000.jpg": {
+      "label": "land_pad__8000.txt",
+      "image_sha256": "66679fc30dd94f2048f5efc137a7702f7c6089c684cf75e900f66c9b1abf4563",
+      "label_sha256": "e4063174117555e4428cce002dc8a98e9bf23e4d6b30c358920afe7a57076316"
+    },
+    "land_pad__8025.jpg": {
+      "label": "land_pad__8025.txt",
+      "image_sha256": "ce697b9962e97f541b286c777368d3ae2bb4bd2aaa45d6f461b31a22bff8ec0e",
+      "label_sha256": "861ec79b6bbc53a6b72b304eeb9bf1e9a49f237f867092c802673d061fd65c73"
+    },
+    "land_pad__8050.jpg": {
+      "label": "land_pad__8050.txt",
+      "image_sha256": "c37ef1ef752a759daf38f8607104e7a02f02d61164deda9c6471260de1f15e50",
+      "label_sha256": "6381539e7c66c71ef65a8c07ec9845cf2d022203cda45117f9bf1fc341b4a027"
+    },
+    "land_pad__8075.jpg": {
+      "label": "land_pad__8075.txt",
+      "image_sha256": "ac20eff3c9735c895af0fa2c3b6076c225f8cbf81c71ebc8839edfd0c8c612c1",
+      "label_sha256": "46b1724f5962af05fd7c22a9b4fef5f4487a39c8e17be08b99f48331ad03fe3c"
+    },
+    "land_pad__8100.jpg": {
+      "label": "land_pad__8100.txt",
+      "image_sha256": "9b37a47163f82daf97a952b68520c5630804f518e472441b3a97d95ca4e176e3",
+      "label_sha256": "d5c2b4b7723d1d633c7ae3c00ac74ed274d44f71c1387b0dd2b60ebf29940a0b"
+    },
+    "land_pad__8125.jpg": {
+      "label": "land_pad__8125.txt",
+      "image_sha256": "ce0594716803733c6c0924748dc520cbb0ac7f077476bdcd839f1c1adf5ceeba",
+      "label_sha256": "27beb29c2af8b4a70484de5a0bc24ae5bbe85f60ae1ccb0630f183fa792b80f5"
+    },
+    "land_pad__8150.jpg": {
+      "label": "land_pad__8150.txt",
+      "image_sha256": "c24f0948162d273fbc880877e87729e2fed91d1a9fc33a907d33471162f8a3d1",
+      "label_sha256": "f87d536456b0afe650f6a108d8c488589e2376836039e0be750998cd01c113d7"
+    },
+    "land_pad__8175.jpg": {
+      "label": "land_pad__8175.txt",
+      "image_sha256": "ceff0e4de811db1aa9d8e4cd0ddabbdb07c0915f5a1072032c18c98a3ff88758",
+      "label_sha256": "8e3f21d654597bf9573cc454e5ae15597d0465ac6b36c26faa707ba8a55b2a87"
+    },
+    "land_pad__8200.jpg": {
+      "label": "land_pad__8200.txt",
+      "image_sha256": "7d3a654f59540ff1ea8ddc6e3cef983dbe8c465c9bdfe986edd623a60cfd0de2",
+      "label_sha256": "7d278bcae45692204724bf60164ca0d1a1e911ce88929e6191f092853b6b1b07"
+    },
+    "land_pad__8225.jpg": {
+      "label": "land_pad__8225.txt",
+      "image_sha256": "a4b3683afcaba473b082d1e1af02d81daf0a6539125b0bcef2cb1969addd2936",
+      "label_sha256": "7c7e2e2e273f9d87235a36c1bbf1d200b48c90860ddd407a67f445571f0ad3d0"
+    },
+    "land_pad__8250.jpg": {
+      "label": "land_pad__8250.txt",
+      "image_sha256": "2b3bf29d8c8d62ee73b1147bfc3f1c188fa583ac6d709e7cf2be582348530de4",
+      "label_sha256": "d0a7dd237afab2a948411292c50dee46a64bde0d8a6a728823d8de0fdfbba94c"
+    },
+    "land_pad__8275.jpg": {
+      "label": "land_pad__8275.txt",
+      "image_sha256": "01972f1a8a1fdc60eb55748e3ccfc0f85ee30b9c4db008e1cda79b67006dc45e",
+      "label_sha256": "673dc179246af7e819c5b3eb2656fb351bf195c1b672d1ffe569d42cb767a3db"
+    },
+    "land_pad__8300.jpg": {
+      "label": "land_pad__8300.txt",
+      "image_sha256": "b04283431924dad2fe374a961aafe26bf1a1b0933f186a7af58d38aad1842784",
+      "label_sha256": "2a0e8af2f45359532c43447ac2a264750429ee0827e43d1b8816564b34f64a04"
+    },
+    "land_pad__8325.jpg": {
+      "label": "land_pad__8325.txt",
+      "image_sha256": "b49b68d889b1a7dd72f1ea7ac6b7094649da4ff30127e87d53be5d4522f7a009",
+      "label_sha256": "3d08310e00486ca341ff468be021dda220469547b4c03249660ac6adb4a99e33"
+    },
+    "land_pad__8350.jpg": {
+      "label": "land_pad__8350.txt",
+      "image_sha256": "158453c45ef146187cf8f3dc2ebf2bab7dee88e99ceef40de33f44b56daa69c6",
+      "label_sha256": "6f5c30072dd8aed52ba6e47151b47d631a9d03fac6eae1ef886f9f10f8255a02"
+    },
+    "land_pad__8375.jpg": {
+      "label": "land_pad__8375.txt",
+      "image_sha256": "9cae1faa5b7adeac3273818a51de581f27545b427bbd94640c2e9bcd11b368cb",
+      "label_sha256": "20a2d735e2941f3cce972e5dfa72de4c69d210fbd58021374a0417dcf669dfb6"
+    },
+    "land_pad__8400.jpg": {
+      "label": "land_pad__8400.txt",
+      "image_sha256": "c303df4592f3c9f6b3b71ca9e72d59d04efe2ed8f08d3c3fa409a5b18a790ad6",
+      "label_sha256": "63db1ef5ee99ea091e26fe063564f75e3fc98171de4493b444e7107a8b20ddb4"
+    },
+    "land_pad__8425.jpg": {
+      "label": "land_pad__8425.txt",
+      "image_sha256": "fc0779ed449aaf79cd0aa3627b5d700dc8b06bd1da97fc68ac6f362e7c418913",
+      "label_sha256": "de72004ecea516562b59c15a59db3a200e2f28f9a439546e8afdb81ceca42cd1"
+    },
+    "land_pad__8450.jpg": {
+      "label": "land_pad__8450.txt",
+      "image_sha256": "9cc43d6bf31a15278dc1868e646bff8db83372ce83853a48b9d4fd83374bd479",
+      "label_sha256": "30d8adbc2b59f778834b2c7163397040c27c065f14d643a5968a53b7d9c4a59c"
+    },
+    "land_pad__8475.jpg": {
+      "label": "land_pad__8475.txt",
+      "image_sha256": "7dbe1754425bc79dd4cdd0c0545c199e744f7522f2a5e5bc168d74f261d81b7d",
+      "label_sha256": "bfd53fbe9fa7d5111a610202c9319d80af21f6c46cae2d68c104a7371103e2fc"
+    },
+    "land_pad__8500.jpg": {
+      "label": "land_pad__8500.txt",
+      "image_sha256": "076a2d0708a55343260cdfabdca735efaded7890078490b5847d97006ab5eaaf",
+      "label_sha256": "39c15a955cf0d48ea5684547981f730961781f42f5c888d0989a5234df91e0d3"
+    },
+    "land_pad__8525.jpg": {
+      "label": "land_pad__8525.txt",
+      "image_sha256": "23444a7b38bedcf9bac654c81f469fb194194f9b44c3cef4e952a8de9eede7c6",
+      "label_sha256": "ba7e0af43190f33a32c699ce98effe7439e2f5c9bd8b92a29001cbe940083914"
+    },
+    "land_pad__8550.jpg": {
+      "label": "land_pad__8550.txt",
+      "image_sha256": "1b3f9ea6f00333c1cbdacccded1f23cc21910edfdfe00166c81ecd463a41a85d",
+      "label_sha256": "abe728f55db27701c50ca734a5ff477dfa015818a4b35579c48ca9948b001eb4"
+    },
+    "land_pad__8575.jpg": {
+      "label": "land_pad__8575.txt",
+      "image_sha256": "f6200186a2b19a370f1cd36156254e0a0bb31688694b33e8c560a04d2ea9aeb8",
+      "label_sha256": "3917186d66aaac29c9c932039d5522defe50ddf1e3904931ffcc8488d10e2844"
+    },
+    "land_pad__8600.jpg": {
+      "label": "land_pad__8600.txt",
+      "image_sha256": "1c589678fb62c6433481a2ddfe1164655dc5ac1efebab99d6e0026d3a5bba66a",
+      "label_sha256": "fdeaccaa9616dfaae97b5ac9222550e439be7cdbdea5273b8f5d4103ee939d5c"
+    },
+    "land_pad__8625.jpg": {
+      "label": "land_pad__8625.txt",
+      "image_sha256": "ac8fdc61adf6c27f481b522feb04e5cd7589e69e6d189e3e1eb1713e599a9da4",
+      "label_sha256": "728462766d04d009381c42cf092cf98cc7d0794f8a695b8951a87570a8b97b17"
+    },
+    "land_pad__8650.jpg": {
+      "label": "land_pad__8650.txt",
+      "image_sha256": "89749f433aaa84fc8b64dc49e8d4b96c66c0954695782074f631c6862a27d149",
+      "label_sha256": "ff4085f86e6e9e435405d9ed6332dd3b537ebf159e6deb128d8b9b2fa4aa818f"
+    },
+    "land_pad__8675.jpg": {
+      "label": "land_pad__8675.txt",
+      "image_sha256": "552d1afac41c85e7aad5fc1902dbc5f0e8f5aaa3cdc4927ab54e3dea0f1f4cba",
+      "label_sha256": "640c4d7ea3b82b7502d6645f89121e8aa4f4eef1ea255e643ab5de2bda3ecea3"
+    },
+    "land_pad__8700.jpg": {
+      "label": "land_pad__8700.txt",
+      "image_sha256": "972dbd4b6e9446d7780e3d407856401df49c2c62ab6b3e9ba3f6ef5f9fab419c",
+      "label_sha256": "2cf5490ce6ba072437b1d6c6550530cf67f62b5ea7daf1d7b9130eb303a7b473"
+    },
+    "land_pad2__2050.jpg": {
+      "label": "land_pad2__2050.txt",
+      "image_sha256": "51b79b23d73d323ef475dddc00afd72c148b0837d81fa80f97c42325bc36ea53",
+      "label_sha256": "8ffb1d0c2394b602444712861260aa08f81e6946b446a7f508f1cf5cef1d606a"
+    },
+    "land_pad2__2075.jpg": {
+      "label": "land_pad2__2075.txt",
+      "image_sha256": "7204e4a48a8b284f9d894b683c0fba56521ca59732b04a2cdcdd782759995ffa",
+      "label_sha256": "15ed271e590c558ae8cc002c04dc9a12b58614a8af93e45780e78200db22c784"
+    },
+    "land_pad2__2100.jpg": {
+      "label": "land_pad2__2100.txt",
+      "image_sha256": "b0e921535c7ecdf19d7dc2d3072a1f4732c9f6996ca9cffab0a2838f7aa50d66",
+      "label_sha256": "1c37612c3da22a1789eeac00653a09f81f88415be654db1125b706576c515fa7"
+    },
+    "land_pad2__2125.jpg": {
+      "label": "land_pad2__2125.txt",
+      "image_sha256": "360cb4bf1402d4e54e1175bb641ea798f9fb3d6db192267686c956a80ea51817",
+      "label_sha256": "15f2062c83f2eaac61ca91c6bdd3725c84c1c45e85b32e5faeae05d5b268df4f"
+    },
+    "land_pad2__2150.jpg": {
+      "label": "land_pad2__2150.txt",
+      "image_sha256": "61d64f5543676d46f2d96afa0d0083398d00eb3d8adc70af1b63d0e877ddfd59",
+      "label_sha256": "9db83eaa76388abd9e5a5f7f23621d0172c094f12040f6720a7d546fc1a6b739"
+    },
+    "land_pad2__2175.jpg": {
+      "label": "land_pad2__2175.txt",
+      "image_sha256": "5634542411147c434b150db70ed877d689e857f89a99e01d02bef460a2bf6b0d",
+      "label_sha256": "05899dd9d3244d37e156a2f1a121d069322785b3edce8ef3bf858d99a20f2423"
+    },
+    "land_pad2__2200.jpg": {
+      "label": "land_pad2__2200.txt",
+      "image_sha256": "d1671a417fcf9d28529f07f26e26203d87cc7415c11f4d044979904068cc32b4",
+      "label_sha256": "a8787464b834a02b138f68699fc43132018a75c0b4cbaffb87d70c88006684cf"
+    },
+    "land_pad2__2225.jpg": {
+      "label": "land_pad2__2225.txt",
+      "image_sha256": "85555b55b528ced66972581a772579f14cfca4c7aa46e72d15f35f1039feb25f",
+      "label_sha256": "a1316a0b2db08400fecdf9aba41cec5a34d7b582e5ceca7f6ad023c5198d4e4c"
+    },
+    "land_pad2__2250.jpg": {
+      "label": "land_pad2__2250.txt",
+      "image_sha256": "d9ced95c7ec34b0239a57784ea02d19b1873329e0affd61067b3c35f7727df77",
+      "label_sha256": "005da16c9d31660c8e7a9a5bb0de5311e8e512128a6997d0cdbebc8b459ed3b4"
+    },
+    "land_pad2__2275.jpg": {
+      "label": "land_pad2__2275.txt",
+      "image_sha256": "402ae05ab42afc2fffa75fbe66d84734a283109d99656fc72f014d6edb1ab588",
+      "label_sha256": "66737c94ff8dea0dd8c60616a44cceb639e580dec57e03df38a92e3f7772c2d9"
+    },
+    "land_pad2__2300.jpg": {
+      "label": "land_pad2__2300.txt",
+      "image_sha256": "ff07e86b21e05b8d552e3f03b6baf0e87a4e43009f4ed595d462407ea796c9b8",
+      "label_sha256": "bbf3727844a751e7941202dd81992a31aea89335af63cd0f73d6bc5391829df1"
+    },
+    "land_pad2__2325.jpg": {
+      "label": "land_pad2__2325.txt",
+      "image_sha256": "23d96423398a5d8a5724fe8f06ead733736e330cf1ab3e54a793331d91d6aeb0",
+      "label_sha256": "8115abe25864ddb8484b4f947fa2ce2b0b4ffafea9cdb7a95e81c15e400cd229"
+    },
+    "land_pad2__2350.jpg": {
+      "label": "land_pad2__2350.txt",
+      "image_sha256": "cf09f077f3666b811c0daf1415b79fe8f61853aea2aa6c0cbfef3503b40a02c1",
+      "label_sha256": "f96774afce2c68c35b0dba5a3e713f5cc4dac45924c9e60fe6a1bd1e3057d6fe"
+    },
+    "land_pad2__2375.jpg": {
+      "label": "land_pad2__2375.txt",
+      "image_sha256": "a8b9448c170c2f5759e648cf46906b276c4029584032902fa4d29ba71ff421bb",
+      "label_sha256": "9328787568a6a854d195226aa4cac467034b0f3082b4e794e9201c43e43e35a4"
+    },
+    "land_pad2__2400.jpg": {
+      "label": "land_pad2__2400.txt",
+      "image_sha256": "f043a7fec23fdd06ae2fc057ac020ed842af471650e97ab9e5f9dd881311c89e",
+      "label_sha256": "0f5f6db4ed15bffbd4dbc59f5714eacbcee65adc828257d1e61189c06a34fdc5"
+    },
+    "land_pad2__2425.jpg": {
+      "label": "land_pad2__2425.txt",
+      "image_sha256": "f0013c116ddc22ebc936c3152bb8ac5feb81557a191a403db91a2b8024740310",
+      "label_sha256": "f177bc33fd0664ea11c9977630952ad43ae4fc8d0d637aa066d2b9f95b7bd82f"
+    },
+    "land_pad2__2450.jpg": {
+      "label": "land_pad2__2450.txt",
+      "image_sha256": "0d76c0cac01e125aa8e24291ef0650fb13860bab5844f951a834cf05aa5859be",
+      "label_sha256": "cf93b05f5e2ec1926ba80f638ac135fcb54fb55cb298d9bfec3151eefc85eac3"
+    },
+    "land_pad2__2475.jpg": {
+      "label": "land_pad2__2475.txt",
+      "image_sha256": "680c5987d402b13da1635ca16b6afd26863f7baf55ac0c680e0cba1ccc5f8d75",
+      "label_sha256": "b586cf3c1d58c05d3672ae7496cca9e09bd1e71ebc2424bc1e7681dfb1dfef32"
+    },
+    "land_pad2__2500.jpg": {
+      "label": "land_pad2__2500.txt",
+      "image_sha256": "da59d66e6237f1599d9107727b625f475d090a1730bea9ecbbde699e5e2cea09",
+      "label_sha256": "59d6b983a0b7f45d21944014720d51e468b3f63f3e4cc0d5fda056fbbdcae626"
+    },
+    "land_pad2__2525.jpg": {
+      "label": "land_pad2__2525.txt",
+      "image_sha256": "4bf67210ed80cf3afaf88562036fa2a70121f4c746d38ef74363c85e46d7eae0",
+      "label_sha256": "b6210b6e877cf704d786f59eec447f613daccb2e33243f45d62c144995f27015"
+    }
+  },
+  "condition_image_inventory_sha256": {
+    "clean": "2412380094b505c1c21e4dfba9333e534d00ac77ac48fcf12b6b72d709c85316",
+    "blur": "7972aa99fa146e976a06a85882ac91e4ff774a872a536c60111e27537a924b90",
+    "low_light": "18b6de1b8d0128a26c2ade3c38cf57ea447c905e8d74e9e43d38def5677ceeba",
+    "noise": "4a87c6a3027af3ea28bb03b5d05698dce5807b152dcba9bb82c43e598e76c48e",
+    "occlusion": "53ded78dc75e3cc119f2094e8395a30b71487f5c0c2a45419bf733cf20030ef3",
+    "mixed": "f04637f9124a56f91fe76e8f249e173aaede0a2a26ec8f905040f179713bc530"
+  },
+  "method_sha256": {
+    "scripts/build_real_image_stress_suite.py": "e44168e573c36c81161ff0438035c05f64e41cb21fce0243090deb677cbe586e",
+    "scripts/prepare_kios_real_yolo_split.py": "47d83fe00d6c96488a1787c7230881aca66f96538f9656963180340a95cb2744",
+    "src/uav_safety/real_landing_dataset.py": "e371682b00adcc0ddff255046c5461ef09570f2d80e12698f82f204efe210bfb"
+  },
+  "seed": 20260915,
+  "rebuild_runtime": {
+    "python": "3.12.14",
+    "pillow": "12.3.0",
+    "numpy": "2.3.5",
+    "py7zr": "1.1.3"
+  }
+}
