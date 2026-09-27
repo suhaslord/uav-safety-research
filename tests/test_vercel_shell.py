@@ -26,6 +26,15 @@ def test_phase25_lens_reuses_published_aggregates_without_frame_claims() -> None
     assert 'data-atlas-controls' in home
     assert 'src="/phase25-explorer.js?v=' in phase and 'src="/phase25-explorer.js?v=' in home
     assert "Phase 25 frame outcomes remain pending" in phase
+    audit = json.loads((ROOT / "docs/phase25_reconstruction_audit.json").read_text(encoding="utf-8"))
+    assert audit["archive_derived_protected_image_count"] == 86
+    assert audit["frame_condition_count"] == 516
+    assert 'class="atlas-inputs"' in phase
+    assert 'class="phase25-feature__proof"' in home
+    for count in ("86", "516"):
+        assert f">{count}</strong>" in phase
+        assert f">{count}</b>" in home
+    assert "phase25_reconstruction_audit.json" in phase and "phase25_reconstruction_audit.json" in home
 
 
 def test_vercel_home_is_native_frozen_archive_shell() -> None:
@@ -42,7 +51,7 @@ def test_vercel_home_is_native_frozen_archive_shell() -> None:
     assert 'id="current-audit"' in html
     assert 'id="phase25"' in html
     assert '<a class="button primary signature-button" href="/phases/phase25/">Explore Phase 25</a>' in html
-    assert "Protocol ready · results pending" in html
+    assert "Inputs verified · results pending" in html
     assert "0.8319" in html
     assert "0.7744" in html
     assert "simulation_only=true" in html
@@ -249,10 +258,12 @@ def test_phase25_is_featured_as_work_in_progress_without_result_claims() -> None
     assert "outside the completed records" in archive
     assert 'href="/phase-report.css?v=' in page
     assert 'class="atlas-status"' in page
-    assert "KIOS inputs rebuilt and audited" in page
+    assert "Inputs verified" in page
+    assert "KIOS inputs hash-checked" in archive
+    assert "Results await the exact model and source images" not in archive
     assert "The 86-frame set was already used in Phases 23–24" in page
     assert "not either detector’s predictions" in page
-    assert "exact Phase 23 checkpoint" in page
+    assert "original Phase 23 checkpoint" in page
 
 
 def test_phase23_displayed_condition_table_matches_committed_csv() -> None:

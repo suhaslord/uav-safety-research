@@ -157,6 +157,7 @@ try {
     add('home-features-phase25-with-pending-status',
       await page.locator('#top a[href="/phases/phase25/"]').count() === 1
         && await page.locator('#phase25 .phase25-feature__images img').count() === 2
+        && await page.locator('#phase25 .phase25-feature__proof a[href*="phase25_reconstruction_audit.json"]').count() === 1
         && /results pending/i.test(await page.locator('#phase25').innerText()));
     await page.close();
     await context.close();
@@ -225,6 +226,7 @@ try {
       title: document.querySelector('h1')?.textContent || '',
       status: document.querySelector('.atlas-status')?.textContent || '',
       images: document.querySelectorAll('.atlas-visual__pair img').length,
+      inputAudit: document.querySelector('.atlas-inputs')?.textContent || '',
       controls: document.querySelectorAll('.atlas-visual .atlas-condition-button').length,
       chartRows: document.querySelectorAll('.atlas-visual .atlas-chart-row').length,
       mixedImage: document.querySelector('.atlas-visual [data-atlas-image]')?.getAttribute('src'),
@@ -235,6 +237,7 @@ try {
     add('phase25-shows-method-and-honest-pending-status',
       /Find the misses/i.test(phase25.title) && /exact Phase 23 model and original inference versions/i.test(phase25.status)
       && phase25.images === 2 && /retrospective audit/i.test(phase25.text)
+      && /86/.test(phase25.inputAudit) && /516/.test(phase25.inputAudit)
       && phase25.noHorizontalOverflow, phase25);
     add('phase25-stress-lens-uses-published-aggregates',
       phase25.controls === 6 && phase25.chartRows === 6
