@@ -271,3 +271,18 @@ body.research-workspace.home-workspace #timeline .text-link{
     grid-template-columns:repeat(6,minmax(44px,1fr))!important;
   }
 }
+/* Keep the tablet carousel's scrollable slides inside the page's layout box. */
+@media (max-width:900px){
+  html body.research-workspace.home-workspace #chapters{
+    width:100vw!important;
+    max-width:100vw!important;
+    min-width:0!important;
+    box-sizing:border-box!important;
+    overflow-x:clip!important;
+  }
+  html body.research-workspace.home-workspace #chapters .chapter-track{
+    width:auto!important;
+    max-width:100%!important;
+    min-width:0!important;
+  }
+}
