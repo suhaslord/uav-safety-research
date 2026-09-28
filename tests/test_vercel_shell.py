@@ -300,6 +300,8 @@ def test_failure_atlas_is_baseline_only_with_auditable_tables() -> None:
     assert 'id="evidence-dialog"' in html and 'id="local-files"' in html
     assert 'id="local-folder"' in html and "webkitdirectory" in html
     assert 'id="phase23-map50"' in html and 'id="phase23-recall"' in html
+    assert 'id="phase23-frame-image"' in html and 'id="phase23-image-placeholder"' in html
+    assert "These are not predictions for this frame" in html
     assert "viewer does not hash-check them" in html
 
 
