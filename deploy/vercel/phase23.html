@@ -6,7 +6,7 @@
   <meta name="description" content="Phase 23 compares a robust KIOS landing-pad detector with the earlier detector baseline on one protected temporal test split.">
   <title>Phase 23 — Robust landing-pad detector · AegisLand</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=5">
-  <link rel="stylesheet" href="/phase-report.css?v=1">
+  <link rel="stylesheet" href="/phase-report.css?v=2">
   <link rel="stylesheet" href="/site-refresh.css?v=2">
 </head>
 <body>
@@ -18,7 +18,7 @@
       <h1>The detector gained recall.</h1>
       <p class="dek">Clean and blur improved. Occlusion and mixed stress got worse.</p>
       <div class="provenance"><strong>Detector comparison.</strong> 86 protected real-video frames; separate from the frozen Phase 1–22 simulation record.</div>
-      <div class="hero-links"><a href="#results">Read the conditions ↓</a><a href="/phases/phase24/">See the Phase 24 audit</a><a href="/phases/phase22/">Frozen simulation record</a></div>
+      <div class="hero-links"><a href="#results">Read the conditions ↓</a><a href="#checkpoint-recovery">Phase 23 evidence status</a><a href="/phases/phase24/">See the Phase 24 audit</a><a href="/phases/phase22/">Frozen simulation record</a></div>
     </section>
 
     <section class="metrics" aria-label="Selected protected-test results">
@@ -29,8 +29,16 @@
     </section>
 
     <div class="reading-note"><strong>Mixed result:</strong> clean precision fell 79.6% → 71.7%; mAP50–95 fell 27.2% → 22.3%.</div>
-    <div class="section-head"><h2>One holdout, six views</h2><p>Six views of the same 86 protected frames.</p></div>
-    <figure class="report-photo"><img src="/media/perception/kios_clean.jpg" width="1280" height="720" alt="A KIOS downward camera test frame with annotated landing pad and detector box" loading="lazy"><figcaption>KIOS test frame. Metrics come from committed aggregates.</figcaption></figure>
+    <div class="section-head"><h2>Six condition examples</h2><p>Illustrative views from the published set. The aggregate table below summarizes all 86 protected frames.</p></div>
+    <div class="condition-gallery" role="group" aria-label="Published KIOS example images by condition">
+      <figure><img src="/media/perception/kios_clean.jpg" width="640" height="585" alt="Published KIOS example under clean camera conditions, with source annotation visible" loading="eager" decoding="async"><figcaption>Clean</figcaption></figure>
+      <figure><img src="/media/perception/kios_blur.jpg" width="640" height="585" alt="Published KIOS example under blur stress, with source annotation visible" loading="eager" decoding="async"><figcaption>Blur</figcaption></figure>
+      <figure><img src="/media/perception/kios_low_light.jpg" width="640" height="585" alt="Published KIOS example under low-light stress, with source annotation visible" loading="eager" decoding="async"><figcaption>Low light</figcaption></figure>
+      <figure><img src="/media/perception/kios_noise.jpg" width="640" height="585" alt="Published KIOS example under noise stress, with source annotation visible" loading="eager" decoding="async"><figcaption>Noise</figcaption></figure>
+      <figure><img src="/media/perception/kios_occlusion.jpg" width="640" height="585" alt="Published KIOS example under occlusion stress, with source annotation visible" loading="eager" decoding="async"><figcaption>Occlusion</figcaption></figure>
+      <figure><img src="/media/perception/kios_mixed.jpg" width="640" height="585" alt="Published KIOS example under mixed camera stress, with source annotation visible" loading="eager" decoding="async"><figcaption>Mixed</figcaption></figure>
+    </div>
+    <p class="gallery-note">These are condition examples, not detector-output overlays or six independent test sets. Published metrics are condition-level aggregates over the same 86 protected frames.</p>
 
     <div class="section-head" id="results"><h2>What changed by condition</h2><p>Deltas are percentage points (pp).</p></div>
     <p class="table-scroll-hint">Swipe sideways for every metric →</p>
@@ -53,6 +61,7 @@
       <article class="method-card"><h3>Temporal split</h3><p>252 train, 64 validation, 20 embargoed, and 86 protected test frames. Conditions reuse the test frames.</p></article>
     </section>
     <aside class="limits"><strong>Limits:</strong> These are detector metrics on one protected dataset split. They do not demonstrate landing safety, controller behavior, certification, or real-flight readiness. <code>safety_acceptance=false</code> · <code>controller_tuning_allowed=false</code>.</aside>
+    <details class="checkpoint-recovery" id="checkpoint-recovery"><summary>Why frame-level Phase 23 outcomes are still pending</summary><div class="checkpoint-recovery__body"><p>The published condition aggregates above are available. Per-frame predictions, TP/FP/FN, confidence, IoU, and paired transitions require the exact Phase 23 <code>best.pt</code> checkpoint and the original inference package versions. Those artifacts are not in this checkout. Retraining would create a different model and cannot fill this evidence gap.</p><ol><li>In the original Windows training checkout, recover the saved <code>weights/best.pt</code> and any logs that record the inference environment.</li><li>Run the bundle command below, then transfer the resulting ignored ZIP privately to the audit workspace.</li><li>Reconcile the checkpoint and original runtime against the Phase 23 aggregate gate before publishing frame-level outputs.</li></ol><pre><code>py scripts\bundle_phase23_checkpoint.py</code></pre><p class="checkpoint-caveat">The bundle records package versions visible now; it does not prove they match the original inference runtime. See the <a href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase25_protocol.md">recovery protocol ↗</a>.</p></div></details>
     <nav class="record-links" aria-label="Continue reading"><a href="/phases/phase22/">← Frozen Phase 22 simulation</a><a href="/phases/phase24/">Phase 24 audit →</a><a href="/phases/">All phases</a></nav>
   </main>
   <footer><span>AEGISLAND · Phase 23 detector benchmark</span><span><a href="https://github.com/suhaslord/uav-safety-research/blob/main/results/phase23_robust_detector/summary.md">Committed result ↗</a></span></footer>
