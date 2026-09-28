@@ -20,7 +20,7 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     env:
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
       VERCEL_ORG_ID: team_4fHq5Px7I3sXJ9v8FOyXNOHD
@@ -29,6 +29,30 @@ jobs:
     steps:
       - name: Checkout requested revision
         uses: actions/checkout@v4
+
+      - name: Setup reconstruction runtime
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.12
+
+      - name: Cache verified KIOS source archive
+        uses: actions/cache@v4
+        with:
+          path: .cache/phase25/airisim_dataset2.7z
+          key: phase25-kios-archive-13682584-865515c2d8f5e9cd9b2ee1e1ec294270
+
+      - name: Install pinned image reconstruction tools
+        run: python -m pip install py7zr==1.1.3 numpy==2.3.5 Pillow==12.3.0
+
+      - name: Recover and verify all Phase 25 frame images
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/download_kios_real_landing_dataset.py --out .cache/phase25 --accept-download
+          python scripts/build_phase25_atlas_images.py \
+            --archive .cache/phase25/airisim_dataset2.7z \
+            --work .cache/phase25/rebuild \
+            --out deploy/vercel/media/phase25
 
       - name: Verify Vercel token is configured
         shell: bash
@@ -71,6 +95,8 @@ jobs:
           test -f .vercel-release/site-refresh.css
           test -f .vercel-release/phase-report.css
           test -f .vercel-release/phase23.html
+          test "$(find .vercel-release/media/phase25 -type f -name '*.jpg' | wc -l)" -eq 516
+          grep -q '"preview_count": 516' .vercel-release/media/phase25/manifest.json
           test -f .vercel-release/frozen-lineage.js
           test -f .vercel-release/dashboard/phase-visuals.js
           test -f .vercel-release/dashboard/phase-editorial-media.js
@@ -259,6 +285,14 @@ jobs:
           PHASE23_HTML=$(curl --fail --silent --show-error --location "$PUBLIC_URL/phases/phase23/")
           printf '%s' "$PHASE23_HTML" | grep 'Phase 23 · KIOS protected detector benchmark' > /dev/null
           printf '%s' "$PHASE23_HTML" | grep 'href="/phase-report.css?v=' > /dev/null
-          echo "✓ Foundational phase pages remain reachable, polished, and contextualized"
+          for CONDITION in clean blur low_light noise occlusion mixed; do
+            curl --fail --silent --show-error --location "$PUBLIC_URL/media/perception/kios_${CONDITION}.jpg" -o /dev/null
+          done
+          ATLAS_HTML=$(curl --fail --silent --show-error --location "$PUBLIC_URL/failure-atlas/")
+          printf '%s' "$ATLAS_HTML" | grep 'Loading the verified 86-frame image set' > /dev/null
+          printf '%s' "$ATLAS_HTML" | grep 'failure-atlas.js?v=6' > /dev/null
+          curl --fail --silent --show-error --location "$PUBLIC_URL/media/phase25/clean/land_pad__6500.jpg" -o /dev/null
+          curl --fail --silent --show-error --location "$PUBLIC_URL/media/phase25/mixed/land_pad2__2100.jpg" -o /dev/null
+          echo "✓ Phase 23 examples and reconstructed Failure Atlas frames load from production"
 
           echo "=== Verification complete: AegisLand serves local licensed photography and the frozen Phase 1–22 research archive ==="
