@@ -2,12 +2,26 @@
   'use strict';
   const $ = id => document.getElementById(id);
   const names = {clean:'Clean', blur:'Blur', low_light:'Low light', noise:'Noise', occlusion:'Occlusion', mixed:'Mixed'};
-  const els = Object.fromEntries(['frame-title','frame-sequence','frame-range','prev-frame','next-frame','view-mode','conditions','show-gt','show-baseline','local-files','image-note','comparison','baseline-verdict','baseline-scene','frame-image','scene-placeholder','box-layer','scene-index','baseline-metrics','case-label','case-features','filter-condition','filter-outcome','filter-confidence','small-target','match-count','matrix','scatter','point-detail','show-wrong','scatter-count','evidence-dialog','close-evidence'].map(id=>[id,$(id)]));
-  let data, byKey, index=0, condition='clean', smallLimit=0, wrongOnly=false, plotPoints=[], localImages=new Map();
+  const els = Object.fromEntries(['frame-title','frame-sequence','frame-range','prev-frame','next-frame','view-mode','conditions','show-gt','show-baseline','local-files','local-folder','image-note','comparison','baseline-verdict','baseline-scene','frame-image','scene-placeholder','box-layer','scene-index','baseline-metrics','phase23-aggregate-condition','phase23-map50','phase23-recall','case-label','case-features','filter-condition','filter-outcome','filter-confidence','small-target','match-count','matrix','scatter','point-detail','show-wrong','scatter-count','evidence-dialog','close-evidence'].map(id=>[id,$(id)]));
+  let data, byKey, index=0, condition='clean', smallLimit=0, wrongOnly=false, plotPoints=[], localImages=new Map(), imageRequest=0;
   const key=(id,c)=>`${id}|${c}`;
   const value=(x,d=2)=>Number(x).toFixed(d);
   const caseNow=()=>byKey.get(key(data.frame_ids[index],condition));
   const positions=(box)=>({left:`${box[0]*100}%`,top:`${box[1]*100}%`,width:`${Math.max(0,(box[2]-box[0])*100)}%`,height:`${Math.max(0,(box[3]-box[1])*100)}%`});
+  function imageNote(item,image,local){
+    const loaded=localImages.size;
+    const countText=loaded?` ${loaded} local frame-condition image${loaded===1?' is':'s are'} loaded.`:'';
+    if(local)return `Local source image loaded for this frame. Images stay in this browser; image hashes are not checked here.${countText}`;
+    if(image)return `This published example includes its source annotation. Toggles control measured overlays; the source mark remains visible.${countText}`;
+    return `No image is loaded for ${item.id} under ${names[condition]}. Load the reconstructed condition folders or select matching images. Image hashes are not checked here.${countText}`;
+  }
+  function showImageFailure(source,request){
+    if(request!==imageRequest||els['frame-image'].getAttribute('src')!==source)return;
+    els['frame-image'].hidden=true;els['box-layer'].hidden=true;els['scene-index'].hidden=true;
+    els['scene-placeholder'].hidden=false;
+    els['scene-placeholder'].textContent='This selected image could not be decoded. Try the audited source file for this frame and condition.';
+    els['image-note'].textContent='Image failed to load in this browser. The box metrics remain available, but overlays are hidden until a readable source image is selected.';
+  }
   function drawCase(){
     const item=caseNow();if(!item)return;
     els['frame-title'].textContent=`FRAME ${String(index+1).padStart(3,'0')} / 086`;
@@ -22,14 +36,30 @@
     els['case-label'].textContent=item.pass?'BASELINE TARGET MATCHED':'BASELINE TARGET MISSED';
     els['case-label'].classList.toggle('pass',item.pass);
     els['scene-index'].textContent=`${item.id} / ${names[condition]}`;
+    const aggregate=data.phase23_condition_aggregates[condition];
+    els['phase23-aggregate-condition'].textContent=names[condition];
+    els['phase23-map50'].textContent=`${(aggregate.map50*100).toFixed(1)}%`;
+    els['phase23-recall'].textContent=`${(aggregate.recall*100).toFixed(1)}%`;
     const local=localImages.get(key(item.id,condition));
     const published=item.id==='land_pad2__2100.jpg';
     const image=local|| (published?`/media/perception/kios_${condition}.jpg`:null);
     els['frame-image'].hidden=!image;
     els['scene-placeholder'].hidden=Boolean(image);
-    if(image){els['frame-image'].src=image;els['frame-image'].alt=`${names[condition]} view of ${item.id}${local?' loaded locally':' from a previously published annotated example'}`;}
-    else{els['frame-image'].removeAttribute('src');els['frame-image'].alt='';}
-    els['image-note'].textContent=local?'Local image loaded only in this browser. The measured boxes and scores come from the frozen run.':published?'This published example includes its source annotation. Toggles control the measured overlays; the source mark remains visible.':'Archive images stay off this site. Load matching source images in this browser to see measured boxes over the original frame.';
+    els['box-layer'].hidden=!image;els['scene-index'].hidden=!image;
+    const request=++imageRequest;
+    if(image){
+      els['scene-placeholder'].textContent='Frame image not loaded. Select its local source image to view measured boxes in context.';
+      let frameImage=els['frame-image'];
+      if(frameImage.getAttribute('src')!==image){
+        const replacement=frameImage.cloneNode(false);replacement.removeAttribute('src');
+        frameImage.replaceWith(replacement);els['frame-image']=replacement;frameImage=replacement;
+      }
+      frameImage.alt=`${names[condition]} view of ${item.id}${local?' loaded locally':' from a previously published annotated example'}`;
+      frameImage.onerror=()=>showImageFailure(image,request);
+      if(frameImage.getAttribute('src')!==image)frameImage.src=image;
+      else if(frameImage.complete&&frameImage.naturalWidth===0)showImageFailure(image,request);
+    }else{els['frame-image'].removeAttribute('src');els['frame-image'].alt='';els['scene-placeholder'].textContent='Frame image not loaded. Select its local source image to view measured boxes in context.';}
+    els['image-note'].textContent=imageNote(item,image,Boolean(local));
     els['box-layer'].replaceChildren();
     if(els['show-gt'].checked)for(const box of item.gt) addBox(box,'gt','GT');
     const visible=[];
@@ -93,8 +123,40 @@
     }
     els['scatter-count'].textContent=`${plotPoints.length.toLocaleString()} displayed baseline boxes${wrongOnly?' with score ≥ 0.70 and false-positive status':''}. Display includes scores ≥ 0.01 and any matched boxes below. All ${data.prediction_rows.toLocaleString()} predictions remain in the complete table; no threshold is selected from these reused frames.`;
   }
+  function conditionFromPath(file){
+    const segments=(file.webkitRelativePath||'').split(/[\\/]+/).filter(Boolean).slice(0,-1).reverse();
+    for(const raw of segments){
+      let part=raw.toLowerCase().replace(/[ -]+/g,'_');
+      part=part.replace(/^kios_/,'').replace(/^condition_/,'').replace(/^stress_/,'');
+      if(data.conditions.includes(part))return part;
+    }
+    return null;
+  }
+  function acceptImages(files,folderMode){
+    const frameNames=new Map(data.frame_ids.map(id=>[id.toLowerCase(),id]));
+    const imageExtensions=/\.(?:avif|bmp|gif|jpe?g|png|tiff?|webp)$/i;
+    let accepted=0,replaced=0,skipped=0;
+    for(const file of files){
+      const frame=frameNames.get(file.name.toLowerCase());
+      if((!file.type||!file.type.startsWith('image/'))&&!imageExtensions.test(file.name)){skipped++;continue;}
+      if(!frame){skipped++;continue;}
+      const fileCondition=folderMode?conditionFromPath(file):condition;
+      if(!fileCondition){skipped++;continue;}
+      const k=key(frame,fileCondition),old=localImages.get(k);
+      if(old){URL.revokeObjectURL(old);replaced++;}
+      localImages.set(k,URL.createObjectURL(file));accepted++;
+    }
+    drawCase();
+    const perCondition=data.conditions.map(c=>[c,[...localImages.keys()].filter(k=>k.endsWith(`|${c}`)).length]).filter(([,n])=>n>0);
+    const distribution=perCondition.map(([c,n])=>`${names[c]} ${n}`).join(' · ');
+    els['image-note'].textContent=accepted
+      ?`Loaded ${accepted} image view${accepted===1?'':'s'}${distribution?`: ${distribution}`:''}. ${replaced?`${replaced} replaced. `:''}${skipped?`${skipped} skipped (filename or condition folder did not match). `:''}Files stay in this browser; hashes are not checked here.`
+      :`No matching images loaded. Use original frame filenames${folderMode?' inside condition-named folders':''}. ${skipped?`${skipped} file${skipped===1?' was':'s were'} skipped. `:''}Files are not sent anywhere.`;
+  }
   function init(payload){
-    if(payload.status!=='baseline_only'||payload.phase23!==null||payload.frame_ids.length!==86||payload.cases.length!==516)throw Error('Atlas data contract failed');
+    if(payload.status!=='baseline_only'||payload.phase23!==null||payload.frame_ids.length!==86||payload.cases.length!==516
+      ||!payload.phase23_condition_aggregates||Object.keys(payload.phase23_condition_aggregates).length!==6
+      ||payload.conditions.some(c=>!payload.phase23_condition_aggregates[c]||!Number.isFinite(payload.phase23_condition_aggregates[c].map50)||!Number.isFinite(payload.phase23_condition_aggregates[c].recall)))throw Error('Atlas data contract failed');
     data=payload;byKey=new Map(data.cases.map(item=>[key(item.id,item.condition),item]));
     index=Math.max(0,data.frame_ids.indexOf('land_pad2__2100.jpg')); // Existing published illustration.
     const sizes=data.frame_ids.map(id=>byKey.get(key(id,'clean')).size).sort((a,b)=>a-b);smallLimit=sizes[Math.ceil(sizes.length*.25)-1];
@@ -105,18 +167,8 @@
     for(const id of ['show-gt','show-baseline'])els[id].addEventListener('change',drawCase);
     for(const id of ['filter-condition','filter-outcome','filter-confidence','small-target'])els[id].addEventListener('change',drawMatrix);
     els['show-wrong'].addEventListener('click',()=>{wrongOnly=!wrongOnly;els['show-wrong'].setAttribute('aria-pressed',String(wrongOnly));drawScatter();});
-    els['local-files'].addEventListener('change',event=>{
-      let accepted=0;const ignored=[];
-      for(const file of event.target.files){if(!file.type.startsWith('image/')||!data.frame_ids.includes(file.name)){ignored.push(file.name);continue;}
-        const k=key(file.name,condition);const old=localImages.get(k);if(old)URL.revokeObjectURL(old);localImages.set(k,URL.createObjectURL(file));
-        accepted++;
-      }
-      drawCase();
-      els['image-note'].textContent=accepted
-        ?`Loaded ${accepted} local image${accepted===1?'':'s'} for ${names[condition]}. Files stay in this browser.${ignored.length?` ${ignored.length} file${ignored.length===1?' was':'s were'} skipped because the filename did not match a frame ID.`:''}`
-        :`No selected file matched a frame ID. Choose source images with the original frame filenames. Nothing was sent.`;
-      event.target.value='';
-    });
+    els['local-files'].addEventListener('change',event=>{acceptImages(event.target.files,false);event.target.value='';});
+    els['local-folder'].addEventListener('change',event=>{acceptImages(event.target.files,true);event.target.value='';});
     window.addEventListener('pagehide',()=>{for(const url of localImages.values())URL.revokeObjectURL(url)});
     els['scatter'].addEventListener('pointermove',event=>{const bounds=els['scatter'].getBoundingClientRect();const x=event.clientX-bounds.left,y=event.clientY-bounds.top;let closest=null,distance=110;
       for(const point of plotPoints){const d=(point.x-x)**2+(point.y-y)**2;if(d<distance){closest=point;distance=d;}}
@@ -128,5 +180,5 @@
     document.querySelectorAll('[data-open-evidence]').forEach(button=>button.addEventListener('click',()=>els['evidence-dialog'].showModal()));els['close-evidence'].addEventListener('click',()=>els['evidence-dialog'].close());
     drawMatrix();
   }
-  fetch('/failure-atlas-data.json').then(response=>{if(!response.ok)throw Error(`HTTP ${response.status}`);return response.json()}).then(init).catch(error=>{els['image-note'].textContent=`Frame data could not load. Read the Phase 25 method or try again. (${error.message})`;});
+  fetch('/failure-atlas-data.json?v=2').then(response=>{if(!response.ok)throw Error(`HTTP ${response.status}`);return response.json()}).then(init).catch(error=>{els['image-note'].textContent=`Frame data could not load. Read the Phase 25 method or try again. (${error.message})`;});
 })();

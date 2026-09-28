@@ -250,6 +250,12 @@ def test_phase23_report_and_phase24_share_a_report_layout() -> None:
     assert 'href="/phases/phase23/"' in phase24
     assert phase23.count('<tr class="severe">') == 2
     assert "separate from the frozen Phase 1–22 simulation record" in phase23
+    gallery = re.findall(r'<figure><img src="([^"]+)" width="640" height="585"[^>]*loading="eager"', phase23)
+    assert len(gallery) == 6
+    assert all((ROOT / "deploy/vercel" / source.lstrip("/")).is_file() for source in gallery)
+    assert "These are condition examples, not detector-output overlays" in phase23
+    assert 'id="checkpoint-recovery"' in phase23
+    assert "py scripts\\bundle_phase23_checkpoint.py" in phase23
 
 
 def test_phase25_is_featured_as_work_in_progress_without_result_claims() -> None:
@@ -273,10 +279,18 @@ def test_phase25_is_featured_as_work_in_progress_without_result_claims() -> None
 def test_failure_atlas_is_baseline_only_with_auditable_tables() -> None:
     site = json.loads((ROOT / "deploy/vercel/failure-atlas-data.json").read_text())
     manifest = json.loads((ROOT / "results/phase25_baseline_diagnostic/run_manifest.json").read_text())
+    comparison_path = ROOT / "results/phase23_robust_detector/robustness_comparison.csv"
+    with comparison_path.open(newline="", encoding="utf-8") as handle:
+        comparison = {row["condition"]: row for row in csv.DictReader(handle)}
     assert site["status"] == "baseline_only" and site["phase23"] is None
     assert len(site["frame_ids"]) == 86 and len(site["cases"]) == 516
     assert site["prediction_rows"] == manifest["prediction_rows"] == 136359
-    assert site["source_hashes"] == manifest["table_sha256"]
+    assert {key: value for key, value in site["source_hashes"].items() if key != "phase23_comparison_csv"} == manifest["table_sha256"]
+    assert site["source_hashes"]["phase23_comparison_csv"] == hashlib.sha256(comparison_path.read_bytes()).hexdigest()
+    assert set(site["phase23_condition_aggregates"]) == {"clean", "blur", "low_light", "noise", "occlusion", "mixed"}
+    for condition, item in site["phase23_condition_aggregates"].items():
+        assert item["map50"] == float(comparison[condition]["phase23_map50"])
+        assert item["recall"] == float(comparison[condition]["phase23_recall"])
     assert sum(case["count"] for case in site["cases"]) == site["prediction_rows"]
     assert sum(len(case["boxes"]) + case["omitted"] for case in site["cases"]) == site["prediction_rows"]
     assert sum(case["tp"] for case in site["cases"]) == sum(box[6] for case in site["cases"] for box in case["boxes"])
@@ -284,6 +298,9 @@ def test_failure_atlas_is_baseline_only_with_auditable_tables() -> None:
     html = (ROOT / "deploy/vercel/failure-atlas.html").read_text()
     assert 'id="frame-range"' in html and 'id="scatter"' in html
     assert 'id="evidence-dialog"' in html and 'id="local-files"' in html
+    assert 'id="local-folder"' in html and "webkitdirectory" in html
+    assert 'id="phase23-map50"' in html and 'id="phase23-recall"' in html
+    assert "viewer does not hash-check them" in html
 
 
 def test_phase23_displayed_condition_table_matches_committed_csv() -> None:
