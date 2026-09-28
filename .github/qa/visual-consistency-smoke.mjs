@@ -44,6 +44,22 @@ try {
 
       const state = await page.evaluate(() => ({
         overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+        overflowOffenders: (() => {
+          const viewportWidth = document.documentElement.clientWidth;
+          return [...document.querySelectorAll('body *')].map(element => {
+            const rect = element.getBoundingClientRect();
+            const style = getComputedStyle(element);
+            const classes = typeof element.className === 'string' ? element.className.trim().replace(/\\s+/g, '.') : '';
+            return {
+              selector: `${element.tagName.toLowerCase()}${element.id ? `#${element.id}` : ''}${classes ? `.${classes}` : ''}`,
+              left: Math.round(rect.left), right: Math.round(rect.right), width: Math.round(rect.width),
+              position: style.position, display: style.display, visibility: style.visibility,
+              cssWidth: style.width, maxWidth: style.maxWidth
+            };
+          }).filter(item => item.right > viewportWidth + 1 || item.left < -1)
+            .sort((a, b) => Math.max(b.right - viewportWidth, -b.left) - Math.max(a.right - viewportWidth, -a.left))
+            .slice(0, 12);
+        })(),
         main: !!document.querySelector('main'),
         h1: document.querySelectorAll('h1').length,
         polish: [...document.querySelectorAll('link[rel="stylesheet"]')].some(link => (link.getAttribute('href') || '').startsWith('/phase-polish.css')),
@@ -65,7 +81,7 @@ try {
           return getComputedStyle(element).gridTemplateColumns.trim().split(/\s+/).filter(Boolean).length;
         })()
       }));
-      add(`${viewport.name}-${route}-no-horizontal-overflow`, state.overflow <= 1, { overflow: state.overflow });
+      add(`${viewport.name}-${route}-no-horizontal-overflow`, state.overflow <= 1, { overflow: state.overflow, ...(state.overflow > 1 ? { offenders: state.overflowOffenders } : {}) });
       add(`${viewport.name}-${route}-semantic-shell`, state.main && state.h1 >= 1, { main: state.main, h1: state.h1 });
       if (/^\/phases\/(phase(?:[1-9]|10|10r|11|1[2-9][abc]?|2[0-2]|6b))\/?$/.test(route)) {
         add(`${viewport.name}-${route}-shared-phase-polish`, state.polish, { polish: state.polish });
