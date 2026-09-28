@@ -15,6 +15,7 @@
 .phase25-feature__link{display:inline-flex;align-items:center;min-height:44px;padding:9px 17px;background:#3e6ae1;color:#fff;text-decoration:none;font-size:13px;font-weight:650;border-radius:4px;transition:background .2s ease,transform .2s ease}
 .phase25-feature__link:hover{background:#3058bf}.phase25-feature__link:active{transform:translateY(1px)}
 .phase25-feature__copy small{display:block;max-width:39ch;margin-top:24px;color:#636973;font-size:12px;line-height:1.55}
+.phase25-feature [hidden]{display:none!important}
 .phase25-feature__proof,.atlas-inputs{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;align-items:center;gap:10px 26px;border-top:1px solid #e1e5ea;border-bottom:1px solid #e1e5ea}
 .phase25-feature__proof{grid-column:1/-1;margin-top:4px;padding:15px 0}
 .phase25-feature__proof span,.atlas-inputs span{display:block;color:#5a6470;font-size:12px;line-height:1.45}
