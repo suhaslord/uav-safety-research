@@ -28,6 +28,12 @@
 }
 
 @media (max-width:900px){
+  /* Keep the horizontal research carousel inside the tablet viewport. */
+  html body.research-workspace.home-workspace #chapters .chapter-track{
+    width:100%!important;
+    max-width:100%!important;
+    box-sizing:border-box!important;
+  }
   html body.research-workspace.research-workspace .site-nav,
   html body.research-workspace.research-workspace .header-actions,
   html body.research-workspace.research-workspace .signature-nav__links,
