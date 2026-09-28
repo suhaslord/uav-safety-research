@@ -295,19 +295,18 @@ try {
       const payload = await fetch('/failure-atlas-data.json?v=2').then(response => response.json());
       const sources = payload.conditions.flatMap(condition => payload.frame_ids.map(frame => `/media/phase25/${condition}/${frame}`));
       const failures = [];
-      for (let offset = 0; offset < sources.length; offset += 12) {
-        const batch = sources.slice(offset, offset + 12);
-        const decoded = await Promise.all(batch.map(async src => {
+      // Keep this intentionally serial. A 12-way decode burst can exhaust the
+      // preview server's connection queue and report false negatives even when
+      // every JPEG is valid. The deployment build locks the 640px dimensions;
+      // this browser pass checks that every public URL loads and decodes.
+      for (const src of sources) {
+        const loaded = await new Promise(resolve => {
           const image = new Image();
+          image.onload = () => resolve(image.naturalWidth > 0 && image.naturalHeight > 0);
+          image.onerror = () => resolve(false);
           image.src = src;
-          try {
-            await image.decode();
-            return image.naturalWidth === 640;
-          } catch {
-            return false;
-          }
-        }));
-        decoded.forEach((ok, index) => { if (!ok) failures.push(batch[index]); });
+        });
+        if (!loaded) failures.push(src);
       }
       return { count: sources.length, failures: failures.slice(0, 8), failedCount: failures.length };
     });
