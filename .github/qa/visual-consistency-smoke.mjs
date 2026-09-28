@@ -412,7 +412,7 @@ try {
       return images.length === 6 && images.every(image => image.complete && image.naturalWidth > 0);
     }, null, { timeout: 15000 });
     const phase23Gallery = await page.evaluate(() => ({
-      title: document.querySelector('h1')?.textContent || '',
+      pageTitle: document.title,
       images: Array.from(document.querySelectorAll('.condition-gallery img')).map(image => ({
         src: image.getAttribute('src'), loaded: image.complete && image.naturalWidth > 0
       })),
@@ -420,7 +420,7 @@ try {
       recoveryNote: document.querySelector('#checkpoint-recovery')?.textContent || ''
     }));
     add('phase23-route-loads-all-six-examples-and-links-to-frame-explorer',
-      /Phase 23/.test(phase23Gallery.title) && phase23Gallery.images.length === 6
+      /Phase 23/.test(phase23Gallery.pageTitle) && phase23Gallery.images.length === 6
       && phase23Gallery.images.every(image => image.loaded)
       && /Explore all 86 frames/.test(phase23Gallery.atlasLink)
       && /exact Phase 23/.test(phase23Gallery.recoveryNote), phase23Gallery);
