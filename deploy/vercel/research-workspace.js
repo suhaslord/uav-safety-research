@@ -5,7 +5,7 @@
     if (document.querySelector('link[data-aegis-final-convergence]')) return;
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = '/final-convergence.css?v=1';
+    link.href = '/final-convergence.css?v=2';
     link.dataset.aegisFinalConvergence = '';
     link.addEventListener('load', () => { document.documentElement.dataset.finalConvergence = 'ready'; }, { once: true });
     document.head.insertBefore(link, document.querySelector('link[data-presentation-theme]'));
