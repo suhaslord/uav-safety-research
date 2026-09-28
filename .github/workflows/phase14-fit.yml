@@ -1,0 +1,127 @@
+name: Phase 14 uncertainty-recoverability surrogate fit
+
+on:
+  push:
+    branches: [phase14/uncertainty-recoverability-bridge]
+    paths:
+      - .github/workflows/phase14-fit.yml
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  FROZEN_PHASE12_DEV_RUN_ID: '34004695243'
+  FROZEN_PHASE12_CANDIDATE_SHA256: e2372ca597cdd983f098f1a45524c077798114c59a62bf9faccefd17b67a4991
+  PHASE14_FIT_SEED: '1414140'
+
+jobs:
+  fit:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Refuse a second Phase 14 bridge fit artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          COUNT=$(gh api \
+            -H 'Accept: application/vnd.github+json' \
+            '/repos/${{ github.repository }}/actions/artifacts?name=phase14-bridge-candidate&per_page=100' \
+            --jq '[.artifacts[] | select(.expired == false)] | length')
+          test "$COUNT" = "0" || { echo "Phase 14 bridge candidate already exists; refusing refit"; exit 1; }
+
+      - name: Check out preregistered Phase 14 scientific head
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Verify implementation before fit evidence
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+          python -m compileall -q \
+            scripts/run_phase14_uncertainty_recoverability_bridge.py \
+            scripts/run_phase13_external_validity_gauntlet.py \
+            scripts/run_phase12_adaptive_normalized_conformal.py \
+            scripts/run_phase12_adaptive_normalized_conformal_v3.py
+          pytest -q \
+            tests/test_phase11_p9_soft_update_direct_conformal.py \
+            tests/test_phase11_p14_bounded_independent_rescue.py \
+            tests/test_phase11_p14r_robust_group_envelope.py \
+            tests/test_phase12_adaptive_normalized_conformal.py \
+            tests/test_phase12_adaptive_normalized_conformal_v3.py \
+            tests/test_phase13_external_validity_gauntlet.py \
+            tests/test_phase14_uncertainty_recoverability_bridge.py
+          test -f docs/phase14_preregistration.md
+          grep -q '1414140' docs/phase14_preregistration.md
+          grep -q '0.30 m' docs/phase14_preregistration.md
+          grep -q '0.85 m' docs/phase14_preregistration.md
+          grep -q 'h_cap = 0.90' docs/phase14_preregistration.md
+
+      - name: Recover exact frozen Phase 12 candidate
+        uses: actions/download-artifact@v4
+        with:
+          name: phase12-development-v3
+          path: frozen_phase12_candidate_artifact
+          github-token: ${{ github.token }}
+          repository: suhaslord/uav-safety-research
+          run-id: ${{ env.FROZEN_PHASE12_DEV_RUN_ID }}
+
+      - name: Verify predecessor and freeze Phase 14 scientific identity
+        run: |
+          CANDIDATE=$(find frozen_phase12_candidate_artifact -path '*/results/phase12_candidate_v3/candidate_freeze.json' -print -quit)
+          test -n "$CANDIDATE"
+          echo "$FROZEN_PHASE12_CANDIDATE_SHA256  $CANDIDATE" | sha256sum -c -
+          echo "PHASE12_CANDIDATE=$CANDIDATE" >> "$GITHUB_ENV"
+          echo "PHASE14_SCIENTIFIC_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Expose Phase 14 surrogate-fit evidence exactly once
+        run: |
+          rm -rf results/phase14_fit
+          python scripts/run_phase14_uncertainty_recoverability_bridge.py \
+            --stage fit \
+            --phase12-candidate "$PHASE12_CANDIDATE" \
+            --out results/phase14_fit \
+            --git-sha "$PHASE14_SCIENTIFIC_SHA" 2>&1 | tee phase14-fit.log
+          test -f results/phase14_fit/bridge_candidate.json
+          test -f results/phase14_fit/fit_transitions.csv
+
+      - name: Verify fitted bridge candidate boundary
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          p = Path('results/phase14_fit/bridge_candidate.json')
+          c = json.loads(p.read_text())
+          assert c['schema'] == 'aegisland.phase14.uncertainty-recoverability.bridge-candidate.v1'
+          assert c['scientific_git_sha'] == os.environ['PHASE14_SCIENTIFIC_SHA']
+          assert c['phase12_candidate_sha256'] == os.environ['FROZEN_PHASE12_CANDIDATE_SHA256']
+          assert c['fit_evidence']['seed'] == int(os.environ['PHASE14_FIT_SEED'])
+          assert c['fit_evidence']['families'] == list(range(1489, 1521))
+          assert c['recoverable_set_half_width_m'] == {'lateral': 0.30, 'altitude': 0.85}
+          assert c['reserve_fraction'] == 0.90
+          assert c['normalized_residual_quantile'] == 0.99
+          for axis in ('lateral', 'altitude'):
+              m = c['axis_models'][axis]
+              assert abs(float(m['a'])) < 1.0
+              assert float(m['gamma']) > 0.0
+              assert float(m['halfwidth_cap_m']) > 0.0
+              assert float(m['analytic_margin_m']) >= -1e-12
+          assert c['simulation_only'] is True
+          assert c['safety_acceptance'] is False
+          assert c['controller_tuning_allowed'] is False
+          print('PHASE14_BRIDGE_FIT_PERMANENTLY_SEEN=true')
+          print(json.dumps(c['axis_models'], indent=2, sort_keys=True))
+          PY
+
+      - name: Upload permanent Phase 14 bridge candidate
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase14-bridge-candidate
+          path: |
+            results/phase14_fit/
+            phase14-fit.log
+          if-no-files-found: error
+          retention-days: 90

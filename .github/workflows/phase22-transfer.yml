@@ -1,0 +1,147 @@
+name: Phase 22 frozen additive context transfer confirmation
+
+on:
+  push:
+    branches: [phase22/frozen-additive-context-transfer]
+    paths:
+      - .github/workflows/phase22-transfer.yml
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  P22_DEV_RUN: '34042524414'
+  P22_DEV_SCI: 7f739ffccfaa4c075651021949713b852099e14d
+  P22_DEV_RESULT_SHA: ef4186021c0af863fc395bdc018b7755d5eaa14e48141d1bf03096edc2a930b8
+  P22_FIT_RUN: '34042362702'
+  P22_FIT_CANDIDATE_SHA: 62e75d7b39088c2e66f1cc6be4d180501b79632f2f6847af1fbe0bd96be17551
+  P12_RUN: '34004695243'
+  P12_SHA: e2372ca597cdd983f098f1a45524c077798114c59a62bf9faccefd17b67a4991
+  P14_RUN: '34010431456'
+  P14_SHA: 0443d4e45a1966c77544c5c9965de8caec6e622c79ef8c2ce47aee82a3c95981
+  P17_FIT_RUN: '34011621058'
+  P17_FIT_SHA: 2ca52a418f5616e0e83ef84d0c9238ee429260cd4de7a553356b0c1bba44d8e0
+  P21_FINAL_RUN: '34015012804'
+  P21_FINAL_SHA: bc85a746cf1b770fb4119feb3979789975ed5201065d94de47c6dcc3a051d9ee
+  P22_TRANSFER_SEED: '2222222'
+
+jobs:
+  transfer:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Guard evidence exposure
+        env: { GH_TOKEN: '${{ github.token }}' }
+        run: |
+          D=$(gh api '/repos/${{ github.repository }}/actions/artifacts?name=phase22-development&per_page=100' --jq '[.artifacts[]|select(.expired==false)]|length')
+          T=$(gh api '/repos/${{ github.repository }}/actions/artifacts?name=phase22-transfer&per_page=100' --jq '[.artifacts[]|select(.expired==false)]|length')
+          test "$D" = 1
+          test "$T" = 0 || { echo "Phase 22 transfer artifact already exists"; exit 1; }
+
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+
+      - name: Verify scientific implementation remained frozen after development
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+          pytest -q tests/test_phase22_frozen_additive_context_transfer.py
+          CHANGED=$(git diff --name-only "$P22_DEV_SCI"..HEAD)
+          BAD=$(printf '%s\n' "$CHANGED" | grep -Ev '^(docs/phase22_development_result\.md|\.github/workflows/phase22-transfer\.yml)$' || true)
+          test -z "$BAD" || { echo "Unauthorized post-development scientific change:"; echo "$BAD"; exit 1; }
+          grep -q "$P22_DEV_RESULT_SHA" docs/phase22_development_result.md
+
+      - name: Recover exact Phase 22 development result
+        uses: actions/download-artifact@v4
+        with: { name: phase22-development, path: p22dev, github-token: '${{ github.token }}', repository: suhaslord/uav-safety-research, run-id: '${{ env.P22_DEV_RUN }}' }
+
+      - name: Recover exact Phase 22 fit
+        uses: actions/download-artifact@v4
+        with: { name: phase22-fit, path: p22fit, github-token: '${{ github.token }}', repository: suhaslord/uav-safety-research, run-id: '${{ env.P22_FIT_RUN }}' }
+
+      - name: Recover Phase 12
+        uses: actions/download-artifact@v4
+        with: { name: phase12-development-v3, path: p12, github-token: '${{ github.token }}', repository: suhaslord/uav-safety-research, run-id: '${{ env.P12_RUN }}' }
+
+      - name: Recover Phase 14
+        uses: actions/download-artifact@v4
+        with: { name: phase14-bridge-candidate, path: p14, github-token: '${{ github.token }}', repository: suhaslord/uav-safety-research, run-id: '${{ env.P14_RUN }}' }
+
+      - name: Recover Phase 17 fit
+        uses: actions/download-artifact@v4
+        with: { name: phase17-fit-candidate, path: p17fit, github-token: '${{ github.token }}', repository: suhaslord/uav-safety-research, run-id: '${{ env.P17_FIT_RUN }}' }
+
+      - name: Recover exact Phase 21 final result
+        uses: actions/download-artifact@v4
+        with: { name: phase21-final, path: p21f, github-token: '${{ github.token }}', repository: suhaslord/uav-safety-research, run-id: '${{ env.P21_FINAL_RUN }}' }
+
+      - name: Verify exact identities and freeze transfer head
+        run: |
+          DEV=$(find p22dev -path '*/results/phase22_development/dev_result.json' -print -quit)
+          FIT=$(find p22fit -path '*/results/phase22_fit/fit_candidate.json' -print -quit)
+          P12=$(find p12 -path '*/results/phase12_candidate_v3/candidate_freeze.json' -print -quit)
+          P14=$(find p14 -path '*/results/phase14_fit/bridge_candidate.json' -print -quit)
+          P17=$(find p17fit -path '*/results/phase17_fit/fit_candidate.json' -print -quit)
+          P21=$(find p21f -path '*/results/phase21_final/final_result.json' -print -quit)
+          test -n "$DEV"; test -n "$FIT"; test -n "$P12"; test -n "$P14"; test -n "$P17"; test -n "$P21"
+          echo "$P22_DEV_RESULT_SHA  $DEV" | sha256sum -c -
+          echo "$P22_FIT_CANDIDATE_SHA  $FIT" | sha256sum -c -
+          echo "$P12_SHA  $P12" | sha256sum -c -
+          echo "$P14_SHA  $P14" | sha256sum -c -
+          echo "$P17_FIT_SHA  $P17" | sha256sum -c -
+          echo "$P21_FINAL_SHA  $P21" | sha256sum -c -
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(next(Path('p22dev').rglob('dev_result.json')).read_text())
+          f=json.loads(next(Path('p22fit').rglob('fit_candidate.json')).read_text())
+          assert d['phase22_pass'] is True
+          assert d['phase22_fit_candidate_sha256']=='62e75d7b39088c2e66f1cc6be4d180501b79632f2f6847af1fbe0bd96be17551'
+          assert f['fit_eligible'] is True and f['interaction_terms_retained'] is False
+          PY
+          echo "P22_FIT_FILE=$FIT" >> "$GITHUB_ENV"
+          echo "P12_FILE=$P12" >> "$GITHUB_ENV"
+          echo "P14_FILE=$P14" >> "$GITHUB_ENV"
+          echo "P17_FILE=$P17" >> "$GITHUB_ENV"
+          echo "P21_FILE=$P21" >> "$GITHUB_ENV"
+          echo "P22_TRANSFER_SCI=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Expose Phase 22 transfer evidence exactly once
+        run: |
+          rm -rf results/phase22_transfer
+          python scripts/run_phase22_frozen_additive_context_transfer.py --stage transfer --phase12-candidate "$P12_FILE" --phase14-bridge "$P14_FILE" --phase17-fit-candidate "$P17_FILE" --phase21-final-result "$P21_FILE" --fit-candidate "$P22_FIT_FILE" --expected-fit-sha256 "$P22_FIT_CANDIDATE_SHA" --out results/phase22_transfer --git-sha "$P22_TRANSFER_SCI" 2>&1 | tee phase22-transfer.log
+          test -f results/phase22_transfer/transfer_result.json
+
+      - name: Verify permanent transfer boundary and record verdict
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          r=json.loads(Path('results/phase22_transfer/transfer_result.json').read_text())
+          assert r['schema']=='aegisland.phase22.frozen-additive-context-transfer.transfer-result.v1'
+          assert r['evaluated_seed_seen_after_run']==int(os.environ['P22_TRANSFER_SEED'])
+          assert r['families']==list(range(2361,2385))
+          assert r['scientific_git_sha']==os.environ['P22_TRANSFER_SCI']
+          assert r['phase22_fit_candidate_sha256']==os.environ['P22_FIT_CANDIDATE_SHA']
+          assert r['factorial_context_count']==32 and len(r['contexts'])==32
+          assert len(r['gates'])==10
+          assert r['q90_is_descriptive_only'] is True and r['no_refit'] is True
+          assert r['interaction_terms_retained'] is False and r['zero_adaptation'] is True
+          print('PHASE22_TRANSFER_PASS='+str(bool(r['phase22_pass'])).lower())
+          print(json.dumps(r['gates'],indent=2,sort_keys=True))
+          print(json.dumps(r['rmse_prediction'],indent=2,sort_keys=True))
+          print(json.dumps(r['mae_prediction'],indent=2,sort_keys=True))
+          PY
+
+      - name: Upload permanent Phase 22 transfer evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase22-transfer
+          path: |
+            results/phase22_transfer/
+            phase22-transfer.log
+          if-no-files-found: error
+          retention-days: 90

@@ -1,0 +1,83 @@
+name: Phase 19 distribution-wide residual advantage protected validation
+
+on:
+  push:
+    branches: [phase19/distribution-wide-residual-advantage]
+    paths: [.github/workflows/phase19-validation.yml]
+
+permissions: { contents: read, actions: read }
+
+env:
+  PREV_RUN: '34012247907'
+  PREV_SHA: 0b6f03e001ea2f23c39017f16dd3341c913f4365c8c20126544d963b58e97529
+  PREV_SCI: 9e66e377c605df938d55665966d5e4dac5561b0e
+  P12_RUN: '34004695243'
+  P12_SHA: e2372ca597cdd983f098f1a45524c077798114c59a62bf9faccefd17b67a4991
+  P14_RUN: '34010431456'
+  P14_SHA: 0443d4e45a1966c77544c5c9965de8caec6e622c79ef8c2ce47aee82a3c95981
+  P17_RUN: '34011621058'
+  P17_SHA: 2ca52a418f5616e0e83ef84d0c9238ee429260cd4de7a553356b0c1bba44d8e0
+  P18_RUN: '34012030160'
+  P18_SHA: ad96ca1a5119fcd594a84fd72a04f8efcc377ba788383d90dda9ef7eecad4431
+  SEED: '1919193'
+
+jobs:
+  validation:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Guard
+        env: { GH_TOKEN: '${{ github.token }}' }
+        run: |
+          P=$(gh api '/repos/${{ github.repository }}/actions/artifacts?name=phase19-transfer&per_page=100' --jq '[.artifacts[]|select(.expired==false)]|length'); V=$(gh api '/repos/${{ github.repository }}/actions/artifacts?name=phase19-validation&per_page=100' --jq '[.artifacts[]|select(.expired==false)]|length'); test "$P" = 1; test "$V" = 0
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - name: Verify freeze
+        run: |
+          pip install -e ".[dev]"; pytest -q tests/test_phase19_distribution_wide_residual_advantage.py
+          C=$(git diff --name-only "$PREV_SCI"..HEAD); B=$(printf '%s\n' "$C"|grep -Ev '^(docs/phase19_transfer_result\.md|\.github/workflows/phase19-validation\.yml)$'||true); test -z "$B" || { echo "$B"; exit 1; }
+          grep -q "$PREV_SHA" docs/phase19_transfer_result.md
+      - name: Recover previous
+        uses: actions/download-artifact@v4
+        with: { name: phase19-transfer, path: prev, github-token: '${{ github.token }}', repository: suhaslord/uav-safety-research, run-id: '${{ env.PREV_RUN }}' }
+      - name: Recover p12
+        uses: actions/download-artifact@v4
+        with: { name: phase12-development-v3, path: p12, github-token: '${{ github.token }}', repository: suhaslord/uav-safety-research, run-id: '${{ env.P12_RUN }}' }
+      - name: Recover p14
+        uses: actions/download-artifact@v4
+        with: { name: phase14-bridge-candidate, path: p14, github-token: '${{ github.token }}', repository: suhaslord/uav-safety-research, run-id: '${{ env.P14_RUN }}' }
+      - name: Recover p17
+        uses: actions/download-artifact@v4
+        with: { name: phase17-fit-candidate, path: p17, github-token: '${{ github.token }}', repository: suhaslord/uav-safety-research, run-id: '${{ env.P17_RUN }}' }
+      - name: Recover p18 fail
+        uses: actions/download-artifact@v4
+        with: { name: phase18-validation, path: p18, github-token: '${{ github.token }}', repository: suhaslord/uav-safety-research, run-id: '${{ env.P18_RUN }}' }
+      - name: Verify identities
+        run: |
+          PREV=$(find prev -path '*/results/phase19_transfer/transfer_result.json' -print -quit); P12=$(find p12 -path '*/results/phase12_candidate_v3/candidate_freeze.json' -print -quit); P14=$(find p14 -path '*/results/phase14_fit/bridge_candidate.json' -print -quit); P17=$(find p17 -path '*/results/phase17_fit/fit_candidate.json' -print -quit); P18=$(find p18 -path '*/results/phase18_validation/validation_result.json' -print -quit)
+          echo "$PREV_SHA  $PREV"|sha256sum -c -; echo "$P12_SHA  $P12"|sha256sum -c -; echo "$P14_SHA  $P14"|sha256sum -c -; echo "$P17_SHA  $P17"|sha256sum -c -; echo "$P18_SHA  $P18"|sha256sum -c -
+          python - <<'PY'
+          import json; from pathlib import Path
+          assert json.loads(next(Path('prev').rglob('transfer_result.json')).read_text())['phase19_pass'] is True
+          assert json.loads(next(Path('p18').rglob('validation_result.json')).read_text())['phase18_pass'] is False
+          PY
+          echo "P12=$P12" >> $GITHUB_ENV; echo "P14=$P14" >> $GITHUB_ENV; echo "P17=$P17" >> $GITHUB_ENV; echo "P18=$P18" >> $GITHUB_ENV; echo "SCI=$(git rev-parse HEAD)" >> $GITHUB_ENV
+      - name: Expose protected once
+        run: |
+          python scripts/run_phase19_distribution_wide_residual_advantage.py --stage validation --phase12-candidate "$P12" --phase14-bridge "$P14" --phase17-fit-candidate "$P17" --phase18-validation-result "$P18" --out results/phase19_validation --git-sha "$SCI" 2>&1 | tee phase19-validation.log
+      - name: Verify
+        run: |
+          python - <<'PY'
+          import json,os; from pathlib import Path
+          r=json.loads(Path('results/phase19_validation/validation_result.json').read_text()); assert r['evaluated_seed_seen_after_run']==int(os.environ['SEED']); assert r['families']==list(range(2073,2097)); assert r['phase18_failure_preserved'] and r['q90_is_descriptive_only'] and r['no_refit']; print('P19_VALIDATION_PASS='+str(r['phase19_pass']).lower()); print(json.dumps(r['gates'],indent=2)); print(json.dumps(r['contexts'],indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: phase19-validation
+          path: |
+            results/phase19_validation/
+            phase19-validation.log
+          if-no-files-found: error
+          retention-days: 90

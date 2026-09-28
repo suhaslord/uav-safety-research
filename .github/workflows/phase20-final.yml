@@ -1,0 +1,135 @@
+name: Phase 20 Shapley context attenuation final holdout
+
+on:
+  push:
+    branches: [phase20/shapley-context-attenuation]
+    paths:
+      - .github/workflows/phase20-final.yml
+
+permissions: { contents: read, actions: read }
+
+env:
+  P20_VALIDATION_RUN: '34013640844'
+  P20_VALIDATION_RESULT_SHA: f6f1d9f8fe41f227467ae73ccf472346ee44edda90c79326c749bffc481acf88
+  P20_VALIDATION_SCI: 4c9afcac47b6269af50b5bcc6d664c550814f23e
+  P12_RUN: '34004695243'
+  P12_SHA: e2372ca597cdd983f098f1a45524c077798114c59a62bf9faccefd17b67a4991
+  P14_RUN: '34010431456'
+  P14_SHA: 0443d4e45a1966c77544c5c9965de8caec6e622c79ef8c2ce47aee82a3c95981
+  P17_FIT_RUN: '34011621058'
+  P17_FIT_SHA: 2ca52a418f5616e0e83ef84d0c9238ee429260cd4de7a553356b0c1bba44d8e0
+  P19_FINAL_RUN: '34012403543'
+  P19_FINAL_SHA: 8c23b9b9c8c9fb2f9146bf739e52074f8709d2fe9a81c794e64fb43f360acebf
+  P20_FINAL_SEED: '2020204'
+
+jobs:
+  final:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Guard final evidence exposure
+        env: { GH_TOKEN: '${{ github.token }}' }
+        run: |
+          V=$(gh api '/repos/${{ github.repository }}/actions/artifacts?name=phase20-validation&per_page=100' --jq '[.artifacts[]|select(.expired==false)]|length')
+          F=$(gh api '/repos/${{ github.repository }}/actions/artifacts?name=phase20-final&per_page=100' --jq '[.artifacts[]|select(.expired==false)]|length')
+          test "$V" = 1; test "$F" = 0
+
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+
+      - name: Verify scientific implementation remained frozen after protected validation
+        run: |
+          pip install -e ".[dev]"
+          pytest -q tests/test_phase20_shapley_context_attenuation.py
+          CHANGED=$(git diff --name-only "$P20_VALIDATION_SCI"..HEAD)
+          BAD=$(printf '%s\n' "$CHANGED" | grep -Ev '^(docs/phase20_validation_result\.md|\.github/workflows/phase20-final\.yml)$' || true)
+          test -z "$BAD" || { echo "$BAD"; exit 1; }
+          grep -q "$P20_VALIDATION_RESULT_SHA" docs/phase20_validation_result.md
+
+      - name: Recover exact Phase 20 protected result
+        uses: actions/download-artifact@v4
+        with: { name: phase20-validation, path: p20v, github-token: '${{ github.token }}', repository: suhaslord/uav-safety-research, run-id: '${{ env.P20_VALIDATION_RUN }}' }
+      - name: Recover Phase 12
+        uses: actions/download-artifact@v4
+        with: { name: phase12-development-v3, path: p12, github-token: '${{ github.token }}', repository: suhaslord/uav-safety-research, run-id: '${{ env.P12_RUN }}' }
+      - name: Recover Phase 14
+        uses: actions/download-artifact@v4
+        with: { name: phase14-bridge-candidate, path: p14, github-token: '${{ github.token }}', repository: suhaslord/uav-safety-research, run-id: '${{ env.P14_RUN }}' }
+      - name: Recover Phase 17 fit
+        uses: actions/download-artifact@v4
+        with: { name: phase17-fit-candidate, path: p17fit, github-token: '${{ github.token }}', repository: suhaslord/uav-safety-research, run-id: '${{ env.P17_FIT_RUN }}' }
+      - name: Recover exact Phase 19 final result
+        uses: actions/download-artifact@v4
+        with: { name: phase19-final, path: p19f, github-token: '${{ github.token }}', repository: suhaslord/uav-safety-research, run-id: '${{ env.P19_FINAL_RUN }}' }
+
+      - name: Verify exact identities and freeze final head
+        run: |
+          P20V=$(find p20v -path '*/results/phase20_validation/validation_result.json' -print -quit)
+          P12=$(find p12 -path '*/results/phase12_candidate_v3/candidate_freeze.json' -print -quit)
+          P14=$(find p14 -path '*/results/phase14_fit/bridge_candidate.json' -print -quit)
+          P17=$(find p17fit -path '*/results/phase17_fit/fit_candidate.json' -print -quit)
+          P19=$(find p19f -path '*/results/phase19_final/final_result.json' -print -quit)
+          test -n "$P20V"; test -n "$P12"; test -n "$P14"; test -n "$P17"; test -n "$P19"
+          echo "$P20_VALIDATION_RESULT_SHA  $P20V" | sha256sum -c -
+          echo "$P12_SHA  $P12" | sha256sum -c -
+          echo "$P14_SHA  $P14" | sha256sum -c -
+          echo "$P17_FIT_SHA  $P17" | sha256sum -c -
+          echo "$P19_FINAL_SHA  $P19" | sha256sum -c -
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          v=json.loads(next(Path('p20v').rglob('validation_result.json')).read_text())
+          p=json.loads(next(Path('p19f').rglob('final_result.json')).read_text())
+          assert v['phase20_pass'] is True
+          assert all(v['gates'].values())
+          assert v['factorial_context_count'] == 32
+          assert v['q90_is_descriptive_only'] is True
+          assert v['no_refit'] is True and v['zero_adaptation'] is True
+          assert p['phase19_pass'] is True
+          assert p['phase18_failure_preserved'] is True
+          assert p['q90_is_descriptive_only'] is True
+          PY
+          echo "P12_FILE=$P12" >> "$GITHUB_ENV"
+          echo "P14_FILE=$P14" >> "$GITHUB_ENV"
+          echo "P17_FILE=$P17" >> "$GITHUB_ENV"
+          echo "P19_FILE=$P19" >> "$GITHUB_ENV"
+          echo "P20_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Expose Phase 20 final holdout exactly once
+        run: |
+          rm -rf results/phase20_final
+          python scripts/run_phase20_shapley_context_attenuation.py --stage final --phase12-candidate "$P12_FILE" --phase14-bridge "$P14_FILE" --phase17-fit-candidate "$P17_FILE" --phase19-final-result "$P19_FILE" --out results/phase20_final --git-sha "$P20_SHA" 2>&1 | tee phase20-final.log
+          test -f results/phase20_final/final_result.json
+
+      - name: Verify permanent final boundary and record verdict
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          r=json.loads(Path('results/phase20_final/final_result.json').read_text())
+          assert r['schema']=='aegisland.phase20.shapley-context-attenuation.final-result.v1'
+          assert r['evaluated_seed_seen_after_run']==int(os.environ['P20_FINAL_SEED'])
+          assert r['families']==list(range(2193,2217))
+          assert r['scientific_git_sha']==os.environ['P20_SHA']
+          assert r['factorial_context_count']==32 and len(r['contexts'])==32
+          assert r['phase19_final_pass_preserved'] is True
+          assert r['phase18_failure_preserved_via_phase19'] is True
+          assert r['q90_is_descriptive_only'] is True and r['no_refit'] is True and r['zero_adaptation'] is True
+          assert r['simulation_only'] is True and r['safety_acceptance'] is False and r['controller_tuning_allowed'] is False
+          print('PHASE20_FINAL_PASS='+str(bool(r['phase20_pass'])).lower())
+          print(json.dumps(r['gates'],indent=2,sort_keys=True))
+          print(json.dumps(r['rmse_shapley_attenuation'],indent=2,sort_keys=True))
+          print(json.dumps(r['mae_shapley_attenuation'],indent=2,sort_keys=True))
+          PY
+
+      - name: Upload permanent Phase 20 final evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase20-final
+          path: |
+            results/phase20_final/
+            phase20-final.log
+          if-no-files-found: error
+          retention-days: 90

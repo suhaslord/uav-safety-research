@@ -1,0 +1,139 @@
+name: Phase 21 orthogonal context spectrum transfer
+
+on:
+  push:
+    branches: [phase21/orthogonal-context-spectrum]
+    paths: [.github/workflows/phase21-transfer.yml]
+
+permissions: { contents: read, actions: read }
+
+env:
+  MAINTENANCE_CI_RUN: '34014408636'
+  MAINTENANCE_CI_HEAD: 715cfc4e9d5dffeff3e74bc43ae224d3ec525d48
+  P21_DEV_RUN: '34014610015'
+  P21_DEV_SHA: 1fe5765af341fc8af21d5e4b1a9a2a70b1fe17ccbac93b0c313489f68c2d0215
+  P21_DEV_SCI: d8892c49379574274aa6b7777f4406ad8a83a5bb
+  P12_RUN: '34004695243'
+  P12_SHA: e2372ca597cdd983f098f1a45524c077798114c59a62bf9faccefd17b67a4991
+  P14_RUN: '34010431456'
+  P14_SHA: 0443d4e45a1966c77544c5c9965de8caec6e622c79ef8c2ce47aee82a3c95981
+  P17_RUN: '34011621058'
+  P17_SHA: 2ca52a418f5616e0e83ef84d0c9238ee429260cd4de7a553356b0c1bba44d8e0
+  P20_FINAL_RUN: '34013829943'
+  P20_FINAL_SHA: f2a0cf4e1cf0765c3194025eb29072f9663f27e3cdd13b0594cde4643f33934e
+  P21_TRANSFER_SEED: '2121212'
+
+jobs:
+  transfer:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Guard evidence exposure
+        env: { GH_TOKEN: '${{ github.token }}' }
+        run: |
+          D=$(gh api '/repos/${{ github.repository }}/actions/artifacts?name=phase21-development&per_page=100' --jq '[.artifacts[]|select(.expired==false)]|length')
+          T=$(gh api '/repos/${{ github.repository }}/actions/artifacts?name=phase21-transfer&per_page=100' --jq '[.artifacts[]|select(.expired==false)]|length')
+          test "$D" = 1
+          test "$T" = 0
+          CONCLUSION=$(gh api "/repos/${{ github.repository }}/actions/runs/$MAINTENANCE_CI_RUN" --jq '.conclusion')
+          HEAD=$(gh api "/repos/${{ github.repository }}/actions/runs/$MAINTENANCE_CI_RUN" --jq '.head_sha')
+          test "$CONCLUSION" = success
+          test "$HEAD" = "$MAINTENANCE_CI_HEAD"
+
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+
+      - name: Verify scientific implementation remained frozen after development
+        run: |
+          pip install -e ".[dev]"
+          pytest -q tests/test_phase13c_pandas_writeable_array_maintenance.py tests/test_phase20_shapley_context_attenuation.py tests/test_phase21_orthogonal_context_spectrum.py
+          CHANGED=$(git diff --name-only "$P21_DEV_SCI"..HEAD)
+          BAD=$(printf '%s\n' "$CHANGED" | grep -Ev '^(docs/phase21_development_result\.md|\.github/workflows/phase21-transfer\.yml)$' || true)
+          test -z "$BAD" || { echo "$BAD"; exit 1; }
+          grep -q "$P21_DEV_SHA" docs/phase21_development_result.md
+
+      - name: Recover exact Phase 21 development result
+        uses: actions/download-artifact@v4
+        with: { name: phase21-development, path: p21dev, github-token: '${{ github.token }}', repository: suhaslord/uav-safety-research, run-id: '${{ env.P21_DEV_RUN }}' }
+      - name: Recover Phase 12
+        uses: actions/download-artifact@v4
+        with: { name: phase12-development-v3, path: p12, github-token: '${{ github.token }}', repository: suhaslord/uav-safety-research, run-id: '${{ env.P12_RUN }}' }
+      - name: Recover Phase 14
+        uses: actions/download-artifact@v4
+        with: { name: phase14-bridge-candidate, path: p14, github-token: '${{ github.token }}', repository: suhaslord/uav-safety-research, run-id: '${{ env.P14_RUN }}' }
+      - name: Recover Phase 17 fit
+        uses: actions/download-artifact@v4
+        with: { name: phase17-fit-candidate, path: p17, github-token: '${{ github.token }}', repository: suhaslord/uav-safety-research, run-id: '${{ env.P17_RUN }}' }
+      - name: Recover exact Phase 20 final result
+        uses: actions/download-artifact@v4
+        with: { name: phase20-final, path: p20f, github-token: '${{ github.token }}', repository: suhaslord/uav-safety-research, run-id: '${{ env.P20_FINAL_RUN }}' }
+
+      - name: Verify exact identities and freeze transfer head
+        run: |
+          P21=$(find p21dev -path '*/results/phase21_development/dev_result.json' -print -quit)
+          P12=$(find p12 -path '*/results/phase12_candidate_v3/candidate_freeze.json' -print -quit)
+          P14=$(find p14 -path '*/results/phase14_fit/bridge_candidate.json' -print -quit)
+          P17=$(find p17 -path '*/results/phase17_fit/fit_candidate.json' -print -quit)
+          P20=$(find p20f -path '*/results/phase20_final/final_result.json' -print -quit)
+          test -n "$P21"; test -n "$P12"; test -n "$P14"; test -n "$P17"; test -n "$P20"
+          echo "$P21_DEV_SHA  $P21" | sha256sum -c -
+          echo "$P12_SHA  $P12" | sha256sum -c -
+          echo "$P14_SHA  $P14" | sha256sum -c -
+          echo "$P17_SHA  $P17" | sha256sum -c -
+          echo "$P20_FINAL_SHA  $P20" | sha256sum -c -
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(next(Path('p21dev').rglob('dev_result.json')).read_text())
+          p=json.loads(next(Path('p20f').rglob('final_result.json')).read_text())
+          assert d['phase21_pass'] is True and all(d['gates'].values())
+          assert p['phase20_pass'] is True
+          assert p['phase18_failure_preserved_via_phase19'] is True
+          assert p['q90_is_descriptive_only'] is True
+          PY
+          echo "P12_FILE=$P12" >> "$GITHUB_ENV"
+          echo "P14_FILE=$P14" >> "$GITHUB_ENV"
+          echo "P17_FILE=$P17" >> "$GITHUB_ENV"
+          echo "P20_FILE=$P20" >> "$GITHUB_ENV"
+          echo "P21_SCI=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Expose Phase 21 transfer evidence exactly once
+        run: |
+          rm -rf results/phase21_transfer
+          python scripts/run_phase21_orthogonal_context_spectrum.py --stage transfer --phase12-candidate "$P12_FILE" --phase14-bridge "$P14_FILE" --phase17-fit-candidate "$P17_FILE" --phase20-final-result "$P20_FILE" --out results/phase21_transfer --git-sha "$P21_SCI" 2>&1 | tee phase21-transfer.log
+          test -f results/phase21_transfer/transfer_result.json
+
+      - name: Verify permanent transfer boundary and record verdict
+        run: |
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          r=json.loads(Path('results/phase21_transfer/transfer_result.json').read_text())
+          assert r['schema']=='aegisland.phase21.orthogonal-context-spectrum.transfer-result.v1'
+          assert r['evaluated_seed_seen_after_run']==int(os.environ['P21_TRANSFER_SEED'])
+          assert r['families']==list(range(2241,2265))
+          assert r['scientific_git_sha']==os.environ['P21_SCI']
+          assert r['factorial_context_count']==32 and len(r['contexts'])==32
+          assert r['phase20_final_pass_preserved'] is True
+          assert r['q90_is_descriptive_only'] is True and r['no_refit'] is True and r['zero_adaptation'] is True
+          assert r['simulation_only'] is True and r['safety_acceptance'] is False and r['controller_tuning_allowed'] is False
+          assert len(r['gates'])==10
+          print('PHASE21_TRANSFER_PASS='+str(bool(r['phase21_pass'])).lower())
+          print(json.dumps(r['gates'],indent=2,sort_keys=True))
+          print(json.dumps(r['rmse_endpoint'],indent=2,sort_keys=True))
+          print(json.dumps(r['mae_endpoint'],indent=2,sort_keys=True))
+          print(json.dumps(r['rmse_walsh_spectrum'],indent=2,sort_keys=True))
+          print(json.dumps(r['mae_walsh_spectrum'],indent=2,sort_keys=True))
+          PY
+
+      - name: Upload permanent Phase 21 transfer evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase21-transfer
+          path: |
+            results/phase21_transfer/
+            phase21-transfer.log
+          if-no-files-found: error
+          retention-days: 90

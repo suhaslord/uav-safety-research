@@ -1,0 +1,154 @@
+name: Phase 14 uncertainty-recoverability development
+
+on:
+  push:
+    branches: [phase14/uncertainty-recoverability-bridge]
+    paths:
+      - .github/workflows/phase14-development.yml
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  FROZEN_PHASE12_DEV_RUN_ID: '34004695243'
+  FROZEN_PHASE12_CANDIDATE_SHA256: e2372ca597cdd983f098f1a45524c077798114c59a62bf9faccefd17b67a4991
+  PHASE14_FIT_RUN_ID: '34010431456'
+  PHASE14_BRIDGE_CANDIDATE_SHA256: 0443d4e45a1966c77544c5c9965de8caec6e622c79ef8c2ce47aee82a3c95981
+  PHASE14_SCIENTIFIC_SHA: a80cd02d0781e7b3dde9ea523b2fe17ecd44002c
+  PHASE14_DEV_SEED: '1414141'
+
+jobs:
+  development:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Require fit evidence and refuse second development exposure
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          FIT_COUNT=$(gh api \
+            -H 'Accept: application/vnd.github+json' \
+            '/repos/${{ github.repository }}/actions/artifacts?name=phase14-bridge-candidate&per_page=100' \
+            --jq '[.artifacts[] | select(.expired == false)] | length')
+          test "$FIT_COUNT" -ge 1 || { echo "Phase 14 bridge candidate missing"; exit 1; }
+          DEV_COUNT=$(gh api \
+            -H 'Accept: application/vnd.github+json' \
+            '/repos/${{ github.repository }}/actions/artifacts?name=phase14-development&per_page=100' \
+            --jq '[.artifacts[] | select(.expired == false)] | length')
+          test "$DEV_COUNT" = "0" || { echo "Phase 14 development artifact already exists; refusing second exposure"; exit 1; }
+
+      - name: Check out development-authorization head
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Verify frozen scientific implementation before development
+        run: |
+          test -f docs/phase14_fit_result.md
+          grep -q '0443d4e45a1966c77544c5c9965de8caec6e622c79ef8c2ce47aee82a3c95981' docs/phase14_fit_result.md
+          git diff --exit-code "$PHASE14_SCIENTIFIC_SHA" -- \
+            scripts/run_phase14_uncertainty_recoverability_bridge.py \
+            tests/test_phase14_uncertainty_recoverability_bridge.py \
+            docs/phase14_preregistration.md
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+          python -m compileall -q \
+            scripts/run_phase14_uncertainty_recoverability_bridge.py \
+            scripts/run_phase13_external_validity_gauntlet.py \
+            scripts/run_phase12_adaptive_normalized_conformal_v3.py
+          pytest -q \
+            tests/test_phase12_adaptive_normalized_conformal_v3.py \
+            tests/test_phase13_external_validity_gauntlet.py \
+            tests/test_phase14_uncertainty_recoverability_bridge.py
+
+      - name: Recover exact frozen Phase 12 candidate
+        uses: actions/download-artifact@v4
+        with:
+          name: phase12-development-v3
+          path: frozen_phase12_candidate_artifact
+          github-token: ${{ github.token }}
+          repository: suhaslord/uav-safety-research
+          run-id: ${{ env.FROZEN_PHASE12_DEV_RUN_ID }}
+
+      - name: Recover exact frozen Phase 14 bridge candidate
+        uses: actions/download-artifact@v4
+        with:
+          name: phase14-bridge-candidate
+          path: frozen_phase14_bridge_artifact
+          github-token: ${{ github.token }}
+          repository: suhaslord/uav-safety-research
+          run-id: ${{ env.PHASE14_FIT_RUN_ID }}
+
+      - name: Verify candidate identities
+        run: |
+          P12=$(find frozen_phase12_candidate_artifact -path '*/results/phase12_candidate_v3/candidate_freeze.json' -print -quit)
+          BRIDGE=$(find frozen_phase14_bridge_artifact -path '*/results/phase14_fit/bridge_candidate.json' -print -quit)
+          test -n "$P12"
+          test -n "$BRIDGE"
+          echo "$FROZEN_PHASE12_CANDIDATE_SHA256  $P12" | sha256sum -c -
+          echo "$PHASE14_BRIDGE_CANDIDATE_SHA256  $BRIDGE" | sha256sum -c -
+          echo "PHASE12_CANDIDATE=$P12" >> "$GITHUB_ENV"
+          echo "BRIDGE_CANDIDATE=$BRIDGE" >> "$GITHUB_ENV"
+
+      - name: Expose Phase 14 development evidence exactly once
+        run: |
+          rm -rf results/phase14_development
+          python scripts/run_phase14_uncertainty_recoverability_bridge.py \
+            --stage dev \
+            --phase12-candidate "$PHASE12_CANDIDATE" \
+            --bridge-candidate "$BRIDGE_CANDIDATE" \
+            --out results/phase14_development \
+            --git-sha "$PHASE14_SCIENTIFIC_SHA" 2>&1 | tee phase14-development.log
+          test -f results/phase14_development/dev_result.json
+          test -f results/phase14_development/dev_natural_transitions.csv
+          test -f results/phase14_development/dev_latency_transitions.csv
+
+      - name: Verify development boundary and record verdict
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          r = json.loads(Path('results/phase14_development/dev_result.json').read_text())
+          assert r['schema'] == 'aegisland.phase14.uncertainty-recoverability.dev-result.v1'
+          assert r['evaluated_seed_seen_after_run'] == int(os.environ['PHASE14_DEV_SEED'])
+          assert r['families'] == list(range(1521, 1545))
+          assert r['scientific_git_sha'] == os.environ['PHASE14_SCIENTIFIC_SHA']
+          assert r['phase12_candidate_sha256'] == os.environ['FROZEN_PHASE12_CANDIDATE_SHA256']
+          assert r['bridge_candidate_sha256'] == os.environ['PHASE14_BRIDGE_CANDIDATE_SHA256']
+          assert r['recoverable_set_half_width_m'] == {'lateral': 0.30, 'altitude': 0.85}
+          assert r['zero_adaptation'] is True
+          assert r['simulation_only'] is True
+          assert r['safety_acceptance'] is False
+          assert r['controller_tuning_allowed'] is False
+          assert set(r['gates']) == {
+              'p14_1_candidate_and_lineage_integrity',
+              'p14_2_contractive_fitted_surrogate',
+              'p14_3_conditional_analytic_rpi',
+              'p14_4_natural_normalized_residual_envelope',
+              'p14_5_natural_empirical_containment',
+              'p14_6_natural_nontrivial_admission',
+              'p14_7_latency_normalized_residual_envelope',
+              'p14_8_latency_empirical_containment',
+              'p14_9_latency_nonvacuous_admission',
+              'p14_10_zero_adaptation_and_claim_boundary',
+          }
+          print('PHASE14_DEVELOPMENT_PERMANENTLY_SEEN=true')
+          print('PHASE14_DEVELOPMENT_PASS=' + str(bool(r['phase14_pass'])).lower())
+          print(json.dumps(r['gates'], indent=2, sort_keys=True))
+          print(json.dumps({'natural': r['natural'], 'latency': r['latency']}, indent=2, sort_keys=True))
+          PY
+
+      - name: Upload permanent Phase 14 development evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase14-development
+          path: |
+            results/phase14_development/
+            phase14-development.log
+          if-no-files-found: error
+          retention-days: 90
