@@ -6,7 +6,11 @@
 
 ## Research question
 
-Can a lightweight uncertainty-aware supervisory layer reduce unsafe simulated UAV landings caused by degraded visual perception without producing an impractically high intervention or abort rate?
+**Umbrella question:** When landing perception becomes unreliable, can the system recognize that before it trusts a bad estimate?
+
+The project now includes simulated control, synthetic-image integration, uncertainty estimation, real-image detector evaluation, and external trace checks. [Model VASE](model_vase.md) connects those tracks under this question while preserving their separate protocols and results. It is a research architecture, not a claim that all components have been integrated and tested as one end-to-end model.
+
+The initial Phase 1 question was narrower: can a lightweight uncertainty-aware supervisory layer reduce unsafe simulated UAV landings under degraded perception without an impractically high intervention or abort rate? That question remains the registered objective for the original experiment lineage; this umbrella wording does not rewrite its protocol or outcomes.
 
 ## Hypothesis
 

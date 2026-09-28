@@ -51,7 +51,8 @@ def test_vercel_home_is_native_frozen_archive_shell() -> None:
     assert "Simulation record frozen through Phase 22" in html
     assert 'id="current-audit"' in html
     assert 'id="phase25"' in html
-    assert '<a class="button primary signature-button" href="/failure-atlas/">Explore Failure Atlas</a>' in html
+    assert '<a class="button primary signature-button" href="/model-vase/">Explore Model VASE</a>' in html
+    assert '<a class="button secondary signature-button" href="/failure-atlas/">Open Failure Atlas</a>' in html
     assert "Baseline observed · Phase 23 pending" in html
     assert "0.8319" in html
     assert "0.7744" in html
@@ -84,6 +85,7 @@ def test_vercel_routes_use_packaged_frozen_and_legacy_assets() -> None:
     assert "/phase24.html" in destinations
     assert "/phase25.html" in destinations
     assert "/failure-atlas.html" in destinations
+    assert {"/model-vase", "/model-vase/"} == {item["source"] for item in rewrites if item["destination"] == "/model-vase.html"}
     assert {"/failure-atlas", "/failure-atlas/"} == {item["source"] for item in rewrites if item["destination"] == "/failure-atlas.html"}
     assert {"/reproduce", "/reproduce/"} == {item["source"] for item in rewrites if item["destination"] == "/reproduce.html"}
     phase23_sources = {item["source"] for item in rewrites if item["destination"] == "/phase23.html"}
@@ -116,6 +118,24 @@ def test_vercel_routes_use_packaged_frozen_and_legacy_assets() -> None:
     ):
         assert f"/phases/{slug}" in frozen_sources
         assert f"/phases/{slug}/" in frozen_sources
+
+
+def test_model_vase_page_is_the_unified_evidence_map() -> None:
+    html = (ROOT / "deploy/vercel/model-vase.html").read_text(encoding="utf-8")
+    home = (ROOT / "deploy/vercel/index.html").read_text(encoding="utf-8")
+    assert "Model VASE" in html
+    assert "Vision · Auxiliary evidence · State reliability · Escalation" in html
+    assert "When landing perception becomes unreliable" in html
+    assert "In planar simulation: conditionally, yes." in html
+    assert "real-image and flight evidence do not yet show" in html.lower()
+    assert "10,000 simulated episodes" in html
+    assert "84.2% to 2.4%" in html
+    assert "95.53% lateral coverage" in html
+    assert "exact Phase 23 checkpoint" in html
+    assert "Phase 26 has no admitted independent test set" in html
+    assert "KIOS boxes and Phase 12 intervals are not silently fed into the V3 supervisor" in html
+    assert 'href="/model-vase.css?v=1"' in html
+    assert 'href="/model-vase/"' in home
 
 
 def test_phase12_standalone_file_remains_a_frozen_historical_record() -> None:

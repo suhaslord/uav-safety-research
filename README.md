@@ -5,9 +5,11 @@
 [![CI](https://github.com/suhaslord/uav-safety-research/actions/workflows/ci.yml/badge.svg)](https://github.com/suhaslord/uav-safety-research/actions/workflows/ci.yml)
 [![Real dataset](https://img.shields.io/badge/real%20dataset-422%20frames-2563eb)](https://doi.org/10.5281/zenodo.13682584)
 
-[Research cockpit](https://aegisland-research-cockpit.vercel.app/) · [Real-data protocol](docs/real_dataset_track.md) · [Experiment archive](https://aegisland-research-cockpit.vercel.app/phases/)
+[Research cockpit](https://aegisland-research-cockpit.vercel.app/) · [Model VASE](https://aegisland-research-cockpit.vercel.app/model-vase/) · [Real-data protocol](docs/real_dataset_track.md) · [Experiment archive](https://aegisland-research-cockpit.vercel.app/phases/)
 
 AegisLand asks: **when landing perception becomes unreliable, can the system recognize that before it trusts a bad estimate?**
+
+[Model VASE](docs/model_vase.md) is the shared system architecture and evidence map for that question: Vision, Auxiliary evidence, State reliability, and Escalation. It routes the frozen V3 simulation path through a parity-checked wrapper and connects every other phase as separate, versioned evidence. It is not a newly trained checkpoint, and the detector, conformal estimator, and supervisor have not yet been evaluated together end to end.
 
 ## Where the record stands
 
