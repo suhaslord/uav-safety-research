@@ -247,24 +247,65 @@ try {
     await page.goto(BASE + '/failure-atlas/', { waitUntil: 'domcontentloaded', timeout: 45000 });
     await page.locator('#frame-title').waitFor({ timeout: 15000 });
     await page.locator('#conditions button').first().waitFor({ timeout: 15000 });
+    await page.waitForFunction(() => document.querySelector('#frame-image')?.naturalWidth > 0, null, { timeout: 15000 });
     const atlas = await page.evaluate(() => ({
       title: document.querySelector('h1')?.textContent || '',
       conditions: document.querySelectorAll('#conditions button').length,
       matrix: document.querySelectorAll('#matrix button').length,
       score: document.querySelector('#baseline-metrics')?.textContent || '',
       pending: document.querySelector('.pending-panel')?.textContent || '',
-      overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth
+      overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      heroImage: document.querySelector('.intro-image img')?.getAttribute('src') || '',
+      sourceImageLoaded: document.querySelector('#frame-image')?.naturalWidth > 0,
+      sceneFill: (() => {
+        const scene = document.querySelector('#baseline-scene');
+        const sceneBox = scene?.getBoundingClientRect();
+        const panelBox = scene?.parentElement?.getBoundingClientRect();
+        return Boolean(sceneBox && panelBox && Math.abs(sceneBox.width - panelBox.width) < 1
+          && Math.abs(sceneBox.width / sceneBox.height - 1052 / 961) < .01);
+      })(),
+      visibleLabels: document.querySelectorAll('#box-layer .overlay-box em').length,
+      caseSummary: document.querySelector('#case-features')?.textContent || ''
     }));
-    add('atlas-live-baseline-and-honest-pending', /Every frame/i.test(atlas.title)
+    add('atlas-live-baseline-and-honest-pending', /See where the model fails/i.test(atlas.title)
       && atlas.conditions === 6 && atlas.matrix === 516 && /BEST IoU/.test(atlas.score)
-      && /Exact frozen model required/i.test(atlas.pending) && atlas.overflow <= 1, atlas);
+      && /Exact frozen model required/i.test(atlas.pending) && atlas.overflow <= 1
+      && atlas.heroImage === '/media/perception/kios_clean.jpg' && atlas.sourceImageLoaded, atlas);
+    add('atlas-source-proportional-panels-and-readable-boxes', atlas.sceneFill && atlas.visibleLabels <= 5
+      && /all counted/.test(atlas.caseSummary), atlas);
+    const startFrame = await page.locator('#frame-range').evaluate(el => Number(el.value));
+    await page.locator('#next-frame').click();
+    const nextFrame = await page.locator('#frame-range').evaluate(el => Number(el.value));
+    await page.locator('#prev-frame').click();
+    add('atlas-frame-navigation-wraps-and-reverses', nextFrame === (startFrame + 1) % 86
+      && await page.locator('#frame-range').evaluate(el => Number(el.value)) === startFrame);
+    await page.locator('#show-baseline').uncheck();
+    const boxesHidden = await page.locator('#box-layer .overlay-box:not(.gt)').count() === 0
+      && /0 shown/.test(await page.locator('#case-features').innerText());
+    await page.locator('#show-baseline').check();
+    await page.locator('#show-gt').uncheck();
+    const groundTruthHidden = await page.locator('#box-layer .overlay-box.gt').count() === 0;
+    await page.locator('#show-gt').check();
+    add('atlas-overlay-toggles-match-visible-summary', boxesHidden && groundTruthHidden);
+    await page.locator('#view-mode').click();
+    const stacked = await page.locator('#comparison').evaluate(el => el.classList.contains('stacked'));
+    await page.locator('#view-mode').click();
+    add('atlas-side-by-side-toggle-reverses', stacked && !(await page.locator('#comparison').evaluate(el => el.classList.contains('stacked'))));
     await page.locator('#conditions button[data-condition="mixed"]').click();
     await page.locator('#filter-outcome').selectOption('miss');
     add('atlas-filter-and-condition-work', /MIXED/.test(await page.locator('#frame-sequence').innerText())
-      && /matching views/.test(await page.locator('#match-count').innerText()));
+      && /matching views/.test(await page.locator('#match-count').innerText())
+      && Number((await page.locator('#match-count').innerText()).split('/')[0].trim()) < 516);
     await page.locator('[data-open-evidence]').first().click();
     add('atlas-evidence-opens', await page.locator('#evidence-dialog').evaluate(el => el.open));
     await page.locator('#close-evidence').click();
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.locator('.mobile-menu summary').click();
+    const mobileMenuWorks = await page.locator('.mobile-menu').evaluate(el => el.open)
+      && await page.locator('.mobile-menu nav a[href="/reproduce/"]').isVisible();
+    await page.locator('.mobile-menu summary').click();
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    add('atlas-mobile-navigation-opens', mobileMenuWorks);
 
     const phaseChecks = [
       ['/phases/phase1/', /First safety supervisor/i, /HOLD \/ ABORT/i],
