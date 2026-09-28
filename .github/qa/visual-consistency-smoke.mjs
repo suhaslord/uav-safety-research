@@ -10,7 +10,7 @@ let failed = 0;
 const add = (name, ok, details = {}) => { results.push({ name, ok, ...details }); if (!ok) failed++; };
 
 const routes = [
-  '/', '/phases/', '/failure-atlas/', '/reproduce/',
+  '/', '/phases/', '/failure-atlas/', '/model-vase/', '/reproduce/',
   '/phases/phase1/', '/phases/phase2/', '/phases/phase3/', '/phases/phase4/', '/phases/phase5/',
   '/phases/phase6/', '/phases/phase6b/', '/phases/phase7/', '/phases/phase8/', '/phases/phase9/',
   '/phases/phase10/', '/phases/phase10r/', '/phases/phase11/', '/phases/phase12/',
@@ -44,6 +44,61 @@ try {
 
       const state = await page.evaluate(() => ({
         overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+        overflowOffenders: (() => {
+          const viewportWidth = document.documentElement.clientWidth;
+          return [...document.querySelectorAll('body *')].map(element => {
+            const rect = element.getBoundingClientRect();
+            const style = getComputedStyle(element);
+            const classes = typeof element.className === 'string' ? element.className.trim().replace(/\\s+/g, '.') : '';
+            return {
+              selector: `${element.tagName.toLowerCase()}${element.id ? `#${element.id}` : ''}${classes ? `.${classes}` : ''}`,
+              left: Math.round(rect.left), right: Math.round(rect.right), width: Math.round(rect.width),
+              position: style.position, display: style.display, visibility: style.visibility,
+              cssWidth: style.width, maxWidth: style.maxWidth
+            };
+          }).filter(item => item.right > viewportWidth + 1 || item.left < -1)
+            .sort((a, b) => Math.max(b.right - viewportWidth, -b.left) - Math.max(a.right - viewportWidth, -a.left))
+            .slice(0, 12);
+        })(),
+        overflowDebug: (() => {
+          if (document.documentElement.scrollWidth - document.documentElement.clientWidth <= 1) return null;
+          const selectors = ['html', 'body', 'main', '#chapters', '#chapterTrack', '.chapter-heading'];
+          return {
+            viewport: { innerWidth: window.innerWidth, clientWidth: document.documentElement.clientWidth, scrollWidth: document.documentElement.scrollWidth },
+            edgeCandidates: [...document.querySelectorAll('body *')].map(element => {
+              const rect = element.getBoundingClientRect();
+              const style = getComputedStyle(element);
+              const label = node => {
+                if (!node || node.nodeType !== 1) return '';
+                const classes = typeof node.className === 'string' ? node.className.trim().replace(/\\s+/g, '.') : '';
+                return `${node.tagName.toLowerCase()}${node.id ? `#${node.id}` : ''}${classes ? `.${classes}` : ''}`;
+              };
+              return {
+                selector: label(element), left: Math.round(rect.left * 100) / 100, right: Math.round(rect.right * 100) / 100,
+                width: Math.round(rect.width * 100) / 100, position: style.position, display: style.display,
+                overflowX: style.overflowX, ancestry: [element.parentElement, element.parentElement?.parentElement].map(label).filter(Boolean)
+              };
+            }).filter(item => item.right > document.documentElement.clientWidth + 1
+              && item.right <= document.documentElement.clientWidth + 20
+              || item.left < -1 && item.left >= -20)
+              .sort((a, b) => Math.max(b.right - document.documentElement.clientWidth, -b.left) - Math.max(a.right - document.documentElement.clientWidth, -a.left))
+              .slice(0, 20),
+            boxes: selectors.map(selector => {
+              const element = document.querySelector(selector);
+              if (!element) return { selector, missing: true };
+              const rect = element.getBoundingClientRect();
+              const style = getComputedStyle(element);
+              return {
+                selector, left: Math.round(rect.left * 100) / 100, right: Math.round(rect.right * 100) / 100,
+                width: Math.round(rect.width * 100) / 100, scrollWidth: element.scrollWidth, clientWidth: element.clientWidth,
+                cssWidth: style.width, maxWidth: style.maxWidth, boxSizing: style.boxSizing,
+                overflowX: style.overflowX, overflowY: style.overflowY,
+                marginLeft: style.marginLeft, marginRight: style.marginRight,
+                paddingLeft: style.paddingLeft, paddingRight: style.paddingRight
+              };
+            })
+          };
+        })(),
         main: !!document.querySelector('main'),
         h1: document.querySelectorAll('h1').length,
         polish: [...document.querySelectorAll('link[rel="stylesheet"]')].some(link => (link.getAttribute('href') || '').startsWith('/phase-polish.css')),
@@ -65,7 +120,7 @@ try {
           return getComputedStyle(element).gridTemplateColumns.trim().split(/\s+/).filter(Boolean).length;
         })()
       }));
-      add(`${viewport.name}-${route}-no-horizontal-overflow`, state.overflow <= 1, { overflow: state.overflow });
+      add(`${viewport.name}-${route}-no-horizontal-overflow`, state.overflow <= 1, { overflow: state.overflow, ...(state.overflow > 1 ? { offenders: state.overflowOffenders, layout: state.overflowDebug } : {}) });
       add(`${viewport.name}-${route}-semantic-shell`, state.main && state.h1 >= 1, { main: state.main, h1: state.h1 });
       if (/^\/phases\/(phase(?:[1-9]|10|10r|11|1[2-9][abc]?|2[0-2]|6b))\/?$/.test(route)) {
         add(`${viewport.name}-${route}-shared-phase-polish`, state.polish, { polish: state.polish });

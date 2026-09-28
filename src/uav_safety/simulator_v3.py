@@ -6,16 +6,12 @@ import numpy as np
 from .config import ControllerConfig, SimConfig
 from .controller import LandingController
 from .dynamics import State, step_dynamics
+from .model_vase import ModelVase
 from .perception import PerceptionModel, PerceptionProfile
 from .reference_estimator import IndependentReferenceEstimator, ReferenceEstimatorConfig
 from .simulator import _wind_sample
 from .supervisor_v2 import TemporalObservationFilter
-from .supervisor_v3 import (
-    DecisionV3,
-    RedundantSafetySupervisorV3,
-    RedundantStateFusion,
-    SupervisorV3Config,
-)
+from .supervisor_v3 import DecisionV3, SupervisorV3Config
 
 
 @dataclass
@@ -87,8 +83,7 @@ def run_episode_v3(
     )
     reference = IndependentReferenceEstimator(reference_rng, sim_cfg.dt, ref_cfg)
     vision_filter = TemporalObservationFilter(dt=sim_cfg.dt)
-    fusion = RedundantStateFusion(sup_cfg)
-    supervisor = RedundantSafetySupervisorV3(sup_cfg)
+    model = ModelVase(sup_cfg)
     controller = LandingController(ctrl_cfg, sim_cfg)
 
     risks: list[float] = []
@@ -116,9 +111,10 @@ def run_episode_v3(
         reference_updates += int(ref_obs.fresh)
         reference_unavailable_steps += int(not ref_obs.available)
 
-        fused = fusion.update(raw_vision, filtered_vision, ref_obs)
+        model_step = model.step(raw_vision, filtered_vision, ref_obs)
+        fused = model_step.fusion
         last_fusion = fused
-        decision = supervisor.assess(raw_vision, fused, ref_obs)
+        decision = model_step.decision
 
         risks.append(decision.risk)
         disagreements.append(fused.normalized_disagreement)

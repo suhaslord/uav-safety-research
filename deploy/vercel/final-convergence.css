@@ -55,8 +55,9 @@
     display:flex!important;
     flex-direction:column!important;
     box-sizing:border-box!important;
-    width:100vw!important;
-    max-width:100vw!important;
+    /* Insets already span the viewport; 100vw adds the scrollbar gutter. */
+    width:auto!important;
+    max-width:none!important;
     height:100dvh!important;
     padding:22px 20px 28px!important;
     overflow-y:auto!important;
@@ -262,5 +263,37 @@ body.research-workspace.home-workspace #timeline .text-link{
 @media (max-width:340px){
   html body.research-workspace.home-workspace .home-lineage__track{
     grid-template-columns:repeat(6,minmax(44px,1fr))!important;
+  }
+}
+/* Bound the section while preserving its nested horizontal carousel. */
+@media (max-width:900px){
+  html body.research-workspace.home-workspace #chapters{
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    box-sizing:border-box!important;
+    overflow-x:clip!important;
+  }
+  html body.research-workspace.home-workspace #chapters .chapter-track{
+    width:auto!important;
+    max-width:100%!important;
+    min-width:0!important;
+  }
+}
+
+
+/* The desktop footer row overflows on tablets; preserve all links by wrapping. */
+@media (min-width:601px) and (max-width:900px){
+  html body.research-workspace.home-workspace.home-workspace .footer{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    gap:8px!important;
+    padding:24px 20px!important;
+    text-align:center!important;
+  }
+  html body.research-workspace.home-workspace.home-workspace .footer-links{
+    justify-content:center!important;
+    flex-wrap:wrap!important;
+    gap:8px 16px!important;
   }
 }

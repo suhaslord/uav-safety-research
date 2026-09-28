@@ -36,8 +36,10 @@ jobs:
           grep -q 'AegisLand · Landing perception research' deploy/vercel/index.html
           grep -q 'When the camera is sure, but wrong.' deploy/vercel/index.html
           grep -q 'Frozen simulation result' deploy/vercel/index.html
-          grep -q 'href="/failure-atlas/">Explore Failure Atlas' deploy/vercel/index.html
-          grep -q 'href="/phases/phase25/">See the evidence' deploy/vercel/index.html
+          grep -q 'href="/model-vase/">Explore Model VASE' deploy/vercel/index.html
+          grep -q 'href="/failure-atlas/">Open Failure Atlas' deploy/vercel/index.html
+          grep -q 'Model VASE' deploy/vercel/model-vase.html
+          grep -q 'When landing perception becomes unreliable' deploy/vercel/model-vase.html
           grep -q 'Simulation record frozen through Phase 22' deploy/vercel/index.html
           grep -q 'Phase 22 is a simulation result' deploy/vercel/index.html
           grep -q 'home-lineage__track' deploy/vercel/index.html

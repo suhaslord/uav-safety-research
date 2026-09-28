@@ -7,6 +7,7 @@ Start here if you want to understand the project without reading every source fi
 | Document | Purpose |
 |---|---|
 | [`research_plan.md`](research_plan.md) | Research question, hypothesis, variables, phases, statistical plan |
+| [`model_vase.md`](model_vase.md) | Unified AegisLand system architecture, evidence map, current answer, and limits |
 | [`preregistration_v1.md`](preregistration_v1.md) | Frozen Phase 1 protocol before the main result |
 | [`methodology.md`](methodology.md) | Current simulator and modeling assumptions |
 | [`literature.md`](literature.md) | Related-work starting map |
