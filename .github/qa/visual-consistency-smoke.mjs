@@ -65,6 +65,24 @@ try {
           const selectors = ['html', 'body', 'main', '#chapters', '#chapterTrack', '.chapter-heading'];
           return {
             viewport: { innerWidth: window.innerWidth, clientWidth: document.documentElement.clientWidth, scrollWidth: document.documentElement.scrollWidth },
+            edgeCandidates: [...document.querySelectorAll('body *')].map(element => {
+              const rect = element.getBoundingClientRect();
+              const style = getComputedStyle(element);
+              const label = node => {
+                if (!node || node.nodeType !== 1) return '';
+                const classes = typeof node.className === 'string' ? node.className.trim().replace(/\\s+/g, '.') : '';
+                return `${node.tagName.toLowerCase()}${node.id ? `#${node.id}` : ''}${classes ? `.${classes}` : ''}`;
+              };
+              return {
+                selector: label(element), left: Math.round(rect.left * 100) / 100, right: Math.round(rect.right * 100) / 100,
+                width: Math.round(rect.width * 100) / 100, position: style.position, display: style.display,
+                overflowX: style.overflowX, ancestry: [element.parentElement, element.parentElement?.parentElement].map(label).filter(Boolean)
+              };
+            }).filter(item => item.right > document.documentElement.clientWidth + 1
+              && item.right <= document.documentElement.clientWidth + 20
+              || item.left < -1 && item.left >= -20)
+              .sort((a, b) => Math.max(b.right - document.documentElement.clientWidth, -b.left) - Math.max(a.right - document.documentElement.clientWidth, -a.left))
+              .slice(0, 20),
             boxes: selectors.map(selector => {
               const element = document.querySelector(selector);
               if (!element) return { selector, missing: true };
