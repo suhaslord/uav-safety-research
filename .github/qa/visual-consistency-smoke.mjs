@@ -299,6 +299,15 @@ try {
     await page.locator('#prev-frame').click();
     add('atlas-frame-navigation-wraps-and-reverses', nextFrame === (startFrame + 1) % 86
       && await page.locator('#frame-range').evaluate(el => Number(el.value)) === startFrame);
+    await page.locator('#next-frame').click();
+    const unavailableImageIsExplained = /not published here/.test(await page.locator('#image-note').innerText())
+      && /not published/.test(await page.locator('#scene-placeholder').innerText())
+      && await page.locator('#frame-image').evaluate(img => img.hidden);
+    await page.locator('#published-frame').click();
+    await page.waitForFunction(() => document.querySelector('#frame-image')?.naturalWidth > 0, null, { timeout: 15000 });
+    add('atlas-unpublished-views-have-honest-return-to-image', unavailableImageIsExplained
+      && await page.locator('#frame-range').evaluate(el => Number(el.value)) === startFrame
+      && await page.locator('#frame-image').evaluate(img => !img.hidden));
     await page.locator('#show-baseline').uncheck();
     const boxesHidden = await page.locator('#box-layer .overlay-box:not(.gt)').count() === 0
       && /0 shown/.test(await page.locator('#case-features').innerText());
