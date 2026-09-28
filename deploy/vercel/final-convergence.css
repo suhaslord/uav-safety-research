@@ -28,12 +28,6 @@
 }
 
 @media (max-width:900px){
-  /* Keep the horizontal research carousel inside the tablet viewport. */
-  html body.research-workspace.home-workspace #chapters .chapter-track{
-    width:100%!important;
-    max-width:100%!important;
-    box-sizing:border-box!important;
-  }
   html body.research-workspace.research-workspace .site-nav,
   html body.research-workspace.research-workspace .header-actions,
   html body.research-workspace.research-workspace .signature-nav__links,
@@ -284,5 +278,22 @@ body.research-workspace.home-workspace #timeline .text-link{
     width:auto!important;
     max-width:100%!important;
     min-width:0!important;
+  }
+}
+
+
+/* The desktop footer row overflows on tablets; preserve all links by wrapping. */
+@media (min-width:601px) and (max-width:900px){
+  html body.research-workspace.home-workspace.home-workspace .footer{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    gap:8px!important;
+    padding:24px 20px!important;
+    text-align:center!important;
+  }
+  html body.research-workspace.home-workspace.home-workspace .footer-links{
+    justify-content:center!important;
+    flex-wrap:wrap!important;
+    gap:8px 16px!important;
   }
 }
