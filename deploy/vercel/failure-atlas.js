@@ -2,7 +2,7 @@
   'use strict';
   const $ = id => document.getElementById(id);
   const names = {clean:'Clean', blur:'Blur', low_light:'Low light', noise:'Noise', occlusion:'Occlusion', mixed:'Mixed'};
-  const els = Object.fromEntries(['frame-title','frame-sequence','frame-range','prev-frame','next-frame','view-mode','conditions','show-gt','show-baseline','local-files','image-note','comparison','baseline-verdict','baseline-scene','frame-image','box-layer','scene-index','baseline-metrics','case-label','case-features','filter-condition','filter-outcome','filter-confidence','small-target','match-count','matrix','scatter','point-detail','show-wrong','scatter-count','evidence-dialog','close-evidence'].map(id=>[id,$(id)]));
+  const els = Object.fromEntries(['frame-title','frame-sequence','frame-range','prev-frame','next-frame','view-mode','conditions','show-gt','show-baseline','local-files','image-note','comparison','baseline-verdict','baseline-scene','frame-image','scene-placeholder','box-layer','scene-index','baseline-metrics','case-label','case-features','filter-condition','filter-outcome','filter-confidence','small-target','match-count','matrix','scatter','point-detail','show-wrong','scatter-count','evidence-dialog','close-evidence'].map(id=>[id,$(id)]));
   let data, byKey, index=0, condition='clean', smallLimit=0, wrongOnly=false, plotPoints=[], localImages=new Map();
   const key=(id,c)=>`${id}|${c}`;
   const value=(x,d=2)=>Number(x).toFixed(d);
@@ -21,32 +21,40 @@
     }
     els['case-label'].textContent=item.pass?'BASELINE TARGET MATCHED':'BASELINE TARGET MISSED';
     els['case-label'].classList.toggle('pass',item.pass);
-    els['case-features'].textContent=`Target area ${(item.size*100).toFixed(3)}% · Brightness ${value(item.brightness)} · Sharpness ${value(item.sharpness,4)} · ${item.count} detections at score ≥ 0.001`;
     els['scene-index'].textContent=`${item.id} / ${names[condition]}`;
     const local=localImages.get(key(item.id,condition));
     const published=item.id==='land_pad2__2100.jpg';
     const image=local|| (published?`/media/perception/kios_${condition}.jpg`:null);
     els['frame-image'].hidden=!image;
+    els['scene-placeholder'].hidden=Boolean(image);
     if(image){els['frame-image'].src=image;els['frame-image'].alt=`${names[condition]} view of ${item.id}${local?' loaded locally':' from a previously published annotated example'}`;}
     else{els['frame-image'].removeAttribute('src');els['frame-image'].alt='';}
-    els['image-note'].textContent=local?'Local image loaded only in this browser. The measured boxes and scores come from the frozen run.':published?'This published example has its original blue annotation baked into the image. Toggles control the measured overlays; the blue source mark remains visible.':'The archive imagery stays off this site. Box coordinates are measured; load your own verified images in this browser to see overlays. Select images for the active condition.';
+    els['image-note'].textContent=local?'Local image loaded only in this browser. The measured boxes and scores come from the frozen run.':published?'This published example includes its source annotation. Toggles control the measured overlays; the source mark remains visible.':'Archive images stay off this site. Load matching source images in this browser to see measured boxes over the original frame.';
     els['box-layer'].replaceChildren();
     if(els['show-gt'].checked)for(const box of item.gt) addBox(box,'gt','GT');
+    const visible=[];
     if(els['show-baseline'].checked){
-      // Always draw matched targets, even when their score falls below the display floor.
-      const visible=item.boxes.slice(0,60);
+      visible.push(...item.boxes.slice(0,12));
       for(const box of item.boxes)if(box[6]&&!visible.includes(box))visible.push(box);
-      for(const box of visible) addBox(box,box[6]?'tp':'fp',`${box[6]?'TP':'FP'} ${value(box[4])}`);
+      // Keep the view legible while preserving every matched target; metrics still use all predictions.
+      let falsePositiveLabels=0;
+      for(const box of visible){
+        const truePositive=Boolean(box[6]);
+        const showLabel=truePositive||falsePositiveLabels<4;
+        if(!truePositive)falsePositiveLabels++;
+        addBox(box,truePositive?'tp':'fp',`${truePositive?'TP':'FP'} ${value(box[4])}`,showLabel);
+      }
     }
-    els['baseline-scene'].title=`${item.count} predictions; ${item.omitted} below display score 0.01. Matching uses every box ≥ 0.001.`;
+    els['baseline-scene'].title=`${item.count} predictions scored at 0.001 or above; ${visible.length} boxes are drawn. Metrics use every prediction.`;
+    els['case-features'].textContent=`Target area ${(item.size*100).toFixed(3)}% · Brightness ${value(item.brightness)} · Sharpness ${value(item.sharpness,4)} · ${item.count} detections; ${visible.length} shown, all counted.`;
     els['conditions'].querySelectorAll('button').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.condition===condition)));
     els['matrix'].querySelectorAll('button.selected').forEach(button=>button.classList.remove('selected'));
     els['matrix'].querySelector(`[data-frame="${index}"][data-condition="${condition}"]`)?.classList.add('selected');
   }
-  function addBox(box,type,label){
+  function addBox(box,type,label,showLabel=true){
     const node=document.createElement('span');node.className=`overlay-box ${type}`;
     Object.assign(node.style,positions(box));node.title=`${label}${type!=='gt'?` · IoU ${value(box[5])}`:''}`;
-    if(type!=='gt'){const tag=document.createElement('em');tag.textContent=label;node.append(tag);}
+    if(type!=='gt'&&showLabel){const tag=document.createElement('em');tag.textContent=label;node.append(tag);}
     els['box-layer'].append(node);
   }
   function matches(item){
@@ -80,7 +88,7 @@
       for(const box of item.boxes){const [,,, ,score,iou,tp]=box;
         if(wrongOnly && (score<.7||tp))continue;
         const x=left+Math.min(1,score)*w,y=top+(1-Math.min(1,iou))*h;
-        ctx.beginPath();ctx.arc(x,y,wrongOnly?4:2.7,0,Math.PI*2);ctx.fillStyle=tp?'#15877299':'#b6582c8a';ctx.fill();plotPoints.push({x,y,item,box});
+        ctx.beginPath();ctx.arc(x,y,wrongOnly?4:2.7,0,Math.PI*2);ctx.fillStyle=tp?'#2f6a4599':'#b3261e8a';ctx.fill();plotPoints.push({x,y,item,box});
       }
     }
     els['scatter-count'].textContent=`${plotPoints.length.toLocaleString()} displayed baseline boxes${wrongOnly?' with score ≥ 0.70 and false-positive status':''}. Display includes scores ≥ 0.01 and any matched boxes below. All ${data.prediction_rows.toLocaleString()} predictions remain in the complete table; no threshold is selected from these reused frames.`;
@@ -98,9 +106,16 @@
     for(const id of ['filter-condition','filter-outcome','filter-confidence','small-target'])els[id].addEventListener('change',drawMatrix);
     els['show-wrong'].addEventListener('click',()=>{wrongOnly=!wrongOnly;els['show-wrong'].setAttribute('aria-pressed',String(wrongOnly));drawScatter();});
     els['local-files'].addEventListener('change',event=>{
-      for(const file of event.target.files){if(!file.type.startsWith('image/')||!data.frame_ids.includes(file.name))continue;
+      let accepted=0;const ignored=[];
+      for(const file of event.target.files){if(!file.type.startsWith('image/')||!data.frame_ids.includes(file.name)){ignored.push(file.name);continue;}
         const k=key(file.name,condition);const old=localImages.get(k);if(old)URL.revokeObjectURL(old);localImages.set(k,URL.createObjectURL(file));
-      }drawCase();event.target.value='';
+        accepted++;
+      }
+      drawCase();
+      els['image-note'].textContent=accepted
+        ?`Loaded ${accepted} local image${accepted===1?'':'s'} for ${names[condition]}. Files stay in this browser.${ignored.length?` ${ignored.length} file${ignored.length===1?' was':'s were'} skipped because the filename did not match a frame ID.`:''}`
+        :`No selected file matched a frame ID. Choose source images with the original frame filenames. Nothing was sent.`;
+      event.target.value='';
     });
     window.addEventListener('pagehide',()=>{for(const url of localImages.values())URL.revokeObjectURL(url)});
     els['scatter'].addEventListener('pointermove',event=>{const bounds=els['scatter'].getBoundingClientRect();const x=event.clientX-bounds.left,y=event.clientY-bounds.top;let closest=null,distance=110;
