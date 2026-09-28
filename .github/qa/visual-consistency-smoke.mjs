@@ -60,6 +60,27 @@ try {
             .sort((a, b) => Math.max(b.right - viewportWidth, -b.left) - Math.max(a.right - viewportWidth, -a.left))
             .slice(0, 12);
         })(),
+        overflowDebug: (() => {
+          if (document.documentElement.scrollWidth - document.documentElement.clientWidth <= 1) return null;
+          const selectors = ['html', 'body', 'main', '#chapters', '#chapterTrack', '.chapter-heading'];
+          return {
+            viewport: { innerWidth: window.innerWidth, clientWidth: document.documentElement.clientWidth, scrollWidth: document.documentElement.scrollWidth },
+            boxes: selectors.map(selector => {
+              const element = document.querySelector(selector);
+              if (!element) return { selector, missing: true };
+              const rect = element.getBoundingClientRect();
+              const style = getComputedStyle(element);
+              return {
+                selector, left: Math.round(rect.left * 100) / 100, right: Math.round(rect.right * 100) / 100,
+                width: Math.round(rect.width * 100) / 100, scrollWidth: element.scrollWidth, clientWidth: element.clientWidth,
+                cssWidth: style.width, maxWidth: style.maxWidth, boxSizing: style.boxSizing,
+                overflowX: style.overflowX, overflowY: style.overflowY,
+                marginLeft: style.marginLeft, marginRight: style.marginRight,
+                paddingLeft: style.paddingLeft, paddingRight: style.paddingRight
+              };
+            })
+          };
+        })(),
         main: !!document.querySelector('main'),
         h1: document.querySelectorAll('h1').length,
         polish: [...document.querySelectorAll('link[rel="stylesheet"]')].some(link => (link.getAttribute('href') || '').startsWith('/phase-polish.css')),
