@@ -2,7 +2,7 @@
   'use strict';
   const $ = id => document.getElementById(id);
   const names = {clean:'Clean', blur:'Blur', low_light:'Low light', noise:'Noise', occlusion:'Occlusion', mixed:'Mixed'};
-  const els = Object.fromEntries(['frame-title','frame-sequence','frame-range','prev-frame','next-frame','view-mode','conditions','show-gt','show-baseline','local-files','local-folder','image-note','comparison','baseline-verdict','baseline-scene','frame-image','scene-placeholder','box-layer','scene-index','baseline-metrics','phase23-aggregate-condition','phase23-map50','phase23-recall','case-label','case-features','filter-condition','filter-outcome','filter-confidence','small-target','match-count','matrix','scatter','point-detail','show-wrong','scatter-count','evidence-dialog','close-evidence'].map(id=>[id,$(id)]));
+  const els = Object.fromEntries(['frame-title','frame-sequence','frame-range','prev-frame','next-frame','view-mode','conditions','show-gt','show-baseline','local-files','local-folder','image-note','comparison','baseline-verdict','baseline-scene','frame-image','scene-placeholder','box-layer','scene-index','baseline-metrics','phase23-scene','phase23-frame-image','phase23-image-placeholder','phase23-image-badge','phase23-aggregate-condition','phase23-map50','phase23-recall','case-label','case-features','filter-condition','filter-outcome','filter-confidence','small-target','match-count','matrix','scatter','point-detail','show-wrong','scatter-count','evidence-dialog','close-evidence'].map(id=>[id,$(id)]));
   let data, byKey, index=0, condition='clean', smallLimit=0, wrongOnly=false, plotPoints=[], localImages=new Map(), imageRequest=0;
   const key=(id,c)=>`${id}|${c}`;
   const value=(x,d=2)=>Number(x).toFixed(d);
@@ -21,6 +21,29 @@
     els['scene-placeholder'].hidden=false;
     els['scene-placeholder'].textContent='This selected image could not be decoded. Try the audited source file for this frame and condition.';
     els['image-note'].textContent='Image failed to load in this browser. The box metrics remain available, but overlays are hidden until a readable source image is selected.';
+  }
+  function syncPhase23Image(source,item){
+    const scene=els['phase23-scene'],placeholder=els['phase23-image-placeholder'],badge=els['phase23-image-badge'];
+    scene.classList.toggle('has-image',Boolean(source));
+    placeholder.hidden=Boolean(source);
+    badge.textContent=source?'Same source frame · Phase 23 outputs pending':'Source image unavailable · Phase 23 outputs pending';
+    placeholder.textContent=`No image is loaded for ${item.id} under ${names[condition]}. Load the matching protected image to show the same input on both sides.`;
+    let frameImage=els['phase23-frame-image'];
+    frameImage.hidden=!source;
+    if(!source){frameImage.removeAttribute('src');frameImage.alt='';return;}
+    if(frameImage.getAttribute('src')!==source){
+      const replacement=frameImage.cloneNode(false);replacement.removeAttribute('src');
+      frameImage.replaceWith(replacement);els['phase23-frame-image']=replacement;frameImage=replacement;
+    }
+    frameImage.alt=`${names[condition]} source image for ${item.id}; Phase 23 detector predictions are pending`;
+    frameImage.onerror=()=>{
+      if(frameImage.getAttribute('src')!==source)return;
+      frameImage.hidden=true;scene.classList.remove('has-image');placeholder.hidden=false;
+      placeholder.textContent='The selected source image could not be decoded. Choose a readable source file; Phase 23 predictions remain pending.';
+      badge.textContent='Image unavailable · Phase 23 outputs pending';
+    };
+    if(frameImage.getAttribute('src')!==source)frameImage.src=source;
+    else if(frameImage.complete&&frameImage.naturalWidth===0)frameImage.onerror();
   }
   function drawCase(){
     const item=caseNow();if(!item)return;
@@ -43,6 +66,7 @@
     const local=localImages.get(key(item.id,condition));
     const published=item.id==='land_pad2__2100.jpg';
     const image=local|| (published?`/media/perception/kios_${condition}.jpg`:null);
+    syncPhase23Image(image,item);
     els['frame-image'].hidden=!image;
     els['scene-placeholder'].hidden=Boolean(image);
     els['box-layer'].hidden=!image;els['scene-index'].hidden=!image;

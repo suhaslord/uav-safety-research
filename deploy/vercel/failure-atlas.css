@@ -302,7 +302,15 @@ main { max-width: var(--page-width); margin: 0 auto; }
   white-space: nowrap;
 }
 .pending-scene { display: grid; place-items: center; padding: 28px; background: var(--soft); text-align: center; }
-.pending-scene > div { max-width: 34ch; }
+.pending-scene.has-image { padding: 0; }
+.pending-scene.has-image::after { position: absolute; inset: 42% 0 0; background: linear-gradient(180deg, transparent, rgb(20 23 27 / 40%)); content: ""; pointer-events: none; }
+.pending-image-placeholder { position: relative; z-index: 1; max-width: 36ch; color: var(--muted); font-size: 12px; line-height: 1.5; }
+.pending-image-placeholder[hidden], .pending-scene img[hidden] { display: none; }
+.pending-image-badge { position: absolute; z-index: 2; top: 12px; left: 12px; padding: 7px 10px; background: rgb(255 255 255 / 94%); color: var(--ink); font-size: 10px; font-weight: 600; }
+.pending-image-copy { position: relative; z-index: 1; max-width: 34ch; }
+.pending-scene.has-image .pending-image-copy { position: absolute; right: 12px; bottom: 12px; left: 12px; max-width: none; padding: 13px 15px; background: rgb(255 255 255 / 94%); text-align: left; }
+.pending-scene.has-image .pending-image-copy p { margin-top: 5px; font-size: 11px; }
+.pending-scene.has-image .pending-status { margin-bottom: 6px; }
 .pending-status { display: block; margin-bottom: 12px; color: var(--muted); font-size: 11px; font-weight: 500; }
 .pending-scene strong { display: block; font-size: 19px; line-height: 1.25; }
 .pending-scene p { margin: 9px 0 0; color: var(--body); font-size: 13px; }
