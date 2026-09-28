@@ -102,7 +102,7 @@ try {
           return getComputedStyle(element).gridTemplateColumns.trim().split(/\s+/).filter(Boolean).length;
         })()
       }));
-      add(`${viewport.name}-${route}-no-horizontal-overflow`, state.overflow <= 1, { overflow: state.overflow, ...(state.overflow > 1 ? { offenders: state.overflowOffenders } : {}) });
+      add(`${viewport.name}-${route}-no-horizontal-overflow`, state.overflow <= 1, { overflow: state.overflow, ...(state.overflow > 1 ? { offenders: state.overflowOffenders, layout: state.overflowDebug } : {}) });
       add(`${viewport.name}-${route}-semantic-shell`, state.main && state.h1 >= 1, { main: state.main, h1: state.h1 });
       if (/^\/phases\/(phase(?:[1-9]|10|10r|11|1[2-9][abc]?|2[0-2]|6b))\/?$/.test(route)) {
         add(`${viewport.name}-${route}-shared-phase-polish`, state.polish, { polish: state.polish });
