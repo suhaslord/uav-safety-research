@@ -302,13 +302,17 @@ def test_failure_atlas_is_baseline_only_with_auditable_tables() -> None:
     assert 'id="phase23-map50"' in html and 'id="phase23-recall"' in html
     assert 'id="phase23-frame-image"' in html and 'id="phase23-image-placeholder"' in html
     assert "These are not predictions for this frame" in html
-    assert 'id="published-frame"' in html
-    assert "other 85 frames have measured results but their images are not hosted here" in html
-    assert "viewer does not verify their hashes" in html
+    assert "Loading the verified 86-frame image set" in html
+    atlas_js = (ROOT / "deploy/vercel/failure-atlas.js").read_text(encoding="utf-8")
+    assert "`/media/phase25/${condition}/${item.id}`" in atlas_js
+    assert "Verified ${names[condition].toLowerCase()} frame image loaded" in atlas_js
 
 
 def test_phase23_displayed_condition_table_matches_committed_csv() -> None:
     html = (ROOT / "deploy" / "vercel" / "phase23.html").read_text(encoding="utf-8")
+    assert 'href="/failure-atlas/">Explore all 86 frames in Failure Atlas' in html
+    for condition in ("clean", "blur", "low_light", "noise", "occlusion", "mixed"):
+        assert f'src="/media/perception/kios_{condition}.jpg"' in html
     body = re.search(r"<tbody>(.*?)</tbody>", html, re.S)
     assert body is not None
     displayed = [

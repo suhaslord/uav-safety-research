@@ -291,23 +291,43 @@ try {
       && atlas.folderInput && atlas.overflow <= 1
       && atlas.heroImage === '/media/perception/kios_clean.jpg' && atlas.sourceImageLoaded
       && atlas.phase23ImageLoaded && atlas.phase23ImageSameSource && /Same source frame/.test(atlas.phase23ImageBadge), atlas);
+    const atlasImageAudit = await page.evaluate(async () => {
+      const payload = await fetch('/failure-atlas-data.json?v=2').then(response => response.json());
+      const sources = payload.conditions.flatMap(condition => payload.frame_ids.map(frame => `/media/phase25/${condition}/${frame}`));
+      const failures = [];
+      // Keep this intentionally serial. A 12-way decode burst can exhaust the
+      // preview server's connection queue and report false negatives even when
+      // every JPEG is valid. The deployment build locks the 640px dimensions;
+      // this browser pass checks that every public URL loads and decodes.
+      for (const src of sources) {
+        const loaded = await new Promise(resolve => {
+          const image = new Image();
+          image.onload = () => resolve(image.naturalWidth > 0 && image.naturalHeight > 0);
+          image.onerror = () => resolve(false);
+          image.src = src;
+        });
+        if (!loaded) failures.push(src);
+      }
+      return { count: sources.length, failures: failures.slice(0, 8), failedCount: failures.length };
+    });
+    add('atlas-all-516-reconstructed-previews-decode', atlasImageAudit.count === 516
+      && atlasImageAudit.failedCount === 0, atlasImageAudit);
     add('atlas-source-proportional-panels-and-readable-boxes', atlas.sceneFill && atlas.visibleLabels <= 5
       && /all counted/.test(atlas.caseSummary), atlas);
     const startFrame = await page.locator('#frame-range').evaluate(el => Number(el.value));
     await page.locator('#next-frame').click();
     const nextFrame = await page.locator('#frame-range').evaluate(el => Number(el.value));
+    await page.waitForFunction(() => document.querySelector('#frame-image')?.naturalWidth > 0
+      && document.querySelector('#phase23-frame-image')?.naturalWidth > 0
+      && document.querySelector('#frame-image')?.currentSrc === document.querySelector('#phase23-frame-image')?.currentSrc,
+    null, { timeout: 15000 });
+    const nextImagesLoad = await page.locator('#frame-image').evaluate(img => !img.hidden && img.naturalWidth > 0)
+      && await page.locator('#phase23-frame-image').evaluate(img => !img.hidden && img.naturalWidth > 0)
+      && await page.locator('#image-note').innerText().then(text => /Verified .* frame image loaded/.test(text));
     await page.locator('#prev-frame').click();
     add('atlas-frame-navigation-wraps-and-reverses', nextFrame === (startFrame + 1) % 86
       && await page.locator('#frame-range').evaluate(el => Number(el.value)) === startFrame);
-    await page.locator('#next-frame').click();
-    const unavailableImageIsExplained = /not published here/.test(await page.locator('#image-note').innerText())
-      && /not published/.test(await page.locator('#scene-placeholder').innerText())
-      && await page.locator('#frame-image').evaluate(img => img.hidden);
-    await page.locator('#published-frame').click();
-    await page.waitForFunction(() => document.querySelector('#frame-image')?.naturalWidth > 0, null, { timeout: 15000 });
-    add('atlas-unpublished-views-have-honest-return-to-image', unavailableImageIsExplained
-      && await page.locator('#frame-range').evaluate(el => Number(el.value)) === startFrame
-      && await page.locator('#frame-image').evaluate(img => !img.hidden));
+    add('atlas-every-selected-frame-loads-on-both-panels', nextImagesLoad);
     await page.locator('#show-baseline').uncheck();
     const boxesHidden = await page.locator('#box-layer .overlay-box:not(.gt)').count() === 0
       && /0 shown/.test(await page.locator('#case-features').innerText());
@@ -384,6 +404,25 @@ try {
       add(`${route}-evidence-visible`, evidence.test(text), { excerpt: text.slice(0, 700) });
       add(`${route}-category-bound`, category.length > 0, { category });
     }
+
+    await page.goto(BASE + '/phases/phase23/', { waitUntil: 'domcontentloaded', timeout: 45000 });
+    await page.waitForFunction(() => {
+      const images = Array.from(document.querySelectorAll('.condition-gallery img'));
+      return images.length === 6 && images.every(image => image.complete && image.naturalWidth > 0);
+    }, null, { timeout: 15000 });
+    const phase23Gallery = await page.evaluate(() => ({
+      pageTitle: document.title,
+      images: Array.from(document.querySelectorAll('.condition-gallery img')).map(image => ({
+        src: image.getAttribute('src'), loaded: image.complete && image.naturalWidth > 0
+      })),
+      atlasLink: document.querySelector('.hero-links a[href="/failure-atlas/"]')?.textContent || '',
+      recoveryNote: document.querySelector('#checkpoint-recovery')?.textContent || ''
+    }));
+    add('phase23-route-loads-all-six-examples-and-links-to-frame-explorer',
+      /Phase 23/.test(phase23Gallery.pageTitle) && phase23Gallery.images.length === 6
+      && phase23Gallery.images.every(image => image.loaded)
+      && /Explore all 86 frames/.test(phase23Gallery.atlasLink)
+      && /exact Phase 23/.test(phase23Gallery.recoveryNote), phase23Gallery);
 
     await page.goto(BASE + '/phases/phase12/', { waitUntil: 'domcontentloaded', timeout: 45000 });
     await page.waitForTimeout(250);
