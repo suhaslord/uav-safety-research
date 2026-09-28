@@ -258,7 +258,8 @@ try {
     await page.goto(BASE + '/failure-atlas/', { waitUntil: 'domcontentloaded', timeout: 45000 });
     await page.locator('#frame-title').waitFor({ timeout: 15000 });
     await page.locator('#conditions button').first().waitFor({ timeout: 15000 });
-    await page.waitForFunction(() => document.querySelector('#frame-image')?.naturalWidth > 0, null, { timeout: 15000 });
+    await page.waitForFunction(() => document.querySelector('#frame-image')?.naturalWidth > 0
+      && document.querySelector('#phase23-frame-image')?.naturalWidth > 0, null, { timeout: 15000 });
     const atlas = await page.evaluate(() => ({
       title: document.querySelector('h1')?.textContent || '',
       conditions: document.querySelectorAll('#conditions button').length,
@@ -271,6 +272,9 @@ try {
       overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
       heroImage: document.querySelector('.intro-image img')?.getAttribute('src') || '',
       sourceImageLoaded: document.querySelector('#frame-image')?.naturalWidth > 0,
+      phase23ImageLoaded: document.querySelector('#phase23-frame-image')?.naturalWidth > 0,
+      phase23ImageSameSource: document.querySelector('#phase23-frame-image')?.currentSrc === document.querySelector('#frame-image')?.currentSrc,
+      phase23ImageBadge: document.querySelector('#phase23-image-badge')?.textContent || '',
       sceneFill: (() => {
         const scene = document.querySelector('#baseline-scene');
         const sceneBox = scene?.getBoundingClientRect();
@@ -285,7 +289,8 @@ try {
       && atlas.conditions === 6 && atlas.matrix === 516 && /BEST IoU/.test(atlas.score)
       && /Frame outcomes pending/i.test(atlas.pending) && atlas.phase23Map50 === '55.5%' && atlas.phase23Recall === '59.3%'
       && atlas.folderInput && atlas.overflow <= 1
-      && atlas.heroImage === '/media/perception/kios_clean.jpg' && atlas.sourceImageLoaded, atlas);
+      && atlas.heroImage === '/media/perception/kios_clean.jpg' && atlas.sourceImageLoaded
+      && atlas.phase23ImageLoaded && atlas.phase23ImageSameSource && /Same source frame/.test(atlas.phase23ImageBadge), atlas);
     add('atlas-source-proportional-panels-and-readable-boxes', atlas.sceneFill && atlas.visibleLabels <= 5
       && /all counted/.test(atlas.caseSummary), atlas);
     const startFrame = await page.locator('#frame-range').evaluate(el => Number(el.value));
@@ -332,16 +337,23 @@ try {
       fsSync.copyFileSync(path.resolve('deploy/vercel/media/perception/kios_clean.jpg'), path.join(folder, 'land_pad2__2100.jpg'));
     }
     await page.locator('#local-folder').setInputFiles(uploadRoot);
-    await page.waitForFunction(() => document.querySelector('#frame-image')?.naturalWidth === 640, null, { timeout: 10000 }).catch(() => {});
+    await page.waitForFunction(() => document.querySelector('#frame-image')?.naturalWidth === 640
+      && document.querySelector('#phase23-frame-image')?.naturalWidth === 640, null, { timeout: 10000 }).catch(() => {});
     const folderStatus = await page.locator('#image-note').innerText();
     await page.locator('#conditions button[data-condition="clean"]').click();
-    await page.waitForFunction(() => document.querySelector('#frame-image')?.naturalWidth === 640, null, { timeout: 10000 }).catch(() => {});
+    await page.waitForFunction(() => document.querySelector('#frame-image')?.naturalWidth === 640
+      && document.querySelector('#phase23-frame-image')?.naturalWidth === 640, null, { timeout: 10000 }).catch(() => {});
     const cleanFolderImageLoaded = await page.locator('#frame-image').evaluate(img => img.naturalWidth === 640 && !img.hidden);
+    const cleanPhase23ImageLoaded = await page.locator('#phase23-frame-image').evaluate(img => img.naturalWidth === 640 && !img.hidden);
     await page.locator('#conditions button[data-condition="mixed"]').click();
+    await page.waitForFunction(() => document.querySelector('#frame-image')?.naturalWidth === 640
+      && document.querySelector('#phase23-frame-image')?.naturalWidth === 640, null, { timeout: 10000 }).catch(() => {});
     const mixedFolderImageLoaded = await page.locator('#frame-image').evaluate(img => img.naturalWidth === 640 && !img.hidden);
+    const mixedPhase23ImageLoaded = await page.locator('#phase23-frame-image').evaluate(img => img.naturalWidth === 640 && !img.hidden);
     add('atlas-folder-loader-maps-matching-images-by-condition', /Loaded 2 image views/.test(folderStatus)
       && /Clean 1/.test(folderStatus) && /Mixed 1/.test(folderStatus)
-      && cleanFolderImageLoaded && mixedFolderImageLoaded, { folderStatus, cleanFolderImageLoaded, mixedFolderImageLoaded });
+      && cleanFolderImageLoaded && cleanPhase23ImageLoaded && mixedFolderImageLoaded && mixedPhase23ImageLoaded,
+      { folderStatus, cleanFolderImageLoaded, cleanPhase23ImageLoaded, mixedFolderImageLoaded, mixedPhase23ImageLoaded });
 
     const phaseChecks = [
       ['/phases/phase1/', /First safety supervisor/i, /HOLD \/ ABORT/i],
