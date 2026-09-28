@@ -55,8 +55,9 @@
     display:flex!important;
     flex-direction:column!important;
     box-sizing:border-box!important;
-    width:100vw!important;
-    max-width:100vw!important;
+    /* Insets already span the viewport; 100vw adds the scrollbar gutter. */
+    width:auto!important;
+    max-width:none!important;
     height:100dvh!important;
     padding:22px 20px 28px!important;
     overflow-y:auto!important;
