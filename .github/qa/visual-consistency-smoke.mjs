@@ -335,6 +335,7 @@ try {
     await page.waitForFunction(() => document.querySelector('#frame-image')?.naturalWidth === 640, null, { timeout: 10000 }).catch(() => {});
     const folderStatus = await page.locator('#image-note').innerText();
     await page.locator('#conditions button[data-condition="clean"]').click();
+    await page.waitForFunction(() => document.querySelector('#frame-image')?.naturalWidth === 640, null, { timeout: 10000 }).catch(() => {});
     const cleanFolderImageLoaded = await page.locator('#frame-image').evaluate(img => img.naturalWidth === 640 && !img.hidden);
     await page.locator('#conditions button[data-condition="mixed"]').click();
     const mixedFolderImageLoaded = await page.locator('#frame-image').evaluate(img => img.naturalWidth === 640 && !img.hidden);
