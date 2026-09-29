@@ -54,10 +54,14 @@ jobs:
               && grep -q 'Cross-template UI consistency pass' /tmp/ui-consistency.css \
               && grep -q '#phaseLimitations span' /tmp/ui-consistency.css \
               && printf '%s' "$HTML" | grep -q 'Model VASE · answer so far' \
+              && printf '%s' "$HTML" | grep -q 'Landing research, in the field.' \
               && printf '%s' "$HTML" | grep -q 'These are different experiments. They have not been joined into one tested model.' \
               && ! printf '%s' "$HTML" | grep -q '/lab/lab.js'; then
               for ASSET in acero-uav-flight.jpg acero-ground-control.jpg stereo-uav-preflight.jpg acero-uav-landing.jpg phase01-context.jpg phase22-context.jpg; do
                 curl --fail --silent --show-error --location "$BASE/media/$ASSET" >/dev/null
+              done
+              for ASSET in aerocast-flight.mp4 aerocast-poster.jpg evaluation-nasa-clip.mp4 evaluation-nasa-poster.jpg; do
+                curl --fail --silent --show-error --location "$BASE/film/$ASSET" >/dev/null
               done
               echo '✓ live UI consistency release and editorial media are ready'
               exit 0

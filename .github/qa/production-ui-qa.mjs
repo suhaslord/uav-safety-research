@@ -22,13 +22,13 @@ const frozenSlugs = [
 const frozenRoutes = frozenSlugs.map((slug) => `/phases/${slug}/`);
 const phase23Route = '/phases/phase23/';
 const phase24Route = '/phases/phase24/';
-const routes = ['/', '/phases/', ...legacyRoutes, ...frozenRoutes, phase23Route, phase24Route];
+const routes = ['/', '/model-vase/', '/phases/', ...legacyRoutes, ...frozenRoutes, phase23Route, phase24Route];
 const viewports = [
   { name: 'desktop', width: 1440, height: 1000 },
   { name: 'tablet', width: 820, height: 1180 },
   { name: 'mobile', width: 390, height: 844, isMobile: true, hasTouch: true }
 ];
-const screenshotRoutes = new Set(['/', '/phases/', '/phases/phase1/', '/phases/phase13a/', '/phases/phase18/', '/phases/phase22/', phase23Route, phase24Route]);
+const screenshotRoutes = new Set(['/', '/model-vase/', '/phases/', '/phases/phase1/', '/phases/phase13a/', '/phases/phase18/', '/phases/phase22/', phase23Route, phase24Route]);
 const report = { base: BASE, startedAt: new Date().toISOString(), checks: [], errors: [], warnings: [], screenshots: [] };
 
 await fs.rm(OUT, { recursive: true, force: true });

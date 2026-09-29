@@ -58,3 +58,79 @@
 @media(max-width:900px){.model-vase-page .vase-hero:after{right:5%;top:50px;width:28vw}.model-vase-page .vase-flow{grid-template-columns:repeat(2,minmax(0,1fr))}.model-vase-page .vase-flow li:nth-child(2){border-right:0}.model-vase-page .vase-flow li:nth-child(3){padding-left:0;border-top:1px solid var(--line)}.model-vase-page .vase-flow li:nth-child(4){border-top:1px solid var(--line)}.model-vase-page .vase-flow p{min-height:0}.model-vase-page .vase-next{grid-template-columns:1fr;gap:16px}.model-vase-page .vase-next .hero-links{grid-column:auto}}
 @media(max-width:620px){.model-vase-page main{width:calc(100% - 32px)}.model-vase-page .top{padding-inline:16px}.model-vase-page .vase-hero{margin-inline:-16px;padding:52px 16px 42px}.model-vase-page .vase-hero:after{top:35px;right:-44px;width:180px;opacity:.7}.model-vase-page .vase-expansion{max-width:300px;font-size:9px;letter-spacing:.1em;line-height:1.7}.model-vase-page .vase-hero .dek{font-size:19px}.model-vase-page .vase-question{margin-top:28px}.model-vase-page .vase-answer{margin-top:32px;padding:17px}.model-vase-page .vase-system,.model-vase-page .vase-results,.model-vase-page .vase-next{padding-block:48px}.model-vase-page .section-head{display:block}.model-vase-page .section-head p{margin-top:10px}.model-vase-page .vase-flow{grid-template-columns:1fr 1fr}.model-vase-page .vase-flow li{padding:18px 11px}.model-vase-page .vase-flow li:first-child,.model-vase-page .vase-flow li:nth-child(3){padding-left:0}.model-vase-page .vase-flow h3{margin-top:12px;font-size:17px}.model-vase-page .vase-flow p{font-size:12px}.model-vase-page .vase-state{font-size:8px;letter-spacing:.03em}.model-vase-page .vase-results{margin-inline:-16px;padding-inline:16px}.model-vase-page .vase-metrics{grid-template-columns:1fr 1fr}.model-vase-page .vase-metrics>div{padding:15px 12px;border-bottom:1px solid #e5e5e5}.model-vase-page .vase-metrics>div:nth-child(odd){padding-left:0}.model-vase-page .vase-metrics>div:nth-child(even){border-right:0}.model-vase-page .vase-metrics>div:nth-child(n+3){border-bottom:0}.model-vase-page .vase-metrics strong{font-size:32px}.model-vase-page .vase-evidence-grid{grid-template-columns:1fr}.model-vase-page .vase-evidence-card{padding:19px}.model-vase-page .vase-evidence-card--wide{grid-column:auto}.model-vase-page .vase-card-meta{align-items:flex-start;flex-direction:column;gap:4px}.model-vase-page .vase-card-meta b{text-align:left}.model-vase-page .vase-next .hero-links{display:grid}.model-vase-page footer{padding-inline:16px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+/* Match the image-led AegisLand homepage with a clear black, white, and red hero. */
+.model-vase-page .vase-hero{
+  isolation:isolate;
+  display:flex;
+  align-items:flex-end;
+  min-height:clamp(590px,74svh,820px);
+  margin:0 calc((min(var(--max),100vw - 48px) - 100vw)/2);
+  padding:clamp(64px,8vw,104px) max(24px,calc((100vw - var(--max))/2)) clamp(68px,8vw,100px);
+  background:#111317;
+}
+.model-vase-page .vase-hero::after{display:none}
+.model-vase-page .vase-hero__media{
+  position:absolute;
+  z-index:-2;
+  inset:0;
+  margin:0;
+  overflow:hidden;
+  background:#111317;
+}
+.model-vase-page .vase-hero__media::after{
+  position:absolute;
+  inset:0;
+  background:linear-gradient(90deg,rgba(8,9,11,.82) 0%,rgba(8,9,11,.62) 42%,rgba(8,9,11,.12) 100%),linear-gradient(0deg,rgba(8,9,11,.62),transparent 30%);
+  content:"";
+}
+.model-vase-page .vase-hero__media img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 56%}
+.model-vase-page .vase-hero__media figcaption{
+  position:absolute;
+  z-index:1;
+  right:max(24px,calc((100vw - var(--max))/2));
+  bottom:18px;
+  display:grid;
+  gap:2px;
+  color:rgba(255,255,255,.88);
+  font-size:10px;
+  line-height:1.4;
+  text-align:right;
+  text-shadow:0 1px 8px rgba(0,0,0,.8);
+}
+.model-vase-page .vase-hero__media figcaption a{min-height:32px;color:#fff;text-decoration:underline;text-underline-offset:2px}
+.model-vase-page .vase-hero__media figcaption a:focus-visible{outline:2px solid #fff;outline-offset:3px}
+.model-vase-page .vase-hero__copy{max-width:960px;padding-bottom:10px}
+.model-vase-page .vase-hero__copy .eyebrow{margin:0 0 18px;color:#fff;font-size:11px;letter-spacing:.15em}
+.model-vase-page .vase-hero h1{max-width:none;margin:0;color:#fff;font-size:clamp(70px,11vw,144px);font-weight:600;letter-spacing:-.085em;line-height:.86;text-transform:uppercase}
+.model-vase-page .vase-hero .vase-expansion{margin:18px 0 0;color:#fff;font-size:11px;letter-spacing:.13em}
+.model-vase-page .vase-hero .dek{max-width:620px;margin:17px 0 0;color:#fff;font-size:clamp(20px,2.6vw,30px);line-height:1.22;letter-spacing:-.035em}
+.model-vase-page .vase-hero .hero-links{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+.model-vase-page .vase-hero .hero-links a:first-child{border-color:#e82127;background:#e82127;color:#fff}
+.model-vase-page .vase-hero .hero-links a:first-child:hover{background:#c91b21;border-color:#c91b21}
+.model-vase-page .vase-hero .hero-links a:last-child{border-color:rgba(255,255,255,.76);background:rgba(0,0,0,.08);color:#fff}
+.model-vase-page .vase-hero .hero-links a:last-child:hover{background:rgba(255,255,255,.14)}
+.model-vase-page .vase-answer{max-width:none;margin:0 calc((min(var(--max),100vw - 48px) - 100vw)/2);padding:28px max(24px,calc((100vw - var(--max))/2));background:#f2f3f4;color:#171a20}
+.model-vase-page .vase-answer__row{display:grid;grid-template-columns:180px minmax(0,1fr);gap:18px 36px;align-items:start}
+.model-vase-page .vase-answer__label{margin:4px 0 0;color:#c91b21;font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}
+.model-vase-page .vase-answer__copy h2{max-width:860px;margin:0;font-size:clamp(24px,3.2vw,36px);font-weight:580;letter-spacing:-.045em;line-height:1.12}
+.model-vase-page .vase-answer__copy p{max-width:78ch;margin:9px 0 0;color:#4d535a;font-size:14px;line-height:1.55}
+@media(max-width:900px){
+  .model-vase-page .vase-hero{min-height:clamp(570px,72svh,740px)}
+  .model-vase-page .vase-answer__row{grid-template-columns:130px minmax(0,1fr);gap:16px 24px}
+}
+@media(max-width:620px){
+  .model-vase-page .vase-hero{min-height:660px;min-height:min(740px,78svh);margin-inline:-16px;padding:56px 16px 74px}
+  .model-vase-page .vase-hero__media img{object-position:58% 50%}
+  .model-vase-page .vase-hero__media::after{background:linear-gradient(90deg,rgba(8,9,11,.72),rgba(8,9,11,.2)),linear-gradient(0deg,rgba(8,9,11,.78),transparent 60%)}
+  .model-vase-page .vase-hero__media figcaption{right:14px;bottom:10px;max-width:72%;font-size:9px}
+  .model-vase-page .vase-hero__copy{padding-bottom:0}
+  .model-vase-page .vase-hero__copy .eyebrow{font-size:9px;letter-spacing:.12em}
+  .model-vase-page .vase-hero h1{font-size:clamp(60px,16vw,82px);letter-spacing:-.08em}
+  .model-vase-page .vase-hero .vase-expansion{max-width:330px;font-size:9px;line-height:1.6;letter-spacing:.09em}
+  .model-vase-page .vase-hero .dek{max-width:330px;font-size:22px}
+  .model-vase-page .vase-hero .hero-links{display:grid;grid-template-columns:1fr;max-width:280px;gap:8px;margin-top:19px}
+  .model-vase-page .vase-answer{margin-inline:-16px;padding:24px 16px}
+  .model-vase-page .vase-answer__row{grid-template-columns:1fr;gap:8px}
+  .model-vase-page .vase-answer__copy h2{font-size:26px}
+}

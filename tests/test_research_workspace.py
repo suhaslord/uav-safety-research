@@ -74,8 +74,30 @@ def test_home_editorial_media_is_local_credited_and_context_only() -> None:
     assert html.count("Don Richey / NASA Ames Research Center") == 1
     assert "Freeze. Separate. Preserve." in html
     assert "Model VASE" in html and "Phase 23 pending" in html
+    assert 'class="home-field-media"' in html
+    assert html.count('<video controls playsinline preload="none"') == 2
+    assert 'src="/film/aerocast-flight.mp4"' in html
+    assert 'src="/film/evaluation-nasa-clip.mp4"' in html
+    assert 'src="/media/acero-uav-landing.jpg"' in html
+    assert 'src="/media/acero-ground-control.jpg"' in html
+    assert 'src="/media/stereo-uav-preflight.jpg"' in html
+    assert "They are context, not AegisLand experiment results." in html
+    assert "home-field-media__stage" in css and "home-field-media__photos" in css
     assert "aspect-ratio:16 / 9" in css
     assert "research-photo--inline" in css
+
+
+def test_model_vase_hero_uses_the_same_contextual_photo_language_as_home() -> None:
+    page = _read("deploy/vercel/model-vase.html")
+    css = _read("deploy/vercel/model-vase.css")
+
+    assert '<figure class="vase-hero__media">' in page
+    assert 'src="/media/acero-uav-landing.jpg"' in page
+    assert "NASA Ames Research Center · public domain" in page
+    assert 'id="answer"' in page and 'id="answer-title"' in page
+    assert "Can it recognize a bad estimate before the landing decision?" in page
+    assert ".model-vase-page .vase-hero::after{display:none}" in css
+    assert ".vase-hero__media img" in css and ".vase-hero__copy" in css
 
 
 def test_every_phase_has_one_distinct_local_context_photo() -> None:

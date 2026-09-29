@@ -75,6 +75,18 @@ try {
             return !!image && image.complete && image.naturalWidth > 0 && image.naturalHeight > 0;
           }, index, { timeout: 12000 }).catch(() => {});
         }
+        const videoAssets = await page.locator('.home-field-media video').evaluateAll((videos) => videos.flatMap((video) => [
+          { kind: 'clip', path: video.querySelector('source')?.getAttribute('src') || '', type: 'video/mp4' },
+          { kind: 'poster', path: video.getAttribute('poster') || '', type: 'image/jpeg' }
+        ]));
+        for (const [index, asset] of videoAssets.entries()) {
+          const response = await page.request.get(new URL(asset.path, BASE).href);
+          const bytes = await response.body();
+          const contentType = response.headers()['content-type'] || '';
+          add(`${viewport.name}-home-video-asset-${index + 1}`, response.ok() && contentType.includes(asset.type) && bytes.length > 1000, {
+            kind: asset.kind, path: asset.path, status: response.status(), contentType, bytes: bytes.length
+          });
+        }
         await page.evaluate(() => window.scrollTo(0, 0));
       }
 
@@ -108,7 +120,18 @@ try {
           // can be sourced independently without weakening the local-media contract
           // for the NASA editorial figures themselves.
           remoteImageCount: images.filter((img) => /^https?:\/\//i.test(img.getAttribute('src') || '')).length,
-          allHomeImages: [...document.querySelectorAll('main img')].map((img) => ({src:img.getAttribute('src')||'',alt:img.getAttribute('alt')||'',loaded:img.complete&&img.naturalWidth>0&&img.naturalHeight>0}))
+          allHomeImages: [...document.querySelectorAll('main img')].map((img) => ({src:img.getAttribute('src')||'',alt:img.getAttribute('alt')||'',loaded:img.complete&&img.naturalWidth>0&&img.naturalHeight>0})),
+          homeVideos: [...document.querySelectorAll('.home-field-media video')].map((video) => ({
+            controls: video.controls,
+            playsInline: video.playsInline,
+            preload: video.preload,
+            source: video.querySelector('source')?.getAttribute('src') || '',
+            poster: video.getAttribute('poster') || ''
+          })),
+          contextFigures: [...document.querySelectorAll('.home-field-media figure')].map((figure) => ({
+            caption: figure.querySelector('figcaption')?.textContent || '',
+            source: figure.querySelector('figcaption a')?.getAttribute('href') || ''
+          }))
         };
       }, route === '/' ? 'NASA field image · context only' : expectedContext);
 
@@ -119,8 +142,11 @@ try {
         add(`${viewport.name}-home-local-media-release`, state.marker === 'local-v2', { marker: state.marker });
         add(`${viewport.name}-home-single-editorial-photo`, state.photoCount === 1, { photoCount: state.photoCount });
         add(`${viewport.name}-home-local-image-sources`, state.localSources.length === 1 && state.localSources.every((src) => src.startsWith('/media/')), { sources: state.localSources });
-        add(`${viewport.name}-home-all-images-load`, state.allHomeImages.length === 3 && state.allHomeImages.every((image) => image.loaded && image.src.startsWith('/media/')), { images: state.allHomeImages });
+        add(`${viewport.name}-home-all-images-load`, state.allHomeImages.length === 6 && state.allHomeImages.every((image) => image.loaded && image.src.startsWith('/media/')), { images: state.allHomeImages });
         add(`${viewport.name}-home-no-remote-image-hotlinks`, state.remoteImageCount === 0, { remoteImageCount: state.remoteImageCount });
+        add(`${viewport.name}-home-two-usable-video-controls`, state.homeVideos.length === 2 && state.homeVideos.every((video) => video.controls && video.playsInline && video.preload === 'none'), { videos: state.homeVideos });
+        add(`${viewport.name}-home-two-local-video-sources`, state.homeVideos.length === 2 && state.homeVideos.every((video) => video.source.startsWith('/film/') && video.source.endsWith('.mp4') && video.poster.startsWith('/film/')), { videos: state.homeVideos });
+        add(`${viewport.name}-home-context-media-credited`, state.contextFigures.length === 5 && state.contextFigures.every((figure) => /public-domain context/i.test(figure.caption) && figure.source.startsWith('https://')), { figures: state.contextFigures });
         add(`${viewport.name}-home-images-loaded`, state.imagesLoaded && !state.fallbackVisible, { imagesLoaded: state.imagesLoaded, fallbackVisible: state.fallbackVisible });
         add(`${viewport.name}-home-meaningful-alt`, state.altText.length === 1 && state.altText.every((alt) => alt.trim().length >= 24), { altText: state.altText });
         add(`${viewport.name}-home-context-labels`, state.captionCount === 1, { captionCount: state.captionCount });

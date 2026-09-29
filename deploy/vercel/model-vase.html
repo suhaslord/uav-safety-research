@@ -10,24 +10,31 @@
   <link rel="stylesheet" href="/phase-report.css?v=1">
   <link rel="stylesheet" href="/site-refresh.css?v=6">
   <link rel="stylesheet" href="/aegisland-brand.css?v=2">
-  <link rel="stylesheet" href="/model-vase.css?v=2">
+  <link rel="stylesheet" href="/model-vase.css?v=3">
 </head>
 <body class="model-vase-page">
   <a class="vase-skip" href="#main">Skip to Model VASE</a>
   <header class="top"><a class="brand vase-brand" href="/" aria-label="AegisLand, Model VASE"><img src="/model-vase-mark.svg" alt=""><span class="vase-brand__type"><strong>AEGISLAND</strong><small>MODEL VASE</small></span></a><nav class="nav" aria-label="Research navigation"><a href="/failure-atlas/">Failure Atlas</a><a href="/phases/">All phases</a><a href="/">Research home</a></nav></header>
   <nav class="record-path" aria-label="Research record"><strong>Unified system · frozen evidence by phase</strong><a href="/phases/">Browse the research archive →</a></nav>
   <main id="main">
-    <section class="vase-hero" id="answer" aria-labelledby="title">
-      <div class="eyebrow">AegisLand / research system</div>
-      <h1 id="title">Model VASE</h1>
-      <p class="vase-expansion">Vision · Auxiliary evidence · State reliability · Escalation</p>
-      <p class="dek">One architecture for asking when a landing estimate stops being trustworthy.</p>
-      <div class="vase-question"><span>THE RESEARCH QUESTION</span><p>When landing perception becomes unreliable, can the system recognize that before it trusts a bad estimate?</p></div>
-      <div class="hero-links"><a href="#evidence">See what the results support ↓</a><a href="/failure-atlas/">Open the Failure Atlas →</a></div>
-      <div class="vase-answer" aria-label="Current answer">
-        <span>ANSWER SO FAR</span>
-        <p><strong>In planar simulation: conditionally, yes.</strong> Independent evidence and selective fallback reduced unsafe outcomes in frozen experiments.</p>
-        <p>Real-image and flight evidence do not yet show that the complete system works end to end.</p>
+    <section class="vase-hero" aria-labelledby="title">
+      <figure class="vase-hero__media">
+        <img src="/media/acero-uav-landing.jpg" alt="NASA Ames Alta-X aircraft approaching a marked landing pad during a separate ACERO field test" width="1280" height="852" fetchpriority="high">
+        <figcaption><span>Field context only</span><span>NASA Ames Research Center · public domain · <a href="https://images-assets.nasa.gov/image/ACD24-0180-037/ACD24-0180-037~orig.jpg" target="_blank" rel="noreferrer">Original image ↗</a></span></figcaption>
+      </figure>
+      <div class="vase-hero__copy">
+        <p class="eyebrow">AEGISLAND · RESEARCH ARCHITECTURE</p>
+        <h1 id="title">Model VASE</h1>
+        <p class="vase-expansion">Vision · Auxiliary evidence · State reliability · Escalation</p>
+        <p class="dek">Can it recognize a bad estimate before the landing decision?</p>
+        <div class="hero-links"><a href="#answer">Read the evidence</a><a href="/failure-atlas/">Open Failure Atlas</a></div>
+      </div>
+    </section>
+
+    <section class="vase-answer" id="answer" aria-labelledby="answer-title">
+      <div class="vase-wrap vase-answer__row">
+        <p class="vase-answer__label">Answer so far</p>
+        <div class="vase-answer__copy"><h2 id="answer-title">Yes in planar simulation. Not yet through real camera input.</h2><p>Independent estimates and selective fallback reduced unsafe outcomes in frozen simulation. The camera and flight results do not yet demonstrate the complete system end to end.</p></div>
       </div>
     </section>
 

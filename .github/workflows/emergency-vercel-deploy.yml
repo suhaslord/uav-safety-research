@@ -115,6 +115,9 @@ jobs:
           for ASSET in acero-uav-flight.jpg acero-ground-control.jpg stereo-uav-preflight.jpg acero-uav-landing.jpg phase01-context.jpg phase02-context.jpg phase04-context.jpg phase05-context.jpg phase06b-context.jpg phase07-context.jpg phase08-context.jpg phase10-context.jpg phase10r-context.jpg phase12-context.jpg phase13a-context.jpg phase13b-context.jpg phase13c-context.jpg phase14-context.jpg phase15-context.jpg phase16-context.jpg phase17-context.jpg phase18-context.jpg phase19-context.jpg phase20-context.jpg phase21-context.jpg phase22-context.jpg; do
             test -s ".vercel-release/media/$ASSET"
           done
+          for ASSET in aerocast-flight.mp4 aerocast-poster.jpg evaluation-nasa-clip.mp4 evaluation-nasa-poster.jpg; do
+            test -s ".vercel-release/film/$ASSET"
+          done
 
           test -f .vercel-release/dashboard/phases/index.html
           test -f .vercel-release/dashboard/phases/frozen.html
@@ -150,6 +153,12 @@ jobs:
           grep -q 'controller_tuning_allowed=false' .vercel-release/index.html
           grep -q 'Model VASE is an integrated research architecture, not a newly trained checkpoint.' .vercel-release/model-vase.html
           grep -q 'V3 PATH · CONNECTED' .vercel-release/model-vase.html
+          grep -q 'class="vase-hero__media"' .vercel-release/model-vase.html
+          grep -q 'src="/media/acero-uav-landing.jpg"' .vercel-release/model-vase.html
+          grep -q 'class="home-field-media"' .vercel-release/index.html
+          grep -q 'src="/film/aerocast-flight.mp4"' .vercel-release/index.html
+          grep -q 'src="/film/evaluation-nasa-clip.mp4"' .vercel-release/index.html
+          test "$(grep -o '<video controls playsinline preload="none"' .vercel-release/index.html | wc -l)" -eq 2
           grep -q 'href="/aegisland-brand.css?v=2"' .vercel-release/model-vase.html
           grep -q '#e82127' .vercel-release/model-vase.css
           grep -q '/media/phase25/${condition}/${item.id}' .vercel-release/failure-atlas.js
@@ -248,6 +257,10 @@ jobs:
           ATLAS_HTML=$(curl --fail --silent --show-error --location "$PUBLIC_URL/failure-atlas/")
           printf '%s' "$ATLAS_HTML" | grep 'Loading the verified 86-frame image set' > /dev/null
           printf '%s' "$ATLAS_HTML" | grep 'Images selected locally are not hash-checked' > /dev/null
+          HOME_HTML=$(curl --fail --silent --show-error --location "$PUBLIC_URL/")
+          printf '%s' "$HOME_HTML" | grep 'Landing research, in the field.' > /dev/null
+          MODEL_HTML=$(curl --fail --silent --show-error --location "$PUBLIC_URL/model-vase/")
+          printf '%s' "$MODEL_HTML" | grep 'class="vase-hero__media"' > /dev/null
           PHASE23_HTML=$(curl --fail --silent --show-error --location "$PUBLIC_URL/phases/phase23/")
           printf '%s' "$PHASE23_HTML" | grep 'Explore all 86 frames in Failure Atlas' > /dev/null
 
@@ -256,6 +269,12 @@ jobs:
             test $(wc -c < "/tmp/$ASSET") -gt 50000
           done
           echo "✓ Editorial media: expanded local NASA photo set resolves"
+
+          for ASSET in aerocast-flight.mp4 aerocast-poster.jpg evaluation-nasa-clip.mp4 evaluation-nasa-poster.jpg; do
+            curl --fail --silent --show-error --location "$PUBLIC_URL/film/$ASSET" -o "/tmp/$ASSET"
+            test $(wc -c < "/tmp/$ASSET") -gt 1000
+          done
+          echo "✓ Homepage video clips and poster frames resolve"
 
           for CONDITION in clean blur low_light noise occlusion mixed; do
             curl --fail --silent --show-error --location "$PUBLIC_URL/media/perception/kios_$CONDITION.jpg" -o /dev/null
