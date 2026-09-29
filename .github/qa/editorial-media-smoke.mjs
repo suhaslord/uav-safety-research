@@ -253,12 +253,17 @@ try {
         };
       });
       const manualRetry = started ? null : await clip.evaluate(async (video) => {
-        try {
-          await video.play();
-          return 'resolved';
-        } catch (error) {
-          return `${error?.name || 'Error'}: ${error?.message || error}`;
-        }
+        let timer;
+        const result = await Promise.race([
+          video.play().then(
+            () => 'resolved',
+            (error) => `${error?.name || 'Error'}: ${error?.message || error}`
+          ),
+          new Promise((resolve) => { timer = setTimeout(() => resolve('pending after 2500ms'), 2500); })
+        ]);
+        clearTimeout(timer);
+        video.pause();
+        return result;
       });
       add(`autoplay-visible-clip-${index + 1}-starts-muted`, started, { playbackState, manualRetry });
     }
