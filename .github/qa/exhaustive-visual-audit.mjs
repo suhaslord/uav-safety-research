@@ -213,7 +213,15 @@ try {
       }
 
       const filteredConsole = consoleErrors.filter((entry) => !/favicon|ERR_BLOCKED_BY_CLIENT/i.test(entry));
-      const filteredRequests = failedRequests.filter((entry) => !/favicon|github\.com|linkedin\.com/i.test(entry.url));
+      // This audit uses reduced motion and intentionally suppresses video playback.
+      // The preceding production UI QA verifies autoplay; Chromium may cancel local
+      // media fetches when a route closes, which is not a missing asset.
+      const filteredRequests = failedRequests.filter((entry) => {
+        const expectedVideoCancellation = route === '/'
+          && entry.error === 'net::ERR_ABORTED'
+          && /\/film\/(?:aerocast-flight|evaluation-nasa-clip)\.(?:mp4|webm)(?:[?#]|$)/i.test(entry.url);
+        return !/favicon|github\.com|linkedin\.com/i.test(entry.url) && !expectedVideoCancellation;
+      });
       if (filteredConsole.length) pushBlocker(pageKey, 'browser-console-errors', { errors: filteredConsole });
       if (filteredRequests.length) pushBlocker(pageKey, 'network-request-failures', { requests: filteredRequests });
 
