@@ -45,14 +45,17 @@ jobs:
           BASE='https://aegisland-research-cockpit.vercel.app'
           HOME_URL="$BASE/?ui_consistency_ready=1"
           CSS_URL="$BASE/phase-ui-consistency.css?v=1"
-          for i in {1..60}; do
+          for i in {1..180}; do
             HTML=$(curl --fail --silent --show-error --location "$HOME_URL" || true)
             rm -f /tmp/ui-consistency.css /tmp/ui-consistency.headers
             if printf '%s' "$HTML" | grep -q 'data-editorial-media="local-v2"' \
               && curl --fail --silent --show-error --location --dump-header /tmp/ui-consistency.headers "$CSS_URL" -o /tmp/ui-consistency.css \
               && grep -qi '^content-type: text/css' /tmp/ui-consistency.headers \
               && grep -q 'Cross-template UI consistency pass' /tmp/ui-consistency.css \
-              && grep -q '#phaseLimitations span' /tmp/ui-consistency.css; then
+              && grep -q '#phaseLimitations span' /tmp/ui-consistency.css \
+              && printf '%s' "$HTML" | grep -q 'Model VASE · answer so far' \
+              && printf '%s' "$HTML" | grep -q 'These are different experiments. They have not been joined into one tested model.' \
+              && ! printf '%s' "$HTML" | grep -q '/lab/lab.js'; then
               for ASSET in acero-uav-flight.jpg acero-ground-control.jpg stereo-uav-preflight.jpg acero-uav-landing.jpg phase01-context.jpg phase22-context.jpg; do
                 curl --fail --silent --show-error --location "$BASE/media/$ASSET" >/dev/null
               done
