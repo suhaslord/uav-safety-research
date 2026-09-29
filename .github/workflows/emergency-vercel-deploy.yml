@@ -128,7 +128,7 @@ jobs:
           grep -q 'href="/research-home.css?v=' .vercel-release/index.html
           grep -q 'href="/research-media.css?v=' .vercel-release/index.html
           grep -q 'src="/media/acero-uav-flight.jpg"' .vercel-release/index.html
-          grep -q 'href="/aegisland-brand.css?v=2"' .vercel-release/index.html
+          grep -q 'href="/aegisland-brand.css?v=' .vercel-release/index.html
           grep -q 'src="/model-vase-mark.svg"' .vercel-release/index.html
           test "$(grep -o 'NASA field image · context only' .vercel-release/index.html | wc -l)" -eq 1
           grep -q 'Don Richey / NASA Ames Research Center' .vercel-release/index.html
@@ -158,8 +158,13 @@ jobs:
           grep -q 'class="home-field-media"' .vercel-release/index.html
           grep -q 'src="/film/aerocast-flight.mp4"' .vercel-release/index.html
           grep -q 'src="/film/evaluation-nasa-clip.mp4"' .vercel-release/index.html
-          test "$(grep -o '<video controls playsinline preload="none"' .vercel-release/index.html | wc -l)" -eq 2
-          grep -q 'href="/aegisland-brand.css?v=2"' .vercel-release/model-vase.html
+          test "$(grep -o 'data-autoplay="visible"' .vercel-release/index.html | wc -l)" -eq 2
+          grep -q 'muted loop preload="auto" data-autoplay="visible"' .vercel-release/index.html
+          grep -q 'src="/film/aerocast-flight.webm" type="video/webm"' .vercel-release/index.html
+          grep -q 'src="/film/evaluation-nasa-clip.webm" type="video/webm"' .vercel-release/index.html
+          test -s .vercel-release/film/aerocast-flight.webm
+          test -s .vercel-release/film/evaluation-nasa-clip.webm
+          grep -q 'href="/aegisland-brand.css?v=' .vercel-release/model-vase.html
           grep -q '#e82127' .vercel-release/model-vase.css
           grep -q '/media/phase25/${condition}/${item.id}' .vercel-release/failure-atlas.js
           grep -q 'Loading the verified 86-frame image set' .vercel-release/failure-atlas.html
@@ -232,7 +237,7 @@ jobs:
           printf '%s' "$PUBLIC_HTML" | grep 'href="/aegisland.css?v=' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep 'href="/research-home.css?v=' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep 'href="/research-media.css?v=' > /dev/null
-          printf '%s' "$PUBLIC_HTML" | grep 'href="/aegisland-brand.css?v=2"' > /dev/null
+          printf '%s' "$PUBLIC_HTML" | grep 'href="/aegisland-brand.css?v=' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep 'src="/model-vase-mark.svg"' > /dev/null
           test "$(printf '%s' "$PUBLIC_HTML" | grep -o 'NASA field image · context only' | wc -l)" -eq 1
           printf '%s' "$PUBLIC_HTML" | grep 'Don Richey / NASA Ames Research Center' > /dev/null
@@ -249,11 +254,15 @@ jobs:
           printf '%s' "$PUBLIC_HTML" | grep 'simulation_only=true' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep 'safety_acceptance=false' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep 'controller_tuning_allowed=false' > /dev/null
+          test "$(printf '%s' "$PUBLIC_HTML" | grep -o 'data-autoplay="visible"' | wc -l)" -eq 2
+          printf '%s' "$PUBLIC_HTML" | grep 'src="/film/aerocast-flight.webm" type="video/webm"' > /dev/null
+          printf '%s' "$PUBLIC_HTML" | grep 'src="/film/evaluation-nasa-clip.webm" type="video/webm"' > /dev/null
 
           MODEL_HTML=$(curl --fail --silent --show-error --location "$PUBLIC_URL/model-vase/")
           printf '%s' "$MODEL_HTML" | grep 'Model VASE' > /dev/null
           printf '%s' "$MODEL_HTML" | grep 'V3 PATH · CONNECTED' > /dev/null
           printf '%s' "$MODEL_HTML" | grep 'src="/model-vase-mark.svg"' > /dev/null
+          curl --fail --silent --show-error --location "$PUBLIC_URL/model-vase-evidence.js" >/dev/null
           ATLAS_HTML=$(curl --fail --silent --show-error --location "$PUBLIC_URL/failure-atlas/")
           printf '%s' "$ATLAS_HTML" | grep 'Loading the verified 86-frame image set' > /dev/null
           printf '%s' "$ATLAS_HTML" | grep 'Images selected locally are not hash-checked' > /dev/null
@@ -270,11 +279,11 @@ jobs:
           done
           echo "✓ Editorial media: expanded local NASA photo set resolves"
 
-          for ASSET in aerocast-flight.mp4 aerocast-poster.jpg evaluation-nasa-clip.mp4 evaluation-nasa-poster.jpg; do
+          for ASSET in aerocast-flight.mp4 aerocast-flight.webm aerocast-poster.jpg evaluation-nasa-clip.mp4 evaluation-nasa-clip.webm evaluation-nasa-poster.jpg; do
             curl --fail --silent --show-error --location "$PUBLIC_URL/film/$ASSET" -o "/tmp/$ASSET"
             test $(wc -c < "/tmp/$ASSET") -gt 1000
           done
-          echo "✓ Homepage video clips and poster frames resolve"
+          echo "✓ Homepage MP4/WebM clips and poster frames resolve"
 
           for CONDITION in clean blur low_light noise occlusion mixed; do
             curl --fail --silent --show-error --location "$PUBLIC_URL/media/perception/kios_$CONDITION.jpg" -o /dev/null

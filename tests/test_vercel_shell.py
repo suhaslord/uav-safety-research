@@ -116,6 +116,16 @@ def test_homepage_videos_have_webm_fallbacks_for_browsers_without_h264() -> None
     assert "'.webm': 'video/webm'" in qa_server
 
 
+def test_production_deploy_gate_accepts_autoplay_and_checks_both_video_formats() -> None:
+    workflow = (ROOT / ".github" / "workflows" / "emergency-vercel-deploy.yml").read_text(encoding="utf-8")
+
+    assert "data-autoplay=\"visible\"" in workflow
+    assert "aerocast-flight.webm" in workflow
+    assert "evaluation-nasa-clip.webm" in workflow
+    assert "href=\"/aegisland-brand.css?v=2\"" not in workflow
+    assert "<video controls playsinline preload=\"none\"" not in workflow
+
+
 def test_vercel_routes_use_packaged_frozen_and_legacy_assets() -> None:
     config = json.loads((ROOT / "deploy" / "vercel" / "vercel.json").read_text(encoding="utf-8"))
     rewrites = config["rewrites"]
