@@ -403,6 +403,35 @@ def test_phase23_displayed_condition_table_matches_committed_csv() -> None:
     assert displayed == expected
 
 
+def test_live_perception_delta_uses_unrounded_phase23_source_metrics() -> None:
+    current = (ROOT / "deploy" / "vercel" / "lab" / "current-data.js").read_text(encoding="utf-8")
+    with (ROOT / "results" / "phase23_robust_detector" / "robustness_comparison.csv").open(newline="") as source:
+        rows = list(csv.DictReader(source))
+
+    condition_names = tuple(row["condition"] for row in rows)
+    for row in rows:
+        condition = row["condition"]
+        start = current.index(f"      {condition}: {{")
+        following_starts = [
+            current.find(f"\n      {name}: {{", start + 1)
+            for name in condition_names
+            if name != condition
+        ]
+        following_starts = [position for position in following_starts if position >= 0]
+        end = min(following_starts) if following_starts else current.index("\n    }\n  };", start)
+        block = current[start:end]
+
+        for model, csv_prefix in (("baseline", "baseline"), ("phase23", "phase23")):
+            metrics = re.search(rf"{model}:\s*\{{([^}}]+)\}}", block)
+            assert metrics is not None
+            values = dict(re.findall(r"(recall|map50):\s*([0-9.]+)", metrics.group(1)))
+            assert float(values["recall"]) == float(row[f"{csv_prefix}_recall"])
+            assert float(values["map50"]) == float(row[f"{csv_prefix}_map50"])
+
+    assert "const recallDelta = condition.phase23.recall - condition.baseline.recall;" in current
+    assert "const mapDelta = condition.phase23.map50 - condition.baseline.map50;" in current
+
+
 def test_live_perception_panels_and_phase_reading_width_are_balanced() -> None:
     current = (ROOT / "deploy" / "vercel" / "lab" / "current-data.js").read_text(encoding="utf-8")
     shared = (ROOT / "deploy" / "vercel" / "phase-ui-consistency.css").read_text(encoding="utf-8")
