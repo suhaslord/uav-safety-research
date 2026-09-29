@@ -129,6 +129,45 @@
     const message=document.createElement('p');message.hidden=true;message.setAttribute('role','status');message.textContent='Video unavailable. Use the NASA source link below to view the original.';frame.after(message);video.addEventListener('error',()=>{message.hidden=false;button.hidden=true;});
   });
 
+  // Load the small local homepage clips automatically, but only play them while
+  // visible. Native controls remain available, and reduced-motion/data-saver users
+  // never get automatic playback.
+  document.querySelectorAll('.home-field-media video[data-autoplay="visible"]').forEach((video) => {
+    video.muted = true;
+    video.loop = true;
+    video.playsInline = true;
+    const connection = navigator.connection;
+    const saveData = () => !!connection?.saveData;
+    video.preload = motion.matches || saveData() ? 'metadata' : 'auto';
+    let visible = false;
+    let manualPause = false;
+    let scriptPause = false;
+    const pause = () => {
+      if (video.paused) return;
+      scriptPause = true;
+      video.pause();
+    };
+    const sync = () => {
+      const shouldPlay = visible && !document.hidden && !motion.matches && !saveData() && !manualPause;
+      if (!shouldPlay) { pause(); return; }
+      if (video.paused) video.play().catch(() => {});
+    };
+    video.addEventListener('pause', () => {
+      if (scriptPause) { scriptPause = false; return; }
+      manualPause = true;
+    });
+    video.addEventListener('play', () => { manualPause = false; });
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; sync(); }, { threshold: .25 }).observe(video);
+    } else {
+      visible = true;
+      sync();
+    }
+    document.addEventListener('visibilitychange', sync);
+    motion.addEventListener('change', sync);
+    connection?.addEventListener?.('change', sync);
+  });
+
   const track = document.getElementById('chapterTrack');
   if (track) {
     const cards = [...track.querySelectorAll('.chapter-card')];

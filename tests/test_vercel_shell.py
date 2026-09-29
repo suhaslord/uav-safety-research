@@ -78,21 +78,42 @@ def test_vercel_home_is_native_frozen_archive_shell() -> None:
 def test_model_vase_page_reports_separate_evidence_without_claiming_a_fused_model() -> None:
     page = (ROOT / "deploy" / "vercel" / "model-vase.html").read_text(encoding="utf-8")
     stylesheet = (ROOT / "deploy" / "vercel" / "model-vase.css").read_text(encoding="utf-8")
+    evidence_script = (ROOT / "deploy" / "vercel" / "model-vase-evidence.js").read_text(encoding="utf-8")
     mark = (ROOT / "deploy" / "vercel" / "model-vase-mark.svg").read_text(encoding="utf-8")
 
     assert "Model VASE" in page
     assert "2.4%" in page and "1.4%" in page and "84.2%" in page
     assert "+3.4 pp" in page and "−13.3 pp" in page
-    assert "10,000 simulated episodes" in page and "paired frame transitions cannot be reported" in page
+    assert "10,000 simulated episodes" in page and "Paired frame transitions cannot be reported" in page
     assert "integrated research architecture, not a newly trained checkpoint" in page
     assert "V3 PATH · CONNECTED" in page and "PHASE 12 · NOT YET CONNECTED" in page
     assert "Only the V3 simulation path is connected" in page
     assert "docs/v3_results.md" in page
     assert "PHASES 10R–12" in page and "KIOS frames" in page
     assert "vase-evidence-card" in page and "/failure-atlas/" in page
+    assert 'data-evidence-button="simulation"' in page and 'data-evidence-button="vision"' in page
+    assert 'data-evidence-panel="simulation"' in page and 'data-evidence-panel="vision"' in page
+    assert "activate('vision')" in evidence_script and "ArrowRight" in evidence_script
     assert 'href="/aegisland-brand.css?v=' in page
     assert "#e82127" in stylesheet and "#3e6ae1" not in stylesheet and "prefers-reduced-motion" in stylesheet
     assert 'viewBox="0 0 48 48"' in mark
+
+
+def test_local_visual_qa_server_serves_model_vase_evidence_switch_script() -> None:
+    server = (ROOT / ".github" / "qa" / "local-vercel-server.mjs").read_text(encoding="utf-8")
+
+    assert "'model-vase-evidence.js'" in server
+
+
+def test_homepage_videos_have_webm_fallbacks_for_browsers_without_h264() -> None:
+    page = (ROOT / "deploy" / "vercel" / "index.html").read_text(encoding="utf-8")
+    qa_server = (ROOT / ".github" / "qa" / "local-vercel-server.mjs").read_text(encoding="utf-8")
+
+    assert page.count('type="video/webm"') == 2
+    assert page.count('type="video/mp4"') == 2
+    assert (ROOT / "deploy" / "vercel" / "film" / "aerocast-flight.webm").is_file()
+    assert (ROOT / "deploy" / "vercel" / "film" / "evaluation-nasa-clip.webm").is_file()
+    assert "'.webm': 'video/webm'" in qa_server
 
 
 def test_vercel_routes_use_packaged_frozen_and_legacy_assets() -> None:
