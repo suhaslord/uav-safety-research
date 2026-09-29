@@ -105,6 +105,17 @@ def test_local_visual_qa_server_serves_model_vase_evidence_switch_script() -> No
     assert "'model-vase-evidence.js'" in server
 
 
+def test_homepage_videos_have_webm_fallbacks_for_browsers_without_h264() -> None:
+    page = (ROOT / "deploy" / "vercel" / "index.html").read_text(encoding="utf-8")
+    qa_server = (ROOT / ".github" / "qa" / "local-vercel-server.mjs").read_text(encoding="utf-8")
+
+    assert page.count('type="video/webm"') == 2
+    assert page.count('type="video/mp4"') == 2
+    assert (ROOT / "deploy" / "vercel" / "film" / "aerocast-flight.webm").is_file()
+    assert (ROOT / "deploy" / "vercel" / "film" / "evaluation-nasa-clip.webm").is_file()
+    assert "'.webm': 'video/webm'" in qa_server
+
+
 def test_vercel_routes_use_packaged_frozen_and_legacy_assets() -> None:
     config = json.loads((ROOT / "deploy" / "vercel" / "vercel.json").read_text(encoding="utf-8"))
     rewrites = config["rewrites"]

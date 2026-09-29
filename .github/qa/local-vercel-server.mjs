@@ -18,7 +18,8 @@ const types = {
   '.jpeg': 'image/jpeg',
   '.png': 'image/png',
   '.webp': 'image/webp',
-  '.mp4': 'video/mp4'
+  '.mp4': 'video/mp4',
+  '.webm': 'video/webm'
 };
 
 const dashboardAssets = new Set([

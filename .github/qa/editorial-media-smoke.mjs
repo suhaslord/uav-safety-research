@@ -76,7 +76,7 @@ try {
           }, index, { timeout: 12000 }).catch(() => {});
         }
         const videoAssets = await page.locator('.home-field-media video').evaluateAll((videos) => videos.flatMap((video) => [
-          { kind: 'clip', path: video.querySelector('source')?.getAttribute('src') || '', type: 'video/mp4' },
+          ...[...video.querySelectorAll('source')].map((source) => ({ kind: 'clip', path: source.getAttribute('src') || '', type: source.type })),
           { kind: 'poster', path: video.getAttribute('poster') || '', type: 'image/jpeg' }
         ]));
         for (const [index, asset] of videoAssets.entries()) {
@@ -140,7 +140,7 @@ try {
             loop: video.loop,
             preload: video.getAttribute('preload') || '',
             autoplayWhenVisible: video.dataset.autoplay === 'visible',
-            source: video.querySelector('source')?.getAttribute('src') || '',
+            sources: [...video.querySelectorAll('source')].map((source) => source.getAttribute('src') || ''),
             poster: video.getAttribute('poster') || ''
           })),
           contextFigures: [...document.querySelectorAll('.home-field-media figure')].map((figure) => ({
@@ -162,7 +162,7 @@ try {
         add(`${viewport.name}-home-two-usable-video-controls`, state.homeVideos.length === 2 && state.homeVideos.every((video) => video.controls && video.playsInline), { videos: state.homeVideos });
         add(`${viewport.name}-home-two-autoplay-ready-clips`, state.homeVideos.length === 2 && state.homeVideos.every((video) => video.muted && video.loop && video.autoplayWhenVisible), { videos: state.homeVideos });
         add(`${viewport.name}-home-phase22-result-not-squeezed`, state.resultLayout?.containerDisplay === 'block' && state.resultLayout.measureCount === 3 && state.resultLayout.cardWidth >= 300 && !state.resultLayout.overlaps && !state.resultLayout.valueClips, { resultLayout: state.resultLayout });
-        add(`${viewport.name}-home-two-local-video-sources`, state.homeVideos.length === 2 && state.homeVideos.every((video) => video.source.startsWith('/film/') && video.source.endsWith('.mp4') && video.poster.startsWith('/film/')), { videos: state.homeVideos });
+        add(`${viewport.name}-home-two-local-video-sources`, state.homeVideos.length === 2 && state.homeVideos.every((video) => video.sources.some((source) => source.startsWith('/film/') && source.endsWith('.mp4')) && video.sources.some((source) => source.startsWith('/film/') && source.endsWith('.webm')) && video.poster.startsWith('/film/')), { videos: state.homeVideos });
         add(`${viewport.name}-home-context-media-credited`, state.contextFigures.length === 5 && state.contextFigures.every((figure) => /public-domain context/i.test(figure.caption) && figure.source.startsWith('https://')), { figures: state.contextFigures });
         add(`${viewport.name}-home-images-loaded`, state.imagesLoaded && !state.fallbackVisible, { imagesLoaded: state.imagesLoaded, fallbackVisible: state.fallbackVisible });
         add(`${viewport.name}-home-meaningful-alt`, state.altText.length === 1 && state.altText.every((alt) => alt.trim().length >= 24), { altText: state.altText });
@@ -244,6 +244,7 @@ try {
           muted: video.muted,
           defaultMuted: video.defaultMuted,
           canPlayMp4: video.canPlayType('video/mp4; codecs="avc1.64001f"'),
+          canPlayWebm: video.canPlayType('video/webm; codecs="vp9"'),
           currentSrc: video.currentSrc,
           error: video.error ? { code: video.error.code, message: video.error.message } : null,
           inViewport: rect.bottom > 0 && rect.top < innerHeight && rect.right > 0 && rect.left < innerWidth,
