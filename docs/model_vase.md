@@ -51,8 +51,8 @@ effects. Pass `--replay-dir PATH` to verify an already generated run.
 | Phase 12 | The frozen adaptive-normalized conformal candidate passed its registered simulation gates through final replication, including lateral 95% coverage of `95.53%` and the p95 width/error ratio of `2.230×`. | A positive result for state-uncertainty estimation in its defined simulation lineage. It has not been connected to the V3 landing decision path. |
 | Phase 22 | The frozen simulation transfer study passed all 10 locked gates. | Supports the bounded transfer claim in that simulation protocol; it is not physical-flight evidence. |
 | Phases 23–24 | On the KIOS real-image split, macro mAP50 rose by 3.4 points, while the equal-weight occlusion + mixed average fell by 13.3 points. | Real-image detector evidence shows where the visual front end remains weak. It does not measure a landing response. |
-| Phase 25 | The Phase 22 detector baseline was audited on 86 reused frames × 6 reconstructed conditions. The exact Phase 23 checkpoint/runtime remains unavailable, so paired per-frame transitions remain pending. | Makes baseline image failures inspectable while protecting the comparison from invented Phase 23 predictions. |
-| Phase 26 | No independent evaluation set or frozen reliability rule has been admitted yet. | Defines the next evidence needed to test whether these patterns transfer to separate imagery. |
+| Phase 25 | On 86 protected frames × 6 conditions (516 paired views), the authenticated Phase 23 checkpoint produced 49 recovered, 65 regressed, 223 both-pass, and 179 both-fail frame transitions. Blur and noise improved (+9.3 pp and +3.5 pp recall); clean, low-light, and occlusion regressed (−8.1 pp, −12.8 pp, −11.6 pp). The mechanism: 480 px input resolves concentric pad features for isotropic corruptions but those features collapse under 55% central occlusion. | Paired frame outcomes with an authenticated checkpoint and established mechanism for the occlusion/mixed regression. |
+| Phase 26 | KIOS 2022 archive rejected (100% byte-duplicate overlap). KIOS 2024 residual real frames rejected (same two sessions, cross-split collision). IMAV 2025 candidate blocked pending images, manifest, and provenance. No independent evaluation set has been admitted. | The admission gate is preserved; the next candidate must supply session-level provenance and pass zero-overlap screening. |
 
 These rows are complementary studies, not a meta-analysis or a single joint
 evaluation. The detailed phase pages retain the frozen denominators, protocols,
@@ -73,10 +73,12 @@ conditions, plus a measurable low-light completion cost and weak
 mixed-lateral frame rejection.
 
 **Across real-camera imagery and physical flight, the question remains open.**
-The KIOS detector's occlusion and mixed-stress metrics regress; the Phase 23
-checkpoint is missing for paired frame outcomes; Phase 8 found a mismatch
-against the available PX4/Gazebo trace; and Phase 26 has no admitted independent
-test set. The evidence does not establish a validated real-world fallback or
+The recovered Phase 23 detector's paired study confirms occlusion and
+mixed-stress regression (65 regressed frames vs 49 recovered); the mechanism
+is understood (480 px feature specialization under 55% central occlusion), but
+it has not been addressed in the detector. Phase 8 found a mismatch against
+the available PX4/Gazebo trace; and Phase 26 has no admitted independent test
+set. The evidence does not establish a validated real-world fallback or
 flight safety.
 
 ## Why the historical numbers stay fixed
@@ -97,7 +99,8 @@ Model VASE is research software evaluated in simulation and retrospective
 image benchmarks. It is not a flight controller approval, safety certification,
 or real-aircraft validation.
 
-The next scientific test is to recover and reconcile the exact Phase 23 model
-and runtime, then admit genuinely separate, session-screened data under Phase
-26's frozen protocol. Only after those gates should an end-to-end detector-to-
+The Phase 23 checkpoint has been recovered and authenticated. The next
+scientific test is to admit genuinely separate, session-screened data under
+Phase 26's frozen protocol and to evaluate offline reliability signals from
+the Phase 25 evidence. Only after those gates should an end-to-end detector-to-
 supervisor composition be evaluated as a new version.

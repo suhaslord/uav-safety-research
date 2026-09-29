@@ -74,12 +74,12 @@ def test_model_vase_page_reports_separate_evidence_without_claiming_a_fused_mode
     assert "Model VASE" in page
     assert "2.4%" in page and "1.4%" in page and "84.2%" in page
     assert "+3.4 pp" in page and "−13.3 pp" in page
-    assert "10,000 simulated episodes" in page and "paired frame transitions cannot be reported" in page
+    assert "10,000 simulated episodes" in page and "49 recovered, 65 regressed" in page
     assert "integrated research architecture, not a newly trained checkpoint" in page
     assert "V3 PATH · CONNECTED" in page and "PHASE 12 · NOT YET CONNECTED" in page
     assert "Only the V3 simulation path is connected" in page
     assert "docs/v3_results.md" in page
-    assert "PHASES 10R–12" in page and "KIOS frames" in page
+    assert "PHASES 10R–12" in page and "516 paired views" in page
     assert "vase-evidence-card" in page and "/failure-atlas/" in page
     assert 'href="/aegisland-brand.css?v=' in page
     assert "#e82127" in stylesheet and "#3e6ae1" not in stylesheet and "prefers-reduced-motion" in stylesheet

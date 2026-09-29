@@ -76,18 +76,18 @@
           <a href="/phases/phase22/">Read the Phase 22 record ↗</a>
         </article>
         <article class="vase-evidence-card vase-evidence-card--wide">
-          <div class="vase-card-meta"><span>PHASES 23–26</span><b>REAL IMAGE · PAIRED RESULT PENDING</b></div>
+          <div class="vase-card-meta"><span>PHASES 23–26</span><b>REAL IMAGE · PAIRED STUDY COMPLETE</b></div>
           <h3>The detector average hides hard-condition failures.</h3>
-          <p>On 86 reused KIOS frames, the six-condition mAP50 average rose while occlusion and mixed stress fell. Phase 25 has verified baseline boxes across 516 views; the exact Phase 23 checkpoint and original runtime are still missing, so paired frame transitions cannot be reported. Phase 26 has no admitted independent test set.</p>
+          <p>On 86 frames × 6 conditions (516 paired views), Phase 25 found 49 recovered, 65 regressed, 223 both-pass, and 179 both-fail transitions. Blur and noise improved; clean, low-light, and occlusion regressed. The mechanism: 480 px training resolves fine concentric features but those features collapse under 55% central occlusion. Phase 26 has no admitted independent test set.</p>
           <div class="vase-card-links"><a href="/phases/phase24/">Read the aggregate audit ↗</a><a href="/failure-atlas/">Inspect measured baseline frames ↗</a><a href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase26_protocol.md">Read the separate-data protocol ↗</a></div>
         </article>
       </div>
     </section>
 
     <section class="vase-next" aria-labelledby="next-title">
-      <div><span class="eyebrow">Next decisive evidence</span><h2 id="next-title">Connect the real vision path. Test it on new data.</h2></div>
-      <p>Recover the exact Phase 23 model and inference stack, then evaluate a preregistered detector-to-supervisor version on session-screened independent imagery. Until then, VASE's end-to-end real-world answer remains open.</p>
-      <div class="hero-links"><a href="/phases/phase25/">Phase 25 evidence status →</a><a href="/phases/">All phase records →</a></div>
+      <div><span class="eyebrow">Next decisive evidence</span><h2 id="next-title">Admit independent data. Evaluate offline signals.</h2></div>
+      <p>The Phase 23 checkpoint is recovered and paired. The next test is to admit session-screened independent imagery under Phase 26's frozen protocol and evaluate whether Phase 25 reliability signals can inform the VASE supervisory layer offline.</p>
+      <div class="hero-links"><a href="/phases/phase25/">Phase 25 paired study →</a><a href="/phases/">All phase records →</a></div>
     </section>
   </main>
   <footer><span>AEGISLAND · Model VASE · simulation evidence, real-image limits preserved</span><span><a href="/">Research home</a></span></footer>
