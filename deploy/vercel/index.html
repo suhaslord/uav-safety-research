@@ -134,7 +134,7 @@
           node.href = `/phases/${phase.slug}/`;
           node.setAttribute('aria-label', `${phase.label}: ${phase.verdict} — ${phase.title}`);
           node.title = `${phase.label} · ${phase.verdict} · ${phase.title}`;
-          lineageRoot.querySelector('.home-lineage__track').appendChild(node);
+          lineageRoot.appendChild(node);
         });
       }
       if (data && root) {

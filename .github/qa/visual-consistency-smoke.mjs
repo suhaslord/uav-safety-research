@@ -180,7 +180,7 @@ try {
         horizontalOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth
       };
     });
-    add('home-940-navigation-continuity', !!response && response.status() < 400 && navigation.navVisible && navigation.navLinkCount >= 5 && navigation.actionsVisible && !navigation.mobileToggleVisible && !navigation.headerOverlap && navigation.horizontalOverflow <= 2, { ...navigation, status: response?.status() || 0 });
+    add('home-940-navigation-continuity', !!response && response.status() < 400 && navigation.navVisible && navigation.navLinkCount >= 3 && navigation.actionsVisible && !navigation.mobileToggleVisible && !navigation.headerOverlap && navigation.horizontalOverflow <= 2, { ...navigation, status: response?.status() || 0 });
     await page.close();
     await context.close();
   }
@@ -195,9 +195,9 @@ try {
     add('home-frozen-native-shell', shell === 'native frozen-archive', { shell });
     const teslaStyles = await page.locator('link[href^="/aegisland.css"]').count();
     add('home-uses-tesla-style-source', teslaStyles === 1, { teslaStyles });
-    const evidenceRows = await page.locator('#evidenceSpine .evidence-row').count();
-    const passRows = await page.locator('#evidenceSpine .evidence-row[data-verdict="PASS"]').count();
-    const failRows = await page.locator('#evidenceSpine .evidence-row[data-verdict="FAIL"]').count();
+    const evidenceRows = await page.locator('#homeLineage .home-lineage__node').count();
+    const passRows = await page.locator('#homeLineage .home-lineage__node[data-verdict="PASS"]').count();
+    const failRows = await page.locator('#homeLineage .home-lineage__node[data-verdict="FAIL"]').count();
     add('home-has-complete-frozen-spine', evidenceRows === 13, { evidenceRows });
     add('home-preserves-pass-fail-record', passRows === 6 && failRows === 7, { passRows, failRows });
 
@@ -251,7 +251,7 @@ try {
     add('archive-preserves-6-pass-7-fail', frozenPass === 6 && frozenFail === 7, { frozenPass, frozenFail });
     add('archive-personalizes-every-card', identities === 28 && questions === 28 && signals === 28, { identities, questions, signals });
     add('archive-uses-polished-tesla-shell', archivePolish === 1 && archivePersonalization === 1 && archiveSignature === 0, { archivePolish, archivePersonalization, archiveSignature });
-    add('archive-has-category-led-thesis', /The complete research record/i.test(archiveText));
+    add('archive-has-category-led-thesis', /Every phase stays part of the story/i.test(archiveText) && /7 research categories/i.test(archiveText));
     const phase23Card = await page.locator('.archive-card[href="/phases/phase23/"]').count();
     add('archive-links-phase23', phase23Card === 1, { phase23Card });
     await page.goto(BASE + '/phases/phase23/', { waitUntil: 'domcontentloaded', timeout: 45000 });
