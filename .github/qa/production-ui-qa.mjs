@@ -101,6 +101,35 @@ try {
       const status = response?.status() || 0;
       add(`${vp.name}-${route}-status`, status >= 200 && status < 400, { status });
 
+      let videoPlaybackVerified = route !== '/';
+      if (route === '/') {
+        const videos = page.locator('video');
+        const count = await videos.count();
+        videoPlaybackVerified = count === 2;
+        add(vp.name + '-home-two-videos-present', videoPlaybackVerified, { count });
+        for (let index = 0; index < count; index++) {
+          const video = videos.nth(index);
+          await video.scrollIntoViewIfNeeded();
+          const played = await page.waitForFunction(
+            (i) => {
+              const element = document.querySelectorAll('video')[i];
+              return element && element.muted && !element.paused && element.currentTime > 0.5 && element.readyState >= 2;
+            },
+            index,
+            { timeout: 7000 }
+          ).then(() => true).catch(() => false);
+          const videoState = await video.evaluate((element) => ({
+            muted: element.muted,
+            paused: element.paused,
+            currentTime: Number(element.currentTime.toFixed(2)),
+            readyState: element.readyState,
+            src: element.currentSrc
+          }));
+          add(vp.name + '-home-video-' + index + '-autoplays-muted', played, videoState);
+          videoPlaybackVerified = videoPlaybackVerified && played;
+        }
+      }
+
       // Load every image before testing it, including native-lazy carousel slides.
       const images = page.locator('img');
       for (let index=0; index<await images.count(); index++) {
@@ -141,7 +170,12 @@ try {
       }
 
       const filteredErrors = browserErrors.filter((entry) => !/favicon|ERR_BLOCKED_BY_CLIENT/i.test(entry));
-      const filteredRequests = failedRequests.filter((entry) => !/favicon|github\.com|linkedin\.com/i.test(entry.url));
+      const filteredRequests = failedRequests.filter((entry) => {
+        const expectedVideoAbort = videoPlaybackVerified
+          && entry.error === 'net::ERR_ABORTED'
+          && /\/film\/(?:aerocast-flight|evaluation-nasa-clip)\.(?:mp4|webm)(?:[?#]|$)/i.test(entry.url);
+        return !/favicon|github\\.com|linkedin\\.com/i.test(entry.url) && !expectedVideoAbort;
+      });
       add(`${vp.name}-${route}-browser-clean`, filteredErrors.length === 0, { browserErrors: filteredErrors });
       add(`${vp.name}-${route}-network-clean`, filteredRequests.length === 0, { failedRequests: filteredRequests });
 
