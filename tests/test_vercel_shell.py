@@ -99,6 +99,12 @@ def test_model_vase_page_reports_separate_evidence_without_claiming_a_fused_mode
     assert 'viewBox="0 0 48 48"' in mark
 
 
+def test_local_visual_qa_server_serves_model_vase_evidence_switch_script() -> None:
+    server = (ROOT / ".github" / "qa" / "local-vercel-server.mjs").read_text(encoding="utf-8")
+
+    assert "'model-vase-evidence.js'" in server
+
+
 def test_vercel_routes_use_packaged_frozen_and_legacy_assets() -> None:
     config = json.loads((ROOT / "deploy" / "vercel" / "vercel.json").read_text(encoding="utf-8"))
     rewrites = config["rewrites"]
