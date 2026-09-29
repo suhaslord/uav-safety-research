@@ -1,6 +1,6 @@
 (() => {
   const appBase = new URL('.', document.currentScript?.src || window.location.href);
-  const appAsset = (path) => new URL(String(path).replace(/^\/+/, ''), appBase).href;
+  const appAsset = (path) => new URL(String(path).replace(/^\/+/, ''), appBase).pathname;
   const rootSlash = String.fromCharCode(47);
   const expected = ['clean', 'blur', 'low_light', 'noise', 'occlusion', 'mixed'];
   const explorers = [...document.querySelectorAll('[data-phase25-explorer]')];
