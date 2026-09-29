@@ -1,6 +1,8 @@
 {
   "rewrites": [
     { "source": "/favicon.ico", "destination": "/favicon.svg" },
+    { "source": "/model-vase/", "destination": "/model-vase.html" },
+    { "source": "/model-vase", "destination": "/model-vase.html" },
     { "source": "/failure-atlas/", "destination": "/failure-atlas.html" },
     { "source": "/failure-atlas", "destination": "/failure-atlas.html" },
     { "source": "/model-vase/", "destination": "/model-vase.html" },

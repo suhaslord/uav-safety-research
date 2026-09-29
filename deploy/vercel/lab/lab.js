@@ -17,7 +17,7 @@
   const esc = s => String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const label = s => 'Phase ' + s.slice(5).toUpperCase();
   const fmt = v => typeof v === 'number' ? new Intl.NumberFormat('en-US',{maximumFractionDigits:4}).format(v) : v === null ? 'Unavailable' : String(v);
-  const colors = ['#3457b2','#171a20','#9a6225'];
+  const colors = ['#e82127','#171a20','#9a6225'];
   let phase = document.body.dataset.phase || location.pathname.match(/(?:\/phases\/|\/)(phase\d+[a-z]*)(?:\/|\.html|$)/i)?.[1]?.toLowerCase() || new URLSearchParams(location.search).get('phase') || 'phase1';
   if (!catalog[phase]) phase = 'phase1';
   let worker, requestId=0, result=null, timer, busy=false, stacks={},stackId=0, guideStep=0, previousByKey={};
@@ -203,7 +203,7 @@
       
       target.querySelector('.lab-stack-table').before(target.querySelector('.lab-stack-plot'));
       select.innerHTML=names.map(n=>`<option>${esc(n)}</option>`).join('');
-      const plot=()=>{const series=runs.flatMap((r,i)=>{const line=r.data.series.find(l=>l.label===select.value);return line?[{...line,label:r.name,color:['#3457b2','#171a20','#9a6225','#28775e','#925ba1'][i]}]:[];});const figure=target.querySelector('.lab-stack-chart');if(series.length)drawChart(figure,{...result,series});else figure.innerHTML='<p>No chart series is available for these runs.</p>';};
+      const plot=()=>{const series=runs.flatMap((r,i)=>{const line=r.data.series.find(l=>l.label===select.value);return line?[{...line,label:r.name,color:['#e82127','#171a20','#9a6225','#687076','#8c3540'][i]}]:[];});const figure=target.querySelector('.lab-stack-chart');if(series.length)drawChart(figure,{...result,series});else figure.innerHTML='<p>No chart series is available for these runs.</p>';};
       plot();select.onchange=plot;target.querySelector('.lab-stack-plot').ontoggle=event=>{if(event.target.open)plot();};
     }
     function executionKind(p){return ['phase1','phase2','phase3','phase5'].includes(p)?'Original closed-loop landing simulation':(['phase6','phase6b','phase7','phase10','phase10r'].includes(p)?'Original components with synthetic inputs':'Simplified method demonstration — not the full phase evaluation');}

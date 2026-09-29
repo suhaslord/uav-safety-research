@@ -204,19 +204,20 @@ try {
     const homeText = await page.locator('main').innerText();
     const heroOverlay = await page.locator('#top .research-photo__frame').evaluate(element => getComputedStyle(element, '::after').backgroundImage);
     add('home-hero-photo-shaded-for-readable-copy', /linear-gradient/i.test(heroOverlay), { heroOverlay });
-    add('home-current-thesis-visible', /When the camera is sure, but wrong/i.test(homeText) && /We study when landing estimates drift before their uncertainty catches up/i.test(homeText), { excerpt: homeText.slice(0, 500) });
-    add('home-current-project-framing-visible', /Frozen simulation result/i.test(homeText) && /Phase 24.*audit/i.test(homeText) && /Six stretches of work, each caused by the last one/i.test(homeText));
-    add('home-researcher-brief-visible', /Limit of the evidence/i.test(homeText) && (/Terms used in this phase/i.test(homeText) || /research glossary/i.test(homeText)) && /Frozen simulation result/i.test(homeText));
-    add('home-phase22-final-visible', /0\.8319/.test(homeText) && /0\.7744/.test(homeText) && /10\s+locked gates/i.test(homeText) && /100%/.test(homeText), { excerpt: homeText.slice(0, 900) });
-    add('home-science-is-explicitly-frozen', /Phase 12\s*→\s*Phase 22/i.test(homeText) && /6 PASS \/ 7 FAIL/i.test(homeText) && /Phase 22 is a simulation result/i.test(homeText), { excerpt: homeText.slice(0, 1200) });
-    add('home-claim-boundary-visible', /simulation_only=true/.test(homeText) && /safety_acceptance=false/.test(homeText) && /controller_tuning_allowed=false/.test(homeText));
+    add('home-current-thesis-visible', /Can the system know when its landing estimate is unreliable/i.test(homeText) && /simulation found a recovery signal/i.test(homeText) && /camera results remain separate/i.test(homeText), { excerpt: homeText.slice(0, 500) });
+    add('home-current-project-framing-visible', /Model VASE · answer so far/i.test(homeText) && /−13\.3 pp/.test(homeText) && /Phase 24/i.test(homeText));
+    add('home-evidence-boundary-visible', /These are different experiments/i.test(homeText) && /No flight-safety claim/i.test(homeText));
+    add('home-phase22-final-visible', /0\.8319/.test(homeText) && /0\.7744/.test(homeText) && /10 \/ 10 gates passed/i.test(homeText) && /100%/.test(homeText), { excerpt: homeText.slice(0, 900) });
+    const frozenRecord = await page.locator('.copy-disclosure').textContent();
+    add('home-science-is-explicitly-frozen', /Phase 12\s*→\s*Phase 22/i.test(frozenRecord || '') && /6 PASS \/ 7 FAIL/i.test(frozenRecord || '') && /No flight-safety claim/i.test(homeText), { excerpt: frozenRecord?.slice(0, 300) });
+    add('home-claim-boundary-visible', /No flight-safety claim/i.test(homeText) && /controller-tuning claim/i.test(homeText));
     const phase23Links = await page.locator('a[href*="phase23"]').count();
     add('home-links-phase23-detector', phase23Links > 0, { phase23Links });
     add('home-features-measured-baseline-atlas',
       await page.locator('#top a[href="/failure-atlas/"]').count() === 1
         && await page.locator('#phase25 .phase25-feature__images img').count() === 2
         && await page.locator('#phase25 .phase25-feature__proof a[href*="phase25_reconstruction_audit.json"]').count() === 1
-        && /Baseline observed · Phase 23 pending/i.test(await page.locator('#phase25').innerText()));
+        && /Baseline measured · Phase 23 pending/i.test(await page.locator('#phase25').innerText()));
     await page.close();
     await context.close();
   }

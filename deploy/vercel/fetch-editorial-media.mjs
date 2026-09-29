@@ -57,13 +57,13 @@ const assets = [
   acero('phase13c-context.jpg', 'ACD24-0180-023', 'Phase 13C attribution context'),
   acero('phase14-context.jpg', 'ACD24-0180-021', 'Phase 14 bounded-test context'),
   acero('phase15-context.jpg', 'ACD24-0180-002', 'Phase 15 feasibility context'),
-  acero('phase16-context.jpg', 'ACD24-0180-003', 'Phase 16 staleness context', true),
+  acero('phase16-context.jpg', 'ACD24-0180-003', 'Phase 16 staleness context'),
   acero('phase17-context.jpg', 'ACD24-0180-004', 'Phase 17 context-mismatch context'),
   acero('phase18-context.jpg', 'ACD24-0180-038', 'Phase 18 protected-confirmation context'),
   acero('phase19-context.jpg', 'ACD24-0180-006', 'Phase 19 residual-effect context'),
   acero('phase20-context.jpg', 'ACD24-0180-029', 'Phase 20 factor-decomposition context'),
   acero('phase21-context.jpg', 'ACD24-0180-033', 'Phase 21 context-spectrum context'),
-  stereo('phase22-context.jpg', 'NHQ202105050014', 'Phase 22 locked-transfer context', true)
+  stereo('phase22-context.jpg', 'NHQ202105050014', 'Phase 22 locked-transfer context')
 ];
 
 function validateJpeg(buffer, label = 'JPEG') {

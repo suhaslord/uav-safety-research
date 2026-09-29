@@ -140,7 +140,7 @@ try {
           archiveIdentities:document.querySelectorAll('.archive-card__identity').length,
           frozenCards:document.querySelectorAll('.archive-card[data-frozen="true"]').length,
           historicalCards:document.querySelectorAll('.archive-card[data-frozen="false"]').length,
-          bodyText:text,
+          bodyText:document.body.textContent || '',
           styles:localStyles
         };
       }, { route, phone:vp.name === 'phone' }).catch(() => ({
@@ -217,7 +217,7 @@ const sciencePass = Boolean(home && archive && phase22)
   && home.metrics.bodyText.includes('0.8319')
   && home.metrics.bodyText.includes('0.7744')
   && home.metrics.bodyText.includes('100%')
-  && home.metrics.bodyText.includes('10 / 10 locked gates passed')
+  && home.metrics.bodyText.includes('10 / 10 gates passed')
   && home.metrics.bodyText.includes('6 PASS / 7 FAIL')
   && archive.metrics.frozenCards === 13
   && phase22.metrics.bodyText.includes('0.8319')

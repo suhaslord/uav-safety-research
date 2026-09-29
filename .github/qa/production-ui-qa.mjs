@@ -58,10 +58,10 @@ try {
       const state = await readiness.evaluate(() => ({
         shell: document.documentElement.dataset.siteShell || '',
         text: document.body?.innerText || '',
-        head: document.querySelector('.signature-section__intro code')?.textContent || ''
+        head: window.AEGIS_FROZEN_LINEAGE?.frozenScientificHead || ''
       }));
       readinessExcerpt = state.text.slice(0, 300);
-      if (response && response.status() < 400 && state.shell === 'native frozen-archive' && state.head === FROZEN_HEAD && /Frozen through Phase 22/i.test(state.text)) {
+      if (response && response.status() < 400 && state.shell === 'native frozen-archive' && state.head === FROZEN_HEAD && /Phase 22/i.test(state.text) && /Phase 23 pending/i.test(state.text)) {
         ready = true;
         break;
       }
@@ -170,9 +170,10 @@ try {
       passRows: document.querySelectorAll('#evidenceSpine .evidence-row[data-verdict="PASS"]').length,
       failRows: document.querySelectorAll('#evidenceSpine .evidence-row[data-verdict="FAIL"]').length,
       phase23LinkCount: document.querySelectorAll('a[href*="phase23"]').length,
-      hasBoundary: text.includes('simulation_only=true') && text.includes('safety_acceptance=false') && text.includes('controller_tuning_allowed=false'),
+      hasBoundary: document.querySelector('meta[name="aegis-evidence-boundary"]')?.content === 'simulation_only=true; safety_acceptance=false; controller_tuning_allowed=false'
+        && /does not establish physical-flight safety/i.test(text),
       hasFinalMetrics: text.includes('0.8319') && text.includes('0.7744') && text.includes('100%'),
-      saysFrozen: /Frozen through Phase 22/i.test(text) && (/No Phase 23/i.test(text) || /does not imply a Phase 23/i.test(text) || /scientific commit/i.test(text)),
+      saysFrozen: /Phase 22/i.test(text) && /Phase 23 pending/i.test(text),
       dataOk: !!data && data.frozenThrough === 'Phase 22' && data.phases.length === 13 && data.counts.PASS === 6 && data.counts.FAIL === 7 && data.frozenScientificHead === frozenHead && data.bySlug.phase22.resultSha === resultSha && data.bySlug.phase22.candidateSha === candidateSha
     };
   }, { resultSha: PHASE22_RESULT, candidateSha: PHASE22_CANDIDATE, frozenHead: FROZEN_HEAD });
@@ -281,4 +282,3 @@ const summary = [
 await fs.writeFile(path.join(OUT, 'summary.md'), summary);
 console.log(summary);
 if (report.failedChecks > 0) process.exitCode = 1;
-

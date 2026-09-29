@@ -102,7 +102,7 @@
 
     document.body.dataset.phase = slug;
     document.body.dataset.phaseCategory = category.id;
-    document.documentElement.style.setProperty('--phase-accent', '#3e6ae1');
+    document.documentElement.style.setProperty('--phase-accent', '#e82127');
     document.documentElement.style.setProperty('--phase-tint', '#eef2ff');
     normalizePhaseFlow(slug);
 

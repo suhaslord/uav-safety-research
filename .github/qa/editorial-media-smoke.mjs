@@ -66,6 +66,17 @@ try {
           return figure.dataset.imageState === 'fallback' || !image || (image.complete && image.naturalWidth > 0 && image.naturalHeight > 0);
         }, index, { timeout: 12000 }).catch(() => {});
       }
+      if (route === '/') {
+        const images = page.locator('img');
+        for (let index = 0; index < await images.count(); index += 1) {
+          await images.nth(index).scrollIntoViewIfNeeded();
+          await page.waitForFunction((imageIndex) => {
+            const image = document.querySelectorAll('img')[imageIndex];
+            return !!image && image.complete && image.naturalWidth > 0 && image.naturalHeight > 0;
+          }, index, { timeout: 12000 }).catch(() => {});
+        }
+        await page.evaluate(() => window.scrollTo(0, 0));
+      }
 
       const state = await page.evaluate((contextLabel) => {
         const root = document.documentElement;
@@ -96,24 +107,26 @@ try {
           // This smoke test owns only editorial/context photography. Dataset evidence
           // can be sourced independently without weakening the local-media contract
           // for the NASA editorial figures themselves.
-          remoteImageCount: images.filter((img) => /^https?:\/\//i.test(img.getAttribute('src') || '')).length
+          remoteImageCount: images.filter((img) => /^https?:\/\//i.test(img.getAttribute('src') || '')).length,
+          allHomeImages: [...document.querySelectorAll('main img')].map((img) => ({src:img.getAttribute('src')||'',alt:img.getAttribute('alt')||'',loaded:img.complete&&img.naturalWidth>0&&img.naturalHeight>0}))
         };
-      }, expectedContext);
+      }, route === '/' ? 'NASA field image · context only' : expectedContext);
 
       add(`${viewport.name}-${route}-no-overflow`, state.overflow <= 2, { overflow: state.overflow });
       add(`${viewport.name}-${route}-browser-clean`, errors.length === 0, { errors });
 
       if (route === '/') {
         add(`${viewport.name}-home-local-media-release`, state.marker === 'local-v2', { marker: state.marker });
-        add(`${viewport.name}-home-four-editorial-photos`, state.photoCount === 4, { photoCount: state.photoCount });
-        add(`${viewport.name}-home-local-image-sources`, state.localSources.length === 4 && state.localSources.every((src) => src.startsWith('/media/')), { sources: state.localSources });
+        add(`${viewport.name}-home-single-editorial-photo`, state.photoCount === 1, { photoCount: state.photoCount });
+        add(`${viewport.name}-home-local-image-sources`, state.localSources.length === 1 && state.localSources.every((src) => src.startsWith('/media/')), { sources: state.localSources });
+        add(`${viewport.name}-home-all-images-load`, state.allHomeImages.length === 3 && state.allHomeImages.every((image) => image.loaded && image.src.startsWith('/media/')), { images: state.allHomeImages });
         add(`${viewport.name}-home-no-remote-image-hotlinks`, state.remoteImageCount === 0, { remoteImageCount: state.remoteImageCount });
         add(`${viewport.name}-home-images-loaded`, state.imagesLoaded && !state.fallbackVisible, { imagesLoaded: state.imagesLoaded, fallbackVisible: state.fallbackVisible });
-        add(`${viewport.name}-home-meaningful-alt`, state.altText.length === 4 && state.altText.every((alt) => alt.trim().length >= 24), { altText: state.altText });
-        add(`${viewport.name}-home-context-labels`, state.captionCount === 4, { captionCount: state.captionCount });
-        add(`${viewport.name}-home-credit-preserved`, state.credits.length === 4 && state.credits.every((credit) => /Public domain/i.test(credit) && /(Don Richey|Joel Kowsky)/i.test(credit)), { credits: state.credits });
-        add(`${viewport.name}-home-source-links`, state.sourceLinks.length === 4 && state.sourceLinks.every((href) => href.startsWith('https://commons.wikimedia.org/wiki/File:')), { sourceLinks: state.sourceLinks });
-        add(`${viewport.name}-home-consistent-aspect-ratio`, state.ratios.length === 4 && state.ratios.every((ratio,i) => Math.abs(ratio - state.expectedRatios[i]) < 0.03), { ratios: state.ratios });
+        add(`${viewport.name}-home-meaningful-alt`, state.altText.length === 1 && state.altText.every((alt) => alt.trim().length >= 24), { altText: state.altText });
+        add(`${viewport.name}-home-context-labels`, state.captionCount === 1, { captionCount: state.captionCount });
+        add(`${viewport.name}-home-credit-preserved`, state.credits.length === 1 && /Public domain/i.test(state.credits[0]) && /Don Richey/i.test(state.credits[0]), { credits: state.credits });
+        add(`${viewport.name}-home-source-links`, state.sourceLinks.length === 1 && state.sourceLinks[0].startsWith('https://commons.wikimedia.org/wiki/File:'), { sourceLinks: state.sourceLinks });
+        add(`${viewport.name}-home-consistent-aspect-ratio`, state.ratios.length === 1 && Math.abs(state.ratios[0] - state.expectedRatios[0]) < 0.03, { ratios: state.ratios });
       } else if (route === '/phases/') {
         add(`${viewport.name}-archive-no-editorial-photo-duplication`, state.photoCount === 0, { photoCount: state.photoCount });
       } else {

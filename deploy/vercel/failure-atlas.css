@@ -6,10 +6,10 @@
   --line: #e2e3e3;
   --paper: #fff;
   --soft: #f4f4f4;
-  --accent: #3e6ae1;
+  --accent: #e82127;
   --pass: #2f6a45;
   --fail: #b3261e;
-  --radius: 4px;
+  --radius: 2px;
   --page-width: 1520px;
 }
 
@@ -123,7 +123,7 @@ main { max-width: var(--page-width); margin: 0 auto; }
   white-space: nowrap;
   transition: background-color .18s ease, transform .18s ease;
 }
-.primary-link:hover { background: #3457b2; color: #fff; }
+.primary-link:hover { background: #c91b21; color: #fff; }
 .primary-link:active { transform: translateY(1px); }
 .evidence-button {
   min-height: 44px;
@@ -276,7 +276,7 @@ main { max-width: var(--page-width); margin: 0 auto; }
 .box-layer { position: absolute; inset: 0; pointer-events: none; }
 .overlay-box { position: absolute; border: 2px solid var(--pass); background: rgb(47 106 69 / 5%); }
 .overlay-box.fp { border-color: var(--fail); background: rgb(179 38 30 / 4%); }
-.overlay-box.gt { border: 2px dashed var(--accent); background: rgb(62 106 225 / 5%); }
+.overlay-box.gt { border: 2px dashed var(--accent); background: rgb(232 33 39 / 5%); }
 .overlay-box em {
   position: absolute;
   top: -18px;

@@ -5,7 +5,7 @@
 
   // Keep every live experiment panel on the current protected KIOS benchmark while
   // leaving the frozen historical phase records untouched.
-  if (!document.querySelector('script[data-aegis-current-data]')) {
+  if (!document.body.classList.contains('home-workspace') && !document.querySelector('script[data-aegis-current-data]')) {
     const current = document.createElement('script');
     current.src = '/lab/current-data.js?v=2';
     current.dataset.aegisCurrentData = '';
@@ -171,7 +171,7 @@
   // open, and put the longer block-level explanation behind one disclosure.
   const main = document.querySelector('main');
   const purpose = document.getElementById('purpose');
-  if (main && !document.getElementById('understanding')) {
+  if (main && !document.getElementById('understanding') && !document.body.classList.contains('home-workspace')) {
     const section = document.createElement('section');
     section.className = 'section';
     section.id = 'understanding';

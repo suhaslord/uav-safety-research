@@ -10,16 +10,16 @@
   --rw-body:#393c41;
   --rw-muted:#5c5e62;
   --rw-dim:#8e8e8e;
-  --rw-accent:#3e6ae1;
-  --rw-accent-hover:#3457b2;
-  --rw-accent-soft:#eef2ff;
+  --rw-accent:#e82127;
+  --rw-accent-hover:#c91b21;
+  --rw-accent-soft:#f5f5f5;
   --rw-pass:#2f6a45;
   --rw-fail:#b3261e;
   --rw-warn:#7a5a18;
   --rw-radius:4px;
   --rw-max:1180px;
   --rw-header:56px;
-  --rw-focus:0 0 0 3px rgba(62,106,225,.2);
+  --rw-focus:0 0 0 3px rgba(232,33,39,.2);
 }
 
 /*

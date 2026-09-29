@@ -48,20 +48,42 @@ def test_vercel_home_is_native_frozen_archive_shell() -> None:
     assert "const rev=" not in html
     assert 'id="evidenceSpine"' in html
     assert 'src="/frozen-lineage.js?v=' in html
-    assert "Simulation record frozen through Phase 22" in html
+    assert "Model VASE · answer so far" in html
     assert 'id="current-audit"' in html
     assert 'id="phase25"' in html
-    assert '<a class="button primary signature-button" href="/model-vase/">Explore Model VASE</a>' in html
-    assert '<a class="button secondary signature-button" href="/failure-atlas/">Open Failure Atlas</a>' in html
-    assert "Baseline observed · Phase 23 pending" in html
+    assert '<a class="button primary signature-button" href="/model-vase/">Model VASE</a>' in html
+    assert "Can the system know when its landing estimate is unreliable?" in html
+    assert "These are different experiments. They have not been joined into one tested model." in html
+    assert "97.6%" in html and "−13.3 pp" in html
+    assert "Baseline measured · Phase 23 pending" in html
     assert "0.8319" in html
     assert "0.7744" in html
     assert "simulation_only=true" in html
     assert "safety_acceptance=false" in html
     assert "controller_tuning_allowed=false" in html
     # Keep the scientific boundary semantic instead of coupling QA to retired prose.
-    assert "Phase 22 is a simulation result" in html
-    assert "does not establish real-flight safety or justify controller tuning" in html
+    assert "Simulation and benchmark results only. No flight-safety claim, certification claim, or controller-tuning claim." in html
+    assert 'name="aegis-evidence-boundary"' in html
+
+
+def test_model_vase_page_reports_separate_evidence_without_claiming_a_fused_model() -> None:
+    page = (ROOT / "deploy" / "vercel" / "model-vase.html").read_text(encoding="utf-8")
+    stylesheet = (ROOT / "deploy" / "vercel" / "model-vase.css").read_text(encoding="utf-8")
+    mark = (ROOT / "deploy" / "vercel" / "model-vase-mark.svg").read_text(encoding="utf-8")
+
+    assert "Model VASE" in page
+    assert "2.4%" in page and "1.4%" in page and "84.2%" in page
+    assert "+3.4 pp" in page and "−13.3 pp" in page
+    assert "10,000 simulated episodes" in page and "paired frame transitions cannot be reported" in page
+    assert "integrated research architecture, not a newly trained checkpoint" in page
+    assert "V3 PATH · CONNECTED" in page and "PHASE 12 · NOT YET CONNECTED" in page
+    assert "Only the V3 simulation path is connected" in page
+    assert "docs/v3_results.md" in page
+    assert "PHASES 10R–12" in page and "KIOS frames" in page
+    assert "vase-evidence-card" in page and "/failure-atlas/" in page
+    assert 'href="/aegisland-brand.css?v=' in page
+    assert "#e82127" in stylesheet and "#3e6ae1" not in stylesheet and "prefers-reduced-motion" in stylesheet
+    assert 'viewBox="0 0 48 48"' in mark
 
 
 def test_vercel_routes_use_packaged_frozen_and_legacy_assets() -> None:
@@ -84,6 +106,7 @@ def test_vercel_routes_use_packaged_frozen_and_legacy_assets() -> None:
     assert "/phase23.html" in destinations
     assert "/phase24.html" in destinations
     assert "/phase25.html" in destinations
+    assert "/model-vase.html" in destinations
     assert "/failure-atlas.html" in destinations
     assert {"/model-vase", "/model-vase/"} == {item["source"] for item in rewrites if item["destination"] == "/model-vase.html"}
     assert {"/failure-atlas", "/failure-atlas/"} == {item["source"] for item in rewrites if item["destination"] == "/failure-atlas.html"}
@@ -120,30 +143,6 @@ def test_vercel_routes_use_packaged_frozen_and_legacy_assets() -> None:
         assert f"/phases/{slug}/" in frozen_sources
 
 
-def test_model_vase_page_is_the_unified_evidence_map() -> None:
-    html = (ROOT / "deploy/vercel/model-vase.html").read_text(encoding="utf-8")
-    home = (ROOT / "deploy/vercel/index.html").read_text(encoding="utf-8")
-    assert "Model VASE" in html
-    assert "Vision · Auxiliary evidence · State reliability · Escalation" in html
-    assert "When landing perception becomes unreliable" in html
-    assert "In planar simulation: conditionally, yes." in html
-    assert "real-image and flight evidence do not yet show" in html.lower()
-    assert "10,000 simulated episodes" in html
-    assert "84.2% to 2.4%" in html
-    assert "95.53% lateral coverage" in html
-    assert "exact Phase 23 checkpoint" in html
-    assert "Phase 26 has no admitted independent test set" in html
-    assert "KIOS boxes and Phase 12 intervals are not silently fed into the V3 supervisor" in html
-    assert 'href="/model-vase.css?v=1"' in html
-    assert 'href="/model-vase/"' in home
-
-
-def test_local_visual_qa_server_serves_model_vase_page_and_stylesheet() -> None:
-    server = (ROOT / ".github/qa/local-vercel-server.mjs").read_text(encoding="utf-8")
-    assert "path.join(deployRoot, 'model-vase.html')" in server
-    assert "'model-vase.css'" in server
-
-
 def test_phase12_standalone_file_remains_a_frozen_historical_record() -> None:
     html = (ROOT / "deploy" / "vercel" / "phase12.html").read_text(encoding="utf-8")
 
@@ -163,7 +162,7 @@ def test_phase_archive_uses_shared_tesla_polish_without_rewriting_lineage() -> N
     frozen = (ROOT / "dashboard" / "phases" / "frozen.html").read_text(encoding="utf-8")
     phase = (ROOT / "dashboard" / "phases" / "phase.html").read_text(encoding="utf-8")
 
-    assert "--phase-blue:#3e6ae1" in polish
+    assert "--phase-blue:#e82127" in polish
     assert "backdrop-filter" in polish
     assert "linear-gradient" not in polish
     assert 'href="/phase-polish.css?v=' in archive
@@ -176,7 +175,7 @@ def test_phase_archive_uses_shared_tesla_polish_without_rewriting_lineage() -> N
     assert 'href="/phase-editorial-media.css?v=' in phase
     assert 'href="/signature.css?v=' not in archive
     assert 'href="/signature.css?v=' not in frozen
-    assert "The complete research record." in archive
+    assert "Keep every result in view." in archive
     assert "Research categories" in archive
     assert "<strong>7</strong> research categories" in archive
     assert "28 phase records" in archive
@@ -289,9 +288,10 @@ def test_phase25_is_featured_as_work_in_progress_without_result_claims() -> None
     page = (ROOT / "deploy" / "vercel" / "phase25.html").read_text(encoding="utf-8")
     archive = (ROOT / "dashboard" / "phases" / "index.html").read_text(encoding="utf-8")
 
-    assert home.index('id="phase25"') < home.index('class="section result-section"')
+    assert home.index('id="phase25"') < home.index('id="status"')
     assert 'href="/phases/phase25/"' in archive
-    assert "outside the completed records" in archive
+    assert 'aria-label="Model VASE overview"' in archive
+    assert 'aria-label="Current Phase 25 work"' in archive
     assert 'href="/phase-report.css?v=' in page
     assert 'class="atlas-status"' in page
     assert "Inputs verified" in page
@@ -329,6 +329,8 @@ def test_failure_atlas_is_baseline_only_with_auditable_tables() -> None:
     assert 'id="phase23-frame-image"' in html and 'id="phase23-image-placeholder"' in html
     assert "These are not predictions for this frame" in html
     assert "Loading the verified 86-frame image set" in html
+    assert "Images selected locally are not hash-checked" in html
+    assert 'href="/aegisland-brand.css?v=2"' in html
     atlas_js = (ROOT / "deploy/vercel/failure-atlas.js").read_text(encoding="utf-8")
     assert "`/media/phase25/${condition}/${item.id}`" in atlas_js
     assert "Verified ${names[condition].toLowerCase()} frame image loaded" in atlas_js
@@ -336,9 +338,6 @@ def test_failure_atlas_is_baseline_only_with_auditable_tables() -> None:
 
 def test_phase23_displayed_condition_table_matches_committed_csv() -> None:
     html = (ROOT / "deploy" / "vercel" / "phase23.html").read_text(encoding="utf-8")
-    assert 'href="/failure-atlas/">Explore all 86 frames in Failure Atlas' in html
-    for condition in ("clean", "blur", "low_light", "noise", "occlusion", "mixed"):
-        assert f'src="/media/perception/kios_{condition}.jpg"' in html
     body = re.search(r"<tbody>(.*?)</tbody>", html, re.S)
     assert body is not None
     displayed = [

@@ -1,6 +1,6 @@
 /* Layout corrections shared by the home, archive, and individual phase pages. */
 html{scroll-padding-top:80px}
-body.research-workspace :is(a,button,input,select,summary):focus-visible{outline:2px solid #3457b2!important;outline-offset:3px!important}
+body.research-workspace :is(a,button,input,select,summary):focus-visible{outline:2px solid #c91b21!important;outline-offset:3px!important}
 body.research-workspace :is(.wrap,.signature-shell,.lab-shell){max-width:1184px;min-width:0}
 body.research-workspace :is(.chapter-card,.card,.phase-detail__panel,.phase-verdict-panel,.archive-card){min-width:0}
 body.research-workspace :is(.chapter-card h3,.archive-card h3,.phase-detail__hero h1){overflow-wrap:break-word}
@@ -28,7 +28,7 @@ body.home-workspace .explainer-film figcaption a{display:inline-flex;align-items
 .current-audit__numbers>div{padding:17px 0;border-bottom:1px solid #e2e3e3}
 .current-audit__numbers>div:first-child{padding-top:0}
 .current-audit__numbers span,.current-audit__numbers small{display:block;color:#646a72;font-size:12px;line-height:1.45}
-.current-audit__numbers strong{display:block;margin:7px 0;color:#3457b2;font-size:clamp(30px,3vw,40px);font-weight:550;line-height:1.1;font-variant-numeric:tabular-nums;letter-spacing:-.04em}
+.current-audit__numbers strong{display:block;margin:7px 0;color:#c91b21;font-size:clamp(30px,3vw,40px);font-weight:550;line-height:1.1;font-variant-numeric:tabular-nums;letter-spacing:-.04em}
 .current-audit__numbers strong.current-audit__loss{color:#ad3d34}
 .current-audit__numbers p{margin:20px 0 0;color:#50545a;font-size:13px;line-height:1.6}
 

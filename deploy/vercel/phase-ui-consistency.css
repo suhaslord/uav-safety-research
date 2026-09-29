@@ -22,7 +22,7 @@ body.research-workspace.archive-shell .word{
   align-items:center;
 }
 body.research-workspace.archive-shell .aegis-mini-mark{
-  background:var(--rw-accent,#3559c7)!important;
+  background:var(--rw-accent,#e82127)!important;
   border-radius:4px!important;
   box-shadow:none!important;
 }
