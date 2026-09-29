@@ -1,4 +1,7 @@
 (() => {
+  const appBase = new URL('.', document.currentScript?.src || window.location.href);
+  const appAsset = (path) => new URL(String(path).replace(/^\/+/, ''), appBase).href;
+  const rootSlash = String.fromCharCode(47);
   const expected = ['clean', 'blur', 'low_light', 'noise', 'occlusion', 'mixed'];
   const explorers = [...document.querySelectorAll('[data-phase25-explorer]')];
   if (!explorers.length) return;
@@ -12,7 +15,7 @@
     const caption = root.querySelector('[data-atlas-caption]');
     const delta = root.querySelector('[data-atlas-delta]');
     if (photo) {
-      photo.src = chosen.illustration;
+      photo.src = appAsset(chosen.illustration);
       photo.alt = `Illustrative KIOS pad frame under ${chosen.title.toLowerCase()} stress, with its source annotation drawn in blue`;
     }
     if (caption) caption.textContent = chosen.title;
@@ -77,7 +80,7 @@
     chart.setAttribute('aria-label', 'Published Phase 23 mAP50 by condition, baseline then robust detector');
   }
 
-  fetch('/phase25-explorer-data.json')
+  fetch(new URL('phase25-explorer-data.json', appBase))
     .then((response) => {
       if (!response.ok) throw new Error('Condition data unavailable');
       return response.json();
@@ -86,7 +89,7 @@
       if (data.schema_version !== 1 || data.status !== 'published_aggregates_only'
         || data.conditions?.length !== expected.length
         || data.conditions.some((item, i) => item.key !== expected[i]
-          || item.illustration !== `/media/perception/kios_${item.key}.jpg`
+          || item.illustration !== `${rootSlash}media/perception/kios_${item.key}.jpg`
           || ['baseline_map50', 'robust_map50', 'baseline_recall', 'robust_recall']
             .some((key) => !Number.isFinite(item[key]) || item[key] < 0 || item[key] > 1))) {
         throw new Error('Condition data failed validation');

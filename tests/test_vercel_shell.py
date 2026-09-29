@@ -38,6 +38,15 @@ def test_phase25_lens_reuses_published_aggregates_without_frame_claims() -> None
     assert "phase25_reconstruction_audit.json" in phase and "phase25_reconstruction_audit.json" in home
 
 
+def test_phase25_lens_resolves_assets_under_a_project_page_base_path() -> None:
+    script = (ROOT / "deploy/vercel/phase25-explorer.js").read_text(encoding="utf-8")
+
+    assert "new URL('.', document.currentScript?.src || window.location.href)" in script
+    assert "fetch(new URL('phase25-explorer-data.json', appBase))" in script
+    assert "photo.src = appAsset(chosen.illustration)" in script
+    assert "String.fromCharCode(47)" in script
+
+
 def test_vercel_home_is_native_frozen_archive_shell() -> None:
     html = (ROOT / "deploy" / "vercel" / "index.html").read_text(encoding="utf-8")
 
