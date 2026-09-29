@@ -61,7 +61,8 @@ def build(output, base_path):
     required = ['presentation.css', 'presentation.js', 'model-vase/index.html',
                 'model-vase.css', 'aegisland-brand.css', 'model-vase-mark.svg',
                 'film/aerocast-flight.mp4',
-                'film/aerocast-poster.jpg', 'frozen-lineage.js']
+                'film/aerocast-poster.jpg', 'film/evaluation-nasa-clip.mp4',
+                'film/evaluation-nasa-poster.jpg', 'frozen-lineage.js']
     required += ['media/' + name for name in (
         'phase01-context.jpg', 'phase02-context.jpg', 'acero-ground-control.jpg',
         'phase04-context.jpg', 'phase05-context.jpg', 'acero-uav-flight.jpg',

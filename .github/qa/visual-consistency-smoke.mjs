@@ -41,6 +41,34 @@ try {
       const response = await page.goto(BASE + route, { waitUntil: 'domcontentloaded', timeout: 45000 });
       await page.waitForTimeout(300);
       add(`${viewport.name}-${route}-status`, !!response && response.status() >= 200 && response.status() < 400, { status: response?.status() || 0 });
+      if (route === '/model-vase/') {
+        await page.waitForFunction(() => {
+          const image = document.querySelector('.vase-hero__media img');
+          return !!image && image.complete && image.naturalWidth > 0;
+        }, null, { timeout: 12000 }).catch(() => {});
+        const vaseHero = await page.evaluate(() => {
+          const hero = document.querySelector('.vase-hero');
+          const image = document.querySelector('.vase-hero__media img');
+          const heading = document.querySelector('.vase-hero h1');
+          const caption = document.querySelector('.vase-hero__media figcaption');
+          const pseudo = hero ? getComputedStyle(hero, '::after') : null;
+          const overlay = document.querySelector('.vase-hero__media')
+            ? getComputedStyle(document.querySelector('.vase-hero__media'), '::after').backgroundImage : '';
+          return {
+            title: heading?.textContent?.trim() || '',
+            imageLoaded: !!image && image.complete && image.naturalWidth > 0,
+            imageAlt: image?.getAttribute('alt') || '',
+            caption: caption?.textContent || '',
+            sourceLinks: caption?.querySelectorAll('a[href^="https://"]').length || 0,
+            ctas: hero?.querySelectorAll('.hero-links a').length || 0,
+            ringHidden: pseudo?.display === 'none',
+            photoOverlay: /linear-gradient/i.test(overlay),
+            height: Math.round(hero?.getBoundingClientRect().height || 0),
+            overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth
+          };
+        });
+        add(`${viewport.name}-model-vase-photo-hero`, vaseHero.title === 'Model VASE' && vaseHero.imageLoaded && vaseHero.imageAlt.length >= 24 && /public domain/i.test(vaseHero.caption) && vaseHero.sourceLinks === 1 && vaseHero.ctas === 2 && vaseHero.ringHidden && vaseHero.photoOverlay && vaseHero.height >= 500 && vaseHero.overflow <= 1, vaseHero);
+      }
 
       const state = await page.evaluate(() => ({
         overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
