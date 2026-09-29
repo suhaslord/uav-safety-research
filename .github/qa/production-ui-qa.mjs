@@ -88,6 +88,11 @@ try {
       page.on('console', (message) => { if (message.type() === 'error') browserErrors.push(message.text()); });
       page.on('requestfailed', (request) => failedRequests.push({ url: request.url(), error: request.failure()?.errorText || 'requestfailed' }));
 
+      if (route === '/') {
+        // Verify the site's normal autoplay behavior; reduced-motion contexts intentionally suppress video.
+        await page.emulateMedia({ reducedMotion: 'no-preference' });
+      }
+
       let response;
       try {
         response = await page.goto(BASE + route, { waitUntil: 'domcontentloaded', timeout: 45000 });
@@ -128,6 +133,11 @@ try {
           add(vp.name + '-home-video-' + index + '-autoplays-muted', played, videoState);
           videoPlaybackVerified = videoPlaybackVerified && played;
         }
+      }
+
+      if (route === '/') {
+        // Restore deterministic screenshot motion after the autoplay check.
+        await page.emulateMedia({ reducedMotion: 'reduce' });
       }
 
       // Load every image before testing it, including native-lazy carousel slides.
