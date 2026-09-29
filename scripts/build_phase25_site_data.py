@@ -53,8 +53,8 @@ def render() -> str:
         "status": "published_aggregates_only",
         "source": "Phase 23 protected condition aggregates; reused in the Phase 24 audit",
         "source_sha256": {
-            "comparison": hashlib.sha256(COMPARISON.read_bytes()).hexdigest(),
-            "robust": hashlib.sha256(ROBUST.read_bytes()).hexdigest(),
+            "comparison": hashlib.sha256(COMPARISON.read_bytes().replace(b"\r\n", b"\n")).hexdigest(),
+            "robust": hashlib.sha256(ROBUST.read_bytes().replace(b"\r\n", b"\n")).hexdigest(),
         },
         "illustration_note": "One KIOS frame with the source annotation drawn in blue; never a detector prediction.",
         "conditions": data,

@@ -39,8 +39,10 @@ def load_lock(path: Path = LOCK_PATH) -> dict:
         target = ROOT / path
         actual = sha256(target) if target.is_file() else None
         if actual != expected and target.is_file():
-            norm_sha = hashlib.sha256(target.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
-            if norm_sha == expected:
+            raw_target = target.read_bytes()
+            norm_lf = hashlib.sha256(raw_target.replace(b"\r\n", b"\n")).hexdigest()
+            norm_crlf = hashlib.sha256(raw_target.replace(b"\r\n", b"\n").replace(b"\n", b"\r\n")).hexdigest()
+            if norm_lf == expected or norm_crlf == expected:
                 actual = expected
         if actual != expected:
             raise ValueError(f"Reconstruction method changed since freeze: {path}")
@@ -77,8 +79,10 @@ def verify_images(rows: list[dict[str, str]], source: Path, stress: Path, lock: 
         label_path = source / "labels/test" / label
         actual_label = sha256(label_path) if label_path.is_file() else None
         if actual_label != frozen["label_sha256"] and label_path.is_file():
-            norm_sha = hashlib.sha256(label_path.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
-            if norm_sha == frozen["label_sha256"]:
+            raw_label = label_path.read_bytes()
+            norm_lf = hashlib.sha256(raw_label.replace(b"\r\n", b"\n")).hexdigest()
+            norm_crlf = hashlib.sha256(raw_label.replace(b"\r\n", b"\n").replace(b"\n", b"\r\n")).hexdigest()
+            if norm_lf == frozen["label_sha256"] or norm_crlf == frozen["label_sha256"]:
                 actual_label = frozen["label_sha256"]
         if actual_label != frozen["label_sha256"]:
             raise ValueError(f"Derived source label differs from the Zenodo annotation: {label}")

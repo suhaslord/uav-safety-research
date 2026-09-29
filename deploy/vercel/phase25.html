@@ -58,6 +58,21 @@
       <div><span>03 / Publication gate</span><h2 id="next-title">Results come after the inputs.</h2><p>The 86-frame set was already used in Phases 23–24. Phase 25 is a retrospective audit, not a fresh confirmation set.</p></div>
       <div class="atlas-next__detail"><p>The source images and reconstructed stresses match frozen hashes. The original Phase 22 checkpoint reproduces all six published baseline aggregates, and its box-level outcomes are available in the Atlas. The original Phase 23 checkpoint and inference versions are still missing; paired results must wait for reconciliation.</p><a href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase25_protocol.md" target="_blank" rel="noreferrer">Read the frozen protocol ↗</a><a href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase26_protocol.md" target="_blank" rel="noreferrer">Phase 26 separate-data plan ↗</a></div>
     </section>
+
+    <section class="atlas-next" aria-labelledby="study-title" style="margin-top:2rem">
+      <div><span>04 / Paired Failure-Mechanism Study</span><h2 id="study-title">Why robust training helps blur/noise but degrades occlusion/mixed</h2><p>Paired comparison of Phase 22 baseline vs authenticated Phase 23 robust detector across identical 86 frames &times; 6 conditions (516 paired views).</p></div>
+      <div class="atlas-next__detail">
+        <p><strong>Frame-level Paired Outcomes:</strong> 49 RECOVERED, 75 REGRESSED, 223 BOTH PASS, 169 BOTH FAIL across 516 views.</p>
+        <p><strong>Statistically Associated Properties:</strong></p>
+        <ul>
+          <li><strong>Object Size (MWU p = 3.29&times;10<sup>&minus;5</sup>):</strong> Smaller pads (Q1/Q2) suffer severe regression under occlusion due to the fixed 8px occluder clamp covering 60&ndash;100% of distant pads.</li>
+          <li><strong>Confidence Shift (Wilcoxon p = 5.81&times;10<sup>&minus;4</sup>):</strong> True positive scores collapse below false positive background contours under occlusion and mixed stress.</li>
+          <li><strong>Error Dynamics (FP MWU p = 2.57&times;10<sup>&minus;7</sup>, FN MWU p = 2.24&times;10<sup>&minus;26</sup>):</strong> Robust training eliminates false negatives under benign blur/noise, but triggers false positives and misses under occluded center markings.</li>
+        </ul>
+        <p><strong>Root Cause:</strong> 480px training (2.25&times; pixel area) resolves fine concentric rings, delivering high blur/noise robustness. However, 55% central occlusion destroys these learned internal rings, while compound mixed degradation eliminates remaining perimeter gradients, causing Phase 23 recall to plummet to 8.1%.</p>
+      </div>
+    </section>
+
     <p class="atlas-boundary">Detector box correctness cannot establish landing safety or controller performance. No cutoff will be selected from this reused test set.</p>
     <nav class="atlas-continue" aria-label="Continue reading"><a href="/phases/phase24/">← Phase 24 results</a><a href="/phases/">All phase records →</a></nav>
   </main>
