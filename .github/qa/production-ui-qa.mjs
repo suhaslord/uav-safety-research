@@ -174,7 +174,7 @@ try {
         const expectedVideoAbort = videoPlaybackVerified
           && entry.error === 'net::ERR_ABORTED'
           && /\/film\/(?:aerocast-flight|evaluation-nasa-clip)\.(?:mp4|webm)(?:[?#]|$)/i.test(entry.url);
-        return !/favicon|github\\.com|linkedin\\.com/i.test(entry.url) && !expectedVideoAbort;
+        return !/favicon|github\.com|linkedin\.com/i.test(entry.url) && !expectedVideoAbort;
       });
       add(`${vp.name}-${route}-browser-clean`, filteredErrors.length === 0, { browserErrors: filteredErrors });
       add(`${vp.name}-${route}-network-clean`, filteredRequests.length === 0, { failedRequests: filteredRequests });
