@@ -26,7 +26,7 @@ def test_phase25_lens_reuses_published_aggregates_without_frame_claims() -> None
     assert 'data-atlas-controls' in home
     assert 'src="/phase25-explorer.js?v=' in phase and 'src="/phase25-explorer.js?v=' in home
     assert "Measured baseline frame outcomes are now" in phase
-    assert "Phase 23 paired outcomes remain pending" in phase
+    assert "Phase 23 paired outcomes are now complete" in phase
     audit = json.loads((ROOT / "docs/phase25_reconstruction_audit.json").read_text(encoding="utf-8"))
     assert audit["archive_derived_protected_image_count"] == 86
     assert audit["frame_condition_count"] == 516
@@ -55,7 +55,7 @@ def test_vercel_home_is_native_frozen_archive_shell() -> None:
     assert "Can the system know when its landing estimate is unreliable?" in html
     assert "These are different experiments. They have not been joined into one tested model." in html
     assert "97.6%" in html and "−13.3 pp" in html
-    assert "Baseline measured · Phase 23 pending" in html
+    assert "Baseline measured · Phase 23 paired" in html
     assert "0.8319" in html
     assert "0.7744" in html
     assert "simulation_only=true" in html

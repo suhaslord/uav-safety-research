@@ -5,8 +5,14 @@ paired study could distinguish safe from degraded perception, and recoverable
 from catastrophic failures. It is an offline feasibility analysis only.
 
 No frozen V3 equations, thresholds, or supervisor parameters are altered.
-No new model is trained or selected. The results inform whether a future
-preregistered VASE integration study is warranted.
+No new model is trained or selected.
+
+LEAKAGE CAVEAT: Controlled ablation (scripts/ablate_vase_signals.py) demonstrates
+that the AUROC improvement in scale_conditioned_confidence is driven entirely by
+ground-truth annotation area (target_area_ratio, scale-only AUROC 0.8369). Because
+target_area_ratio requires ground-truth annotations unavailable at runtime, and
+predicted bounding box areas collapse during severe detection failures, this
+signal does NOT survive ablation as a viable runtime supervisory signal.
 """
 from __future__ import annotations
 
@@ -124,7 +130,7 @@ def evaluate_signals(signals_df: pd.DataFrame) -> dict:
     return {
         "signals": signal_names,
         "tasks": tasks,
-        "note": "Offline feasibility analysis only. No V3 equations or thresholds modified.",
+        "note": "Offline feasibility analysis only. No V3 equations or thresholds modified. CAUTION: Controlled ablation demonstrates that scale_conditioned_confidence is driven by ground-truth target_area_ratio (scale-only AUROC 0.8369). Because target_area_ratio is unavailable at runtime and predicted boxes collapse during failures, this signal does not survive ablation as a viable runtime supervisory signal.",
     }
 
 

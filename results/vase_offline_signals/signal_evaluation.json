@@ -78,5 +78,5 @@
       ]
     }
   ],
-  "note": "Offline feasibility analysis only. No V3 equations or thresholds modified."
+  "note": "Offline feasibility analysis only. No V3 equations or thresholds modified. CAUTION: Controlled ablation demonstrates that scale_conditioned_confidence is driven by ground-truth target_area_ratio (scale-only AUROC 0.8369). Because target_area_ratio is unavailable at runtime and predicted boxes collapse during failures, this signal does not survive ablation as a viable runtime supervisory signal."
 }

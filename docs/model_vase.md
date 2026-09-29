@@ -99,8 +99,17 @@ Model VASE is research software evaluated in simulation and retrospective
 image benchmarks. It is not a flight controller approval, safety certification,
 or real-aircraft validation.
 
-The Phase 23 checkpoint has been recovered and authenticated. The next
-scientific test is to admit genuinely separate, session-screened data under
-Phase 26's frozen protocol and to evaluate offline reliability signals from
-the Phase 25 evidence. Only after those gates should an end-to-end detector-to-
-supervisor composition be evaluated as a new version.
+The Phase 23 checkpoint has been recovered and authenticated. Offline feasibility
+analysis of candidate reliability signals from the Phase 25 evidence (`scripts/analyze_vase_signals.py`)
+identified a retrospective scale-conditioned confidence signal (AUROC 0.8111 overall, 0.7390 severe).
+However, controlled ablation (`scripts/ablate_vase_signals.py`) revealed that this improvement
+is driven by ground-truth annotation area (`target_area_ratio`, scale-only AUROC 0.8369).
+Because ground-truth bounding box area is unavailable at runtime and predicted boxes collapse
+during severe detection failures, this signal does not survive ablation as a viable runtime
+supervisory signal. Evaluating signal selection on the holdout test set also represents a post-hoc
+analysis that cannot substitute for validation on a distinct split.
+
+The next scientific test remains the admission of genuinely separate, session-screened data under
+Phase 26's frozen protocol, followed by runtime-feasible signal formulation and evaluation on a
+dedicated validation split. Only after those gates should an end-to-end detector-to-supervisor
+composition be evaluated as a new version.

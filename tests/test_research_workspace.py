@@ -1,4 +1,4 @@
-﻿from pathlib import Path
+from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -73,7 +73,7 @@ def test_home_editorial_media_is_local_credited_and_context_only() -> None:
     assert html.count("data-image-fallback") == 1
     assert html.count("Don Richey / NASA Ames Research Center") == 1
     assert "Freeze. Separate. Preserve." in html
-    assert "Model VASE" in html and "Phase 23 pending" in html
+    assert "Model VASE" in html and "Phase 23 paired" in html
     assert "aspect-ratio:16 / 9" in css
     assert "research-photo--inline" in css
 

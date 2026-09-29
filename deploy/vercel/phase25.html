@@ -41,12 +41,12 @@
         <div class="atlas-lens__chooser"><span>Change the generated view</span><div class="atlas-condition-controls" data-atlas-controls aria-label="Generated camera conditions"></div><strong data-atlas-delta></strong></div>
         <div class="atlas-lens__chart"><div class="atlas-lens__legend"><span>Published Phase 23 mAP50</span><span><i></i> Baseline</span><span><i></i> Robust</span></div><div data-atlas-chart aria-label="Published Phase 23 condition comparison, loading"></div><p>Scores summarize 86 reused test frames per condition.</p></div>
       </div>
-      <p class="atlas-caption">Blue boxes are source annotations, not either detector’s predictions. This image illustrates published condition aggregates. Measured baseline frame outcomes are now in the <a href="/failure-atlas/">interactive Atlas</a>; Phase 23 paired outcomes remain pending.</p>
+      <p class="atlas-caption">Blue boxes are source annotations, not either detector’s predictions. This image illustrates published condition aggregates. Measured baseline frame outcomes are now in the <a href="/failure-atlas/">interactive Atlas</a>; Phase 23 paired outcomes are now complete.</p>
       <p class="atlas-caption" hidden data-atlas-error>The interactive comparison is unavailable. <a href="/phases/phase24/">Read the published condition audit.</a></p>
     </section>
 
     <section class="atlas-method" aria-labelledby="method-title">
-      <div><span>02 / Measured baseline, paired gate pending</span><h2 id="method-title">Every pad. Every condition. Both detectors.</h2></div>
+      <div><span>02 / Measured baseline and Phase 23 paired outcomes</span><h2 id="method-title">Every pad. Every condition. Both detectors.</h2></div>
       <ol>
         <li><b>01</b><p>Match predicted boxes to annotated pads one-to-one.</p></li>
         <li><b>02</b><p>Count recovered, regressed, and shared frame outcomes.</p></li>
@@ -56,7 +56,7 @@
 
     <section class="atlas-next" aria-labelledby="next-title">
       <div><span>03 / Publication gate</span><h2 id="next-title">Results come after the inputs.</h2><p>The 86-frame set was already used in Phases 23–24. Phase 25 is a retrospective audit, not a fresh confirmation set.</p></div>
-      <div class="atlas-next__detail"><p>The source images and reconstructed stresses match frozen hashes. The original Phase 22 checkpoint reproduces all six published baseline aggregates, and its box-level outcomes are available in the Atlas. The original Phase 23 checkpoint and inference versions are still missing; paired results must wait for reconciliation.</p><a href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase25_protocol.md" target="_blank" rel="noreferrer">Read the frozen protocol ↗</a><a href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase26_protocol.md" target="_blank" rel="noreferrer">Phase 26 separate-data plan ↗</a></div>
+      <div class="atlas-next__detail"><p>The source images and reconstructed stresses match frozen hashes. The original Phase 23 checkpoint has been recovered and authenticated. Both detectors have been evaluated across all 516 views, producing 49 recovered, 65 regressed, 223 both-pass, and 179 both-fail paired transitions.</p><a href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase25_protocol.md" target="_blank" rel="noreferrer">Read the frozen protocol ↗</a><a href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase26_protocol.md" target="_blank" rel="noreferrer">Phase 26 separate-data plan ↗</a></div>
     </section>
 
     <section class="atlas-next" aria-labelledby="study-title" style="margin-top:2rem">
