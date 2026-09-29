@@ -42,17 +42,18 @@ def verify(check_site: bool = True) -> dict[str, object]:
             else:
                 raw = path.read_bytes()
                 raw_hash = hashlib.sha256(raw).hexdigest()
-                norm_lf_hash = hashlib.sha256(raw.replace(b"\r\n", b"\n")).hexdigest()
-                norm_crlf_hash = hashlib.sha256(raw.replace(b"\r\n", b"\n").replace(b"\n", b"\r\n")).hexdigest()
                 if raw_hash == expected:
                     actual = raw_hash
                     passed = True
-                elif norm_lf_hash == expected:
-                    actual = expected
-                    passed = True
-                elif norm_crlf_hash == expected:
-                    actual = expected
-                    passed = True
+                elif not path.name.endswith(".gz"):
+                    norm_lf_hash = hashlib.sha256(raw.replace(b"\r\n", b"\n")).hexdigest()
+                    norm_crlf_hash = hashlib.sha256(raw.replace(b"\r\n", b"\n").replace(b"\n", b"\r\n")).hexdigest()
+                    if norm_lf_hash == expected or norm_crlf_hash == expected:
+                        actual = expected
+                        passed = True
+                    else:
+                        actual = raw_hash
+                        passed = False
                 else:
                     actual = raw_hash
                     passed = False

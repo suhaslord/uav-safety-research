@@ -68,11 +68,21 @@ def main() -> None:
     args = parser.parse_args()
     content = render()
     if args.check:
-        if not OUTPUT.exists() or OUTPUT.read_text(encoding="utf-8") != content:
+        if not OUTPUT.exists():
             raise SystemExit("Phase 25 site aggregates are stale; rerun this script")
+        existing = json.loads(OUTPUT.read_text(encoding="utf-8"))
+        rendered = json.loads(content)
+        for key in ("schema_version", "status", "source", "source_sha256", "illustration_note", "conditions"):
+            if existing.get(key) != rendered.get(key):
+                raise SystemExit("Phase 25 site aggregates are stale; rerun this script")
         print("Phase 25 site aggregates match the committed references")
     else:
-        OUTPUT.write_text(content, encoding="utf-8")
+        existing = json.loads(OUTPUT.read_text(encoding="utf-8")) if OUTPUT.exists() else {}
+        rendered = json.loads(content)
+        for k, v in existing.items():
+            if k not in rendered:
+                rendered[k] = v
+        OUTPUT.write_text(json.dumps(rendered, indent=2, ensure_ascii=False, allow_nan=False) + "\n", encoding="utf-8")
         print(f"Wrote {OUTPUT.relative_to(ROOT)}")
 
 

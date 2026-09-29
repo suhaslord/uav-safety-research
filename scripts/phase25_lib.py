@@ -212,13 +212,7 @@ def validate_phase25_inputs(
             raise FileNotFoundError(f"Missing {name}: {path}")
 
     rows = read_protected_manifest(protected_manifest)
-    manifest_bytes = protected_manifest.read_bytes()
-    manifest_hash = hashlib.sha256(manifest_bytes).hexdigest()
-    if manifest_hash != PROTECTED_MANIFEST_SHA256:
-        norm_crlf = hashlib.sha256(manifest_bytes.replace(b"\r\n", b"\n").replace(b"\n", b"\r\n")).hexdigest()
-        norm_lf = hashlib.sha256(manifest_bytes.replace(b"\r\n", b"\n")).hexdigest()
-        if norm_crlf == PROTECTED_MANIFEST_SHA256 or norm_lf == PROTECTED_MANIFEST_SHA256:
-            manifest_hash = PROTECTED_MANIFEST_SHA256
+    manifest_hash = sha256_file(protected_manifest)
     if manifest_hash != PROTECTED_MANIFEST_SHA256:
         raise ValueError("Protected manifest hash does not match the frozen Phase 25 IDs")
     if len(rows) != 86:
