@@ -171,7 +171,7 @@ try {
       failRows: document.querySelectorAll('#evidenceSpine .evidence-row[data-verdict="FAIL"]').length,
       phase23LinkCount: document.querySelectorAll('a[href*="phase23"]').length,
       hasBoundary: document.querySelector('meta[name="aegis-evidence-boundary"]')?.content === 'simulation_only=true; safety_acceptance=false; controller_tuning_allowed=false'
-        && /does not establish physical-flight safety/i.test(text),
+        && /No flight-safety claim/i.test(text) && /controller-tuning claim/i.test(text),
       hasFinalMetrics: text.includes('0.8319') && text.includes('0.7744') && text.includes('100%'),
       saysFrozen: /Phase 22/i.test(text) && /Phase 23 pending/i.test(text),
       dataOk: !!data && data.frozenThrough === 'Phase 22' && data.phases.length === 13 && data.counts.PASS === 6 && data.counts.FAIL === 7 && data.frozenScientificHead === frozenHead && data.bySlug.phase22.resultSha === resultSha && data.bySlug.phase22.candidateSha === candidateSha
