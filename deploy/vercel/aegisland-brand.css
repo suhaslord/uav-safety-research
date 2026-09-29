@@ -198,3 +198,26 @@ html body.home-workspace .phase25-feature__delta { color: var(--vase-red) !impor
   body.home-workspace .home-result__grid .workspace-measure span { min-height: 0; }
   body.home-workspace .home-supporters { justify-self: stretch; }
 }
+
+/* The legacy presentation stylesheet made #status a two-column grid. Its only
+   child is the full-width .wrap, so that grid squeezed the nested result card. */
+html body.research-workspace.home-workspace.home-workspace #status {
+  display: block !important;
+}
+@media (max-width: 430px) {
+  html body.research-workspace.home-workspace.home-workspace #status .workspace-measures {
+    grid-template-columns: 1fr !important;
+    gap: 0 !important;
+  }
+  html body.research-workspace.home-workspace.home-workspace #status .workspace-measure {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    align-items: center !important;
+    gap: 16px !important;
+    padding-inline: 0 !important;
+    text-align: left !important;
+  }
+  html body.research-workspace.home-workspace.home-workspace #status .workspace-measure span {
+    min-height: 0 !important;
+  }
+}

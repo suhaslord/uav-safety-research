@@ -134,3 +134,19 @@
   .model-vase-page .vase-answer__row{grid-template-columns:1fr;gap:8px}
   .model-vase-page .vase-answer__copy h2{font-size:26px}
 }
+
+/* Two evidence views keep simulation and real-image findings distinct and readable. */
+.model-vase-page .vase-evidence-switch{display:inline-flex;flex-wrap:wrap;gap:4px;margin:0 0 24px;padding:4px;border:1px solid #d8dadd;background:#fff}
+.model-vase-page .vase-evidence-switch button{min-height:42px;padding:0 16px;border:0;background:transparent;color:#555d66;font-family:inherit;font-size:12px;font-weight:600;line-height:1;cursor:pointer}
+.model-vase-page .vase-evidence-switch button[aria-pressed="true"]{background:#e82127;color:#fff}
+.model-vase-page .vase-evidence-switch button:focus-visible{outline:2px solid #171a20;outline-offset:3px}
+.model-vase-page .vase-evidence-panel[hidden]{display:none!important}
+.model-vase-page .vase-evidence-panel .vase-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+.model-vase-page .vase-evidence-grid--vision{grid-template-columns:repeat(2,minmax(0,1fr))}
+.model-vase-page .vase-evidence-grid--vision .vase-evidence-card--wide{grid-column:1/-1}
+@media(max-width:620px){
+  .model-vase-page .vase-evidence-switch{display:grid;width:100%;grid-template-columns:repeat(2,minmax(0,1fr))}
+  .model-vase-page .vase-evidence-switch button{padding-inline:8px}
+  .model-vase-page .vase-evidence-grid--vision{grid-template-columns:1fr}
+  .model-vase-page .vase-evidence-grid--vision .vase-evidence-card--wide{grid-column:auto}
+}

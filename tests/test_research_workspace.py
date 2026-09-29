@@ -75,7 +75,8 @@ def test_home_editorial_media_is_local_credited_and_context_only() -> None:
     assert "Freeze. Separate. Preserve." in html
     assert "Model VASE" in html and "Phase 23 pending" in html
     assert 'class="home-field-media"' in html
-    assert html.count('<video controls playsinline preload="none"') == 2
+    assert html.count('data-autoplay="visible"') == 2
+    assert html.count('muted loop preload="auto"') == 2
     assert 'src="/film/aerocast-flight.mp4"' in html
     assert 'src="/film/evaluation-nasa-clip.mp4"' in html
     assert 'src="/media/acero-uav-landing.jpg"' in html
