@@ -1,9 +1,9 @@
 :root{
-  --phase-accent:#3559c7;
-  --phase-tint:#eef1fb;
-  --rw-accent:#3559c7;
+  --phase-accent:#e82127;
+  --phase-tint:#fff1f1;
+  --rw-accent:#e82127;
   --rw-accent-hover:#2b49a6;
-  --rw-accent-soft:#eef1fb;
+  --rw-accent-soft:#fff1f1;
   --rw-max:1320px;
   --rw-header:60px;
 }
@@ -48,7 +48,7 @@ body.research-workspace.phase11-polish .site-header{
 .category-nav{display:flex;gap:8px;flex-wrap:wrap;margin-top:28px}
 .category-nav a{display:inline-flex;align-items:center;min-height:38px;padding:0 14px;border:0;border-radius:6px;background:#f2f3f5;color:#393c41;text-decoration:none;font-size:12px;font-weight:500}
 .category-nav a:hover{background:#e7e9ee;color:#171a20}
-.archive-category{--category-accent:#3559c7!important;padding:28px 32px 18px;scroll-margin-top:92px;background:#f5f6f8;border-radius:12px}
+.archive-category{--category-accent:#e82127!important;padding:28px 32px 18px;scroll-margin-top:92px;background:#f5f6f8;border-radius:12px}
 .archive-category+.archive-category{margin-top:24px}
 .archive-category__head{display:grid;grid-template-columns:150px minmax(0,1fr);gap:34px;align-items:start;padding:0 0 24px;border-bottom:1px solid #dde0e5}
 .archive-category__index{display:inline-flex;align-items:center;gap:9px;color:#50545b;font-size:11.5px;font-weight:500;letter-spacing:0;text-transform:none}
@@ -57,7 +57,7 @@ body.research-workspace.phase11-polish .site-header{
 .archive-category__copy p{max-width:720px;margin:10px 0 0;color:#393c41;font-size:14.5px;line-height:22px}
 .archive-category__range{display:block;margin-top:8px;color:#50545b;font-size:12px;font-weight:500}
 .archive-category__cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 34px}
-.archive-card.phase-personalized{--phase-accent:#3559c7!important;--phase-tint:#eef1fb!important;min-height:0;padding:22px 0 24px;border-bottom:1px solid #dde0e5;position:relative;isolation:isolate}
+.archive-card.phase-personalized{--phase-accent:#e82127!important;--phase-tint:#fff1f1!important;min-height:0;padding:22px 0 24px;border-bottom:1px solid #dde0e5;position:relative;isolation:isolate}
 .archive-card.phase-personalized::before{content:"";position:absolute;inset:6px -10px;border-radius:7px;background:#fff;opacity:0;z-index:-1;transition:opacity .2s ease}
 .archive-card.phase-personalized:hover::before{opacity:1}
 .archive-card.phase-personalized::after{background:var(--phase-accent)!important}

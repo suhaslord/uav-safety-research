@@ -50,10 +50,10 @@ try {
       add('home-menu-closes', await toggle.getAttribute('aria-expanded') === 'false');
     }
 
-    const state = await page.evaluate(() => ({ text:document.body.innerText, purposeClarity:document.body.dataset.purposeClarity === 'true', questionRemoved:!document.getElementById('question') }));
-    add('home-phase22-visible', /Frozen through Phase 22/i.test(state.text) && state.text.includes('0.8319') && state.text.includes('0.7744'));
-    add('home-current-project-framing-visible', state.purposeClarity && state.questionRemoved && /Why misses stay visible/i.test(state.text) && /When does the camera become confidently wrong/i.test(state.text) && /The finding/i.test(state.text));
-    add('home-claim-boundary-visible', state.text.includes('simulation_only=true') && state.text.includes('safety_acceptance=false') && state.text.includes('controller_tuning_allowed=false'));
+    const state = await page.evaluate(() => ({ text:document.body.innerText, purposeClarity:document.body.dataset.purposeClarity === 'true', boundary:document.querySelector('meta[name="aegis-evidence-boundary"]')?.content || '' }));
+    add('home-phase22-visible', /Phase 22/i.test(state.text) && state.text.includes('0.8319') && state.text.includes('0.7744'));
+    add('home-current-project-framing-visible', state.purposeClarity && /Model VASE · answer so far/i.test(state.text) && /Phase 23 pending/i.test(state.text) && /Freeze. Separate. Preserve./i.test(state.text));
+    add('home-claim-boundary-visible', state.boundary === 'simulation_only=true; safety_acceptance=false; controller_tuning_allowed=false' && /No flight-safety claim/i.test(state.text));
     await page.close();
   }
 
@@ -113,4 +113,3 @@ await fs.writeFile(path.join(OUT,'mobile-navigation-summary.json'), JSON.stringi
 await fs.appendFile(path.join(OUT,'summary.md'), `\n\n## Mobile navigation\n\n- Passed: ${summary.passed}\n- Failed: ${summary.failed}\n${results.map((result) => `- ${result.ok ? 'PASS' : 'FAIL'} â€” ${result.name}`).join('\n')}\n`);
 console.log(JSON.stringify(summary,null,2));
 if (failed) process.exitCode = 1;
-

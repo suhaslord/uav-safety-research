@@ -1,7 +1,7 @@
 /* AegisLand Tesla visual system.
    Keeps the original research cockpit structure while removing decorative noise,
    duplicate Phase 11 framing, oversized motifs, and responsive regressions. */
-:root{--tesla-blue:#3e6ae1;--tesla-white:#fff;--tesla-ash:#f4f4f4;--tesla-carbon:#171a20;--tesla-graphite:#393c41;--tesla-pewter:#5c5e62;--tesla-line:#e2e3e3}
+:root{--tesla-blue:#e82127;--tesla-white:#fff;--tesla-ash:#f4f4f4;--tesla-carbon:#171a20;--tesla-graphite:#393c41;--tesla-pewter:#5c5e62;--tesla-line:#e2e3e3}
 *{box-sizing:border-box}
 a:focus-visible,button:focus-visible{outline:2px solid var(--tesla-blue);outline-offset:3px}
 .scroll-progress{display:none!important}

@@ -58,8 +58,21 @@ def build(output, base_path):
 <title>Page not found · AegisLand</title><link rel="stylesheet" href="{base}/aegisland.css">
 <main class="wrap"><h1>That page isn’t here.</h1><p>You can find all published research in the archive.</p>
 <a class="button primary" href="{base}/phases/">Browse the research</a></main></html>''')
-    required = ['presentation.css', 'presentation.js', 'film/aerocast-flight.mp4',
+    required = ['presentation.css', 'presentation.js', 'model-vase/index.html',
+                'model-vase.css', 'aegisland-brand.css', 'model-vase-mark.svg',
+                'film/aerocast-flight.mp4',
                 'film/aerocast-poster.jpg', 'frozen-lineage.js']
+    required += ['media/' + name for name in (
+        'phase01-context.jpg', 'phase02-context.jpg', 'acero-ground-control.jpg',
+        'phase04-context.jpg', 'phase05-context.jpg', 'acero-uav-flight.jpg',
+        'phase06b-context.jpg', 'phase07-context.jpg', 'phase08-context.jpg',
+        'acero-uav-landing.jpg', 'phase10-context.jpg', 'phase10r-context.jpg',
+        'stereo-uav-preflight.jpg', 'phase12-context.jpg', 'phase13a-context.jpg',
+        'phase13b-context.jpg', 'phase13c-context.jpg', 'phase14-context.jpg',
+        'phase15-context.jpg', 'phase16-context.jpg', 'phase17-context.jpg',
+        'phase18-context.jpg', 'phase19-context.jpg', 'phase20-context.jpg',
+        'phase21-context.jpg', 'phase22-context.jpg',
+    )]
     required += ['phases/' + slug + '/index.html' for slug in slugs]
     for name in required:
         if not (output / name).is_file():

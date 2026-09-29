@@ -56,12 +56,12 @@
   white-space:nowrap;
 }
 .phase-editorial-photo a{
-  color:var(--phase-accent,#3559c7);
+  color:var(--phase-accent,#e82127);
   text-decoration:none;
 }
 .phase-editorial-photo a:hover{text-decoration:underline}
 .phase-editorial-photo a:focus-visible{
-  outline:2px solid var(--phase-accent,#3559c7);
+  outline:2px solid var(--phase-accent,#e82127);
   outline-offset:2px;
   border-radius:2px;
 }

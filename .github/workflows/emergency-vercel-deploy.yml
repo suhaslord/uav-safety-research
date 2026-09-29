@@ -95,6 +95,10 @@ jobs:
           test -f .vercel-release/site-refresh.css
           test -f .vercel-release/phase-report.css
           test -f .vercel-release/phase23.html
+          test -f .vercel-release/model-vase.html
+          test -f .vercel-release/model-vase.css
+          test -f .vercel-release/aegisland-brand.css
+          test -f .vercel-release/model-vase-mark.svg
           test "$(find .vercel-release/media/phase25 -type f -name '*.jpg' | wc -l)" -eq 516
           grep -q '"preview_count": 516' .vercel-release/media/phase25/manifest.json
           test -f .vercel-release/frozen-lineage.js
@@ -102,6 +106,9 @@ jobs:
           test -f .vercel-release/dashboard/phase-editorial-media.js
           test -f .vercel-release/dashboard/phase-editorial-media.css
           for ASSET in synthetic_clean.png synthetic_blur.png synthetic_low_light.png synthetic_occlusion.png synthetic_mixed.png; do
+            test -s ".vercel-release/media/perception/$ASSET"
+          done
+          for ASSET in kios_clean.jpg kios_blur.jpg kios_low_light.jpg kios_noise.jpg kios_occlusion.jpg kios_mixed.jpg; do
             test -s ".vercel-release/media/perception/$ASSET"
           done
 
@@ -118,23 +125,21 @@ jobs:
           grep -q 'href="/research-home.css?v=' .vercel-release/index.html
           grep -q 'href="/research-media.css?v=' .vercel-release/index.html
           grep -q 'src="/media/acero-uav-flight.jpg"' .vercel-release/index.html
-          grep -q 'src="/media/acero-ground-control.jpg"' .vercel-release/index.html
-          grep -q 'src="/media/stereo-uav-preflight.jpg"' .vercel-release/index.html
-          grep -q 'src="/media/acero-uav-landing.jpg"' .vercel-release/index.html
-          test "$(grep -o 'Visual context — not AegisLand experimental evidence' .vercel-release/index.html | wc -l)" -eq 4
+          grep -q 'href="/aegisland-brand.css?v=2"' .vercel-release/index.html
+          grep -q 'src="/model-vase-mark.svg"' .vercel-release/index.html
+          test "$(grep -o 'NASA field image · context only' .vercel-release/index.html | wc -l)" -eq 1
           grep -q 'Don Richey / NASA Ames Research Center' .vercel-release/index.html
-          grep -q 'Joel Kowsky / NASA' .vercel-release/index.html
           ! grep -q '<img[^>]*src="https://' .vercel-release/index.html
-          grep -q 'When the camera is sure, but wrong.' .vercel-release/index.html
-          grep -q 'Simulation record frozen through Phase 22' .vercel-release/index.html
+          grep -q 'Can the system know when its landing estimate is unreliable?' .vercel-release/index.html
+          grep -q 'Model VASE · answer so far' .vercel-release/index.html
+          grep -q 'Baseline measured · Phase 23 pending' .vercel-release/index.html
+          grep -q 'These are different experiments. They have not been joined into one tested model.' .vercel-release/index.html
           grep -q 'id="current-audit"' .vercel-release/index.html
           grep -q 'href="/ui-review.css?v=' .vercel-release/index.html
           grep -q 'href="/site-refresh.css?v=' .vercel-release/index.html
+          ! grep -q '/lab/lab.js' .vercel-release/index.html
           grep -q '/media/perception/synthetic_clean.png' .vercel-release/presentation.js
           ! grep -q 'raw.githubusercontent.com' .vercel-release/presentation.js
-          grep -q 'The question' .vercel-release/index.html
-          grep -q 'Why misses stay visible' .vercel-release/index.html
-          grep -q 'The finding' .vercel-release/index.html
           grep -q 'home-lineage__track' .vercel-release/index.html
           grep -q '6 PASS / 7 FAIL' .vercel-release/index.html
           grep -q '0.8319' .vercel-release/index.html
@@ -143,6 +148,12 @@ jobs:
           grep -q 'simulation_only=true' .vercel-release/index.html
           grep -q 'safety_acceptance=false' .vercel-release/index.html
           grep -q 'controller_tuning_allowed=false' .vercel-release/index.html
+          grep -q 'Model VASE is an integrated research architecture, not a newly trained checkpoint.' .vercel-release/model-vase.html
+          grep -q 'V3 PATH · CONNECTED' .vercel-release/model-vase.html
+          grep -q 'href="/aegisland-brand.css?v=2"' .vercel-release/model-vase.html
+          grep -q '#e82127' .vercel-release/model-vase.css
+          grep -q '/media/phase25/${condition}/${item.id}' .vercel-release/failure-atlas.js
+          grep -q 'Loading the verified 86-frame image set' .vercel-release/failure-atlas.html
 
           grep -q 'href="/phase-polish.css?v=' .vercel-release/dashboard/phases/index.html
           grep -q 'href="/phase-polish.css?v=' .vercel-release/dashboard/phases/frozen.html
@@ -212,14 +223,14 @@ jobs:
           printf '%s' "$PUBLIC_HTML" | grep 'href="/aegisland.css?v=' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep 'href="/research-home.css?v=' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep 'href="/research-media.css?v=' > /dev/null
-          test "$(printf '%s' "$PUBLIC_HTML" | grep -o 'Visual context — not AegisLand experimental evidence' | wc -l)" -eq 4
+          printf '%s' "$PUBLIC_HTML" | grep 'href="/aegisland-brand.css?v=2"' > /dev/null
+          printf '%s' "$PUBLIC_HTML" | grep 'src="/model-vase-mark.svg"' > /dev/null
+          test "$(printf '%s' "$PUBLIC_HTML" | grep -o 'NASA field image · context only' | wc -l)" -eq 1
           printf '%s' "$PUBLIC_HTML" | grep 'Don Richey / NASA Ames Research Center' > /dev/null
-          printf '%s' "$PUBLIC_HTML" | grep 'Joel Kowsky / NASA' > /dev/null
-          printf '%s' "$PUBLIC_HTML" | grep 'When the camera is sure, but wrong.' > /dev/null
-          printf '%s' "$PUBLIC_HTML" | grep 'The question' > /dev/null
-          printf '%s' "$PUBLIC_HTML" | grep 'Why misses stay visible' > /dev/null
-          printf '%s' "$PUBLIC_HTML" | grep 'The finding' > /dev/null
-          printf '%s' "$PUBLIC_HTML" | grep 'Simulation record frozen through Phase 22' > /dev/null
+          printf '%s' "$PUBLIC_HTML" | grep 'Can the system know when its landing estimate is unreliable?' > /dev/null
+          printf '%s' "$PUBLIC_HTML" | grep 'Model VASE · answer so far' > /dev/null
+          printf '%s' "$PUBLIC_HTML" | grep 'Baseline measured · Phase 23 pending' > /dev/null
+          ! printf '%s' "$PUBLIC_HTML" | grep '/lab/lab.js' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep 'id="current-audit"' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep 'href="/ui-review.css?v=' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep 'href="/site-refresh.css?v=' > /dev/null
@@ -230,17 +241,38 @@ jobs:
           printf '%s' "$PUBLIC_HTML" | grep 'safety_acceptance=false' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep 'controller_tuning_allowed=false' > /dev/null
 
+          MODEL_HTML=$(curl --fail --silent --show-error --location "$PUBLIC_URL/model-vase/")
+          printf '%s' "$MODEL_HTML" | grep 'Model VASE' > /dev/null
+          printf '%s' "$MODEL_HTML" | grep 'V3 PATH · CONNECTED' > /dev/null
+          printf '%s' "$MODEL_HTML" | grep 'src="/model-vase-mark.svg"' > /dev/null
+          ATLAS_HTML=$(curl --fail --silent --show-error --location "$PUBLIC_URL/failure-atlas/")
+          printf '%s' "$ATLAS_HTML" | grep 'Loading the verified 86-frame image set' > /dev/null
+          printf '%s' "$ATLAS_HTML" | grep 'Images selected locally are not hash-checked' > /dev/null
+          PHASE23_HTML=$(curl --fail --silent --show-error --location "$PUBLIC_URL/phases/phase23/")
+          printf '%s' "$PHASE23_HTML" | grep 'Explore all 86 frames in Failure Atlas' > /dev/null
+
           for ASSET in acero-uav-flight.jpg acero-ground-control.jpg stereo-uav-preflight.jpg acero-uav-landing.jpg phase01-context.jpg phase22-context.jpg; do
             curl --fail --silent --show-error --location "$PUBLIC_URL/media/$ASSET" -o "/tmp/$ASSET"
             test $(wc -c < "/tmp/$ASSET") -gt 50000
           done
           echo "✓ Editorial media: expanded local NASA photo set resolves"
 
+          for CONDITION in clean blur low_light noise occlusion mixed; do
+            curl --fail --silent --show-error --location "$PUBLIC_URL/media/perception/kios_$CONDITION.jpg" -o /dev/null
+            curl --fail --silent --show-error --location "$PUBLIC_URL/media/phase25/$CONDITION/land_pad2__2050.jpg" -o "/tmp/phase25-$CONDITION.jpg"
+            test $(wc -c < "/tmp/phase25-$CONDITION.jpg") -gt 1000
+          done
+          echo "✓ Failure Atlas: one reconstructed image in every condition resolves"
+
           curl --fail --silent --show-error --location "$PUBLIC_URL/aegisland.css" >/dev/null
           curl --fail --silent --show-error --location "$PUBLIC_URL/research-home.css" >/dev/null
           curl --fail --silent --show-error --location "$PUBLIC_URL/research-media.css" >/dev/null
           curl --fail --silent --show-error --location "$PUBLIC_URL/ui-review.css" >/dev/null
           curl --fail --silent --show-error --location "$PUBLIC_URL/site-refresh.css" >/dev/null
+          curl --fail --silent --show-error --location "$PUBLIC_URL/aegisland-brand.css" >/dev/null
+          curl --fail --silent --show-error --location "$PUBLIC_URL/model-vase-mark.svg" >/dev/null
+          curl --fail --silent --show-error --location "$PUBLIC_URL/model-vase.css" >/dev/null
+          curl --fail --silent --show-error --location "$PUBLIC_URL/failure-atlas.js" >/dev/null
           curl --fail --silent --show-error --location "$PUBLIC_URL/phase-polish.css" >/dev/null
           curl --fail --silent --show-error --location "$PUBLIC_URL/phase-editorial-media.css" >/dev/null
           curl --fail --silent --show-error --location "$PUBLIC_URL/phase-visuals.js" >/dev/null
@@ -290,7 +322,7 @@ jobs:
           done
           ATLAS_HTML=$(curl --fail --silent --show-error --location "$PUBLIC_URL/failure-atlas/")
           printf '%s' "$ATLAS_HTML" | grep 'Loading the verified 86-frame image set' > /dev/null
-          printf '%s' "$ATLAS_HTML" | grep 'failure-atlas.js?v=6' > /dev/null
+          printf '%s' "$ATLAS_HTML" | grep 'failure-atlas.js?v=7' > /dev/null
           curl --fail --silent --show-error --location "$PUBLIC_URL/media/phase25/clean/land_pad__6500.jpg" -o /dev/null
           curl --fail --silent --show-error --location "$PUBLIC_URL/media/phase25/mixed/land_pad2__2100.jpg" -o /dev/null
           echo "✓ Phase 23 examples and reconstructed Failure Atlas frames load from production"

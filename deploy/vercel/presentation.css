@@ -1,6 +1,6 @@
 :root {
-  --rw-accent: #3e6ae1;
-  --rw-accent-hover: #3457b2;
+  --rw-accent: #e82127;
+  --rw-accent-hover: #c91b21;
   --rw-header: 56px;
   --rw-max: 1280px;
 }
@@ -34,11 +34,11 @@ html body.research-workspace.research-workspace :is(.button, .signature-button, 
   transition: background-color .2s, color .2s, transform .2s !important;
 }
 html body.research-workspace.research-workspace :is(.button.primary, .signature-button--primary, .top-btn.primary) {
-  background: #3e6ae1 !important; color: #fff !important; border-color: transparent !important;
+  background: #e82127 !important; color: #fff !important; border-color: transparent !important;
 }
-html body.research-workspace.research-workspace :is(.button.primary, .signature-button--primary, .top-btn.primary):hover { background: #3457b2 !important; }
+html body.research-workspace.research-workspace :is(.button.primary, .signature-button--primary, .top-btn.primary):hover { background: #c91b21 !important; }
 html body.research-workspace.research-workspace :is(.button, .signature-button, button):active { transform: scale(.98); }
-html body.research-workspace.research-workspace :is(a, button, input):focus-visible { outline: 2px solid #3e6ae1 !important; outline-offset: 4px !important; }
+html body.research-workspace.research-workspace :is(a, button, input):focus-visible { outline: 2px solid #e82127 !important; outline-offset: 4px !important; }
 html body.research-workspace.research-workspace :is(.wrap, .signature-shell) { width: min(1280px, calc(100% - 96px)) !important; }
 html body.research-workspace.research-workspace :is(.footer, .signature-footer) { background: #fff !important; border: 0 !important; color: #5c5e62 !important; font-size: 13px !important; }
 
@@ -272,8 +272,8 @@ html body.research-workspace.home-workspace.home-workspace .chapter-credit { col
 
 /* Shared phase browsing and reading layout. */
 html.phase-explorer-open { overflow: hidden; }
-html body.research-workspace .phase-explorer-trigger { flex: 0 0 auto; margin-left: auto; border: 0; border-radius: 4px; padding: 10px 16px; min-height: 40px; background: #3e6ae1; color: #fff; font: 600 14px Arial, sans-serif; cursor: pointer; }
-html body.research-workspace .phase-explorer-trigger:hover { background: #3457b2; }
+html body.research-workspace .phase-explorer-trigger { flex: 0 0 auto; margin-left: auto; border: 0; border-radius: 4px; padding: 10px 16px; min-height: 40px; background: #e82127; color: #fff; font: 600 14px Arial, sans-serif; cursor: pointer; }
+html body.research-workspace .phase-explorer-trigger:hover { background: #c91b21; }
 html body.research-workspace .phase-jumpbar { position: sticky; top: 56px; z-index: 90; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 10px 40px; background: #f4f4f4; border-bottom: 1px solid #e2e3e5; color: #171a20; }
 .phase-jumpbar label { display: flex; align-items: center; gap: 16px; font: 12px Arial, sans-serif; color: #5c5e62; min-width: 0; }
 .phase-jumpbar select { width: min(440px, 45vw); background: transparent; border: 0; color: #171a20; padding: 8px 24px 8px 0; font: 600 14px Arial, sans-serif; cursor: pointer; text-overflow: ellipsis; }
@@ -289,7 +289,7 @@ html body .explorer-heading h2 { font-size: 36px; margin: 0 0 24px; line-height:
 .explorer-close { border: 0; background: #f4f4f4; padding: 12px 16px; border-radius: 4px; color: #171a20; font: 600 13px Arial, sans-serif; cursor: pointer; }
 .explorer-modes { display: flex; gap: 4px; border-bottom: 1px solid #ddd; margin-bottom: 24px; }
 .explorer-modes button { border: 0; border-bottom: 3px solid transparent; background: transparent; color: #5c5e62; padding: 12px 20px; font: 600 14px Arial, sans-serif; cursor: pointer; }
-.explorer-modes button[aria-pressed="true"] { color: #171a20; border-bottom-color: #3e6ae1; }
+.explorer-modes button[aria-pressed="true"] { color: #171a20; border-bottom-color: #e82127; }
 .explorer-search label { display: block; font: 600 13px Arial, sans-serif; margin-bottom: 10px; }
 .explorer-search input { box-sizing: border-box; width: 100%; border: 1px solid #d0d1d2; background: #f4f4f4; border-radius: 4px; padding: 14px 16px; font: 16px Arial, sans-serif; }
 html body .explorer-count, html body .explorer-empty { font-size: 13px; color: #5c5e62; }
@@ -299,9 +299,9 @@ html body .explorer-group h3 { font-size: 18px; margin: 8px 0 14px; }
 .explorer-phase > span:first-child { font: 600 12px Arial, sans-serif; }
 .explorer-phase small { display: block; margin-top: 4px; color: #5c5e62; font: 11px Arial, sans-serif; }
 .explorer-phase strong { font: 14px/1.4 Arial, sans-serif; grid-column: 1; }
-.explorer-phase .explorer-arrow { grid-column: 2; grid-row: 1/3; align-self: center; color: #3e6ae1; }
+.explorer-phase .explorer-arrow { grid-column: 2; grid-row: 1/3; align-self: center; color: #e82127; }
 .explorer-phase:hover, .explorer-phase[aria-current="page"] { background: #f4f4f4; border-radius: 4px; }
-.explorer-phase[aria-current="page"] { box-shadow: inset 3px 0 #3e6ae1; }
+.explorer-phase[aria-current="page"] { box-shadow: inset 3px 0 #e82127; }
 .explorer-footer { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-top: 32px; border-top: 1px solid #ddd; padding-top: 20px; font: 12px/1.5 Arial, sans-serif; color: #5c5e62; }
 .explorer-footer a { color: #171a20; }
 html body .compare-note { max-width: 70ch; font-size: 14px; color: #5c5e62; }
@@ -314,7 +314,7 @@ html body .phase-compare { width: 100%; table-layout: fixed; border-collapse: co
 .phase-compare th, .phase-compare td { padding: 20px 16px; border-bottom: 1px solid #ddd; text-align: left; vertical-align: top; overflow-wrap: anywhere; }
 .phase-compare th:first-child { width: 20%; }
 .phase-compare thead th { background: #f4f4f4; font-size: 20px; }
-.phase-compare thead a { display: block; font-size: 13px; margin-top: 8px; color: #3e6ae1; }
+.phase-compare thead a { display: block; font-size: 13px; margin-top: 8px; color: #e82127; }
 
 html body.research-workspace.phase-reading :is(.top .nav, .site-nav, .signature-nav__links) { margin-inline: auto !important; gap: 4px !important; }
 html body.research-workspace.phase-reading :is(.top-end, .header-actions) { display: none !important; }
@@ -453,7 +453,7 @@ html body .explorer-count { margin:0 0 8px; font-size:13px; }
 .explorer-phase .explorer-arrow { grid-column:4; grid-row:1; }
 .explorer-phase[aria-current=page] { box-shadow:none; background:#edf1fa; }
 .explorer-list { min-width:0; }
-.phase-explorer :is(button,input,a):focus-visible { outline:2px solid #3457b2; outline-offset:3px; }
+.phase-explorer :is(button,input,a):focus-visible { outline:2px solid #c91b21; outline-offset:3px; }
 @media(max-width:700px) { html body .phase-explorer { width:100%; height:100dvh; max-height:100dvh; padding:24px 20px; } .explorer-directory { grid-template-columns:1fr; gap:20px; } .explorer-chapters { flex-direction:row; overflow-x:auto; padding-bottom:8px; } .explorer-chapters button { flex:0 0 180px; } .explorer-phase { grid-template-columns:65px minmax(0,1fr) 16px; gap:12px; } .explorer-phase .explorer-status { grid-column:2; max-width:none; margin-top:-6px; } .explorer-phase .explorer-arrow { grid-column:3; grid-row:1/3; } }
 .nasa-film-frame { position:relative; overflow:hidden; background:#f4f4f4; }
 .nasa-film-frame video { display:block; width:100%; height:auto; border-radius:0; }
@@ -463,7 +463,7 @@ html body.home-workspace .explainer-film figcaption { padding-top:12px; font-siz
 .nasa-player-options { font:12px/1.5 Arial,sans-serif; color:#50545a; margin-top:10px; }
 .nasa-player-options summary { cursor:pointer; width:max-content; }
 .nasa-player-options label { display:flex; align-items:center; gap:8px; min-height:44px; padding:10px 0; cursor:pointer; }
-.nasa-player-options input { accent-color:#3457b2; }
-.nasa-player-options :is(summary,input):focus-visible { outline:2px solid #3457b2; outline-offset:4px; }
+.nasa-player-options input { accent-color:#c91b21; }
+.nasa-player-options :is(summary,input):focus-visible { outline:2px solid #c91b21; outline-offset:4px; }
 
 html body.research-workspace.home-workspace.home-workspace #method .research-photo__frame { aspect-ratio:16/9 !important; min-height:0 !important; height:auto !important; }

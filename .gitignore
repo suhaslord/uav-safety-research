@@ -5,6 +5,7 @@ __pycache__/
 venv/
 dist/
 build/
+_pages/
 *.egg-info/
 results/latest/
 results/demo/
@@ -16,6 +17,7 @@ qa-artifacts/
 corrected-visual-artifacts/
 deploy/vercel/media/*
 !deploy/vercel/media/perception/
+!deploy/vercel/media/*.jpg
 data/
 temp_*/
 *.pt

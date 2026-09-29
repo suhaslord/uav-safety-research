@@ -7,6 +7,7 @@ const BASE = process.env.QA_BASE_URL || 'http://127.0.0.1:4173';
 const OUT = 'corrected-visual-artifacts/screenshots';
 const routes = [
   { name: 'signature-home', path: '/' },
+  { name: 'model-vase', path: '/model-vase/' },
   { name: 'frozen-archive', path: '/phases/' },
   { name: 'phase11-predecessor', path: '/phases/phase11/' },
   { name: 'phase12-frozen-baseline', path: '/phases/phase12/' },

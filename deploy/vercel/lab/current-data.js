@@ -105,7 +105,7 @@
       .perception-card__header{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
       .perception-card__title{font-size:14px;font-weight:600;color:#171a20;letter-spacing:-.01em}
       .perception-card__badge{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;padding:3px 8px;border-radius:3px;background:#e3e5e8;color:#393c41}
-      .perception-card__badge--robust{background:#3e6ae1;color:#fff}
+      .perception-card__badge--robust{background:#e82127;color:#fff}
       .perception-card__frame{position:relative;background:#0d0e11;border-radius:4px;overflow:hidden;border:1px solid #d0d2d5;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;width:100%;max-width:100%;min-width:0;box-sizing:border-box}
       .perception-card__frame--square{aspect-ratio:16/9;width:100%;max-width:none;margin:0 auto}
       .perception-card__frame img{width:100%;height:100%;object-fit:contain;display:block}
@@ -119,7 +119,7 @@
       .current-data-field{display:flex;flex-direction:column;gap:8px}
       .current-data-controls label{display:block;font-size:13px;font-weight:600;color:#3b3e42}
       .current-data-controls select{width:100%;min-height:44px;border:1px solid #c9cacc;border-radius:4px;background:#fff;padding:8px 36px 8px 11px;font:14px/1.3 Arial,Helvetica,sans-serif;color:#171a20;box-sizing:border-box}
-      .current-data-controls select:focus-visible{outline:2px solid #3e6ae1;outline-offset:3px}
+      .current-data-controls select:focus-visible{outline:2px solid #e82127;outline-offset:3px}
 
       /* Model Switcher Segmented Control */
       .model-switcher{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:#e3e5e8;padding:3px;border-radius:4px}
@@ -142,18 +142,18 @@
       .current-data-table thead th{border-top:0;color:#5c5e62;font-size:11px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
       .current-data-table th:first-child,.current-data-table td:first-child{text-align:left}
       .current-data-table tr.is-active{background:#f3f6ff}
-      .current-data-table tr.is-active td:first-child{box-shadow:inset 3px 0 0 #3e6ae1;font-weight:600}
+      .current-data-table tr.is-active td:first-child{box-shadow:inset 3px 0 0 #e82127;font-weight:600}
       .current-data-table .gain-positive{color:#15803d;font-weight:600}
 
       .current-data-links{display:flex;gap:12px;flex-wrap:wrap;margin-top:auto;padding-top:12px}
       .current-data-links a{display:inline-flex;align-items:center;min-height:38px;padding:8px 12px;border-radius:4px;background:#fff;color:#171a20;font-size:13px;font-weight:600;text-decoration:none}
       .current-data-links a:hover{background:#e9e9e9}
-      .phase24-callout{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px 28px;align-items:center;padding:22px 24px;border:1px solid #d8e1f2;border-left:3px solid #3e6ae1;border-radius:6px;background:#f8faff}
-      .phase24-callout__eyebrow{grid-column:1/-1;color:#3e6ae1;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+      .phase24-callout{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px 28px;align-items:center;padding:22px 24px;border:1px solid #f1c8ca;border-left:3px solid #e82127;border-radius:6px;background:#fff8f8}
+      .phase24-callout__eyebrow{grid-column:1/-1;color:#e82127;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
       .phase24-callout p{margin:0;color:#39404a;font-size:15px;line-height:1.55}
       .phase24-callout strong{color:#171a20}
       .phase24-callout a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 16px;border-radius:4px;background:#171a20;color:#fff;font-size:13px;font-weight:650;text-decoration:none;white-space:nowrap}
-      .phase24-callout a:hover{background:#3e6ae1}
+      .phase24-callout a:hover{background:#e82127}
       @media(max-width:640px){.phase24-callout{grid-template-columns:1fr;padding:18px}.phase24-callout__eyebrow{grid-column:auto}.phase24-callout a{justify-self:start}}
 
       @media(max-width:900px){

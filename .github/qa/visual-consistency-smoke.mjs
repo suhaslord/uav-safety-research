@@ -180,7 +180,7 @@ try {
         horizontalOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth
       };
     });
-    add('home-940-navigation-continuity', !!response && response.status() < 400 && navigation.navVisible && navigation.navLinkCount >= 5 && navigation.actionsVisible && !navigation.mobileToggleVisible && !navigation.headerOverlap && navigation.horizontalOverflow <= 2, { ...navigation, status: response?.status() || 0 });
+    add('home-940-navigation-continuity', !!response && response.status() < 400 && navigation.navVisible && navigation.navLinkCount >= 3 && navigation.actionsVisible && !navigation.mobileToggleVisible && !navigation.headerOverlap && navigation.horizontalOverflow <= 2, { ...navigation, status: response?.status() || 0 });
     await page.close();
     await context.close();
   }
@@ -195,28 +195,29 @@ try {
     add('home-frozen-native-shell', shell === 'native frozen-archive', { shell });
     const teslaStyles = await page.locator('link[href^="/aegisland.css"]').count();
     add('home-uses-tesla-style-source', teslaStyles === 1, { teslaStyles });
-    const evidenceRows = await page.locator('#evidenceSpine .evidence-row').count();
-    const passRows = await page.locator('#evidenceSpine .evidence-row[data-verdict="PASS"]').count();
-    const failRows = await page.locator('#evidenceSpine .evidence-row[data-verdict="FAIL"]').count();
+    const evidenceRows = await page.locator('#homeLineage .home-lineage__node').count();
+    const passRows = await page.locator('#homeLineage .home-lineage__node[data-verdict="PASS"]').count();
+    const failRows = await page.locator('#homeLineage .home-lineage__node[data-verdict="FAIL"]').count();
     add('home-has-complete-frozen-spine', evidenceRows === 13, { evidenceRows });
     add('home-preserves-pass-fail-record', passRows === 6 && failRows === 7, { passRows, failRows });
 
     const homeText = await page.locator('main').innerText();
     const heroOverlay = await page.locator('#top .research-photo__frame').evaluate(element => getComputedStyle(element, '::after').backgroundImage);
     add('home-hero-photo-shaded-for-readable-copy', /linear-gradient/i.test(heroOverlay), { heroOverlay });
-    add('home-current-thesis-visible', /When the camera is sure, but wrong/i.test(homeText) && /We study when landing estimates drift before their uncertainty catches up/i.test(homeText), { excerpt: homeText.slice(0, 500) });
-    add('home-current-project-framing-visible', /Frozen simulation result/i.test(homeText) && /Phase 24.*audit/i.test(homeText) && /Six stretches of work, each caused by the last one/i.test(homeText));
-    add('home-researcher-brief-visible', /Limit of the evidence/i.test(homeText) && (/Terms used in this phase/i.test(homeText) || /research glossary/i.test(homeText)) && /Frozen simulation result/i.test(homeText));
-    add('home-phase22-final-visible', /0\.8319/.test(homeText) && /0\.7744/.test(homeText) && /10\s+locked gates/i.test(homeText) && /100%/.test(homeText), { excerpt: homeText.slice(0, 900) });
-    add('home-science-is-explicitly-frozen', /Phase 12\s*→\s*Phase 22/i.test(homeText) && /6 PASS \/ 7 FAIL/i.test(homeText) && /Phase 22 is a simulation result/i.test(homeText), { excerpt: homeText.slice(0, 1200) });
-    add('home-claim-boundary-visible', /simulation_only=true/.test(homeText) && /safety_acceptance=false/.test(homeText) && /controller_tuning_allowed=false/.test(homeText));
+    add('home-current-thesis-visible', /Can the system know when its landing estimate is unreliable/i.test(homeText) && /simulation found a recovery signal/i.test(homeText) && /camera results remain separate/i.test(homeText), { excerpt: homeText.slice(0, 500) });
+    add('home-current-project-framing-visible', /Model VASE · answer so far/i.test(homeText) && /−13\.3 pp/.test(homeText) && /Phase 24/i.test(homeText));
+    add('home-evidence-boundary-visible', /These are different experiments/i.test(homeText) && /No flight-safety claim/i.test(homeText));
+    add('home-phase22-final-visible', /0\.8319/.test(homeText) && /0\.7744/.test(homeText) && /10 \/ 10 gates passed/i.test(homeText) && /100%/.test(homeText), { excerpt: homeText.slice(0, 900) });
+    const frozenRecord = await page.locator('.copy-disclosure').textContent();
+    add('home-science-is-explicitly-frozen', /Phase 12\s*→\s*Phase 22/i.test(frozenRecord || '') && /6 PASS \/ 7 FAIL/i.test(frozenRecord || '') && /No flight-safety claim/i.test(homeText), { excerpt: frozenRecord?.slice(0, 300) });
+    add('home-claim-boundary-visible', /No flight-safety claim/i.test(homeText) && /controller-tuning claim/i.test(homeText));
     const phase23Links = await page.locator('a[href*="phase23"]').count();
     add('home-links-phase23-detector', phase23Links > 0, { phase23Links });
     add('home-features-measured-baseline-atlas',
       await page.locator('#top a[href="/failure-atlas/"]').count() === 1
         && await page.locator('#phase25 .phase25-feature__images img').count() === 2
         && await page.locator('#phase25 .phase25-feature__proof a[href*="phase25_reconstruction_audit.json"]').count() === 1
-        && /Baseline observed · Phase 23 pending/i.test(await page.locator('#phase25').innerText()));
+        && /Baseline measured · Phase 23 pending/i.test(await page.locator('#phase25').innerText()));
     await page.close();
     await context.close();
   }
@@ -250,7 +251,7 @@ try {
     add('archive-preserves-6-pass-7-fail', frozenPass === 6 && frozenFail === 7, { frozenPass, frozenFail });
     add('archive-personalizes-every-card', identities === 28 && questions === 28 && signals === 28, { identities, questions, signals });
     add('archive-uses-polished-tesla-shell', archivePolish === 1 && archivePersonalization === 1 && archiveSignature === 0, { archivePolish, archivePersonalization, archiveSignature });
-    add('archive-has-category-led-thesis', /The complete research record/i.test(archiveText));
+    add('archive-has-category-led-thesis', /Every phase stays part of the story/i.test(archiveText) && /7 research categories/i.test(archiveText));
     const phase23Card = await page.locator('.archive-card[href="/phases/phase23/"]').count();
     add('archive-links-phase23', phase23Card === 1, { phase23Card });
     await page.goto(BASE + '/phases/phase23/', { waitUntil: 'domcontentloaded', timeout: 45000 });

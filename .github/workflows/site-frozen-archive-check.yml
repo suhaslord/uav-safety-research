@@ -23,6 +23,8 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
+      - name: Fetch credited NASA editorial photos
+        run: node deploy/vercel/fetch-editorial-media.mjs
       - name: Assert frozen archive presentation
         shell: bash
         run: |
@@ -33,18 +35,31 @@ jobs:
           ! grep -q 'href="/signature.css?v=' deploy/vercel/index.html
           grep -q 'href="/research-home.css?v=' deploy/vercel/index.html
           grep -q 'href="/research-media.css?v=' deploy/vercel/index.html
-          grep -q 'AegisLand · Landing perception research' deploy/vercel/index.html
-          grep -q 'When the camera is sure, but wrong.' deploy/vercel/index.html
-          grep -q 'Frozen simulation result' deploy/vercel/index.html
-          grep -q 'href="/model-vase/">Explore Model VASE' deploy/vercel/index.html
+          grep -q 'Model VASE · answer so far' deploy/vercel/index.html
+          grep -q 'Can the system know when its landing estimate is unreliable?' deploy/vercel/index.html
+          grep -q 'Frozen simulation · Phase 22' deploy/vercel/index.html
+          grep -q 'href="/model-vase/">Model VASE' deploy/vercel/index.html
           grep -q 'href="/failure-atlas/">Open Failure Atlas' deploy/vercel/index.html
-          grep -q 'Model VASE' deploy/vercel/model-vase.html
-          grep -q 'When landing perception becomes unreliable' deploy/vercel/model-vase.html
-          grep -q 'Simulation record frozen through Phase 22' deploy/vercel/index.html
-          grep -q 'Phase 22 is a simulation result' deploy/vercel/index.html
+          grep -q 'href="/model-vase/">How the evidence fits together' deploy/vercel/index.html
+          grep -q 'These are different experiments. They have not been joined into one tested model.' deploy/vercel/index.html
+          grep -q '"source": "/model-vase/"' deploy/vercel/vercel.json
+          grep -q 'Model VASE is an integrated research architecture, not a newly trained checkpoint.' deploy/vercel/model-vase.html
+          grep -q 'V3 PATH · CONNECTED' deploy/vercel/model-vase.html
+          grep -q 'href="/aegisland-brand.css?v=2"' deploy/vercel/model-vase.html
+          grep -q '#e82127' deploy/vercel/model-vase.css
+          grep -q '/media/phase25/${condition}/${item.id}' deploy/vercel/failure-atlas.js
+          grep -q 'Loading the verified 86-frame image set' deploy/vercel/failure-atlas.html
+          ! grep -q '/lab/lab.js' deploy/vercel/index.html
+          grep -q 'src="/model-vase-mark.svg"' deploy/vercel/index.html
+          grep -q 'src="/model-vase-mark.svg"' deploy/vercel/failure-atlas.html
+          grep -q 'src="/model-vase-mark.svg"' deploy/vercel/phase23.html
+          grep -q 'No flight-safety claim' deploy/vercel/index.html
+          grep -q 'name="aegis-evidence-boundary"' deploy/vercel/index.html
           grep -q 'home-lineage__track' deploy/vercel/index.html
           grep -q '6 PASS / 7 FAIL' deploy/vercel/index.html
-          test "$(grep -o 'Visual context — not AegisLand experimental evidence' deploy/vercel/index.html | wc -l)" -eq 4
+          test "$(grep -o 'NASA field image · context only' deploy/vercel/index.html | wc -l)" -eq 1
+          grep -q 'src="/media/perception/kios_clean.jpg"' deploy/vercel/index.html
+          grep -q 'src="/media/perception/kios_occlusion.jpg"' deploy/vercel/index.html
 
           test -f deploy/vercel/phase-polish.css
           test -f deploy/vercel/phase-reading-responsive.css
@@ -56,6 +71,9 @@ jobs:
           test -f dashboard/phase-visuals.js
           test -f dashboard/phase-editorial-media.css
           test -f dashboard/phase-editorial-media.js
+          for ASSET in phase01-context.jpg phase02-context.jpg acero-ground-control.jpg phase04-context.jpg phase05-context.jpg acero-uav-flight.jpg phase06b-context.jpg phase07-context.jpg phase08-context.jpg acero-uav-landing.jpg phase10-context.jpg phase10r-context.jpg stereo-uav-preflight.jpg phase12-context.jpg phase13a-context.jpg phase13b-context.jpg phase13c-context.jpg phase14-context.jpg phase15-context.jpg phase16-context.jpg phase17-context.jpg phase18-context.jpg phase19-context.jpg phase20-context.jpg phase21-context.jpg phase22-context.jpg; do
+            test -s "deploy/vercel/media/$ASSET"
+          done
           grep -q 'href="/phase-polish.css?v=' dashboard/phases/index.html
           grep -q 'href="/phase-polish.css?v=' dashboard/phases/frozen.html
           grep -q 'href="/phase-polish.css?v=' dashboard/phases/phase.html
@@ -73,7 +91,8 @@ jobs:
           grep -q 'src="/phase-editorial-media.js?v=' dashboard/phases/phase.html
           ! grep -q 'href="/signature.css?v=' dashboard/phases/index.html
           ! grep -q 'href="/signature.css?v=' dashboard/phases/frozen.html
-          grep -q 'The complete research record.' dashboard/phases/index.html
+          grep -q 'Keep every result in view.' dashboard/phases/index.html
+          grep -q 'href="/model-vase/"' dashboard/phases/index.html
           grep -q 'Research categories' dashboard/phases/index.html
           grep -q 'const phase = lineage && lineage.bySlug\[slug\]' dashboard/phases/frozen.html
           grep -q 'phase-taxonomy.js' dashboard/phases/frozen.html

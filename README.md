@@ -3,9 +3,9 @@
 **UAV landing-perception research: synthetic tests first, then real-image transfer.**
 
 [![CI](https://github.com/suhaslord/uav-safety-research/actions/workflows/ci.yml/badge.svg)](https://github.com/suhaslord/uav-safety-research/actions/workflows/ci.yml)
-[![Real dataset](https://img.shields.io/badge/real%20dataset-422%20frames-2563eb)](https://doi.org/10.5281/zenodo.13682584)
+[![Real dataset](https://img.shields.io/badge/real%20dataset-422%20frames-e82127)](https://doi.org/10.5281/zenodo.13682584)
 
-[Research cockpit](https://aegisland-research-cockpit.vercel.app/) · [Model VASE](https://aegisland-research-cockpit.vercel.app/model-vase/) · [Real-data protocol](docs/real_dataset_track.md) · [Experiment archive](https://aegisland-research-cockpit.vercel.app/phases/)
+[Research cockpit](https://aegisland-research-cockpit.vercel.app/) · [Model VASE](https://aegisland-research-cockpit.vercel.app/model-vase/) · [Failure Atlas](https://aegisland-research-cockpit.vercel.app/failure-atlas/) · [Real-data protocol](docs/real_dataset_track.md) · [Experiment archive](https://aegisland-research-cockpit.vercel.app/phases/)
 
 AegisLand asks: **when landing perception becomes unreliable, can the system recognize that before it trusts a bad estimate?**
 

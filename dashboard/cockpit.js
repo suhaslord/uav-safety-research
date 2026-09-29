@@ -157,7 +157,7 @@ function renderPoseChart(progress = 1) {
   const px = p => pad.l + (p.t - minT) / (maxT - minT) * (width - pad.l - pad.r);
   const pyFor = key => p => pad.t + (maxV - p[key]) / (maxV - minV) * (height - pad.t - pad.b);
 
-  [["x", "#171a20"], ["y", "#5c5e62"], ["z", "#3e6ae1"]].forEach(([key, color]) => {
+  [["x", "#171a20"], ["y", "#5c5e62"], ["z", "#e82127"]].forEach(([key, color]) => {
     ctx.strokeStyle = color;
     ctx.lineWidth = 2;
     strokePartial(ctx, evidence.pose, progress, px, pyFor(key));
@@ -190,7 +190,7 @@ function renderCoverageChart(progress = 1) {
   const points = coveragePoints();
   const px = p => pad.l + p.frame / (evidence.phase9.rows - 1) * (width - pad.l - pad.r);
   const py = p => pad.t + (evidence.phase9.paired - p.total) / evidence.phase9.paired * (height - pad.t - pad.b);
-  ctx.strokeStyle = "#3e6ae1";
+  ctx.strokeStyle = "#e82127";
   ctx.lineWidth = 2.2;
   strokePartial(ctx, points, progress, px, py);
   ctx.font = "10px -apple-system, BlinkMacSystemFont, Segoe UI, Arial, sans-serif";
@@ -220,7 +220,7 @@ function renderXYChart(progress = 1) {
   const lastIndex = Math.max(0, Math.min(evidence.pose.length - 1, Math.floor(clamp(progress) * (evidence.pose.length - 1))));
   if (progress > 0) {
     const p = evidence.pose[lastIndex];
-    ctx.fillStyle = "#3e6ae1";
+    ctx.fillStyle = "#e82127";
     ctx.beginPath(); ctx.arc(px(p), py(p), 4, 0, Math.PI * 2); ctx.fill();
   }
   ctx.font = "10px -apple-system, BlinkMacSystemFont, Segoe UI, Arial, sans-serif";
@@ -255,7 +255,7 @@ function renderCadenceChart(progress = 1) {
     const h = (height - pad.t - pad.b) * (bin.count / maxCount) * clamp(progress);
     const x = pad.l + i * (barW + gap);
     const y = height - pad.b - h;
-    ctx.fillStyle = bin.count ? "#3e6ae1" : "#d8dadd";
+    ctx.fillStyle = bin.count ? "#e82127" : "#d8dadd";
     ctx.fillRect(x, y, barW, h || 1);
     ctx.fillStyle = "#5c5e62";
     ctx.font = "9px -apple-system, BlinkMacSystemFont, Segoe UI, Arial, sans-serif";
