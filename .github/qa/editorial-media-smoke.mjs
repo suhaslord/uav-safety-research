@@ -234,7 +234,33 @@ try {
         const video = document.querySelectorAll('.home-field-media video[data-autoplay="visible"]')[clipIndex];
         return !!video && video.muted && !video.paused && video.currentTime > 0;
       }, index, { timeout: 12000 }).then(() => true).catch(() => false);
-      add(`autoplay-visible-clip-${index + 1}-starts-muted`, started);
+      const playbackState = await clip.evaluate((video) => {
+        const rect = video.getBoundingClientRect();
+        return {
+          paused: video.paused,
+          currentTime: video.currentTime,
+          readyState: video.readyState,
+          networkState: video.networkState,
+          muted: video.muted,
+          defaultMuted: video.defaultMuted,
+          canPlayMp4: video.canPlayType('video/mp4; codecs="avc1.64001f"'),
+          currentSrc: video.currentSrc,
+          error: video.error ? { code: video.error.code, message: video.error.message } : null,
+          inViewport: rect.bottom > 0 && rect.top < innerHeight && rect.right > 0 && rect.left < innerWidth,
+          visibility: getComputedStyle(video).visibility,
+          reducedMotion: matchMedia('(prefers-reduced-motion: reduce)').matches,
+          saveData: !!navigator.connection?.saveData
+        };
+      });
+      const manualRetry = started ? null : await clip.evaluate(async (video) => {
+        try {
+          await video.play();
+          return 'resolved';
+        } catch (error) {
+          return `${error?.name || 'Error'}: ${error?.message || error}`;
+        }
+      });
+      add(`autoplay-visible-clip-${index + 1}-starts-muted`, started, { playbackState, manualRetry });
     }
     add('autoplay-browser-clean', errors.length === 0, { errors });
     await context.close();
