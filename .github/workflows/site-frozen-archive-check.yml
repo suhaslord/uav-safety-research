@@ -23,6 +23,8 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
+      - name: Fetch credited NASA editorial photos
+        run: node deploy/vercel/fetch-editorial-media.mjs
       - name: Assert frozen archive presentation
         shell: bash
         run: |
