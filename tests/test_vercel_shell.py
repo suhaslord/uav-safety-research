@@ -413,18 +413,18 @@ def test_live_perception_delta_uses_unrounded_phase23_source_metrics() -> None:
         condition = row["condition"]
         start = current.index(f"      {condition}: {{")
         following_starts = [
-            current.find(f"\\n      {name}: {{", start + 1)
+            current.find(f"\n      {name}: {{", start + 1)
             for name in condition_names
             if name != condition
         ]
         following_starts = [position for position in following_starts if position >= 0]
-        end = min(following_starts) if following_starts else current.index("\\n    }\\n  };", start)
+        end = min(following_starts) if following_starts else current.index("\n    }\n  };", start)
         block = current[start:end]
 
         for model, csv_prefix in (("baseline", "baseline"), ("phase23", "phase23")):
-            metrics = re.search(rf"{model}:\\s*\\{{([^}}]+)\\}}", block)
+            metrics = re.search(rf"{model}:\s*\{{([^}}]+)\}}", block)
             assert metrics is not None
-            values = dict(re.findall(r"(recall|map50):\\s*([0-9.]+)", metrics.group(1)))
+            values = dict(re.findall(r"(recall|map50):\s*([0-9.]+)", metrics.group(1)))
             assert float(values["recall"]) == float(row[f"{csv_prefix}_recall"])
             assert float(values["map50"]) == float(row[f"{csv_prefix}_map50"])
 
