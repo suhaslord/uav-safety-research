@@ -14,7 +14,7 @@ def test_phase25_lens_reuses_published_aggregates_without_frame_claims() -> None
     with comparison_path.open(newline="", encoding="utf-8") as handle:
         comparison = {row["condition"]: row for row in csv.DictReader(handle)}
     assert payload["status"] == "published_aggregates_only"
-    assert payload["source_sha256"]["comparison"] == hashlib.sha256(comparison_path.read_bytes()).hexdigest()
+    assert payload["source_sha256"]["comparison"] == hashlib.sha256(comparison_path.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
     assert len(payload["conditions"]) == 6
     for item in payload["conditions"]:
         assert item["baseline_map50"] == float(comparison[item["key"]]["baseline_map50"])
@@ -303,8 +303,8 @@ def test_phase25_is_featured_as_work_in_progress_without_result_claims() -> None
 
 
 def test_failure_atlas_is_baseline_only_with_auditable_tables() -> None:
-    site = json.loads((ROOT / "deploy/vercel/failure-atlas-data.json").read_text())
-    manifest = json.loads((ROOT / "results/phase25_baseline_diagnostic/run_manifest.json").read_text())
+    site = json.loads((ROOT / "deploy/vercel/failure-atlas-data.json").read_text(encoding="utf-8"))
+    manifest = json.loads((ROOT / "results/phase25_baseline_diagnostic/run_manifest.json").read_text(encoding="utf-8"))
     comparison_path = ROOT / "results/phase23_robust_detector/robustness_comparison.csv"
     with comparison_path.open(newline="", encoding="utf-8") as handle:
         comparison = {row["condition"]: row for row in csv.DictReader(handle)}
@@ -312,7 +312,7 @@ def test_failure_atlas_is_baseline_only_with_auditable_tables() -> None:
     assert len(site["frame_ids"]) == 86 and len(site["cases"]) == 516
     assert site["prediction_rows"] == manifest["prediction_rows"] == 136359
     assert {key: value for key, value in site["source_hashes"].items() if key != "phase23_comparison_csv"} == manifest["table_sha256"]
-    assert site["source_hashes"]["phase23_comparison_csv"] == hashlib.sha256(comparison_path.read_bytes()).hexdigest()
+    assert site["source_hashes"]["phase23_comparison_csv"] == hashlib.sha256(comparison_path.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
     assert set(site["phase23_condition_aggregates"]) == {"clean", "blur", "low_light", "noise", "occlusion", "mixed"}
     for condition, item in site["phase23_condition_aggregates"].items():
         assert item["map50"] == float(comparison[condition]["phase23_map50"])
@@ -321,7 +321,7 @@ def test_failure_atlas_is_baseline_only_with_auditable_tables() -> None:
     assert sum(len(case["boxes"]) + case["omitted"] for case in site["cases"]) == site["prediction_rows"]
     assert sum(case["tp"] for case in site["cases"]) == sum(box[6] for case in site["cases"] for box in case["boxes"])
     assert not any("phase23" in case for case in site["cases"])
-    html = (ROOT / "deploy/vercel/failure-atlas.html").read_text()
+    html = (ROOT / "deploy/vercel/failure-atlas.html").read_text(encoding="utf-8")
     assert 'id="frame-range"' in html and 'id="scatter"' in html
     assert 'id="evidence-dialog"' in html and 'id="local-files"' in html
     assert 'id="local-folder"' in html and "webkitdirectory" in html
