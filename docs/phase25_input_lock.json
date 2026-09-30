@@ -4,7 +4,14 @@
     "actions_run_id": 34932763449,
     "artifact_name": "kios-real-detector-baseline",
     "artifact_sha256": "7080c8243c1d7cb85a63f81ea0531eda34dd1f18616f7b4dfdc869a2379c9833",
-    "checkpoint_sha256": "3a1801b192d624f8dcdda4bc5d9a9157309000df67a4c30d62368c37901feddd"
+    "checkpoint_sha256": "3a1801b192d624f8dcdda4bc5d9a9157309000df67a4c30d62368c37901feddd",
+    "recovery_bundle": {
+      "release_tag": "phase22-baseline-recovery",
+      "release_url": "https://github.com/suhaslord/uav-safety-research/releases/tag/phase22-baseline-recovery",
+      "asset_name": "phase22_recovery_bundle.zip",
+      "bundle_sha256": "8d6eda7f8775ad899be7a8b6fbf9e6dea30678c1e28c0b687a88184ac592288b",
+      "checkpoint_sha256": "3a1801b192d624f8dcdda4bc5d9a9157309000df67a4c30d62368c37901feddd"
+    }
   },
   "phase23_robust": {
     "checkpoint_sha256": "43240be969708c32b3e11340c9846b3a588baf361378398677c794d16a455310",
