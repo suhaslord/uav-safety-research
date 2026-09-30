@@ -76,6 +76,18 @@ def test_atomic_writer_rejects_hash_corruption_and_invalid_image(tmp_path, jpeg)
     assert not list(tmp_path.glob(".pending-*"))
 
 
+def test_atomic_writer_detects_corruption_after_disk_write(monkeypatch, tmp_path, jpeg):
+    original = Path.read_bytes
+    def corrupt_pending(path):
+        data = original(path)
+        return data[:-1] if path.name.startswith(".pending-") else data
+    monkeypatch.setattr(Path, "read_bytes", corrupt_pending)
+    with pytest.raises(ValueError, match="disk SHA mismatch"):
+        atomic_write(tmp_path / "corrupt.jpg", jpeg, study.digest(jpeg), image=True)
+    assert not (tmp_path / "corrupt.jpg").exists()
+    assert not list(tmp_path.glob(".pending-*"))
+
+
 def valid_rows():
     return [{"frame_id": f["image"], "representation": rep, "success": i % 2 == 0,
              "TP": int(i % 2 == 0), "FP": i % 3, "FN": int(i % 2 != 0),

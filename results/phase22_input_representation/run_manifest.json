@@ -1,0 +1,42 @@
+{
+  "frame_rows": 430,
+  "original_artifacts_modified": false,
+  "output_sha256": {
+    "aggregate_metrics.json": "b6f087581c48813668e77b970479b98c6dac222260356e565441bacd22040a18",
+    "frame_metrics.csv": "33150ad87d8cb802363196bb61f2cd6334f093379a4251dee402cc020aeeec1d",
+    "paired_representation_analysis.json": "efbfa26957dff1a552091ebc546412161bd73f8709d722e12826a61337228b11",
+    "raw_predictions.csv": "44470f33b3a8d32580f75a3b9af30734a9525d818f7614346054c6acd3f3443a",
+    "representation_manifest.csv": "2b64d727b6df59d7a525fcc9aaf1c204963345ad2e1b0ecd6a53988f51a97650",
+    "stage_a_gate.json": "faa0a4e579ff26a8fded149fbe400c4cae15a0deb7d26cbd2964d881f34f8d94"
+  },
+  "prediction_rows": 125208,
+  "protocol_sha256": "bd653fe22f90b2bf941909c5f96ceeeb9aab7f75dda0e58bbc9d7d785b4122bf",
+  "runtime": {
+    "jpeg": "6.2",
+    "libjpeg_turbo": "3.1.4.1",
+    "official_validator_sha256": "10e7944ede74be2c40c176fea65b81956cbe3837fdff1e4a361f2b57f6483e60",
+    "packages": {
+      "Pillow": "12.3.0",
+      "numpy": "2.5.3",
+      "opencv-python": "5.0.0.93",
+      "scipy": "1.17.0",
+      "torch": "2.9.1+cpu",
+      "torchvision": "0.24.1+cpu",
+      "ultralytics": "8.4.152"
+    },
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+    "python": "3.12.14",
+    "ultralytics_path_recorded": "__init__.py"
+  },
+  "stage_a": {
+    "checks": {
+      "complete_86_frames_per_representation": true,
+      "deterministic_transform": true,
+      "q95_baseline": true,
+      "raw_diagnostic_reproduced": true,
+      "stable_derived_hashes": true
+    },
+    "status": "PASS"
+  },
+  "treatment_inference": "NOT RUN"
+}
