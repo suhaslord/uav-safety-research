@@ -372,14 +372,17 @@ def run_clustered_bootstrap(
             "binned_metrics": b_bin_info,
         }
 
+    bonferroni_alpha = 0.05 / 6.0
     for pair_name, diff_arr in boot_pairwise_diff.items():
         arr = np.array(diff_arr)
+        p_val = float(2.0 * min(np.mean(arr >= 0), np.mean(arr <= 0)))
         results["pairwise_comparisons"][pair_name] = {
             "diff_mean": float(np.mean(arr)),
             "diff_ci": [float(np.percentile(arr, p_low)), float(np.percentile(arr, p_high))],
-            "p_value_two_tailed": float(2.0 * min(np.mean(arr >= 0), np.mean(arr <= 0))),
-            "significant_at_05": bool(np.percentile(arr, p_low) > 0 or np.percentile(arr, p_high) < 0),
-            "bonferroni_adjusted_alpha": 0.05 / 6.0,
+            "p_value_two_tailed": p_val,
+            "significant_at_05_unadjusted": bool(p_val < 0.05),
+            "bonferroni_adjusted_alpha": bonferroni_alpha,
+            "significant_bonferroni_adjusted": bool(p_val < bonferroni_alpha),
         }
 
     return results
@@ -894,9 +897,16 @@ def export_all_artifacts(
                 "success_diff_mean": bootstrap_results["pairwise_comparisons"]["CENTER_vs_OUTER_RING"]["diff_mean"],
                 "success_diff_ci": bootstrap_results["pairwise_comparisons"]["CENTER_vs_OUTER_RING"]["diff_ci"],
                 "p_value": bootstrap_results["pairwise_comparisons"]["CENTER_vs_OUTER_RING"]["p_value_two_tailed"],
-                "statistically_significant_at_05": bootstrap_results["pairwise_comparisons"]["CENTER_vs_OUTER_RING"]["significant_at_05"],
+                "significant_at_05_unadjusted": bootstrap_results["pairwise_comparisons"]["CENTER_vs_OUTER_RING"]["significant_at_05_unadjusted"],
+                "significant_bonferroni_adjusted": bootstrap_results["pairwise_comparisons"]["CENTER_vs_OUTER_RING"]["significant_bonferroni_adjusted"],
             },
-            "high_dose_center_penalty": "At dose >= 0.50 on distant/small targets (land_pad), OUTER_RING achieves 43.4% success while CENTER achieves 34.1% (p=0.012).",
+            "confirmatory_significant_contrasts": [
+                k for k, v in bootstrap_results["pairwise_comparisons"].items()
+                if v["significant_bonferroni_adjusted"]
+            ],
+            "center_sensitivity_verdict": "INCONCLUSIVE (suggestive 9.28 pp penalty in small-target dose >= 0.50 subgroup, nominal p=0.012, but does not meet Bonferroni-adjusted alpha=0.00833; overall contrast p=0.062).",
+            "monotonicity_verdict": "NON_MONOTONIC_OBSERVATIONS (empirical binned success rates fluctuate non-monotonically across intermediate bins; negative trends exist primarily in fitted models).",
+            "high_dose_center_subgroup_penalty": "At dose >= 0.50 on distant/small targets (land_pad), OUTER_RING achieves 43.4% success while CENTER achieves 34.1% (nominal unadjusted p=0.012, not significant after Bonferroni correction).",
             "large_target_striped_vulnerability": "On large targets (land_pad2), STRIPED drops to 76.6% at dose >= 0.50 while CENTER and OUTER_RING maintain >93% success.",
             "ed50_by_topology": ed50_data,
         },
@@ -916,7 +926,7 @@ def write_study_report(
     summary: dict[str, Any],
     boot: dict[str, Any],
 ) -> None:
-    """Generate the formal Markdown research report."""
+    """Generate the formal Markdown research report with strict scientific QA."""
     c_vs_o = boot["pairwise_comparisons"]["CENTER_vs_OUTER_RING"]
     c_ci = boot["topologies"]["CENTER"]["overall_success_ci"]
     o_ci = boot["topologies"]["OUTER_RING"]["overall_success_ci"]
@@ -941,15 +951,17 @@ def write_study_report(
 This study investigated whether the Phase 23 Robust Detector's sensitivity to occlusion is driven purely by the **total occluded area** or by the **spatial geometry (topology)** of the occluder. We tested four distinct geometries (`CENTER`, `OUTER_RING`, `STRIPED`, `RANDOM_PATCH`) over a 15-level parametric dose grid ($0.00 \\dots 0.70$) across all 86 protected real-image test frames.
 
 ### Primary Research Question: Does Topology Matter Beyond Achieved Occluded Area?
-**YES (with moderate effect size and strong object-scale moderation)**.
+**YES, for at least one preregistered pairwise contrast**.
+Performance differed significantly between `OUTER_RING` and `STRIPED` under the multiplicity-adjusted analysis ($\\Delta = +5.24$ percentage points, $p = 0.002$). Other overall pairwise comparisons did not meet the multiplicity-adjusted significance threshold.
 
-At equal achieved occlusion percentages:
-1. **Center vs. Outer Ring Contrast**: Masking the center of the landing target produces a statistically significant performance deficit relative to masking the outer ring:
-   - Overall Success Rate: $\\text{{OUTER\\_RING}} = {boot['topologies']['OUTER_RING']['overall_success_mean']:.3f}$ [95% CI: ${o_ci[0]:.3f}, {o_ci[1]:.3f}$] vs. $\\text{{CENTER}} = {boot['topologies']['CENTER']['overall_success_mean']:.3f}$ [95% CI: ${c_ci[0]:.3f}, {c_ci[1]:.3f}$].
-   - Paired difference: $\\Delta = {c_vs_o['diff_mean']:+.3f}$ [95% CI: ${c_vs_o['diff_ci'][0]:+.3f}, {c_vs_o['diff_ci'][1]:+.3f}$].
-   - At severe occlusion (achieved dose in $[0.65, 0.75)$), the outer-ring advantage widens to $+13.1$ percentage points ($59.3\\%$ vs. $46.2\\%$).
-2. **Striped Occlusion**: Shows the lowest overall success rate (${boot['topologies']['STRIPED']['overall_success_mean']:.3f}$, [95% CI: ${s_ci[0]:.3f}, {s_ci[1]:.3f}$]). While robust at low doses, alternating stripe patterns severely degrade large targets ($76.6\\%$ success at dose $\\ge 0.50$ compared to $>93\\%$ for contiguous geometries).
-3. **Random Patch Occlusion**: Tracks contiguous center occlusion closely (${boot['topologies']['RANDOM_PATCH']['overall_success_mean']:.3f}$), indicating that stochastic occlusion that frequently overlaps the center mimics center-focused failure.
+### Center vs. Outer Ring Contrast: Does Evidence Support Stronger Center Sensitivity?
+**INCONCLUSIVE (Suggestive descriptive pattern in high-dose small-target subgroup, but not confirmatory across the full experiment)**.
+- Across all dose levels, the overall difference between `CENTER` and `OUTER_RING` is not statistically significant: $\\Delta = {c_vs_o['diff_mean']:+.3f}$ [95% CI: ${c_vs_o['diff_ci'][0]:+.3f}, {c_vs_o['diff_ci'][1]:+.3f}$], $p = 0.062$.
+- In the exploratory subgroup of small/distant targets (`land_pad`, $N=66$) at severe occlusion (achieved dose $\\ge 0.50$), an observed descriptive penalty of $9.28$ percentage points was noted ($34.1\\%$ success for `CENTER` vs. $43.4\\%$ for `OUTER_RING`, nominal unadjusted $p = 0.012$), but this subgroup finding did not meet the preregistered multiplicity-adjusted threshold ($\\alpha_{{\\text{{adj}}}} = 0.00833$).
+
+### Striped & Random Patch Occlusions:
+- **`STRIPED`**: Exhibits the lowest overall success rate (${boot['topologies']['STRIPED']['overall_success_mean']:.3f}$, [95% CI: ${s_ci[0]:.3f}, {s_ci[1]:.3f}$]). While resilient on small targets, alternating stripe patterns severely degrade large concentric targets ($76.6\\%$ success at dose $\\ge 0.50$ compared to $>93\\%$ for contiguous geometries).
+- **`RANDOM_PATCH`**: Tracks contiguous center occlusion closely (${boot['topologies']['RANDOM_PATCH']['overall_success_mean']:.3f}$), with no significant difference from `CENTER` ($\\Delta = +0.004$, $p = 0.740$).
 
 ---
 
@@ -966,32 +978,43 @@ At equal achieved occlusion percentages:
 
 ---
 
-## 3. Pairwise Topology Contrasts (Bonferroni-Adjusted $\\alpha = 0.0083$)
+## 3. Pairwise Topology Contrasts (Bonferroni-Adjusted $\\alpha = 0.00833$)
 
-| Comparison | Mean Difference | 95% Clustered CI | Two-Tailed $p$-value | Significant (Adjusted) |
+| Comparison | Mean Difference | 95% Clustered CI | Two-Tailed $p$-value | Significant (Adjusted $\\alpha=0.00833$) |
 | :--- | :---: | :---: | :---: | :---: |
-| **CENTER vs. OUTER_RING** | {boot['pairwise_comparisons']['CENTER_vs_OUTER_RING']['diff_mean']:+.4f} | [{boot['pairwise_comparisons']['CENTER_vs_OUTER_RING']['diff_ci'][0]:+.4f}, {boot['pairwise_comparisons']['CENTER_vs_OUTER_RING']['diff_ci'][1]:+.4f}] | {boot['pairwise_comparisons']['CENTER_vs_OUTER_RING']['p_value_two_tailed']:.4f} | {'YES' if boot['pairwise_comparisons']['CENTER_vs_OUTER_RING']['significant_at_05'] else 'NO'} |
-| **CENTER vs. STRIPED** | {boot['pairwise_comparisons']['CENTER_vs_STRIPED']['diff_mean']:+.4f} | [{boot['pairwise_comparisons']['CENTER_vs_STRIPED']['diff_ci'][0]:+.4f}, {boot['pairwise_comparisons']['CENTER_vs_STRIPED']['diff_ci'][1]:+.4f}] | {boot['pairwise_comparisons']['CENTER_vs_STRIPED']['p_value_two_tailed']:.4f} | {'YES' if boot['pairwise_comparisons']['CENTER_vs_STRIPED']['significant_at_05'] else 'NO'} |
+| **CENTER vs. OUTER_RING** | {boot['pairwise_comparisons']['CENTER_vs_OUTER_RING']['diff_mean']:+.4f} | [{boot['pairwise_comparisons']['CENTER_vs_OUTER_RING']['diff_ci'][0]:+.4f}, {boot['pairwise_comparisons']['CENTER_vs_OUTER_RING']['diff_ci'][1]:+.4f}] | {boot['pairwise_comparisons']['CENTER_vs_OUTER_RING']['p_value_two_tailed']:.4f} | NO |
+| **CENTER vs. STRIPED** | {boot['pairwise_comparisons']['CENTER_vs_STRIPED']['diff_mean']:+.4f} | [{boot['pairwise_comparisons']['CENTER_vs_STRIPED']['diff_ci'][0]:+.4f}, {boot['pairwise_comparisons']['CENTER_vs_STRIPED']['diff_ci'][1]:+.4f}] | {boot['pairwise_comparisons']['CENTER_vs_STRIPED']['p_value_two_tailed']:.4f} | NO |
 | **CENTER vs. RANDOM_PATCH** | {boot['pairwise_comparisons']['CENTER_vs_RANDOM_PATCH']['diff_mean']:+.4f} | [{boot['pairwise_comparisons']['CENTER_vs_RANDOM_PATCH']['diff_ci'][0]:+.4f}, {boot['pairwise_comparisons']['CENTER_vs_RANDOM_PATCH']['diff_ci'][1]:+.4f}] | {boot['pairwise_comparisons']['CENTER_vs_RANDOM_PATCH']['p_value_two_tailed']:.4f} | NO |
-| **OUTER_RING vs. STRIPED** | {boot['pairwise_comparisons']['OUTER_RING_vs_STRIPED']['diff_mean']:+.4f} | [{boot['pairwise_comparisons']['OUTER_RING_vs_STRIPED']['diff_ci'][0]:+.4f}, {boot['pairwise_comparisons']['OUTER_RING_vs_STRIPED']['diff_ci'][1]:+.4f}] | {boot['pairwise_comparisons']['OUTER_RING_vs_STRIPED']['p_value_two_tailed']:.4f} | {'YES' if boot['pairwise_comparisons']['OUTER_RING_vs_STRIPED']['significant_at_05'] else 'NO'} |
-| **OUTER_RING vs. RANDOM_PATCH** | {boot['pairwise_comparisons']['OUTER_RING_vs_RANDOM_PATCH']['diff_mean']:+.4f} | [{boot['pairwise_comparisons']['OUTER_RING_vs_RANDOM_PATCH']['diff_ci'][0]:+.4f}, {boot['pairwise_comparisons']['OUTER_RING_vs_RANDOM_PATCH']['diff_ci'][1]:+.4f}] | {boot['pairwise_comparisons']['OUTER_RING_vs_RANDOM_PATCH']['p_value_two_tailed']:.4f} | {'YES' if boot['pairwise_comparisons']['OUTER_RING_vs_RANDOM_PATCH']['significant_at_05'] else 'NO'} |
-| **STRIPED vs. RANDOM_PATCH** | {boot['pairwise_comparisons']['STRIPED_vs_RANDOM_PATCH']['diff_mean']:+.4f} | [{boot['pairwise_comparisons']['STRIPED_vs_RANDOM_PATCH']['diff_ci'][0]:+.4f}, {boot['pairwise_comparisons']['STRIPED_vs_RANDOM_PATCH']['diff_ci'][1]:+.4f}] | {boot['pairwise_comparisons']['STRIPED_vs_RANDOM_PATCH']['p_value_two_tailed']:.4f} | {'YES' if boot['pairwise_comparisons']['STRIPED_vs_RANDOM_PATCH']['significant_at_05'] else 'NO'} |
+| **OUTER_RING vs. STRIPED** | {boot['pairwise_comparisons']['OUTER_RING_vs_STRIPED']['diff_mean']:+.4f} | [{boot['pairwise_comparisons']['OUTER_RING_vs_STRIPED']['diff_ci'][0]:+.4f}, {boot['pairwise_comparisons']['OUTER_RING_vs_STRIPED']['diff_ci'][1]:+.4f}] | {boot['pairwise_comparisons']['OUTER_RING_vs_STRIPED']['p_value_two_tailed']:.4f} | **YES** |
+| **OUTER_RING vs. RANDOM_PATCH** | {boot['pairwise_comparisons']['OUTER_RING_vs_RANDOM_PATCH']['diff_mean']:+.4f} | [{boot['pairwise_comparisons']['OUTER_RING_vs_RANDOM_PATCH']['diff_ci'][0]:+.4f}, {boot['pairwise_comparisons']['OUTER_RING_vs_RANDOM_PATCH']['diff_ci'][1]:+.4f}] | {boot['pairwise_comparisons']['OUTER_RING_vs_RANDOM_PATCH']['p_value_two_tailed']:.4f} | NO (Nominal $p=0.010$) |
+| **STRIPED vs. RANDOM_PATCH** | {boot['pairwise_comparisons']['STRIPED_vs_RANDOM_PATCH']['diff_mean']:+.4f} | [{boot['pairwise_comparisons']['STRIPED_vs_RANDOM_PATCH']['diff_ci'][0]:+.4f}, {boot['pairwise_comparisons']['STRIPED_vs_RANDOM_PATCH']['diff_ci'][1]:+.4f}] | {boot['pairwise_comparisons']['STRIPED_vs_RANDOM_PATCH']['p_value_two_tailed']:.4f} | NO |
 
 ---
 
-## 4. Scientific Interpretations & Epistemic Boundaries
+## 4. Dose-Response & Monotonicity Analysis
+
+Empirical binned success rates across the 8 common-support dose bins exhibit **non-monotonic fluctuations** due to frame-level variance and discrete image composition:
+- `OUTER_RING` success in bin $[0.00, 0.05)$ is $54.7\\%$, falls to $47.2\\%$ in $[0.05, 0.15)$, rises to $66.9\\%$ in $[0.45, 0.55)$, and ends at $59.1\\%$ in $[0.65, 0.75)$.
+- `CENTER` success similarly fluctuates ($53.3\\%$ in clean bin, $59.4\\%$ in $[0.05, 0.15)$, $50.1\\%$ in $[0.35, 0.45)$, and $45.8\\%$ in $[0.65, 0.75)$).
+- **Conclusion on Monotonicity**: Empirical binned observations are **NOT strictly monotonic**. Overall downward trends are observed primarily in fitted parametric and segmented regressions for `CENTER`, `STRIPED`, and `RANDOM_PATCH`.
+
+---
+
+## 5. Scientific Interpretations & Epistemic Boundaries
 
 ### Tier 1: Directly Demonstrated Findings (Empirical Facts)
-1. **Center sensitivity**: At matched achieved occlusion doses above 50%, center-focused masking causes higher failure rates than periphery-focused masking on small targets ($34.1\\%$ vs. $43.4\\%$, $p=0.012$).
-2. **ED50 bifurcation**: `OUTER_RING` never falls below $50\\%$ frame success across the entire tested dose range ($0.00 \\dots 0.75$), whereas `STRIPED` drops below $50\\%$ at dose $0.521$ and `CENTER` at dose $0.582$.
-3. **Disruption vulnerability**: Alternating striped occlusion degrades large concentric targets substantially more ($76.6\\%$ success at severe doses) than contiguous occlusion ($>93\\%$).
+1. **Confirmatory Pairwise Difference**: `OUTER_RING` achieves significantly higher success than `STRIPED` under the multiplicity-adjusted analysis ($\\Delta = +5.24$ percentage points [95% CI: $+1.55, +9.15$], $p = 0.002$).
+2. **ED50 Differences**: `OUTER_RING` never falls below $50\\%$ frame success across the entire tested dose range ($0.00 \\dots 0.75$), whereas `STRIPED` crosses $50\\%$ at dose $0.521$ and `CENTER` at dose $0.582$.
+3. **Disruption on Large Targets**: Alternating striped occlusion degrades large concentric targets substantially more ($76.6\\%$ success at severe doses) than contiguous occlusion ($>93\\%$).
+4. **Overall Center Contrast**: Across all 86 frames and all doses, `CENTER` vs. `OUTER_RING` difference is not statistically significant ($p = 0.062$). In the small-target high-dose subgroup, an observed descriptive difference of $9.28$ percentage points was noted ($p = 0.012$), but does not meet the family-wise adjusted threshold.
 
-### Tier 2: Plausible Mechanisms Supported by Evidence
-- The YOLO11n backbone's feature pyramid relies heavily on the concentric center structure to resolve candidate anchor-free proposals. When the center is occluded, the detector frequently either fails to fire or shifts the predicted box centroid, causing IoU to fall below 0.50.
-- When the outer ring is occluded, the remaining central concentric rings provide sufficient high-contrast circular symmetry for the detector to localize the target pad.
+### Tier 2: Plausible Mechanistic Hypotheses (Supported Patterns, Unproven Mechanisms)
+- One possible explanation consistent with the observed spatial proposal shifts is that proposal generation in the anchor-free head may rely on central concentric gradients to anchor candidate boxes. When the center is occluded, proposals may either fail to exceed confidence thresholds or shift in centroid, lowering IoU below 0.50.
+- When the outer ring is occluded, the remaining central concentric rings may provide sufficient gradient symmetry for localization.
+- *Note*: Internal feature activations were not directly ablated in this study; these statements represent consistent hypotheses rather than measured internal mechanisms.
 
-### Tier 3: Unproven Speculations (What this study does NOT establish)
-- We do **NOT** claim this proves the detector has learned a general "bullseye concept".
+### Tier 3: Unsupported Speculations (What this study does NOT establish)
+- We do **NOT** claim this proves the detector has learned an abstract "bullseye concept".
 - We do **NOT** claim these findings generalize to real physical occluders (e.g., foliage, quadrotor arms, landing gear) which have distinct textures, shadows, and non-neutral spectral signatures.
 - Results are strictly valid for the 86 tested frames under synthetic neutral-gray occlusion.
 """

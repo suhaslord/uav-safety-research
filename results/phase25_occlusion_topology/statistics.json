@@ -732,8 +732,9 @@
         0.000775193798449593
       ],
       "p_value_two_tailed": 0.062,
-      "significant_at_05": false,
-      "bonferroni_adjusted_alpha": 0.008333333333333333
+      "significant_at_05_unadjusted": false,
+      "bonferroni_adjusted_alpha": 0.008333333333333333,
+      "significant_bonferroni_adjusted": false
     },
     "CENTER_vs_STRIPED": {
       "diff_mean": 0.02845116279069768,
@@ -742,8 +743,9 @@
         0.07366279069767442
       ],
       "p_value_two_tailed": 0.226,
-      "significant_at_05": false,
-      "bonferroni_adjusted_alpha": 0.008333333333333333
+      "significant_at_05_unadjusted": false,
+      "bonferroni_adjusted_alpha": 0.008333333333333333,
+      "significant_bonferroni_adjusted": false
     },
     "CENTER_vs_RANDOM_PATCH": {
       "diff_mean": 0.004300000000000001,
@@ -752,8 +754,9 @@
         0.02713178294573637
       ],
       "p_value_two_tailed": 0.74,
-      "significant_at_05": false,
-      "bonferroni_adjusted_alpha": 0.008333333333333333
+      "significant_at_05_unadjusted": false,
+      "bonferroni_adjusted_alpha": 0.008333333333333333,
+      "significant_bonferroni_adjusted": false
     },
     "OUTER_RING_vs_STRIPED": {
       "diff_mean": 0.05236899224806201,
@@ -762,8 +765,9 @@
         0.09149224806201547
       ],
       "p_value_two_tailed": 0.002,
-      "significant_at_05": true,
-      "bonferroni_adjusted_alpha": 0.008333333333333333
+      "significant_at_05_unadjusted": true,
+      "bonferroni_adjusted_alpha": 0.008333333333333333,
+      "significant_bonferroni_adjusted": true
     },
     "OUTER_RING_vs_RANDOM_PATCH": {
       "diff_mean": 0.02821782945736434,
@@ -772,8 +776,9 @@
         0.05271317829457367
       ],
       "p_value_two_tailed": 0.01,
-      "significant_at_05": true,
-      "bonferroni_adjusted_alpha": 0.008333333333333333
+      "significant_at_05_unadjusted": true,
+      "bonferroni_adjusted_alpha": 0.008333333333333333,
+      "significant_bonferroni_adjusted": false
     },
     "STRIPED_vs_RANDOM_PATCH": {
       "diff_mean": -0.024151162790697674,
@@ -782,8 +787,9 @@
         0.013972868217054204
       ],
       "p_value_two_tailed": 0.202,
-      "significant_at_05": false,
-      "bonferroni_adjusted_alpha": 0.008333333333333333
+      "significant_at_05_unadjusted": false,
+      "bonferroni_adjusted_alpha": 0.008333333333333333,
+      "significant_bonferroni_adjusted": false
     }
   },
   "center_vs_outer_contrasts": {

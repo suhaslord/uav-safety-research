@@ -55,9 +55,15 @@
         0.000775193798449593
       ],
       "p_value": 0.062,
-      "statistically_significant_at_05": false
+      "significant_at_05_unadjusted": false,
+      "significant_bonferroni_adjusted": false
     },
-    "high_dose_center_penalty": "At dose >= 0.50 on distant/small targets (land_pad), OUTER_RING achieves 43.4% success while CENTER achieves 34.1% (p=0.012).",
+    "confirmatory_significant_contrasts": [
+      "OUTER_RING_vs_STRIPED"
+    ],
+    "center_sensitivity_verdict": "INCONCLUSIVE (suggestive 9.28 pp penalty in small-target dose >= 0.50 subgroup, nominal p=0.012, but does not meet Bonferroni-adjusted alpha=0.00833; overall contrast p=0.062).",
+    "monotonicity_verdict": "NON_MONOTONIC_OBSERVATIONS (empirical binned success rates fluctuate non-monotonically across intermediate bins; negative trends exist primarily in fitted models).",
+    "high_dose_center_subgroup_penalty": "At dose >= 0.50 on distant/small targets (land_pad), OUTER_RING achieves 43.4% success while CENTER achieves 34.1% (nominal unadjusted p=0.012, not significant after Bonferroni correction).",
     "large_target_striped_vulnerability": "On large targets (land_pad2), STRIPED drops to 76.6% at dose >= 0.50 while CENTER and OUTER_RING maintain >93% success.",
     "ed50_by_topology": {
       "CENTER": {
