@@ -264,8 +264,8 @@ def _create_mask_striped(
     """Horizontal stripe mask within the bounding box.
 
     Creates alternating horizontal stripes within the annotation box.
-    Stripe duty cycle is adjusted to achieve the target dose fraction.
-    The number of stripe pairs is fixed at 5 for consistency.
+    Uses pixel-exact adaptive stripe allocation so that the achieved
+    fraction of occluded box rows equals the requested dose.
     """
     mask = np.zeros((img_h, img_w), dtype=np.uint8)
     if dose <= 0.0:
@@ -278,27 +278,34 @@ def _create_mask_striped(
     by1 = int(min(img_h, y1))
 
     box_h_px = by1 - by0
-    if box_h_px < 2:
+    box_w_px = bx1 - bx0
+    if box_h_px < 1 or box_w_px < 1:
         return mask
 
-    # 5 stripe pairs; duty cycle = dose
-    n_stripes = 5
-    stripe_h = box_h_px / (n_stripes * 2)
-    if stripe_h < 1:
-        # Box too small for 5 pairs — use fewer
-        n_stripes = max(1, box_h_px // 2)
-        stripe_h = box_h_px / (n_stripes * 2)
+    # Total rows to occlude within the box
+    k_total = int(round(dose * box_h_px))
+    if dose > 0 and k_total <= 0:
+        k_total = 1
+    k_total = min(k_total, box_h_px)
 
-    # Each pair: occluded stripe then clear stripe
-    # Occluded stripe height = dose * 2 * stripe_h (capped at 2 * stripe_h)
-    occ_h = min(dose * 2, 1.0) * stripe_h
+    # Number of stripe periods: up to 5, adapt to box height so stripes remain distinct
+    n_stripes = min(5, max(1, box_h_px // 4))
+
+    # Partition box_h_px into n_stripes periods as evenly as possible
+    period_bounds = np.linspace(0, box_h_px, n_stripes + 1, dtype=int)
+
+    # Distribute k_total occluded rows across the n_stripes periods
+    base_occ = k_total // n_stripes
+    rem = k_total % n_stripes
 
     for i in range(n_stripes):
-        sy = by0 + int(i * 2 * stripe_h)
-        ey = by0 + int(i * 2 * stripe_h + occ_h)
-        ey = min(ey, by1)
-        if sy < by1:
-            mask[sy:ey, bx0:bx1] = 255
+        y_start = by0 + int(period_bounds[i])
+        y_end = by0 + int(period_bounds[i + 1])
+        h_period = y_end - y_start
+        occ_rows = base_occ + (1 if i < rem else 0)
+        occ_rows = min(occ_rows, h_period)
+        if occ_rows > 0 and y_start < by1:
+            mask[y_start : y_start + occ_rows, bx0:bx1] = 255
 
     return mask
 
