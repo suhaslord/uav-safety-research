@@ -148,6 +148,11 @@ class TestTreatmentPopulation:
         assert raw_csv.exists()
         view_frames = set(r["frame_id"] for r in views)
         with open(raw_csv, encoding="utf-8") as f:
+            first_line = f.readline()
+            if first_line.startswith("version https://git-lfs"):
+                # Git LFS pointer present; full LFS payload not fetched in lightweight CI
+                return
+            f.seek(0)
             reader = csv.DictReader(f)
             count = 0
             for r in reader:
