@@ -1,0 +1,79 @@
+{
+  "status": "historical_tool_output_restored_archive_incomplete",
+  "source": "Prior verified execution outputs in this conversation; no fresh detector evaluation during publication",
+  "original_local_commits": [
+    "960e006",
+    "9abdb5b"
+  ],
+  "original_commit_objects_available": false,
+  "protocol_restored_byte_identically": true,
+  "original_protocol_sha256": "e169e16ea40ca44ee60ca8b6074d054c33aeeaf1a3d24e55fa4cd3b8581882d7",
+  "historical_verified_frame_count": 86,
+  "historical_verified_case_count": 516,
+  "historical_verified_target_mask_count": 516,
+  "historical_cases_per_dose": [
+    86,
+    86,
+    86,
+    86,
+    86,
+    86
+  ],
+  "doses": [
+    0,
+    0.15,
+    0.3,
+    0.45,
+    0.6,
+    0.75
+  ],
+  "historical_complete_image_manifest_sha256": "eb2c4202dcd36f792f0a767986bdc3369e32b04d36360ee9fc7ac6db5f7ead28",
+  "historical_target_mask_manifest_sha256": "76f00fe7050e629a319b9b4d1fb65a0d45c6e9bd127f8f075b2d264d5a4d9554",
+  "historical_test_receipt": {
+    "passed": 46,
+    "seconds": 6.65
+  },
+  "original_zero_dose_gate": "FAIL",
+  "nonzero_dose_inference": "NOT_RUN",
+  "historical_clean_diagnostic_metric_count": 4,
+  "historical_clean_diagnostic_max_absolute_delta": 0.0,
+  "hypothesis": "INCONCLUSIVE",
+  "known_historical_core_runtime": {
+    "python": "3.12.14",
+    "torch_distribution": "2.9.1",
+    "torch_module": "2.9.1+cu128",
+    "torchvision": "0.24.1",
+    "ultralytics": "8.4.152",
+    "numpy": "2.5.3",
+    "Pillow": "12.3.0",
+    "opencv_python": "4.11.0.86",
+    "device": "cpu"
+  },
+  "lost_files": [
+    "docs/phase25_occlusion_sweep_recovery_freeze.json",
+    "docs/phase25_occlusion_sweep_recovered_inputs.json",
+    "docs/phase25_occlusion_sweep_runtime.txt",
+    "results/phase25_occlusion_sweep_recovered/run_manifest.json",
+    "results/phase25_occlusion_sweep_recovered/prepared_manifest.json",
+    "results/phase25_occlusion_sweep_recovered/dose_image_manifest.csv",
+    "results/phase25_occlusion_sweep_recovered/target_mask_manifest.csv",
+    "results/phase25_occlusion_sweep_recovered/recovery_receipt.json"
+  ],
+  "missing_files_replaced_with_invented_receipts": false,
+  "publication_runner": "Source recovered from recorded rules, under separate new implementation/input lock paths; not certified as byte-identical to the lost runner",
+  "note": "The original full runtime package list and freeze receipts cannot be reconstructed from partial logs. Restored metric JSON and comparison CSV are historical records, not independent reproductions.",
+  "publication_validation": {
+    "date": "2026-09-30",
+    "research_regression_tests": {
+      "passed": 46,
+      "seconds": 8.65
+    },
+    "ui_regression_tests": {
+      "passed": 26,
+      "seconds": 0.15
+    },
+    "detector_inference_run": false,
+    "protocol_sha256": "e169e16ea40ca44ee60ca8b6074d054c33aeeaf1a3d24e55fa4cd3b8581882d7",
+    "publication_runner_sha256": "939b286418c66fa7a8ab39c6dc981b43324b5804f21f026ff1090a84e95c79a4"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "record_source": "Prior conversation tool output, original invalid files lost in rollback",
+  "treatment_predictions_generated": false,
+  "invalidated_preparations": [
+    {
+      "reason": "61 of 430 generated PNGs had incomplete IDAT streams or mismatched hashes",
+      "used_for_inference": false
+    },
+    {
+      "reason": "Recovered default PNG compression 6 differed from original compression 9",
+      "used_for_inference": false
+    },
+    {
+      "reason": "One copied sample checksum differed by one hexadecimal digit; complete table checksum used instead",
+      "used_for_inference": false
+    },
+    {
+      "reason": "CRLF manifest serialization differed; changing only to LF exactly reproduced the recorded historical checksum",
+      "used_for_inference": false,
+      "crlf_sha256": "4aeeb1e9260e7e91689e982b920fa5cf5c6c3f00e7882e265ef2881a7aa0ca22",
+      "lf_sha256": "eb2c4202dcd36f792f0a767986bdc3369e32b04d36360ee9fc7ac6db5f7ead28"
+    }
+  ],
+  "original_invalid_bytes_available": false
+}
