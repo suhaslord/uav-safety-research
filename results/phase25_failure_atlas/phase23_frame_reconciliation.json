@@ -1,0 +1,227 @@
+{
+  "status": "PASS",
+  "checkpoint_sha256": "43240be969708c32b3e11340c9846b3a588baf361378398677c794d16a455310",
+  "bundle_sha256": "a55531930988deeadf81853d00b63c7e589c6b7fd2270f57653abdb5cdd3e55d",
+  "manifest_sha256": "8605cf1cbf9e8769c0324bf066078f9964f232ac3128131c8bd0b689bb7b64b7",
+  "total_cells_checked": 24,
+  "cells_matched": 24,
+  "max_absolute_delta": 0.0,
+  "conditions": {
+    "clean": {
+      "official": {
+        "precision": 0.7169366595101914,
+        "recall": 0.5930232558139535,
+        "map50": 0.5551842475528265,
+        "map50_95": 0.222675649160523
+      },
+      "reconstructed": {
+        "precision": 0.7169366595101914,
+        "recall": 0.5930232558139535,
+        "map50": 0.5551842475528265,
+        "map50_95": 0.222675649160523
+      },
+      "delta": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "map50": 0.0,
+        "map50_95": 0.0
+      },
+      "status": "MATCHED_EXACT",
+      "frame_audit_stats": {
+        "views": 86,
+        "ground_truth_targets": 86,
+        "true_positives": 46,
+        "false_positives": 12837,
+        "false_negatives": 40,
+        "successful_frames": 46,
+        "frame_success_rate": 0.5348837209302325,
+        "paired_transitions": {
+          "recovered": 7,
+          "regressed": 14,
+          "both_pass": 39,
+          "both_fail": 26
+        }
+      }
+    },
+    "blur": {
+      "official": {
+        "precision": 0.7767043066419625,
+        "recall": 0.5697674418604651,
+        "map50": 0.5856935328390723,
+        "map50_95": 0.26072868086794815
+      },
+      "reconstructed": {
+        "precision": 0.7767043066419625,
+        "recall": 0.5697674418604651,
+        "map50": 0.5856935328390723,
+        "map50_95": 0.26072868086794815
+      },
+      "delta": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "map50": 0.0,
+        "map50_95": 0.0
+      },
+      "status": "MATCHED_EXACT",
+      "frame_audit_stats": {
+        "views": 86,
+        "ground_truth_targets": 86,
+        "true_positives": 53,
+        "false_positives": 12500,
+        "false_negatives": 33,
+        "successful_frames": 53,
+        "frame_success_rate": 0.6162790697674418,
+        "paired_transitions": {
+          "recovered": 13,
+          "regressed": 5,
+          "both_pass": 40,
+          "both_fail": 28
+        }
+      }
+    },
+    "low_light": {
+      "official": {
+        "precision": 0.6350042374323621,
+        "recall": 0.4418604651162791,
+        "map50": 0.4237094746641194,
+        "map50_95": 0.1853822097303784
+      },
+      "reconstructed": {
+        "precision": 0.6350042374323621,
+        "recall": 0.4418604651162791,
+        "map50": 0.4237094746641194,
+        "map50_95": 0.1853822097303784
+      },
+      "delta": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "map50": 0.0,
+        "map50_95": 0.0
+      },
+      "status": "MATCHED_EXACT",
+      "frame_audit_stats": {
+        "views": 86,
+        "ground_truth_targets": 86,
+        "true_positives": 38,
+        "false_positives": 13178,
+        "false_negatives": 48,
+        "successful_frames": 38,
+        "frame_success_rate": 0.4418604651162791,
+        "paired_transitions": {
+          "recovered": 6,
+          "regressed": 17,
+          "both_pass": 32,
+          "both_fail": 31
+        }
+      }
+    },
+    "noise": {
+      "official": {
+        "precision": 0.8673997411378811,
+        "recall": 0.5465116279069767,
+        "map50": 0.5962109670974421,
+        "map50_95": 0.2362342942765497
+      },
+      "reconstructed": {
+        "precision": 0.8673997411378811,
+        "recall": 0.5465116279069767,
+        "map50": 0.5962109670974421,
+        "map50_95": 0.2362342942765497
+      },
+      "delta": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "map50": 0.0,
+        "map50_95": 0.0
+      },
+      "status": "MATCHED_EXACT",
+      "frame_audit_stats": {
+        "views": 86,
+        "ground_truth_targets": 86,
+        "true_positives": 48,
+        "false_positives": 10959,
+        "false_negatives": 38,
+        "successful_frames": 48,
+        "frame_success_rate": 0.5581395348837209,
+        "paired_transitions": {
+          "recovered": 10,
+          "regressed": 7,
+          "both_pass": 38,
+          "both_fail": 31
+        }
+      }
+    },
+    "occlusion": {
+      "official": {
+        "precision": 0.301165277441983,
+        "recall": 0.2441860465116279,
+        "map50": 0.13755217164117528,
+        "map50_95": 0.024963801126388796
+      },
+      "reconstructed": {
+        "precision": 0.301165277441983,
+        "recall": 0.2441860465116279,
+        "map50": 0.13755217164117528,
+        "map50_95": 0.024963801126388796
+      },
+      "delta": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "map50": 0.0,
+        "map50_95": 0.0
+      },
+      "status": "MATCHED_EXACT",
+      "frame_audit_stats": {
+        "views": 86,
+        "ground_truth_targets": 86,
+        "true_positives": 43,
+        "false_positives": 13512,
+        "false_negatives": 43,
+        "successful_frames": 43,
+        "frame_success_rate": 0.5,
+        "paired_transitions": {
+          "recovered": 6,
+          "regressed": 16,
+          "both_pass": 37,
+          "both_fail": 27
+        }
+      }
+    },
+    "mixed": {
+      "official": {
+        "precision": 0.48680888971219216,
+        "recall": 0.08139534883720931,
+        "map50": 0.12942432214764854,
+        "map50_95": 0.030013973197337014
+      },
+      "reconstructed": {
+        "precision": 0.48680888971219216,
+        "recall": 0.08139534883720931,
+        "map50": 0.12942432214764854,
+        "map50_95": 0.030013973197337014
+      },
+      "delta": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "map50": 0.0,
+        "map50_95": 0.0
+      },
+      "status": "MATCHED_EXACT",
+      "frame_audit_stats": {
+        "views": 86,
+        "ground_truth_targets": 86,
+        "true_positives": 44,
+        "false_positives": 8162,
+        "false_negatives": 42,
+        "successful_frames": 44,
+        "frame_success_rate": 0.5116279069767442,
+        "paired_transitions": {
+          "recovered": 7,
+          "regressed": 6,
+          "both_pass": 37,
+          "both_fail": 36
+        }
+      }
+    }
+  }
+}

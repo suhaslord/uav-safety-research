@@ -1,0 +1,327 @@
+{
+  "metadata": {
+    "total_views": 516,
+    "unique_source_frames": 86,
+    "conditions": [
+      "clean",
+      "blur",
+      "low_light",
+      "noise",
+      "occlusion",
+      "mixed"
+    ],
+    "bootstrap_seed": 20260922,
+    "bootstrap_replicates": 1000,
+    "created_utc": "2026-09-30T06:11:32.299511+00:00"
+  },
+  "by_condition": {
+    "clean": {
+      "n_views": 86,
+      "phase23_pass_count": 46,
+      "phase23_success_rate": 0.5348837209302325,
+      "baseline_pass_count": 53,
+      "baseline_success_rate": 0.6162790697674418,
+      "recovered_count": 7,
+      "regressed_count": 14,
+      "both_pass_count": 39,
+      "both_fail_count": 26,
+      "success_rate_delta": -0.08139534883720931,
+      "success_rate_delta_ci95": [
+        -0.17441860465116282,
+        0.023255813953488306
+      ],
+      "mcnemar": {
+        "discordant_pairs": 21,
+        "chi2_continuity_corrected": 1.7142857142857142,
+        "p_value_asymptotic": 0.19043026382552408,
+        "p_value_exact_binomial": 0.18924713134765625
+      },
+      "continuous_metrics": {
+        "mean_iou_delta": -0.037152541423605315,
+        "median_iou_delta": -0.05456817983044057,
+        "iou_delta_ci95": [
+          -0.06410485236264221,
+          -0.010026238229585965
+        ],
+        "wilcoxon_iou": {
+          "statistic": 1244.0,
+          "p_value": 0.00698188441078334
+        },
+        "mean_confidence_delta": 0.04757020777486654,
+        "median_confidence_delta": 0.0,
+        "confidence_delta_ci95": [
+          0.014643807218716004,
+          0.08373143363826593
+        ],
+        "wilcoxon_confidence": {
+          "statistic": 708.0,
+          "p_value": 0.1275457309689271
+        }
+      }
+    },
+    "blur": {
+      "n_views": 86,
+      "phase23_pass_count": 53,
+      "phase23_success_rate": 0.6162790697674418,
+      "baseline_pass_count": 45,
+      "baseline_success_rate": 0.5232558139534884,
+      "recovered_count": 13,
+      "regressed_count": 5,
+      "both_pass_count": 40,
+      "both_fail_count": 28,
+      "success_rate_delta": 0.09302325581395349,
+      "success_rate_delta_ci95": [
+        0.0,
+        0.18604651162790703
+      ],
+      "mcnemar": {
+        "discordant_pairs": 18,
+        "chi2_continuity_corrected": 2.7222222222222223,
+        "p_value_asymptotic": 0.09896015401940517,
+        "p_value_exact_binomial": 0.09625244140625
+      },
+      "continuous_metrics": {
+        "mean_iou_delta": -0.0063177229640737015,
+        "median_iou_delta": -0.009559467753768924,
+        "iou_delta_ci95": [
+          -0.036557168572034254,
+          0.0237950733685906
+        ],
+        "wilcoxon_iou": {
+          "statistic": 1763.0,
+          "p_value": 0.6434398670387769
+        },
+        "mean_confidence_delta": 0.053088352134245516,
+        "median_confidence_delta": 0.0,
+        "confidence_delta_ci95": [
+          0.02701474043068904,
+          0.08229468950858274
+        ],
+        "wilcoxon_confidence": {
+          "statistic": 545.0,
+          "p_value": 0.016216815383409793
+        }
+      }
+    },
+    "low_light": {
+      "n_views": 86,
+      "phase23_pass_count": 38,
+      "phase23_success_rate": 0.4418604651162791,
+      "baseline_pass_count": 49,
+      "baseline_success_rate": 0.5697674418604651,
+      "recovered_count": 6,
+      "regressed_count": 17,
+      "both_pass_count": 32,
+      "both_fail_count": 31,
+      "success_rate_delta": -0.12790697674418605,
+      "success_rate_delta_ci95": [
+        -0.23255813953488375,
+        -0.023255813953488302
+      ],
+      "mcnemar": {
+        "discordant_pairs": 23,
+        "chi2_continuity_corrected": 4.3478260869565215,
+        "p_value_asymptotic": 0.037056218564119,
+        "p_value_exact_binomial": 0.03468966484069824
+      },
+      "continuous_metrics": {
+        "mean_iou_delta": -0.06271829139785293,
+        "median_iou_delta": -0.04587261511486246,
+        "iou_delta_ci95": [
+          -0.09799197491976472,
+          -0.026648234773896537
+        ],
+        "wilcoxon_iou": {
+          "statistic": 1235.0,
+          "p_value": 0.006210394489781879
+        },
+        "mean_confidence_delta": 0.0019114812833343653,
+        "median_confidence_delta": 0.0,
+        "confidence_delta_ci95": [
+          -0.028907376302231568,
+          0.032674120260005934
+        ],
+        "wilcoxon_confidence": {
+          "statistic": 681.0,
+          "p_value": 0.4558542233086219
+        }
+      }
+    },
+    "noise": {
+      "n_views": 86,
+      "phase23_pass_count": 48,
+      "phase23_success_rate": 0.5581395348837209,
+      "baseline_pass_count": 45,
+      "baseline_success_rate": 0.5232558139534884,
+      "recovered_count": 10,
+      "regressed_count": 7,
+      "both_pass_count": 38,
+      "both_fail_count": 31,
+      "success_rate_delta": 0.03488372093023256,
+      "success_rate_delta_ci95": [
+        -0.05813953488372092,
+        0.12790697674418605
+      ],
+      "mcnemar": {
+        "discordant_pairs": 17,
+        "chi2_continuity_corrected": 0.23529411764705882,
+        "p_value_asymptotic": 0.6276258050283592,
+        "p_value_exact_binomial": 0.629058837890625
+      },
+      "continuous_metrics": {
+        "mean_iou_delta": 0.013161976466510548,
+        "median_iou_delta": -0.008263658653224662,
+        "iou_delta_ci95": [
+          -0.018238320262448125,
+          0.04246277163537759
+        ],
+        "wilcoxon_iou": {
+          "statistic": 1767.0,
+          "p_value": 0.6558351440300378
+        },
+        "mean_confidence_delta": 0.053754774551719516,
+        "median_confidence_delta": 0.0,
+        "confidence_delta_ci95": [
+          0.02736363475932469,
+          0.08457782179463062
+        ],
+        "wilcoxon_confidence": {
+          "statistic": 446.0,
+          "p_value": 0.006634592285459034
+        }
+      }
+    },
+    "occlusion": {
+      "n_views": 86,
+      "phase23_pass_count": 43,
+      "phase23_success_rate": 0.5,
+      "baseline_pass_count": 53,
+      "baseline_success_rate": 0.6162790697674418,
+      "recovered_count": 6,
+      "regressed_count": 16,
+      "both_pass_count": 37,
+      "both_fail_count": 27,
+      "success_rate_delta": -0.11627906976744186,
+      "success_rate_delta_ci95": [
+        -0.2093023255813954,
+        -0.011627906976744096
+      ],
+      "mcnemar": {
+        "discordant_pairs": 22,
+        "chi2_continuity_corrected": 3.6818181818181817,
+        "p_value_asymptotic": 0.055008833629265896,
+        "p_value_exact_binomial": 0.052478790283203125
+      },
+      "continuous_metrics": {
+        "mean_iou_delta": -0.06404756511325953,
+        "median_iou_delta": -0.061174804372125996,
+        "iou_delta_ci95": [
+          -0.09696709053955904,
+          -0.029722043180195258
+        ],
+        "wilcoxon_iou": {
+          "statistic": 1084.0,
+          "p_value": 0.0007074730726481689
+        },
+        "mean_confidence_delta": -0.10265591105467878,
+        "median_confidence_delta": -0.00417320872657001,
+        "confidence_delta_ci95": [
+          -0.15242843246601825,
+          -0.05505362261190936
+        ],
+        "wilcoxon_confidence": {
+          "statistic": 350.0,
+          "p_value": 5.387046396271351e-05
+        }
+      }
+    },
+    "mixed": {
+      "n_views": 86,
+      "phase23_pass_count": 44,
+      "phase23_success_rate": 0.5116279069767442,
+      "baseline_pass_count": 43,
+      "baseline_success_rate": 0.5,
+      "recovered_count": 7,
+      "regressed_count": 6,
+      "both_pass_count": 37,
+      "both_fail_count": 36,
+      "success_rate_delta": 0.011627906976744186,
+      "success_rate_delta_ci95": [
+        -0.06976744186046513,
+        0.09302325581395349
+      ],
+      "mcnemar": {
+        "discordant_pairs": 13,
+        "chi2_continuity_corrected": 0.0,
+        "p_value_asymptotic": 1.0,
+        "p_value_exact_binomial": 1.0
+      },
+      "continuous_metrics": {
+        "mean_iou_delta": 0.000382742409917399,
+        "median_iou_delta": 0.00041377168898610326,
+        "iou_delta_ci95": [
+          -0.03106777600191456,
+          0.031050414833654623
+        ],
+        "wilcoxon_iou": {
+          "statistic": 1801.0,
+          "p_value": 0.7647364935817457
+        },
+        "mean_confidence_delta": -0.0195233030975688,
+        "median_confidence_delta": 0.0,
+        "confidence_delta_ci95": [
+          -0.03244709890964576,
+          -0.009349339290794128
+        ],
+        "wilcoxon_confidence": {
+          "statistic": 368.0,
+          "p_value": 0.008587735636506721
+        }
+      }
+    }
+  },
+  "overall": {
+    "n_views": 516,
+    "phase23_pass_count": 272,
+    "phase23_success_rate": 0.5271317829457365,
+    "baseline_pass_count": 288,
+    "baseline_success_rate": 0.5581395348837209,
+    "recovered_count": 49,
+    "regressed_count": 65,
+    "both_pass_count": 223,
+    "both_fail_count": 179,
+    "success_rate_delta": -0.031007751937984496,
+    "success_rate_delta_ci95": [
+      -0.09307170542635658,
+      0.036870155038759705
+    ],
+    "mcnemar": {
+      "discordant_pairs": 114,
+      "chi2_continuity_corrected": 1.9736842105263157,
+      "p_value_asymptotic": 0.1600573462319449,
+      "p_value_exact_binomial": 0.15976150778501866
+    },
+    "continuous_metrics": {
+      "mean_iou_delta": -0.026115233670393912,
+      "median_iou_delta": -0.025024562036345982,
+      "iou_delta_ci95": [
+        -0.04891897895335808,
+        -0.0019463335550171852
+      ],
+      "wilcoxon_iou": {
+        "statistic": 53418.0,
+        "p_value": 8.943569672362304e-05
+      },
+      "mean_confidence_delta": 0.00569093359865306,
+      "median_confidence_delta": 0.0,
+      "confidence_delta_ci95": [
+        -0.014145192399330197,
+        0.026037578122548633
+      ],
+      "wilcoxon_confidence": {
+        "statistic": 27662.0,
+        "p_value": 0.6490639180606302
+      }
+    }
+  }
+}
