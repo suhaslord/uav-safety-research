@@ -31,6 +31,13 @@
         "summary.md"
       ],
       "contains_checkpoint": false
+    },
+    "recovery_bundle": {
+      "release_tag": "phase23-checkpoint-recovery",
+      "release_url": "https://github.com/suhaslord/uav-safety-research/releases/tag/phase23-checkpoint-recovery",
+      "asset_name": "phase23_recovery_bundle.zip",
+      "bundle_sha256": "a55531930988deeadf81853d00b63c7e589c6b7fd2270f57653abdb5cdd3e55d",
+      "checkpoint_sha256": "43240be969708c32b3e11340c9846b3a588baf361378398677c794d16a455310"
     }
   },
   "phase25_runtime": {
