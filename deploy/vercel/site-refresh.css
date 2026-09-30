@@ -1,6 +1,6 @@
 /* One visual rhythm across the research home, archive, and phase records.
    The sources and verdicts remain in their own evidence sections. */
-:root{--site-ink:#171a20;--site-muted:#5c626b;--site-line:#e5e7ea;--site-soft:#f4f5f6;--site-blue:#3e6ae1}
+:root{--site-ink:#171a20;--site-muted:#5c626b;--site-line:#e5e7ea;--site-soft:#f4f5f6;--site-blue:#e82127}
 html{scroll-padding-top:76px}
 body{overflow-x:clip}
 body.research-workspace :is(.site-nav a,.signature-nav__links a,.top .nav a){font-size:13px!important;font-weight:550!important;letter-spacing:0!important}

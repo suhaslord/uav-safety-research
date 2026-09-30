@@ -17,15 +17,14 @@ def test_all_phase_shells_load_unified_polish_layer() -> None:
     }
 
     for name, html in shells.items():
-        assert 'href="/tesla-bundle.css?v=1"' in html, name
-        assert 'href="/tesla-bundle.css?v=1"' in html, name
+        assert 'href="/tesla-bundle.css?v=4"' in html, name
         assert 'src="/research-workspace.js?v=' in html, name
 
 
 def test_polish_layer_keeps_reduced_motion_support() -> None:
     css = _read("deploy/vercel/phase-polish-v2.css")
 
-    assert "--p2-blue:#3e6ae1" in css
+    assert "--p2-blue:#e82127" in css
     assert "box-shadow:none!important" in css
     assert "@media(prefers-reduced-motion:reduce)" in css
     assert "phase-detail__panel--evidence" in css

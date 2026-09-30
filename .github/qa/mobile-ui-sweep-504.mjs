@@ -65,26 +65,27 @@ try{
         const brokenAnchors=[...new Set([...document.querySelectorAll('a[href^="#"]')].map((a)=>a.getAttribute('href')).filter((href)=>href&&href!=='#'&&!document.getElementById(decodeURIComponent(href.slice(1)))) )];
         const clipped=[...document.querySelectorAll('h1,h2,h3,p,a,button,strong,span,code,pre,li')].filter(visible).map((el)=>{const s=getComputedStyle(el);return{tag:el.tagName,text:(el.textContent||'').trim().slice(0,90),scrollWidth:el.scrollWidth,clientWidth:el.clientWidth,overflowX:s.overflowX};}).filter((x)=>['hidden','clip'].includes(x.overflowX)&&x.scrollWidth>x.clientWidth+5);
         const fixedOffscreen=[...document.querySelectorAll('body *')].filter(visible).filter((el)=>['fixed','sticky'].includes(getComputedStyle(el).position)).map((el)=>({tag:el.tagName,cls:String(el.className||'').slice(0,80),...rect(el)})).filter((x)=>x.left<-3||x.right>cw+3||x.width>cw+6);
-        const lineage=[...document.querySelectorAll('.home-lineage__node')].filter(visible).map(rect);
+        const lineageNodes=[...document.querySelectorAll('.home-lineage__node')];
+        const lineage=lineageNodes.filter(visible).map(rect);
         const categories=[...document.querySelectorAll('.category-nav a')].filter(visible).map(rect);
-        const boundary=document.querySelector('.boundary-flags');
+        const boundary=document.querySelector('meta[name="aegis-evidence-boundary"]');
         const reportPhoto=document.querySelector('.report-photo img');
         const reportLinks=[...document.querySelectorAll('.top .nav a,.record-path a,.hero-links a,.record-links a')].map((a)=>a.getAttribute('href')||'');
         const home=route==='/'?{
           purposeClarity:document.body.dataset.purposeClarity==='true',
           questionRemoved:!document.getElementById('question'),
-          purposeVisible:visible(document.getElementById('purpose')),
+          purposeVisible:visible(document.getElementById('model-vase')),
           evidenceVisible:visible(document.getElementById('evidence')),
-          intendedCopy:/Why misses stay visible/i.test(text)&&/When does the camera become confidently wrong/i.test(text)&&/The finding/i.test(text),
+          intendedCopy:/Can the system know when its landing estimate is unreliable/i.test(text)&&/Phase 23 pending/i.test(text)&&/Freeze\. Separate\. Preserve\./i.test(text),
           metrics:/0\.8319/.test(text)&&/0\.7744/.test(text)&&/100%/.test(text),
-          claims:/simulation_only=true/.test(text)&&/safety_acceptance=false/.test(text)&&/controller_tuning_allowed=false/.test(text)
+          claims:boundary?.content==='simulation_only=true; safety_acceptance=false; controller_tuning_allowed=false'&&/No flight-safety claim/i.test(text)
         }:null;
         return{
           ready:document.documentElement.dataset.finalConvergence||'',reportPage,mainCount:document.querySelectorAll('main').length,h1Count:document.querySelectorAll('h1').length,
           scrollWidth:document.documentElement.scrollWidth,clientWidth:cw,scrollHeight:document.documentElement.scrollHeight,
           headerRect:header&&visible(header)?rect(header):null,toggleVisible:visible(toggle),toggleRect:toggle&&visible(toggle)?rect(toggle):null,
           under40,under44,offscreen,brokenImages,duplicateIds,brokenAnchors,clipped,fixedOffscreen,
-          lineageCount:lineage.length,lineageOffscreen:lineage.filter((x)=>x.left<-3||x.right>cw+3).length,
+          lineageCount:lineageNodes.length,lineageOffscreen:lineage.filter((x)=>x.left<-3||x.right>cw+3).length,
           categoryOffscreen:categories.filter((x)=>x.left<-3||x.right>cw+3).length,
           boundaryOffscreen:boundary&&visible(boundary)?(rect(boundary).left<-3||rect(boundary).right>cw+3):false,home,
           reportStyles:[...document.querySelectorAll('link[rel="stylesheet"]')].some((link)=>(link.getAttribute('href')||'').startsWith('/phase-report.css')),

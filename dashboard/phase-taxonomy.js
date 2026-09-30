@@ -24,17 +24,17 @@
   const themeColor = document.querySelector('meta[name="theme-color"]');
   if (themeColor) themeColor.setAttribute('content', '#ffffff');
 
-  // Shared exploratory runner. Frozen records remain unchanged. The live panel is
-  // immediately replaced by current-data.js with the protected KIOS real-image benchmark.
-  if (!document.querySelector('script[data-aegis-experiment-lab]')) {
+  // Keep the interactive runner on phase and archive pages. The home page stays
+  // focused on the answer and the current Failure Atlas work.
+  if (!document.body.classList.contains('home-workspace') && !document.querySelector('script[data-aegis-experiment-lab]')) {
     const style = document.createElement('link');
     style.rel = 'stylesheet'; style.href = '/lab/lab.css?v=5';
     document.head.appendChild(style);
     const runner = document.createElement('script');
-    runner.src = '/lab/lab.js?v=9'; runner.dataset.aegisExperimentLab = '';
+    runner.src = '/lab/lab.js?v=10'; runner.dataset.aegisExperimentLab = '';
     document.head.appendChild(runner);
   }
-  if (!document.querySelector('script[data-aegis-current-data]')) {
+  if (!document.body.classList.contains('home-workspace') && !document.querySelector('script[data-aegis-current-data]')) {
     const current = document.createElement('script');
     current.src = '/lab/current-data.js?v=2'; current.dataset.aegisCurrentData = '';
     document.head.appendChild(current);

@@ -1,13 +1,16 @@
 import { chromium } from 'playwright';
 import fsSync from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 
 const BASE = process.env.QA_BASE_URL || 'http://127.0.0.1:4173';
 const results = [];
+const temporaryUploads = [];
 let failed = 0;
 const add = (name, ok, details = {}) => { results.push({ name, ok, ...details }); if (!ok) failed++; };
 
 const routes = [
-  '/', '/phases/', '/failure-atlas/', '/reproduce/',
+  '/', '/model-vase/', '/phases/', '/failure-atlas/', '/reproduce/',
   '/phases/phase1/', '/phases/phase2/', '/phases/phase3/', '/phases/phase4/', '/phases/phase5/',
   '/phases/phase6/', '/phases/phase6b/', '/phases/phase7/', '/phases/phase8/', '/phases/phase9/',
   '/phases/phase10/', '/phases/phase10r/', '/phases/phase11/', '/phases/phase12/',
@@ -122,7 +125,26 @@ try {
         horizontalOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth
       };
     });
-    add('home-940-navigation-continuity', !!response && response.status() < 400 && navigation.navVisible && navigation.navLinkCount >= 5 && navigation.actionsVisible && !navigation.mobileToggleVisible && !navigation.headerOverlap && navigation.horizontalOverflow <= 2, { ...navigation, status: response?.status() || 0 });
+    add('home-940-navigation-continuity', !!response && response.status() < 400 && navigation.navVisible && navigation.navLinkCount >= 3 && navigation.actionsVisible && !navigation.mobileToggleVisible && !navigation.headerOverlap && navigation.horizontalOverflow <= 2, { ...navigation, status: response?.status() || 0 });
+    await page.close();
+    await context.close();
+  }
+
+  {
+    const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'reduce' });
+    const page = await context.newPage();
+    const response = await page.goto(BASE + '/model-vase/', { waitUntil: 'domcontentloaded', timeout: 45000 });
+    const modelVase = await page.evaluate(() => ({
+      heading: document.querySelector('h1')?.innerText || '',
+      text: document.querySelector('main')?.innerText || '',
+      markLoaded: (() => { const image = document.querySelector('.vase-brand img'); return !!image && image.complete && image.naturalWidth > 0; })(),
+      overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      imageLoaded: (() => { const image = document.querySelector('.vase-hero__image img'); return !!image && image.complete && image.naturalWidth > 0; })()
+    }));
+    add('model-vase-has-original-mark-and-real-frame', !!response && response.status() < 400 && modelVase.markLoaded && modelVase.imageLoaded, { status: response?.status() || 0, ...modelVase });
+    add('model-vase-states-conditional-research-answer', /not yet from real camera input/i.test(modelVase.text) && /not a newly trained vision network/i.test(modelVase.text) && /97\.6%/.test(modelVase.text) && /−13\.3 pp/.test(modelVase.text) && /Integration status/i.test(modelVase.text), { excerpt: modelVase.text.slice(0, 900) });
+    await page.setViewportSize({ width: 390, height: 844 });
+    add('model-vase-mobile-no-horizontal-overflow', await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth <= 1), { overflow: await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth) });
     await page.close();
     await context.close();
   }
@@ -143,22 +165,23 @@ try {
     add('home-has-complete-frozen-spine', evidenceRows === 13, { evidenceRows });
     add('home-preserves-pass-fail-record', passRows === 6 && failRows === 7, { passRows, failRows });
 
-    const homeText = await page.locator('main').innerText();
+    const homeText = await page.locator('main').textContent() || '';
     const heroOverlay = await page.locator('#top .research-photo__frame').evaluate(element => getComputedStyle(element, '::after').backgroundImage);
     add('home-hero-photo-shaded-for-readable-copy', /linear-gradient/i.test(heroOverlay), { heroOverlay });
-    add('home-current-thesis-visible', /When the camera is sure, but wrong/i.test(homeText) && /We study when landing estimates drift before their uncertainty catches up/i.test(homeText), { excerpt: homeText.slice(0, 500) });
-    add('home-current-project-framing-visible', /Frozen simulation result/i.test(homeText) && /Phase 24.*audit/i.test(homeText) && /Six stretches of work, each caused by the last one/i.test(homeText));
-    add('home-researcher-brief-visible', /Limit of the evidence/i.test(homeText) && (/Terms used in this phase/i.test(homeText) || /research glossary/i.test(homeText)) && /Frozen simulation result/i.test(homeText));
-    add('home-phase22-final-visible', /0\.8319/.test(homeText) && /0\.7744/.test(homeText) && /10\s+locked gates/i.test(homeText) && /100%/.test(homeText), { excerpt: homeText.slice(0, 900) });
-    add('home-science-is-explicitly-frozen', /Phase 12\s*→\s*Phase 22/i.test(homeText) && /6 PASS \/ 7 FAIL/i.test(homeText) && /Phase 22 is a simulation result/i.test(homeText), { excerpt: homeText.slice(0, 1200) });
-    add('home-claim-boundary-visible', /simulation_only=true/.test(homeText) && /safety_acceptance=false/.test(homeText) && /controller_tuning_allowed=false/.test(homeText));
+    add('home-current-thesis-visible', /Can the system know when its landing estimate is unreliable/i.test(homeText) && /A simulation found a recovery signal/i.test(homeText), { excerpt: homeText.slice(0, 500) });
+    add('home-current-project-framing-visible', /Phase 22/i.test(homeText) && /Phase 24/i.test(homeText) && /six-condition average/i.test(homeText));
+    add('home-researcher-brief-visible', /No physical-flight safety/i.test(homeText) && /same 86 protected camera frames/i.test(homeText));
+    add('home-phase22-final-visible', /0\.8319/.test(homeText) && /0\.7744/.test(homeText) && /10 \/ 10 gates passed/i.test(homeText) && /100%/.test(homeText), { excerpt: homeText.slice(0, 900) });
+    add('home-science-is-explicitly-frozen', /Phase 12\s*→\s*Phase 22/i.test(homeText) && /6 PASS \/ 7 FAIL/i.test(homeText) && /Final synthetic 32-cell holdout/i.test(homeText), { excerpt: homeText.slice(0, 1200) });
+    const boundary = await page.locator('meta[name="aegis-evidence-boundary"]').getAttribute('content');
+    add('home-claim-boundary-visible', boundary === 'simulation_only=true; safety_acceptance=false; controller_tuning_allowed=false' && /No flight-safety claim/i.test(homeText));
     const phase23Links = await page.locator('a[href*="phase23"]').count();
     add('home-links-phase23-detector', phase23Links > 0, { phase23Links });
     add('home-features-measured-baseline-atlas',
       await page.locator('#top a[href="/failure-atlas/"]').count() === 1
         && await page.locator('#phase25 .phase25-feature__images img').count() === 2
         && await page.locator('#phase25 .phase25-feature__proof a[href*="phase25_reconstruction_audit.json"]').count() === 1
-        && /Baseline observed · Phase 23 pending/i.test(await page.locator('#phase25').innerText()));
+        && /Baseline measured · Phase 23 pending/i.test(await page.locator('#phase25').innerText()));
     await page.close();
     await context.close();
   }
@@ -192,17 +215,25 @@ try {
     add('archive-preserves-6-pass-7-fail', frozenPass === 6 && frozenFail === 7, { frozenPass, frozenFail });
     add('archive-personalizes-every-card', identities === 28 && questions === 28 && signals === 28, { identities, questions, signals });
     add('archive-uses-polished-tesla-shell', archivePolish === 1 && archivePersonalization === 1 && archiveSignature === 0, { archivePolish, archivePersonalization, archiveSignature });
-    add('archive-has-category-led-thesis', /The complete research record/i.test(archiveText));
+    add('archive-has-category-led-thesis', /Keep every result in view/i.test(archiveText));
     const phase23Card = await page.locator('.archive-card[href="/phases/phase23/"]').count();
     add('archive-links-phase23', phase23Card === 1, { phase23Card });
     await page.goto(BASE + '/phases/phase23/', { waitUntil: 'domcontentloaded', timeout: 45000 });
+    await page.waitForFunction(() => {
+      const images = [...document.querySelectorAll('.condition-gallery img')];
+      return images.length === 6 && images.every(img => img.complete && img.naturalWidth === 640 && img.naturalHeight === 585);
+    }, null, { timeout: 15000 }).catch(() => {});
+    await page.locator('#checkpoint-recovery > summary').click();
     const phase23 = await page.evaluate(() => ({
       rows: document.querySelectorAll('main .table-wrap tbody tr').length,
+      gallery: [...document.querySelectorAll('.condition-gallery img')].map(img => ({ loaded: img.complete && img.naturalWidth > 0, width: img.naturalWidth, height: img.naturalHeight })),
       source: document.querySelector('footer a')?.getAttribute('href') || '',
       hasBoundary: /separate from the frozen Phase 1–22 simulation record/i.test(document.querySelector('main')?.innerText || ''),
+      recovery: document.querySelector('#checkpoint-recovery')?.innerText || '',
       noHorizontalOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth <= 1
     }));
-    add('phase23-has-committed-results-and-boundary', phase23.rows === 6 && phase23.source.includes('phase23_robust_detector/summary.md') && phase23.hasBoundary && phase23.noHorizontalOverflow, phase23);
+    add('phase23-six-condition-images-load-at-source-ratio', phase23.gallery.length === 6 && phase23.gallery.every(image => image.loaded && image.width === 640 && image.height === 585), phase23.gallery);
+    add('phase23-shows-committed-results-and-checkpoint-gate', phase23.rows === 6 && phase23.source.includes('phase23_robust_detector/summary.md') && phase23.hasBoundary && /exact Phase 23/.test(phase23.recovery) && phase23.noHorizontalOverflow, phase23);
     await page.goto(BASE + '/phases/phase24/', { waitUntil: 'domcontentloaded', timeout: 45000 });
     await page.waitForFunction(() => {
       const charts = [...document.querySelectorAll('[data-phase24-chart]')];
@@ -247,16 +278,23 @@ try {
     await page.goto(BASE + '/failure-atlas/', { waitUntil: 'domcontentloaded', timeout: 45000 });
     await page.locator('#frame-title').waitFor({ timeout: 15000 });
     await page.locator('#conditions button').first().waitFor({ timeout: 15000 });
-    await page.waitForFunction(() => document.querySelector('#frame-image')?.naturalWidth > 0, null, { timeout: 15000 });
+    await page.waitForFunction(() => document.querySelector('#frame-image')?.naturalWidth > 0
+      && document.querySelector('#phase23-frame-image')?.naturalWidth > 0, null, { timeout: 15000 });
     const atlas = await page.evaluate(() => ({
       title: document.querySelector('h1')?.textContent || '',
       conditions: document.querySelectorAll('#conditions button').length,
       matrix: document.querySelectorAll('#matrix button').length,
       score: document.querySelector('#baseline-metrics')?.textContent || '',
       pending: document.querySelector('.pending-panel')?.textContent || '',
+      phase23Map50: document.querySelector('#phase23-map50')?.textContent || '',
+      phase23Recall: document.querySelector('#phase23-recall')?.textContent || '',
+      folderInput: document.querySelector('#local-folder')?.hasAttribute('webkitdirectory') || false,
       overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
       heroImage: document.querySelector('.intro-image img')?.getAttribute('src') || '',
       sourceImageLoaded: document.querySelector('#frame-image')?.naturalWidth > 0,
+      phase23ImageLoaded: document.querySelector('#phase23-frame-image')?.naturalWidth > 0,
+      phase23ImageSameSource: document.querySelector('#phase23-frame-image')?.currentSrc === document.querySelector('#frame-image')?.currentSrc,
+      phase23ImageBadge: document.querySelector('#phase23-image-badge')?.textContent || '',
       sceneFill: (() => {
         const scene = document.querySelector('#baseline-scene');
         const sceneBox = scene?.getBoundingClientRect();
@@ -267,10 +305,12 @@ try {
       visibleLabels: document.querySelectorAll('#box-layer .overlay-box em').length,
       caseSummary: document.querySelector('#case-features')?.textContent || ''
     }));
-    add('atlas-live-baseline-and-honest-pending', /See where the model fails/i.test(atlas.title)
+    add('atlas-live-baseline-and-published-phase23-aggregates', /See where the model fails/i.test(atlas.title)
       && atlas.conditions === 6 && atlas.matrix === 516 && /BEST IoU/.test(atlas.score)
-      && /Exact frozen model required/i.test(atlas.pending) && atlas.overflow <= 1
-      && atlas.heroImage === '/media/perception/kios_clean.jpg' && atlas.sourceImageLoaded, atlas);
+      && /Frame outcomes pending/i.test(atlas.pending) && atlas.phase23Map50 === '55.5%' && atlas.phase23Recall === '59.3%'
+      && atlas.folderInput && atlas.overflow <= 1
+      && atlas.heroImage === '/media/perception/kios_clean.jpg' && atlas.sourceImageLoaded
+      && atlas.phase23ImageLoaded && atlas.phase23ImageSameSource && /Same source frame/.test(atlas.phase23ImageBadge), atlas);
     add('atlas-source-proportional-panels-and-readable-boxes', atlas.sceneFill && atlas.visibleLabels <= 5
       && /all counted/.test(atlas.caseSummary), atlas);
     const startFrame = await page.locator('#frame-range').evaluate(el => Number(el.value));
@@ -292,10 +332,12 @@ try {
     await page.locator('#view-mode').click();
     add('atlas-side-by-side-toggle-reverses', stacked && !(await page.locator('#comparison').evaluate(el => el.classList.contains('stacked'))));
     await page.locator('#conditions button[data-condition="mixed"]').click();
+    const mixedAggregate = await page.locator('#phase23-map50').innerText();
     await page.locator('#filter-outcome').selectOption('miss');
     add('atlas-filter-and-condition-work', /MIXED/.test(await page.locator('#frame-sequence').innerText())
       && /matching views/.test(await page.locator('#match-count').innerText())
-      && Number((await page.locator('#match-count').innerText()).split('/')[0].trim()) < 516);
+      && Number((await page.locator('#match-count').innerText()).split('/')[0].trim()) < 516
+      && mixedAggregate === '12.9%');
     await page.locator('[data-open-evidence]').first().click();
     add('atlas-evidence-opens', await page.locator('#evidence-dialog').evaluate(el => el.open));
     await page.locator('#close-evidence').click();
@@ -306,6 +348,32 @@ try {
     await page.locator('.mobile-menu summary').click();
     await page.setViewportSize({ width: 1440, height: 1000 });
     add('atlas-mobile-navigation-opens', mobileMenuWorks);
+
+    const uploadRoot = fsSync.mkdtempSync(path.join(os.tmpdir(), 'aegisland-atlas-images-'));
+    temporaryUploads.push(uploadRoot);
+    for (const condition of ['clean', 'mixed']) {
+      const folder = path.join(uploadRoot, condition);
+      fsSync.mkdirSync(folder, { recursive: true });
+      fsSync.copyFileSync(path.resolve('deploy/vercel/media/perception/kios_clean.jpg'), path.join(folder, 'land_pad2__2100.jpg'));
+    }
+    await page.locator('#local-folder').setInputFiles(uploadRoot);
+    await page.waitForFunction(() => document.querySelector('#frame-image')?.naturalWidth === 640
+      && document.querySelector('#phase23-frame-image')?.naturalWidth === 640, null, { timeout: 10000 }).catch(() => {});
+    const folderStatus = await page.locator('#image-note').innerText();
+    await page.locator('#conditions button[data-condition="clean"]').click();
+    await page.waitForFunction(() => document.querySelector('#frame-image')?.naturalWidth === 640
+      && document.querySelector('#phase23-frame-image')?.naturalWidth === 640, null, { timeout: 10000 }).catch(() => {});
+    const cleanFolderImageLoaded = await page.locator('#frame-image').evaluate(img => img.naturalWidth === 640 && !img.hidden);
+    const cleanPhase23ImageLoaded = await page.locator('#phase23-frame-image').evaluate(img => img.naturalWidth === 640 && !img.hidden);
+    await page.locator('#conditions button[data-condition="mixed"]').click();
+    await page.waitForFunction(() => document.querySelector('#frame-image')?.naturalWidth === 640
+      && document.querySelector('#phase23-frame-image')?.naturalWidth === 640, null, { timeout: 10000 }).catch(() => {});
+    const mixedFolderImageLoaded = await page.locator('#frame-image').evaluate(img => img.naturalWidth === 640 && !img.hidden);
+    const mixedPhase23ImageLoaded = await page.locator('#phase23-frame-image').evaluate(img => img.naturalWidth === 640 && !img.hidden);
+    add('atlas-folder-loader-maps-matching-images-by-condition', /Loaded 2 image views/.test(folderStatus)
+      && /Clean 1/.test(folderStatus) && /Mixed 1/.test(folderStatus)
+      && cleanFolderImageLoaded && cleanPhase23ImageLoaded && mixedFolderImageLoaded && mixedPhase23ImageLoaded,
+      { folderStatus, cleanFolderImageLoaded, cleanPhase23ImageLoaded, mixedFolderImageLoaded, mixedPhase23ImageLoaded });
 
     const phaseChecks = [
       ['/phases/phase1/', /First safety supervisor/i, /HOLD \/ ABORT/i],
@@ -351,7 +419,7 @@ try {
   {
     const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, reducedMotion: 'reduce' });
     const page = await context.newPage();
-    for (const route of ['/', '/phases/', '/phases/phase1/', '/phases/phase10r/', '/phases/phase13a/', '/phases/phase22/']) {
+    for (const route of ['/', '/phases/', '/failure-atlas/', '/phases/phase23/', '/phases/phase1/', '/phases/phase10r/', '/phases/phase13a/', '/phases/phase22/']) {
       await page.goto(BASE + route, { waitUntil: 'domcontentloaded', timeout: 45000 });
       await page.waitForTimeout(300);
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
@@ -369,6 +437,7 @@ try {
   }
 } finally {
   await browser.close();
+  for (const directory of temporaryUploads) fsSync.rmSync(directory, { recursive: true, force: true });
 }
 
 console.log(JSON.stringify({ base: BASE, passed: results.filter(result => result.ok).length, failed, results }, null, 2));

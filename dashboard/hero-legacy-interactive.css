@@ -83,11 +83,11 @@
 }
 .cursor-cube-wire::after{
   inset:3px;
-  border:1px solid rgba(62,106,225,.12);
+  border:1px solid rgba(232,33,39,.12);
 }
 .cursor-cube-diamond::before{
   inset:2px;
-  border:1px solid rgba(62,106,225,.27);
+  border:1px solid rgba(232,33,39,.27);
   transform:rotate(45deg) scale(.72);
 }
 .cursor-cube-diamond::after{
@@ -101,10 +101,10 @@
 }
 .cursor-cube-double::after{
   inset:3px;
-  border:1px solid rgba(62,106,225,.16);
+  border:1px solid rgba(232,33,39,.16);
 }
 .cursor-cube-core{
-  background:rgba(62,106,225,.08);
+  background:rgba(232,33,39,.08);
   border-color:rgba(35,69,183,.30);
 }
 .cursor-cube-core::before{
@@ -116,15 +116,15 @@
   height:4px;
   right:-3px;
   top:-3px;
-  background:rgba(62,106,225,.58);
+  background:rgba(232,33,39,.58);
 }
 .cursor-cube-corner::before{
   left:-3px;
   top:-3px;
   width:45%;
   height:45%;
-  border-left:2px solid rgba(62,106,225,.30);
-  border-top:2px solid rgba(62,106,225,.30);
+  border-left:2px solid rgba(232,33,39,.30);
+  border-top:2px solid rgba(232,33,39,.30);
 }
 .cursor-cube-corner::after{
   right:-3px;

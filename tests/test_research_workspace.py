@@ -9,15 +9,16 @@ def _read(path: str) -> str:
 
 def test_home_actions_feature_phase25_and_scope_phase22_status() -> None:
     html = _read("deploy/vercel/index.html")
-    assert 'href="/failure-atlas/">Explore Failure Atlas</a>' in html
-    assert 'href="/phases/phase25/">See the evidence</a>' in html
+    assert 'href="/model-vase/">Model VASE</a>' in html
+    assert 'href="/failure-atlas/">Open Failure Atlas</a>' in html
     assert 'href="/phases/">Archive</a>' in html
     assert 'id="current-audit"' in html
-    assert '>Frozen simulation result</a>' in html
+    assert 'id="status"' in html and "Frozen simulation · Phase 22" in html
     assert 'href="/phases/phase22/"' in html
-    assert "10 / 10 locked gates passed" in html
+    assert "10 / 10 gates passed" in html
     assert "6 PASS / 7 FAIL" in html
     assert 'id="homeLineage"' in html
+    assert 'data-aegis-experiment-lab' not in html
     assert "workspace-status-actions" not in html
     assert "workspace-brief-strip" not in html
 
@@ -61,20 +62,18 @@ def test_home_editorial_media_is_local_credited_and_context_only() -> None:
     fetcher = _read("deploy/vercel/fetch-editorial-media.mjs")
 
     assert 'data-editorial-media="local-v2"' in html
-    for filename in (
-        "acero-uav-flight.jpg",
-        "acero-ground-control.jpg",
-        "stereo-uav-preflight.jpg",
-        "acero-uav-landing.jpg",
-    ):
-        assert f'src="/media/{filename}"' in html
-        assert filename in fetcher
+    filename = "acero-uav-flight.jpg"
+    assert f'src="/media/{filename}"' in html
+    assert filename in fetcher
+    assert 'src="/media/perception/kios_clean.jpg"' in html
+    assert 'src="/media/perception/kios_occlusion.jpg"' in html
     assert '<img src="https://' not in html
-    assert html.count("Visual context — not AegisLand experimental evidence") == 4
-    assert html.count("Public domain") == 4
-    assert html.count("data-image-fallback") == 4
-    assert html.count("Don Richey / NASA Ames Research Center") == 3
-    assert html.count("Joel Kowsky / NASA") == 1
+    assert html.count("NASA field image · context only") == 1
+    assert html.count("Public domain") == 1
+    assert html.count("data-image-fallback") == 1
+    assert html.count("Don Richey / NASA Ames Research Center") == 1
+    assert "Freeze. Separate. Preserve." in html
+    assert "Model VASE" in html and "Phase 23 pending" in html
     assert "aspect-ratio:16 / 9" in css
     assert "research-photo--inline" in css
 
@@ -113,6 +112,8 @@ def test_every_phase_has_one_distinct_local_context_photo() -> None:
     for filename in filenames:
         assert f"'{filename}'" in manifest
         assert f"'{filename}'" in fetcher
+        image = ROOT / "deploy/vercel/media" / filename
+        assert image.is_file() and image.stat().st_size > 50_000
 
     assert "Visual context — not AegisLand experimental evidence" in manifest
     assert "phase-editorial-photo__fallback" in runtime

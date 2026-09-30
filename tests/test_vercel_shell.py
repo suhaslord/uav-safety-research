@@ -48,19 +48,41 @@ def test_vercel_home_is_native_frozen_archive_shell() -> None:
     assert "const rev=" not in html
     assert 'id="evidenceSpine"' in html
     assert 'src="/frozen-lineage.js?v=' in html
-    assert "Simulation record frozen through Phase 22" in html
+    assert "Model VASE · answer so far" in html
     assert 'id="current-audit"' in html
     assert 'id="phase25"' in html
-    assert '<a class="button primary signature-button" href="/failure-atlas/">Explore Failure Atlas</a>' in html
-    assert "Baseline observed · Phase 23 pending" in html
+    assert '<a class="button primary signature-button" href="/model-vase/">Model VASE</a>' in html
+    assert "Can the system know when its landing estimate is unreliable?" in html
+    assert "These are different experiments. They have not been joined into one tested model." in html
+    assert "97.6%" in html and "−13.3 pp" in html
+    assert "Baseline measured · Phase 23 pending" in html
     assert "0.8319" in html
     assert "0.7744" in html
     assert "simulation_only=true" in html
     assert "safety_acceptance=false" in html
     assert "controller_tuning_allowed=false" in html
     # Keep the scientific boundary semantic instead of coupling QA to retired prose.
-    assert "Phase 22 is a simulation result" in html
-    assert "does not establish real-flight safety or justify controller tuning" in html
+    assert "Simulation and benchmark results only. No flight-safety claim, certification claim, or controller-tuning claim." in html
+    assert 'name="aegis-evidence-boundary"' in html
+
+
+def test_model_vase_page_reports_separate_evidence_without_claiming_a_fused_model() -> None:
+    page = (ROOT / "deploy" / "vercel" / "model-vase.html").read_text(encoding="utf-8")
+    stylesheet = (ROOT / "deploy" / "vercel" / "model-vase.css").read_text(encoding="utf-8")
+    mark = (ROOT / "deploy" / "vercel" / "model-vase-mark.svg").read_text(encoding="utf-8")
+
+    assert "Yes in one frozen planar simulation. Not yet from real camera input." in page
+    assert "97.6%" in page and "2.4%" in page and "84.2%" in page
+    assert "+3.4 pp" in page and "−13.3 pp" in page
+    assert "516" in page and "Phase 23 frame results remain pending" in page
+    assert "Model VASE is a system architecture, not a newly trained vision network." in page
+    assert "aria-label=\"Proposed Model VASE system flow\"" in page
+    assert "docs/v3_results.md" in page
+    assert "Phase 12 calibration" in page and "KIOS detector" in page
+    assert "vase-evidence-row" in page and "/failure-atlas/" in page
+    assert 'href="/aegisland-brand.css?v=' in page
+    assert "#e82127" in stylesheet and "prefers-reduced-motion" in stylesheet
+    assert 'viewBox="0 0 48 48"' in mark
 
 
 def test_vercel_routes_use_packaged_frozen_and_legacy_assets() -> None:
@@ -83,7 +105,9 @@ def test_vercel_routes_use_packaged_frozen_and_legacy_assets() -> None:
     assert "/phase23.html" in destinations
     assert "/phase24.html" in destinations
     assert "/phase25.html" in destinations
+    assert "/model-vase.html" in destinations
     assert "/failure-atlas.html" in destinations
+    assert {"/model-vase", "/model-vase/"} == {item["source"] for item in rewrites if item["destination"] == "/model-vase.html"}
     assert {"/failure-atlas", "/failure-atlas/"} == {item["source"] for item in rewrites if item["destination"] == "/failure-atlas.html"}
     assert {"/reproduce", "/reproduce/"} == {item["source"] for item in rewrites if item["destination"] == "/reproduce.html"}
     phase23_sources = {item["source"] for item in rewrites if item["destination"] == "/phase23.html"}
@@ -137,7 +161,7 @@ def test_phase_archive_uses_shared_tesla_polish_without_rewriting_lineage() -> N
     frozen = (ROOT / "dashboard" / "phases" / "frozen.html").read_text(encoding="utf-8")
     phase = (ROOT / "dashboard" / "phases" / "phase.html").read_text(encoding="utf-8")
 
-    assert "--phase-blue:#3e6ae1" in polish
+    assert "--phase-blue:#e82127" in polish
     assert "backdrop-filter" in polish
     assert "linear-gradient" not in polish
     assert 'href="/phase-polish.css?v=' in archive
@@ -150,7 +174,7 @@ def test_phase_archive_uses_shared_tesla_polish_without_rewriting_lineage() -> N
     assert 'href="/phase-editorial-media.css?v=' in phase
     assert 'href="/signature.css?v=' not in archive
     assert 'href="/signature.css?v=' not in frozen
-    assert "The complete research record." in archive
+    assert "Keep every result in view." in archive
     assert "Research categories" in archive
     assert "<strong>7</strong> research categories" in archive
     assert "28 phase records" in archive
@@ -250,6 +274,12 @@ def test_phase23_report_and_phase24_share_a_report_layout() -> None:
     assert 'href="/phases/phase23/"' in phase24
     assert phase23.count('<tr class="severe">') == 2
     assert "separate from the frozen Phase 1–22 simulation record" in phase23
+    gallery = re.findall(r'<figure><img src="([^"]+)" width="640" height="585"[^>]*loading="eager"', phase23)
+    assert len(gallery) == 6
+    assert all((ROOT / "deploy/vercel" / source.lstrip("/")).is_file() for source in gallery)
+    assert "These are condition examples, not detector-output overlays" in phase23
+    assert 'id="checkpoint-recovery"' in phase23
+    assert "py scripts\\bundle_phase23_checkpoint.py" in phase23
 
 
 def test_phase25_is_featured_as_work_in_progress_without_result_claims() -> None:
@@ -257,9 +287,10 @@ def test_phase25_is_featured_as_work_in_progress_without_result_claims() -> None
     page = (ROOT / "deploy" / "vercel" / "phase25.html").read_text(encoding="utf-8")
     archive = (ROOT / "dashboard" / "phases" / "index.html").read_text(encoding="utf-8")
 
-    assert home.index('id="phase25"') < home.index('class="section result-section"')
+    assert home.index('id="phase25"') < home.index('id="status"')
     assert 'href="/phases/phase25/"' in archive
-    assert "outside the completed records" in archive
+    assert 'aria-label="Model VASE overview"' in archive
+    assert 'aria-label="Current Phase 25 work"' in archive
     assert 'href="/phase-report.css?v=' in page
     assert 'class="atlas-status"' in page
     assert "Inputs verified" in page
@@ -273,10 +304,18 @@ def test_phase25_is_featured_as_work_in_progress_without_result_claims() -> None
 def test_failure_atlas_is_baseline_only_with_auditable_tables() -> None:
     site = json.loads((ROOT / "deploy/vercel/failure-atlas-data.json").read_text())
     manifest = json.loads((ROOT / "results/phase25_baseline_diagnostic/run_manifest.json").read_text())
+    comparison_path = ROOT / "results/phase23_robust_detector/robustness_comparison.csv"
+    with comparison_path.open(newline="", encoding="utf-8") as handle:
+        comparison = {row["condition"]: row for row in csv.DictReader(handle)}
     assert site["status"] == "baseline_only" and site["phase23"] is None
     assert len(site["frame_ids"]) == 86 and len(site["cases"]) == 516
     assert site["prediction_rows"] == manifest["prediction_rows"] == 136359
-    assert site["source_hashes"] == manifest["table_sha256"]
+    assert {key: value for key, value in site["source_hashes"].items() if key != "phase23_comparison_csv"} == manifest["table_sha256"]
+    assert site["source_hashes"]["phase23_comparison_csv"] == hashlib.sha256(comparison_path.read_bytes()).hexdigest()
+    assert set(site["phase23_condition_aggregates"]) == {"clean", "blur", "low_light", "noise", "occlusion", "mixed"}
+    for condition, item in site["phase23_condition_aggregates"].items():
+        assert item["map50"] == float(comparison[condition]["phase23_map50"])
+        assert item["recall"] == float(comparison[condition]["phase23_recall"])
     assert sum(case["count"] for case in site["cases"]) == site["prediction_rows"]
     assert sum(len(case["boxes"]) + case["omitted"] for case in site["cases"]) == site["prediction_rows"]
     assert sum(case["tp"] for case in site["cases"]) == sum(box[6] for case in site["cases"] for box in case["boxes"])
@@ -284,6 +323,11 @@ def test_failure_atlas_is_baseline_only_with_auditable_tables() -> None:
     html = (ROOT / "deploy/vercel/failure-atlas.html").read_text()
     assert 'id="frame-range"' in html and 'id="scatter"' in html
     assert 'id="evidence-dialog"' in html and 'id="local-files"' in html
+    assert 'id="local-folder"' in html and "webkitdirectory" in html
+    assert 'id="phase23-map50"' in html and 'id="phase23-recall"' in html
+    assert 'id="phase23-frame-image"' in html and 'id="phase23-image-placeholder"' in html
+    assert "These are not predictions for this frame" in html
+    assert "viewer does not hash-check them" in html
 
 
 def test_phase23_displayed_condition_table_matches_committed_csv() -> None:
@@ -311,6 +355,35 @@ def test_phase23_displayed_condition_table_matches_committed_csv() -> None:
         for row in rows
     ]
     assert displayed == expected
+
+
+def test_live_perception_delta_uses_unrounded_phase23_source_metrics() -> None:
+    current = (ROOT / "deploy" / "vercel" / "lab" / "current-data.js").read_text(encoding="utf-8")
+    with (ROOT / "results" / "phase23_robust_detector" / "robustness_comparison.csv").open(newline="") as source:
+        rows = list(csv.DictReader(source))
+
+    condition_names = tuple(row["condition"] for row in rows)
+    for row in rows:
+        condition = row["condition"]
+        start = current.index(f"      {condition}: {{")
+        following_starts = [
+            current.find(f"\n      {name}: {{", start + 1)
+            for name in condition_names
+            if name != condition
+        ]
+        following_starts = [position for position in following_starts if position >= 0]
+        end = min(following_starts) if following_starts else current.index("\n    }\n  };", start)
+        block = current[start:end]
+
+        for model, csv_prefix in (("baseline", "baseline"), ("phase23", "phase23")):
+            metrics = re.search(rf"{model}:\s*\{{([^}}]+)\}}", block)
+            assert metrics is not None
+            values = dict(re.findall(r"(recall|map50):\s*([0-9.]+)", metrics.group(1)))
+            assert float(values["recall"]) == float(row[f"{csv_prefix}_recall"])
+            assert float(values["map50"]) == float(row[f"{csv_prefix}_map50"])
+
+    assert "const recallDelta = condition.phase23.recall - condition.baseline.recall;" in current
+    assert "const mapDelta = condition.phase23.map50 - condition.baseline.map50;" in current
 
 
 def test_live_perception_panels_and_phase_reading_width_are_balanced() -> None:

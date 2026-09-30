@@ -205,11 +205,11 @@
 
     const homeDescription = document.querySelector('meta[name="description"]');
     if (homeDescription && document.body.classList.contains('home-workspace')) {
-      homeDescription.setAttribute('content', 'AegisLand documents a simulation-only study of UAV landing perception, including failed tests and the frozen result through Phase 22.');
+      homeDescription.setAttribute('content', 'AegisLand asks whether a UAV landing system can know when its estimate is unreliable. Model VASE brings the research together while keeping simulation and camera evidence distinct.');
     }
     const ogDescription = document.querySelector('meta[property="og:description"]');
     if (ogDescription && document.body.classList.contains('home-workspace')) {
-      ogDescription.setAttribute('content', 'Follow the AegisLand landing-perception experiments from the first safety supervisor through the frozen Phase 22 transfer result.');
+      ogDescription.setAttribute('content', 'A simulation found a recovery signal. Camera evidence remains separate.');
     }
   };
 

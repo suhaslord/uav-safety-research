@@ -1,5 +1,5 @@
 :root {
-  --blue: #3e6ae1;
+  --blue: #e82127;
   --white: #ffffff;
   --ash: #f4f4f4;
   --carbon: #171a20;
@@ -185,7 +185,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 }
 .reticle-ring, .reticle-axis, .reticle-node, .reticle-sweep { position: absolute; display: block; }
 .reticle-ring { border: 1px solid rgba(23,26,32,.18); border-radius: 50%; inset: 0; }
-.reticle-ring-b { inset: 19%; border-color: rgba(62,106,225,.42); }
+.reticle-ring-b { inset: 19%; border-color: rgba(232,33,39,.42); }
 .reticle-axis-x { left: 0; right: 0; top: 50%; height: 1px; background: rgba(23,26,32,.15); }
 .reticle-axis-y { top: 0; bottom: 0; left: 50%; width: 1px; background: rgba(23,26,32,.15); }
 .reticle-sweep {
@@ -357,7 +357,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .telemetry-panel p { margin: 12px 0 0; color: var(--pewter); font-size: 12px; line-height: 18px; }
 .telemetry-note { margin: 28px auto 0; display: flex; align-items: center; justify-content: center; gap: 10px; color: var(--pewter); font-size: 12px; }
 .telemetry-pulse { width: 7px; height: 7px; border: 1px solid var(--blue); border-radius: 50%; position: relative; }
-.telemetry-pulse::after { content: ""; position: absolute; inset: -5px; border: 1px solid rgba(62,106,225,.28); border-radius: 50%; animation: telemetryPulse 2.2s var(--ease-fluid) infinite; }
+.telemetry-pulse::after { content: ""; position: absolute; inset: -5px; border: 1px solid rgba(232,33,39,.28); border-radius: 50%; animation: telemetryPulse 2.2s var(--ease-fluid) infinite; }
 
 .geometry-section { display: flex; flex-direction: column; justify-content: center; padding: 86px 6vw 54px; }
 .geometry-beacon {

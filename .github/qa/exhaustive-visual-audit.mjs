@@ -10,7 +10,7 @@ const phaseSlugs = [
   'phase1','phase2','phase3','phase4','phase5','phase6','phase6b','phase7','phase8','phase9','phase10','phase10r','phase11',
   'phase12','phase13a','phase13b','phase13c','phase14','phase15','phase16','phase17','phase18','phase19','phase20','phase21','phase22'
 ];
-const routes = ['/', '/phases/', ...phaseSlugs.map((slug) => `/phases/${slug}/`), '/phases/phase23/', '/phases/phase24/', '/phases/phase25/'];
+const routes = ['/', '/model-vase/', '/failure-atlas/', '/phases/', ...phaseSlugs.map((slug) => `/phases/${slug}/`), '/phases/phase23/', '/phases/phase24/', '/phases/phase25/'];
 const viewports = [
   { name: 'desktop', width: 1440, height: 1000 },
   { name: 'tablet', width: 820, height: 1180 },
@@ -143,7 +143,7 @@ try {
         const main = document.querySelector('main');
         const footer = document.querySelector('footer');
         const consistencyLink = document.querySelector('link[data-aegis-phase-ui-consistency]');
-        const structuralBlocks = [...document.querySelectorAll('main > section, main > article, main > div, main > figure[data-editorial-photo], main > figure.report-photo, .phase-detail > figure[data-editorial-photo]')]
+        const structuralBlocks = [...document.querySelectorAll('main > section, main > article, main > aside, main > div, main > figure[data-editorial-photo], main > figure.report-photo, .phase-detail > figure[data-editorial-photo]')]
           .filter(visible)
           .map((el) => ({ className: el.className || el.tagName, r: rect(el) }))
           .filter((item) => item.r)

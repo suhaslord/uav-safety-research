@@ -5,9 +5,15 @@
 [![CI](https://github.com/suhaslord/uav-safety-research/actions/workflows/ci.yml/badge.svg)](https://github.com/suhaslord/uav-safety-research/actions/workflows/ci.yml)
 [![Real dataset](https://img.shields.io/badge/real%20dataset-422%20frames-2563eb)](https://doi.org/10.5281/zenodo.13682584)
 
-[Research cockpit](https://aegisland-research-cockpit.vercel.app/) · [Real-data protocol](docs/real_dataset_track.md) · [Experiment archive](https://aegisland-research-cockpit.vercel.app/phases/)
+[Model VASE](https://aegisland-research-cockpit.vercel.app/model-vase/) · [Failure Atlas](https://aegisland-research-cockpit.vercel.app/failure-atlas/) · [Experiment archive](https://aegisland-research-cockpit.vercel.app/phases/)
 
 AegisLand asks: **when landing perception becomes unreliable, can the system recognize that before it trusts a bad estimate?**
+
+## Model VASE
+
+Model VASE is AegisLand's proposed landing-reliability system: it is designed to combine target confidence, estimate uncertainty, and disagreement before a landing decision. The simulator, camera detector, and uncertainty model remain separate evidence tracks; they have not been evaluated together as one camera-to-control system. The current answer is conditional: the frozen V3 simulator showed recovery under abstract perception stress, while the KIOS detector still regressed under occlusion and mixed stress.
+
+See the [Model VASE evidence map](docs/model_vase_evidence_map.md) and [live overview](https://aegisland-research-cockpit.vercel.app/model-vase/).
 
 ## Where the record stands
 
@@ -26,7 +32,7 @@ The current perception track uses the **KIOS Aerial Landing Pad, Unreal Engine D
 - **Annotations:** YOLO bounding boxes
 - **First test:** run the existing synthetic estimator unchanged — no retraining or tuning
 
-Raw dataset files are downloaded from Zenodo for evaluation and are not copied into this repository or website.
+The full archive is not republished. The site includes a small set of KIOS source/stress examples for explanation plus public-domain NASA context photos; those examples are not an independent or untouched test set.
 
 ## Initial real-image transfer check (historical)
 

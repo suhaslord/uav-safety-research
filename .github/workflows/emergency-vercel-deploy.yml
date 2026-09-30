@@ -38,9 +38,6 @@ jobs:
             exit 1
           fi
 
-      - name: Fetch licensed editorial media
-        run: node deploy/vercel/fetch-editorial-media.mjs
-
       - name: Build self-contained production bundle
         shell: bash
         run: |
@@ -71,6 +68,10 @@ jobs:
           test -f .vercel-release/site-refresh.css
           test -f .vercel-release/phase-report.css
           test -f .vercel-release/phase23.html
+          test -f .vercel-release/model-vase.html
+          test -f .vercel-release/model-vase.css
+          test -f .vercel-release/aegisland-brand.css
+          test -f .vercel-release/model-vase-mark.svg
           test -f .vercel-release/frozen-lineage.js
           test -f .vercel-release/dashboard/phase-visuals.js
           test -f .vercel-release/dashboard/phase-editorial-media.js
@@ -92,31 +93,27 @@ jobs:
           grep -q 'href="/research-home.css?v=' .vercel-release/index.html
           grep -q 'href="/research-media.css?v=' .vercel-release/index.html
           grep -q 'src="/media/acero-uav-flight.jpg"' .vercel-release/index.html
-          grep -q 'src="/media/acero-ground-control.jpg"' .vercel-release/index.html
-          grep -q 'src="/media/stereo-uav-preflight.jpg"' .vercel-release/index.html
-          grep -q 'src="/media/acero-uav-landing.jpg"' .vercel-release/index.html
-          test "$(grep -o 'Visual context — not AegisLand experimental evidence' .vercel-release/index.html | wc -l)" -eq 4
+          grep -q 'src="/media/perception/kios_clean.jpg"' .vercel-release/index.html
+          grep -q 'src="/media/perception/kios_occlusion.jpg"' .vercel-release/index.html
+          test "$(grep -o 'NASA field image · context only' .vercel-release/index.html | wc -l)" -eq 1
           grep -q 'Don Richey / NASA Ames Research Center' .vercel-release/index.html
-          grep -q 'Joel Kowsky / NASA' .vercel-release/index.html
           ! grep -q '<img[^>]*src="https://' .vercel-release/index.html
-          grep -q 'When the camera is sure, but wrong.' .vercel-release/index.html
-          grep -q 'Simulation record frozen through Phase 22' .vercel-release/index.html
+          grep -q 'Can the system know when its landing estimate is unreliable?' .vercel-release/index.html
+          grep -q 'href="/model-vase/"' .vercel-release/index.html
+          grep -q 'Model VASE is a system architecture, not a newly trained vision network.' .vercel-release/model-vase.html
           grep -q 'id="current-audit"' .vercel-release/index.html
           grep -q 'href="/ui-review.css?v=' .vercel-release/index.html
           grep -q 'href="/site-refresh.css?v=' .vercel-release/index.html
           grep -q '/media/perception/synthetic_clean.png' .vercel-release/presentation.js
           ! grep -q 'raw.githubusercontent.com' .vercel-release/presentation.js
-          grep -q 'The question' .vercel-release/index.html
-          grep -q 'Why misses stay visible' .vercel-release/index.html
-          grep -q 'The finding' .vercel-release/index.html
+          grep -q 'Freeze. Separate. Preserve.' .vercel-release/index.html
+          grep -q 'Baseline measured · Phase 23 pending' .vercel-release/index.html
           grep -q 'home-lineage__track' .vercel-release/index.html
           grep -q '6 PASS / 7 FAIL' .vercel-release/index.html
           grep -q '0.8319' .vercel-release/index.html
           grep -q '0.7744' .vercel-release/index.html
           grep -q '100%' .vercel-release/index.html
-          grep -q 'simulation_only=true' .vercel-release/index.html
-          grep -q 'safety_acceptance=false' .vercel-release/index.html
-          grep -q 'controller_tuning_allowed=false' .vercel-release/index.html
+          grep -q 'name="aegis-evidence-boundary" content="simulation_only=true; safety_acceptance=false; controller_tuning_allowed=false"' .vercel-release/index.html
 
           grep -q 'href="/phase-polish.css?v=' .vercel-release/dashboard/phases/index.html
           grep -q 'href="/phase-polish.css?v=' .vercel-release/dashboard/phases/frozen.html
@@ -131,7 +128,7 @@ jobs:
           grep -q 'src="/phase-editorial-media.js?v=' .vercel-release/phase11.html
           ! grep -q 'href="/signature.css?v=' .vercel-release/dashboard/phases/index.html
           ! grep -q 'href="/signature.css?v=' .vercel-release/dashboard/phases/frozen.html
-          grep -q 'The complete research record.' .vercel-release/dashboard/phases/index.html
+          grep -q 'Keep every result in view.' .vercel-release/dashboard/phases/index.html
 
           node - <<'NODE'
           global.window = {};
@@ -186,23 +183,19 @@ jobs:
           printf '%s' "$PUBLIC_HTML" | grep 'href="/aegisland.css?v=' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep 'href="/research-home.css?v=' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep 'href="/research-media.css?v=' > /dev/null
-          test "$(printf '%s' "$PUBLIC_HTML" | grep -o 'Visual context — not AegisLand experimental evidence' | wc -l)" -eq 4
+          test "$(printf '%s' "$PUBLIC_HTML" | grep -o 'NASA field image · context only' | wc -l)" -eq 1
           printf '%s' "$PUBLIC_HTML" | grep 'Don Richey / NASA Ames Research Center' > /dev/null
-          printf '%s' "$PUBLIC_HTML" | grep 'Joel Kowsky / NASA' > /dev/null
-          printf '%s' "$PUBLIC_HTML" | grep 'When the camera is sure, but wrong.' > /dev/null
-          printf '%s' "$PUBLIC_HTML" | grep 'The question' > /dev/null
-          printf '%s' "$PUBLIC_HTML" | grep 'Why misses stay visible' > /dev/null
-          printf '%s' "$PUBLIC_HTML" | grep 'The finding' > /dev/null
-          printf '%s' "$PUBLIC_HTML" | grep 'Simulation record frozen through Phase 22' > /dev/null
+          printf '%s' "$PUBLIC_HTML" | grep 'Can the system know when its landing estimate is unreliable?' > /dev/null
+          printf '%s' "$PUBLIC_HTML" | grep 'Freeze. Separate. Preserve.' > /dev/null
+          printf '%s' "$PUBLIC_HTML" | grep 'Baseline measured · Phase 23 pending' > /dev/null
+          printf '%s' "$PUBLIC_HTML" | grep 'href="/model-vase/"' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep 'id="current-audit"' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep 'href="/ui-review.css?v=' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep 'href="/site-refresh.css?v=' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep 'home-lineage__track' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep '0.8319' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep '0.7744' > /dev/null
-          printf '%s' "$PUBLIC_HTML" | grep 'simulation_only=true' > /dev/null
-          printf '%s' "$PUBLIC_HTML" | grep 'safety_acceptance=false' > /dev/null
-          printf '%s' "$PUBLIC_HTML" | grep 'controller_tuning_allowed=false' > /dev/null
+          printf '%s' "$PUBLIC_HTML" | grep 'name="aegis-evidence-boundary" content="simulation_only=true; safety_acceptance=false; controller_tuning_allowed=false"' > /dev/null
 
           for ASSET in acero-uav-flight.jpg acero-ground-control.jpg stereo-uav-preflight.jpg acero-uav-landing.jpg phase01-context.jpg phase22-context.jpg; do
             curl --fail --silent --show-error --location "$PUBLIC_URL/media/$ASSET" -o "/tmp/$ASSET"
@@ -234,7 +227,7 @@ jobs:
           echo "✓ Frozen lineage asset: exact 6 PASS / 7 FAIL record and Phase 22 identities present"
 
           ARCHIVE_HTML=$(curl --fail --silent --show-error --location "$PUBLIC_URL/phases/")
-          printf '%s' "$ARCHIVE_HTML" | grep 'The complete research record.' > /dev/null
+          printf '%s' "$ARCHIVE_HTML" | grep 'Keep every result in view.' > /dev/null
           printf '%s' "$ARCHIVE_HTML" | grep 'href="/phase-polish.css?v=' > /dev/null
           ! printf '%s' "$ARCHIVE_HTML" | grep 'href="/signature.css?v=' > /dev/null
           echo "✓ Archive: rewritten phase index present"

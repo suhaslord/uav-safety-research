@@ -4,7 +4,7 @@
   --motion-line:rgba(23,26,32,.12);
   --motion-muted:#6b6d70;
   --motion-ink:#171a20;
-  --motion-accent:#3e6ae1;
+  --motion-accent:#e82127;
 }
 
 /* Keep the original solid UI language. This layer intentionally does NOT
@@ -140,20 +140,20 @@
 /* Preserve distinct motion signatures without applying glass backgrounds. */
 .hero-scene-phase1 .p1-bad{opacity:.50!important}
 .hero-scene-phase1 .p1-safe{stroke:var(--motion-accent)!important}
-.hero-scene-phase1 .p1-shield{fill:rgba(62,106,225,.06)!important;stroke:var(--motion-accent)!important}
+.hero-scene-phase1 .p1-shield{fill:rgba(232,33,39,.06)!important;stroke:var(--motion-accent)!important}
 .hero-scene-phase7{overflow:hidden!important}
 .hero-scene-phase7 .p7-cube path{stroke:rgba(23,26,32,.34)!important}
 .hero-scene-phase7 .p7-hot circle{fill:var(--motion-accent)!important}
 .hero-scene-phase10 .p10-path{stroke:#252a35!important}
-.hero-scene-phase10 .p10-band{stroke:rgba(62,106,225,.64)!important}
+.hero-scene-phase10 .p10-band{stroke:rgba(232,33,39,.64)!important}
 .hero-scene-phase10 .p10-state circle{fill:var(--motion-accent)!important}
-.hero-scene-phase10 .p10-kalman rect{fill:#fff!important;stroke:rgba(62,106,225,.28)!important}
-.hero-scene-phase10r .p10r-band{fill:rgba(62,106,225,.06)!important;stroke:rgba(62,106,225,.34)!important}
+.hero-scene-phase10 .p10-kalman rect{fill:#fff!important;stroke:rgba(232,33,39,.28)!important}
+.hero-scene-phase10r .p10r-band{fill:rgba(232,33,39,.06)!important;stroke:rgba(232,33,39,.34)!important}
 .hero-scene-phase10r .p10r-mid{stroke:rgba(23,26,32,.14)!important}
-.hero-scene-phase10r .p10r-cloud.good circle{fill:rgba(62,106,225,.86)!important}
+.hero-scene-phase10r .p10r-cloud.good circle{fill:rgba(232,33,39,.86)!important}
 .hero-scene-phase10r .p10r-cloud.tail circle{fill:#fff!important;stroke:#202631!important}
-.hero-scene-phase10r .p10r-shift{stroke:rgba(62,106,225,.66)!important}
-.hero-scene-phase10r .p10r-arrow{stroke:rgba(62,106,225,.72)!important}
+.hero-scene-phase10r .p10r-shift{stroke:rgba(232,33,39,.66)!important}
+.hero-scene-phase10r .p10r-arrow{stroke:rgba(232,33,39,.72)!important}
 
 /* All 12 phases remain visible. Styling stays flat and solid. */
 .phase-rail-section{
@@ -197,8 +197,8 @@
   border-radius:50%;
   right:8%;
   top:10%;
-  border:1px solid rgba(62,106,225,.18);
-  box-shadow:0 0 0 44px rgba(62,106,225,.025),0 0 0 88px rgba(62,106,225,.018);
+  border:1px solid rgba(232,33,39,.18);
+  box-shadow:0 0 0 44px rgba(232,33,39,.025),0 0 0 88px rgba(232,33,39,.018);
   animation:motionOrbit 14s linear infinite;
 }
 .hero-media::after{
@@ -206,7 +206,7 @@
   right:10%;
   bottom:18%;
   height:1px;
-  background:linear-gradient(90deg,transparent,rgba(62,106,225,.34),transparent);
+  background:linear-gradient(90deg,transparent,rgba(232,33,39,.34),transparent);
   animation:motionScan 10s ease-in-out infinite;
 }
 .hero-media .hero-image{
@@ -241,7 +241,7 @@
   border-radius:50%;
   right:-10vw;
   top:-28vw;
-  background:radial-gradient(circle,rgba(62,106,225,.10),transparent 67%);
+  background:radial-gradient(circle,rgba(232,33,39,.08),transparent 67%);
   animation:motionFloat 12s ease-in-out infinite;
 }
 #homeModelRail::after{
@@ -252,7 +252,7 @@
   right:5%;
   bottom:14px;
   height:1px;
-  background:linear-gradient(90deg,transparent,rgba(62,106,225,.28),transparent);
+  background:linear-gradient(90deg,transparent,rgba(232,33,39,.28),transparent);
   animation:motionScan 11s ease-in-out infinite;
 }
 #homeModelRail a{

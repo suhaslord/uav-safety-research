@@ -8,12 +8,14 @@ import csv
 import gzip
 import hashlib
 import json
+import math
 from collections import defaultdict
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "results/phase25_baseline_diagnostic"
 DEST = ROOT / "deploy/vercel/failure-atlas-data.json"
+PHASE23_COMPARISON = ROOT / "results/phase23_robust_detector/robustness_comparison.csv"
 CONDITIONS = ("clean", "blur", "low_light", "noise", "occlusion", "mixed")
 DISPLAY_FLOOR = .01  # Rendering only; outcomes always use all detections >= .001.
 
@@ -76,12 +78,29 @@ def build() -> bytes:
     if len(ids) != 86 or {key[1] for key in frames} != set(CONDITIONS):
         raise ValueError("Protected frame and condition manifest mismatch")
     summary = json.loads((SOURCE / "summary.json").read_text())
+    phase23_condition_aggregates = {}
+    with PHASE23_COMPARISON.open("rt", encoding="utf-8", newline="") as handle:
+        for row in csv.DictReader(handle):
+            condition = row["condition"]
+            if condition not in CONDITIONS or condition in phase23_condition_aggregates:
+                raise ValueError(f"Unexpected or duplicate Phase 23 aggregate condition: {condition}")
+            metrics = {"map50": float(row["phase23_map50"]), "recall": float(row["phase23_recall"])}
+            if any(not math.isfinite(metric) or not 0 <= metric <= 1 for metric in metrics.values()):
+                raise ValueError(f"Invalid Phase 23 aggregate metrics for {condition}")
+            phase23_condition_aggregates[condition] = metrics
+    if set(phase23_condition_aggregates) != set(CONDITIONS):
+        raise ValueError("Phase 23 aggregate table must contain each of the six conditions exactly once")
+    source_hashes = {
+        **manifest["table_sha256"],
+        "phase23_comparison_csv": hashlib.sha256(PHASE23_COMPARISON.read_bytes()).hexdigest(),
+    }
     result = {
         "status": "baseline_only", "phase23": None, "conditions": CONDITIONS,
+        "phase23_condition_aggregates": phase23_condition_aggregates,
         "frame_ids": ids, "display_floor": DISPLAY_FLOOR, "inference_floor": .001,
         "prediction_rows": manifest["prediction_rows"], "displayed_rows": displayed,
         "condition_summary": summary["condition_summary"],
-        "source_hashes": manifest["table_sha256"],
+        "source_hashes": source_hashes,
         "cases": [frames[(frame, condition)] for frame in ids for condition in CONDITIONS],
     }
     return (json.dumps(result, separators=(",", ":"), ensure_ascii=False) + "\n").encode()

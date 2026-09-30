@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="description" content="Model VASE is AegisLand's proposed landing-reliability system, combining detector confidence, estimate uncertainty, and disagreement before a landing decision.">
+  <link rel="canonical" href="https://aegisland-research-cockpit.vercel.app/model-vase/">
+  <meta property="og:title" content="Model VASE | AegisLand">
+  <meta property="og:description" content="A clear answer to the research question, with simulation and real-camera evidence kept separate.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://aegisland-research-cockpit.vercel.app/media/perception/kios_occlusion.jpg">
+  <title>Model VASE | AegisLand</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=7">
+  <link rel="stylesheet" href="/aegisland-brand.css?v=3">
+  <link rel="stylesheet" href="/model-vase.css?v=2">
+</head>
+<body>
+  <header class="vase-header">
+    <a class="vase-brand" href="/" aria-label="AegisLand home">
+      <img src="/model-vase-mark.svg" alt="">
+      <span class="vase-brand__type"><strong>AEGISLAND</strong><small>MODEL VASE</small></span>
+    </a>
+    <nav class="vase-nav" aria-label="Main navigation">
+      <a href="/model-vase/" aria-current="page">Model VASE</a>
+      <a href="/failure-atlas/">Failure Atlas</a>
+      <a href="/phases/">Phase archive</a>
+      <a class="vase-nav__cta" href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">Source</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="vase-hero" aria-labelledby="vase-title">
+      <div class="vase-hero__copy">
+        <p class="vase-label">AegisLand / landing perception</p>
+        <h1 id="vase-title">Can it tell when a landing estimate is wrong?</h1>
+        <p class="vase-hero__deck">The frozen simulator found a recovery signal. The real-camera detector still fails under harder conditions.</p>
+        <div class="vase-actions"><a class="vase-button vase-button--primary" href="#answer">Read the answer</a><a class="vase-button vase-button--secondary" href="/failure-atlas/">Inspect real frames</a></div>
+      </div>
+      <figure class="vase-hero__image">
+        <img src="/media/perception/kios_occlusion.jpg" alt="KIOS landing-pad image under occlusion, with the published source annotation visible" width="600" height="600" fetchpriority="high">
+        <figcaption>KIOS example under occlusion. Source annotation shown; no detector prediction overlay.</figcaption>
+      </figure>
+    </section>
+
+    <section class="vase-answer" id="answer" aria-labelledby="answer-title">
+      <div class="vase-wrap vase-answer__row">
+        <p class="vase-label">Answer so far</p>
+        <div><h2 id="answer-title">Yes in one frozen planar simulation. Not yet from real camera input.</h2><p>The two results come from separate systems. No end-to-end camera-to-landing model has been evaluated.</p></div>
+      </div>
+    </section>
+
+    <section class="vase-section" aria-labelledby="results-title">
+      <div class="vase-wrap">
+        <div class="vase-section__head"><p class="vase-label">What the results say</p><h2 id="results-title">The gains are real. So are the limits.</h2></div>
+        <div class="vase-results">
+          <article class="vase-result"><strong>97.6%</strong><h3>V3 success under mixed stress</h3><p>500 paired simulation episodes. Baseline success was 15.8%; unsafe touchdowns were 84.2% vs. 2.4% for V3.</p><small>Frozen simulator result. Abstract perception stress, not camera pixels.</small></article>
+          <article class="vase-result"><strong>+3.4 pp</strong><h3>Six-condition detector mAP50 average</h3><p>Occlusion + mixed stress: <b>−13.3 pp</b> mean mAP50.</p><small>Phase 24 reanalysis of published aggregates on the same 86 protected KIOS frames.</small></article>
+          <article class="vase-result"><strong>86 × 6</strong><h3>Failure Atlas views</h3><p>Phase 22 baseline boxes are measured across 516 verified views. The paired Phase 23 frame results remain pending.</p><small>The original Phase 23 checkpoint and inference versions are unavailable.</small></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="vase-section" aria-labelledby="architecture-title">
+      <div class="vase-wrap">
+        <div class="vase-section__head"><p class="vase-label">Model VASE / proposed system</p><h2 id="architecture-title">One reliability check before the landing decision.</h2><p>VASE is designed to combine target confidence, estimate uncertainty, and disagreement between independent estimates.</p></div>
+        <div class="vase-architecture" aria-label="Proposed Model VASE system flow">
+          <article><span>01 / PERCEIVE</span><h3>Find the target</h3><p>Image location + detector confidence</p></article>
+          <span class="vase-architecture__arrow" aria-hidden="true">›</span>
+          <article><span>02 / CHECK</span><h3>Check the estimate</h3><p>Uncertainty + estimator disagreement</p></article>
+          <span class="vase-architecture__arrow" aria-hidden="true">›</span>
+          <article><span>03 / DECIDE</span><h3>Continue or pause</h3><p>Land, reobserve, hold, or abort</p></article>
+        </div>
+        <p class="vase-architecture__status"><strong>Integration status</strong> Proposed system. The camera-to-control combination has not been tested.</p>
+      </div>
+    </section>
+
+    <section class="vase-section" aria-labelledby="map-title">
+      <div class="vase-wrap">
+        <div class="vase-section__head"><p class="vase-label">The evidence</p><h2 id="map-title">Three tests. Three different limits.</h2><p>Each result stays attached to the system that produced it.</p></div>
+        <div class="vase-evidence-map">
+          <article class="vase-evidence-row"><span class="vase-evidence-row__label">Simulation</span><h3>V3 landing supervisor</h3><div><p>Tests whether independent estimates and disagreement can expose biased perception before control. The 10,000-episode frozen run supports a result in the planar simulator only.</p><a href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/v3_results.md" target="_blank" rel="noreferrer">Read the V3 result ↗</a></div></article>
+          <article class="vase-evidence-row"><span class="vase-evidence-row__label">Real images</span><h3>KIOS detector comparison</h3><div><p>Compares two landing-pad detectors on one protected temporal split. The average improves, while occlusion and mixed stress regress.</p><a href="/phases/phase23/">Read Phase 23</a> · <a href="/phases/phase24/">Read the Phase 24 audit</a></div></article>
+          <article class="vase-evidence-row"><span class="vase-evidence-row__label">Uncertainty</span><h3>Phase 12 calibration</h3><div><p>A frozen uncertainty model passed its preregistered simulation gates. It has not been joined to the KIOS detector or tested as a camera-to-control system.</p><a href="/phases/phase12/">Read the Phase 12 result</a></div></article>
+        </div>
+        <aside class="vase-not-one"><strong>Model VASE is a system architecture, not a newly trained vision network.</strong><p>It brings the research into one design. The individual components have not yet been evaluated together, so the combined system has no measured result.</p></aside>
+      </div>
+    </section>
+
+    <section class="vase-section" aria-labelledby="next-title">
+      <div class="vase-wrap vase-next">
+        <div><p class="vase-label">What would change the answer</p><h2 id="next-title">Connect the camera to the reliability test.</h2></div>
+        <div><p>Recover the exact Phase 23 checkpoint and runtime, then build a preregistered test that links image detections, uncertainty, and the landing decision on independent imagery.</p><ul><li>Do not use the reused 86-frame set to choose a reliability threshold.</li><li>Keep simulation, detector, and end-to-end results labeled separately.</li><li>Do not turn benchmark performance into a flight-safety claim.</li></ul><div class="vase-actions"><a class="vase-button vase-button--primary" href="/failure-atlas/">Open Failure Atlas</a><a class="vase-button vase-button--secondary" href="/phases/">Browse all phases</a></div></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="vase-footer"><span>AegisLand research. Simulation and detector evidence remain distinct.</span><span><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">Repository</a> · <a href="/">Home</a></span></footer>
+</body>
+</html>

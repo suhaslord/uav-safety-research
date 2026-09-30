@@ -28,8 +28,8 @@
         kios_src: '/media/perception/kios_clean.jpg',
         synthetic_note: '96×96 grayscale sensor · Centroid estimate: X +0.45m, Alt 2.5m (conf: 0.84)',
         kios_note: '1280×720 HD UAV camera · Ground truth (green) & Phase 23 detection (blue)',
-        baseline: { precision: 0.796, recall: 0.384, map50: 0.427, map5095: 0.272 },
-        phase23:  { precision: 0.717, recall: 0.593, map50: 0.555, map5095: 0.223 }
+        baseline: { precision: 0.796, recall: 0.3837209302325581, map50: 0.4266268678118929, map5095: 0.272 },
+        phase23:  { precision: 0.717, recall: 0.5930232558139535, map50: 0.5551842475528265, map5095: 0.223 }
       },
       blur: {
         label: 'Blur',
@@ -38,8 +38,8 @@
         kios_src: '/media/perception/kios_blur.jpg',
         synthetic_note: '96×96 Gaussian blur kernel · Centroid estimate tracked (conf: 0.81)',
         kios_note: 'Deterministic UAV motion blur · Phase 23 mAP50 reaches 0.586 (+17.3 pp)',
-        baseline: { precision: 0.844, recall: 0.378, map50: 0.413, map5095: 0.271 },
-        phase23:  { precision: 0.777, recall: 0.570, map50: 0.586, map5095: 0.261 }
+        baseline: { precision: 0.844, recall: 0.3776091257554052, map50: 0.4125908158023844, map5095: 0.271 },
+        phase23:  { precision: 0.777, recall: 0.5697674418604651, map50: 0.5856935328390723, map5095: 0.261 }
       },
       low_light: {
         label: 'Low light',
@@ -48,8 +48,8 @@
         kios_src: '/media/perception/kios_low_light.jpg',
         synthetic_note: '96×96 attenuated intensity · Threshold estimator margin drops (conf: 0.64)',
         kios_note: 'Gamma & contrast reduction · Recall maintained at 44.2% (vs 37.2% baseline)',
-        baseline: { precision: 0.787, recall: 0.372, map50: 0.417, map5095: 0.269 },
-        phase23:  { precision: 0.635, recall: 0.442, map50: 0.424, map5095: 0.185 }
+        baseline: { precision: 0.787, recall: 0.3720930232558139, map50: 0.4168491381871624, map5095: 0.269 },
+        phase23:  { precision: 0.635, recall: 0.4418604651162791, map50: 0.4237094746641194, map5095: 0.185 }
       },
       noise: {
         label: 'Noise',
@@ -58,8 +58,8 @@
         kios_src: '/media/perception/kios_noise.jpg',
         synthetic_note: '96×96 additive Gaussian sensor noise · Centroid tracked (conf: 0.79)',
         kios_note: 'Severe additive pixel noise · Phase 23 mAP50 reaches 0.596 (vs 0.433 baseline)',
-        baseline: { precision: 0.895, recall: 0.398, map50: 0.433, map5095: 0.262 },
-        phase23:  { precision: 0.867, recall: 0.547, map50: 0.596, map5095: 0.236 }
+        baseline: { precision: 0.895, recall: 0.397618181914848, map50: 0.4325832723899842, map5095: 0.262 },
+        phase23:  { precision: 0.867, recall: 0.5465116279069767, map50: 0.5962109670974421, map5095: 0.236 }
       },
       occlusion: {
         label: 'Occlusion',
@@ -68,8 +68,8 @@
         kios_src: '/media/perception/kios_occlusion.jpg',
         synthetic_note: '96×96 partial occlusion · Centroid shifts to visible quadrant (conf: 0.85)',
         kios_note: 'Central occlusion mask · Both detector scores fall; controller response was not measured.',
-        baseline: { precision: 0.622, recall: 0.326, map50: 0.348, map5095: 0.166 },
-        phase23:  { precision: 0.301, recall: 0.244, map50: 0.138, map5095: 0.025 }
+        baseline: { precision: 0.622, recall: 0.3255813953488372, map50: 0.3479644426407756, map5095: 0.166 },
+        phase23:  { precision: 0.301, recall: 0.2441860465116279, map50: 0.13755217164117528, map5095: 0.025 }
       },
       mixed: {
         label: 'Mixed',
@@ -78,8 +78,8 @@
         kios_src: '/media/perception/kios_mixed.jpg',
         synthetic_note: '96×96 compound degradation · Near failure boundary (conf: 0.54)',
         kios_note: 'Compound environmental stress · Both detector recall and mAP50 regressed',
-        baseline: { precision: 0.597, recall: 0.186, map50: 0.185, map5095: 0.081 },
-        phase23:  { precision: 0.487, recall: 0.081, map50: 0.129, map5095: 0.030 }
+        baseline: { precision: 0.597, recall: 0.1860465116279069, map50: 0.1848519064761554, map5095: 0.081 },
+        phase23:  { precision: 0.487, recall: 0.08139534883720931, map50: 0.12942432214764854, map5095: 0.030 }
       }
     }
   };
