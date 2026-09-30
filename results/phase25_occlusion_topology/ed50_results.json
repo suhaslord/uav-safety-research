@@ -1,0 +1,34 @@
+{
+  "CENTER": {
+    "ed50_mean": 0.3645253596782153,
+    "ed50_ci": [
+      0.02570091623036653,
+      0.6191069764157604
+    ],
+    "crossed_threshold": true
+  },
+  "OUTER_RING": {
+    "ed50_mean": 0.11294925183724225,
+    "ed50_ci": [
+      0.025,
+      0.5798109488369828
+    ],
+    "crossed_threshold": true
+  },
+  "STRIPED": {
+    "ed50_mean": 0.24945408020519771,
+    "ed50_ci": [
+      0.025,
+      0.6000000000000001
+    ],
+    "crossed_threshold": true
+  },
+  "RANDOM_PATCH": {
+    "ed50_mean": 0.35976090864462573,
+    "ed50_ci": [
+      0.025,
+      0.6928548900020156
+    ],
+    "crossed_threshold": true
+  }
+}
