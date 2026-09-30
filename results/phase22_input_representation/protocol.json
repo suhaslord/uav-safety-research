@@ -1,0 +1,100 @@
+{
+  "aggregate_matching": "unchanged official Ultralytics validation evaluator; aggregate P/R use evaluator F1 operating point; frame metrics use frozen 0.001 floor",
+  "checkpoint_sha256": "3a1801b192d624f8dcdda4bc5d9a9157309000df67a4c30d62368c37901feddd",
+  "clean_reference": {
+    "map50": 0.42662686781189296,
+    "map50_95": 0.2723431563204893,
+    "precision": 0.7959713659654185,
+    "recall": 0.38372093023255816
+  },
+  "determinism_verified_cases": 430,
+  "frame_matching": "class-aware confidence-ranked one-to-one IoU >= 0.5; all GT matched defines success; no FP restriction",
+  "limitations": [
+    "two temporally dependent source videos",
+    "86 protected frames already inspected",
+    "codec and runtime sensitivity",
+    "static detector",
+    "synthetic masks have no direct flight-safety equivalence"
+  ],
+  "method_sha256": {
+    "scripts/phase22_representation_transform.py": "c030ac469518d194e858e4d4e76f09edfc8662ed4f7b0a229ea816e097cd8e70",
+    "scripts/phase25_lib.py": "9e215c57a59e2130225ffd3518fcfd657071a483b048af6f64ebef5147e6d6f0",
+    "scripts/phase25_reconstruction_lock.py": "5869a144c7b3c81a690f2e5092bf984adb8417500b1ebd78d14deb769b87748a",
+    "scripts/run_phase22_representation_study.py": "30c8ce2f3a37853a9964e4650d1c940b7bf041571161d92261af3ccfd201082f",
+    "src/uav_safety/real_landing_dataset.py": "e371682b00adcc0ddff255046c5461ef09570f2d80e12698f82f204efe210bfb"
+  },
+  "new_followup_experiment": true,
+  "original_sweep": {
+    "evidence": "user-supplied assignment; original protocol/result unavailable in fetched repository",
+    "reported_raw_map50": 0.423908,
+    "status": "INCONCLUSIVE \u2014 CLEAN CONTROL GATE FAILED \u2014 NO TREATMENT INFERENCE RUN",
+    "tolerance": 0.001
+  },
+  "population": {
+    "cases": 430,
+    "frames": 86,
+    "variants": 5
+  },
+  "prediction_export": "capture scaled NMS outputs from the same official validation pass; normalized xyxy; no second prediction pass",
+  "primary_comparison": [
+    "RAW_SOURCE",
+    "HISTORICAL_Q95"
+  ],
+  "q95_inventory_sha256": "2412380094b505c1c21e4dfba9333e534d00ac77ac48fcf12b6b72d709c85316",
+  "q95_tolerance": 0.001,
+  "raw_reference_map50": 0.423908,
+  "raw_tolerance": 5e-06,
+  "reconstruction_lock_sha256": "41e9252f94b82109c835f9c30f1c970beca1684aac73ed09f432c88f443a4f48",
+  "representation_manifest_sha256": "2b64d727b6df59d7a525fcc9aaf1c204963345ad2e1b0ecd6a53988f51a97650",
+  "representations": [
+    "RAW_SOURCE",
+    "HISTORICAL_Q95",
+    "Q90",
+    "Q100",
+    "LOSSLESS_PNG"
+  ],
+  "runtime": {
+    "jpeg": "6.2",
+    "libjpeg_turbo": "3.1.4.1",
+    "official_validator_sha256": "10e7944ede74be2c40c176fea65b81956cbe3837fdff1e4a361f2b57f6483e60",
+    "packages": {
+      "Pillow": "12.3.0",
+      "numpy": "2.5.3",
+      "opencv-python": "5.0.0.93",
+      "scipy": "1.17.0",
+      "torch": "2.9.1+cpu",
+      "torchvision": "0.24.1+cpu",
+      "ultralytics": "8.4.152"
+    },
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+    "python": "3.12.14",
+    "ultralytics_path_recorded": "__init__.py"
+  },
+  "schema_version": 1,
+  "settings": {
+    "batch": 16,
+    "conf": 0.001,
+    "device": "cpu",
+    "imgsz": 320,
+    "iou": 0.7,
+    "max_det": 300,
+    "split": "test",
+    "workers": 2
+  },
+  "source_archive_sha256": "9d27a3e9616c188fb72a727633705735da5df168ce47efeed389dcb3455fdbdb",
+  "source_manifest_sha256": "8605cf1cbf9e8769c0324bf066078f9964f232ac3128131c8bd0b689bb7b64b7",
+  "stage_b_gate": "all 86 Q95 and raw cases complete, deterministic bytes, stable Q95 hashes, all four Q95 aggregates <=0.001 from reference, raw mAP50 within 0.000005; otherwise STOP",
+  "statistics": {
+    "binary_test": "exact two-sided McNemar/binomial on discordant pairs",
+    "bootstrap_unit": "source frame paired across representations",
+    "continuous": "paired mean differences in best IoU and best-any confidence; matched confidence on both-pass subset only",
+    "interval": "percentile 95%",
+    "pixel_association": "descriptive Spearman pixel RMSE vs absolute prediction difference; no mechanism inference",
+    "replicates": 10000,
+    "scope": "retrospective diagnostic; exploratory tests; frame uncertainty conditional on two videos, not session generalization",
+    "seed": 20260930
+  },
+  "study": "Phase 22 Input Representation Sensitivity Study v1",
+  "transform": "Pillow decode, convert RGB; JPEG save quality=95/90/100 with all other defaults; PNG compress_level=6 optimize=False; raw exact bytes",
+  "transformation_sha256": "c030ac469518d194e858e4d4e76f09edfc8662ed4f7b0a229ea816e097cd8e70"
+}
