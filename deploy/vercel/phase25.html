@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#ffffff">
-  <meta name="description" content="Phase 25 Failure Atlas: baseline boxes measured across 86 frames and 516 views. Paired Phase 23 results await the original checkpoint.">
+  <meta name="description" content="Phase 25 Failure Atlas: frame-level paired study and 5,160-view controlled occlusion topology experiment across 86 protected frames.">
   <title>Phase 25 — Failure Atlas · AegisLand</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=7">
   <link rel="stylesheet" href="/phase-report.css?v=5">
@@ -21,7 +21,7 @@
       <p class="eyebrow">Phase 25 / Failure Atlas</p>
       <h1>Find the misses behind the average.</h1>
       <p class="dek">Which frames did the robust detector recover, and which did it lose?</p>
-      <div class="atlas-status"><strong>Inputs verified · baseline observed</strong><span>Paired outcomes await the exact Phase 23 model and original inference versions.</span></div>
+      <div class="atlas-status"><strong>Inputs verified · paired study complete</strong><span>516 paired views and 5,160 occlusion topology views evaluated with authenticated Phase 23 checkpoint.</span></div>
       <p><a href="/failure-atlas/" style="display:inline-block;background:#e82127;color:#fff;padding:14px 20px;font-weight:700">Explore 516 measured baseline views →</a></p>
     </section>
 
@@ -62,20 +62,43 @@
     <section class="atlas-next" aria-labelledby="study-title" style="margin-top:2rem">
       <div><span>04 / Paired Failure-Mechanism Study</span><h2 id="study-title">Why robust training helps blur/noise but degrades occlusion/mixed</h2><p>Paired comparison of Phase 22 baseline vs authenticated Phase 23 robust detector across identical 86 frames &times; 6 conditions (516 paired views).</p></div>
       <div class="atlas-next__detail">
-        <p><strong>Frame-level Paired Outcomes:</strong> 49 RECOVERED, 75 REGRESSED, 223 BOTH PASS, 169 BOTH FAIL across 516 views.</p>
+        <p><strong>Frame-level Paired Outcomes:</strong> 49 RECOVERED, 65 REGRESSED, 223 BOTH PASS, 179 BOTH FAIL across 516 views.</p>
         <p><strong>Statistically Associated Properties:</strong></p>
         <ul>
           <li><strong>Object Size (MWU p = 3.29&times;10<sup>&minus;5</sup>):</strong> Smaller pads (Q1/Q2) suffer severe regression under occlusion due to the fixed 8px occluder clamp covering 60&ndash;100% of distant pads.</li>
           <li><strong>Confidence Shift (Wilcoxon p = 5.81&times;10<sup>&minus;4</sup>):</strong> True positive scores collapse below false positive background contours under occlusion and mixed stress.</li>
           <li><strong>Error Dynamics (FP MWU p = 2.57&times;10<sup>&minus;7</sup>, FN MWU p = 2.24&times;10<sup>&minus;26</sup>):</strong> Robust training eliminates false negatives under benign blur/noise, but triggers false positives and misses under occluded center markings.</li>
         </ul>
-        <p><strong>Root Cause:</strong> 480px training (2.25&times; pixel area) resolves fine concentric rings, delivering high blur/noise robustness. However, 55% central occlusion destroys these learned internal rings, while compound mixed degradation eliminates remaining perimeter gradients, causing Phase 23 recall to plummet to 8.1%.</p>
+        <p><strong>Root Cause Hypothesis:</strong> 480px training (2.25&times; pixel area) resolves fine concentric rings, delivering high blur/noise robustness. However, central occlusion disrupts these learned internal features, while compound mixed degradation eliminates remaining perimeter gradients, causing Phase 23 recall to plummet to 8.1%.</p>
       </div>
     </section>
 
-    <p class="atlas-boundary">Detector box correctness cannot establish landing safety or controller performance. No cutoff will be selected from this reused test set.</p>
+    <section class="atlas-next" aria-labelledby="topology-title" style="margin-top:2rem">
+      <div><span>05 / Controlled Occlusion Topology Experiment</span><h2 id="topology-title">5,160 Treatment Views: Spatial Masking Topology Analysis</h2><p>Pre-registered experimental evaluation of 86 source frames across 4 topologies (CENTER, OUTER_RING, STRIPED, RANDOM_PATCH) and 15 dose levels.</p></div>
+      <div class="atlas-next__detail">
+        <p><strong>Multiplicity-Adjusted Confirmatory Finding:</strong> Under the pre-registered Bonferroni family-wise threshold (&alpha;<sub>adj</sub> = 0.05 / 6 = 0.00833):</p>
+        <ul>
+          <li><strong>OUTER_RING vs STRIPED:</strong> Statistically significant (&Delta; = +5.24 percentage points [95% CI: +1.55, +9.15], p = 0.002). Periphery-focused masking reliably outperforms alternating-stripe disruption.</li>
+          <li><strong>OUTER_RING vs RANDOM_PATCH:</strong> Nominal association (&Delta; = +2.82 pp [95% CI: +0.39, +5.27], p = 0.010); does not meet the multiplicity-adjusted threshold.</li>
+          <li><strong>CENTER vs OUTER_RING:</strong> Overall difference is not statistically significant (&Delta; = &minus;2.39 pp [95% CI: &minus;4.96, +0.08], p = 0.062).</li>
+          <li><strong>Center-Sensitivity Verdict:</strong> <em>Inconclusive / Suggestive</em>. On distant/small targets at severe doses (&ge;0.50, N=66), an observed descriptive difference of 9.28 pp was noted (34.1% vs 43.4%, nominal p = 0.012), but does not meet the family-wise adjusted threshold.</li>
+          <li><strong>Monotonicity Observation:</strong> Empirical binned success rates exhibit non-monotonic fluctuations due to discrete image composition; overall downward trends appear primarily in fitted regression models.</li>
+        </ul>
+        <p><strong>Machine-Readable Evidence Artifacts:</strong></p>
+        <p>
+          <a href="https://github.com/suhaslord/uav-safety-research/blob/main/results/phase25_occlusion_topology/study_report.md" target="_blank" rel="noreferrer">Study Report (Markdown) ↗</a> · 
+          <a href="https://github.com/suhaslord/uav-safety-research/blob/main/results/phase25_occlusion_topology/analysis_summary.json" target="_blank" rel="noreferrer">Analysis Summary (JSON) ↗</a> · 
+          <a href="https://github.com/suhaslord/uav-safety-research/blob/main/results/phase25_occlusion_topology/statistics.json" target="_blank" rel="noreferrer">Statistics (JSON) ↗</a> · 
+          <a href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase25_phase23_occlusion_topology_protocol_v1_1.json" target="_blank" rel="noreferrer">Amended Protocol v1.1 ↗</a> · 
+          <a href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase25_occlusion_topology_fairness_decision.json" target="_blank" rel="noreferrer">Fairness Decision ↗</a> · 
+          <a href="https://github.com/suhaslord/uav-safety-research/blob/main/results/phase25_occlusion_topology/zero_dose_gate_record.json" target="_blank" rel="noreferrer">Zero-Dose Identity Gate ↗</a>
+        </p>
+      </div>
+    </section>
+
+    <p class="atlas-boundary"><strong>Epistemic Limits:</strong> Evaluated on 86 static KIOS test frames from 2 video sessions under synthetic neutral-gray occlusion masks. These results demonstrate pattern-specific detector sensitivity on a static image benchmark and do not establish flight safety, airworthiness, or real-world operational certification.</p>
     <nav class="atlas-continue" aria-label="Continue reading"><a href="/phases/phase24/">← Phase 24 results</a><a href="/phases/">All phase records →</a></nav>
   </main>
-  <footer><span>AEGISLAND · Phase 25 retrospective detector audit in progress</span><span><a href="/">Research home</a></span></footer>
+  <footer><span>AEGISLAND · Phase 25 paired detector audit & occlusion topology study complete</span><span><a href="/">Research home</a></span></footer>
 </body>
 </html>
