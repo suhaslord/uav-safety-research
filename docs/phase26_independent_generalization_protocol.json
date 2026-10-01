@@ -1,0 +1,175 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "protocol_id": "phase26-independent-generalization-v1.0",
+  "title": "Phase 26 — Independent External Dataset Admission and Generalization Benchmark Protocol",
+  "version": "1.0.0",
+  "frozen_date": "2026-09-30",
+  "status": "FROZEN_PREREGISTERED",
+  "scientific_question": "Do the Phase 22 (baseline) and Phase 23 (robust) landing-pad detectors retain useful detection, localization, and reliability performance on real camera imagery that is genuinely independent of the KIOS benchmark distribution?",
+  "admission_criteria": {
+    "campaign_independence": {
+      "requirement": "Different capture campaign and geographical location from KIOS (University of Cyprus)",
+      "validation": "Independent provenance documentation; non-KIOS collection team, distinct flight coordinates, distinct camera/platform"
+    },
+    "zero_frame_overlap": {
+      "requirement": "Zero duplicate or near-duplicate frames against KIOS archives",
+      "validation": "Exact byte hash (SHA-256) check, normalized filename collision check, and 64-bit difference hash (dhash) check with Hamming distance >= 10 against all 422 KIOS real frames (including the 86 protected frames)"
+    },
+    "zero_session_overlap": {
+      "requirement": "Zero shared continuous video sequences or capture sessions with KIOS (land_pad, land_pad2)",
+      "validation": "Independent capture session identifiers (session_id, source_video_id) documented in origin metadata"
+    },
+    "non_derivative_integrity": {
+      "requirement": "No synthetic crops, color transforms, neutral-gray occlusions, noise additions, or resolution scalings of existing KIOS frames",
+      "validation": "Lineage audit tracing images back to raw sensor capture"
+    },
+    "real_camera_imagery": {
+      "requirement": "Physical optical camera capture from aerial UAV platform or representative flight approach",
+      "validation": "Exclusion of rendered simulators (AirSim, Gazebo, Webots, Unreal Engine)"
+    },
+    "label_ontology_compatibility": {
+      "requirement": "Target class must correspond to a physical visual landing pad/target compatible with the detector's landing_pad class without subjective mapping",
+      "validation": "Geometric extent review: bounding box encloses landing pad surface with comparable margin to KIOS annotations; no conflation with non-pad objects (e.g. general vehicles, structural airport runways, ArUco markers)"
+    },
+    "negative_frame_inventory": {
+      "requirement": "Dataset must contain verified negative frames (zero landing pads present) from the same flight sessions",
+      "validation": "Manifest verifies target_count == 0 frames to enable unbiased false alarm and abstention auditing"
+    },
+    "license_permission": {
+      "requirement": "Permissive open-access license allowing research reanalysis and benchmarking",
+      "validation": "Documented license terms (e.g. CC-BY, CC0, MIT, Apache 2.0, Open Data Commons)"
+    }
+  },
+  "rejection_taxonomy": [
+    {
+      "code": "REJECTED_OVERLAP",
+      "description": "Candidate shares exact byte hashes, normalized filenames, or near-duplicate perceptual hashes with KIOS real imagery"
+    },
+    {
+      "code": "REJECTED_PROVENANCE_UNKNOWN",
+      "description": "Candidate lacks verifiable capture session metadata, capture date, platform details, or source video boundaries"
+    },
+    {
+      "code": "REJECTED_LABEL_INCOMPATIBLE",
+      "description": "Target semantics or visual structure differ fundamentally from concentric circular landing pads (e.g. ArUco markers, runways, structural helipads) and cannot be evaluated with the frozen detector without fine-tuning"
+    },
+    {
+      "code": "REJECTED_NON_REAL_IMAGERY",
+      "description": "Imagery is synthetically rendered via physics engines or simulators rather than captured by a physical camera"
+    },
+    {
+      "code": "REJECTED_LICENSE",
+      "description": "Restrictive, commercial-only, confidential, or undefined license preventing research replication"
+    },
+    {
+      "code": "REJECTED_INSUFFICIENT_SAMPLE",
+      "description": "Fewer than 30 total frames or fewer than 2 separable flight sessions"
+    }
+  ],
+  "candidate_inventory": [
+    {
+      "name": "KIOS 2022 Archive",
+      "source": "Zenodo 7477560 (Images.zip)",
+      "authors": "Rafael Makrigiorgis et al. (KIOS CoE, University of Cyprus)",
+      "status": "REJECTED_OVERLAP",
+      "rationale": "422/422 exact byte-hash duplicate matches against KIOS 2024 real frames; 100% duplicate overlap"
+    },
+    {
+      "name": "KIOS 2024 Residual Real Frames",
+      "source": "Zenodo 13682584 (Real_images_tight_labels)",
+      "authors": "KIOS CoE, University of Cyprus",
+      "status": "REJECTED_OVERLAP",
+      "rationale": "All 422 frames originate from the same two video capture sessions (land_pad, land_pad2). Cross-split collision with test set at Hamming distance 4 (land_pad__6475 vs land_pad__6500)"
+    },
+    {
+      "name": "IMAV 2025 Candidate",
+      "source": "International Micro Air Vehicle Conference & Competition 2025",
+      "authors": "IMAV 2025 Competition Committee",
+      "status": "REJECTED_PROVENANCE_UNKNOWN",
+      "rationale": "Candidate images, capture manifest, session provenance (session_id), target ontology review, and negative frame inventory are unreleased/missing"
+    },
+    {
+      "name": "TEKNOFEST Autonomous Drone Landing Dataset",
+      "source": "Kaggle TEKNOFEST AI in Aviation Competition",
+      "authors": "TEKNOFEST Participants",
+      "status": "REJECTED_LABEL_INCOMPATIBLE",
+      "rationale": "Visual targets are competition symbols ('UAP' text, red crescent) incompatible with concentric circle landing pads; random frame splits with no continuous session provenance; frozen YOLO11n detector cannot recognize without fine-tuning"
+    },
+    {
+      "name": "HelipadCat / Rowan University Helipad Benchmark",
+      "source": "Rowan University / FAA 5010 Airport Directory",
+      "authors": "Rowan University Computer Vision Lab",
+      "status": "REJECTED_LABEL_INCOMPATIBLE",
+      "rationale": "Structural airport and hospital rooftop helipads from nadir satellite perspectives, not portable UAV approach pads; incompatible sensor geometry and target semantics"
+    },
+    {
+      "name": "Roboflow Universe Community Datasets",
+      "source": "Roboflow Universe ('drone-landing-pad', 'precision-landing')",
+      "authors": "Community contributors",
+      "status": "REJECTED_LABEL_INCOMPATIBLE",
+      "rationale": "Commercial DJI foldable 'H' pads and ArUco fiducials; no capture session provenance or negative frame inventory; unverified licensing"
+    },
+    {
+      "name": "Synthetic AirSim / Gazebo / Webots Suites",
+      "source": "KIOS AirSim, PX4 Gazebo, UNM Crazyflie",
+      "authors": "Various simulation authors",
+      "status": "REJECTED_NON_REAL_IMAGERY",
+      "rationale": "Rendered synthetic computer graphics; excluded by definition from real-image external validity benchmark"
+    }
+  ],
+  "admission_verdict": {
+    "status": "NO_DATASET_ADMITTED",
+    "admitted_dataset_name": null,
+    "admitted_manifest_sha256": null,
+    "admitted_frame_count": 0,
+    "admitted_session_count": 0,
+    "summary": "Zero of seven investigated candidates satisfied the preregistered admission criteria. Candidates with matching visual targets (concentric circle landing pads) share 100% duplicate or temporal session overlap with KIOS. Independent external candidates employ fundamentally incompatible visual targets ('UAP' symbols, 'H' helipads, ArUco markers) that cannot be detected by the frozen weights without retraining, or lack verifiable capture session metadata and negative frame inventories. Rather than compromising independence standards or reporting invalid cross-class detections, Phase 26 faithfully records that no external dataset is admitted."
+  },
+  "frozen_model_locks": {
+    "phase22_baseline": {
+      "model_name": "Phase 22 Baseline Detector (YOLO11n)",
+      "checkpoint_filename": "best.pt",
+      "checkpoint_sha256": "3a1801b192d624f8dcdda4bc5d9a9157309000df67a4c30d62368c37901feddd",
+      "release_tag": "phase22-baseline-recovery",
+      "bundle_sha256": "8d6eda7f8775ad899be7a8b6fbf9e6dea30678c1e28c0b687a88184ac592288b",
+      "evaluation_settings": {
+        "imgsz": 320,
+        "conf": 0.001,
+        "iou": 0.7,
+        "max_det": 300,
+        "device": "cpu"
+      }
+    },
+    "phase23_robust": {
+      "model_name": "Phase 23 Robust Detector (YOLO11n)",
+      "checkpoint_filename": "best.pt",
+      "checkpoint_sha256": "43240be969708c32b3e11340c9846b3a588baf361378398677c794d16a455310",
+      "release_tag": "phase23-checkpoint-recovery",
+      "bundle_sha256": "a55531930988deeadf81853d00b63c7e589c6b7fd2270f57653abdb5cdd3e55d",
+      "evaluation_settings": {
+        "imgsz": 480,
+        "conf": 0.001,
+        "iou": 0.7,
+        "max_det": 300,
+        "device": 0
+      }
+    }
+  },
+  "evaluation_rules": {
+    "matching_convention": "One-to-one greedy bipartite matching with IoU >= 0.50 on class 'landing_pad'",
+    "primary_reliability_score": "Highest confidence score among post-NMS predictions of class 'landing_pad', or 0.0 if no prediction exists",
+    "negative_frame_rule": "On empty-target frames (target_count == 0), any accepted prediction is classified as a false accept. Frame with no prediction has score 0 and abstains.",
+    "fine_tuning_policy": "Strictly forbidden: zero gradient updates, zero prompt tuning, zero threshold tuning on candidate test frames"
+  },
+  "statistical_plan": {
+    "session_clustering": "Hierarchical bootstrap resampling clustered at capture_session level if session_count >= 5; descriptive reporting only if session_count < 5",
+    "bootstrap_draws": 1000,
+    "confidence_level": 0.95,
+    "multiplicity_adjustment": "Bonferroni correction across all primary model contrasts"
+  },
+  "scientific_limitations": [
+    "Concentric circle landing pad detectors exhibit severe domain specificity; public aerial datasets do not feature this exact target geometry without descending from the KIOS lineage.",
+    "Evaluating the frozen detector on general helipads or ArUco markers would measure out-of-ontology semantic mismatch rather than perceptual robustness to environmental degradation.",
+    "Genuine external validation requires a dedicated, newly flown UAV capture campaign utilizing physically replicated concentric circle landing pads with full session provenance."
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "phase": "phase26",
+  "title": "Phase 26 — Independent External Dataset Admission & Generalization Benchmark",
+  "status": "NO_DATASET_ADMITTED",
+  "audit_date": "2026-09-30",
+  "git_base_commit": "3b4881da19bf3ff2e01ab46a1d1f79ff337bd6db",
+  "protocol": {
+    "protocol_id": "phase26-independent-generalization-v1.0",
+    "protocol_path": "docs/phase26_independent_generalization_protocol.json",
+    "protocol_sha256": "a12fb965721d0cde7c96969e19f7a00ab6ead1ae62870e563b30f844bd65791c"
+  },
+  "candidate_metrics": {
+    "total_candidates_investigated": 7,
+    "candidates_admitted": 0,
+    "candidates_rejected": 7,
+    "breakdown": {
+      "REJECTED_OVERLAP": 2,
+      "REJECTED_PROVENANCE_UNKNOWN": 1,
+      "REJECTED_LABEL_INCOMPATIBLE": 3,
+      "REJECTED_NON_REAL_IMAGERY": 1
+    }
+  },
+  "frozen_model_identities": {
+    "phase22_baseline": {
+      "checkpoint": "best.pt",
+      "sha256": "3a1801b192d624f8dcdda4bc5d9a9157309000df67a4c30d62368c37901feddd",
+      "release": "phase22-baseline-recovery",
+      "imgsz": 320,
+      "conf": 0.001,
+      "iou": 0.7,
+      "verified": true
+    },
+    "phase23_robust": {
+      "checkpoint": "best.pt",
+      "sha256": "43240be969708c32b3e11340c9846b3a588baf361378398677c794d16a455310",
+      "release": "phase23-checkpoint-recovery",
+      "imgsz": 480,
+      "conf": 0.001,
+      "iou": 0.7,
+      "verified": true
+    }
+  },
+  "scientific_findings": {
+    "concentric_ring_specialization_paradox": "The frozen Phase 23 detector was trained exclusively on AirSim synthetic concentric circles and real KIOS concentric circle targets. This creates a severe research blocker: public datasets featuring this exact visual target originate exclusively from the University of Cyprus KIOS research group, sharing 100% duplicate or temporal video overlap with the training/evaluation distribution. Conversely, all genuinely independent public UAV datasets feature entirely different visual targets ('UAP' text, 'H' pads, ArUco fiducials) which the frozen detector cannot recognize without gradient updates or fine-tuning.",
+    "fine_tuning_boundary": "Fine-tuning either detector on an external dataset is strictly forbidden by the Phase 26 protocol, as it would evaluate adaptation capability rather than the zero-shot external generalization of the frozen checkpoints.",
+    "verdict_rationale": "Rather than manufacturing artificial 'generalization' on contaminated KIOS subsets or reporting nonsensical out-of-ontology zero detections on structural helipads, Phase 26 strictly upholds the preregistered admission criteria. The scientifically honest finding is NO_DATASET_ADMITTED."
+  },
+  "remediation_roadmap": {
+    "step_1_target_replication": "Manufacture physical replicas of the KIOS concentric circle landing pad (standardized dimensions, reflective/matte paint, identical concentric radius proportions).",
+    "step_2_independent_flight_campaign": "Conduct a dedicated UAV flight campaign at an independent geographical location with a different drone, gimbal, and sensor suite.",
+    "step_3_session_structured_manifest": "Record continuous flight video streams and log metadata into a strict manifest schema (path, partition, session_id, source_video_id, target_count, sha256).",
+    "step_4_negative_frame_capture": "Explicitly capture empty-target flight phases (transiting over grass, asphalt, concrete) to provide negative control frames for false alarm and abstention auditing."
+  }
+}
