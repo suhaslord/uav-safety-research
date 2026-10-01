@@ -1,0 +1,17 @@
+{
+  "base_repository_commit": "b54f0ba28d3114626c3db6c1ed1e2434d793031c",
+  "checkpoint_release": "https://github.com/suhaslord/uav-safety-research/releases/tag/phase22-baseline-recovery",
+  "bundle_url": "https://github.com/suhaslord/uav-safety-research/releases/download/phase22-baseline-recovery/phase22_recovery_bundle.zip",
+  "bundle_sha256": "8d6eda7f8775ad899be7a8b6fbf9e6dea30678c1e28c0b687a88184ac592288b",
+  "checkpoint_sha256": "3a1801b192d624f8dcdda4bc5d9a9157309000df67a4c30d62368c37901feddd",
+  "bundle_manifest_sha256": "ddc0a74ba1a633c862d673e2d3fb664cb14a57b545b0fefd80328c5b6af00ca3",
+  "archive_url": "https://zenodo.org/records/13682584/files/airisim_dataset2.7z?download=1",
+  "archive_sha256": "9d27a3e9616c188fb72a727633705735da5df168ce47efeed389dcb3455fdbdb",
+  "original_sweep_authentication": "reported status retained from assignment; original protocol/result unavailable",
+  "original_sweep_modified": false,
+  "stage_a_freeze_commit": "9dd9293",
+  "recovery_search": {
+    "source": "workspace, fetched repository main/available branch history, relevant supplied prior transcripts",
+    "outcome": "Original protocol not found; transcript reports only a shortened hash e169e16e…1882d7 and 0–75% range, insufficient to authenticate exact doses or geometry."
+  }
+}

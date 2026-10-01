@@ -1,0 +1,30 @@
+{
+  "status": "PASS",
+  "full_python_suite": {
+    "passed": 385,
+    "failed": 0,
+    "command": "python -m pytest -q"
+  },
+  "artifact_replay": {
+    "status": "PASS",
+    "frame_rows_replayed": 430,
+    "prediction_rows_replayed": 125208,
+    "paired_statistics_replayed": true,
+    "detector_inference_run": false,
+    "scope": "artifact hashes, saved boxes/matches, frame metrics, statistics, and recorded metric gate; aggregate detector reevaluation requires study runner"
+  },
+  "historical_release_check": {
+    "status": "committed_phase25a_verified",
+    "hash_checks": 9,
+    "site_checks": 2,
+    "all_checks_passed": true
+  },
+  "frozen_representation_cases": 430,
+  "source_frames": 86,
+  "source_label_and_image_hash_checks": 172,
+  "q95_derived_inventory_sha256": "2412380094b505c1c21e4dfba9333e534d00ac77ac48fcf12b6b72d709c85316",
+  "stage_b_dose_and_mask_tests": "NOT RUN: original protocol unavailable; no Stage B cases generated",
+  "original_protocol_files_changed": false,
+  "merged": false,
+  "deployed": false
+}

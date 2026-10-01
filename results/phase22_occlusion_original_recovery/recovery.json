@@ -1,0 +1,39 @@
+{
+  "all_image_hashes_and_decodes_verified": true,
+  "authentication": "Protocol digest matches previously recorded full digest; geometry/PNG encoding reproduces previously recorded full 516-case manifest digest.",
+  "case_count": 516,
+  "detector_inference_run": false,
+  "doses": [
+    0.0,
+    0.15,
+    0.3,
+    0.45,
+    0.6,
+    0.75
+  ],
+  "historical_manifest_sha256": "eb2c4202dcd36f792f0a767986bdc3369e32b04d36360ee9fc7ac6db5f7ead28",
+  "historical_target_mask_digest_matched": true,
+  "original_status": "INCONCLUSIVE \u2014 CLEAN GATE FAILED \u2014 NO TREATMENT INFERENCE RUN",
+  "protocol_path": "docs/phase25_occlusion_sweep_protocol.md",
+  "protocol_sha256": "e169e16ea40ca44ee60ca8b6074d054c33aeeaf1a3d24e55fa4cd3b8581882d7",
+  "receipt_limit": "The lost original implementation-freeze receipt was not recovered. Runner is the publication-recovery implementation, authenticated by complete historical manifest reproduction, not by an unavailable older source receipt.",
+  "recovered_from": "codex/all-work-publication-2026-09-30",
+  "recovered_runner_path": "scripts/run_phase25_occlusion_sweep.py",
+  "recovered_runner_sha256": "939b286418c66fa7a8ab39c6dc981b43324b5804f21f026ff1090a84e95c79a4",
+  "recovery_source_commit": "f090da03d20b2425c5addccb4d19117c8991bcc1",
+  "remote_provenance_sha256": "8b85fbbaf41858c930d5908da422ea9db6eb51840c277d2015b7035112fc5988",
+  "search_scope": {
+    "branches_stashes_reflogs": "local branches, reflogs and empty stash inventoried",
+    "temporary_directories": "available /workspace and /tmp candidate paths searched",
+    "transcripts": "previous supplied Codex transcripts inspected; protocol prefix/suffix and historical recovery corroborated",
+    "windows_paths": "Requested C:\\Users\\suhas paths are not mounted in this Linux execution environment; no Windows drive access available",
+    "worktrees": "all three local worktrees inspected; matching candidate found in aegisland-fix"
+  },
+  "source_frames": 86,
+  "source_labels_sha256": "0c20bf4d97ecfb0171a3f6d5350e263d51bfe6281049d434e1add99c55618d31",
+  "statistics": "Descriptive paired source-frame changes only; no significance tests or population confidence intervals.",
+  "status": "PASS",
+  "target_case_count": 516,
+  "target_mask_manifest_sha256": "76f00fe7050e629a319b9b4d1fb65a0d45c6e9bd127f8f075b2d264d5a4d9554",
+  "threshold_criterion": "None in authenticated original protocol; no threshold may be selected after outcomes."
+}

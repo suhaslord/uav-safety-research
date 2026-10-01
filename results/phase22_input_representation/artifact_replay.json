@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "frame_rows_replayed": 430,
+  "prediction_rows_replayed": 125208,
+  "paired_statistics_replayed": true,
+  "detector_inference_run": false,
+  "scope": "artifact hashes, saved boxes/matches, frame metrics, statistics, and recorded metric gate; aggregate detector reevaluation requires study runner"
+}

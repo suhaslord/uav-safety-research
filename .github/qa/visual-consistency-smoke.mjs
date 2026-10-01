@@ -371,7 +371,7 @@ try {
     }));
     add('atlas-live-baseline-and-published-phase23-aggregates', /See where the model fails/i.test(atlas.title)
       && atlas.conditions === 6 && atlas.matrix === 516 && /BEST IoU/.test(atlas.score)
-      && /Frame outcomes pending/i.test(atlas.pending) && atlas.phase23Map50 === '55.5%' && atlas.phase23Recall === '59.3%'
+      && /Paired frame tables verified/i.test(atlas.pending) && /published condition aggregates/i.test(atlas.pending) && /verified paired frame outcomes/i.test(atlas.pending) && atlas.phase23Map50 === '55.5%' && atlas.phase23Recall === '59.3%'
       && atlas.folderInput && atlas.overflow <= 1
       && atlas.heroImage === '/media/perception/kios_clean.jpg' && atlas.sourceImageLoaded
       && atlas.phase23ImageLoaded && atlas.phase23ImageSameSource && /Same source frame/.test(atlas.phase23ImageBadge), atlas);
