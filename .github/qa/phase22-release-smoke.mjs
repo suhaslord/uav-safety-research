@@ -21,6 +21,17 @@ try {
       const page=await context.newPage();const errors=[];
       page.on('pageerror',e=>errors.push(e.message));
       const response=await page.goto(base+route,{waitUntil:'networkidle',timeout:45000});
+      // A full-page audit must load offscreen lazy images before measuring them.
+      await page.locator('img').evaluateAll(images=>images
+        .filter(i=>i.getAttribute('src')&&i.getClientRects().length)
+        .forEach(i=>{i.loading='eager';}));
+      await page.evaluate(async()=>{
+        const images=[...document.images].filter(i=>i.getAttribute('src')&&i.getClientRects().length);
+        await Promise.race([
+          Promise.all(images.map(i=>i.decode().catch(()=>{}))),
+          new Promise(resolve=>setTimeout(resolve,15000))
+        ]);
+      });
       const text=await page.locator('body').innerText();
       const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth);
       const images=await page.locator('img').evaluateAll(images=>images.filter(i=>i.getAttribute('src')&&i.getClientRects().length&&(!i.complete||i.naturalWidth===0)).map(i=>i.getAttribute('src')));
