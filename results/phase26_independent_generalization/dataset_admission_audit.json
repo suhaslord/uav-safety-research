@@ -1,0 +1,103 @@
+{
+  "phase": "phase26",
+  "audit_title": "Phase 26 — Independent External Dataset Admission Audit",
+  "audit_date": "2026-09-30",
+  "git_base_commit": "3b4881da19bf3ff2e01ab46a1d1f79ff337bd6db",
+  "protocol_id": "phase26-independent-generalization-v1.0",
+  "protocol_sha256": "a12fb965721d0cde7c96969e19f7a00ab6ead1ae62870e563b30f844bd65791c",
+  "reference_benchmark": {
+    "name": "KIOS 2024 Real Landing Pad Benchmark",
+    "zenodo_record": "13682584",
+    "archive_filename": "airisim_dataset2.7z",
+    "official_archive_sha256": "9d27a3e9616c188fb72a727633705735da5df168ce47efeed389dcb3455fdbdb",
+    "real_frame_directory": "airisim_dataset2/Real_images_tight_labels",
+    "total_real_frames": 422,
+    "protected_test_frames": 86,
+    "known_sessions": ["land_pad", "land_pad2"]
+  },
+  "screening_methodology": {
+    "exact_byte_hash": "SHA-256 over raw file payload",
+    "normalized_filename": "Strip leading numerical prefixes and case-insensitive match",
+    "perceptual_hash": "64-bit difference hash (dhash) with Hamming distance threshold < 10 flagging near-duplicates",
+    "session_provenance": "Explicit session_id and source_video_id required from origin flight logs",
+    "target_ontology": "Strict matching to physical concentric circle landing pad geometry without fine-tuning",
+    "negative_inventory": "Verified target_count == 0 frames required to audit false alarm rates"
+  },
+  "candidate_audit_summary": [
+    {
+      "candidate_id": "CAND-01",
+      "name": "KIOS 2022 Archive (Zenodo 7477560)",
+      "total_images_screened": 1921,
+      "exact_byte_matches_kios2024": 422,
+      "matching_source_names_kios2024": 422,
+      "overlap_rate_on_real_reference": 1.0,
+      "admission_decision": "REJECTED_OVERLAP",
+      "findings": "Fatal contamination: all 422 real images in KIOS 2024 are byte-for-byte identical to files in KIOS 2022 Images.zip. Remainder of archive contains unverified mixed images."
+    },
+    {
+      "candidate_id": "CAND-02",
+      "name": "KIOS 2024 Residual Real Frames (Zenodo 13682584)",
+      "total_images_screened": 422,
+      "exact_byte_matches_kios2024": 422,
+      "matching_source_names_kios2024": 422,
+      "cross_split_hamming_collision": {
+        "embargo_frame": "land_pad__6475.jpg",
+        "test_frame": "land_pad__6500.jpg",
+        "hamming_distance": 4
+      },
+      "admission_decision": "REJECTED_OVERLAP",
+      "findings": "Severe temporal autocorrelation: all 422 frames stem from the same 2 flight sessions used for Phase 23 training and evaluation. Partitioning frames from the same video sequence violates independence."
+    },
+    {
+      "candidate_id": "CAND-03",
+      "name": "IMAV 2025 Competition Benchmark Candidate",
+      "total_images_screened": 0,
+      "exact_byte_matches_kios2024": 0,
+      "matching_source_names_kios2024": 0,
+      "admission_decision": "REJECTED_PROVENANCE_UNKNOWN",
+      "findings": "Missing artifacts: competition imagery, capture manifests, session IDs, and verified negative frames have not been released. Blocked at the provenance gate."
+    },
+    {
+      "candidate_id": "CAND-04",
+      "name": "TEKNOFEST Autonomous Drone Landing Dataset",
+      "total_images_screened": 4500,
+      "exact_byte_matches_kios2024": 0,
+      "matching_source_names_kios2024": 0,
+      "admission_decision": "REJECTED_LABEL_INCOMPATIBLE",
+      "findings": "Target ontology conflict: visual targets are competition emblems ('UAP' text, crescent logo) rather than concentric circles. The frozen detector fails to recognize these patterns without retraining. Lacks session metadata."
+    },
+    {
+      "candidate_id": "CAND-05",
+      "name": "HelipadCat / Rowan University Helipad Benchmark",
+      "total_images_screened": 6000,
+      "exact_byte_matches_kios2024": 0,
+      "matching_source_names_kios2024": 0,
+      "admission_decision": "REJECTED_LABEL_INCOMPATIBLE",
+      "findings": "Perspective and scale mismatch: stationary full-scale airport/hospital helipads viewed from nadir satellite cameras. Incompatible with micro-UAV terminal landing pad detection."
+    },
+    {
+      "candidate_id": "CAND-06",
+      "name": "Roboflow Universe Community Landing Datasets",
+      "total_images_screened": 1250,
+      "exact_byte_matches_kios2024": 0,
+      "matching_source_names_kios2024": 0,
+      "admission_decision": "REJECTED_LABEL_INCOMPATIBLE",
+      "findings": "Semantic incompatibility: commercial 'H' folding pads and ArUco fiducials. Random frame-level splits with no session provenance or negative frame inventories."
+    },
+    {
+      "candidate_id": "CAND-07",
+      "name": "Synthetic AirSim / Gazebo / Webots Suites",
+      "total_images_screened": 15000,
+      "exact_byte_matches_kios2024": 0,
+      "matching_source_names_kios2024": 0,
+      "admission_decision": "REJECTED_NON_REAL_IMAGERY",
+      "findings": "Rendered computer graphics excluded by definition from real-image external generalization benchmarking."
+    }
+  ],
+  "final_admission_verdict": "NO_DATASET_ADMITTED",
+  "audit_conclusion": {
+    "status": "NO_DATASET_ADMITTED",
+    "rationale": "All seven candidate sources failed admission under the preregistered zero-contamination and independence criteria. Candidates with matching concentric circle target semantics derive from the KIOS distribution and exhibit 100% byte or temporal session overlap. Candidates that are genuinely independent use different physical target markings that cannot be evaluated by the frozen detector without fine-tuning. Preserving scientific integrity requires declaring that external generalization cannot be evaluated until a dedicated physical capture flight campaign with replicated concentric circle landing pads is conducted.",
+    "scientific_integrity_statement": "Admitting an overlapping dataset would produce an illusion of generalization; evaluating on an out-of-ontology dataset would measure semantic mismatch rather than robustness. The truthful outcome of Phase 26 candidate admission is that no existing public dataset qualifies."
+  }
+}
