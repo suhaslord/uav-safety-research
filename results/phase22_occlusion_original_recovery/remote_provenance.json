@@ -1,0 +1,17 @@
+{
+  "source_branch": "codex/all-work-publication-2026-09-30",
+  "source_commit": "f090da03d20b2425c5addccb4d19117c8991bcc1",
+  "selection": "Only the 10 research recovery files from this commit; no old branch merge, cherry-pick or website files.",
+  "file_sha256": {
+    "docs/phase25_occlusion_sweep_protocol.md": "e169e16ea40ca44ee60ca8b6074d054c33aeeaf1a3d24e55fa4cd3b8581882d7",
+    "docs/phase25_occlusion_sweep_reproduce.md": "845b638310186fcc05f15203c99cb156b2e87be0a6951c1a09bf360bf2333006",
+    "results/phase25_control_input_diagnostic/clean_reconciliation.csv": "279d12f171c3801bef7cc73c8cf68b6d712083338d93a3c8be28a4aff4bf9c64",
+    "results/phase25_control_input_diagnostic/diagnostic.json": "633266bd6898ad828450583ec157567257e2ad82821b27de9230658695724942",
+    "results/phase25_occlusion_sweep/historical_attempt.json": "aaa59a0cf2d21ccbb3fcc477730924322a8ccdc019c665d56dc8eae1a55e6859",
+    "results/phase25_occlusion_sweep_recovered/restoration_record.json": "9805d1e1c9a595d2fe1ca0855d41d5915ddf83b5fe7859732689d35d926517f4",
+    "results/phase25_occlusion_sweep_recovered/summary.md": "ef5f18b7736b2d9e08cf288878bd25563c909ec0065e4b86cfc1a940610c4dd9",
+    "results/phase25_occlusion_sweep_recovered/zero_dose_gate.json": "5e14318f4c6e707d229f69931e4127b4fcefef5487fbaa249b1a54735a1b213a",
+    "scripts/run_phase25_occlusion_sweep.py": "939b286418c66fa7a8ab39c6dc981b43324b5804f21f026ff1090a84e95c79a4",
+    "tests/test_phase25_occlusion_sweep_publication.py": "02182a7340845ee7bef4779bf0c0f3d51126b32b2213ae3a1319ff1fe91fcca8"
+  }
+}
