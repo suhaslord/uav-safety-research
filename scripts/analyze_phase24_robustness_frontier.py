@@ -11,7 +11,7 @@ FIELDS = ("condition", "baseline_recall", "phase23_recall", "recall_gain", "base
 
 
 def analyze(source_csv: Path) -> dict:
-    raw = source_csv.read_bytes()
+    raw = source_csv.read_bytes().replace(b"\r\n", b"\n")
     rows = list(csv.DictReader(raw.decode("utf-8-sig").splitlines()))
     names = tuple(row.get("condition") for row in rows)
     if names != EXPECTED:
@@ -103,8 +103,8 @@ def write_outputs(root: Path, result: dict) -> None:
     result_dir.mkdir(parents=True, exist_ok=True)
     web_dir.mkdir(parents=True, exist_ok=True)
     payload = json.dumps(result, indent=2, sort_keys=False) + "\n"
-    (result_dir / "summary.json").write_text(payload, encoding="utf-8")
-    (web_dir / "phase24-results.json").write_text(payload, encoding="utf-8")
+    (result_dir / "summary.json").write_text(payload, encoding="utf-8", newline="\n")
+    (web_dir / "phase24-results.json").write_text(payload, encoding="utf-8", newline="\n")
 
     with (result_dir / "condition_frontier.csv").open("w", encoding="utf-8", newline="") as handle:
         writer = csv.writer(handle)
@@ -132,7 +132,7 @@ def write_outputs(root: Path, result: dict) -> None:
         "Run python scripts/analyze_phase24_robustness_frontier.py from the repository root. The script validates the source deltas and writes this summary, summary.json, condition_frontier.csv, and the dashboard data JSON.",
         "",
     ]
-    (result_dir / "summary.md").write_text("\n".join(report), encoding="utf-8")
+    (result_dir / "summary.md").write_text("\n".join(report), encoding="utf-8", newline="\n")
 
 
 def main() -> None:

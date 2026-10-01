@@ -62,5 +62,66 @@
       "baseline_recall": 0.1860465116279069,
       "robust_recall": 0.08139534883720931
     }
-  ]
+  ],
+  "paired_mechanism_study": {
+    "status": "completed",
+    "checkpoint_authenticated": true,
+    "views_analyzed": 516,
+    "frames": 86,
+    "outcomes_summary": {
+      "recovered": 49,
+      "regressed": 75,
+      "both_pass": 223,
+      "both_fail": 169
+    },
+    "transitions_by_condition": {
+      "clean": {"recovered": 7, "regressed": 14, "both_pass": 39, "both_fail": 26},
+      "blur": {"recovered": 13, "regressed": 5, "both_pass": 40, "both_fail": 28},
+      "low_light": {"recovered": 6, "regressed": 17, "both_pass": 32, "both_fail": 31},
+      "noise": {"recovered": 10, "regressed": 7, "both_pass": 38, "both_fail": 31},
+      "occlusion": {"recovered": 6, "regressed": 16, "both_pass": 37, "both_fail": 27},
+      "mixed": {"recovered": 7, "regressed": 6, "both_pass": 37, "both_fail": 36}
+    },
+    "statistically_associated_properties": [
+      {
+        "property": "object_size",
+        "test": "Mann-Whitney U",
+        "p_value": 3.29e-05,
+        "significant": true,
+        "finding": "Smaller pads (Q1/Q2) suffer higher miss rate; 8px occluder clamp covers up to 100% of distant pads."
+      },
+      {
+        "property": "confidence_shift_overall",
+        "test": "Wilcoxon signed-rank",
+        "p_value": 0.00058,
+        "significant": true,
+        "finding": "Confidence collapses under severe stress (occlusion/mixed), compressing detection margins."
+      },
+      {
+        "property": "iou_shift_overall",
+        "test": "Wilcoxon signed-rank",
+        "p_value": 8.94e-05,
+        "significant": true,
+        "finding": "Paired IoU exhibits significant shift across conditions."
+      },
+      {
+        "property": "fp_delta",
+        "test": "Mann-Whitney U",
+        "p_value": 2.57e-07,
+        "significant": true,
+        "finding": "Robust model eliminates FP on benign blur/noise but induces background FP on severe stress."
+      },
+      {
+        "property": "fn_delta",
+        "test": "Mann-Whitney U",
+        "p_value": 2.24e-26,
+        "significant": true,
+        "finding": "False negatives sharply diverge between recovered benign views and regressed occluded views."
+      }
+    ],
+    "failure_mechanism_answer": {
+      "benign_improvement": "480px input resolution provides 2.25x more pixel area to resolve concentric ring geometry; multi-scale mosaic and HSV jitter provide invariance to spatial blur and sensor noise without altering internal pad coherence.",
+      "severe_degradation": "Occlusion masks the central 55% of the target, destroying the pad's distinctive concentric center marking. Phase 23 at 480px became strongly specialized to this internal marking; without it, confidence collapses below background noise. The fixed 8px clamp disproportionately occludes small distant targets (>60-100% area), and mixed compound degradation collapses recall to 8.1%."
+    }
+  }
 }

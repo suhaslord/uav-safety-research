@@ -245,7 +245,7 @@ try {
       await page.locator('#top a[href="/failure-atlas/"]').count() === 1
         && await page.locator('#phase25 .phase25-feature__images img').count() === 2
         && await page.locator('#phase25 .phase25-feature__proof a[href*="phase25_reconstruction_audit.json"]').count() === 1
-        && /Baseline measured · Phase 23 pending/i.test(await page.locator('#phase25').innerText()));
+        && /Baseline measured · Phase 23 (pending|paired)/i.test(await page.locator('#phase25').innerText()));
     await page.close();
     await context.close();
   }

@@ -1,0 +1,82 @@
+{
+  "signals": [
+    "naive_confidence",
+    "scale_conditioned_confidence",
+    "fp_rate_signal"
+  ],
+  "tasks": [
+    {
+      "task": "safe_vs_degraded",
+      "n_total": 516,
+      "results": [
+        {
+          "signal": "naive_confidence",
+          "auroc": 0.7113970588235294,
+          "n_positive": 272,
+          "n_negative": 244
+        },
+        {
+          "signal": "scale_conditioned_confidence",
+          "auroc": 0.8110987222757956,
+          "n_positive": 272,
+          "n_negative": 244
+        },
+        {
+          "signal": "fp_rate_signal",
+          "auroc": 0.5894858968177434,
+          "n_positive": 272,
+          "n_negative": 244
+        }
+      ]
+    },
+    {
+      "task": "recoverable_vs_catastrophic",
+      "n_total": 228,
+      "results": [
+        {
+          "signal": "naive_confidence",
+          "auroc": 0.6117888496180595,
+          "n_positive": 49,
+          "n_negative": 179
+        },
+        {
+          "signal": "scale_conditioned_confidence",
+          "auroc": 0.6068863299509748,
+          "n_positive": 49,
+          "n_negative": 179
+        },
+        {
+          "signal": "fp_rate_signal",
+          "auroc": 0.6355603693991563,
+          "n_positive": 49,
+          "n_negative": 179
+        }
+      ]
+    },
+    {
+      "task": "safe_vs_degraded_severe",
+      "n_total": 172,
+      "results": [
+        {
+          "signal": "naive_confidence",
+          "auroc": 0.4581473968897904,
+          "n_positive": 87,
+          "n_negative": 85
+        },
+        {
+          "signal": "scale_conditioned_confidence",
+          "auroc": 0.7390128465179175,
+          "n_positive": 87,
+          "n_negative": 85
+        },
+        {
+          "signal": "fp_rate_signal",
+          "auroc": 0.42684246112238,
+          "n_positive": 87,
+          "n_negative": 85
+        }
+      ]
+    }
+  ],
+  "note": "Offline feasibility analysis only. No V3 equations or thresholds modified. CAUTION: Controlled ablation demonstrates that scale_conditioned_confidence is driven by ground-truth target_area_ratio (scale-only AUROC 0.8369). Because target_area_ratio is unavailable at runtime and predicted boxes collapse during failures, this signal does not survive ablation as a viable runtime supervisory signal."
+}

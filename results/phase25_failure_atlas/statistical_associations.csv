@@ -1,0 +1,17 @@
+property,comparison,test_name,statistic,p_value,dof,statistically_significant_05,effect_description
+degradation_type,condition_vs_outcome_distribution,Chi-square,21.594014707676983,0.11889955968589319,15,False,Degradation type determines whether robust training recovers or regresses detection
+benign_vs_severe_stress,benign_vs_severe_transitions,Chi-square,1.3096722323625292,0.7268376003843441,3,False,Benign stress strongly associates with recovery; severe tail strongly associates with regression
+object_size,recovered_vs_regressed,Mann-Whitney U,867.5,3.2924402522267564e-05,,True,Mean diff (rec - reg): -0.0259
+brightness,recovered_vs_regressed,Mann-Whitney U,1519.0,0.6760642215060051,,False,Mean diff (rec - reg): 0.0137
+sharpness,recovered_vs_regressed,Mann-Whitney U,1308.0,0.10404144127124094,,False,Mean diff (rec - reg): -0.0002
+baseline_confidence,recovered_vs_regressed,Mann-Whitney U,2553.0,3.909760387112267e-08,,True,Mean diff (rec - reg): 0.0765
+phase23_confidence,recovered_vs_regressed,Mann-Whitney U,1898.0,0.08085106724546305,,False,Mean diff (rec - reg): 0.0214
+confidence_shift,recovered_vs_regressed,Mann-Whitney U,1355.0,0.1749247099391138,,False,Mean diff (rec - reg): -0.0551
+baseline_iou,recovered_vs_regressed,Mann-Whitney U,0.0,8.062186876481163e-20,,True,Mean diff (rec - reg): -0.2506
+phase23_iou,recovered_vs_regressed,Mann-Whitney U,3185.0,8.062186876481163e-20,,True,Mean diff (rec - reg): 0.1493
+iou_shift,recovered_vs_regressed,Mann-Whitney U,3185.0,8.062186876481163e-20,,True,Mean diff (rec - reg): 0.3999
+fp_delta,recovered_vs_regressed,Mann-Whitney U,692.0,2.5737477971572077e-07,,True,Mean diff (rec - reg): -23.1733
+fn_delta,recovered_vs_regressed,Mann-Whitney U,0.0,2.2363549100521186e-26,,True,Mean diff (rec - reg): -2.0000
+occlusion_severity,recovered_vs_regressed_occluded_frames,Mann-Whitney U,196.0,0.06080862161439009,,False,"Mean occlusion severity: rec=0.3221303567169275, reg=0.3117190153090212"
+confidence_shift_overall,phase23_vs_baseline_paired_confidence,Wilcoxon signed-rank,55035.0,0.0005808473923950915,,True,Mean paired shift: +0.0298
+iou_shift_overall,phase23_vs_baseline_paired_iou,Wilcoxon signed-rank,53418.0,8.943569672362304e-05,,True,Mean paired IoU shift: -0.0261

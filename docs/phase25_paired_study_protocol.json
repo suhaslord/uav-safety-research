@@ -1,0 +1,119 @@
+{
+  "protocol_name": "Phase 23 Frame-Level Reconstruction and Paired Failure Atlas Study Protocol",
+  "phase": "phase25",
+  "status": "frozen",
+  "frozen_at_utc": "2026-09-30T06:05:00Z",
+  "phase23_release": {
+    "release_tag": "phase23-checkpoint-recovery",
+    "release_url": "https://github.com/suhaslord/uav-safety-research/releases/tag/phase23-checkpoint-recovery",
+    "asset_name": "phase23_recovery_bundle.zip",
+    "bundle_sha256": "a55531930988deeadf81853d00b63c7e589c6b7fd2270f57653abdb5cdd3e55d",
+    "checkpoint_filename": "best.pt",
+    "checkpoint_sha256": "43240be969708c32b3e11340c9846b3a588baf361378398677c794d16a455310"
+  },
+  "dataset": {
+    "manifest_path": "results/phase25_failure_atlas/protected_test_manifest.csv",
+    "manifest_sha256": "8605cf1cbf9e8769c0324bf066078f9964f232ac3128131c8bd0b689bb7b64b7",
+    "source_frame_count": 86,
+    "sequence_counts": {
+      "land_pad": 66,
+      "land_pad2": 20
+    },
+    "conditions": [
+      "clean",
+      "blur",
+      "low_light",
+      "noise",
+      "occlusion",
+      "mixed"
+    ],
+    "total_views": 516
+  },
+  "baseline_comparison": {
+    "model_name": "phase22_baseline",
+    "actions_run_id": 34932763449,
+    "actions_artifact_id": 10382104202,
+    "artifact_sha256": "7080c8243c1d7cb85a63f81ea0531eda34dd1f18616f7b4dfdc869a2379c9833",
+    "checkpoint_sha256": "3a1801b192d624f8dcdda4bc5d9a9157309000df67a4c30d62368c37901feddd",
+    "frame_metrics_source": "results/phase25_baseline_diagnostic/frame_condition_metrics.csv"
+  },
+  "inference_parameters": {
+    "phase23": {
+      "imgsz": 480,
+      "conf": 0.001,
+      "iou": 0.7,
+      "max_det": 300,
+      "batch": 16,
+      "device": "0"
+    },
+    "baseline": {
+      "imgsz": 320,
+      "conf": 0.001,
+      "iou": 0.7,
+      "max_det": 300,
+      "batch": 16,
+      "device": "cpu"
+    }
+  },
+  "evaluation_rules": {
+    "class_id": 0,
+    "class_name": "landing_pad",
+    "matching_rule": "one-to-one confidence-ranked greedy matching",
+    "iou_threshold": 0.5,
+    "confidence_handling": "unfiltered predictions above conf=0.001 matched to ground truth; no threshold tuning on test set",
+    "tp_definition": "predicted box with match_iou >= 0.50 against an unmatched ground truth target",
+    "fp_definition": "predicted box with match_iou < 0.50 or matching an already-matched ground truth target",
+    "fn_definition": "ground truth target without any matched prediction with match_iou >= 0.50",
+    "frame_success_definition": "tp >= 1 and fn == 0 (successful localization of target)",
+    "paired_outcomes": {
+      "RECOVERED": {
+        "definition": "baseline_pass == False and phase23_pass == True",
+        "description": "Detector recovered landing pad detection where baseline failed"
+      },
+      "REGRESSED": {
+        "definition": "baseline_pass == True and phase23_pass == False",
+        "description": "Detector lost landing pad detection where baseline succeeded"
+      },
+      "BOTH_PASS": {
+        "definition": "baseline_pass == True and phase23_pass == True",
+        "description": "Both detectors correctly localized the landing pad"
+      },
+      "BOTH_FAIL": {
+        "definition": "baseline_pass == False and phase23_pass == False",
+        "description": "Both detectors failed to localize the landing pad"
+      }
+    },
+    "missing_data_behavior": "strict: any missing view, frame, or condition raises an error and halts execution"
+  },
+  "statistical_testing_plan": {
+    "paired_binary_test": {
+      "test_name": "McNemar's test",
+      "applied_to": "Per-condition and overall binary success paired contingency tables",
+      "correction": "Continuity correction applied; exact binomial calculation when discordant count (b + c) < 25"
+    },
+    "continuous_variable_tests": {
+      "tests": [
+        "Paired Wilcoxon signed-rank test for IoU differences (Phase 23 - Baseline)",
+        "Paired Wilcoxon signed-rank test for confidence differences (Phase 23 - Baseline)"
+      ]
+    },
+    "clustered_bootstrap": {
+      "cluster_unit": "source_frame (N=86)",
+      "num_resamples": 1000,
+      "seed": 20260922,
+      "confidence_interval": 0.95,
+      "description": "Accounts for repeated observations across 6 conditions per source frame by resampling whole source frames with replacement"
+    }
+  },
+  "output_artifacts": {
+    "phase23_frame_predictions": "results/phase25_failure_atlas/phase23_frame_predictions.csv",
+    "phase23_frame_metrics": "results/phase25_failure_atlas/phase23_frame_metrics.csv",
+    "paired_frame_outcomes": "results/phase25_failure_atlas/paired_frame_outcomes.csv",
+    "paired_analysis_summary": "results/phase25_failure_atlas/paired_analysis_summary.json",
+    "paired_statistics": "results/phase25_failure_atlas/paired_statistics.json",
+    "phase23_frame_reconciliation": "results/phase25_failure_atlas/phase23_frame_reconciliation.json",
+    "top_failure_examples": "results/phase25_failure_atlas/top_failure_examples.json",
+    "figures_directory": "results/phase25_failure_atlas/figures",
+    "technical_report": "results/phase25_failure_atlas/paired_study_report.md"
+  }
+}

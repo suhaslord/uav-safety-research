@@ -1,0 +1,90 @@
+{
+  "status": "PASS",
+  "phase": "phase25",
+  "created_utc": "2026-09-30T06:11:33.364214+00:00",
+  "checkpoint_sha256": "43240be969708c32b3e11340c9846b3a588baf361378398677c794d16a455310",
+  "bundle_sha256": "a55531930988deeadf81853d00b63c7e589c6b7fd2270f57653abdb5cdd3e55d",
+  "manifest_sha256": "8605cf1cbf9e8769c0324bf066078f9964f232ac3128131c8bd0b689bb7b64b7",
+  "counts": {
+    "total_views": 516,
+    "recovered": 49,
+    "regressed": 65,
+    "both_pass": 223,
+    "both_fail": 179
+  },
+  "rates": {
+    "baseline_success_rate": 0.5581395348837209,
+    "phase23_success_rate": 0.5271317829457365,
+    "success_rate_delta": -0.031007751937984496,
+    "success_rate_delta_ci95": [
+      -0.09307170542635658,
+      0.036870155038759705
+    ]
+  },
+  "mcnemar": {
+    "discordant_pairs": 114,
+    "chi2_continuity_corrected": 1.9736842105263157,
+    "p_value_asymptotic": 0.1600573462319449,
+    "p_value_exact_binomial": 0.15976150778501866
+  },
+  "continuous_deltas": {
+    "mean_iou_delta": -0.026115233670393912,
+    "mean_confidence_delta": 0.00569093359865306
+  },
+  "by_condition": {
+    "clean": {
+      "recovered": 7,
+      "regressed": 14,
+      "both_pass": 39,
+      "both_fail": 26,
+      "baseline_success_rate": 0.6162790697674418,
+      "phase23_success_rate": 0.5348837209302325,
+      "delta": -0.08139534883720931
+    },
+    "blur": {
+      "recovered": 13,
+      "regressed": 5,
+      "both_pass": 40,
+      "both_fail": 28,
+      "baseline_success_rate": 0.5232558139534884,
+      "phase23_success_rate": 0.6162790697674418,
+      "delta": 0.09302325581395349
+    },
+    "low_light": {
+      "recovered": 6,
+      "regressed": 17,
+      "both_pass": 32,
+      "both_fail": 31,
+      "baseline_success_rate": 0.5697674418604651,
+      "phase23_success_rate": 0.4418604651162791,
+      "delta": -0.12790697674418605
+    },
+    "noise": {
+      "recovered": 10,
+      "regressed": 7,
+      "both_pass": 38,
+      "both_fail": 31,
+      "baseline_success_rate": 0.5232558139534884,
+      "phase23_success_rate": 0.5581395348837209,
+      "delta": 0.03488372093023256
+    },
+    "occlusion": {
+      "recovered": 6,
+      "regressed": 16,
+      "both_pass": 37,
+      "both_fail": 27,
+      "baseline_success_rate": 0.6162790697674418,
+      "phase23_success_rate": 0.5,
+      "delta": -0.11627906976744186
+    },
+    "mixed": {
+      "recovered": 7,
+      "regressed": 6,
+      "both_pass": 37,
+      "both_fail": 36,
+      "baseline_success_rate": 0.5,
+      "phase23_success_rate": 0.5116279069767442,
+      "delta": 0.011627906976744186
+    }
+  }
+}

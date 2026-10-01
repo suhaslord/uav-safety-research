@@ -1,0 +1,162 @@
+{
+  "status": "PASS",
+  "recorded_at_utc": "2026-09-30T05:52:22.085792+00:00",
+  "release_tag": "phase23-checkpoint-recovery",
+  "bundle_sha256": "a55531930988deeadf81853d00b63c7e589c6b7fd2270f57653abdb5cdd3e55d",
+  "checkpoint_sha256": "43240be969708c32b3e11340c9846b3a588baf361378398677c794d16a455310",
+  "original_commit": "7677bacdae1f3a3b73f9473f5fa51f2059d9525a",
+  "runtime": {
+    "python_version": "3.13.2",
+    "ultralytics_version": "8.4.160",
+    "torch_version": "2.7.0+cu118",
+    "numpy_version": "2.2.3",
+    "pillow_version": "11.0.0"
+  },
+  "dataset": {
+    "manifest_path": "C:\\Users\\suhas\\.gemini\\antigravity\\scratch\\uav-origin-main\\results\\phase25_failure_atlas\\protected_test_manifest.csv",
+    "manifest_sha256": "8605cf1cbf9e8769c0324bf066078f9964f232ac3128131c8bd0b689bb7b64b7",
+    "frames": 86,
+    "conditions": [
+      "clean",
+      "blur",
+      "low_light",
+      "noise",
+      "occlusion",
+      "mixed"
+    ],
+    "views": 516
+  },
+  "evaluation_settings": {
+    "imgsz": 480,
+    "conf": 0.001,
+    "iou": 0.7,
+    "max_det": 300,
+    "batch": 16,
+    "device": "0",
+    "metric_tolerance": 0.001
+  },
+  "generated_metrics": {
+    "clean": {
+      "precision": 0.7169366595101914,
+      "recall": 0.5930232558139535,
+      "map50": 0.5551842475528265,
+      "map50_95": 0.222675649160523
+    },
+    "blur": {
+      "precision": 0.7767043066419625,
+      "recall": 0.5697674418604651,
+      "map50": 0.5856935328390723,
+      "map50_95": 0.26072868086794815
+    },
+    "low_light": {
+      "precision": 0.6350042374323621,
+      "recall": 0.4418604651162791,
+      "map50": 0.4237094746641194,
+      "map50_95": 0.1853822097303784
+    },
+    "noise": {
+      "precision": 0.8673997411378811,
+      "recall": 0.5465116279069767,
+      "map50": 0.5962109670974421,
+      "map50_95": 0.2362342942765497
+    },
+    "occlusion": {
+      "precision": 0.301165277441983,
+      "recall": 0.2441860465116279,
+      "map50": 0.13755217164117528,
+      "map50_95": 0.024963801126388796
+    },
+    "mixed": {
+      "precision": 0.48680888971219216,
+      "recall": 0.08139534883720931,
+      "map50": 0.12942432214764854,
+      "map50_95": 0.030013973197337014
+    }
+  },
+  "historical_metrics": {
+    "clean": {
+      "condition": "clean",
+      "precision": 0.7169366595101914,
+      "recall": 0.5930232558139535,
+      "map50": 0.5551842475528265,
+      "map50_95": 0.222675649160523
+    },
+    "blur": {
+      "condition": "blur",
+      "precision": 0.7767043066419625,
+      "recall": 0.5697674418604651,
+      "map50": 0.5856935328390723,
+      "map50_95": 0.26072868086794815
+    },
+    "low_light": {
+      "condition": "low_light",
+      "precision": 0.6350042374323621,
+      "recall": 0.4418604651162791,
+      "map50": 0.4237094746641194,
+      "map50_95": 0.1853822097303784
+    },
+    "noise": {
+      "condition": "noise",
+      "precision": 0.8673997411378811,
+      "recall": 0.5465116279069767,
+      "map50": 0.5962109670974421,
+      "map50_95": 0.2362342942765497
+    },
+    "occlusion": {
+      "condition": "occlusion",
+      "precision": 0.301165277441983,
+      "recall": 0.2441860465116279,
+      "map50": 0.13755217164117528,
+      "map50_95": 0.024963801126388796
+    },
+    "mixed": {
+      "condition": "mixed",
+      "precision": 0.48680888971219216,
+      "recall": 0.08139534883720931,
+      "map50": 0.12942432214764854,
+      "map50_95": 0.030013973197337014
+    }
+  },
+  "deltas": {
+    "clean": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "map50": 0.0,
+      "map50_95": 0.0
+    },
+    "blur": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "map50": 0.0,
+      "map50_95": 0.0
+    },
+    "low_light": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "map50": 0.0,
+      "map50_95": 0.0
+    },
+    "noise": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "map50": 0.0,
+      "map50_95": 0.0
+    },
+    "occlusion": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "map50": 0.0,
+      "map50_95": 0.0
+    },
+    "mixed": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "map50": 0.0,
+      "map50_95": 0.0
+    }
+  },
+  "cells_matched": 24,
+  "total_cells": 24,
+  "max_absolute_delta": 0.0,
+  "reproduction_passed": true
+}

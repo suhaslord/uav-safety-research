@@ -76,7 +76,7 @@ try{
           questionRemoved:!document.getElementById('question'),
           purposeVisible:visible(document.getElementById('model-vase')),
           evidenceVisible:visible(document.getElementById('evidence')),
-          intendedCopy:/Can the system know when its landing estimate is unreliable/i.test(text)&&/Phase 23 pending/i.test(text)&&/Freeze\. Separate\. Preserve\./i.test(text),
+          intendedCopy:/Can the system know when its landing estimate is unreliable/i.test(text)&&/Phase 23 (pending|paired)/i.test(text)&&/Freeze\. Separate\. Preserve\./i.test(text),
           metrics:/0\.8319/.test(text)&&/0\.7744/.test(text)&&/100%/.test(text),
           claims:boundary?.content==='simulation_only=true; safety_acceptance=false; controller_tuning_allowed=false'&&/No flight-safety claim/i.test(text)
         }:null;

@@ -1,0 +1,10 @@
+signal_name,task,auroc,n_positive,n_negative
+naive_confidence,safe_vs_degraded,0.7113970588235294,272,244
+scale_conditioned_confidence,safe_vs_degraded,0.8110987222757956,272,244
+fp_rate_signal,safe_vs_degraded,0.5894858968177434,272,244
+naive_confidence,recoverable_vs_catastrophic,0.6117888496180595,49,179
+scale_conditioned_confidence,recoverable_vs_catastrophic,0.6068863299509748,49,179
+fp_rate_signal,recoverable_vs_catastrophic,0.6355603693991563,49,179
+naive_confidence,safe_vs_degraded_severe,0.4581473968897904,87,85
+scale_conditioned_confidence,safe_vs_degraded_severe,0.7390128465179175,87,85
+fp_rate_signal,safe_vs_degraded_severe,0.42684246112238,87,85

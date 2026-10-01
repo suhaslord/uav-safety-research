@@ -61,7 +61,7 @@ try {
         head: window.AEGIS_FROZEN_LINEAGE?.frozenScientificHead || ''
       }));
       readinessExcerpt = state.text.slice(0, 300);
-      if (response && response.status() < 400 && state.shell === 'native frozen-archive' && state.head === FROZEN_HEAD && /Phase 22/i.test(state.text) && /Phase 23 pending/i.test(state.text)) {
+      if (response && response.status() < 400 && state.shell === 'native frozen-archive' && state.head === FROZEN_HEAD && /Phase 22/i.test(state.text) && /Phase 23 (pending|paired)/i.test(state.text)) {
         ready = true;
         break;
       }
@@ -217,7 +217,7 @@ try {
       hasBoundary: document.querySelector('meta[name="aegis-evidence-boundary"]')?.content === 'simulation_only=true; safety_acceptance=false; controller_tuning_allowed=false'
         && /No flight-safety claim/i.test(text) && /controller-tuning claim/i.test(text),
       hasFinalMetrics: text.includes('0.8319') && text.includes('0.7744') && text.includes('100%'),
-      saysFrozen: /Phase 22/i.test(text) && /Phase 23 pending/i.test(text),
+      saysFrozen: /Phase 22/i.test(text) && /Phase 23 (pending|paired)/i.test(text),
       dataOk: !!data && data.frozenThrough === 'Phase 22' && data.phases.length === 13 && data.counts.PASS === 6 && data.counts.FAIL === 7 && data.frozenScientificHead === frozenHead && data.bySlug.phase22.resultSha === resultSha && data.bySlug.phase22.candidateSha === candidateSha
     };
   }, { resultSha: PHASE22_RESULT, candidateSha: PHASE22_CANDIDATE, frozenHead: FROZEN_HEAD });

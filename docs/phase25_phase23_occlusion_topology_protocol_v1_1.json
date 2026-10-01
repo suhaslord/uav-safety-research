@@ -1,0 +1,324 @@
+{
+  "protocol_name": "Phase 23 Occlusion Topology Experiment Protocol (Amended)",
+  "experiment_id": "phase25_occlusion_topology",
+  "phase": "phase25",
+  "status": "frozen",
+  "frozen_at_utc": "2026-09-30T16:32:00Z",
+  "version": "1.1.0",
+
+  "pre_inference_amendment": {
+    "amendment_type": "PRE_INFERENCE_GEOMETRY_REDESIGN_AND_COMMON_SUPPORT",
+    "amendment_date_utc": "2026-09-30T16:32:00Z",
+    "prior_protocol_path": "docs/phase25_phase23_occlusion_topology_protocol.json",
+    "prior_protocol_sha256": "2cfad0c6f10bb055492cf058f8e4cbdbe2d48dae047f9270753371ec80d36018",
+    "reason": "Pre-inference fairness audit discovered that STRIPED geometry under v1.0 had a duty-cycle clamping bug (min(dose * 2, 1.0) * stripe_h) that truncated all striped masks at 50% occlusion, giving 0 observations above 50% occlusion across all images. This prevented fair common-support comparison in the upper dose regime (0.50-0.70).",
+    "evidence_used": "results/phase25_occlusion_topology/pre_inference_fairness_summary.json (geometry feasibility audit only; ZERO model inference inspected).",
+    "changes": [
+      "1. STRIPED geometry redesigned to pixel-exact adaptive stripe allocation: k_total = round(dose * H) rows occluded, partitioned across min(5, max(1, H // 4)) stripe periods. Verified: mean dose error drops from 0.0586 to 0.0081, max error drops from 0.3667 to 0.0333.",
+      "2. Confirmatory common-support range established across all 4 topologies from achieved dose 0.00 to 0.75 partitioned into 8 balanced bins: [0.00, 0.05), [0.05, 0.15), [0.15, 0.25), [0.25, 0.35), [0.35, 0.45), [0.45, 0.55), [0.55, 0.65), [0.65, 0.75). Each bin contains between 89 and 215 observations per topology.",
+      "3. Confirmatory topology comparisons and ED50 estimation use binned achieved-dose common support.",
+      "4. Protocol v1.0 is preserved permanently without modification."
+    ]
+  },
+
+  "part_01_hypotheses": {
+    "description": "Neutral hypotheses defined before inference",
+    "H0": "Phase 23 frame-success rate does not vary across occlusion topologies (CENTER, OUTER_RING, STRIPED, RANDOM_PATCH) at matched achieved dose levels",
+    "H1_primary": "Frame success rate at IoU >= 0.50 declines monotonically with increasing achieved dose for all topologies",
+    "H2_topology": "The dose-response curve shape differs between topologies — specifically, the dose at which frame success drops below 50% (ED50) differs by topology",
+    "H3_scale_interaction": "The dose-response relationship is moderated by target object scale (target_area_quartile), with smaller objects showing steeper decline",
+    "note": "All hypotheses are neutral with respect to direction. We do not predict which topology causes faster degradation."
+  },
+
+  "part_02_dose_grid": {
+    "requested_doses": [0.0, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50, 0.55, 0.60, 0.65, 0.70],
+    "n_doses": 15,
+    "dose_unit": "fraction of annotation-box area occluded (achieved, not requested)",
+    "feasibility_tested": true,
+    "feasibility_result": {
+      "dry_run_date": "2026-09-30",
+      "dry_run_csv_sha256": "db6863dd25a8a4e8fe5251ecb78de40093bde8b0c1d1541df3f5122df6cc0561",
+      "total_views": 5160,
+      "dose_error_summary_v1_1": {
+        "CENTER":       {"mean": 0.0184, "max": 0.1250, "median": 0.0117},
+        "OUTER_RING":   {"mean": 0.0256, "max": 0.2000, "median": 0.0185},
+        "STRIPED":      {"mean": 0.0081, "max": 0.0333, "median": 0.0060},
+        "RANDOM_PATCH": {"mean": 0.0242, "max": 0.2655, "median": 0.0131}
+      },
+      "zero_dose_identity_check": "PASS",
+      "common_support_status": "EXCELLENT — all 4 topologies span achieved doses 0.00 to 0.75 with substantial sample size in all 8 analysis bins."
+    }
+  },
+
+  "part_03_mask_geometries": {
+    "topologies": ["CENTER", "OUTER_RING", "STRIPED", "RANDOM_PATCH"],
+    "definitions": {
+      "CENTER": "Centered rectangle inside annotation box. Mask aspect ratio matches box aspect ratio. Mask area = dose * box_area, so side scale = sqrt(dose).",
+      "OUTER_RING": "Full annotation box filled, then a centered rectangular hole cut out. Hole area = (1 - dose) * box_area, so hole scale = sqrt(1 - dose).",
+      "STRIPED": "Pixel-exact adaptive horizontal stripes within annotation box. k_total = round(dose * box_height) rows occluded, distributed evenly across min(5, max(1, box_height // 4)) stripe periods.",
+      "RANDOM_PATCH": "Random rectangular patches placed within annotation box until target dose fraction is approximately achieved. Patch positions and sizes are deterministic via seeded PRNG."
+    },
+    "occluder_fill": [128, 128, 128],
+    "occluder_fill_description": "Neutral gray (128, 128, 128) — fixed across all topologies"
+  },
+
+  "part_04_occlusion_measurements": {
+    "per_view_fields": [
+      "frame_id",
+      "sequence",
+      "topology",
+      "requested_dose",
+      "achieved_dose",
+      "dose_error",
+      "mask_pixels",
+      "box_pixels",
+      "image_path",
+      "label_path",
+      "source_image_sha256",
+      "occluded_image_sha256",
+      "pred_count",
+      "best_iou",
+      "best_confidence",
+      "tp",
+      "fp",
+      "fn",
+      "frame_success"
+    ],
+    "achieved_dose_definition": "mask_pixels_in_box / box_pixels, where mask_pixels_in_box counts the number of mask-covered pixels strictly within the YOLO annotation bounding box",
+    "analysis_independent_variable": "achieved_dose (NOT requested_dose)"
+  },
+
+  "part_05_geometry_feasibility": {
+    "status": "COMPLETE_AND_AUDITED",
+    "method": "Computed achieved dose for all 86 frames × 4 topologies × 15 doses in dry-run mode (no images written). Dose error = |achieved_dose - requested_dose|.",
+    "findings": [
+      "CENTER and OUTER_RING achieve tight dose control across all doses",
+      "STRIPED achieves pixel-exact dose control (mean error = 0.0081, max error = 0.0333) with full range [0.00, 0.72]",
+      "RANDOM_PATCH achieves reasonable dose control (mean error = 0.0242) with stochastic variance",
+      "All 4 topologies provide continuous, overlapping common support from 0.00 to 0.75"
+    ],
+    "mitigation": "All analyses use achieved_dose as the independent variable. Confirmatory comparisons use the 8 pre-declared common support bins."
+  },
+
+  "part_06_fairness_balance_audit": {
+    "total_views": 5160,
+    "land_pad_views": 3960,
+    "land_pad2_views": 1200,
+    "views_per_frame": 60,
+    "views_per_topology": 1290,
+    "views_per_dose": 344,
+    "common_support_bins": [
+      {"bin": "[0.00, 0.05)", "center_n": 142, "outer_ring_n": 115, "random_patch_n": 89, "striped_n": 125},
+      {"bin": "[0.05, 0.15)", "center_n": 155, "outer_ring_n": 214, "random_patch_n": 172, "striped_n": 178},
+      {"bin": "[0.15, 0.25)", "center_n": 168, "outer_ring_n": 155, "random_patch_n": 141, "striped_n": 163},
+      {"bin": "[0.25, 0.35)", "center_n": 170, "outer_ring_n": 145, "random_patch_n": 196, "striped_n": 180},
+      {"bin": "[0.35, 0.45)", "center_n": 185, "outer_ring_n": 215, "random_patch_n": 178, "striped_n": 164},
+      {"bin": "[0.45, 0.55)", "center_n": 142, "outer_ring_n": 142, "random_patch_n": 179, "striped_n": 175},
+      {"bin": "[0.55, 0.65)", "center_n": 215, "outer_ring_n": 185, "random_patch_n": 201, "striped_n": 165},
+      {"bin": "[0.65, 0.75)", "center_n": 104, "outer_ring_n": 118, "random_patch_n": 131, "striped_n": 140}
+    ],
+    "balance_note": "Each source frame is tested under all 4 topologies × 15 doses = 60 views. This ensures within-frame comparison across topologies. The 66:20 land_pad:land_pad2 ratio reflects the protected test split and is not rebalanced."
+  },
+
+  "part_07_source_population": {
+    "manifest_path": "results/phase25_failure_atlas/protected_test_manifest.csv",
+    "manifest_sha256": "8605cf1cbf9e8769c0324bf066078f9964f232ac3128131c8bd0b689bb7b64b7",
+    "n_source_frames": 86,
+    "sequence_counts": {"land_pad": 66, "land_pad2": 20},
+    "source_images": "kios_real_stress/clean/images/test/ — original clean images ONLY (no pre-degraded images)",
+    "labels_unchanged": "YOLO labels are copied unchanged from clean condition. Occlusion does not change ground-truth annotation."
+  },
+
+  "part_08_model_lock": {
+    "model_name": "Phase 23 Robust Detector",
+    "architecture": "YOLO11n",
+    "checkpoint_filename": "best.pt",
+    "checkpoint_sha256": "43240be969708c32b3e11340c9846b3a588baf361378398677c794d16a455310",
+    "release_tag": "phase23-checkpoint-recovery",
+    "release_url": "https://github.com/suhaslord/uav-safety-research/releases/tag/phase23-checkpoint-recovery",
+    "bundle_sha256": "a55531930988deeadf81853d00b63c7e589c6b7fd2270f57653abdb5cdd3e55d",
+    "inference_parameters": {
+      "imgsz": 480,
+      "conf": 0.001,
+      "iou": 0.7,
+      "max_det": 300,
+      "batch": 16,
+      "device": "0"
+    },
+    "no_fine_tuning": true,
+    "no_threshold_tuning": true
+  },
+
+  "part_09_primary_outcome": {
+    "name": "frame_success",
+    "definition": "tp >= 1 AND fn == 0 at IoU >= 0.50",
+    "matching_rule": "one-to-one confidence-ranked greedy matching against ground-truth boxes",
+    "iou_threshold": 0.50,
+    "confidence_handling": "All predictions above conf=0.001 are included. No secondary confidence threshold.",
+    "binary_outcome": true
+  },
+
+  "part_10_secondary_outcomes": [
+    {
+      "name": "best_iou",
+      "definition": "Maximum IoU between any predicted box and the ground-truth target"
+    },
+    {
+      "name": "best_confidence",
+      "definition": "Confidence score of the highest-confidence prediction"
+    },
+    {
+      "name": "tp",
+      "definition": "Number of true positive detections (predictions matched to ground truth at IoU >= 0.50)"
+    },
+    {
+      "name": "fp",
+      "definition": "Number of false positive detections"
+    },
+    {
+      "name": "fn",
+      "definition": "Number of missed ground-truth targets"
+    },
+    {
+      "name": "pred_count",
+      "definition": "Total number of predictions above conf=0.001"
+    }
+  ],
+
+  "part_11_statistical_design": {
+    "unit_of_analysis": "source_frame (N=86)",
+    "repeated_measures": "Each source frame observed under 4 topologies × 15 dose levels = 60 views",
+    "clustering": "Clustered bootstrap resampling at the source-frame level (not the view level)",
+    "bootstrap_params": {
+      "n_resamples": 1000,
+      "seed": 20261001,
+      "confidence_level": 0.95,
+      "cluster_unit": "source_frame"
+    },
+    "dose_response_model": "Non-parametric: frame_success_rate computed at each achieved_dose bin, per topology",
+    "comparison_method": "Within-frame paired comparison: for each frame, compare frame_success at matched achieved_dose bins across topologies"
+  },
+
+  "part_12_multiple_comparisons": {
+    "hierarchy": [
+      {
+        "level": "PRIMARY",
+        "tests": ["Dose-response slope: is frame_success_rate monotonically decreasing with dose?"],
+        "correction": "None (single primary test per topology)"
+      },
+      {
+        "level": "SECONDARY",
+        "tests": [
+          "Topology comparison: does ED50 differ between topologies?",
+          "Scale interaction: does target_area_quartile moderate dose-response?"
+        ],
+        "correction": "Bonferroni correction within secondary family"
+      },
+      {
+        "level": "EXPLORATORY",
+        "tests": [
+          "Confidence calibration across dose levels",
+          "FP/FN transition patterns",
+          "Prediction count changes"
+        ],
+        "correction": "None — explicitly labeled as exploratory, not used for confirmatory conclusions"
+      }
+    ]
+  },
+
+  "part_13_threshold_criterion": {
+    "ed50_definition": "The lowest achieved_dose at which frame_success_rate drops below 0.50 for a given topology, estimated by linear interpolation between adjacent dose bins",
+    "change_point_method": "Binary segmented regression on frame_success ~ achieved_dose, choosing the breakpoint that minimizes total RSS",
+    "defined_before_inference": true,
+    "note": "These criteria are locked before any Phase 23 inference on topology-occluded images"
+  },
+
+  "part_14_predefined_interpretations": {
+    "A": {
+      "description": "All topologies produce indistinguishable dose-response curves",
+      "interpretation": "Occlusion topology does not matter — only total occluded area drives detection failure. The Phase 23 detector responds to area loss, not spatial pattern."
+    },
+    "B": {
+      "description": "CENTER causes faster degradation than OUTER_RING",
+      "interpretation": "Central features (center of landing pad) are more critical for Phase 23 detection than peripheral features. This is consistent with attention-based feature extraction."
+    },
+    "C": {
+      "description": "OUTER_RING causes faster degradation than CENTER",
+      "interpretation": "Edge features (concentric ring boundaries) are more critical for Phase 23 detection. This would support an edge-dependent detection mechanism."
+    },
+    "D": {
+      "description": "STRIPED causes faster degradation than geometric topologies",
+      "interpretation": "Feature disruption by alternating visible/occluded regions is more damaging than contiguous occlusion at the same dose. This suggests the detector relies on spatial continuity."
+    },
+    "E": {
+      "description": "Dose-response varies by object scale (target_area_quartile)",
+      "interpretation": "Smaller objects are more sensitive to occlusion because they have fewer pixels carrying discriminative features. This is expected and documented as a known limitation of small-object detection."
+    }
+  },
+
+  "part_15_topology_generator": {
+    "script": "scripts/generate_occlusion_topology.py",
+    "version": "1.1.0",
+    "determinism": "All randomness is seeded from SHA-256 of (GLOBAL_SEED=20261001, frame_name, topology, dose). Same inputs always produce byte-identical outputs.",
+    "atomic_writes": "Images are written via tempfile + fsync + os.replace for crash safety",
+    "decode_validation": "Source images are opened and converted to RGB before mask application",
+    "sha_verification": "Source image SHA-256 and output image SHA-256 are recorded per view"
+  },
+
+  "part_16_generator_tests": {
+    "test_file": "tests/test_occlusion_topology.py",
+    "test_count": 75,
+    "all_passing": true
+  },
+
+  "part_17_output_schema": {
+    "csv_path": "results/phase25_occlusion_topology/topology_views.csv",
+    "one_row_per": "frame × topology × dose",
+    "total_rows": 5160,
+    "prediction_fields_null_before_inference": true,
+    "prediction_fields": ["pred_count", "best_iou", "best_confidence", "tp", "fp", "fn", "frame_success"]
+  },
+
+  "part_18_power_study_size": {
+    "n_source_frames": 86,
+    "note": "N=86 is the protected population size. This is NOT inflated by the 60× repeated measures per frame. Statistical inference is clustered at the source-frame level.",
+    "sessions": 2,
+    "session_names": ["land_pad (66 frames)", "land_pad2 (20 frames)"],
+    "generalization_scope": "Results apply only to these 86 frames under synthetic occlusion with neutral-gray fill. No generalization to other datasets, targets, or occluder materials."
+  },
+
+  "part_19_protocol_freeze": {
+    "frozen_file": "docs/phase25_phase23_occlusion_topology_protocol_v1_1.json",
+    "frozen_before_inference": true,
+    "no_modifications_after_freeze": "Any modification after Phase 23 inference begins constitutes a protocol violation and must be documented as a deviation"
+  },
+
+  "part_20_execution_readiness": {
+    "runner_script": "scripts/run_occlusion_topology_experiment.py",
+    "modes": {
+      "dry_run": {
+        "flag": "--dry-run",
+        "description": "Generates masks, computes achieved doses, writes CSV with empty prediction columns. Does NOT run model inference. Does NOT write images.",
+        "status": "TESTED AND PASSING"
+      },
+      "execute": {
+        "flag": "--execute",
+        "description": "Generates images, runs Phase 23 inference, fills prediction columns, computes frame_success.",
+        "status": "READY FOR EXECUTION"
+      }
+    }
+  },
+
+  "part_21_handoff": {
+    "for_next_agent": false,
+    "active_execution": true,
+    "checkpoint_must_match": "43240be969708c32b3e11340c9846b3a588baf361378398677c794d16a455310",
+    "inference_settings_locked": {
+      "imgsz": 480,
+      "conf": 0.001,
+      "iou": 0.7,
+      "max_det": 300,
+      "device": "0"
+    }
+  }
+}
