@@ -52,7 +52,7 @@ try {
 
     const state = await page.evaluate(() => ({ text:document.body.innerText, purposeClarity:document.body.dataset.purposeClarity === 'true', boundary:document.querySelector('meta[name="aegis-evidence-boundary"]')?.content || '' }));
     add('home-phase22-visible', /Phase 22/i.test(state.text) && state.text.includes('0.8319') && state.text.includes('0.7744'));
-    add('home-current-project-framing-visible', state.purposeClarity && /Model VASE · answer so far/i.test(state.text) && /Phase 23 pending/i.test(state.text) && /Freeze. Separate. Preserve./i.test(state.text));
+    add('home-current-project-framing-visible', state.purposeClarity && /Model VASE · answer so far/i.test(state.text) && /Phase 23 (pending|paired)/i.test(state.text) && /Freeze. Separate. Preserve./i.test(state.text));
     add('home-claim-boundary-visible', state.boundary === 'simulation_only=true; safety_acceptance=false; controller_tuning_allowed=false' && /No flight-safety claim/i.test(state.text));
     await page.close();
   }

@@ -102,6 +102,10 @@ def test_cluster_bootstrap_skips_two_sequences_and_is_seeded_with_enough_groups(
 
 
 def test_input_gate_stays_blocked_until_exact_checkpoint_and_software_are_locked(tmp_path):
+    lock = json.loads((ROOT / "docs/phase25_input_lock.json").read_text(encoding="utf-8"))
+    lock["phase23_robust"]["checkpoint_sha256"] = None
+    lock_path = tmp_path / "phase25_input_lock.json"
+    lock_path.write_text(json.dumps(lock), encoding="utf-8")
     with pytest.raises(ValueError, match="Exact Phase 23 checkpoint is not locked"):
         validate_phase25_inputs(
             source_root=tmp_path / "missing-source",
@@ -109,23 +113,34 @@ def test_input_gate_stays_blocked_until_exact_checkpoint_and_software_are_locked
             baseline_weights=tmp_path / "missing-baseline.pt",
             phase23_weights=tmp_path / "missing-phase23.pt",
             protected_manifest=ROOT / "results/phase25_failure_atlas/protected_test_manifest.csv",
+            input_lock=lock_path,
         )
 
 
-def test_input_lock_pins_recovered_baseline_and_marks_missing_phase23_source():
+def test_input_lock_pins_recovered_baseline_and_authenticated_phase23():
     lock = json.loads((ROOT / "docs/phase25_input_lock.json").read_text(encoding="utf-8"))
     assert lock["phase22_baseline"]["actions_artifact_id"] == 10382104202
-    assert lock["phase23_robust"]["status"] == "blocked_pending_exact_checkpoint_recovery"
-    assert lock["phase23_robust"]["checkpoint_sha256"] is None
-    assert lock["phase25_runtime"]["status"] == "blocked_pending_original_version_recovery"
+    assert lock["phase23_robust"]["status"] == "authenticated_exact_match"
+    assert lock["phase23_robust"]["checkpoint_sha256"] == "43240be969708c32b3e11340c9846b3a588baf361378398677c794d16a455310"
+    assert lock["phase25_runtime"]["status"] == "locked"
+    loaded = load_input_lock()
+    assert loaded["phase23_robust"]["checkpoint_sha256"] == "43240be969708c32b3e11340c9846b3a588baf361378398677c794d16a455310"
+
+
+def test_input_lock_rejects_missing_checkpoint(tmp_path):
+    lock = json.loads((ROOT / "docs/phase25_input_lock.json").read_text(encoding="utf-8"))
+    lock["phase23_robust"]["checkpoint_sha256"] = None
+    lock_path = tmp_path / "phase25_input_lock.json"
+    lock_path.write_text(json.dumps(lock), encoding="utf-8")
     with pytest.raises(ValueError, match="Exact Phase 23 checkpoint is not locked"):
-        load_input_lock()
+        load_input_lock(lock_path)
 
 
 def test_input_lock_requires_runtime_versions_after_checkpoint_hash_is_recorded(tmp_path):
     lock = json.loads((ROOT / "docs/phase25_input_lock.json").read_text(encoding="utf-8"))
     lock["phase23_robust"]["checkpoint_sha256"] = "a" * 64
     lock["phase23_robust"]["checkpoint_source"] = "original local training directory"
+    lock["phase25_runtime"]["python_version"] = None
     lock_path = tmp_path / "phase25_input_lock.json"
     lock_path.write_text(json.dumps(lock), encoding="utf-8")
     with pytest.raises(ValueError, match="Original detector inference software versions are not locked"):
@@ -135,6 +150,7 @@ def test_input_lock_requires_runtime_versions_after_checkpoint_hash_is_recorded(
 def test_input_lock_rejects_checkpoint_hash_without_provenance(tmp_path):
     lock = json.loads((ROOT / "docs/phase25_input_lock.json").read_text(encoding="utf-8"))
     lock["phase23_robust"]["checkpoint_sha256"] = "a" * 64
+    lock["phase23_robust"]["checkpoint_source"] = None
     lock_path = tmp_path / "phase25_input_lock.json"
     lock_path.write_text(json.dumps(lock), encoding="utf-8")
     with pytest.raises(ValueError, match="checkpoint source is not documented"):

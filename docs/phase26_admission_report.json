@@ -1,0 +1,79 @@
+{
+  "phase": "phase26",
+  "title": "Phase 26 · Admission Audit Report",
+  "audit_date": "2026-09-28",
+  "admission_gate": "preregistered_zero_overlap",
+  "candidates": [
+    {
+      "name": "KIOS 2022 Archive",
+      "source": "Zenodo 7477560",
+      "status": "rejected_overlap",
+      "reason": "422/422 exact byte-hash matches against KIOS 2024 real frames; 100% duplicate overlap",
+      "archive_md5": "e09cbbd0cae32fa7b28a09e7ecc906bc",
+      "overlap_count": 422,
+      "overlap_fraction": 1.0,
+      "admitted": false
+    },
+    {
+      "name": "KIOS 2024 Residual Real Frames",
+      "source": "Zenodo 13682584 (Real_images_tight_labels)",
+      "status": "rejected_overlap",
+      "reason": "All 422 frames from only two continuous video sessions (land_pad, land_pad2). Cross-split collision: land_pad__6475.jpg (embargo) vs land_pad__6500.jpg (test) at perceptual Hamming distance 4",
+      "total_frames": 422,
+      "source_sessions": ["land_pad", "land_pad2"],
+      "session_count": 2,
+      "cross_split_collision": {
+        "frame_a": "land_pad__6475.jpg",
+        "partition_a": "embargo",
+        "frame_b": "land_pad__6500.jpg",
+        "partition_b": "test",
+        "hamming_distance": 4
+      },
+      "admitted": false
+    },
+    {
+      "name": "IMAV 2025 Candidate",
+      "source": "IMAV 2025 competition dataset",
+      "status": "blocked",
+      "reason": "Missing candidate images, capture manifest, session provenance (session_id), target ontology review, and negative frame inventory",
+      "blocking_requirements": [
+        "candidate_images_not_available",
+        "capture_manifest_missing",
+        "session_provenance_unknown",
+        "target_ontology_not_reviewed",
+        "negative_frame_inventory_missing"
+      ],
+      "admitted": false
+    },
+    {
+      "name": "Synthetic AirSim Frames",
+      "source": "KIOS Unreal Engine / AirSim",
+      "status": "rejected_non_visual",
+      "reason": "Synthetic rendered imagery; not suitable as independent real-image evaluation",
+      "admitted": false
+    },
+    {
+      "name": "Gazebo ArUco Frames",
+      "source": "PX4/Gazebo simulation",
+      "status": "rejected_non_visual",
+      "reason": "Synthetic/simulated ArUco marker imagery; not real landing pad views",
+      "admitted": false
+    },
+    {
+      "name": "UNM Crazyflie Frames",
+      "source": "UNM Crazyflie/Webots simulation",
+      "status": "rejected_non_visual",
+      "reason": "Simulated micro-UAV imagery; not real camera landing pad views",
+      "admitted": false
+    }
+  ],
+  "next_candidate_requirements": {
+    "manifest_schema": "data/external/next_candidate/capture_manifest.csv",
+    "required_fields": ["path", "partition", "session_id", "source_video_id", "target_count", "sha256"],
+    "screening_script": "scripts/audit_phase26_manifest.py",
+    "overlap_threshold": 0,
+    "session_level_splits": true,
+    "negative_frames_required": true
+  },
+  "summary": "All six candidate sources failed admission. KIOS archives share 100% overlap with existing evaluation data. IMAV 2025 is blocked at the provenance gate. Synthetic sources are categorically excluded. The admission criteria are preserved without weakening."
+}

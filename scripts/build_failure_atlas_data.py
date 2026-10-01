@@ -36,7 +36,13 @@ def build() -> bytes:
     if manifest["phase23_frame_outcomes_available"] is not False or manifest["frame_rows"] != 516:
         raise ValueError("Expected baseline-only 516-case diagnostic")
     for name, expected in manifest["table_sha256"].items():
-        actual = hashlib.sha256((SOURCE / name).read_bytes()).hexdigest()
+        raw = (SOURCE / name).read_bytes()
+        actual = hashlib.sha256(raw).hexdigest()
+        if actual != expected and not name.endswith(".gz"):
+            norm_lf = hashlib.sha256(raw.replace(b"\r\n", b"\n")).hexdigest()
+            norm_crlf = hashlib.sha256(raw.replace(b"\r\n", b"\n").replace(b"\n", b"\r\n")).hexdigest()
+            if norm_lf == expected or norm_crlf == expected:
+                actual = expected
         if actual != expected:
             raise ValueError(f"Tampered source table: {name}")
     targets = defaultdict(list)
@@ -92,7 +98,7 @@ def build() -> bytes:
         raise ValueError("Phase 23 aggregate table must contain each of the six conditions exactly once")
     source_hashes = {
         **manifest["table_sha256"],
-        "phase23_comparison_csv": hashlib.sha256(PHASE23_COMPARISON.read_bytes()).hexdigest(),
+        "phase23_comparison_csv": hashlib.sha256(PHASE23_COMPARISON.read_bytes().replace(b"\r\n", b"\n")).hexdigest(),
     }
     result = {
         "status": "baseline_only", "phase23": None, "conditions": CONDITIONS,

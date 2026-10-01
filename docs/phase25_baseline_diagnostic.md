@@ -1,6 +1,6 @@
 # Phase 25A — baseline-only diagnostic
 
-The [Failure Atlas](https://aegisland-research-cockpit.vercel.app/failure-atlas/) displays real Phase 22 baseline detections over the 86 protected KIOS frames and six frozen reconstructions (516 frame-condition cases). It is a retrospective analysis of the same test frames used in Phases 23–24. **It is not the paired Phase 25 outcome audit or independent validation.** The exact frozen Phase 23 checkpoint and original inference versions remain unavailable; no Phase 23 per-frame outcomes or recovered/regressed counts are reported.
+The [Failure Atlas](https://aegisland-research-cockpit.vercel.app/failure-atlas/) displays real Phase 22 baseline detections over the 86 protected KIOS frames and six frozen reconstructions (516 frame-condition cases). It is a retrospective analysis of the same test frames used in Phases 23–24. **It is not independent validation.** The Phase 23 checkpoint has been recovered and authenticated; paired per-frame outcomes (49 recovered, 65 regressed, 223 both-pass, 179 both-fail) are reported in the [paired frame outcomes](../results/phase25_failure_atlas/paired_frame_outcomes.csv).
 
 ## Evidence and reproduction
 

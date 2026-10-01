@@ -1,0 +1,35 @@
+{
+  "document_type": "PRE_INFERENCE_FAIRNESS_DECISION",
+  "decision": "AMENDED_TO_V1_1",
+  "date_utc": "2026-09-30T16:32:00Z",
+  "status": "APPROVED_PRE_INFERENCE",
+  "prior_protocol": {
+    "path": "docs/phase25_phase23_occlusion_topology_protocol.json",
+    "version": "1.0.0",
+    "sha256": "2cfad0c6f10bb055492cf058f8e4cbdbe2d48dae047f9270753371ec80d36018"
+  },
+  "amended_protocol": {
+    "path": "docs/phase25_phase23_occlusion_topology_protocol_v1_1.json",
+    "version": "1.1.0",
+    "sha256": "b4637e5b9b0c9551ac6a106d20fe8bc62f05d50b7030432c1c4e1bf7cf771a29"
+  },
+  "findings": {
+    "audit_file": "results/phase25_occlusion_topology/pre_inference_fairness_summary.json",
+    "zero_model_inference_used": true,
+    "issue_identified": "In protocol v1.0, the STRIPED mask generator contained a duty-cycle clamping bug (min(dose * 2, 1.0) * stripe_h) which restricted occluded stripe height to at most 1.0 * stripe_h (half the period 2 * stripe_h). Consequently, for requested doses >= 0.50, achieved dose plateaued at 0.50 across all images. This created zero common support between STRIPED and the other three topologies (CENTER, OUTER_RING, RANDOM_PATCH) for doses in [0.55, 0.75].",
+    "resolution": "Redesigned STRIPED geometry to pixel-exact adaptive allocation: k_total = round(dose * H) rows occluded, partitioned across min(5, max(1, H // 4)) stripe periods. Verified: mean dose error drops from 0.0586 to 0.0081, max error drops from 0.3667 to 0.0333. Full common support [0.00, 0.75] established across all 4 topologies."
+  },
+  "common_support_audit": {
+    "bin_counts": {
+      "[0.00, 0.05)": {"CENTER": 142, "OUTER_RING": 115, "RANDOM_PATCH": 89, "STRIPED": 125},
+      "[0.05, 0.15)": {"CENTER": 155, "OUTER_RING": 214, "RANDOM_PATCH": 172, "STRIPED": 178},
+      "[0.15, 0.25)": {"CENTER": 168, "OUTER_RING": 155, "RANDOM_PATCH": 141, "STRIPED": 163},
+      "[0.25, 0.35)": {"CENTER": 170, "OUTER_RING": 145, "RANDOM_PATCH": 196, "STRIPED": 180},
+      "[0.35, 0.45)": {"CENTER": 185, "OUTER_RING": 215, "RANDOM_PATCH": 178, "STRIPED": 164},
+      "[0.45, 0.55)": {"CENTER": 142, "OUTER_RING": 142, "RANDOM_PATCH": 179, "STRIPED": 175},
+      "[0.55, 0.65)": {"CENTER": 215, "OUTER_RING": 185, "RANDOM_PATCH": 201, "STRIPED": 165},
+      "[0.65, 0.75)": {"CENTER": 104, "OUTER_RING": 118, "RANDOM_PATCH": 131, "STRIPED": 140}
+    },
+    "verdict": "FAIR COMMON SUPPORT CONFIRMED — proceed to execution."
+  }
+}

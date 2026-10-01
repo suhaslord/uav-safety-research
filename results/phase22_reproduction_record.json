@@ -1,0 +1,164 @@
+{
+  "status": "PASS",
+  "recorded_at_utc": "2026-09-30T14:46:01.202343+00:00",
+  "release_tag": "phase22-baseline-recovery",
+  "bundle_sha256": "8d6eda7f8775ad899be7a8b6fbf9e6dea30678c1e28c0b687a88184ac592288b",
+  "checkpoint_sha256": "3a1801b192d624f8dcdda4bc5d9a9157309000df67a4c30d62368c37901feddd",
+  "original_commit": "b569da0012e4ed74c420cbbd15e25665c9850c48",
+  "github_actions": {
+    "workflow": ".github/workflows/real-detector-baseline.yml",
+    "workflow_run_id": 34932763449,
+    "artifact_id": 10382104202,
+    "artifact_name": "kios-real-detector-baseline",
+    "artifact_zip_sha256": "7080c8243c1d7cb85a63f81ea0531eda34dd1f18616f7b4dfdc869a2379c9833"
+  },
+  "runtime": {
+    "python_version": "3.13.2",
+    "ultralytics_version": "8.4.160",
+    "torch_version": "2.7.0+cu118",
+    "numpy_version": "2.2.3",
+    "pillow_version": "11.0.0"
+  },
+  "dataset": {
+    "manifest_path": "C:\\Users\\suhas\\.gemini\\antigravity\\scratch\\uav-origin-main\\results\\phase25_failure_atlas\\protected_test_manifest.csv",
+    "manifest_sha256": "8605cf1cbf9e8769c0324bf066078f9964f232ac3128131c8bd0b689bb7b64b7",
+    "frames": 86,
+    "conditions": [
+      "clean",
+      "blur",
+      "low_light",
+      "noise",
+      "occlusion",
+      "mixed"
+    ],
+    "views": 516
+  },
+  "evaluation_settings": {
+    "imgsz": 320,
+    "conf": 0.001,
+    "iou": 0.7,
+    "max_det": 300,
+    "batch": 16,
+    "device": "cpu",
+    "split": "test",
+    "metric_tolerance": 0.001
+  },
+  "generated_metrics": {
+    "clean": {
+      "precision": 0.7959714865918671,
+      "recall": 0.38372093023255816,
+      "map50": 0.42662686781189296,
+      "map50_95": 0.2723431563204893
+    },
+    "blur": {
+      "precision": 0.8440259206526558,
+      "recall": 0.37760933024658133,
+      "map50": 0.41259081580238444,
+      "map50_95": 0.2713619580753786
+    },
+    "low_light": {
+      "precision": 0.787342894066506,
+      "recall": 0.37209302325581395,
+      "map50": 0.4168491381871624,
+      "map50_95": 0.26933549557019915
+    },
+    "noise": {
+      "precision": 0.8952635846926251,
+      "recall": 0.39761811777462347,
+      "map50": 0.4325832723899842,
+      "map50_95": 0.26222127375601156
+    },
+    "occlusion": {
+      "precision": 0.6220255211663249,
+      "recall": 0.32558139534883723,
+      "map50": 0.34796444264077564,
+      "map50_95": 0.16615077551738822
+    },
+    "mixed": {
+      "precision": 0.5972709341575824,
+      "recall": 0.18604651162790697,
+      "map50": 0.1848519064761554,
+      "map50_95": 0.08068148717707323
+    }
+  },
+  "historical_metrics": {
+    "clean": {
+      "precision": 0.7959713659654185,
+      "recall": 0.38372093023255816,
+      "map50": 0.42662686781189296,
+      "map50_95": 0.2723431563204893
+    },
+    "blur": {
+      "precision": 0.844025849453299,
+      "recall": 0.3776091257554052,
+      "map50": 0.41259081580238444,
+      "map50_95": 0.2713619580753786
+    },
+    "low_light": {
+      "precision": 0.7873428115173574,
+      "recall": 0.37209302325581395,
+      "map50": 0.4168491381871624,
+      "map50_95": 0.26933549557019915
+    },
+    "noise": {
+      "precision": 0.8952635995807745,
+      "recall": 0.39761818191484805,
+      "map50": 0.4325832723899842,
+      "map50_95": 0.26222127375601156
+    },
+    "occlusion": {
+      "precision": 0.6220251020484491,
+      "recall": 0.32558139534883723,
+      "map50": 0.34796444264077564,
+      "map50_95": 0.16615077551738822
+    },
+    "mixed": {
+      "precision": 0.597270820474317,
+      "recall": 0.18604651162790697,
+      "map50": 0.1848519064761554,
+      "map50_95": 0.08068148717707323
+    }
+  },
+  "deltas": {
+    "clean": {
+      "precision": 1.2062644860755256e-07,
+      "recall": 0.0,
+      "map50": 0.0,
+      "map50_95": 0.0
+    },
+    "blur": {
+      "precision": 7.119935685473422e-08,
+      "recall": 2.0449117615894963e-07,
+      "map50": 0.0,
+      "map50_95": 0.0
+    },
+    "low_light": {
+      "precision": 8.254914862781959e-08,
+      "recall": 0.0,
+      "map50": 0.0,
+      "map50_95": 0.0
+    },
+    "noise": {
+      "precision": -1.488814937999905e-08,
+      "recall": -6.414022457601476e-08,
+      "map50": 0.0,
+      "map50_95": 0.0
+    },
+    "occlusion": {
+      "precision": 4.191178758494729e-07,
+      "recall": 0.0,
+      "map50": 0.0,
+      "map50_95": 0.0
+    },
+    "mixed": {
+      "precision": 1.1368326535698969e-07,
+      "recall": 0.0,
+      "map50": 0.0,
+      "map50_95": 0.0
+    }
+  },
+  "cells_matched": 24,
+  "total_cells": 24,
+  "max_absolute_delta": 4.191178758494729e-07,
+  "reproduction_passed": true
+}

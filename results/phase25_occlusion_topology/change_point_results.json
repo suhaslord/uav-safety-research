@@ -1,0 +1,30 @@
+{
+  "CENTER": {
+    "change_point_mean": 0.1904,
+    "change_point_ci": [
+      0.1,
+      0.5819999999999993
+    ]
+  },
+  "OUTER_RING": {
+    "change_point_mean": 0.41840000000000005,
+    "change_point_ci": [
+      0.12,
+      0.62
+    ]
+  },
+  "STRIPED": {
+    "change_point_mean": 0.2434,
+    "change_point_ci": [
+      0.08,
+      0.62
+    ]
+  },
+  "RANDOM_PATCH": {
+    "change_point_mean": 0.35620000000000007,
+    "change_point_ci": [
+      0.10950000000000004,
+      0.62
+    ]
+  }
+}
