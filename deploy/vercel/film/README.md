@@ -9,8 +9,8 @@
 
 This footage is **not AegisLand experimental evidence**. It shows a separate NASA flight campaign. The research record remains simulation-only.
 
-The clip is stored with the site, has no audio track, and is encoded as H.264/yuv420p with fast-start metadata. On phones, reduced-motion settings, or data-saving connections, playback requires a click. Desktop playback pauses when out of view or when the tab is hidden. The poster and source credit remain if playback is unavailable.
+The clip is stored with the site in H.264/yuv420p MP4 and silent VP9 WebM forms. MP4 is listed first for browsers with H.264 support; WebM lets Chromium builds without proprietary H.264 decoding play the same footage. The page preloads media and starts it muted while visible unless reduced motion or data saving is enabled. It pauses out of view or when the tab is hidden. Native controls and the poster remain available if automatic playback is unavailable.
 
 `uncertainty-nasa-clip.mp4`: silent 12-second NASA excerpt, 60–72 seconds. Original asset: https://images.nasa.gov/details/ARC-20190815-AAV3213-UTM-TCL4-TexasBRoll-NASAWeb. H.264 fast-start; no audio; poster at clip +3 seconds. Context footage only.
 
-`evaluation-nasa-clip.mp4`: silent 12-second NASA excerpt, 10–22 seconds. Original asset: https://images.nasa.gov/details/ARC-20191204-AAV3241-Multirotor-WindTunnel-TestRun-NASAWeb. H.264 fast-start; no audio; poster at clip +3 seconds. Context footage only.
+`evaluation-nasa-clip.mp4` and `evaluation-nasa-clip.webm`: silent 12-second NASA excerpt, 10–22 seconds. Original asset: https://images.nasa.gov/details/ARC-20191204-AAV3241-Multirotor-WindTunnel-TestRun-NASAWeb. MP4 uses H.264 fast-start; WebM uses VP9; both have no audio; poster at clip +3 seconds. Context footage only.

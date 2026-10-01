@@ -22,13 +22,13 @@ const frozenSlugs = [
 const frozenRoutes = frozenSlugs.map((slug) => `/phases/${slug}/`);
 const phase23Route = '/phases/phase23/';
 const phase24Route = '/phases/phase24/';
-const routes = ['/', '/phases/', ...legacyRoutes, ...frozenRoutes, phase23Route, phase24Route];
+const routes = ['/', '/model-vase/', '/phases/', ...legacyRoutes, ...frozenRoutes, phase23Route, phase24Route];
 const viewports = [
   { name: 'desktop', width: 1440, height: 1000 },
   { name: 'tablet', width: 820, height: 1180 },
   { name: 'mobile', width: 390, height: 844, isMobile: true, hasTouch: true }
 ];
-const screenshotRoutes = new Set(['/', '/phases/', '/phases/phase1/', '/phases/phase13a/', '/phases/phase18/', '/phases/phase22/', phase23Route, phase24Route]);
+const screenshotRoutes = new Set(['/', '/model-vase/', '/phases/', '/phases/phase1/', '/phases/phase13a/', '/phases/phase18/', '/phases/phase22/', phase23Route, phase24Route]);
 const report = { base: BASE, startedAt: new Date().toISOString(), checks: [], errors: [], warnings: [], screenshots: [] };
 
 await fs.rm(OUT, { recursive: true, force: true });
@@ -88,6 +88,11 @@ try {
       page.on('console', (message) => { if (message.type() === 'error') browserErrors.push(message.text()); });
       page.on('requestfailed', (request) => failedRequests.push({ url: request.url(), error: request.failure()?.errorText || 'requestfailed' }));
 
+      if (route === '/') {
+        // Verify the site's normal autoplay behavior; reduced-motion contexts intentionally suppress video.
+        await page.emulateMedia({ reducedMotion: 'no-preference' });
+      }
+
       let response;
       try {
         response = await page.goto(BASE + route, { waitUntil: 'domcontentloaded', timeout: 45000 });
@@ -100,6 +105,40 @@ try {
 
       const status = response?.status() || 0;
       add(`${vp.name}-${route}-status`, status >= 200 && status < 400, { status });
+
+      let videoPlaybackVerified = route !== '/';
+      if (route === '/') {
+        const videos = page.locator('video');
+        const count = await videos.count();
+        videoPlaybackVerified = count === 2;
+        add(vp.name + '-home-two-videos-present', videoPlaybackVerified, { count });
+        for (let index = 0; index < count; index++) {
+          const video = videos.nth(index);
+          await video.scrollIntoViewIfNeeded();
+          const played = await page.waitForFunction(
+            (i) => {
+              const element = document.querySelectorAll('video')[i];
+              return element && element.muted && !element.paused && element.currentTime > 0.5 && element.readyState >= 2;
+            },
+            index,
+            { timeout: 7000 }
+          ).then(() => true).catch(() => false);
+          const videoState = await video.evaluate((element) => ({
+            muted: element.muted,
+            paused: element.paused,
+            currentTime: Number(element.currentTime.toFixed(2)),
+            readyState: element.readyState,
+            src: element.currentSrc
+          }));
+          add(vp.name + '-home-video-' + index + '-autoplays-muted', played, videoState);
+          videoPlaybackVerified = videoPlaybackVerified && played;
+        }
+      }
+
+      if (route === '/') {
+        // Restore deterministic screenshot motion after the autoplay check.
+        await page.emulateMedia({ reducedMotion: 'reduce' });
+      }
 
       // Load every image before testing it, including native-lazy carousel slides.
       const images = page.locator('img');
@@ -141,7 +180,12 @@ try {
       }
 
       const filteredErrors = browserErrors.filter((entry) => !/favicon|ERR_BLOCKED_BY_CLIENT/i.test(entry));
-      const filteredRequests = failedRequests.filter((entry) => !/favicon|github\.com|linkedin\.com/i.test(entry.url));
+      const filteredRequests = failedRequests.filter((entry) => {
+        const expectedVideoAbort = videoPlaybackVerified
+          && entry.error === 'net::ERR_ABORTED'
+          && /\/film\/(?:aerocast-flight|evaluation-nasa-clip)\.(?:mp4|webm)(?:[?#]|$)/i.test(entry.url);
+        return !/favicon|github\.com|linkedin\.com/i.test(entry.url) && !expectedVideoAbort;
+      });
       add(`${vp.name}-${route}-browser-clean`, filteredErrors.length === 0, { browserErrors: filteredErrors });
       add(`${vp.name}-${route}-network-clean`, filteredRequests.length === 0, { failedRequests: filteredRequests });
 

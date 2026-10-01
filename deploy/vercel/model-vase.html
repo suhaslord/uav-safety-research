@@ -10,24 +10,32 @@
   <link rel="stylesheet" href="/phase-report.css?v=1">
   <link rel="stylesheet" href="/site-refresh.css?v=6">
   <link rel="stylesheet" href="/aegisland-brand.css?v=2">
-  <link rel="stylesheet" href="/model-vase.css?v=2">
+  <link rel="stylesheet" href="/model-vase.css?v=4">
+  <script defer src="/model-vase-evidence.js?v=1"></script>
 </head>
 <body class="model-vase-page">
   <a class="vase-skip" href="#main">Skip to Model VASE</a>
   <header class="top"><a class="brand vase-brand" href="/" aria-label="AegisLand, Model VASE"><img src="/model-vase-mark.svg" alt=""><span class="vase-brand__type"><strong>AEGISLAND</strong><small>MODEL VASE</small></span></a><nav class="nav" aria-label="Research navigation"><a href="/failure-atlas/">Failure Atlas</a><a href="/phases/">All phases</a><a href="/">Research home</a></nav></header>
   <nav class="record-path" aria-label="Research record"><strong>Unified system · frozen evidence by phase</strong><a href="/phases/">Browse the research archive →</a></nav>
   <main id="main">
-    <section class="vase-hero" id="answer" aria-labelledby="title">
-      <div class="eyebrow">AegisLand / research system</div>
-      <h1 id="title">Model VASE</h1>
-      <p class="vase-expansion">Vision · Auxiliary evidence · State reliability · Escalation</p>
-      <p class="dek">One architecture for asking when a landing estimate stops being trustworthy.</p>
-      <div class="vase-question"><span>THE RESEARCH QUESTION</span><p>When landing perception becomes unreliable, can the system recognize that before it trusts a bad estimate?</p></div>
-      <div class="hero-links"><a href="#evidence">See what the results support ↓</a><a href="/failure-atlas/">Open the Failure Atlas →</a></div>
-      <div class="vase-answer" aria-label="Current answer">
-        <span>ANSWER SO FAR</span>
-        <p><strong>In planar simulation: conditionally, yes.</strong> Independent evidence and selective fallback reduced unsafe outcomes in frozen experiments.</p>
-        <p>Real-image and flight evidence do not yet show that the complete system works end to end.</p>
+    <section class="vase-hero" aria-labelledby="title">
+      <figure class="vase-hero__media">
+        <img src="/media/acero-uav-landing.jpg" alt="NASA Ames Alta-X aircraft approaching a marked landing pad during a separate ACERO field test" width="1280" height="852" fetchpriority="high">
+        <figcaption><span>Field context only</span><span>NASA Ames Research Center · public domain · <a href="https://images-assets.nasa.gov/image/ACD24-0180-037/ACD24-0180-037~orig.jpg" target="_blank" rel="noreferrer">Original image ↗</a></span></figcaption>
+      </figure>
+      <div class="vase-hero__copy">
+        <p class="eyebrow">AEGISLAND · RESEARCH ARCHITECTURE</p>
+        <h1 id="title">Model VASE</h1>
+        <p class="vase-expansion">Vision · Auxiliary evidence · State reliability · Escalation</p>
+        <p class="dek">Can it recognize a bad estimate before the landing decision?</p>
+        <div class="hero-links"><a href="#answer">Read the evidence</a><a href="/failure-atlas/">Open Failure Atlas</a></div>
+      </div>
+    </section>
+
+    <section class="vase-answer" id="answer" aria-labelledby="answer-title">
+      <div class="vase-wrap vase-answer__row">
+        <p class="vase-answer__label">Answer so far</p>
+        <div class="vase-answer__copy"><h2 id="answer-title">Yes in planar simulation. Not yet through real camera input.</h2><p>Independent estimates and selective fallback reduced unsafe outcomes in frozen simulation. The camera and flight results do not yet demonstrate the complete system end to end.</p></div>
       </div>
     </section>
 
@@ -42,46 +50,70 @@
       <p class="vase-boundary"><strong>Model VASE is an integrated research architecture, not a newly trained checkpoint.</strong> KIOS boxes and Phase 12 intervals are not silently fed into the V3 supervisor.</p>
     </section>
 
-    <section class="vase-results" id="evidence" aria-labelledby="evidence-title">
-      <div class="section-head"><h2 id="evidence-title">What the frozen results say.</h2><p>Each number stays with its original model, data, and protocol.</p></div>
-      <div class="vase-metrics" aria-label="Headline results from separate experiments">
-        <div><strong>2.4%</strong><span>V3 mixed unsafe touchdowns<br>10,000 simulated episodes</span></div>
-        <div><strong>1.4%</strong><span>V3 occlusion unsafe touchdowns<br>Baseline: 34.6%</span></div>
-        <div><strong>+3.4 pp</strong><span>Phase 24 six-condition mAP50<br>Published KIOS aggregates</span></div>
-        <div><strong>−13.3 pp</strong><span>Occlusion + mixed mAP50<br>Phase 23 detector regression</span></div>
+    <section class="vase-results" id="evidence" aria-labelledby="evidence-title" data-vase-evidence>
+      <div class="section-head"><h2 id="evidence-title">Evidence, by track.</h2><p>Switch views. Each result stays with its original model, data, and protocol.</p></div>
+      <div class="vase-evidence-switch" role="group" aria-label="Choose an evidence track">
+        <button type="button" data-evidence-button="simulation" aria-pressed="false" aria-controls="simulation-evidence">Frozen simulation</button>
+        <button type="button" data-evidence-button="vision" aria-pressed="true" aria-controls="vision-evidence">Real vision</button>
       </div>
-      <div class="vase-evidence-grid">
-        <article class="vase-evidence-card">
-          <div class="vase-card-meta"><span>PHASES 1–5 · V1–V3</span><b>FROZEN SIMULATION</b></div>
-          <h3>Independent evidence can expose persistent bias.</h3>
-          <p>V3 reduced mixed unsafe touchdowns from 84.2% to 2.4%, with 0% aborts. Under occlusion it reduced them from 34.6% to 1.4%.</p>
-          <a href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/v3_results.md">Read the frozen results ↗</a>
-        </article>
-        <article class="vase-evidence-card">
-          <div class="vase-card-meta"><span>PHASE 6B</span><b>SYNTHETIC IMAGE + CONTROL</b></div>
-          <h3>Selective fallback helped hardest conditions.</h3>
-          <p>Mixed-condition success was 99%; low light had 3% timeouts. The mixed lateral bad-estimate rejection remained weak.</p>
-          <a href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase6b_results.md">Read the held-out study ↗</a>
-        </article>
-        <article class="vase-evidence-card">
-          <div class="vase-card-meta"><span>PHASES 10R–12</span><b>UNCERTAINTY · SIMULATION</b></div>
-          <h3>Calibration improved, but is not in the controller.</h3>
-          <p>Phase 10R and 11 missed protected gates. Phase 12 later passed its frozen gates: 95.53% lateral coverage and a 2.230× tail-width ratio.</p>
-          <a href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase12_iteration3_final_report.md">Read the final Phase 12 report ↗</a>
-        </article>
-        <article class="vase-evidence-card">
-          <div class="vase-card-meta"><span>PHASES 7–9, 22</span><b>TRANSFER CHECKS</b></div>
-          <h3>Transfer evidence has a simulation boundary.</h3>
-          <p>Phase 8 recorded a PX4/Gazebo diagnostic mismatch. Phase 22 passed 10 locked simulation gates; neither establishes flight performance.</p>
-          <a href="/phases/phase22/">Read the Phase 22 record ↗</a>
-        </article>
-        <article class="vase-evidence-card vase-evidence-card--wide">
-          <div class="vase-card-meta"><span>PHASES 23–26</span><b>REAL IMAGE · PAIRED STUDY COMPLETE</b></div>
-          <h3>The detector average hides hard-condition failures.</h3>
-          <p>On 86 frames × 6 conditions (516 paired views), Phase 25 found 49 recovered, 65 regressed, 223 both-pass, and 179 both-fail transitions. Blur and noise improved; clean, low-light, and occlusion regressed. The mechanism: 480 px training resolves fine concentric features but those features collapse under 55% central occlusion. Phase 26 has no admitted independent test set.</p>
-          <div class="vase-card-links"><a href="/phases/phase24/">Read the aggregate audit ↗</a><a href="/failure-atlas/">Inspect measured baseline frames ↗</a><a href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase26_protocol.md">Read the separate-data protocol ↗</a></div>
-        </article>
-      </div>
+      <section class="vase-evidence-panel" id="simulation-evidence" data-evidence-panel="simulation" aria-label="Frozen simulation evidence">
+        <div class="vase-metrics" aria-label="Frozen simulation results">
+          <div><strong>2.4%</strong><span>V3 mixed-stress unsafe touchdowns<br>10,000 simulated episodes</span></div>
+          <div><strong>1.4%</strong><span>V3 occlusion-stress unsafe touchdowns<br>Baseline: 34.6%</span></div>
+        </div>
+        <div class="vase-evidence-grid">
+          <article class="vase-evidence-card">
+            <div class="vase-card-meta"><span>PHASES 1–5 · V1–V3</span><b>FROZEN SIMULATION</b></div>
+            <h3>Independent evidence exposed persistent bias.</h3>
+            <p>V3 reduced mixed unsafe touchdowns from 84.2% to 2.4%; under occlusion, from 34.6% to 1.4%.</p>
+            <a href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/v3_results.md">Read the frozen results ↗</a>
+          </article>
+          <article class="vase-evidence-card">
+            <div class="vase-card-meta"><span>PHASE 6B</span><b>SYNTHETIC IMAGE + CONTROL</b></div>
+            <h3>Selective fallback helped under stress.</h3>
+            <p>Mixed-condition success was 99%. Low-light timeouts were 3%; mixed lateral bad-estimate rejection remained weak.</p>
+            <a href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase6b_results.md">Read the held-out study ↗</a>
+          </article>
+          <article class="vase-evidence-card">
+            <div class="vase-card-meta"><span>PHASES 10R–12</span><b>UNCERTAINTY · SIMULATION</b></div>
+            <h3>Calibration improved, but is not in the controller.</h3>
+            <p>Phase 10R and 11 missed protected gates. Phase 12 passed its frozen gates: 95.53% lateral coverage and a 2.230× tail-width ratio.</p>
+            <a href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase12_iteration3_final_report.md">Read the Phase 12 report ↗</a>
+          </article>
+          <article class="vase-evidence-card">
+            <div class="vase-card-meta"><span>PHASES 7–9, 22</span><b>TRANSFER CHECKS</b></div>
+            <h3>Transfer evidence stops at simulation.</h3>
+            <p>Phase 8 recorded a PX4/Gazebo diagnostic mismatch. Phase 22 passed 10 locked simulation gates; neither establishes flight performance.</p>
+            <a href="/phases/phase22/">Read the Phase 22 record ↗</a>
+          </article>
+        </div>
+      </section>
+      <section class="vase-evidence-panel" id="vision-evidence" data-evidence-panel="vision" aria-label="Real-image detector evidence">
+        <div class="vase-metrics" aria-label="Published KIOS detector results">
+          <div><strong>+3.4 pp</strong><span>Phase 24 six-condition mAP50<br>Published KIOS aggregates</span></div>
+          <div><strong>−13.3 pp</strong><span>Occlusion + mixed mAP50<br>Phase 23 detector regression</span></div>
+        </div>
+        <div class="vase-evidence-grid vase-evidence-grid--vision">
+          <article class="vase-evidence-card">
+            <div class="vase-card-meta"><span>PHASES 23–24</span><b>REUSED KIOS IMAGES</b></div>
+            <h3>Average gain hid harder-condition losses.</h3>
+            <p>On the same 86 KIOS frames, the six-condition mAP50 average rose while occlusion and mixed results fell.</p>
+            <a href="/phases/phase24/">Read the aggregate audit ↗</a>
+          </article>
+          <article class="vase-evidence-card">
+            <div class="vase-card-meta"><span>PHASE 25</span><b>PAIRED STUDY COMPLETE</b></div>
+            <h3>Frame transitions measured across 516 paired views.</h3>
+            <p>On 86 frames × 6 conditions (516 paired views), Phase 25 recorded 49 recovered, 65 regressed, 223 both-pass, and 179 both-fail transitions. The 5,160-view occlusion topology study confirms that central feature structure is critical.</p>
+            <a href="/failure-atlas/">Inspect the Failure Atlas ↗</a>
+          </article>
+          <article class="vase-evidence-card vase-evidence-card--wide">
+            <div class="vase-card-meta"><span>PHASE 26</span><b>INDEPENDENT TEST NOT ADMITTED</b></div>
+            <h3>Next: test whether the failure pattern transfers.</h3>
+            <p>The next detector evaluation needs genuinely separate imagery and a frozen protocol. The earlier KIOS archive cannot provide an independent test.</p>
+            <a href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase26_protocol.md">Read the Phase 26 protocol ↗</a>
+          </article>
+        </div>
+      </section>
     </section>
 
     <section class="vase-next" aria-labelledby="next-title">

@@ -38,6 +38,15 @@ def test_phase25_lens_reuses_published_aggregates_without_frame_claims() -> None
     assert "phase25_reconstruction_audit.json" in phase and "phase25_reconstruction_audit.json" in home
 
 
+def test_phase25_lens_resolves_assets_under_a_project_page_base_path() -> None:
+    script = (ROOT / "deploy/vercel/phase25-explorer.js").read_text(encoding="utf-8")
+
+    assert "new URL('.', document.currentScript?.src || window.location.href)" in script
+    assert "fetch(new URL('phase25-explorer-data.json', appBase))" in script
+    assert "photo.src = appAsset(chosen.illustration)" in script
+    assert "String.fromCharCode(47)" in script
+
+
 def test_vercel_home_is_native_frozen_archive_shell() -> None:
     html = (ROOT / "deploy" / "vercel" / "index.html").read_text(encoding="utf-8")
 
@@ -69,6 +78,7 @@ def test_vercel_home_is_native_frozen_archive_shell() -> None:
 def test_model_vase_page_reports_separate_evidence_without_claiming_a_fused_model() -> None:
     page = (ROOT / "deploy" / "vercel" / "model-vase.html").read_text(encoding="utf-8")
     stylesheet = (ROOT / "deploy" / "vercel" / "model-vase.css").read_text(encoding="utf-8")
+    evidence_script = (ROOT / "deploy" / "vercel" / "model-vase-evidence.js").read_text(encoding="utf-8")
     mark = (ROOT / "deploy" / "vercel" / "model-vase-mark.svg").read_text(encoding="utf-8")
 
     assert "Model VASE" in page
@@ -81,9 +91,39 @@ def test_model_vase_page_reports_separate_evidence_without_claiming_a_fused_mode
     assert "docs/v3_results.md" in page
     assert "PHASES 10R–12" in page and "516 paired views" in page
     assert "vase-evidence-card" in page and "/failure-atlas/" in page
+    assert 'data-evidence-button="simulation"' in page and 'data-evidence-button="vision"' in page
+    assert 'data-evidence-panel="simulation"' in page and 'data-evidence-panel="vision"' in page
+    assert "activate('vision')" in evidence_script and "ArrowRight" in evidence_script
     assert 'href="/aegisland-brand.css?v=' in page
     assert "#e82127" in stylesheet and "#3e6ae1" not in stylesheet and "prefers-reduced-motion" in stylesheet
     assert 'viewBox="0 0 48 48"' in mark
+
+
+def test_local_visual_qa_server_serves_model_vase_evidence_switch_script() -> None:
+    server = (ROOT / ".github" / "qa" / "local-vercel-server.mjs").read_text(encoding="utf-8")
+
+    assert "'model-vase-evidence.js'" in server
+
+
+def test_homepage_videos_have_webm_fallbacks_for_browsers_without_h264() -> None:
+    page = (ROOT / "deploy" / "vercel" / "index.html").read_text(encoding="utf-8")
+    qa_server = (ROOT / ".github" / "qa" / "local-vercel-server.mjs").read_text(encoding="utf-8")
+
+    assert page.count('type="video/webm"') == 2
+    assert page.count('type="video/mp4"') == 2
+    assert (ROOT / "deploy" / "vercel" / "film" / "aerocast-flight.webm").is_file()
+    assert (ROOT / "deploy" / "vercel" / "film" / "evaluation-nasa-clip.webm").is_file()
+    assert "'.webm': 'video/webm'" in qa_server
+
+
+def test_production_deploy_gate_accepts_autoplay_and_checks_both_video_formats() -> None:
+    workflow = (ROOT / ".github" / "workflows" / "emergency-vercel-deploy.yml").read_text(encoding="utf-8")
+
+    assert "data-autoplay=\"visible\"" in workflow
+    assert "aerocast-flight.webm" in workflow
+    assert "evaluation-nasa-clip.webm" in workflow
+    assert "href=\"/aegisland-brand.css?v=2\"" not in workflow
+    assert "<video controls playsinline preload=\"none\"" not in workflow
 
 
 def test_vercel_routes_use_packaged_frozen_and_legacy_assets() -> None:
@@ -361,6 +401,35 @@ def test_phase23_displayed_condition_table_matches_committed_csv() -> None:
         for row in rows
     ]
     assert displayed == expected
+
+
+def test_live_perception_delta_uses_unrounded_phase23_source_metrics() -> None:
+    current = (ROOT / "deploy" / "vercel" / "lab" / "current-data.js").read_text(encoding="utf-8")
+    with (ROOT / "results" / "phase23_robust_detector" / "robustness_comparison.csv").open(newline="") as source:
+        rows = list(csv.DictReader(source))
+
+    condition_names = tuple(row["condition"] for row in rows)
+    for row in rows:
+        condition = row["condition"]
+        start = current.index(f"      {condition}: {{")
+        following_starts = [
+            current.find(f"\n      {name}: {{", start + 1)
+            for name in condition_names
+            if name != condition
+        ]
+        following_starts = [position for position in following_starts if position >= 0]
+        end = min(following_starts) if following_starts else current.index("\n    }\n  };", start)
+        block = current[start:end]
+
+        for model, csv_prefix in (("baseline", "baseline"), ("phase23", "phase23")):
+            metrics = re.search(rf"{model}:\s*\{{([^}}]+)\}}", block)
+            assert metrics is not None
+            values = dict(re.findall(r"(recall|map50):\s*([0-9.]+)", metrics.group(1)))
+            assert float(values["recall"]) == float(row[f"{csv_prefix}_recall"])
+            assert float(values["map50"]) == float(row[f"{csv_prefix}_map50"])
+
+    assert "const recallDelta = condition.phase23.recall - condition.baseline.recall;" in current
+    assert "const mapDelta = condition.phase23.map50 - condition.baseline.map50;" in current
 
 
 def test_live_perception_panels_and_phase_reading_width_are_balanced() -> None:
