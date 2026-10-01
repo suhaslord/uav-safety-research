@@ -106,3 +106,4 @@
       }
     });
 })();
+// Deployment sync 2026-09-30: no behavior change.
