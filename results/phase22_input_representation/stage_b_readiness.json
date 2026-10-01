@@ -1,0 +1,10 @@
+{
+  "status": "BLOCKED_MISSING_ORIGINAL_PROTOCOL",
+  "protocol": null,
+  "protocol_sha256": null,
+  "dose_levels": null,
+  "zero_dose_gate": "NOT RUN",
+  "treatment_inference": "NOT RUN",
+  "threshold_evidence": "NOT ASSESSED",
+  "blocker": "Exact original frozen protocol bytes and geometry implementation are unavailable; dose levels must be read from the original frozen protocol."
+}

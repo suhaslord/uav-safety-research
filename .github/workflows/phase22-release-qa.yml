@@ -1,0 +1,39 @@
+name: Phase 22 evidence and responsive release QA
+on:
+  pull_request:
+    paths:
+      - 'results/phase22_*/**'
+      - 'scripts/*phase22*'
+      - 'deploy/vercel/**'
+      - 'dashboard/phases/frozen.html'
+      - '.github/qa/phase22-release-smoke.mjs'
+      - '.github/workflows/phase22-release-qa.yml'
+  push:
+    branches: [main, integration/research-sync-2026-09-30]
+permissions:
+  contents: read
+jobs:
+  responsive-evidence-qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -e '.[dev]'
+      - name: Replay all v2 saved outcomes without detector inference
+        run: python scripts/verify_phase22_occlusion_v2.py
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save playwright
+      - run: npx playwright install --with-deps chromium
+      - name: Verify desktop/mobile routes, evidence states, and navigation
+        run: node .github/qa/phase22-release-smoke.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: phase22-release-qa
+          path: qa-artifacts/phase22-release

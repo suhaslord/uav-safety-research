@@ -1,0 +1,44 @@
+{
+  "status": "PASS",
+  "full_pytest": {
+    "passed": 422,
+    "seconds": 54.31
+  },
+  "new_and_phase22_tests": {
+    "pre_execution_passed": 54,
+    "pre_execution_skipped": 1
+  },
+  "original_geometry_replay": {
+    "image_cases": 516,
+    "target_masks": 516,
+    "image_manifest_sha256": "eb2c4202dcd36f792f0a767986bdc3369e32b04d36360ee9fc7ac6db5f7ead28",
+    "target_manifest_sha256": "76f00fe7050e629a319b9b4d1fb65a0d45c6e9bd127f8f075b2d264d5a4d9554"
+  },
+  "artifact_replay": {
+    "status": "PASS",
+    "frame_rows_replayed": 516,
+    "target_rows_replayed": 516,
+    "prediction_rows_replayed": 145169,
+    "source_frames": 86,
+    "freeze_commit": "6a8623cbeb54951f43b8ca65293598e7c41a474e",
+    "freeze_commit_locally_verified": true,
+    "source_frame_paired_analysis_replayed": true,
+    "detector_inference_run": false,
+    "scope": "Saved artifact hashes/boxes/matches/outcomes/paired descriptive statistics and recorded clean gate; independent detector rerun and input replay require original source/runner."
+  },
+  "historical_release_checks": {
+    "table_and_method_hashes": 9,
+    "generated_site_snapshots": 2,
+    "passed": true,
+    "inputs_replayed": false
+  },
+  "stage_a_artifact_replay": {
+    "frame_rows": 430,
+    "prediction_rows": 125208,
+    "passed": true
+  },
+  "browser_state_node_tests": {
+    "passed": 7
+  },
+  "frozen_methods_changed_after_inference": false
+}

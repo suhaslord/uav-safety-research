@@ -1,0 +1,77 @@
+{
+  "checkpoint_sha256": "3a1801b192d624f8dcdda4bc5d9a9157309000df67a4c30d62368c37901feddd",
+  "expected_cases": 516,
+  "frame_case_count": 516,
+  "freeze_commit": "6a8623cbeb54951f43b8ca65293598e7c41a474e",
+  "outcome_record": "run_outcome.json",
+  "output_sha256": {
+    "analysis.json": "cd9f3e88bb82dac3031a02ab40a2a89db115afb1a4df13969a13d9a6b1ac943e",
+    "dose_image_manifest.csv": "5d56145f255873998526fb8aeaa71fdf7f3f6396c271048165d75dd3ec6fea34",
+    "dose_response.csv": "ec1dba0bf85a2abfea614b25d569d1d4ca4588e2b42ce29623cad176cb2e1aec",
+    "frame_condition_metrics.csv": "5ab4f7352f2ec7a8943ae8a3ea24bc3956a941a001a84ce44aa72c2dee4cb6da",
+    "paired_frame_changes.csv": "4c9926e922fa036da3b2bcab1922fb133a8790fbe3b7ef87433f5eb6596b84af",
+    "paired_transitions.csv": "e020189245806becb96b54b803ace5251b60c4a2d61afe5ea25d37b7dd4833c9",
+    "prediction_boxes.csv.gz": "888c3b963b78586394f01492a0fb19d68219340241d5d0d51705c55f47daf350",
+    "protocol.json": "7d9229050192a500c42daf1d05b4afad8cdefd41f9f408d203248d14635a9600",
+    "target_mask_manifest.csv": "76f00fe7050e629a319b9b4d1fb65a0d45c6e9bd127f8f075b2d264d5a4d9554",
+    "target_metrics.csv": "a98c733ad9e539106e04e97b51e2f70979940e10448e8bc08b0d798b66bebb5f",
+    "zero_dose_gate.json": "2302ff14856ea1e338ece568b1e2f716d221600179e70b0166ff36865f85b824"
+  },
+  "prediction_count": 145169,
+  "protocol_sha256": "7d9229050192a500c42daf1d05b4afad8cdefd41f9f408d203248d14635a9600",
+  "q95_inventory_sha256": "2412380094b505c1c21e4dfba9333e534d00ac77ac48fcf12b6b72d709c85316",
+  "runtime": {
+    "jpeg": "6.2",
+    "libjpeg_turbo": "3.1.4.1",
+    "official_validator_sha256": "10e7944ede74be2c40c176fea65b81956cbe3837fdff1e4a361f2b57f6483e60",
+    "packages": {
+      "Pillow": "12.3.0",
+      "numpy": "2.5.3",
+      "opencv-python": "5.0.0.93",
+      "scipy": "1.17.0",
+      "torch": "2.9.1+cpu",
+      "torchvision": "0.24.1+cpu",
+      "ultralytics": "8.4.152"
+    },
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+    "python": "3.12.14",
+    "ultralytics_path_recorded": "__init__.py"
+  },
+  "settings": {
+    "batch": 16,
+    "conf": 0.001,
+    "device": "cpu",
+    "imgsz": 320,
+    "iou": 0.7,
+    "max_det": 300,
+    "split": "test",
+    "workers": 2
+  },
+  "source_frames": 86,
+  "stage_a_result_commit": "3373aa8ed7138a4b09ff327aff2dc2640440509f",
+  "status": "COMPLETE",
+  "target_case_count": 516,
+  "treatment_inference_run": true,
+  "zero_dose_gate": {
+    "actual": {
+      "map50": 0.42662686781189296,
+      "map50_95": 0.2723431563204893,
+      "precision": 0.7959713659654185,
+      "recall": 0.38372093023255816
+    },
+    "checks": {
+      "map50": true,
+      "recall": true
+    },
+    "delta": {
+      "map50": 5.551115123125783e-17,
+      "recall": 5.551115123125783e-17
+    },
+    "expected": {
+      "map50": 0.4266268678118929,
+      "recall": 0.3837209302325581
+    },
+    "status": "PASS",
+    "tolerance": 0.001
+  }
+}

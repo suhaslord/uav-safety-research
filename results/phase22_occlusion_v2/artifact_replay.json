@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "frame_rows_replayed": 516,
+  "target_rows_replayed": 516,
+  "prediction_rows_replayed": 145169,
+  "source_frames": 86,
+  "freeze_commit": "6a8623cbeb54951f43b8ca65293598e7c41a474e",
+  "freeze_commit_locally_verified": true,
+  "source_frame_paired_analysis_replayed": true,
+  "detector_inference_run": false,
+  "scope": "Saved artifact hashes/boxes/matches/outcomes/paired descriptive statistics and recorded clean gate; independent detector rerun and input replay require original source/runner."
+}

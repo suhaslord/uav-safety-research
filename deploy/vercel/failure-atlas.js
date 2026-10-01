@@ -26,7 +26,7 @@
     const scene=els['phase23-scene'],placeholder=els['phase23-image-placeholder'],badge=els['phase23-image-badge'];
     scene.classList.toggle('has-image',Boolean(source));
     placeholder.hidden=Boolean(source);
-    badge.textContent=source?'Same source frame · Phase 23 outputs pending':'Source image unavailable · Phase 23 outputs pending';
+    badge.textContent=source?'Same source frame · aggregate view':'Source image unavailable · aggregate view';
     placeholder.textContent=`Loading verified ${names[condition].toLowerCase()} source image for ${item.id}…`;
     let frameImage=els['phase23-frame-image'];
     frameImage.hidden=!source;
@@ -35,12 +35,12 @@
       const replacement=frameImage.cloneNode(false);replacement.removeAttribute('src');
       frameImage.replaceWith(replacement);els['phase23-frame-image']=replacement;frameImage=replacement;
     }
-    frameImage.alt=`${names[condition]} source image for ${item.id}; Phase 23 detector predictions are pending`;
+    frameImage.alt=`${names[condition]} source image for ${item.id}; Phase 23 measured outcomes are available in the linked paired frame tables`;
     frameImage.onerror=()=>{
       if(frameImage.getAttribute('src')!==source)return;
       frameImage.hidden=true;scene.classList.remove('has-image');placeholder.hidden=false;
-      placeholder.textContent='This source image could not be decoded. Reload the page to retry; Phase 23 frame predictions remain pending.';
-      badge.textContent='Image unavailable · Phase 23 outputs pending';
+      placeholder.textContent='This source image could not be decoded. Reload the page to retry; paired frame outcomes remain available in the linked tables.';
+      badge.textContent='Image unavailable · aggregate view';
     };
     if(frameImage.getAttribute('src')!==source)frameImage.src=source;
     else if(frameImage.complete&&frameImage.naturalWidth===0)frameImage.onerror();
