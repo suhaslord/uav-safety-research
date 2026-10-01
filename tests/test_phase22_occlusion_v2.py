@@ -136,7 +136,9 @@ def test_descriptive_analysis_uses_paired_sources_without_invented_seed(monkeypa
 def test_v2_freeze_committed_before_inference():
     path=v2.OUT/'protocol.json'
     if not path.exists(): pytest.skip('Pre-freeze preparation')
-    protocol,commit=v2.validate_freeze(v2.sha256_file(path))
+    if not (v2.OUT/'run_outcome.json').exists(): pytest.skip('Pre-execution freeze')
+    from verify_phase22_occlusion_v2 import verify_artifact_freeze
+    protocol,commit,available=verify_artifact_freeze(v2.OUT)
     assert len(commit)==40 and protocol['dose_array']==list(v2.original.DOSES)
     assert protocol['statistics']['random_seed'] is None
     assert protocol['threshold_criterion'] is None

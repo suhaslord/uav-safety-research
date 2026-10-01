@@ -6,6 +6,7 @@ import gzip
 import hashlib
 import io
 import json
+import subprocess
 from pathlib import Path
 import sys
 
@@ -30,11 +31,39 @@ def typed(row):
             for k,v in row.items()}
 
 
+def verify_artifact_freeze(output):
+    """Offline byte/provenance check; never require the inference runtime in CI."""
+    outcome=json.loads((output/'run_outcome.json').read_text())
+    protocol=json.loads((output/'protocol.json').read_text())
+    if sha256_file(output/'protocol.json')!=outcome['protocol_sha256']:
+        raise ValueError('Frozen protocol SHA changed')
+    v2.authenticate()
+    resolved={}
+    for p,sha in {**protocol['method_sha256'],**protocol['remote_recovery_file_sha256']}.items():
+        path=ROOT/p
+        if sha256_file(path)!=sha:
+            path=output/'frozen_methods'/p
+            if not path.exists() or sha256_file(path)!=sha:
+                raise ValueError('Frozen method/provenance changed: '+p)
+        resolved[p]=path
+    if sha256_file(v2.RECOVERY/'recovery.json')!=protocol['recovery_receipt_sha256']:
+        raise ValueError('Frozen recovery receipt changed')
+    commit=outcome['freeze_commit']
+    available=subprocess.run(['git','cat-file','-e',commit+'^{commit}'],cwd=ROOT,capture_output=True).returncode==0
+    if available:
+        for p in ('results/phase22_occlusion_v2/protocol.json',*v2.METHODS):
+            blob=subprocess.check_output(['git','show',commit+':'+p],cwd=ROOT)
+            expected=outcome['protocol_sha256'] if p=='results/phase22_occlusion_v2/protocol.json' else protocol['method_sha256'][p]
+            if hashlib.sha256(blob).hexdigest()!=expected:
+                raise ValueError('Implementation differs from actual freeze commit')
+    return protocol,commit,available
+
+
 def verify(output):
     outcome=json.loads((output/'run_outcome.json').read_text())
     if outcome['status']!='COMPLETE' or not outcome['treatment_inference_run']:
         raise ValueError('V2 treatments not complete')
-    protocol,freeze_commit=v2.validate_freeze(outcome['protocol_sha256'])
+    protocol,freeze_commit,history_verified=verify_artifact_freeze(output)
     if outcome['freeze_commit']!=freeze_commit:
         raise ValueError('Freeze commit provenance changed')
     for name,sha in outcome['output_sha256'].items():
@@ -83,6 +112,7 @@ def verify(output):
         if b.getvalue().encode()!=(output/name).read_bytes(): raise ValueError('Analysis table does not replay: '+name)
     return {'status':'PASS','frame_rows_replayed':len(saved_frames),'target_rows_replayed':len(saved_targets),
         'prediction_rows_replayed':sum(map(len,groups.values())),'source_frames':analysis['source_frames'],
+        'freeze_commit':freeze_commit,'freeze_commit_locally_verified':history_verified,
         'source_frame_paired_analysis_replayed':True,'detector_inference_run':False,
         'scope':'Saved artifact hashes/boxes/matches/outcomes/paired descriptive statistics and recorded clean gate; independent detector rerun and input replay require original source/runner.'}
 

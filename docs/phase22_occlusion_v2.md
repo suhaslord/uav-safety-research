@@ -103,6 +103,16 @@ separate committed freeze. Its preflight receipt is `run_manifest.json`;
 `run_outcome.json` is the authoritative final completion/failure status.
 Original recovery records are kept unchanged in their imported paths.
 
+Exact pre-inference method bytes are also preserved under
+`results/phase22_occlusion_v2/frozen_methods/`. The shared reconstruction helper
+was subsequently updated by the independently integrated Phase 23 work.
+Offline replay authenticates the archived original bytes against the unchanged
+v2 protocol and actual freeze commit; it does not pretend the newer shared
+helper was used for v2 inference. To perform a fresh detector rerun of this
+frozen implementation, use a separate checkout of `6a8623c` and new output
+directories. Do not change the historical protocol's method hashes to match
+newer shared files after seeing results.
+
 ## Interpretation
 
 The original protocol supports descriptive paired changes from dose zero and

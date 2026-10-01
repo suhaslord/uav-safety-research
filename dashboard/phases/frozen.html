@@ -115,6 +115,9 @@
           ${prev ? `<a class="signature-button" href="/phases/${prev.slug}/">← ${prev.label}</a>` : '<a class="signature-button" href="/phases/phase11/">← Phase 11</a>'}
           ${next ? `<a class="signature-button signature-button--primary" href="/phases/${next.slug}/">${next.label} →</a>` : '<a class="signature-button signature-button--primary" href="/phases/phase23/">Separate Phase 23 detector →</a>'}
         </nav>`;
+      if (slug === 'phase22') {
+        root.insertAdjacentHTML('beforeend', `<section class="phase-detail__context" aria-labelledby="detector-followup-title"><div class="phase-detail__context-grid"><div><span class="phase-detail__eyebrow">Separate detector evidence</span><h2 id="detector-followup-title">Representation and occlusion.</h2></div><div><p>The original raw-source sweep remains INCONCLUSIVE: clean gate FAILED, no treatments. Stage A representation study PASS: historical Q95 reproduced the baseline. The separate occlusion v2 record contains its own frozen protocol, fresh clean gate and actual dose response.</p><a class="signature-button" href="/phase22-detector-study/">Read the detector follow-ups →</a></div></div></section>`);
+      }
     })();
 
     (() => {

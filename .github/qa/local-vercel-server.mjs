@@ -57,6 +57,10 @@ const server = http.createServer(async (req, res) => {
   const url = new URL(req.url || '/', `http://${req.headers.host || `127.0.0.1:${port}`}`);
   const p = url.pathname;
 
+  if (/^\/phase22-detector-study\/?$/i.test(p)) {
+    return sendFile(res, path.join(deployRoot, 'phase22-detector-study.html'));
+  }
+
   if (/^\/model-vase\/?$/i.test(p)) {
     return sendFile(res, path.join(deployRoot, 'model-vase.html'));
   }

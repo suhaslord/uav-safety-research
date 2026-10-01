@@ -1,5 +1,7 @@
 {
   "rewrites": [
+    { "source": "/phase22-detector-study/", "destination": "/phase22-detector-study.html" },
+    { "source": "/phase22-detector-study", "destination": "/phase22-detector-study.html" },
     { "source": "/favicon.ico", "destination": "/favicon.svg" },
     { "source": "/model-vase/", "destination": "/model-vase.html" },
     { "source": "/model-vase", "destination": "/model-vase.html" },
