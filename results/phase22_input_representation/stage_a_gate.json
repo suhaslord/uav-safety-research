@@ -1,0 +1,10 @@
+{
+  "checks": {
+    "complete_86_frames_per_representation": true,
+    "deterministic_transform": true,
+    "q95_baseline": true,
+    "raw_diagnostic_reproduced": true,
+    "stable_derived_hashes": true
+  },
+  "status": "PASS"
+}

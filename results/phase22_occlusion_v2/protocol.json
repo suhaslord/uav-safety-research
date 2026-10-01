@@ -1,0 +1,166 @@
+{
+  "checkpoint_release": "https://github.com/suhaslord/uav-safety-research/releases/download/phase22-baseline-recovery/phase22_recovery_bundle.zip",
+  "checkpoint_sha256": "3a1801b192d624f8dcdda4bc5d9a9157309000df67a4c30d62368c37901feddd",
+  "dose_array": [
+    0.0,
+    0.15,
+    0.3,
+    0.45,
+    0.6,
+    0.75
+  ],
+  "failure_rules": "Missing original hash/method authentication, changed freeze/runtime/settings/source/model/Q95 hashes, failed Stage A or zero-dose gate, duplicate/missing cases or corrupt images: STOP, no treatment inference. Never overwrite earlier artifacts.",
+  "frame_confidence": "Mean best-overlap confidence across targets; not maximum confidence of unrelated detections; survivor-only matched confidence separate.",
+  "historical_geometry_manifest_sha256": "eb2c4202dcd36f792f0a767986bdc3369e32b04d36360ee9fc7ac6db5f7ead28",
+  "historical_target_mask_manifest_sha256": "76f00fe7050e629a319b9b4d1fb65a0d45c6e9bd127f8f075b2d264d5a4d9554",
+  "limitations": [
+    "Exploratory retrospective evidence; these protected frames were previously inspected.",
+    "Two temporally dependent sequences; 516 cases are repeated views of 86 sources, not 516 independent samples.",
+    "Box visibility proxy, not physical pad surface visibility.",
+    "Single centered opaque synthetic intervention and fixed static detector; no general flight safety claim.",
+    "Detector confidence is a model score, not landing-safety probability.",
+    "Aggregate gate recall uses evaluator operating point; primary frame/target recall uses frozen confidence floor."
+  ],
+  "mask_geometry": "For each GT: floor top-left, ceil exclusive bottom-right, clip; scale each dimension sqrt(dose); round-half-up, minimum 1 for positive dose; floor centered offset; union RGB(127,127,127) masks. Achieved box fraction counts union inside every GT.",
+  "matching_rules": "Same-class descending-confidence one-to-one IoU >= 0.50; unmatched predictions FP, unmatched targets FN.",
+  "method_sha256": {
+    "scripts/phase22_representation_transform.py": "c030ac469518d194e858e4d4e76f09edfc8662ed4f7b0a229ea816e097cd8e70",
+    "scripts/phase25_lib.py": "9e215c57a59e2130225ffd3518fcfd657071a483b048af6f64ebef5147e6d6f0",
+    "scripts/phase25_reconstruction_lock.py": "5869a144c7b3c81a690f2e5092bf984adb8417500b1ebd78d14deb769b87748a",
+    "scripts/run_phase22_occlusion_v2.py": "3059cc9d392e67308484c4b299e4c9274f9d778477c309c129777c3334ed501a",
+    "scripts/run_phase22_representation_study.py": "30c8ce2f3a37853a9964e4650d1c940b7bf041571161d92261af3ccfd201082f",
+    "scripts/run_phase25_occlusion_sweep.py": "939b286418c66fa7a8ab39c6dc981b43324b5804f21f026ff1090a84e95c79a4",
+    "src/uav_safety/real_landing_dataset.py": "e371682b00adcc0ddff255046c5461ef09570f2d80e12698f82f204efe210bfb"
+  },
+  "original_implementation_receipt": "Lost earlier freeze receipt unavailable; recovered publication implementation authenticated by exact historical manifest replay.",
+  "original_protocol_path": "docs/phase25_occlusion_sweep_protocol.md",
+  "original_protocol_sha256": "e169e16ea40ca44ee60ca8b6074d054c33aeeaf1a3d24e55fa4cd3b8581882d7",
+  "original_runner_path": "scripts/run_phase25_occlusion_sweep.py",
+  "original_runner_sha256": "939b286418c66fa7a8ab39c6dc981b43324b5804f21f026ff1090a84e95c79a4",
+  "output_schema": {
+    "additional": [
+      "dose_image_manifest.csv",
+      "target_mask_manifest.csv",
+      "dose_response.csv",
+      "paired_transitions.csv",
+      "paired_frame_changes.csv",
+      "zero_dose_gate.json",
+      "analysis.json",
+      "run_manifest.json"
+    ],
+    "extended_frame_fields": [
+      "frame_id",
+      "session",
+      "frame_index",
+      "dose_index",
+      "requested_dose",
+      "achieved_image_mask_fraction",
+      "achieved_annotation_box_mask_fraction",
+      "visible_annotation_box_fraction",
+      "source_sha256",
+      "canonical_q95_sha256",
+      "treatment_sha256",
+      "pred_count",
+      "best_iou",
+      "best_confidence",
+      "tp",
+      "fp",
+      "fn",
+      "frame_success"
+    ],
+    "original": [
+      "frame_condition_metrics.csv",
+      "target_metrics.csv",
+      "prediction_boxes.csv.gz"
+    ]
+  },
+  "prediction_execution": "Recovered original runner model.predict per dose with original SETTINGS except workers; official model.val for zero-dose aggregate gate only. Original scoring execution preserved.",
+  "primary_outcome": "Object recall by achieved visible annotation-box fraction.",
+  "q95_transform_implementation_sha256": "c030ac469518d194e858e4d4e76f09edfc8662ed4f7b0a229ea816e097cd8e70",
+  "q95_transformation": "Pillow open original JPEG, convert RGB, save JPEG quality=95 with remaining Pillow defaults; decode canonical JPEG. Exact Stage A historical Q95 transform.",
+  "recovery_receipt_sha256": "9e178bc812e3ce69655dab54e1bbc684bf3100e741cdf8db79392d9980a04324",
+  "recovery_source_branch": "codex/all-work-publication-2026-09-30",
+  "recovery_source_commit": "f090da03d20b2425c5addccb4d19117c8991bcc1",
+  "release_bundle_sha256": "8d6eda7f8775ad899be7a8b6fbf9e6dea30678c1e28c0b687a88184ac592288b",
+  "remote_recovery_file_sha256": {
+    "docs/phase25_occlusion_sweep_protocol.md": "e169e16ea40ca44ee60ca8b6074d054c33aeeaf1a3d24e55fa4cd3b8581882d7",
+    "docs/phase25_occlusion_sweep_reproduce.md": "845b638310186fcc05f15203c99cb156b2e87be0a6951c1a09bf360bf2333006",
+    "results/phase25_control_input_diagnostic/clean_reconciliation.csv": "279d12f171c3801bef7cc73c8cf68b6d712083338d93a3c8be28a4aff4bf9c64",
+    "results/phase25_control_input_diagnostic/diagnostic.json": "633266bd6898ad828450583ec157567257e2ad82821b27de9230658695724942",
+    "results/phase25_occlusion_sweep/historical_attempt.json": "aaa59a0cf2d21ccbb3fcc477730924322a8ccdc019c665d56dc8eae1a55e6859",
+    "results/phase25_occlusion_sweep_recovered/restoration_record.json": "9805d1e1c9a595d2fe1ca0855d41d5915ddf83b5fe7859732689d35d926517f4",
+    "results/phase25_occlusion_sweep_recovered/summary.md": "ef5f18b7736b2d9e08cf288878bd25563c909ec0065e4b86cfc1a940610c4dd9",
+    "results/phase25_occlusion_sweep_recovered/zero_dose_gate.json": "5e14318f4c6e707d229f69931e4127b4fcefef5487fbaa249b1a54735a1b213a",
+    "scripts/run_phase25_occlusion_sweep.py": "939b286418c66fa7a8ab39c6dc981b43324b5804f21f026ff1090a84e95c79a4",
+    "tests/test_phase25_occlusion_sweep_publication.py": "02182a7340845ee7bef4779bf0c0f3d51126b32b2213ae3a1319ff1fe91fcca8"
+  },
+  "representation_chain": [
+    "SOURCE ORIGINAL JPEG",
+    "decode RGB",
+    "historical JPEG Q95 canonicalization",
+    "decode canonical Q95 pixels",
+    "original centered occlusion transform",
+    "lossless PNG treatment serialization (compress_level=9)"
+  ],
+  "runtime": {
+    "jpeg": "6.2",
+    "libjpeg_turbo": "3.1.4.1",
+    "official_validator_sha256": "10e7944ede74be2c40c176fea65b81956cbe3837fdff1e4a361f2b57f6483e60",
+    "packages": {
+      "Pillow": "12.3.0",
+      "numpy": "2.5.3",
+      "opencv-python": "5.0.0.93",
+      "scipy": "1.17.0",
+      "torch": "2.9.1+cpu",
+      "torchvision": "0.24.1+cpu",
+      "ultralytics": "8.4.152"
+    },
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+    "python": "3.12.14",
+    "ultralytics_path_recorded": "__init__.py"
+  },
+  "schema_version": 1,
+  "separate_versioned_followup": true,
+  "settings": {
+    "batch": 16,
+    "conf": 0.001,
+    "device": "cpu",
+    "imgsz": 320,
+    "iou": 0.7,
+    "max_det": 300,
+    "split": "test",
+    "workers": 2
+  },
+  "source_archive_sha256": "9d27a3e9616c188fb72a727633705735da5df168ce47efeed389dcb3455fdbdb",
+  "source_manifest_sha256": "8605cf1cbf9e8769c0324bf066078f9964f232ac3128131c8bd0b689bb7b64b7",
+  "stage_a_gate_sha256": "faa0a4e579ff26a8fded149fbe400c4cae15a0deb7d26cbd2964d881f34f8d94",
+  "stage_a_protocol_sha256": "bd653fe22f90b2bf941909c5f96ceeeb9aab7f75dda0e58bbc9d7d785b4122bf",
+  "stage_a_result_commit": "3373aa8ed7138a4b09ff327aff2dc2640440509f",
+  "statistics": {
+    "plan": "Per-dose descriptive counts/means, paired changes from zero and adjacent-dose transitions. No significance tests or population confidence intervals.",
+    "random_seed": null,
+    "randomness": "No random sampling, randomized masks, bootstrap or stochastic analysis in original plan; deterministic order.",
+    "sessions": 2,
+    "source_frames": 86,
+    "unit": "source frame paired across six doses"
+  },
+  "study": "Phase 22 Controlled Occlusion Sweep v2 \u2014 Historical Q95 Representation",
+  "success_criterion": "All targets matched (FN=0); no false-positive restriction; confidence floor 0.001.",
+  "target_best_overlap": "Best same-class IoU over all predictions, zero if none; confidence of that prediction null if none. Ties: higher confidence then stable prediction index.",
+  "threshold_criterion": null,
+  "threshold_result_policy": "NOT APPLICABLE \u2014 original protocol contains no preregistered threshold criterion; do not choose one after inspecting outcomes.",
+  "zero_dose_gate": {
+    "metrics": [
+      "recall",
+      "map50"
+    ],
+    "reference": {
+      "map50": 0.4266268678118929,
+      "recall": 0.3837209302325581
+    },
+    "reference_path": "results/phase23_robust_detector/robustness_comparison.csv",
+    "reference_sha256": "733b2ad47a329c7930d6e317902dcfebf0f423be09f0e219d76ac232c29c3477",
+    "tolerance": 0.001
+  },
+  "zero_dose_serialization": "Exact canonical Q95 JPEG bytes retained unchanged; nonzero doses PNG only; no lossy post-mask encoding."
+}

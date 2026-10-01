@@ -1,0 +1,9 @@
+input,metric,published,actual,delta,original_gate_metric,within_0_001
+original_raw_zero_dose,precision,0.7959713659654185,0.773365821502563,-0.022605544462855565,False,False
+original_raw_zero_dose,recall,0.38372093023255816,0.38372093023255816,0.0,True,True
+original_raw_zero_dose,map50,0.42662686781189296,0.42390766686341674,-0.002719200948476219,True,False
+original_raw_zero_dose,map50_95,0.2723431563204893,0.27146222235688644,-0.0008809339636028368,False,True
+benchmark_clean_diagnostic,precision,0.7959713659654185,0.7959713659654185,0.0,False,True
+benchmark_clean_diagnostic,recall,0.38372093023255816,0.38372093023255816,0.0,True,True
+benchmark_clean_diagnostic,map50,0.42662686781189296,0.42662686781189296,0.0,True,True
+benchmark_clean_diagnostic,map50_95,0.2723431563204893,0.2723431563204893,0.0,False,True

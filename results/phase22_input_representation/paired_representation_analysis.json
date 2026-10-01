@@ -1,0 +1,133 @@
+{
+  "confidence_missingness": "matched confidence compared only on both-pass frames; missing best-any confidence assigned 0 for unconditional summary",
+  "count_transitions": {
+    "FN": {
+      "0->0": 51,
+      "1->1": 35
+    },
+    "FP": {
+      "255->258": 1,
+      "261->259": 1,
+      "263->263": 1,
+      "264->264": 1,
+      "267->266": 1,
+      "267->267": 1,
+      "268->266": 1,
+      "270->271": 1,
+      "271->270": 1,
+      "274->273": 1,
+      "275->275": 1,
+      "275->278": 1,
+      "276->276": 1,
+      "276->278": 1,
+      "277->278": 1,
+      "278->277": 1,
+      "279->278": 1,
+      "279->279": 1,
+      "280->278": 1,
+      "281->280": 1,
+      "281->281": 1,
+      "282->281": 1,
+      "284->285": 1,
+      "284->286": 1,
+      "285->284": 1,
+      "287->286": 1,
+      "289->284": 1,
+      "289->289": 1,
+      "289->291": 1,
+      "290->287": 1,
+      "290->288": 1,
+      "290->293": 1,
+      "293->290": 1,
+      "294->288": 1,
+      "294->292": 1,
+      "294->295": 2,
+      "295->297": 1,
+      "295->298": 1,
+      "296->300": 1,
+      "297->297": 1,
+      "298->298": 1,
+      "299->298": 1,
+      "299->299": 18,
+      "300->300": 25
+    },
+    "TP": {
+      "0->0": 35,
+      "1->1": 51
+    }
+  },
+  "descriptive_rmse_spearman_abs_change": {
+    "best_confidence_any": -0.6213783669040993,
+    "best_iou": -0.30289164583235056
+  },
+  "exact_mcnemar_p": 1.0,
+  "primary_comparison": "RAW_SOURCE vs HISTORICAL_Q95",
+  "replicates": 10000,
+  "seed": 20260930,
+  "source_frames": 86,
+  "statistics": {
+    "FN": {
+      "ci95": [
+        0.0,
+        0.0
+      ],
+      "mean_q95_minus_raw": 0.0,
+      "n": 86
+    },
+    "FP": {
+      "ci95": [
+        -0.3953488372093023,
+        0.20930232558139536
+      ],
+      "mean_q95_minus_raw": -0.09302325581395349,
+      "n": 86
+    },
+    "TP": {
+      "ci95": [
+        0.0,
+        0.0
+      ],
+      "mean_q95_minus_raw": 0.0,
+      "n": 86
+    },
+    "best_confidence_any": {
+      "ci95": [
+        -0.00055374319145326,
+        0.0003808601055467544
+      ],
+      "mean_q95_minus_raw": -8.756669541431028e-05,
+      "n": 86
+    },
+    "best_iou": {
+      "ci95": [
+        -0.0020121583254172504,
+        0.0016503004324414168
+      ],
+      "mean_q95_minus_raw": -0.00011741129725787182,
+      "n": 86
+    },
+    "matched_confidence_both_pass": {
+      "ci95": [
+        -0.0005872880029902958,
+        0.0004469450558627058
+      ],
+      "mean_q95_minus_raw": -5.9303996500139144e-05,
+      "n": 51
+    },
+    "success": {
+      "ci95": [
+        0.0,
+        0.0
+      ],
+      "mean_q95_minus_raw": 0.0,
+      "n": 86
+    }
+  },
+  "transitions": {
+    "both_fail": 35,
+    "both_pass": 51,
+    "raw_fail_q95_pass": 0,
+    "raw_pass_q95_fail": 0
+  },
+  "uncertainty_limit": "source-frame paired bootstrap conditional on two videos; temporal dependence not resolved; no independent-session population inference"
+}

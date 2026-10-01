@@ -1,0 +1,39 @@
+{
+  "checkpoint_sha256": "3a1801b192d624f8dcdda4bc5d9a9157309000df67a4c30d62368c37901feddd",
+  "expected_cases": 516,
+  "freeze_commit": "6a8623cbeb54951f43b8ca65293598e7c41a474e",
+  "outcome_record": "run_outcome.json",
+  "protocol_sha256": "7d9229050192a500c42daf1d05b4afad8cdefd41f9f408d203248d14635a9600",
+  "q95_inventory_sha256": "2412380094b505c1c21e4dfba9333e534d00ac77ac48fcf12b6b72d709c85316",
+  "runtime": {
+    "jpeg": "6.2",
+    "libjpeg_turbo": "3.1.4.1",
+    "official_validator_sha256": "10e7944ede74be2c40c176fea65b81956cbe3837fdff1e4a361f2b57f6483e60",
+    "packages": {
+      "Pillow": "12.3.0",
+      "numpy": "2.5.3",
+      "opencv-python": "5.0.0.93",
+      "scipy": "1.17.0",
+      "torch": "2.9.1+cpu",
+      "torchvision": "0.24.1+cpu",
+      "ultralytics": "8.4.152"
+    },
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+    "python": "3.12.14",
+    "ultralytics_path_recorded": "__init__.py"
+  },
+  "settings": {
+    "batch": 16,
+    "conf": 0.001,
+    "device": "cpu",
+    "imgsz": 320,
+    "iou": 0.7,
+    "max_det": 300,
+    "split": "test",
+    "workers": 2
+  },
+  "source_frames": 86,
+  "stage_a_result_commit": "3373aa8ed7138a4b09ff327aff2dc2640440509f",
+  "status": "PREFLIGHT_RECEIPT",
+  "treatment_inference_run": false
+}

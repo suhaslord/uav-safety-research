@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "files": {
+    "docs/phase22_representation_study.md": "b265be6573004653adc7aebff83cc8135968a84dd5f6849afe980b1360221540",
+    "results/phase22_input_representation/aggregate_metrics.json": "b6f087581c48813668e77b970479b98c6dac222260356e565441bacd22040a18",
+    "results/phase22_input_representation/analysis_summary.json": "3680efabaf6a158b164d3d24508f32fae18825621c5b5f38af5019f5d7d991d5",
+    "results/phase22_input_representation/artifact_replay.json": "b7ebbf4e3566634ac6ef1ec106a7ae94ef53a82b9cee607b30521958367ab552",
+    "results/phase22_input_representation/frame_metrics.csv": "33150ad87d8cb802363196bb61f2cd6334f093379a4251dee402cc020aeeec1d",
+    "results/phase22_input_representation/paired_representation_analysis.json": "efbfa26957dff1a552091ebc546412161bd73f8709d722e12826a61337228b11",
+    "results/phase22_input_representation/protocol.json": "bd653fe22f90b2bf941909c5f96ceeeb9aab7f75dda0e58bbc9d7d785b4122bf",
+    "results/phase22_input_representation/provenance.json": "b0f1d291897224179d200897ed57b153371c16de6b37631be64ba25b426a9178",
+    "results/phase22_input_representation/raw_predictions.csv": "44470f33b3a8d32580f75a3b9af30734a9525d818f7614346054c6acd3f3443a",
+    "results/phase22_input_representation/report.md": "e7f9019406c33c50bfaa9c9f2e88cada2e9946bcf3e8c6250cedbae9f8c0e93e",
+    "results/phase22_input_representation/representation_manifest.csv": "2b64d727b6df59d7a525fcc9aaf1c204963345ad2e1b0ecd6a53988f51a97650",
+    "results/phase22_input_representation/run_manifest.json": "f56a238da355a95a9c4406e5406de7904198ab9885afd00a8a433bf99c206063",
+    "results/phase22_input_representation/stage_a_gate.json": "faa0a4e579ff26a8fded149fbe400c4cae15a0deb7d26cbd2964d881f34f8d94",
+    "results/phase22_input_representation/stage_b_readiness.json": "e4a21fb18b0d853cba333377d009b7eda71b03743dd31fcb3aa7493dce1b87a7",
+    "results/phase22_input_representation/verification.json": "e57f17dc3f01924f74d6dc13ab238b2a98d8e68de69039025600d429b24abad0",
+    "scripts/phase22_representation_transform.py": "c030ac469518d194e858e4d4e76f09edfc8662ed4f7b0a229ea816e097cd8e70",
+    "scripts/run_phase22_representation_study.py": "30c8ce2f3a37853a9964e4650d1c940b7bf041571161d92261af3ccfd201082f",
+    "scripts/verify_phase22_representation_artifacts.py": "3467bbe9e362de692a6802ee9b0a9feb0a9da8bdb8f187d0cc2b4afcfbfd1f8b",
+    "tests/test_phase22_representation_study.py": "d1d4ec228407359528b70bcdeaa3de1d402e1315d018c90b9949c5456e3e19b4"
+  },
+  "scope": "Complete authored follow-up artifact family; excludes this self-referential inventory"
+}
