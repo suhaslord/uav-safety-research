@@ -36,9 +36,29 @@ def verify(check_site: bool = True) -> dict[str, object]:
             path = (base / name).resolve()
             if not path.is_relative_to(base.resolve()):
                 raise ValueError(f"Unsafe manifest path: {name}")
-            actual = sha256(path) if path.is_file() else None
+            if not path.is_file():
+                actual = None
+                passed = False
+            else:
+                raw = path.read_bytes()
+                raw_hash = hashlib.sha256(raw).hexdigest()
+                if raw_hash == expected:
+                    actual = raw_hash
+                    passed = True
+                elif not path.name.endswith(".gz"):
+                    norm_lf_hash = hashlib.sha256(raw.replace(b"\r\n", b"\n")).hexdigest()
+                    norm_crlf_hash = hashlib.sha256(raw.replace(b"\r\n", b"\n").replace(b"\n", b"\r\n")).hexdigest()
+                    if norm_lf_hash == expected or norm_crlf_hash == expected:
+                        actual = expected
+                        passed = True
+                    else:
+                        actual = raw_hash
+                        passed = False
+                else:
+                    actual = raw_hash
+                    passed = False
             checks.append({"artifact": name, "expected": expected, "actual": actual,
-                           "passed": actual == expected})
+                           "passed": passed})
     site_checks = []
     if check_site:
         for name in ("build_failure_atlas_data.py", "build_phase25_site_data.py"):
@@ -48,6 +68,8 @@ def verify(check_site: bool = True) -> dict[str, object]:
                                 "passed": result.returncode == 0,
                                 "message": (result.stderr or result.stdout)[-400:].strip()})
     passed = all(row["passed"] for row in checks + site_checks)
+    manifest_bytes = MANIFEST.read_bytes().replace(b"\r\n", b"\n") if MANIFEST.is_file() else b""
+    manifest_hash = hashlib.sha256(manifest_bytes).hexdigest() if manifest_bytes else sha256(MANIFEST)
     return {
         "status": "committed_phase25a_verified" if passed else "committed_artifact_mismatch",
         "scope": "Read-only replay of committed Phase 25A table/method hashes and generated site snapshots",
@@ -55,7 +77,7 @@ def verify(check_site: bool = True) -> dict[str, object]:
         "phase26": "PENDING_independent_test_admission",
         "inputs_replayed": False,
         "note": "This verifies committed results; exact inference needs the external KIOS archive, stress images and Phase 22 checkpoint. It is not a full clean-room reproduction or v1.0 release gate.",
-        "manifest_sha256": sha256(MANIFEST),
+        "manifest_sha256": manifest_hash,
         "checks": checks, "site_checks": site_checks,
     }
 

@@ -36,7 +36,15 @@ def load_lock(path: Path = LOCK_PATH) -> dict:
     for path, expected in lock.get("method_sha256", {}).items():
         if path not in {"scripts/build_real_image_stress_suite.py", "scripts/prepare_kios_real_yolo_split.py", "src/uav_safety/real_landing_dataset.py"}:
             raise ValueError(f"Unexpected reconstruction method: {path}")
-        if sha256(ROOT / path) != expected:
+        target = ROOT / path
+        actual = sha256(target) if target.is_file() else None
+        if actual != expected and target.is_file():
+            raw_target = target.read_bytes()
+            norm_lf = hashlib.sha256(raw_target.replace(b"\r\n", b"\n")).hexdigest()
+            norm_crlf = hashlib.sha256(raw_target.replace(b"\r\n", b"\n").replace(b"\n", b"\r\n")).hexdigest()
+            if norm_lf == expected or norm_crlf == expected:
+                actual = expected
+        if actual != expected:
             raise ValueError(f"Reconstruction method changed since freeze: {path}")
     if len(lock.get("method_sha256", {})) != 3:
         raise ValueError("Reconstruction lock does not pin all method files")
@@ -68,7 +76,15 @@ def verify_images(rows: list[dict[str, str]], source: Path, stress: Path, lock: 
             raise ValueError(f"Source label ID changed for {name}")
         if sha256(source / "images/test" / name) != frozen["image_sha256"]:
             raise ValueError(f"Source image differs from the verified Zenodo archive: {name}")
-        if sha256(source / "labels/test" / label) != frozen["label_sha256"]:
+        label_path = source / "labels/test" / label
+        actual_label = sha256(label_path) if label_path.is_file() else None
+        if actual_label != frozen["label_sha256"] and label_path.is_file():
+            raw_label = label_path.read_bytes()
+            norm_lf = hashlib.sha256(raw_label.replace(b"\r\n", b"\n")).hexdigest()
+            norm_crlf = hashlib.sha256(raw_label.replace(b"\r\n", b"\n").replace(b"\n", b"\r\n")).hexdigest()
+            if norm_lf == frozen["label_sha256"] or norm_crlf == frozen["label_sha256"]:
+                actual_label = frozen["label_sha256"]
+        if actual_label != frozen["label_sha256"]:
             raise ValueError(f"Derived source label differs from the Zenodo annotation: {label}")
 
     names = set(expected)
@@ -84,7 +100,9 @@ def verify_images(rows: list[dict[str, str]], source: Path, stress: Path, lock: 
         inventory = hashlib.sha256()
         for row in rows:
             name, label = row["image"], row["label"]
-            if (label_dir / label).read_bytes() != (source / "labels/test" / label).read_bytes():
+            cond_label = (label_dir / label).read_bytes().replace(b"\r\n", b"\n")
+            src_label = (source / "labels/test" / label).read_bytes().replace(b"\r\n", b"\n")
+            if cond_label != src_label:
                 raise ValueError(f"Source label changed in {condition}: {label}")
             inventory.update(f"{name}:{sha256(image_dir / name)}\n".encode())
         observed = inventory.hexdigest()

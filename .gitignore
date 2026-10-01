@@ -9,6 +9,8 @@ _pages/
 *.egg-info/
 results/latest/
 results/demo/
+results/phase25_occlusion_topology/images/
+results/phase25_occlusion_topology/val_output/
 .DS_Store
 
 node_modules/

@@ -1,0 +1,19 @@
+{
+  "status": "PASS",
+  "historical_baseline": {
+    "precision": 0.7169366595101914,
+    "recall": 0.5930232558139535,
+    "map50": 0.5551842475528265,
+    "map50_95": 0.222675649160523
+  },
+  "zero_dose_observed": {
+    "precision": 0.7169366595101914,
+    "recall": 0.5930232558139535,
+    "map50": 0.5551842475528265,
+    "map50_95": 0.222675649160523
+  },
+  "tolerance": 0.001,
+  "checkpoint_sha256": "43240be969708c32b3e11340c9846b3a588baf361378398677c794d16a455310",
+  "manifest_sha256": "8605cf1cbf9e8769c0324bf066078f9964f232ac3128131c8bd0b689bb7b64b7",
+  "protocol_v1_1_sha256": "b4637e5b9b0c9551ac6a106d20fe8bc62f05d50b7030432c1c4e1bf7cf771a29"
+}

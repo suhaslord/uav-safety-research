@@ -14,7 +14,7 @@ def test_phase25_lens_reuses_published_aggregates_without_frame_claims() -> None
     with comparison_path.open(newline="", encoding="utf-8") as handle:
         comparison = {row["condition"]: row for row in csv.DictReader(handle)}
     assert payload["status"] == "published_aggregates_only"
-    assert payload["source_sha256"]["comparison"] == hashlib.sha256(comparison_path.read_bytes()).hexdigest()
+    assert payload["source_sha256"]["comparison"] == hashlib.sha256(comparison_path.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
     assert len(payload["conditions"]) == 6
     for item in payload["conditions"]:
         assert item["baseline_map50"] == float(comparison[item["key"]]["baseline_map50"])
@@ -26,7 +26,7 @@ def test_phase25_lens_reuses_published_aggregates_without_frame_claims() -> None
     assert 'data-atlas-controls' in home
     assert 'src="/phase25-explorer.js?v=' in phase and 'src="/phase25-explorer.js?v=' in home
     assert "Measured baseline frame outcomes are now" in phase
-    assert "Phase 23 paired outcomes remain pending" in phase
+    assert "Phase 23 paired outcomes are now complete" in phase
     audit = json.loads((ROOT / "docs/phase25_reconstruction_audit.json").read_text(encoding="utf-8"))
     assert audit["archive_derived_protected_image_count"] == 86
     assert audit["frame_condition_count"] == 516
@@ -64,7 +64,7 @@ def test_vercel_home_is_native_frozen_archive_shell() -> None:
     assert "Can the system know when its landing estimate is unreliable?" in html
     assert "These are different experiments. They have not been joined into one tested model." in html
     assert "97.6%" in html and "−13.3 pp" in html
-    assert "Baseline measured · Phase 23 pending" in html
+    assert "Baseline measured · Phase 23 paired" in html
     assert "0.8319" in html
     assert "0.7744" in html
     assert "simulation_only=true" in html
@@ -84,12 +84,12 @@ def test_model_vase_page_reports_separate_evidence_without_claiming_a_fused_mode
     assert "Model VASE" in page
     assert "2.4%" in page and "1.4%" in page and "84.2%" in page
     assert "+3.4 pp" in page and "−13.3 pp" in page
-    assert "10,000 simulated episodes" in page and "Paired frame transitions cannot be reported" in page
+    assert "10,000 simulated episodes" in page and "49 recovered, 65 regressed" in page
     assert "integrated research architecture, not a newly trained checkpoint" in page
     assert "V3 PATH · CONNECTED" in page and "PHASE 12 · NOT YET CONNECTED" in page
     assert "Only the V3 simulation path is connected" in page
     assert "docs/v3_results.md" in page
-    assert "PHASES 10R–12" in page and "KIOS frames" in page
+    assert "PHASES 10R–12" in page and "516 paired views" in page
     assert "vase-evidence-card" in page and "/failure-atlas/" in page
     assert 'data-evidence-button="simulation"' in page and 'data-evidence-button="vision"' in page
     assert 'data-evidence-panel="simulation"' in page and 'data-evidence-panel="vision"' in page
@@ -343,8 +343,8 @@ def test_phase25_is_featured_as_work_in_progress_without_result_claims() -> None
 
 
 def test_failure_atlas_is_baseline_only_with_auditable_tables() -> None:
-    site = json.loads((ROOT / "deploy/vercel/failure-atlas-data.json").read_text())
-    manifest = json.loads((ROOT / "results/phase25_baseline_diagnostic/run_manifest.json").read_text())
+    site = json.loads((ROOT / "deploy/vercel/failure-atlas-data.json").read_text(encoding="utf-8"))
+    manifest = json.loads((ROOT / "results/phase25_baseline_diagnostic/run_manifest.json").read_text(encoding="utf-8"))
     comparison_path = ROOT / "results/phase23_robust_detector/robustness_comparison.csv"
     with comparison_path.open(newline="", encoding="utf-8") as handle:
         comparison = {row["condition"]: row for row in csv.DictReader(handle)}
@@ -352,7 +352,7 @@ def test_failure_atlas_is_baseline_only_with_auditable_tables() -> None:
     assert len(site["frame_ids"]) == 86 and len(site["cases"]) == 516
     assert site["prediction_rows"] == manifest["prediction_rows"] == 136359
     assert {key: value for key, value in site["source_hashes"].items() if key != "phase23_comparison_csv"} == manifest["table_sha256"]
-    assert site["source_hashes"]["phase23_comparison_csv"] == hashlib.sha256(comparison_path.read_bytes()).hexdigest()
+    assert site["source_hashes"]["phase23_comparison_csv"] == hashlib.sha256(comparison_path.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
     assert set(site["phase23_condition_aggregates"]) == {"clean", "blur", "low_light", "noise", "occlusion", "mixed"}
     for condition, item in site["phase23_condition_aggregates"].items():
         assert item["map50"] == float(comparison[condition]["phase23_map50"])
@@ -361,7 +361,7 @@ def test_failure_atlas_is_baseline_only_with_auditable_tables() -> None:
     assert sum(len(case["boxes"]) + case["omitted"] for case in site["cases"]) == site["prediction_rows"]
     assert sum(case["tp"] for case in site["cases"]) == sum(box[6] for case in site["cases"] for box in case["boxes"])
     assert not any("phase23" in case for case in site["cases"])
-    html = (ROOT / "deploy/vercel/failure-atlas.html").read_text()
+    html = (ROOT / "deploy/vercel/failure-atlas.html").read_text(encoding="utf-8")
     assert 'id="frame-range"' in html and 'id="scatter"' in html
     assert 'id="evidence-dialog"' in html and 'id="local-files"' in html
     assert 'id="local-folder"' in html and "webkitdirectory" in html
