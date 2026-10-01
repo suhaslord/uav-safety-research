@@ -73,6 +73,7 @@ jobs:
           mkdir -p .vercel-release
           cp -R deploy/vercel/. .vercel-release/
           cp -R dashboard .vercel-release/dashboard
+          python -c 'import json,os;open(".vercel-release/release.json","w").write(json.dumps({"commit":os.environ["GITHUB_SHA"],"branch":"main"})+"\n")'
           mkdir -p .vercel-release/.vercel
           cat > .vercel-release/.vercel/project.json <<EOF
           {"orgId":"$VERCEL_ORG_ID","projectId":"$VERCEL_PROJECT_ID"}
@@ -135,7 +136,7 @@ jobs:
           ! grep -q '<img[^>]*src="https://' .vercel-release/index.html
           grep -q 'Can the system know when its landing estimate is unreliable?' .vercel-release/index.html
           grep -q 'Model VASE · answer so far' .vercel-release/index.html
-          grep -q 'Baseline measured · Phase 23 pending' .vercel-release/index.html
+          grep -q 'Baseline measured · Phase 23 paired' .vercel-release/index.html
           grep -q 'These are different experiments. They have not been joined into one tested model.' .vercel-release/index.html
           grep -q 'id="current-audit"' .vercel-release/index.html
           grep -q 'href="/ui-review.css?v=' .vercel-release/index.html
@@ -210,7 +211,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          URL=$(vercel deploy --prod --force --yes --cwd .vercel-release --token="$VERCEL_TOKEN")
+          URL=$(vercel deploy --prod --force --yes --cwd .vercel-release --meta githubCommitSha="$GITHUB_SHA" --meta githubCommitRef=main --token="$VERCEL_TOKEN")
           echo "url=$URL" >> "$GITHUB_OUTPUT"
           echo "Production deployment: $URL"
 
@@ -243,7 +244,7 @@ jobs:
           printf '%s' "$PUBLIC_HTML" | grep 'Don Richey / NASA Ames Research Center' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep 'Can the system know when its landing estimate is unreliable?' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep 'Model VASE · answer so far' > /dev/null
-          printf '%s' "$PUBLIC_HTML" | grep 'Baseline measured · Phase 23 pending' > /dev/null
+          printf '%s' "$PUBLIC_HTML" | grep 'Baseline measured · Phase 23 paired' > /dev/null
           ! printf '%s' "$PUBLIC_HTML" | grep '/lab/lab.js' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep 'id="current-audit"' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep 'href="/ui-review.css?v=' > /dev/null
@@ -356,3 +357,15 @@ jobs:
           echo "✓ Phase 23 examples and reconstructed Failure Atlas frames load from production"
 
           echo "=== Verification complete: AegisLand serves local licensed photography and the frozen Phase 1–22 research archive ==="
+
+      - name: Verify production desktop/mobile evidence and navigation
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+          QA_BASE_URL=https://aegisland-research-cockpit.vercel.app node .github/qa/phase22-release-smoke.mjs
+          python -c 'import json,os,urllib.request; d=json.load(urllib.request.urlopen("https://aegisland-research-cockpit.vercel.app/release.json")); assert d["commit"]==os.environ["GITHUB_SHA"],d'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: production-responsive-qa
+          path: qa-artifacts/phase22-release

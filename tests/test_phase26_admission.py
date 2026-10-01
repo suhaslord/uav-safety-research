@@ -166,5 +166,8 @@ def test_reproduction_page_identifies_exact_artifacts_and_pending_results() -> N
     for field in ("source_archive_sha256", "checkpoint_sha256"):
         assert manifest[field] in page
     assert manifest["input_verification"]["split_manifest_sha256"] in page
-    assert "Phase 23 exact weights" in page and "Unavailable" in page
+    record = json.loads((root / "results/phase23_reproduction_record.json").read_text())
+    assert record["status"] == "PASS"
+    assert "Phase 23 exact weights" in page and "Recovered" in page
+    assert record["checkpoint_sha256"] in page
     assert "inputs_replayed: false" in page
