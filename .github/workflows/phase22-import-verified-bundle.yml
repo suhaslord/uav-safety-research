@@ -1,0 +1,29 @@
+name: Publish exact verified Phase 22 scientific commits
+on:
+  push:
+    branches: [codex/phase22-publication-bridge]
+    paths: [.publication/phase22.bundle]
+permissions:
+  contents: write
+concurrency:
+  group: phase22-scientific-publication
+  cancel-in-progress: false
+jobs:
+  import-verified-bundle:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify bundle and preserve exact pre-inference and result commits
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo '47849aab8314f0dd21fd61820d039026a60c8464188639eeaeacf080aed5d64a  .publication/phase22.bundle' | sha256sum -c -
+          git bundle verify .publication/phase22.bundle
+          git fetch .publication/phase22.bundle refs/heads/codex/phase22-representation-occlusion-v2:refs/heads/codex/phase22-representation-occlusion-v2
+          for SCIENTIFIC_COMMIT in 9dd92938ab2852a944d9a1c11d9509f4393d1a21 3373aa8ed7138a4b09ff327aff2dc2640440509f 6a8623cbeb54951f43b8ca65293598e7c41a474e; do
+            git merge-base --is-ancestor "$SCIENTIFIC_COMMIT" codex/phase22-representation-occlusion-v2
+          done
+          test "$(git rev-parse codex/phase22-representation-occlusion-v2)" = 6a8623cbeb54951f43b8ca65293598e7c41a474e
+          git push origin refs/heads/codex/phase22-representation-occlusion-v2:refs/heads/codex/phase22-representation-occlusion-v2
