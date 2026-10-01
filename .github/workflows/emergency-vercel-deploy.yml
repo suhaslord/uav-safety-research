@@ -9,6 +9,7 @@ on:
       - 'deploy/vercel/**'
       - 'dashboard/**'
       - '.github/workflows/emergency-vercel-deploy.yml'
+      - '.github/qa/phase22-release-smoke.mjs'
 
 permissions:
   contents: read
