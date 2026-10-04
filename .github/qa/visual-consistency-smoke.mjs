@@ -297,7 +297,7 @@ try {
       noHorizontalOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth <= 1
     }));
     add('phase23-six-condition-images-load-at-source-ratio', phase23.gallery.length === 6 && phase23.gallery.every(image => image.loaded && image.width === 640 && image.height === 585), phase23.gallery);
-    add('phase23-shows-committed-results-and-checkpoint-gate', phase23.rows === 6 && phase23.source.includes('phase23_robust_detector/summary.md') && phase23.hasBoundary && /original Phase 23 checkpoint/i.test(phase23.recovery) && phase23.noHorizontalOverflow, phase23);
+    add('phase23-shows-committed-results-and-checkpoint-gate', phase23.rows === 6 && phase23.source.includes('phase23_robust_detector/summary.md') && phase23.hasBoundary && /Original Phase 23 replay verified/i.test(phase23.recovery) && /24 \/ 24 metric cells matched/.test(phase23.recovery) && phase23.noHorizontalOverflow, phase23);
     await page.goto(BASE + '/phases/phase24/', { waitUntil: 'domcontentloaded', timeout: 45000 });
     await page.waitForFunction(() => {
       const charts = [...document.querySelectorAll('[data-phase24-chart]')];
@@ -350,7 +350,9 @@ try {
       conditions: document.querySelectorAll('#conditions button').length,
       matrix: document.querySelectorAll('#matrix button').length,
       score: document.querySelector('#baseline-metrics')?.textContent || '',
-      pending: document.querySelector('.pending-panel')?.textContent || '',
+      phase23Score: document.querySelector('#phase23-metrics')?.textContent || '',
+      aggregateNote: document.querySelector('.aggregate-footnote')?.textContent || '',
+      phase23Verdict: document.querySelector('#phase23-verdict')?.textContent || '',
       phase23Map50: document.querySelector('#phase23-map50')?.textContent || '',
       phase23Recall: document.querySelector('#phase23-recall')?.textContent || '',
       folderInput: document.querySelector('#local-folder')?.hasAttribute('webkitdirectory') || false,
@@ -370,14 +372,16 @@ try {
       visibleLabels: document.querySelectorAll('#box-layer .overlay-box em').length,
       caseSummary: document.querySelector('#case-features')?.textContent || ''
     }));
-    add('atlas-live-baseline-and-published-phase23-aggregates', /See where the model fails/i.test(atlas.title)
+    add('atlas-measured-models-and-distinct-published-aggregates', /See where the model fails/i.test(atlas.title)
       && atlas.conditions === 6 && atlas.matrix === 516 && /BEST IoU/.test(atlas.score)
-      && /Paired frame tables verified/i.test(atlas.pending) && /published condition aggregates/i.test(atlas.pending) && /verified paired frame outcomes/i.test(atlas.pending) && atlas.phase23Map50 === '55.5%' && atlas.phase23Recall === '59.3%'
+      && /BEST IoU/.test(atlas.phase23Score) && /TARGET (MATCHED|MISSED)/i.test(atlas.phase23Verdict)
+      && /aggregates are distinct from the selected frame metrics/i.test(atlas.aggregateNote)
+      && atlas.phase23Map50 === '55.5%' && atlas.phase23Recall === '59.3%'
       && atlas.folderInput && atlas.overflow <= 1
       && atlas.heroImage === '/media/perception/kios_clean.jpg' && atlas.sourceImageLoaded
-      && atlas.phase23ImageLoaded && atlas.phase23ImageSameSource && /Same source frame/.test(atlas.phase23ImageBadge), atlas);
+      && atlas.phase23ImageLoaded && atlas.phase23ImageSameSource && /Same reconstructed input.*measured predictions/.test(atlas.phase23ImageBadge), atlas);
     const atlasImageAudit = await page.evaluate(async () => {
-      const payload = await fetch('/failure-atlas-data.json?v=2').then(response => response.json());
+      const payload = await fetch('/failure-atlas-data.json?v=3').then(response => response.json());
       const sources = payload.conditions.flatMap(condition => payload.frame_ids.map(frame => `/media/phase25/${condition}/${frame}`));
       const failures = [];
       // Keep this intentionally serial. A 12-way decode burst can exhaust the
@@ -507,7 +511,8 @@ try {
       /Phase 23/.test(phase23Gallery.pageTitle) && phase23Gallery.images.length === 6
       && phase23Gallery.images.every(image => image.loaded)
       && /Explore all 86 frames/.test(phase23Gallery.atlasLink)
-      && /exact Phase 23/.test(phase23Gallery.recoveryNote), phase23Gallery);
+      && /Original Phase 23 replay verified/.test(phase23Gallery.recoveryNote)
+      && /24 \/ 24 metric cells matched/.test(phase23Gallery.recoveryNote), phase23Gallery);
 
     await page.goto(BASE + '/phases/phase12/', { waitUntil: 'domcontentloaded', timeout: 45000 });
     await page.waitForTimeout(250);
