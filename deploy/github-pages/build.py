@@ -7,6 +7,13 @@ import shutil
 ROOT = Path(__file__).resolve().parents[2]
 
 
+def phase_slugs(taxonomy):
+    slugs = re.findall(r'^    (phase\d+[a-z]*): \{ category:', taxonomy, re.M)
+    if len(slugs) != 29 or len(set(slugs)) != 29 or 'phase25' not in slugs:
+        raise ValueError('Unexpected phase records; review the 29-route Phase 25 archive')
+    return slugs
+
+
 def build(output, base_path):
     base = '/' + base_path.strip('/') if base_path.strip('/') else ''
     if not re.fullmatch(r'(?:/[A-Za-z0-9_.-]+)*', base):
@@ -18,7 +25,7 @@ def build(output, base_path):
     shutil.copytree(ROOT / 'deploy/vercel', output, dirs_exist_ok=True,
                     ignore=shutil.ignore_patterns('vercel.json', 'fetch-editorial-media.mjs'))
     shutil.copytree(ROOT / 'dashboard', output / 'dashboard', dirs_exist_ok=True)
-    config = json.loads((ROOT / 'deploy/vercel/vercel.json').read_text())
+    config = json.loads((ROOT / 'deploy/vercel/vercel.json').read_text(encoding='utf-8'))
     routes = {rule['source'].rstrip('/'): rule['destination'] for rule in config['rewrites']}
     for rule in config['rewrites']:
         source, destination = rule['source'], rule['destination']
@@ -29,9 +36,8 @@ def build(output, base_path):
             target = target / 'index.html'
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(output / destination.lstrip('/'), target)
-    taxonomy = (ROOT / 'dashboard/phase-taxonomy.js').read_text()
-    slugs = re.findall(r'^    (phase\d+[a-z]*): \{ category:', taxonomy, re.M)
-    assert len(slugs) == 28, 'Unexpected phase count; review the route list'
+    taxonomy = (ROOT / 'dashboard/phase-taxonomy.js').read_text(encoding='utf-8')
+    slugs = phase_slugs(taxonomy)
     for slug in slugs:
         target = output / 'phases' / slug / 'index.html'
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -41,7 +47,7 @@ def build(output, base_path):
     for file in output.rglob('*'):
         if file.suffix not in {'.html', '.css', '.js'}:
             continue
-        text = file.read_text()
+        text = file.read_text(encoding='utf-8')
         text = text.replace('https://aegisland-research-cockpit.vercel.app', origin)
         if base:
             if file.suffix != '.css':
@@ -51,13 +57,13 @@ def build(output, base_path):
             # Only url() values are paths in a stylesheet.
             text = re.sub(r'''(url\(\s*["']?)/(?!/)''',
                           lambda match: match[1] + base + '/', text)
-        file.write_text(text)
+        file.write_text(text, encoding='utf-8')
     (output / '.nojekyll').touch()
     (output / '404.html').write_text(f'''<!doctype html>
 <html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Page not found · AegisLand</title><link rel="stylesheet" href="{base}/aegisland.css">
 <main class="wrap"><h1>That page isn’t here.</h1><p>You can find all published research in the archive.</p>
-<a class="button primary" href="{base}/phases/">Browse the research</a></main></html>''')
+<a class="button primary" href="{base}/phases/">Browse the research</a></main></html>''', encoding='utf-8')
     required = ['presentation.css', 'presentation.js', 'model-vase/index.html',
                 'model-vase.css', 'aegisland-brand.css', 'model-vase-mark.svg',
                 'film/aerocast-flight.mp4',
