@@ -230,8 +230,9 @@ try {
     add('home-preserves-pass-fail-record', passRows === 6 && failRows === 7, { passRows, failRows });
 
     const homeText = await page.locator('main').innerText();
-    const heroOverlay = await page.locator('#top .research-photo__frame').evaluate(element => getComputedStyle(element, '::after').backgroundImage);
-    add('home-hero-photo-shaded-for-readable-copy', /linear-gradient/i.test(heroOverlay), { heroOverlay });
+    await page.waitForFunction(() => document.querySelector('#home-comparison')?.dataset.loaded === 'true');
+    const preview = await page.locator('#home-comparison').evaluate(el => ({ top: el.getBoundingClientRect().top, models: el.querySelectorAll('[data-home-model]').length, controls: el.querySelectorAll('[data-home-condition]:not([disabled])').length }));
+    add('home-real-model-comparison-leads-the-first-viewport', preview.top < 300 && preview.models === 2 && preview.controls === 6, preview);
     add('home-current-thesis-visible', /Can the system know when its landing estimate is unreliable/i.test(homeText) && /simulation found a recovery signal/i.test(homeText) && /camera results remain separate/i.test(homeText), { excerpt: homeText.slice(0, 500) });
     add('home-current-project-framing-visible', /Model VASE · answer so far/i.test(homeText) && /−13\.3 pp/.test(homeText) && /Phase 24/i.test(homeText));
     add('home-evidence-boundary-visible', /These are different experiments/i.test(homeText) && /No flight-safety claim/i.test(homeText));
@@ -241,11 +242,12 @@ try {
     add('home-claim-boundary-visible', /No flight-safety claim/i.test(homeText) && /controller-tuning claim/i.test(homeText));
     const phase23Links = await page.locator('a[href*="phase23"]').count();
     add('home-links-phase23-detector', phase23Links > 0, { phase23Links });
-    add('home-features-measured-baseline-atlas',
-      await page.locator('#top a[href="/failure-atlas/"]').count() === 1
-        && await page.locator('#phase25 .phase25-feature__images img').count() === 2
+    add('home-features-measured-original-models-and-full-condition-chart',
+      await page.locator('#top .actions a[href="/failure-atlas/"]').count() === 1
+        && await page.locator('#home-comparison .home-model img').count() === 2
+        && await page.locator('#phase25 [data-atlas-chart] .atlas-chart-row').count() === 6
         && await page.locator('#phase25 .phase25-feature__proof a[href*="phase25_reconstruction_audit.json"]').count() === 1
-        && /Baseline measured · Phase 23 (pending|paired)/i.test(await page.locator('#phase25').innerText()));
+        && /Baseline measured · Phase 23 paired/i.test(await page.locator('#phase25').innerText()));
     await page.close();
     await context.close();
   }

@@ -48,7 +48,8 @@ def test_vercel_home_is_native_frozen_archive_using_tesla_style_source():
     assert "cdn.jsdelivr.net" not in SHELL
     assert "const motion=`${base}glass-ui.css`;" not in SHELL
     assert "glass-refraction.css" not in SHELL
-    assert 'href="/tesla-bundle.css?v=' in SHELL
+    assert 'href="/home-evidence.css?v=' in SHELL
+    assert 'href="/aegisland-brand.css?v=' in SHELL
     assert 'href="/signature.css?v=' not in SHELL
     # research-home.css content is now consolidated inside tesla-bundle.css (checked above)
     assert 'src="/frozen-lineage.js?v=' in SHELL

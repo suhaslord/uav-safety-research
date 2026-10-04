@@ -73,7 +73,9 @@
       }
       const values = document.createElement('span');
       values.className = 'atlas-chart-values';
-      values.textContent = `${Math.round(item.baseline_map50 * 100)}% / ${Math.round(item.robust_map50 * 100)}%`;
+      values.textContent = root.dataset.atlasPrecision === '1'
+        ? `${percent(item.baseline_map50)} / ${percent(item.robust_map50)}`
+        : `${Math.round(item.baseline_map50 * 100)}% / ${Math.round(item.robust_map50 * 100)}%`;
       row.append(label, bars, values);
       chart.append(row);
     }

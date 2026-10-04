@@ -23,7 +23,7 @@ def test_phase25_lens_reuses_published_aggregates_without_frame_claims() -> None
     phase = (ROOT / "deploy/vercel/phase25.html").read_text(encoding="utf-8")
     home = (ROOT / "deploy/vercel/index.html").read_text(encoding="utf-8")
     assert 'data-atlas-chart' in phase and 'data-atlas-controls' in phase
-    assert 'data-atlas-controls' in home
+    assert 'data-atlas-chart' in home
     assert 'src="/phase25-explorer.js?v=' in phase and 'src="/phase25-explorer.js?v=' in home
     assert "Both models’ measured frame metrics and prediction boxes" in phase
     assert "860 within-model pairs" in phase
@@ -31,7 +31,7 @@ def test_phase25_lens_reuses_published_aggregates_without_frame_claims() -> None
     assert audit["archive_derived_protected_image_count"] == 86
     assert audit["frame_condition_count"] == 516
     assert 'class="atlas-inputs"' in phase
-    assert 'class="phase25-feature__proof"' in home
+    assert 'research-counts phase25-feature__proof' in home
     for count in ("86", "516"):
         assert f">{count}</strong>" in phase
         assert f">{count}</b>" in home
@@ -60,7 +60,9 @@ def test_vercel_home_is_native_frozen_archive_shell() -> None:
     assert "Model VASE · answer so far" in html
     assert 'id="current-audit"' in html
     assert 'id="phase25"' in html
-    assert '<a class="button primary signature-button" href="/model-vase/">Model VASE</a>' in html
+    assert '<a class="button primary signature-button" href="/failure-atlas/">Explore Failure Atlas</a>' in html
+    assert 'id="home-comparison"' in html
+    assert 'href="/home-evidence.css?v=' in html
     assert "Can the system know when its landing estimate is unreliable?" in html
     assert "These are different experiments. They have not been joined into one tested model." in html
     assert "97.6%" in html and "−13.3 pp" in html
