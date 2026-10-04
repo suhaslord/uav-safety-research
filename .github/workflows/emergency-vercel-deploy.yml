@@ -137,21 +137,22 @@ jobs:
 
           grep -q 'href="/aegisland.css?v=' .vercel-release/index.html
           ! grep -q 'href="/signature.css?v=' .vercel-release/index.html
-          grep -q 'href="/research-home.css?v=' .vercel-release/index.html
-          grep -q 'href="/research-media.css?v=' .vercel-release/index.html
+          grep -q 'href="/home-evidence.css?v=' .vercel-release/index.html
+          grep -q 'src="/home-evidence.js?v=' .vercel-release/index.html
           grep -q 'src="/media/acero-uav-flight.jpg"' .vercel-release/index.html
           grep -q 'href="/aegisland-brand.css?v=' .vercel-release/index.html
           grep -q 'src="/model-vase-mark.svg"' .vercel-release/index.html
-          test "$(grep -o 'NASA field image · context only' .vercel-release/index.html | wc -l)" -eq 1
-          grep -q 'Don Richey / NASA Ames Research Center' .vercel-release/index.html
+          grep -q 'details class="field-context"' .vercel-release/index.html
+          grep -q 'Photographs and footage, not AegisLand experiment results' .vercel-release/index.html
+          grep -q 'Don Richey / NASA Ames' .vercel-release/index.html
           ! grep -q '<img[^>]*src="https://' .vercel-release/index.html
           grep -q 'Can the system know when its landing estimate is unreliable?' .vercel-release/index.html
           grep -q 'Model VASE · answer so far' .vercel-release/index.html
           grep -q 'Baseline measured · Phase 23 paired' .vercel-release/index.html
           grep -q 'These are different experiments. They have not been joined into one tested model.' .vercel-release/index.html
           grep -q 'id="current-audit"' .vercel-release/index.html
-          grep -q 'href="/ui-review.css?v=' .vercel-release/index.html
-          grep -q 'href="/site-refresh.css?v=' .vercel-release/index.html
+          grep -q 'data-home-model="baseline"' .vercel-release/index.html
+          grep -q 'data-home-model="phase23"' .vercel-release/index.html
           ! grep -q '/lab/lab.js' .vercel-release/index.html
           grep -q '/media/perception/synthetic_clean.png' .vercel-release/presentation.js
           ! grep -q 'raw.githubusercontent.com' .vercel-release/presentation.js
