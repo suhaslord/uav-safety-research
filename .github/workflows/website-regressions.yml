@@ -1,0 +1,50 @@
+name: Website interaction regressions
+
+on:
+  push:
+    branches: [main, 'fix/**']
+    paths:
+      - 'deploy/vercel/**'
+      - 'dashboard/phases/**'
+      - '.github/qa/local-vercel-server.mjs'
+      - '.github/qa/website-regression-smoke.mjs'
+      - '.github/workflows/website-regressions.yml'
+  pull_request:
+    paths:
+      - 'deploy/vercel/**'
+      - 'dashboard/phases/**'
+      - '.github/qa/local-vercel-server.mjs'
+      - '.github/qa/website-regression-smoke.mjs'
+      - '.github/workflows/website-regressions.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  interactions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser test runtime
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Test mobile navigation, media races, and local image provenance
+        env:
+          QA_BASE_URL: http://127.0.0.1:4173
+        shell: bash
+        run: |
+          set -euo pipefail
+          node .github/qa/local-vercel-server.mjs > /tmp/aegis-website-server.log 2>&1 &
+          SERVER=$!
+          trap 'kill "$SERVER" 2>/dev/null || true' EXIT
+          for i in {1..30}; do
+            if curl -fsS "$QA_BASE_URL/" >/dev/null; then break; fi
+            sleep 1
+          done
+          node .github/qa/website-regression-smoke.mjs

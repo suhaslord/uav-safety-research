@@ -99,10 +99,22 @@
           requestAnimationFrame(focusInside);
         } else if (sheet.hasAttribute('data-focus-managed')) {
           sheet.removeAttribute('data-focus-managed');
-          requestAnimationFrame(() => returnFocus?.focus?.());
+          requestAnimationFrame(() => {
+            const target = returnFocus?.getClientRects().length ? returnFocus : document.querySelector('.brand, .signature-brand');
+            target?.focus?.({ preventScroll: true });
+          });
         }
       });
       observer.observe(sheet, { attributes: true, attributeFilter: ['aria-hidden'] });
+
+      // The convergence layout hides mobile navigation above 700px. Close its
+      // state too, otherwise scrolling and keyboard focus remain trapped.
+      const desktop = window.matchMedia('(min-width: 701px)');
+      const closeOnDesktop = () => {
+        if (desktop.matches && sheet.getAttribute('aria-hidden') === 'false') close?.click();
+      };
+      desktop.addEventListener('change', closeOnDesktop);
+      closeOnDesktop();
 
       sheet.addEventListener('keydown', (event) => {
         if (event.key !== 'Tab' || sheet.getAttribute('aria-hidden') !== 'false') return;
