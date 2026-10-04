@@ -11,6 +11,14 @@ AegisLand asks: **when landing perception becomes unreliable, can the system rec
 
 [Model VASE](docs/model_vase.md) is the shared system architecture and evidence map for that question: Vision, Auxiliary evidence, State reliability, and Escalation. It routes the frozen V3 simulation path through a parity-checked wrapper and connects every other phase as separate, versioned evidence. It is not a newly trained checkpoint, and the detector, conformal estimator, and supervisor have not yet been evaluated together end to end.
 
+## Research release candidate — 1.0.0rc1
+
+The original Phase 23 checkpoint/runtime replay matched all **24 aggregate cells exactly** and all four prediction tables byte-for-byte. The new **860 within-model clean/stress pairs** are separate from the verified 516 cross-model comparisons. Controlled-occlusion v2 saved detections were replay-verified; the original failed clean gate remains failed. **No independent Phase 26 dataset is admitted.**
+
+[Research revalidation](docs/research_revalidation_2026_10_03.md) · [Reproduce and validate](REPRODUCE.md) · [Detector report](paper/detector_revalidation_report.md) · [Citation/provenance](docs/citation_provenance.md)
+
+This is a scoped retrospective release candidate, not a tagged final v1.0, independent evaluation or flight certification. The older audit fixes remain a separate commit; historical result files and recovered source bytes are preserved.
+
 ## Where the record stands
 
 - [Phase 22](https://aegisland-research-cockpit.vercel.app/phases/phase22/) closes the frozen **simulation** lineage. Its 10 locked transfer gates passed; that result does not establish flight safety.

@@ -342,13 +342,20 @@ def test_phase25_is_featured_as_work_in_progress_without_result_claims() -> None
     assert "original Phase 23 checkpoint" in page
 
 
-def test_failure_atlas_is_baseline_only_with_auditable_tables() -> None:
+def test_failure_atlas_has_both_original_models_with_auditable_tables() -> None:
     site = json.loads((ROOT / "deploy/vercel/failure-atlas-data.json").read_text(encoding="utf-8"))
     manifest = json.loads((ROOT / "results/phase25_baseline_diagnostic/run_manifest.json").read_text(encoding="utf-8"))
     comparison_path = ROOT / "results/phase23_robust_detector/robustness_comparison.csv"
     with comparison_path.open(newline="", encoding="utf-8") as handle:
         comparison = {row["condition"]: row for row in csv.DictReader(handle)}
-    assert site["status"] == "baseline_only" and site["phase23"] is None
+    assert site["status"] == "paired_verified"
+    robust = site["phase23"]
+    assert robust["status"] == "original_checkpoint_replay_verified"
+    assert len(robust["cases"]) == 516 and robust["prediction_rows"] == 71420
+    assert robust["checkpoint_sha256"] == "43240be969708c32b3e11340c9846b3a588baf361378398677c794d16a455310"
+    assert sum(case["count"] for case in robust["cases"]) == 71420
+    assert sum(len(case["boxes"]) + case["omitted"] for case in robust["cases"]) == 71420
+    assert sum(case["tp"] for case in robust["cases"]) == sum(box[6] for case in robust["cases"] for box in case["boxes"]) == 272
     assert len(site["frame_ids"]) == 86 and len(site["cases"]) == 516
     assert site["prediction_rows"] == manifest["prediction_rows"] == 136359
     assert {key: value for key, value in site["source_hashes"].items() if key != "phase23_comparison_csv"} == manifest["table_sha256"]
@@ -367,7 +374,8 @@ def test_failure_atlas_is_baseline_only_with_auditable_tables() -> None:
     assert 'id="local-folder"' in html and "webkitdirectory" in html
     assert 'id="phase23-map50"' in html and 'id="phase23-recall"' in html
     assert 'id="phase23-frame-image"' in html and 'id="phase23-image-placeholder"' in html
-    assert "These are not predictions for this frame" in html
+    assert 'id="phase23-box-layer"' in html and 'id="show-phase23"' in html
+    assert "distinct from the selected frame metrics" in html
     assert "Loading the verified 86-frame image set" in html
     assert "Images selected locally are not hash-checked" in html
     assert 'href="/aegisland-brand.css?v=2"' in html

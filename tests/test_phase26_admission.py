@@ -156,7 +156,7 @@ def test_committed_baseline_hashes_replay_without_phase23_claim() -> None:
     result = verify(check_site=False)
     assert result["status"] == "committed_phase25a_verified"
     assert result["inputs_replayed"] is False
-    assert result["phase23"].startswith("PENDING")
+    assert result["phase23"] == "NOT_ASSESSED_BY_THIS_BASELINE_ONLY_COMMAND"
 
 
 def test_reproduction_page_identifies_exact_artifacts_and_pending_results() -> None:

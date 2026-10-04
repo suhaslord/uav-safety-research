@@ -1,0 +1,50 @@
+{
+  "schema": "aegisland.phase26.admission-execution-lock.v1",
+  "status": "FROZEN_NEXT_CANDIDATE_ADMISSION",
+  "frozen_date": "2026-10-03",
+  "scope": "Prospective execution clarification for the next independent candidate, before any new candidate predictions. Existing candidate rejections and historical protocols are not rewritten.",
+  "admitted_datasets": [],
+  "detector_test_inference_authorized": false,
+  "excluded_lineage": "All 422 KIOS real frames, both KIOS capture sessions, the protected 86-frame subset, and all derived/cropped/stressed/transcoded versions are not independent evaluation data.",
+  "screening": {
+    "kios_reference_count": 422,
+    "kios_reference_archive_sha256": "9d27a3e9616c188fb72a727633705735da5df168ce47efeed389dcb3455fdbdb",
+    "near_distance_argument": 9,
+    "minimum_accepted_dhash_distance": 10,
+    "threshold_clarification": "The archived JSON requires Hamming separation >= 10. The generic screening CLI defaults to rejection at <= 8. For this locked protocol always explicitly pass --near-distance 9; the execution verifier rejects the weaker default.",
+    "minimum_total_frames": 30,
+    "minimum_capture_sessions": 2,
+    "exact_overlap": "zero byte, decoded-pixel, and normalized-source-name overlap",
+    "partitioning": "Disjoint whole capture sessions and source videos for development versus sealed test; never random-split related frames.",
+    "negative_frame_inventory": "Verified empty-target frames from the candidate capture campaign required. Document partition-specific counts before outcome analysis."
+  },
+  "required_documented_reviews_before_admission": [
+    "independent capture campaign, source camera/video/session provenance and non-derivative lineage",
+    "target ontology and annotation-box extent compatibility, blinded to detector output",
+    "annotation quality and verified negative-frame inventory",
+    "license and permission for research reanalysis; never assume source imagery inherits this repository's license",
+    "zero-overlap screening, every flagged near-match adjudication, and independent dev/test session assignments",
+    "committed candidate input lock binding every file hash, dataset revision, capture record and reviewer decision"
+  ],
+  "execution_order": [
+    "authenticate complete official KIOS reference archive and image inventory",
+    "source and annotate independent candidate without detector-outcome inspection",
+    "screen with explicit distance 9 and complete the documented human reviews",
+    "commit admission/input lock; a screening pass alone is not admission",
+    "evaluate development only; select at most one rule with the existing prespecified 0.05..0.95 grid, accepted-error bound 5%, and higher-threshold tie break",
+    "commit the development-rule lock and sealed-test manifest",
+    "open independent test once, with no test tuning or frame removal; report session-level counts and descriptive-only results with fewer than five independent sessions"
+  ],
+  "model_policy": "Original checksum-authenticated Phase 22 baseline and original Phase 23 checkpoint only, under the frozen settings/runtime. No substitute or retraining is Phase 23.",
+  "score_policy": "Maximum post-NMS mapped-target confidence, zero when absent; ground truth enters evaluation only. The score is not a landing-safety probability.",
+  "frozen_files_sha256": {
+    "docs/phase26_independent_generalization_protocol.json": "a12fb965721d0cde7c96969e19f7a00ab6ead1ae62870e563b30f844bd65791c",
+    "docs/phase26_protocol.md": "f5ac4538c6c890ea2cad4ebb48d8fc124cdf63460d781920476c16c07f91b5f0",
+    "docs/phase26_imav2025_preregistration.md": "a0d437d75406475980a36bd24b7768c46752bfc4b3852355cd1fdb6ab4ea20de",
+    "scripts/audit_phase26_candidate.py": "396bf4cfeff16e03586f42529f7fa54496606f7c8bcdacec06e74d67762909a6",
+    "scripts/audit_phase26_manifest.py": "cc34cf110ea12e3a7a8f7890933fc143ac0dfb8fa3ef41419aeef0d77ed6915d",
+    "scripts/freeze_phase26_development_rule.py": "44bb3411911f231626a1371d1db2a95f40563211371d720a1b2cffa288bbfa45",
+    "scripts/phase26_reliability.py": "c37e135b3c503b70544ec04c3b52edacf8cb77a833eee8dcba339c6b22425c37",
+    "scripts/verify_phase26_admission_protocol.py": "9a8d008e935bec6da6568941b211af62b5d8e3e83e5941b05bf1b83fb60ddebb"
+  }
+}

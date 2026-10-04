@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "aegisland-uav-safety"
-version = "0.1.0"
+version = "1.0.0rc1"
 description = "Simulation-first research toolkit for confidence-aware autonomous UAV landing safety."
 requires-python = ">=3.10"
 dependencies = [
