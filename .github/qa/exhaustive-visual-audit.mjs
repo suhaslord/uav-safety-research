@@ -78,6 +78,10 @@ try {
 
       // Settle all lazy/editorial images. Always return to the top before measurement and
       // full-page capture so sticky headers are not painted halfway down the screenshot.
+      // A closed native disclosure deliberately defers its lazy context images.
+      // Open it for asset verification, then restore the published default view.
+      const contextDisclosure = page.locator('.field-context');
+      if (route === '/' && await contextDisclosure.count()) await contextDisclosure.locator('summary').click();
       const images = page.locator('img');
       const imageCount = await images.count().catch(() => 0);
       for (let i = 0; i < imageCount; i += 1) {
@@ -90,6 +94,7 @@ try {
         window.scrollTo(0, 0);
       }).catch(() => {});
       await page.waitForTimeout(180);
+      if (route === '/' && await contextDisclosure.count()) await contextDisclosure.locator('summary').click();
 
       const metrics = await page.evaluate(({ route, viewportName }) => {
         const root = document.documentElement;
