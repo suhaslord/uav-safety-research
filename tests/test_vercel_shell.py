@@ -64,7 +64,8 @@ def test_vercel_home_is_native_frozen_archive_shell() -> None:
     assert "Can the system know when its landing estimate is unreliable?" in html
     assert "These are different experiments. They have not been joined into one tested model." in html
     assert "97.6%" in html and "−13.3 pp" in html
-    assert "Baseline measured · Phase 23 paired" in html
+    assert "Paired outcomes · descriptive correction" in html
+    assert "p=0.002" not in html
     assert "0.8319" in html
     assert "0.7744" in html
     assert "simulation_only=true" in html

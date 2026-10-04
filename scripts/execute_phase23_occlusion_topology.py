@@ -1,21 +1,22 @@
-"""Execution script for Phase 23 Occlusion Topology Experiment.
+"""Lossless v2 execution of the Phase 23 Occlusion Topology Experiment.
 
-Executes Parts 4, 5, 6, 7:
-- Part 4: Strict input verification (manifest SHA, bundle SHA, checkpoint SHA, protocol SHA)
-- Part 5: Zero-dose baseline gate against authenticated Phase 23 clean baseline (tolerance <= 0.001)
-- Part 6: Deterministic treatment dataset generation with atomic writes and decode verification
-- Part 7: Phase 23 YOLO11n inference across all 5,160 views, recording frame metrics and raw predictions
+Authenticates sources, committed methods and runtime, then generates lossless
+treatments. Gates the exact generated zero-dose inventory before treatment
+inference. Requires a fresh output directory and never resumes historical runs.
 """
 from __future__ import annotations
 
 import argparse
 import csv
 import hashlib
+import importlib.metadata
 import json
 import math
 import os
+import platform
 import shutil
 import sys
+import subprocess
 import tempfile
 import zipfile
 from dataclasses import dataclass
@@ -24,7 +25,10 @@ from typing import Sequence
 
 import numpy as np
 from PIL import Image
-from ultralytics import YOLO
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ultralytics import YOLO
 
 # Add scripts directory to path
 SCRIPTS_DIR = Path(__file__).resolve().parent
@@ -40,10 +44,8 @@ from generate_occlusion_topology import (
     GLOBAL_SEED,
     FILL_COLOR,
     _rng_for,
-    read_yolo_label,
     compute_achieved_dose,
     apply_mask,
-    atomic_write_image,
 )
 from phase25_lib import (
     Box,
@@ -52,6 +54,7 @@ from phase25_lib import (
     sha256_file,
 )
 from uav_safety.real_landing_dataset import read_yolo_boxes
+from phase25_reconstruction_lock import load_lock, verify_archive, verify_images
 
 # ---------------------------------------------------------------------------
 # Locked Constants
@@ -59,8 +62,9 @@ from uav_safety.real_landing_dataset import read_yolo_boxes
 EXPECTED_MANIFEST_SHA = "8605cf1cbf9e8769c0324bf066078f9964f232ac3128131c8bd0b689bb7b64b7"
 EXPECTED_BUNDLE_SHA = "a55531930988deeadf81853d00b63c7e589c6b7fd2270f57653abdb5cdd3e55d"
 EXPECTED_CKPT_SHA = "43240be969708c32b3e11340c9846b3a588baf361378398677c794d16a455310"
-PROTOCOL_V1_1_PATH = Path("docs/phase25_phase23_occlusion_topology_protocol_v1_1.json")
+PROTOCOL_V1_1_PATH = REPO_ROOT / "docs/phase25_phase23_occlusion_topology_protocol_v1_1.json"
 EXPECTED_PROTOCOL_V1_1_SHA = "b4637e5b9b0c9551ac6a106d20fe8bc62f05d50b7030432c1c4e1bf7cf771a29"
+PROTOCOL_V2_PATH = REPO_ROOT / "docs/phase25_topology_lossless_v2.json"
 
 # Clean baseline historical values
 HISTORICAL_CLEAN_METRICS = {
@@ -97,6 +101,10 @@ def _normalized_predictions(result) -> list[Box]:
         values = [float(v) for v in box]
         if len(values) != 4 or any(not math.isfinite(v) for v in values):
             raise ValueError("Non-finite prediction coordinates")
+        if not math.isfinite(float(class_id)) or float(class_id) != int(class_id) or int(class_id) < 0:
+            raise ValueError("Invalid prediction class")
+        if not math.isfinite(float(score)) or not 0.0 <= float(score) <= 1.0:
+            raise ValueError("Invalid prediction confidence")
         x0 = max(0.0, min(1.0, values[0] / width))
         y0 = max(0.0, min(1.0, values[1] / height))
         x1 = max(0.0, min(1.0, values[2] / width))
@@ -111,6 +119,9 @@ def verify_inputs(
     manifest_path: Path,
     bundle_path: Path,
     stress_root: Path,
+    source_root: Path,
+    archive_path: Path,
+    checkpoint_dir: Path,
 ) -> tuple[list[dict[str, str]], Path]:
     """Execute Part 4 input verification."""
     print("=" * 70)
@@ -146,11 +157,11 @@ def verify_inputs(
         raise ValueError(f"Bundle SHA mismatch: {bundle_sha} != {EXPECTED_BUNDLE_SHA}")
     print(f"[OK] Bundle verified: SHA={bundle_sha[:16]}...")
 
-    # Extract to temp directory
-    temp_dir = Path(tempfile.mkdtemp(prefix="phase23_exec_"))
+    # Extract only the authenticated checkpoint; reject arbitrary archive paths.
+    ckpt_path = checkpoint_dir / "best.pt"
     with zipfile.ZipFile(bundle_path, "r") as archive:
-        archive.extractall(temp_dir)
-    ckpt_path = temp_dir / "best.pt"
+        with archive.open("best.pt") as source, ckpt_path.open("wb") as target:
+            shutil.copyfileobj(source, target)
     if not ckpt_path.exists():
         raise FileNotFoundError("best.pt missing from bundle")
     ckpt_sha = sha256_file(ckpt_path)
@@ -158,25 +169,86 @@ def verify_inputs(
         raise ValueError(f"Checkpoint SHA mismatch: {ckpt_sha} != {EXPECTED_CKPT_SHA}")
     print(f"[OK] Checkpoint verified: SHA={ckpt_sha[:16]}...")
 
-    # 4. Check clean image and label existence
-    clean_images_dir = stress_root / "clean" / "images" / "test"
-    clean_labels_dir = stress_root / "clean" / "labels" / "test"
-    for r in manifest_rows:
-        img_p = clean_images_dir / r["image"]
-        lbl_p = clean_labels_dir / r["label"]
-        if not img_p.exists():
-            raise FileNotFoundError(f"Missing clean image: {img_p}")
-        if not lbl_p.exists():
-            raise FileNotFoundError(f"Missing clean label: {lbl_p}")
-    print(f"[OK] All 86 clean images and labels present in {stress_root}")
+    verify_source_inventory(manifest_rows, source_root, stress_root, archive_path)
     print("[OK] ALL PART 4 GATES PASSED\n")
 
     return manifest_rows, ckpt_path
 
 
+def verify_source_inventory(rows: list[dict[str, str]], source: Path, stress: Path, archive: Path) -> None:
+    lock = load_lock()
+    verify_archive(archive, lock)
+    for folder, field in (("images/test", "image"), ("labels/test", "label")):
+        if {p.name for p in (source / folder).iterdir() if p.is_file()} != {r[field] for r in rows}:
+            raise ValueError(f"Incorrect protected source inventory: {folder}")
+    verify_images(rows, source, stress, lock)
+
+
+def verify_runtime() -> dict[str, str]:
+    expected = json.loads((REPO_ROOT / "docs/phase25_input_lock.json").read_text(encoding="utf-8"))["phase25_runtime"]
+    observed = {"python_version": platform.python_version(),
+                **{f"{name}_version": importlib.metadata.version(name)
+                   for name in ("ultralytics", "torch", "numpy", "pillow")}}
+    if expected.get("status") != "locked" or any(expected.get(name) != value for name, value in observed.items()):
+        raise ValueError(f"Inference runtime mismatch: expected {expected}, observed {observed}")
+    return observed
+
+
+def verify_method_lock() -> dict:
+    protocol = json.loads(PROTOCOL_V2_PATH.read_text(encoding="utf-8"))
+    if protocol["schema"] != "aegisland.phase25.topology-lossless.v2":
+        raise ValueError("Unsupported topology execution protocol")
+    methods = protocol["method_text_sha256"]
+    required = {"scripts/execute_phase23_occlusion_topology.py", "scripts/generate_occlusion_topology.py",
+                "scripts/phase25_lib.py", "scripts/phase25_reconstruction_lock.py",
+                "src/uav_safety/real_landing_dataset.py", "scripts/build_real_image_stress_suite.py",
+                "scripts/prepare_kios_real_yolo_split.py", "docs/phase25_input_lock.json",
+                "docs/phase25_reconstruction_lock.json", str(PROTOCOL_V1_1_PATH.relative_to(REPO_ROOT)).replace("\\", "/")}
+    if set(methods) != required:
+        raise ValueError("Incomplete topology method lock")
+    for relative, expected in methods.items():
+        actual = hashlib.sha256((REPO_ROOT / relative).read_bytes().replace(b"\r\n", b"\n")).hexdigest()
+        if actual != expected:
+            raise ValueError(f"Topology method changed since freeze: {relative}")
+    tracked = [*methods, str(PROTOCOL_V2_PATH.relative_to(REPO_ROOT))]
+    subprocess.run(["git", "diff", "--exit-code", "HEAD", "--", *tracked], cwd=REPO_ROOT, check=True,
+                   stdout=subprocess.DEVNULL)
+    subprocess.run(["git", "ls-files", "--error-unmatch", "--", *tracked], cwd=REPO_ROOT, check=True,
+                   stdout=subprocess.DEVNULL)
+    return protocol
+
+
+def require_fresh_output(out_dir: Path) -> None:
+    historical = REPO_ROOT / "results/phase25_occlusion_topology"
+    resolved = out_dir.resolve()
+    if resolved == historical or historical in resolved.parents:
+        raise ValueError("The historical topology directory is immutable; choose a new v2 output directory")
+    if out_dir.exists() and (not out_dir.is_dir() or any(out_dir.iterdir())):
+        raise ValueError(f"Output must be a new or empty directory: {out_dir}")
+
+
+def atomic_write_lossless_image(image: Image.Image, path: Path) -> str:
+    if path.exists():
+        raise ValueError(f"Refusing to reuse a treatment image: {path}")
+    fd, temporary = tempfile.mkstemp(suffix=".png", dir=path.parent)
+    try:
+        with os.fdopen(fd, "wb") as handle:
+            image.save(handle, format="PNG")
+            handle.flush()
+            os.fsync(handle.fileno())
+        with Image.open(temporary) as decoded:
+            if not np.array_equal(np.asarray(decoded.convert("RGB")), np.asarray(image.convert("RGB"))):
+                raise ValueError("Lossless image failed decoded-pixel identity")
+        os.replace(temporary, path)
+    finally:
+        if os.path.exists(temporary):
+            os.unlink(temporary)
+    return sha256_file(path)
+
+
 def run_zero_dose_baseline_gate(
     model: YOLO,
-    stress_root: Path,
+    treatment_rows: list[dict[str, object]],
     out_dir: Path,
 ) -> dict[str, float]:
     """Execute Part 5 zero-dose baseline gate."""
@@ -184,7 +256,25 @@ def run_zero_dose_baseline_gate(
     print("PART 5: ZERO-DOSE BASELINE GATE")
     print("=" * 70)
 
-    cond_dir = stress_root / "clean"
+    controls = [r for r in treatment_rows if float(r["requested_dose"]) == 0.0]
+    if not controls:
+        raise ValueError("No generated zero-dose controls")
+    expected = {(r["frame_id"], topo) for r in treatment_rows for topo in TOPOLOGIES}
+    if len(controls) != len(expected) or {(r["frame_id"], r["topology"]) for r in controls} != expected:
+        raise ValueError("Incomplete generated zero-dose inventory")
+    cond_dir = out_dir / "zero_dose_gate"
+    for row in controls:
+        image = Path(row["image_path"])
+        if sha256_file(image) != row["generated_image_sha256"]:
+            raise ValueError(f"Generated control changed: {image}")
+        if sha256_file(Path(row["label_path"])) != row["label_sha256"]:
+            raise ValueError(f"Generated control label changed: {row['label_path']}")
+        destination = cond_dir / "images/test" / image.name
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        os.link(image, destination)
+        label = cond_dir / "labels/test" / f"{image.stem}.txt"
+        label.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(Path(row["label_path"]), label)
     temp_yaml = out_dir / "clean_gate.yaml"
     temp_yaml.write_text(
         f"path: {cond_dir.resolve()}\n"
@@ -217,6 +307,8 @@ def run_zero_dose_baseline_gate(
         "map50": float(val_res.box.map50),
         "map50_95": float(val_res.box.map),
     }
+    if any(not math.isfinite(value) or not 0.0 <= value <= 1.0 for value in observed.values()):
+        raise RuntimeError("Zero-dose gate produced invalid aggregate metrics")
 
     print("\nComparing zero-dose against historical Phase 23 clean baseline:")
     all_passed = True
@@ -277,9 +369,9 @@ def generate_treatment_dataset(
         img_w, img_h = img.size
 
         labels = read_yolo_boxes(lbl_path, class_id=0)
-        if not labels:
-            raise ValueError(f"No ground truth label for {frame_id}")
-        target = max(labels, key=lambda b: b.width * b.height)
+        if len(labels) != 1:
+            raise ValueError(f"The locked topology protocol requires one ground truth target: {frame_id}")
+        target = labels[0]
         target_yolo = YoloBox(
             class_id=target.class_id,
             x_center=target.x_center,
@@ -295,7 +387,7 @@ def generate_treatment_dataset(
                     print(f"  Generated {count}/{total_views} views...")
 
                 dose_str = f"{dose:.2f}".replace(".", "p")
-                out_name = f"{Path(frame_id).stem}__{topo}__{dose_str}.jpg"
+                out_name = f"{Path(frame_id).stem}__{topo}__{dose_str}.png"
                 out_path = images_out_dir / out_name
 
                 rng = _rng_for(Path(frame_id).stem, topo, dose)
@@ -306,19 +398,13 @@ def generate_treatment_dataset(
                     mask_px = 0
                     box_px = int(round(target_yolo.width * img_w * target_yolo.height * img_h))
                     dose_error = 0.0
-                    if out_path.exists():
-                        gen_sha = sha256_file(out_path)
-                    else:
-                        gen_sha = atomic_write_image(img, out_path)
+                    gen_sha = atomic_write_lossless_image(img, out_path)
                 else:
                     mask = MASK_GENERATORS[topo](img_w, img_h, target_yolo, dose, rng)
                     achieved_dose, mask_px, box_px = compute_achieved_dose(mask, target_yolo, img_w, img_h)
                     dose_error = abs(achieved_dose - dose)
-                    if out_path.exists():
-                        gen_sha = sha256_file(out_path)
-                    else:
-                        occluded = apply_mask(img, mask)
-                        gen_sha = atomic_write_image(occluded, out_path)
+                    occluded = apply_mask(img, mask)
+                    gen_sha = atomic_write_lossless_image(occluded, out_path)
 
                 # Decode validation
                 with Image.open(out_path) as verify_img:
@@ -336,6 +422,7 @@ def generate_treatment_dataset(
                     "visible_box_fraction": round(1.0 - achieved_dose, 6),
                     "image_path": str(out_path.resolve()),
                     "label_path": str(lbl_path.resolve()),
+                    "label_sha256": sha256_file(lbl_path),
                     "source_image_sha256": source_sha,
                     "generated_image_sha256": gen_sha,
                 })
@@ -362,6 +449,11 @@ def run_treatment_inference(
 
     for i in range(0, len(treatment_rows), CHUNK_SIZE):
         chunk_recs = treatment_rows[i : i + CHUNK_SIZE]
+        for rec in chunk_recs:
+            if sha256_file(Path(rec["image_path"])) != rec["generated_image_sha256"]:
+                raise ValueError(f"Treatment image changed after generation: {rec['image_path']}")
+            if sha256_file(Path(rec["label_path"])) != rec["label_sha256"]:
+                raise ValueError(f"Treatment label changed after verification: {rec['label_path']}")
         chunk_paths = [r["image_path"] for r in chunk_recs]
 
         if (i // CHUNK_SIZE) % 5 == 0 or i + CHUNK_SIZE >= len(treatment_rows):
@@ -432,6 +524,7 @@ def save_artifacts(
         "frame_id", "sequence", "topology", "requested_dose", "achieved_dose",
         "dose_error", "mask_pixels", "box_pixels", "visible_box_fraction",
         "source_image_sha256", "generated_image_sha256",
+        "label_sha256",
         "pred_count", "best_iou", "best_confidence", "tp", "fp", "fn", "frame_success",
     ]
     with open(csv_path, "w", encoding="utf-8", newline="") as f:
@@ -445,16 +538,16 @@ def save_artifacts(
 
     # 2. Raw predictions CSV
     raw_path = out_dir / "raw_predictions.csv"
-    if raw_predictions:
-        raw_fields = list(raw_predictions[0].keys())
-        with open(raw_path, "w", encoding="utf-8", newline="") as f:
-            writer = csv.DictWriter(f, fieldnames=raw_fields)
-            writer.writeheader()
-            for r in raw_predictions:
-                writer.writerow(r)
-        raw_sha = sha256_file(raw_path)
-        print(f"Saved {len(raw_predictions)} raw predictions to {raw_path}")
-        print(f"  raw_predictions.csv SHA-256: {raw_sha}")
+    raw_fields = ["frame_id", "sequence", "topology", "requested_dose", "achieved_dose",
+                  "prediction_index", "class_id", "x0", "y0", "x1", "y1", "confidence",
+                  "matched_gt_index", "match_iou", "is_true_positive"]
+    with open(raw_path, "w", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=raw_fields)
+        writer.writeheader()
+        writer.writerows(raw_predictions)
+    raw_sha = sha256_file(raw_path)
+    print(f"Saved {len(raw_predictions)} raw predictions to {raw_path}")
+    print(f"  raw_predictions.csv SHA-256: {raw_sha}")
 
     # 3. Gate verification record
     gate_record_path = out_dir / "zero_dose_gate_record.json"
@@ -467,6 +560,10 @@ def save_artifacts(
             "checkpoint_sha256": EXPECTED_CKPT_SHA,
             "manifest_sha256": EXPECTED_MANIFEST_SHA,
             "protocol_v1_1_sha256": EXPECTED_PROTOCOL_V1_1_SHA,
+            "execution_protocol": "aegisland.phase25.topology-lossless.v2",
+            "protocol_v2_sha256": sha256_file(PROTOCOL_V2_PATH),
+            "control_dataset": "all generated requested-dose-zero PNGs",
+            "control_views": sum(float(r["requested_dose"]) == 0.0 for r in final_views),
         }, indent=2),
         encoding="utf-8",
     )
@@ -475,30 +572,39 @@ def save_artifacts(
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Phase 23 Occlusion Topology Experiment Runner")
-    parser.add_argument("--manifest", type=Path, default=Path("results/phase25_failure_atlas/protected_test_manifest.csv"))
-    parser.add_argument("--bundle", type=Path, default=Path("data/external/phase25_inputs/phase23_recovery_bundle.zip"))
+    parser.add_argument("--manifest", type=Path, default=REPO_ROOT / "results/phase25_failure_atlas/protected_test_manifest.csv")
+    parser.add_argument("--bundle", type=Path, default=REPO_ROOT / "data/external/phase25_inputs/phase23_recovery_bundle.zip")
     parser.add_argument("--stress-root", type=Path, required=True)
-    parser.add_argument("--out-dir", type=Path, default=Path("results/phase25_occlusion_topology"))
+    parser.add_argument("--source-root", type=Path, required=True)
+    parser.add_argument("--archive", type=Path, required=True)
+    parser.add_argument("--out-dir", type=Path, required=True, help="new, empty v2 directory; historical output is protected")
+    parser.add_argument("--execute", action="store_true", help="compatibility flag; this command always executes v2")
     args = parser.parse_args()
 
-    # Part 4: Verify inputs
-    manifest_rows, ckpt_path = verify_inputs(args.manifest, args.bundle, args.stress_root)
+    require_fresh_output(args.out_dir)
+    protocol = verify_method_lock()
+    runtime = verify_runtime()
+    os.environ["YOLO_AUTOINSTALL"] = "False"
+    from ultralytics import YOLO
 
-    # Load model
-    print(f"Loading YOLO model from {ckpt_path}...")
-    model = YOLO(str(ckpt_path))
-
-    # Part 5: Zero-dose baseline gate
-    zero_dose_metrics = run_zero_dose_baseline_gate(model, args.stress_root, args.out_dir)
-
-    # Part 6: Generate final treatment images
-    treatment_rows = generate_treatment_dataset(manifest_rows, args.stress_root, args.out_dir)
-
-    # Part 7: Run inference
-    final_views, raw_predictions = run_treatment_inference(model, treatment_rows, args.out_dir)
-
-    # Save artifacts
-    save_artifacts(final_views, raw_predictions, zero_dose_metrics, args.out_dir)
+    with tempfile.TemporaryDirectory(prefix="phase25_topology_v2_") as checkpoint_dir:
+        manifest_rows, ckpt_path = verify_inputs(args.manifest, args.bundle, args.stress_root,
+                                                args.source_root, args.archive, Path(checkpoint_dir))
+        args.out_dir.mkdir(parents=True, exist_ok=True)
+        treatment_rows = generate_treatment_dataset(manifest_rows, args.stress_root, args.out_dir)
+        model = YOLO(str(ckpt_path))
+        zero_dose_metrics = run_zero_dose_baseline_gate(model, treatment_rows, args.out_dir)
+        final_views, raw_predictions = run_treatment_inference(model, treatment_rows, args.out_dir)
+        save_artifacts(final_views, raw_predictions, zero_dose_metrics, args.out_dir)
+        receipt = {"execution_protocol": protocol["schema"], "runtime": runtime,
+                   "git_commit": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=REPO_ROOT, text=True).strip(),
+                   "protocol_sha256": sha256_file(PROTOCOL_V2_PATH), "method_text_sha256": protocol["method_text_sha256"],
+                   "source_archive_sha256": sha256_file(args.archive), "checkpoint_sha256": EXPECTED_CKPT_SHA,
+                   "manifest_sha256": sha256_file(args.manifest), "bundle_sha256": sha256_file(args.bundle),
+                   "topology_views_sha256": sha256_file(args.out_dir / "topology_views.csv"),
+                   "raw_predictions_sha256": sha256_file(args.out_dir / "raw_predictions.csv"),
+                   "views": len(final_views), "status": "complete"}
+        (args.out_dir / "run_manifest.json").write_text(json.dumps(receipt, indent=2) + "\n", encoding="utf-8")
 
     print("\n" + "=" * 70)
     print("PHASE 23 TREATMENT INFERENCE COMPLETE AND VERIFIED!")

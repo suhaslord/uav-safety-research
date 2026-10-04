@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "historical_commit": "db7aca05382f608cbe021cabb5c32862123c7633",
+  "analysis": "post_hoc_descriptive_correction",
+  "source_text_sha256": {
+    "results/phase25_failure_atlas/protected_test_manifest.csv": "42ee166893866391bc9b977899f940554c25a887326aa3c487bf1d85020df90c",
+    "results/phase25_failure_atlas/frame_condition_metrics.csv": "3db0cbe05b22ccf19d34f7b53c42862d0fafdd569fb8bebbf0cb9efe2fcf489a",
+    "results/phase25_failure_atlas/prediction_boxes.csv": "d89be579d845950c194d707f8c058d1bfec10c93ef01eeb6511b34c1dac04311",
+    "results/phase25_failure_atlas/ground_truth_targets.csv": "bb5a804201b277a210a641af3900c8103a02178a8315372e1be5c3f3c302eccf",
+    "results/phase25_failure_atlas/aggregate_validation.csv": "218a96fbfa94e01ba05aae838326cb398277c38523a20e8598b009832de63504",
+    "results/phase25_failure_atlas/run_manifest.json": "844e2bec994ac87bcb4facb51a83402bebf7e678f79a03deecfe97d5cd02c89d",
+    "results/phase25_occlusion_topology/topology_views.csv": "d7776fb487fd44a346b816a3b38a0b4d88a195887bea32c97a58c85c0828f833",
+    "results/phase25_occlusion_topology/raw_predictions.csv": "3979084245ee23809f3cb61283d5be0c698b1e5aede2a00307b043598ac9c9e6"
+  },
+  "rules": {
+    "support": "0 <= achieved_dose < 0.75",
+    "bins": [
+      0,
+      0.05,
+      0.15,
+      0.25,
+      0.35,
+      0.45,
+      0.55,
+      0.65,
+      0.75
+    ],
+    "contrasts": "within-frame/bin rates; average shared bins within each frame, then frames equally",
+    "crossing": "first downward crossing interpolated between adjacent observed bin centers",
+    "uncertainty": "none; only two dependent video sequences",
+    "representation": "historical JPEG observations only; no new inference"
+  },
+  "method_text_sha256": {
+    "scripts/phase25_descriptive_analysis.py": "3ab67d4cde0ea1dc65e8c3f5cff84fc342ed58e165d21a41cce5328c1459a07d"
+  }
+}

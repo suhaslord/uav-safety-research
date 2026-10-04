@@ -9,6 +9,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          lfs: true
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -32,6 +34,7 @@ jobs:
           node --check dashboard/phase-editorial-media.js
           node --check deploy/vercel/phase25-explorer.js
           python scripts/build_phase25_site_data.py --check
+          python scripts/phase25_descriptive_analysis.py --check
           node --check deploy/vercel/failure-atlas.js
           python scripts/build_failure_atlas_data.py --check
           python scripts/reproduce_release.py --skip-site > /dev/null
