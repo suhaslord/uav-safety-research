@@ -76,6 +76,10 @@ jobs:
           rm -rf .vercel-release
           mkdir -p .vercel-release
           cp -R deploy/vercel/. .vercel-release/
+          # Preserve the sealed runtime, then layer live-only label corrections.
+          # Vercel filesystem routes take precedence over rewrites.
+          mv .vercel-release/failure-atlas.js .vercel-release/failure-atlas-frozen.js
+          cp .vercel-release/failure-atlas-live.js .vercel-release/failure-atlas.js
           cp -R dashboard .vercel-release/dashboard
           python -c 'import json,os;open(".vercel-release/release.json","w").write(json.dumps({"commit":os.environ["GITHUB_SHA"],"branch":"main"})+"\n")'
           mkdir -p .vercel-release/.vercel
@@ -106,6 +110,9 @@ jobs:
           test -f .vercel-release/model-vase-mark.svg
           test "$(find .vercel-release/media/phase25 -type f -name '*.jpg' | wc -l)" -eq 516
           grep -q '"preview_count": 516' .vercel-release/media/phase25/manifest.json
+          test -f .vercel-release/failure-atlas-live.js
+          cmp deploy/vercel/failure-atlas.js .vercel-release/failure-atlas-frozen.js
+          cmp deploy/vercel/failure-atlas-live.js .vercel-release/failure-atlas.js
           test -f .vercel-release/frozen-lineage.js
           test -f .vercel-release/dashboard/phase-visuals.js
           test -f .vercel-release/dashboard/phase-editorial-media.js
@@ -388,6 +395,7 @@ jobs:
           npm install --no-save playwright
           npx playwright install --with-deps chromium
           QA_BASE_URL=https://aegisland-research-cockpit.vercel.app node .github/qa/phase22-release-smoke.mjs
+          QA_BASE_URL=https://aegisland-research-cockpit.vercel.app node .github/qa/website-regression-smoke.mjs
           python -c 'import json,os,urllib.request; d=json.load(urllib.request.urlopen("https://aegisland-research-cockpit.vercel.app/release.json")); assert d["commit"]==os.environ["GITHUB_SHA"],d'
       - uses: actions/upload-artifact@v4
         if: always()

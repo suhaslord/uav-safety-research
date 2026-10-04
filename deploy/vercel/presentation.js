@@ -142,15 +142,26 @@
     let visible = false;
     let manualPause = false;
     let scriptPause = false;
+    let playbackRequest = 0;
+    let pendingPlay = false;
+    const eligible = () => visible && !document.hidden && !motion.matches && !saveData() && !manualPause;
     const pause = () => {
       if (video.paused) return;
       scriptPause = true;
       video.pause();
     };
     const sync = () => {
-      const shouldPlay = visible && !document.hidden && !motion.matches && !saveData() && !manualPause;
-      if (!shouldPlay) { pause(); return; }
-      if (video.paused) video.play().catch(() => {});
+      if (!eligible()) { playbackRequest += 1; pause(); return; }
+      if (!video.paused || pendingPlay) return;
+      const request = ++playbackRequest;
+      pendingPlay = true;
+      video.play().then(() => {
+        // play() may settle after scrolling away or changing motion/data settings.
+        if (request !== playbackRequest || !eligible()) pause();
+      }).catch(() => {}).finally(() => {
+        pendingPlay = false;
+        if (request !== playbackRequest && eligible()) sync();
+      });
     };
     video.addEventListener('pause', () => {
       if (scriptPause) { scriptPause = false; return; }
