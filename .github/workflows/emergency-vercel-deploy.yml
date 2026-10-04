@@ -171,7 +171,11 @@ jobs:
           grep -q 'src="/film/aerocast-flight.mp4"' .vercel-release/index.html
           grep -q 'src="/film/evaluation-nasa-clip.mp4"' .vercel-release/index.html
           test "$(grep -o 'data-autoplay="visible"' .vercel-release/index.html | wc -l)" -eq 2
-          grep -q 'muted loop preload="auto" data-autoplay="visible"' .vercel-release/index.html
+          grep -q 'muted loop preload="none" data-autoplay="visible"' .vercel-release/index.html
+          grep -q 'data-presentation="evidence-led"' .vercel-release/index.html
+          grep -q 'id="home-comparison"' .vercel-release/index.html
+          test -s .vercel-release/home-evidence.css
+          test -s .vercel-release/home-evidence.js
           grep -q 'src="/film/aerocast-flight.webm" type="video/webm"' .vercel-release/index.html
           grep -q 'src="/film/evaluation-nasa-clip.webm" type="video/webm"' .vercel-release/index.html
           test -s .vercel-release/film/aerocast-flight.webm
@@ -396,10 +400,11 @@ jobs:
           npm install --no-save playwright
           npx playwright install --with-deps chromium
           QA_BASE_URL=https://aegisland-research-cockpit.vercel.app node .github/qa/phase22-release-smoke.mjs
+          QA_BASE_URL=https://aegisland-research-cockpit.vercel.app QA_OUT=qa-artifacts/home-evidence node .github/qa/home-evidence-smoke.mjs
           QA_BASE_URL=https://aegisland-research-cockpit.vercel.app node .github/qa/website-regression-smoke.mjs
           python -c 'import json,os,urllib.request; d=json.load(urllib.request.urlopen("https://aegisland-research-cockpit.vercel.app/release.json")); assert d["commit"]==os.environ["GITHUB_SHA"],d'
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: production-responsive-qa
-          path: qa-artifacts/phase22-release
+          path: qa-artifacts/

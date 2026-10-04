@@ -108,6 +108,7 @@ try {
 
       let videoPlaybackVerified = route !== '/';
       if (route === '/') {
+        await page.locator('.field-context > summary').click();
         const videos = page.locator('video');
         const count = await videos.count();
         videoPlaybackVerified = count === 2;
@@ -115,6 +116,7 @@ try {
         for (let index = 0; index < count; index++) {
           const video = videos.nth(index);
           await video.scrollIntoViewIfNeeded();
+          await video.evaluate(element => element.play().catch(() => {}));
           const played = await page.waitForFunction(
             (i) => {
               const element = document.querySelectorAll('video')[i];
@@ -209,7 +211,8 @@ try {
     const text = document.body?.innerText || '';
     return {
       shell: document.documentElement.dataset.siteShell || '',
-      halo: document.querySelectorAll('.aegis-halo').length,
+      preview: document.querySelectorAll('#home-comparison [data-home-model]').length,
+      evidenceLed: document.body.dataset.presentation === 'evidence-led',
       evidenceRows: document.querySelectorAll('#evidenceSpine .evidence-row').length,
       passRows: document.querySelectorAll('#evidenceSpine .evidence-row[data-verdict="PASS"]').length,
       failRows: document.querySelectorAll('#evidenceSpine .evidence-row[data-verdict="FAIL"]').length,
@@ -222,7 +225,7 @@ try {
     };
   }, { resultSha: PHASE22_RESULT, candidateSha: PHASE22_CANDIDATE, frozenHead: FROZEN_HEAD });
   add('home-native-frozen-shell', home.shell === 'native frozen-archive', home);
-  add('home-aegis-halo', home.halo === 1, home);
+  add('home-evidence-led-original-model-comparison', home.preview === 2 && home.evidenceLed, home);
   add('home-13-record-spine', home.evidenceRows === 13, home);
   add('home-preserves-6-pass-7-fail', home.passRows === 6 && home.failRows === 7, home);
   add('home-frozen-lineage-identity', home.dataOk, home);

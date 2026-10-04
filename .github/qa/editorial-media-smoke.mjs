@@ -67,6 +67,8 @@ try {
         }, index, { timeout: 12000 }).catch(() => {});
       }
       if (route === '/') {
+        await page.locator('.field-context > summary').click();
+        await page.waitForFunction(() => document.querySelector('#home-comparison')?.dataset.loaded === 'true');
         const images = page.locator('img');
         for (let index = 0; index < await images.count(); index += 1) {
           await images.nth(index).scrollIntoViewIfNeeded();
@@ -124,13 +126,12 @@ try {
           resultLayout: (() => {
             const section = document.querySelector('#status');
             if (!section) return null;
-            const card = section.querySelector('.workspace-status-card');
-            const measures = [...section.querySelectorAll('.workspace-measure')];
-            const columns = measures.map((measure) => measure.getBoundingClientRect());
-            const values = measures.map((measure) => measure.querySelector('strong')?.getBoundingClientRect());
-            const overlaps = values.some((a, i) => values.slice(i + 1).some((b) => a && b && a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top));
-            const valueClips = values.some((value, i) => value && (value.left < columns[i].left - 1 || value.right > columns[i].right + 1));
-            return {containerDisplay:getComputedStyle(section).display,cardWidth:card?.getBoundingClientRect().width||0,measureCount:measures.length,overlaps,valueClips};
+            const measures = [...section.querySelectorAll('dl > div')];
+            const columns = measures.map(measure => measure.getBoundingClientRect());
+            const values = measures.map(measure => measure.querySelector('dd')?.getBoundingClientRect());
+            const overlaps = values.some((a,i) => values.slice(i+1).some(b => a&&b&&a.left<b.right&&a.right>b.left&&a.top<b.bottom&&a.bottom>b.top));
+            const valueClips = values.some((value,i) => value&&(value.left<columns[i].left-1||value.right>columns[i].right+1));
+            return {measureCount:measures.length,overlaps,valueClips};
           })(),
           vaseHeroLoaded: (() => { const img=document.querySelector('.vase-hero__media img'); return !!img&&img.complete&&img.naturalWidth>0; })(),
           homeVideos: [...document.querySelectorAll('.home-field-media video')].map((video) => ({
@@ -155,21 +156,14 @@ try {
 
       if (route === '/') {
         add(`${viewport.name}-home-local-media-release`, state.marker === 'local-v2', { marker: state.marker });
-        add(`${viewport.name}-home-single-editorial-photo`, state.photoCount === 1, { photoCount: state.photoCount });
-        add(`${viewport.name}-home-local-image-sources`, state.localSources.length === 1 && state.localSources.every((src) => src.startsWith('/media/')), { sources: state.localSources });
-        add(`${viewport.name}-home-all-images-load`, state.allHomeImages.length === 6 && state.allHomeImages.every((image) => image.loaded && image.src.startsWith('/media/')), { images: state.allHomeImages });
+        add(`${viewport.name}-home-four-real-images-load`, state.allHomeImages.length === 4 && state.allHomeImages.every(image => image.loaded && new URL(image.src, BASE).pathname.startsWith('/media/')), { images: state.allHomeImages });
         add(`${viewport.name}-home-no-remote-image-hotlinks`, state.remoteImageCount === 0, { remoteImageCount: state.remoteImageCount });
         add(`${viewport.name}-home-two-usable-video-controls`, state.homeVideos.length === 2 && state.homeVideos.every((video) => video.controls && video.playsInline), { videos: state.homeVideos });
         add(`${viewport.name}-home-two-autoplay-ready-clips`, state.homeVideos.length === 2 && state.homeVideos.every((video) => video.muted && video.loop && video.autoplayWhenVisible), { videos: state.homeVideos });
-        add(`${viewport.name}-home-phase22-result-not-squeezed`, state.resultLayout?.containerDisplay === 'block' && state.resultLayout.measureCount === 3 && state.resultLayout.cardWidth >= 300 && !state.resultLayout.overlaps && !state.resultLayout.valueClips, { resultLayout: state.resultLayout });
+        add(`${viewport.name}-home-phase22-result-not-squeezed`, state.resultLayout?.measureCount === 3 && !state.resultLayout.overlaps && !state.resultLayout.valueClips, { resultLayout: state.resultLayout });
         add(`${viewport.name}-home-two-local-video-sources`, state.homeVideos.length === 2 && state.homeVideos.every((video) => video.sources.some((source) => source.startsWith('/film/') && source.endsWith('.mp4')) && video.sources.some((source) => source.startsWith('/film/') && source.endsWith('.webm')) && video.poster.startsWith('/film/')), { videos: state.homeVideos });
-        add(`${viewport.name}-home-context-media-credited`, state.contextFigures.length === 5 && state.contextFigures.every((figure) => /public-domain context/i.test(figure.caption) && figure.source.startsWith('https://')), { figures: state.contextFigures });
-        add(`${viewport.name}-home-images-loaded`, state.imagesLoaded && !state.fallbackVisible, { imagesLoaded: state.imagesLoaded, fallbackVisible: state.fallbackVisible });
-        add(`${viewport.name}-home-meaningful-alt`, state.altText.length === 1 && state.altText.every((alt) => alt.trim().length >= 24), { altText: state.altText });
-        add(`${viewport.name}-home-context-labels`, state.captionCount === 1, { captionCount: state.captionCount });
-        add(`${viewport.name}-home-credit-preserved`, state.credits.length === 1 && /Public domain/i.test(state.credits[0]) && /Don Richey/i.test(state.credits[0]), { credits: state.credits });
-        add(`${viewport.name}-home-source-links`, state.sourceLinks.length === 1 && state.sourceLinks[0].startsWith('https://commons.wikimedia.org/wiki/File:'), { sourceLinks: state.sourceLinks });
-        add(`${viewport.name}-home-consistent-aspect-ratio`, state.ratios.length === 1 && Math.abs(state.ratios[0] - state.expectedRatios[0]) < 0.03, { ratios: state.ratios });
+        add(`${viewport.name}-home-context-media-credited`, state.contextFigures.length === 4 && state.contextFigures.every(figure => /public-domain context/i.test(figure.caption) && figure.source.startsWith('https://')), { figures: state.contextFigures });
+        add(`${viewport.name}-home-meaningful-alt`, state.allHomeImages.every(image => image.alt.trim().length >= 24), { images: state.allHomeImages });
       } else if (route === '/model-vase/') {
         await page.waitForFunction(() => {
           const image = document.querySelector('.vase-hero__media img');
@@ -225,8 +219,9 @@ try {
     add('autoplay-home-status', !!response && response.status() < 400, { status: response?.status() || 0 });
     const clips = page.locator('.home-field-media video[data-autoplay="visible"]');
     add('autoplay-two-clips-present', await clips.count() === 2, { count: await clips.count() });
-    const eagerlyLoaded = await clips.evaluateAll((videos) => videos.every((video) => video.preload === 'auto' && video.muted && video.loop));
-    add('autoplay-clips-eagerly-preloaded', eagerlyLoaded);
+    const deferred = await clips.evaluateAll((videos) => videos.every((video) => video.preload === 'none' && video.muted && video.loop));
+    add('context-clips-deferred-until-disclosure-opens', deferred && await page.locator('.field-context').evaluate(el => !el.open));
+    await page.locator('.field-context > summary').click();
     for (let index = 0; index < Math.min(await clips.count(), 2); index += 1) {
       const clip = clips.nth(index);
       await clip.scrollIntoViewIfNeeded();

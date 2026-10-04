@@ -103,6 +103,11 @@ jobs:
           QA_BASE_URL: http://127.0.0.1:4173
         run: node .github/qa/visual-consistency-smoke.mjs
 
+      - name: Verify evidence-first homepage metrics, controls and failure states
+        env:
+          QA_BASE_URL: http://127.0.0.1:4173
+        run: node .github/qa/home-evidence-smoke.mjs
+
       - name: Run editorial media smoke
         env:
           QA_BASE_URL: http://127.0.0.1:4173

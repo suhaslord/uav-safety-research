@@ -10,10 +10,10 @@ def _read(path: str) -> str:
 def test_home_actions_feature_phase25_and_scope_phase22_status() -> None:
     html = _read("deploy/vercel/index.html")
     assert 'href="/model-vase/">Model VASE</a>' in html
-    assert 'href="/failure-atlas/">Open Failure Atlas</a>' in html
+    assert 'href="/failure-atlas/">Explore Failure Atlas</a>' in html
     assert 'href="/phases/">Archive</a>' in html
     assert 'id="current-audit"' in html
-    assert 'id="status"' in html and "Frozen simulation · Phase 22" in html
+    assert 'id="status"' in html and "Phase 22: transfer without refitting." in html
     assert 'href="/phases/phase22/"' in html
     assert "10 / 10 gates passed" in html
     assert "6 PASS / 7 FAIL" in html
@@ -44,8 +44,10 @@ def test_frozen_phase_prioritizes_finding_before_secondary_metrics() -> None:
 
 
 def test_workspace_interaction_layer_is_loaded_across_public_shells() -> None:
+    home = _read("deploy/vercel/index.html")
+    assert 'src="/home-evidence.js?v=' in home
+    assert 'href="/home-evidence.css?v=' in home
     shells = [
-        _read("deploy/vercel/index.html"),
         _read("dashboard/phases/index.html"),
         _read("dashboard/phases/phase.html"),
         _read("dashboard/phases/frozen.html"),
@@ -58,34 +60,29 @@ def test_workspace_interaction_layer_is_loaded_across_public_shells() -> None:
 
 def test_home_editorial_media_is_local_credited_and_context_only() -> None:
     html = _read("deploy/vercel/index.html")
-    css = _read("deploy/vercel/research-media.css")
+    css = _read("deploy/vercel/home-evidence.css")
     fetcher = _read("deploy/vercel/fetch-editorial-media.mjs")
 
     assert 'data-editorial-media="local-v2"' in html
     filename = "acero-uav-flight.jpg"
     assert f'src="/media/{filename}"' in html
     assert filename in fetcher
-    assert 'src="/media/perception/kios_clean.jpg"' in html
-    assert 'src="/media/perception/kios_occlusion.jpg"' in html
+    assert 'id="home-comparison"' in html
     assert '<img src="https://' not in html
-    assert html.count("NASA field image · context only") == 1
-    assert html.count("Public domain") == 1
-    assert html.count("data-image-fallback") == 1
-    assert html.count("Don Richey / NASA Ames Research Center") == 1
-    assert "Freeze. Separate. Preserve." in html
+    assert "not AegisLand experiment results" in html
+    assert "Don Richey / NASA Ames" in html
+    assert 'class="field-context"' in html
+    assert html.index('id="home-comparison"') < html.index('class="home-field-media"')
     assert "Model VASE" in html and "Phase 23 paired" in html
     assert 'class="home-field-media"' in html
     assert html.count('data-autoplay="visible"') == 2
-    assert html.count('muted loop preload="auto"') == 2
+    assert html.count('muted loop preload="none"') == 2
     assert 'src="/film/aerocast-flight.mp4"' in html
     assert 'src="/film/evaluation-nasa-clip.mp4"' in html
     assert 'src="/media/acero-uav-landing.jpg"' in html
-    assert 'src="/media/acero-ground-control.jpg"' in html
-    assert 'src="/media/stereo-uav-preflight.jpg"' in html
-    assert "They are context, not AegisLand experiment results." in html
-    assert "home-field-media__stage" in css and "home-field-media__photos" in css
-    assert "aspect-ratio:16 / 9" in css
-    assert "research-photo--inline" in css
+    assert "public-domain context" in html
+    assert "home-field-media__stage" in css
+    assert "aspect-ratio: 3/2" in css
 
 
 def test_model_vase_hero_uses_the_same_contextual_photo_language_as_home() -> None:
