@@ -253,19 +253,20 @@ jobs:
           printf '%s' "$PUBLIC_HTML" | grep 'data-site-shell="native frozen-archive"' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep 'data-editorial-media="local-v2"' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep 'href="/aegisland.css?v=' > /dev/null
-          printf '%s' "$PUBLIC_HTML" | grep 'href="/research-home.css?v=' > /dev/null
-          printf '%s' "$PUBLIC_HTML" | grep 'href="/research-media.css?v=' > /dev/null
+          printf '%s' "$PUBLIC_HTML" | grep 'href="/home-evidence.css?v=' > /dev/null
+          printf '%s' "$PUBLIC_HTML" | grep 'src="/home-evidence.js?v=' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep 'href="/aegisland-brand.css?v=' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep 'src="/model-vase-mark.svg"' > /dev/null
-          test "$(printf '%s' "$PUBLIC_HTML" | grep -o 'NASA field image · context only' | wc -l)" -eq 1
-          printf '%s' "$PUBLIC_HTML" | grep 'Don Richey / NASA Ames Research Center' > /dev/null
+          printf '%s' "$PUBLIC_HTML" | grep 'details class="field-context"' > /dev/null
+          printf '%s' "$PUBLIC_HTML" | grep 'Photographs and footage, not AegisLand experiment results' > /dev/null
+          printf '%s' "$PUBLIC_HTML" | grep 'Don Richey / NASA Ames' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep 'Can the system know when its landing estimate is unreliable?' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep 'Model VASE · answer so far' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep 'Baseline measured · Phase 23 paired' > /dev/null
           ! printf '%s' "$PUBLIC_HTML" | grep '/lab/lab.js' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep 'id="current-audit"' > /dev/null
-          printf '%s' "$PUBLIC_HTML" | grep 'href="/ui-review.css?v=' > /dev/null
-          printf '%s' "$PUBLIC_HTML" | grep 'href="/site-refresh.css?v=' > /dev/null
+          printf '%s' "$PUBLIC_HTML" | grep 'data-home-model="baseline"' > /dev/null
+          printf '%s' "$PUBLIC_HTML" | grep 'data-home-model="phase23"' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep 'home-lineage__track' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep '0.8319' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep '0.7744' > /dev/null
@@ -285,7 +286,8 @@ jobs:
           printf '%s' "$ATLAS_HTML" | grep 'Loading the verified 86-frame image set' > /dev/null
           printf '%s' "$ATLAS_HTML" | grep 'Images selected locally are not hash-checked' > /dev/null
           HOME_HTML=$(curl --fail --silent --show-error --location "$PUBLIC_URL/")
-          printf '%s' "$HOME_HTML" | grep 'Landing research, in the field.' > /dev/null
+          printf '%s' "$HOME_HTML" | grep 'The evidence.' > /dev/null
+          printf '%s' "$HOME_HTML" | grep 'In plain sight.' > /dev/null
           MODEL_HTML=$(curl --fail --silent --show-error --location "$PUBLIC_URL/model-vase/")
           printf '%s' "$MODEL_HTML" | grep 'class="vase-hero__media"' > /dev/null
           PHASE23_HTML=$(curl --fail --silent --show-error --location "$PUBLIC_URL/phases/phase23/")
@@ -311,8 +313,8 @@ jobs:
           echo "✓ Failure Atlas: one reconstructed image in every condition resolves"
 
           curl --fail --silent --show-error --location "$PUBLIC_URL/aegisland.css" >/dev/null
-          curl --fail --silent --show-error --location "$PUBLIC_URL/research-home.css" >/dev/null
-          curl --fail --silent --show-error --location "$PUBLIC_URL/research-media.css" >/dev/null
+          curl --fail --silent --show-error --location "$PUBLIC_URL/home-evidence.css" >/dev/null
+          curl --fail --silent --show-error --location "$PUBLIC_URL/home-evidence.js" >/dev/null
           curl --fail --silent --show-error --location "$PUBLIC_URL/ui-review.css" >/dev/null
           curl --fail --silent --show-error --location "$PUBLIC_URL/site-refresh.css" >/dev/null
           curl --fail --silent --show-error --location "$PUBLIC_URL/aegisland-brand.css" >/dev/null
