@@ -25,8 +25,8 @@ def test_phase25_lens_reuses_published_aggregates_without_frame_claims() -> None
     assert 'data-atlas-chart' in phase and 'data-atlas-controls' in phase
     assert 'data-atlas-controls' in home
     assert 'src="/phase25-explorer.js?v=' in phase and 'src="/phase25-explorer.js?v=' in home
-    assert "Measured baseline frame outcomes are now" in phase
-    assert "Phase 23 paired outcomes are now complete" in phase
+    assert "Both models’ measured frame metrics and prediction boxes" in phase
+    assert "860 within-model pairs" in phase
     audit = json.loads((ROOT / "docs/phase25_reconstruction_audit.json").read_text(encoding="utf-8"))
     assert audit["archive_derived_protected_image_count"] == 86
     assert audit["frame_condition_count"] == 516
@@ -218,12 +218,12 @@ def test_phase_archive_uses_shared_tesla_polish_without_rewriting_lineage() -> N
     assert "Keep every result in view." in archive
     assert "Research categories" in archive
     assert "<strong>7</strong> research categories" in archive
-    assert "28 phase records" in archive
+    assert "29 phase records" in archive
     assert "6 PASS / 7 FAIL" in archive
-    assert "Phase 23 detector and Phase 24 audit are separate" in archive
+    assert "Phases 23–25 detector evidence and Phase 26 admission are separate" in archive
 
 
-def test_phase_taxonomy_personalizes_all_28_phase_routes() -> None:
+def test_phase_taxonomy_personalizes_all_29_phase_routes() -> None:
     taxonomy = (ROOT / "dashboard" / "phase-taxonomy.js").read_text(encoding="utf-8")
     personalization = (ROOT / "dashboard" / "phase-personalization.js").read_text(encoding="utf-8")
     css = (ROOT / "dashboard" / "phase-personalization.css").read_text(encoding="utf-8")
@@ -232,7 +232,7 @@ def test_phase_taxonomy_personalizes_all_28_phase_routes() -> None:
         "phase1", "phase2", "phase3", "phase4", "phase5", "phase6", "phase6b",
         "phase7", "phase8", "phase9", "phase10", "phase10r", "phase11", "phase12",
         "phase13a", "phase13b", "phase13c", "phase14", "phase15", "phase16", "phase17",
-        "phase18", "phase19", "phase20", "phase21", "phase22", "phase23", "phase24",
+        "phase18", "phase19", "phase20", "phase21", "phase22", "phase23", "phase24", "phase25",
     )
     for slug in expected_slugs:
         assert f"{slug}: {{ category:" in taxonomy
@@ -323,7 +323,7 @@ def test_phase23_report_and_phase24_share_a_report_layout() -> None:
     assert "py scripts\\bundle_phase23_checkpoint.py" in phase23
 
 
-def test_phase25_is_featured_as_work_in_progress_without_result_claims() -> None:
+def test_phase25_is_featured_as_verified_retrospective_work() -> None:
     home = (ROOT / "deploy" / "vercel" / "index.html").read_text(encoding="utf-8")
     page = (ROOT / "deploy" / "vercel" / "phase25.html").read_text(encoding="utf-8")
     archive = (ROOT / "dashboard" / "phases" / "index.html").read_text(encoding="utf-8")

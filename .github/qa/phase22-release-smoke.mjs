@@ -13,7 +13,7 @@ for(let attempt=0;attempt<30;attempt++) {
 }
 const browser=await chromium.launch({headless:true});
 const report={base,checks:[],screenshots:[]};
-const routes=['/','/phases/phase22/','/phases/phase23/','/phases/phase25/','/failure-atlas/','/reproduce/','/phase22-detector-study/'];
+const routes=['/','/phases/','/phases/phase22/','/phases/phase23/','/phases/phase25/','/model-vase/','/failure-atlas/','/reproduce/','/phase22-detector-study/'];
 try {
   for(const viewport of [{name:'desktop',width:1440,height:1000},{name:'mobile',width:390,height:844}]) {
     const context=await browser.newContext({viewport:{width:viewport.width,height:viewport.height},isMobile:viewport.name==='mobile',hasTouch:viewport.name==='mobile',reducedMotion:'reduce'});
@@ -40,7 +40,7 @@ try {
       const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth);
       const images=await page.locator('img').evaluateAll(images=>images.filter(i=>i.getAttribute('src')&&i.getClientRects().length&&(!i.complete||i.naturalWidth===0)).map(i=>i.getAttribute('src')));
       // Checkout QA lacks deployment-only reconstructed/editorial assets. Production checks every visible image.
-      const deploymentOnlyImages=local?images.filter(src=>!src.includes('phase22-occlusion-v2.png')):[];
+      const deploymentOnlyImages=local?images.filter(src=>/^\/media\/(editorial|phase25|perception)\//.test(src)):[];
       const brokenImages=images.filter(src=>!deploymentOnlyImages.includes(src));
       report.checks.push({viewport:viewport.name,route,status:response.status(),content:text.length>100,overflow,brokenImages,deploymentOnlyImages,errors,
         ok:response.ok()&&text.length>100&&overflow<=2&&brokenImages.length===0&&errors.length===0});
@@ -49,6 +49,16 @@ try {
           report.checks.push({viewport:viewport.name,route,expected,ok:text.includes(expected)});
         }
       }
+      if(viewport.name==='mobile'&&['/reproduce/','/phase22-detector-study/'].includes(route)) {
+        const menu=page.locator('details.mobile-menu');
+        await menu.locator('summary').focus();await page.keyboard.press('Enter');
+        report.checks.push({viewport:viewport.name,route,name:'native-menu-keyboard-open',ok:await menu.getAttribute('open')!==null});
+        await page.keyboard.press('Escape');
+        report.checks.push({viewport:viewport.name,route,name:'native-menu-keyboard-close',ok:await menu.getAttribute('open')===null});
+      }
+      if(route==='/reproduce/') report.checks.push({viewport:viewport.name,route,name:'current-candidate-gate',ok:text.includes('validate_research_release.py')&&text.includes('1.0.0rc1')&&text.includes('NO_DATASET_ADMITTED')});
+      if(route==='/phases/') report.checks.push({viewport:viewport.name,route,name:'paired-audit-in-archive',ok:await page.locator('.archive-card[href="/phases/phase25/"]').count()===1&&text.includes('29 phase records')});
+      if(route==='/phases/phase25/') report.checks.push({viewport:viewport.name,route,name:'original-replay-and-separate-pairs',ok:text.includes('24 / 24')&&text.includes('860 within-model pairs')&&text.includes('516 cross-model views')});
       if(route==='/phases/phase22/') report.checks.push({viewport:viewport.name,route,name:'detector-followup-link',ok:await page.locator('a[href="/phase22-detector-study/"]').count()===1});
       if(viewport.name==='mobile'&&(route==='/'||route==='/phases/phase22/')) {
         const toggle=page.locator('#mobileMenuToggle');await toggle.click();
@@ -56,7 +66,7 @@ try {
         await page.keyboard.press('Escape');
         report.checks.push({viewport:viewport.name,route,name:'mobile-menu-closes',ok:await toggle.getAttribute('aria-expanded')==='false'});
       }
-      if(route==='/phase22-detector-study/'||route==='/phases/phase22/') {
+      if(['/','/phases/','/reproduce/','/phases/phase25/','/phase22-detector-study/','/phases/phase22/'].includes(route)) {
         const filename=`${viewport.name}-${route.replaceAll('/','')}.png`;
         await page.screenshot({path:out+'/'+filename,fullPage:true});report.screenshots.push(filename);
       }

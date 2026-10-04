@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#ffffff">
-  <meta name="description" content="Browse the AegisLand research record through Phase 24, including frozen simulation results and a descriptive reanalysis of real-camera detector metrics.">
+  <meta name="description" content="Browse the research archive through Phase 25: frozen simulation, original-model replay and paired camera evidence, with independent Phase 26 admission kept separate.">
   <title>AegisLand — Research Phase Archive</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=7">
   <link rel="stylesheet" href="/aegisland.css?v=6">
@@ -38,16 +38,16 @@
 
   <main class="signature-shell archive-main" id="main">
     <section class="archive-hero">
-      <div class="workspace-context" aria-label="Archive context"><span>Model VASE / evidence archive</span><span>Phase 1 → Phase 24</span><span>Simulation + camera studies</span></div>
+      <div class="workspace-context" aria-label="Archive context"><span>Model VASE / evidence archive</span><span>Phase 1 → Phase 25</span><span>Simulation + camera studies</span></div>
       <div class="signature-kicker">AegisLand research</div>
       <h1>Keep every result in view.</h1>
       <p>Every phase stays part of the story. Failed checks remain visible across the frozen simulation, camera detector, and audit.</p>
-      <div class="archive-meta-line"><span><strong>28</strong> phase records</span><span><strong>7</strong> research categories</span><span><strong>13</strong> frozen Phase 12–22 records</span><span><strong>6 PASS / 7 FAIL</strong> frozen verdicts</span></div>
+      <div class="archive-meta-line"><span><strong>29</strong> phase records</span><span><strong>7</strong> research categories</span><span><strong>13</strong> frozen Phase 12–22 records</span><span><strong>6 PASS / 7 FAIL</strong> frozen verdicts</span></div>
       <nav class="category-nav" id="categoryNav" aria-label="Research categories"></nav>
     </section>
 
     <aside class="archive-current" aria-label="Model VASE overview"><span>Model VASE · evidence overview</span><strong>Simulation evidence does not yet connect to the real-camera test.</strong><p>V3 passed its frozen planar simulation test. The KIOS detector still regresses under occlusion and mixed stress.</p><a href="/model-vase/">Read the current answer →</a> · <a href="/failure-atlas/">Inspect the Failure Atlas →</a></aside>
-    <aside class="archive-current" aria-label="Current Phase 25 work"><span>Current work · Phase 25</span><strong>Failure Atlas</strong><p>KIOS inputs verified. Paired outcomes complete: 49 recovered, 65 regressed across 516 views.</p><a href="/failure-atlas/">Explore the Atlas →</a> · <a href="/phases/phase25/">Phase 25 method →</a></aside>
+    <aside class="archive-current" aria-label="Current Phase 25 work"><span>Current work · Phase 25</span><strong>Failure Atlas</strong><p>KIOS inputs verified. Original replay: 24 / 24 metric cells matched; 49 recovered and 65 regressed across 516 cross-model views. The 860 within-model stress pairs are separate. Phase 26 has no admitted independent dataset.</p><a href="/failure-atlas/">Explore the Atlas →</a> · <a href="/phases/phase25/">Phase 25 method →</a> · <a href="/reproduce/#revalidation">Current validation record →</a></aside>
 
     <section class="archive-stats archive-toolbar" aria-label="Archive search and filters">
       <div class="archive-toolbar__search"><label for="archiveSearch">Find a phase</label><input id="archiveSearch" type="search" placeholder="Search phases and results…" autocomplete="off" spellcheck="false"></div>
@@ -57,7 +57,7 @@
         <button class="archive-filter" type="button" data-filter="fail" aria-pressed="false">Frozen FAIL</button>
         <button class="archive-filter" type="button" data-filter="historical" aria-pressed="false">Non-frozen records</button>
       </div>
-      <div class="archive-filter-summary" id="archiveResultCount" aria-live="polite">Showing all 28 phase records.</div>
+      <div class="archive-filter-summary" id="archiveResultCount" aria-live="polite">Showing all 29 phase records.</div>
     </section>
 
     <div class="archive-empty-state" id="archiveEmptyState" hidden role="status">
@@ -68,13 +68,13 @@
 
     <div class="archive-groups" id="categories">
       <div id="archiveCategories"></div>
-      <section class="claim-boundary"><b>ARCHIVE LIMIT //</b> safety_acceptance=false · controller_tuning_allowed=false<br>Phases 1–22: simulation only. Phases 23–24: detector results, separate from the simulation lineage. None establish landing safety or flight readiness.</section>
+      <section class="claim-boundary"><b>ARCHIVE LIMIT //</b> safety_acceptance=false · controller_tuning_allowed=false<br>Phases 1–22: simulation only. Phases 23–25: retrospective detector results, separate from simulation. Phase 26: prospective independent-data admission; no dataset admitted. None establish landing safety or flight readiness.</section>
     </div>
   </main>
 
-  <footer class="signature-footer"><div class="signature-shell signature-footer__inner"><div>AegisLand · simulation lineage frozen through Phase 22; Phase 23 detector and Phase 24 audit are separate</div><div><code>scientific simulation lineage frozen through Phase 22</code></div></div></footer>
+  <footer class="signature-footer"><div class="signature-shell signature-footer__inner"><div>AegisLand · simulation lineage frozen through Phase 22; Phases 23–25 detector evidence and Phase 26 admission are separate</div><div><code>scientific simulation lineage frozen through Phase 22</code></div></div></footer>
 
-  <script src="/phase-taxonomy.js?v=6"></script>
+  <script src="/phase-taxonomy.js?v=7"></script>
   <script src="/frozen-lineage.js?v=3"></script>
   <script>
     (() => {
@@ -98,12 +98,13 @@
         phase10r: ['Phase 10R', 'Shifted holdout', 'Point error improved; tail, availability, and coverage failed.'],
         phase11: ['Phase 11', 'Protected reliability check', 'High availability and coverage; one locked tail gate failed.'],
         phase23: ['Phase 23', 'Robust KIOS detector', 'Clean recall rose; occlusion and mixed stress regressed.'],
-        phase24: ['Phase 24', 'Robustness frontier audit', 'Average mAP50 rose; severe-condition mAP50 fell.']
+        phase24: ['Phase 24', 'Robustness frontier audit', 'Average mAP50 rose; severe-condition mAP50 fell.'],
+        phase25: ['Phase 25', 'Verified paired detector audit', 'Original replay matched 24 cells; 516 cross-model views and 860 within-model pairs remain distinct.']
       };
 
       const order = [
         'phase1','phase2','phase3','phase4','phase5','phase6','phase6b','phase7','phase8','phase9','phase10','phase10r','phase11',
-        'phase12','phase13a','phase13b','phase13c','phase14','phase15','phase16','phase17','phase18','phase19','phase20','phase21','phase22','phase23','phase24'
+        'phase12','phase13a','phase13b','phase13c','phase14','phase15','phase16','phase17','phase18','phase19','phase20','phase21','phase22','phase23','phase24','phase25'
       ];
 
       const recordFor = (slug) => {
@@ -125,7 +126,7 @@
           label: historical[0],
           title: historical[1],
           summary: historical[2],
-          status: slug === 'phase24' ? 'REANALYSIS' : (slug === 'phase23' ? 'BENCHMARK' : (slug === 'phase4' ? 'PROVENANCE' : (slug === 'phase10r' ? 'FAILED HOLDOUT' : (slug === 'phase11' ? 'MIXED / FAIL' : 'ARCHIVE')))),
+          status: slug === 'phase25' ? 'PAIRED AUDIT' : slug === 'phase24' ? 'REANALYSIS' : (slug === 'phase23' ? 'BENCHMARK' : (slug === 'phase4' ? 'PROVENANCE' : (slug === 'phase10r' ? 'FAILED HOLDOUT' : (slug === 'phase11' ? 'MIXED / FAIL' : 'ARCHIVE')))),
           statusClass: slug === 'phase10r' || slug === 'phase11' ? 'verdict-chip--fail' : '',
           frozen: false,
           meta
@@ -202,7 +203,7 @@
           section.hidden = !section.querySelector('.archive-card.phase-personalized:not([hidden])');
         });
         emptyState.hidden = visible !== 0;
-        summary.textContent = visible === 28 && !query && activeFilter === 'all' ? 'Showing all 28 phase records.' : `Showing ${visible} of 28 phase records.`;
+        summary.textContent = visible === order.length && !query && activeFilter === 'all' ? `Showing all ${order.length} phase records.` : `Showing ${visible} of ${order.length} phase records.`;
       };
 
       search.addEventListener('input', applyFilters);

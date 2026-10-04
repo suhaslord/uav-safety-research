@@ -1,0 +1,228 @@
+{
+  "schema": "aegisland.website-revalidation.v1",
+  "version": "1.0.0rc1",
+  "scientific_revision": "db7aca05382f608cbe021cabb5c32862123c7633",
+  "frozen_manifest_sha256": "157cf7b37f1793e1b85c158d89245a1b751fe441481b8083b905e8a5e0efcc6f",
+  "source_sha256": {
+    "results/research_revalidation_2026_10_03/replay_receipt.json": "4d46a8b0f5d9844b20823930bc6a7e53e7fe0c202a188e2d70019ddcc9eda33b",
+    "results/research_revalidation_2026_10_03/controlled_occlusion/analysis.json": "beb078d5b06d5d91d0c4719c41814816240d7933b3dcae82ab8b7adfa259c692",
+    "results/research_revalidation_2026_10_03/controlled_occlusion/controlled_occlusion.png": "5d89e16a3b1f329a8ac3a938a2906847a323352dc8e94a663b4147e0a3a691d9",
+    "results/research_revalidation_2026_10_03/paired_clean_vs_stressed.csv": "d38eb52e32b80abec996732cf587b737e4239412b9b3132313c4078931a449c7",
+    "docs/phase26_admission_execution_lock.json": "7b642302ab8f9a30206eb7ef78d7967e97c5f8abc12bc70e5f1418769107ad44",
+    "pyproject.toml": "eb0f13de5194ad93ba4f746e0cb275a4c5a48ca5e0e9540bde46c3e6acbf098b"
+  },
+  "source_frames": 86,
+  "capture_sequences": 2,
+  "phase23": {
+    "comparison": "EXACT_MATCH",
+    "phase23_cells_checked": 24,
+    "maximum_absolute_delta": 0.0,
+    "runtime": {
+      "python_version": "3.13.2",
+      "ultralytics_version": "8.4.160",
+      "torch_version": "2.7.0+cu118",
+      "numpy_version": "2.2.3",
+      "pillow_version": "11.0.0"
+    },
+    "checkpoint_sha256": "43240be969708c32b3e11340c9846b3a588baf361378398677c794d16a455310",
+    "baseline_checkpoint_sha256": "3a1801b192d624f8dcdda4bc5d9a9157309000df67a4c30d62368c37901feddd",
+    "protected_manifest_sha256": "8605cf1cbf9e8769c0324bf066078f9964f232ac3128131c8bd0b689bb7b64b7",
+    "source_archive_sha256": "9d27a3e9616c188fb72a727633705735da5df168ce47efeed389dcb3455fdbdb",
+    "cross_model_transition_counts": {
+      "regressed": 65,
+      "both_fail": 179,
+      "both_pass": 223,
+      "recovered": 49
+    },
+    "clean_stressed_pair_count": 860
+  },
+  "controlled_occlusion": {
+    "recovery_source_commit": "f090da03d20b2425c5addccb4d19117c8991bcc1",
+    "inference_freeze_commit": "6a8623cbeb54951f43b8ca65293598e7c41a474e",
+    "detector_inference_run": false,
+    "baseline_failures_before_added_occlusion": 33,
+    "clean_successes": 53,
+    "first_observed_loss_counts_among_clean_successes": {
+      "None": 46,
+      "5": 2,
+      "1": 2,
+      "2": 3
+    },
+    "frames_with_later_recovery": 1,
+    "dose_response": [
+      {
+        "dose_index": 0,
+        "requested_dose": 0.0,
+        "mean_achieved_box_occlusion": 0.0,
+        "successful_frames": 53,
+        "frame_success_fraction": 0.6162790697674418,
+        "mean_best_overlap_confidence": 0.31179122398147185,
+        "mean_best_iou": 0.6094497514760563,
+        "false_positives_per_frame": 275.30232558139534
+      },
+      {
+        "dose_index": 1,
+        "requested_dose": 0.15,
+        "mean_achieved_box_occlusion": 0.15046626451131773,
+        "successful_frames": 52,
+        "frame_success_fraction": 0.6046511627906976,
+        "mean_best_overlap_confidence": 0.2492079046056714,
+        "mean_best_iou": 0.6043145484954067,
+        "false_positives_per_frame": 279.1744186046512
+      },
+      {
+        "dose_index": 2,
+        "requested_dose": 0.3,
+        "mean_achieved_box_occlusion": 0.30245152395147135,
+        "successful_frames": 50,
+        "frame_success_fraction": 0.5813953488372093,
+        "mean_best_overlap_confidence": 0.17830747545176986,
+        "mean_best_iou": 0.5975745417138154,
+        "false_positives_per_frame": 282.09302325581393
+      },
+      {
+        "dose_index": 3,
+        "requested_dose": 0.45,
+        "mean_achieved_box_occlusion": 0.446082070375869,
+        "successful_frames": 51,
+        "frame_success_fraction": 0.5930232558139535,
+        "mean_best_overlap_confidence": 0.10130871776599697,
+        "mean_best_iou": 0.5706205522975403,
+        "false_positives_per_frame": 283.56976744186045
+      },
+      {
+        "dose_index": 4,
+        "requested_dose": 0.6,
+        "mean_achieved_box_occlusion": 0.5992726703872329,
+        "successful_frames": 50,
+        "frame_success_fraction": 0.5813953488372093,
+        "mean_best_overlap_confidence": 0.06786813457404416,
+        "mean_best_iou": 0.561267073612538,
+        "false_positives_per_frame": 283.13953488372096
+      },
+      {
+        "dose_index": 5,
+        "requested_dose": 0.75,
+        "mean_achieved_box_occlusion": 0.7461203692434365,
+        "successful_frames": 48,
+        "frame_success_fraction": 0.5581395348837209,
+        "mean_best_overlap_confidence": 0.06500757610030082,
+        "mean_best_iou": 0.5544487180363997,
+        "false_positives_per_frame": 281.19767441860466
+      }
+    ],
+    "by_sequence": [
+      {
+        "sequence": "land_pad",
+        "dose_index": 0,
+        "source_frames": 66,
+        "successful_frames": 33,
+        "frame_success_fraction": 0.5,
+        "mean_achieved_box_occlusion": 0.0
+      },
+      {
+        "sequence": "land_pad",
+        "dose_index": 1,
+        "source_frames": 66,
+        "successful_frames": 32,
+        "frame_success_fraction": 0.48484848484848486,
+        "mean_achieved_box_occlusion": 0.15060731451895126
+      },
+      {
+        "sequence": "land_pad",
+        "dose_index": 2,
+        "source_frames": 66,
+        "successful_frames": 30,
+        "frame_success_fraction": 0.45454545454545453,
+        "mean_achieved_box_occlusion": 0.3031832914754107
+      },
+      {
+        "sequence": "land_pad",
+        "dose_index": 3,
+        "source_frames": 66,
+        "successful_frames": 31,
+        "frame_success_fraction": 0.4696969696969697,
+        "mean_achieved_box_occlusion": 0.4449136482487363
+      },
+      {
+        "sequence": "land_pad",
+        "dose_index": 4,
+        "source_frames": 66,
+        "successful_frames": 30,
+        "frame_success_fraction": 0.45454545454545453,
+        "mean_achieved_box_occlusion": 0.5991673337978475
+      },
+      {
+        "sequence": "land_pad",
+        "dose_index": 5,
+        "source_frames": 66,
+        "successful_frames": 28,
+        "frame_success_fraction": 0.42424242424242425,
+        "mean_achieved_box_occlusion": 0.7448923537696195
+      },
+      {
+        "sequence": "land_pad2",
+        "dose_index": 0,
+        "source_frames": 20,
+        "successful_frames": 20,
+        "frame_success_fraction": 1.0,
+        "mean_achieved_box_occlusion": 0.0
+      },
+      {
+        "sequence": "land_pad2",
+        "dose_index": 1,
+        "source_frames": 20,
+        "successful_frames": 20,
+        "frame_success_fraction": 1.0,
+        "mean_achieved_box_occlusion": 0.1500007994861274
+      },
+      {
+        "sequence": "land_pad2",
+        "dose_index": 2,
+        "source_frames": 20,
+        "successful_frames": 20,
+        "frame_success_fraction": 1.0,
+        "mean_achieved_box_occlusion": 0.30003669112247133
+      },
+      {
+        "sequence": "land_pad2",
+        "dose_index": 3,
+        "source_frames": 20,
+        "successful_frames": 20,
+        "frame_success_fraction": 1.0,
+        "mean_achieved_box_occlusion": 0.44993786339540726
+      },
+      {
+        "sequence": "land_pad2",
+        "dose_index": 4,
+        "source_frames": 20,
+        "successful_frames": 20,
+        "frame_success_fraction": 1.0,
+        "mean_achieved_box_occlusion": 0.5996202811322042
+      },
+      {
+        "sequence": "land_pad2",
+        "dose_index": 5,
+        "source_frames": 20,
+        "successful_frames": 20,
+        "frame_success_fraction": 1.0,
+        "mean_achieved_box_occlusion": 0.7501728203070328
+      }
+    ],
+    "limitations": [
+      "Annotation-box pixel occlusion is not physical pad-surface occlusion.",
+      "One target class and two temporally dependent sequences; no independent-dataset inference.",
+      "The original raw-source attempt failed its clean gate and produced no treatment predictions.",
+      "This summary uses the separately frozen Q95-representation v2 follow-up, not a retrospective relabeling of the failed original attempt.",
+      "Confidence floor 0.001 retains hundreds of false positives per frame; frame success is not precision or flight safety.",
+      "No threshold criterion was preregistered in the recovered original protocol; none is invented here."
+    ]
+  },
+  "phase26": {
+    "status": "NO_DATASET_ADMITTED",
+    "test_inference_authorized": false,
+    "near_distance_argument": 9,
+    "minimum_accepted_dhash_distance": 10
+  },
+  "scope": "Retrospective KIOS research release candidate. Occlusion is saved-artifact replay, not new detector inference. No independent data, final v1.0 tag, end-to-end controller validation or flight certification."
+}

@@ -254,10 +254,10 @@ try {
     text: document.body?.innerText || ''
   }));
   add('archive-seven-research-categories', archive.categories === 7 && archive.categoryNav === 7, archive);
-  add('archive-all-28-records', archive.allCards === 28, archive);
-  add('archive-13-frozen-15-nonfrozen', archive.frozenCards === 13 && archive.historicalCards === 15, archive);
+  add('archive-all-29-records', archive.allCards === 29, archive);
+  add('archive-13-frozen-16-nonfrozen', archive.frozenCards === 13 && archive.historicalCards === 16, archive);
   add('archive-preserves-6-pass-7-fail', archive.frozenPass === 6 && archive.frozenFail === 7, archive);
-  add('archive-personalizes-all-records', archive.identities === 28 && archive.questions === 28 && archive.signals === 28, archive);
+  add('archive-personalizes-all-records', archive.identities === 29 && archive.questions === 29 && archive.signals === 29, archive);
   add('archive-category-thesis-visible', /One question\. Seven chapters|7 research categories|Seven stretches of work/i.test(archive.text), archive);
   add('archive-continuity-visible', /Every phase stays part of the story|keeps the detours, not just the wins|Nothing is reordered/i.test(archive.text), archive);
 
