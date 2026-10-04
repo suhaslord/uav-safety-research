@@ -86,7 +86,9 @@ def treatment(tmp_path, monkeypatch):
     pixels = np.arange(32 * 32 * 3, dtype=np.uint8).reshape(32, 32, 3)
     Image.fromarray(pixels).save(images / "frame.jpg", quality=80)
     (labels / "frame.txt").write_text("0 0.5 0.5 0.7 0.6\n")
-    manifest = [{"image": "frame.jpg", "label": "frame.txt", "sequence": "land_pad"}]
+    manifest = [{"image": "frame.jpg", "label": "frame.txt", "sequence": "land_pad",
+                 "clean_image_sha256": runner.sha256_file(images / "frame.jpg"),
+                 "clean_label_sha256": runner.sha256_file(labels / "frame.txt")}]
     monkeypatch.setattr(runner, "DEFAULT_DOSES", [0.0, 0.5])
     out = tmp_path / "out #1"
     out.mkdir()
@@ -116,21 +118,80 @@ def test_zero_and_positive_doses_use_the_same_rasterized_denominator(treatment):
         assert row["visible_box_fraction"] == 1 - row["achieved_dose"]
 
 
+@pytest.mark.parametrize("changed", ["image", "label"])
+def test_generation_rejects_inputs_changed_since_authentication(treatment, changed):
+    stress, out, rows = treatment
+    record = {"image": "frame.jpg", "label": "frame.txt", "sequence": "land_pad",
+              "clean_image_sha256": rows[0]["source_image_sha256"],
+              "clean_label_sha256": rows[0]["label_sha256"]}
+    if changed == "image":
+        Image.new("RGB", (32, 32), "white").save(stress / "clean/images/test/frame.jpg")
+    else:
+        (stress / "clean/labels/test/frame.txt").write_text("0 0.5 0.5 0.1 0.1\n")
+    retry = out.parent / "new-output"
+    retry.mkdir()
+    with pytest.raises(ValueError, match="changed since authentication"):
+        runner.generate_treatment_dataset([record], stress, retry)
+
+
+def test_generated_labels_are_snapshot_of_authenticated_geometry(treatment, monkeypatch):
+    stress, out, rows = treatment
+    label = stress / "clean/labels/test/frame.txt"
+    original = label.read_bytes()
+    record = {"image": "frame.jpg", "label": "frame.txt", "sequence": "land_pad",
+              "clean_image_sha256": rows[0]["source_image_sha256"],
+              "clean_label_sha256": rows[0]["label_sha256"]}
+    writer = runner.atomic_write_lossless_image
+
+    def mutate_source_after_first_image(image, path):
+        label.write_text("0 0.5 0.5 0.1 0.1\n")
+        return writer(image, path)
+
+    monkeypatch.setattr(runner, "atomic_write_lossless_image", mutate_source_after_first_image)
+    retry = out.parent / "snapshot-output"
+    retry.mkdir()
+    generated = runner.generate_treatment_dataset([record], stress, retry)
+    assert {r["label_sha256"] for r in generated} == {record["clean_label_sha256"]}
+    for row in generated:
+        assert Path(row["label_path"]).read_bytes() == original
+        assert Path(row["label_path"]).is_relative_to(retry)
+
+
+def test_gate_compares_each_topology_at_reference_sample_size(treatment):
+    _, out, rows = treatment
+    calls = []
+
+    def val(**kwargs):
+        root = Path(json.loads(Path(kwargs["data"]).read_text().splitlines()[0].removeprefix("path: ")))
+        images = list((root / "images/test").iterdir())
+        assert len(images) == len({r["frame_id"] for r in rows})
+        calls.append(root.name)
+        m = runner.HISTORICAL_CLEAN_METRICS
+        return SimpleNamespace(box=SimpleNamespace(mp=m["precision"], mr=m["recall"], map50=m["map50"], map=m["map50_95"]))
+
+    observed = runner.run_zero_dose_baseline_gate(SimpleNamespace(val=val), rows, out)
+    assert set(calls) == set(runner.TOPOLOGIES)
+    assert observed == {topo: runner.HISTORICAL_CLEAN_METRICS for topo in runner.TOPOLOGIES}
+
+
 def test_gate_evaluates_exact_generated_inventory(treatment):
     _, out, rows = treatment
     controls = [r for r in rows if r["requested_dose"] == 0]
 
     def val(**kwargs):
         path_line = Path(kwargs["data"]).read_text().splitlines()[0]
-        assert json.loads(path_line.removeprefix("path: ")) == str((out / "zero_dose_gate").resolve())
-        actual = list((out / "zero_dose_gate/images/test").iterdir())
-        assert {p.name for p in actual} == {Path(r["image_path"]).name for r in controls}
-        for row in controls:
-            assert runner.sha256_file(out / "zero_dose_gate/images/test" / Path(row["image_path"]).name) == row["generated_image_sha256"]
+        dataset = Path(json.loads(path_line.removeprefix("path: ")))
+        assert dataset.parent == out / "zero_dose_gate"
+        selected = [r for r in controls if r["topology"] == dataset.name]
+        actual = list((dataset / "images/test").iterdir())
+        assert {p.name for p in actual} == {Path(r["image_path"]).name for r in selected}
+        for row in selected:
+            assert runner.sha256_file(dataset / "images/test" / Path(row["image_path"]).name) == row["generated_image_sha256"]
         m = runner.HISTORICAL_CLEAN_METRICS
         return SimpleNamespace(box=SimpleNamespace(mp=m["precision"], mr=m["recall"], map50=m["map50"], map=m["map50_95"]))
 
-    assert runner.run_zero_dose_baseline_gate(SimpleNamespace(val=val), rows, out) == runner.HISTORICAL_CLEAN_METRICS
+    assert runner.run_zero_dose_baseline_gate(SimpleNamespace(val=val), rows, out) == {
+        topo: runner.HISTORICAL_CLEAN_METRICS for topo in runner.TOPOLOGIES}
 
 
 def test_gate_rejects_missing_or_modified_controls(treatment):
@@ -187,16 +248,74 @@ def test_source_gate_authenticates_pixels_labels_and_inventory(tmp_path, monkeyp
     monkeypatch.setattr(runner, "load_lock", lambda: lock)
     monkeypatch.setattr(runner, "verify_archive", lambda *args: None)
     runner.verify_source_inventory(rows, source, stress, tmp_path / "archive")
+    authenticated = runner.authenticate_clean_records(rows, stress)
+    assert authenticated[0]["clean_image_sha256"] == runner.sha256_file(stress / "clean/images/test/frame.jpg")
     (source / "images/test/extra.jpg").write_bytes(b"unexpected")
     with pytest.raises(ValueError, match="Incorrect protected source"):
         runner.verify_source_inventory(rows, source, stress, tmp_path / "archive")
     (source / "images/test/extra.jpg").unlink()
     (stress / "clean/images/test/frame.jpg").write_bytes(b"tampered stress")
+    with pytest.raises(ValueError, match="Clean images changed"):
+        runner.authenticate_clean_records(rows, stress)
     with pytest.raises(ValueError, match="image bytes differ"):
         runner.verify_source_inventory(rows, source, stress, tmp_path / "archive")
     (source / "labels/test/frame.txt").write_text("0 0.5 0.5 0.9 0.9\n")
     with pytest.raises(ValueError, match="source label differs"):
         runner.verify_source_inventory(rows, source, stress, tmp_path / "archive")
+    (stress / "clean/labels/test/frame.txt").write_text("0 0.5 0.5 0.9 0.9\n")
+    with pytest.raises(ValueError, match="Clean label changed"):
+        runner.authenticate_clean_records(rows, stress)
+
+
+def test_one_failed_topology_prevents_gate_success(treatment):
+    _, out, rows = treatment
+
+    def val(**kwargs):
+        m = dict(runner.HISTORICAL_CLEAN_METRICS)
+        if "OUTER_RING" in kwargs["data"]:
+            m["precision"] -= 0.002
+        return SimpleNamespace(box=SimpleNamespace(mp=m["precision"], mr=m["recall"], map50=m["map50"], map=m["map50_95"]))
+
+    with pytest.raises(RuntimeError, match="FAILED for OUTER_RING"):
+        runner.run_zero_dose_baseline_gate(SimpleNamespace(val=val), rows, out)
+    failed = json.loads((out / "zero_dose_gate_FAILED.json").read_text())
+    assert failed["OUTER_RING"]["precision"]["passed"] is False
+
+
+def test_receipt_binds_gate_record_and_execution_commit(treatment, monkeypatch):
+    stress, original_out, rows = treatment
+    out = original_out.parent / "complete-run"
+    archive, bundle, manifest = [original_out.parent / name for name in ("archive.zip", "bundle.zip", "manifest.csv")]
+    for path in (archive, bundle, manifest):
+        path.write_bytes(b"unit-test input")
+    monkeypatch.setattr(sys, "argv", ["runner", "--source-root", str(stress), "--stress-root", str(stress),
+                                     "--archive", str(archive), "--bundle", str(bundle), "--manifest", str(manifest),
+                                     "--out-dir", str(out)])
+    monkeypatch.setattr(runner, "verify_method_lock", lambda: {"schema": runner.EXECUTION_SCHEMA, "method_text_sha256": {}})
+    monkeypatch.setattr(runner, "verify_runtime", lambda: {})
+    monkeypatch.setattr(runner, "verify_inputs", lambda *args: ([], original_out / "best.pt"))
+    monkeypatch.setattr(runner, "generate_treatment_dataset", lambda *args: rows)
+    state = {"head": "execution-start-commit"}
+    monkeypatch.setattr(runner.subprocess, "check_output", lambda *args, **kwargs: state["head"] + "\n")
+
+    def val(**kwargs):
+        state["head"] = "later-commit"
+        m = runner.HISTORICAL_CLEAN_METRICS
+        return SimpleNamespace(box=SimpleNamespace(mp=m["precision"], mr=m["recall"], map50=m["map50"], map=m["map50_95"]))
+
+    monkeypatch.setitem(sys.modules, "ultralytics", SimpleNamespace(YOLO=lambda path: SimpleNamespace(val=val)))
+    final = [{**r, "pred_count": 0, "best_iou": 0, "best_confidence": 0, "tp": 0, "fp": 0, "fn": 1,
+              "frame_success": False} for r in rows]
+    monkeypatch.setattr(runner, "run_treatment_inference", lambda *args: (final, []))
+    runner.main()
+    receipt = json.loads((out / "run_manifest.json").read_text())
+    gate = json.loads((out / "zero_dose_gate_record.json").read_text())
+    assert receipt["git_commit"] == "execution-start-commit"
+    assert receipt["zero_dose_gate_record_sha256"] == runner.sha256_file(out / "zero_dose_gate_record.json")
+    assert gate["control_views_by_topology"] == {t: 1 for t in runner.TOPOLOGIES}
+    assert gate["zero_dose_observed_by_topology"] == {t: runner.HISTORICAL_CLEAN_METRICS for t in runner.TOPOLOGIES}
+    assert (out / "raw_predictions.csv").read_text().splitlines() == [
+        "frame_id,sequence,topology,requested_dose,achieved_dose,prediction_index,class_id,x0,y0,x1,y1,confidence,matched_gt_index,match_iou,is_true_positive"]
 
 
 def test_runtime_gate_rejects_changed_version(monkeypatch):
