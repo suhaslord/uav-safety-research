@@ -43,6 +43,10 @@ def build(output, base_path):
         target.parent.mkdir(parents=True, exist_ok=True)
         source = routes.get('/phases/' + slug, '/dashboard/phases/phase.html')
         shutil.copyfile(output / source.lstrip('/'), target)
+    # Keep the source research runtime sealed; corrections live only in the
+    # generated site. Pages has physical routes rather than Vercel rewrites.
+    shutil.copyfile(ROOT / 'deploy/vercel/failure-atlas.js', output / 'failure-atlas-frozen.js')
+    shutil.copyfile(ROOT / 'deploy/vercel/failure-atlas-live.js', output / 'failure-atlas.js')
     origin = 'https://suhaslord.github.io' + base
     for file in output.rglob('*'):
         if file.suffix not in {'.html', '.css', '.js'}:
@@ -57,7 +61,7 @@ def build(output, base_path):
             # Only url() values are paths in a stylesheet.
             text = re.sub(r'''(url\(\s*["']?)/(?!/)''',
                           lambda match: match[1] + base + '/', text)
-        file.write_text(text, encoding='utf-8')
+        file.write_text(text, encoding='utf-8', newline='\n')
     (output / '.nojekyll').touch()
     (output / '404.html').write_text(f'''<!doctype html>
 <html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">

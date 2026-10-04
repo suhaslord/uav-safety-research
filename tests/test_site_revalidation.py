@@ -37,6 +37,19 @@ def test_website_refresh_does_not_rewrite_the_research_freeze():
         assert hashlib.sha256((ROOT / name).read_bytes()).hexdigest() == expected, name
 
 
+def test_live_atlas_label_corrections_leave_frozen_artifacts_addressable():
+    workflow = (ROOT / ".github/workflows/emergency-vercel-deploy.yml").read_text(encoding="utf-8")
+    assert "mv .vercel-release/failure-atlas.js .vercel-release/failure-atlas-frozen.js" in workflow
+    assert "cp .vercel-release/failure-atlas-live.js .vercel-release/failure-atlas.js" in workflow
+    assert "cmp deploy/vercel/failure-atlas.js .vercel-release/failure-atlas-frozen.js" in workflow
+    assert "grep -q '/media/phase25/${condition}/${item.id}' .vercel-release/failure-atlas-frozen.js" in workflow
+    assert "grep -q '/media/phase25/${condition}/${item.id}' .vercel-release/failure-atlas.js" not in workflow
+    wrapper = (SITE / "failure-atlas-live.js").read_text(encoding="utf-8")
+    assert "/failure-atlas-frozen.js?v=8" in wrapper
+    assert "Local image · unverified · measured predictions unchanged" in wrapper
+    assert "fetch(" not in wrapper  # no new inference or modified result tables
+
+
 def test_reproduction_page_uses_current_gate_and_exact_source_fetch():
     text = (SITE / "reproduce.html").read_text(encoding="utf-8")
     assert "python scripts/validate_research_release.py" in text

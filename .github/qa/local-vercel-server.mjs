@@ -64,6 +64,12 @@ const server = http.createServer(async (req, res) => {
   if (/^\/model-vase\/?$/i.test(p)) {
     return sendFile(res, path.join(deployRoot, 'model-vase.html'));
   }
+  if (p === '/failure-atlas.js') {
+    return sendFile(res, path.join(deployRoot, 'failure-atlas-live.js'));
+  }
+  if (p === '/failure-atlas-frozen.js') {
+    return sendFile(res, path.join(deployRoot, 'failure-atlas.js'));
+  }
   if (/^\/failure-atlas\/?$/i.test(p)) {
     return sendFile(res, path.join(deployRoot, 'failure-atlas.html'));
   }

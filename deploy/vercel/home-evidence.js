@@ -120,6 +120,12 @@
   toggle.addEventListener('click', () => setMenu(toggle.getAttribute('aria-expanded') !== 'true'));
   close.addEventListener('click', () => setMenu(false));
   menu.querySelectorAll('a').forEach(link => link.addEventListener('click', () => setMenu(false)));
+  window.matchMedia('(min-width: 769px)').addEventListener('change', event => {
+    if (event.matches && toggle.getAttribute('aria-expanded') === 'true') {
+      setMenu(false);
+      document.querySelector('.site-header .brand').focus();
+    }
+  });
   document.addEventListener('keydown', event => {
     if (toggle.getAttribute('aria-expanded') !== 'true') return;
     if (event.key === 'Escape') { setMenu(false); return; }
@@ -129,16 +135,30 @@
       if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
     }
   });
+  // Preserve main's slow-play/manual-pause fix without loading the old homepage stack.
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
-  const videos = [...document.querySelectorAll('video[data-autoplay="visible"]')];
-  if ('IntersectionObserver' in window) {
-    const observer = new IntersectionObserver(entries => entries.forEach(entry => {
-      if (entry.isIntersecting && entry.intersectionRatio >= .4 && !reduced.matches) entry.target.play().catch(() => {});
-      else entry.target.pause();
-    }), { threshold: [0, .4] });
-    videos.forEach(video => observer.observe(video));
-  }
-  reduced.addEventListener('change', () => { if (reduced.matches) videos.forEach(video => video.pause()); });
+  document.querySelectorAll('video[data-autoplay="visible"]').forEach(video => {
+    const connection = navigator.connection;
+    let visible = false, manualPause = false, scriptPause = false, request = 0, pending = false;
+    const eligible = () => visible && !document.hidden && !reduced.matches && !connection?.saveData && !manualPause;
+    const pause = () => { if (!video.paused) { scriptPause = true; video.pause(); } };
+    const sync = () => {
+      if (!eligible()) { request += 1; pause(); return; }
+      if (!video.paused || pending) return;
+      const id = ++request;
+      pending = true;
+      video.play().then(() => { if (id !== request || !eligible()) pause(); }).catch(() => {}).finally(() => {
+        pending = false;
+        if (id !== request && eligible()) sync();
+      });
+    };
+    video.addEventListener('pause', () => { if (scriptPause) scriptPause = false; else manualPause = true; });
+    video.addEventListener('play', () => { manualPause = false; });
+    if ('IntersectionObserver' in window) new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; sync(); }, { threshold: .25 }).observe(video);
+    document.addEventListener('visibilitychange', sync);
+    reduced.addEventListener('change', sync);
+    connection?.addEventListener?.('change', sync);
+  });
   const lineage = window.AEGIS_FROZEN_LINEAGE;
   if (lineage) for (const phase of lineage.phases) {
     const link = document.createElement('a'); link.className = 'home-lineage__node'; link.dataset.verdict = phase.verdict;
