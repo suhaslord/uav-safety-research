@@ -119,15 +119,15 @@
     <section class="phase25-feature" id="phase25" aria-labelledby="phase25-title" data-phase25-explorer>
       <div class="wrap phase25-feature__heading">
         <div><p class="eyebrow">Current work / Phase 25</p><h2 id="phase25-title">Find the misses behind the average.</h2></div>
-        <p>Verified baseline boxes, frame by frame.</p>
+        <p>Both original models, frame by frame.</p>
       </div>
       <div class="wrap phase25-feature__body">
         <div class="phase25-feature__images" aria-label="Example camera stress, not Phase 25 outcomes">
           <figure><img src="/media/perception/kios_clean.jpg" alt="KIOS landing-pad image without added stress, shown as benchmark context" width="600" height="600" loading="lazy"><figcaption>Clean view</figcaption></figure>
           <figure><img src="/media/perception/kios_occlusion.jpg" alt="The same KIOS landing-pad image with generated occlusion and source annotation, shown as benchmark context" width="600" height="600" loading="lazy" data-atlas-image><figcaption data-atlas-caption>Occlusion</figcaption></figure>
         </div>
-        <div class="phase25-feature__copy"><span class="phase25-feature__state">Baseline measured · Phase 23 paired</span><p>Phase 23 frame-level evidence recovered and reproduced. 5,160-view controlled occlusion topology study completed (OUTER_RING vs STRIPED: +5.24 pp, p=0.002). Center-sensitivity remains inconclusive.</p><div class="atlas-condition-controls" data-atlas-controls aria-label="Compare generated camera conditions"></div><strong class="phase25-feature__delta" data-atlas-delta></strong><a class="phase25-feature__link" href="/phases/phase25/">Phase 25 topology study & Atlas →</a><small>86 protected KIOS frames · 2 sessions · Phase 26 external admission unresolved (0/7 qualified) · no flight safety claims.</small><small hidden data-atlas-error>The condition comparison is unavailable; the research page remains accessible.</small></div>
-        <div class="phase25-feature__proof"><span><b>86</b> protected frames</span><span><b>516</b> verified views</span><span><b>5,160</b> topology views</span><span><b>+5.24 pp</b> outer vs striped (p=0.002)</span><a href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase25_reconstruction_audit.json" target="_blank" rel="noreferrer">Input audit ↗</a><a href="https://github.com/suhaslord/uav-safety-research/blob/main/results/phase25_occlusion_topology/study_report.md" target="_blank" rel="noreferrer">Topology report ↗</a><a href="https://github.com/suhaslord/uav-safety-research/blob/main/results/phase26_independent_generalization/study_report.md" target="_blank" rel="noreferrer">Phase 26 audit ↗</a></div>
+        <div class="phase25-feature__copy"><span class="phase25-feature__state">Baseline measured · Phase 23 paired</span><p>The original checkpoint replay matched all 24 published metric cells exactly and all four prediction tables byte-for-byte. Compare both detectors on 516 views, or inspect the separate 860 clean-versus-stressed pairs.</p><div class="atlas-condition-controls" data-atlas-controls aria-label="Compare generated camera conditions"></div><strong class="phase25-feature__delta" data-atlas-delta></strong><a class="phase25-feature__link" href="/phases/phase25/">Read the verified paired study →</a><small>86 reused KIOS frames · 2 dependent sequences · Phase 26 has no admitted independent dataset · no flight-safety claim.</small><small hidden data-atlas-error>The condition comparison is unavailable; the research page remains accessible.</small></div>
+        <div class="phase25-feature__proof"><span><b>86</b> protected frames</span><span><b>516</b> verified views</span><span><b>24 / 24</b> metric cells matched</span><span><b>860</b> within-model stress pairs</span><a href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase25_reconstruction_audit.json" target="_blank" rel="noreferrer">Input audit ↗</a><a href="/reproduce/#revalidation">Revalidation record →</a><a href="https://github.com/suhaslord/uav-safety-research/blob/main/results/phase26_independent_generalization/study_report.md" target="_blank" rel="noreferrer">Phase 26 audit ↗</a></div>
       </div>
     </section>
 
@@ -148,7 +148,7 @@
 
     <section class="home-method" id="evidence" aria-labelledby="method-title">
       <div class="wrap home-method__head"><p class="eyebrow">How we work</p><h2 id="method-title">Freeze. Separate. Preserve.</h2><a href="/reproduce/">Reproduce the work →</a></div>
-      <div class="wrap"><p>Separate Phase 22 detector follow-ups: the original raw sweep remains INCONCLUSIVE after its failed clean gate; the representation study PASSed with historical Q95. The versioned Q95 occlusion v2 study has its own result and limitations.</p><a class="text-link" href="/phase22-detector-study/">Read representation and occlusion evidence →</a></div>
+      <div class="wrap"><p>Separate detector follow-ups: the original raw sweep remains INCONCLUSIVE after its failed clean gate. Saved Q95 occlusion v2 detections were replay-verified: 53 to 48 matched frames across the sampled doses, with no established universal failure threshold.</p><a class="text-link" href="/phase22-detector-study/">Read representation and occlusion evidence →</a></div>
       <div class="wrap home-method__steps">
         <div><span>01</span><strong>Freeze the rule.</strong></div><div><span>02</span><strong>Keep test data separate.</strong></div><div><span>03</span><strong>Keep every result.</strong></div>
       </div>
@@ -160,7 +160,7 @@
     </section>
   </main>
 
-  <footer class="footer home-footer"><p>AegisLand · Model VASE</p><div class="footer-links"><a href="/model-vase/">Model VASE</a><a href="/failure-atlas/">Failure Atlas</a><a href="/phases/">Phase archive</a><a href="/reproduce/">Reproduce</a><a href="/phases/phase22/">Phase 22</a><a href="/phases/phase23/">Phase 23</a><a href="/phases/phase24/">Phase 24</a><a href="/phases/phase25/">Phase 25</a><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub ↗</a></div><details class="home-supporters" id="supporters"><summary>Workspace support</summary><p>CHERRY Americas donated a keyboard; Contour Design contributed workspace equipment. Both shipments were confirmed in September 2026. These contributions do not affect research methods or verdicts.</p></details></footer>
+  <footer class="footer home-footer"><p>AegisLand · Model VASE · 1.0.0rc1 research candidate</p><div class="footer-links"><a href="/model-vase/">Model VASE</a><a href="/failure-atlas/">Failure Atlas</a><a href="/phases/">Phase archive</a><a href="/reproduce/">Reproduce</a><a href="/phases/phase22/">Phase 22</a><a href="/phases/phase23/">Phase 23</a><a href="/phases/phase24/">Phase 24</a><a href="/phases/phase25/">Phase 25</a><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub ↗</a></div><details class="home-supporters" id="supporters"><summary>Workspace support</summary><p>CHERRY Americas donated a keyboard; Contour Design contributed workspace equipment. Both shipments were confirmed in September 2026. These contributions do not affect research methods or verdicts.</p></details></footer>
 
   <script src="/frozen-lineage.js?v=3"></script>
   <script>
@@ -207,8 +207,8 @@
     })();
   </script>
   <script src="/research-workspace.js?v=6"></script>
-  <script src="/presentation.js?v=10" defer></script>
-  <script src="/phase-taxonomy.js?v=6"></script>
+  <script src="/presentation.js?v=11" defer></script>
+  <script src="/phase-taxonomy.js?v=7"></script>
   <script src="/phase-explorer.js?v=6" defer></script>
 </body>
 </html>

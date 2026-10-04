@@ -73,10 +73,10 @@ def verify(check_site: bool = True) -> dict[str, object]:
     return {
         "status": "committed_phase25a_verified" if passed else "committed_artifact_mismatch",
         "scope": "Read-only replay of committed Phase 25A table/method hashes and generated site snapshots",
-        "phase23": "PENDING_exact_original_checkpoint",
+        "phase23": "NOT_ASSESSED_BY_THIS_BASELINE_ONLY_COMMAND",
         "phase26": "PENDING_independent_test_admission",
         "inputs_replayed": False,
-        "note": "This verifies committed results; exact inference needs the external KIOS archive, stress images and Phase 22 checkpoint. It is not a full clean-room reproduction or v1.0 release gate.",
+        "note": "This verifies Phase 25A only, not current Phase 23 recovery status. Use scripts/validate_research_release.py for the current detector/controlled-occlusion/admission artifact family. Exact inference still needs the external inputs; neither check by itself reruns inference or establishes independent validation.",
         "manifest_sha256": manifest_hash,
         "checks": checks, "site_checks": site_checks,
     }

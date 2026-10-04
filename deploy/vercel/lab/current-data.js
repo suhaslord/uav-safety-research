@@ -23,50 +23,50 @@
     conditions: {
       clean: {
         label: 'Clean',
-        desc: 'Untouched protected real-image test split at approach altitude.',
+        desc: 'Published clean condition on the protected real-image split; not a live camera stream.',
         synthetic_src: '/media/perception/synthetic_clean.png',
         kios_src: '/media/perception/kios_clean.jpg',
-        synthetic_note: '96×96 grayscale sensor · Centroid estimate: X +0.45m, Alt 2.5m (conf: 0.84)',
-        kios_note: '1280×720 HD UAV camera · Ground truth (green) & Phase 23 detection (blue)',
+        synthetic_note: 'Generated 96×96 grayscale camera example; not current vehicle telemetry.',
+        kios_note: 'Published KIOS example with a blue source-annotation box, not detector predictions.',
         baseline: { precision: 0.796, recall: 0.3837209302325581, map50: 0.4266268678118929, map5095: 0.272 },
         phase23:  { precision: 0.717, recall: 0.5930232558139535, map50: 0.5551842475528265, map5095: 0.223 }
       },
       blur: {
         label: 'Blur',
-        desc: 'High-frequency vibration and angular motion blur from UAV descent.',
+        desc: 'Generated blur on the same protected images, not measured flight vibration.',
         synthetic_src: '/media/perception/synthetic_blur.png',
         kios_src: '/media/perception/kios_blur.jpg',
-        synthetic_note: '96×96 Gaussian blur kernel · Centroid estimate tracked (conf: 0.81)',
+        synthetic_note: 'Generated 96×96 blurred camera example; no live inference.',
         kios_note: 'Deterministic UAV motion blur · Phase 23 mAP50 reaches 0.586 (+17.3 pp)',
         baseline: { precision: 0.844, recall: 0.3776091257554052, map50: 0.4125908158023844, map5095: 0.271 },
         phase23:  { precision: 0.777, recall: 0.5697674418604651, map50: 0.5856935328390723, map5095: 0.261 }
       },
       low_light: {
         label: 'Low light',
-        desc: 'Severe underexposure, dusk lighting, and shadowed asphalt contrast.',
+        desc: 'Generated low-light condition; no new dusk or shadow capture session.',
         synthetic_src: '/media/perception/synthetic_low_light.png',
         kios_src: '/media/perception/kios_low_light.jpg',
-        synthetic_note: '96×96 attenuated intensity · Threshold estimator margin drops (conf: 0.64)',
+        synthetic_note: 'Generated 96×96 attenuated-intensity example; not a reliability measurement.',
         kios_note: 'Gamma & contrast reduction · Recall maintained at 44.2% (vs 37.2% baseline)',
         baseline: { precision: 0.787, recall: 0.3720930232558139, map50: 0.4168491381871624, map5095: 0.269 },
         phase23:  { precision: 0.635, recall: 0.4418604651162791, map50: 0.4237094746641194, map5095: 0.185 }
       },
       noise: {
         label: 'Noise',
-        desc: 'Sensor ISO noise and downlink quantization artifacts.',
+        desc: 'Generated additive pixel noise, not an observed sensor or downlink fault.',
         synthetic_src: '/media/perception/synthetic_noise.png',
         kios_src: '/media/perception/kios_noise.jpg',
-        synthetic_note: '96×96 additive Gaussian sensor noise · Centroid tracked (conf: 0.79)',
+        synthetic_note: 'Generated 96×96 noisy camera example; no live estimator score.',
         kios_note: 'Severe additive pixel noise · Phase 23 mAP50 reaches 0.596 (vs 0.433 baseline)',
         baseline: { precision: 0.895, recall: 0.397618181914848, map50: 0.4325832723899842, map5095: 0.262 },
         phase23:  { precision: 0.867, recall: 0.5465116279069767, map50: 0.5962109670974421, map5095: 0.236 }
       },
       occlusion: {
         label: 'Occlusion',
-        desc: '55% synthetic central mask obstructing landing pad concentric markers.',
+        desc: 'Synthetic central mask on the annotation box; not measured physical pad-surface visibility.',
         synthetic_src: '/media/perception/synthetic_occlusion.png',
         kios_src: '/media/perception/kios_occlusion.jpg',
-        synthetic_note: '96×96 partial occlusion · Centroid shifts to visible quadrant (conf: 0.85)',
+        synthetic_note: 'Generated 96×96 partial-occlusion example; separate from the KIOS detector.',
         kios_note: 'Central occlusion mask · Both detector scores fall; controller response was not measured.',
         baseline: { precision: 0.622, recall: 0.3255813953488372, map50: 0.3479644426407756, map5095: 0.166 },
         phase23:  { precision: 0.301, recall: 0.2441860465116279, map50: 0.13755217164117528, map5095: 0.025 }
@@ -76,7 +76,7 @@
         desc: 'Combined compound stress: blur + noise + low-light + partial occlusion.',
         synthetic_src: '/media/perception/synthetic_mixed.png',
         kios_src: '/media/perception/kios_mixed.jpg',
-        synthetic_note: '96×96 compound degradation · Near failure boundary (conf: 0.54)',
+        synthetic_note: 'Generated 96×96 compound-stress example; no established deployment threshold.',
         kios_note: 'Compound environmental stress · Both detector recall and mAP50 regressed',
         baseline: { precision: 0.597, recall: 0.1860465116279069, map50: 0.1848519064761554, map5095: 0.081 },
         phase23:  { precision: 0.487, recall: 0.08139534883720931, map50: 0.12942432214764854, map5095: 0.030 }
@@ -187,8 +187,8 @@
       <div class="lab-shell current-data-shell">
         <div class="lab-heading">
           <div>
-            <h2 id="lab-title">Live perception: Synthetic sensor vs. Real KIOS camera.</h2>
-            <p>Compare the actual downward images the drone receives in simulation (Phases 1–22) against physical camera footage from the KIOS aerial landing benchmark and the Phase 23 robust detector.</p>
+            <h2 id="lab-title">Published camera conditions. Separate simulation context.</h2>
+            <p>Browse a generated simulation example beside a published KIOS condition example. These are static source images, not a live feed or fresh detector inference. The metrics summarize the same 86 protected frames.</p>
             <div class="current-data-meta">
               <span class="current-data-pill"><strong>422</strong> labeled real frames</span>
               <span class="current-data-pill"><strong>86</strong> protected test frames</span>
@@ -203,26 +203,26 @@
         <div class="perception-inspector" aria-label="Drone visual perception comparison">
           <article class="perception-card">
             <div class="perception-card__header">
-              <span class="perception-card__title">Synthetic simulator feed (Phases 1–22)</span>
+              <span class="perception-card__title">Synthetic camera example · context</span>
               <span class="perception-card__badge">96×96 Grayscale</span>
             </div>
             <div class="perception-card__frame perception-card__frame--square">
-              <img id="synthetic-feed-img" src="/media/perception/synthetic_clean.png" alt="Synthetic simulator downward camera feed with centroid estimator crosshair" width="384" height="384" loading="lazy">
+              <img id="synthetic-feed-img" src="/media/perception/synthetic_clean.png" alt="Generated synthetic camera example with an estimator crosshair" width="384" height="384" loading="lazy">
             </div>
-            <p class="perception-card__caption" id="synthetic-feed-caption">96×96 synthetic sensor abstraction with threshold centroid crosshair (+0.45m lateral offset, 2.5m altitude).</p>
+            <p class="perception-card__caption" id="synthetic-feed-caption">Generated 96×96 camera context, separate from the real-image detector benchmark.</p>
             <span class="perception-card__meta" id="synthetic-feed-meta">Sensor: SyntheticLandingPadRenderer · Estimator: ThresholdPadEstimator</span>
           </article>
 
           <article class="perception-card">
             <div class="perception-card__header">
-              <span class="perception-card__title">Real UAV downward camera (KIOS benchmark)</span>
-              <span class="perception-card__badge perception-card__badge--robust">1280×720 HD RGB</span>
+              <span class="perception-card__title">Published KIOS camera example</span>
+              <span class="perception-card__badge perception-card__badge--robust">Source annotation</span>
             </div>
             <div class="perception-card__frame">
-              <img id="kios-feed-img" src="/media/perception/kios_clean.jpg" alt="Real drone downward camera frame from KIOS benchmark with landing pad bounding boxes" width="1280" height="720" loading="lazy">
+              <img id="kios-feed-img" src="/media/perception/kios_clean.jpg" alt="Published KIOS condition example with its landing-pad source annotation" width="640" height="585" loading="lazy">
             </div>
-            <p class="perception-card__caption" id="kios-feed-caption">Real drone descent over asphalt terrain. Ground truth pad in green; Phase 23 robust YOLO11n detection in blue.</p>
-            <span class="perception-card__meta" id="kios-feed-meta">Source: Zenodo 13682584 · Model: Phase 23 Robust (480px + UAV Augmentations)</span>
+            <p class="perception-card__caption" id="kios-feed-caption">Published KIOS source example. The blue box is an annotation, not a detector-output overlay.</p>
+            <span class="perception-card__meta" id="kios-feed-meta">Source: Zenodo 13682584 · model selection changes published aggregate metrics only</span>
           </article>
         </div>
 
@@ -259,7 +259,7 @@
 
           <div class="current-data-results" aria-live="polite">
             <h3 id="current-data-title">Clean protected test</h3>
-            <p class="current-data-note" id="current-data-model-detail">Evaluating Phase 23 Robust YOLO11n (480px with UAV augmentations).</p>
+            <p class="current-data-note" id="current-data-model-detail">Displaying published Phase 23 condition aggregates; no inference runs in this panel.</p>
             <div class="current-data-metrics">
               <div class="current-data-metric"><span>Precision</span><strong id="metric-precision"></strong></div>
               <div class="current-data-metric"><span>Recall</span><strong id="metric-recall"></strong></div>
@@ -324,7 +324,7 @@
 
       // Update Metrics
       lab.querySelector('#current-data-title').textContent = `${condition.label} protected test`;
-      lab.querySelector('#current-data-model-detail').textContent = `Evaluating ${modelMeta.name} — ${modelMeta.detail}.`;
+      lab.querySelector('#current-data-model-detail').textContent = `Published ${modelMeta.name} aggregates — ${modelMeta.detail}. No live inference.`;
       lab.querySelector('#metric-precision').textContent = pct(metrics.precision);
       lab.querySelector('#metric-recall').textContent = pct(metrics.recall);
       lab.querySelector('#metric-map50').textContent = pct(metrics.map50);
@@ -359,7 +359,7 @@
     if (intro) intro.textContent = 'The active experiment uses the KIOS real-video landing-pad benchmark. Historical phase records remain frozen so past simulation evidence is not silently rewritten.';
     document.querySelectorAll('.aegis-guide .guide-more p').forEach(p => {
       if (/browser experiments create new examples/i.test(p.textContent)) {
-        p.textContent = 'The published phase record stays fixed. The live panel below shows the current protected real-data benchmark and drone perception feeds instead of replacing the old evidence.';
+        p.textContent = 'The published phase record stays fixed. The panel below displays protected condition aggregates and static camera examples, not live drone feeds or a new evaluation.';
       }
     });
   }

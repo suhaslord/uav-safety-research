@@ -4,7 +4,7 @@
   // Bind the route immediately, before the legacy renderer's DOMContentLoaded handler.
   // This makes Phase 10R render as its own native record instead of falling through
   // the older phase1–phase10 route matcher and visually masquerading as Phase 10.
-  const routeMatch = location.pathname.match(/\/phases\/(phase(?:1|2|3|4|5|6|6b|7|8|9|10r?|11|12|13a|13b|13c|14|15|16|17|18|19|20|21|22|23|24))\/?$/i);
+  const routeMatch = location.pathname.match(/\/phases\/(phase(?:1|2|3|4|5|6|6b|7|8|9|10r?|11|12|13a|13b|13c|14|15|16|17|18|19|20|21|22|23|24|25))\/?$/i);
   if (routeMatch) document.body.dataset.phase = routeMatch[1].toLowerCase();
 
   // Every archive/detail template already loads this taxonomy before its phase runtime.
@@ -36,7 +36,7 @@
   }
   if (!document.body.classList.contains('home-workspace') && !document.querySelector('script[data-aegis-current-data]')) {
     const current = document.createElement('script');
-    current.src = '/lab/current-data.js?v=2'; current.dataset.aegisCurrentData = '';
+    current.src = '/lab/current-data.js?v=3'; current.dataset.aegisCurrentData = '';
     document.head.appendChild(current);
   }
 
@@ -99,8 +99,8 @@
       id: 'real-camera-robustness',
       label: '07 · Real-camera robustness',
       name: 'Real-camera robustness',
-      range: 'Phase 23 → Phase 24',
-      description: 'A protected KIOS detector comparison, followed by a descriptive audit of its published condition aggregates. Average gains and severe-stress regressions stay visible together.',
+      range: 'Phase 23 → Phase 25',
+      description: 'Original detector comparison, aggregate audit and verified paired replay. These reused KIOS views remain separate from prospective independent-data admission.',
       accent: '#e82127',
       tint: '#eef3ff'
     }
@@ -139,7 +139,8 @@
     phase21: { category: 'context-transfer', identity: 'Main effects vs. interactions', question: 'How much of the context surface comes from individual factors, and how much from interactions?', signal: 'Walsh–Hadamard' },
     phase22: { category: 'context-transfer', identity: 'Frozen additive transfer', question: 'Can the model predict a new context cube without being fit again?', signal: '10 / 10 gates' },
     phase23: { category: 'real-camera-robustness', identity: 'Robust KIOS detector', question: 'Does a higher-resolution, augmented detector improve protected camera results across stress conditions?', signal: 'Clean recall gain · severe-stress loss' },
-    phase24: { category: 'real-camera-robustness', identity: 'Robustness frontier audit', question: 'Does the Phase 23 average gain hold up under the hardest camera stress?', signal: '4 / 6 mAP50 gains · tail loss preserved' }
+    phase24: { category: 'real-camera-robustness', identity: 'Robustness frontier audit', question: 'Does the Phase 23 average gain hold up under the hardest camera stress?', signal: '4 / 6 mAP50 gains · tail loss preserved' },
+    phase25: { category: 'real-camera-robustness', identity: 'Verified paired detector audit', question: 'Which views does each original model recover or lose, and how does each change from its own clean view?', signal: '24 / 24 cells matched · 860 within-model pairs' }
   };
 
   const categoryById = Object.fromEntries(categories.map(category => [category.id, category]));

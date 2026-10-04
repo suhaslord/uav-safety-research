@@ -2,8 +2,8 @@
   'use strict';
   const $ = id => document.getElementById(id);
   const names = {clean:'Clean', blur:'Blur', low_light:'Low light', noise:'Noise', occlusion:'Occlusion', mixed:'Mixed'};
-  const els = Object.fromEntries(['frame-title','frame-sequence','frame-range','prev-frame','next-frame','view-mode','conditions','show-gt','show-baseline','local-files','local-folder','image-note','comparison','baseline-verdict','baseline-scene','frame-image','scene-placeholder','box-layer','scene-index','baseline-metrics','phase23-scene','phase23-frame-image','phase23-image-placeholder','phase23-image-badge','phase23-aggregate-condition','phase23-map50','phase23-recall','case-label','case-features','filter-condition','filter-outcome','filter-confidence','small-target','match-count','matrix','scatter','point-detail','show-wrong','scatter-count','evidence-dialog','close-evidence'].map(id=>[id,$(id)]));
-  let data, byKey, index=0, condition='clean', smallLimit=0, wrongOnly=false, plotPoints=[], localImages=new Map(), imageRequest=0;
+  const els = Object.fromEntries(['frame-title','frame-sequence','frame-range','prev-frame','next-frame','view-mode','conditions','show-gt','show-baseline','local-files','local-folder','image-note','comparison','baseline-verdict','baseline-scene','frame-image','scene-placeholder','box-layer','scene-index','baseline-metrics','show-phase23','phase23-verdict','phase23-metrics','phase23-box-layer','phase23-scene','phase23-frame-image','phase23-image-placeholder','phase23-image-badge','phase23-aggregate-condition','phase23-map50','phase23-recall','case-label','case-features','filter-condition','filter-outcome','filter-confidence','small-target','match-count','matrix','scatter','point-detail','show-wrong','scatter-count','evidence-dialog','close-evidence'].map(id=>[id,$(id)]));
+  let data, byKey, phase23ByKey, index=0, condition='clean', smallLimit=0, wrongOnly=false, plotPoints=[], localImages=new Map(), imageRequest=0;
   const key=(id,c)=>`${id}|${c}`;
   const value=(x,d=2)=>Number(x).toFixed(d);
   const caseNow=()=>byKey.get(key(data.frame_ids[index],condition));
@@ -26,10 +26,11 @@
     const scene=els['phase23-scene'],placeholder=els['phase23-image-placeholder'],badge=els['phase23-image-badge'];
     scene.classList.toggle('has-image',Boolean(source));
     placeholder.hidden=Boolean(source);
-    badge.textContent=source?'Same source frame · aggregate view':'Source image unavailable · aggregate view';
+    badge.textContent=source?'Same reconstructed input · measured predictions':'Source image unavailable · measured table retained';
     placeholder.textContent=`Loading verified ${names[condition].toLowerCase()} source image for ${item.id}…`;
     let frameImage=els['phase23-frame-image'];
     frameImage.hidden=!source;
+    els['phase23-box-layer'].hidden=!source;
     if(!source){frameImage.removeAttribute('src');frameImage.alt='';return;}
     if(frameImage.getAttribute('src')!==source){
       const replacement=frameImage.cloneNode(false);replacement.removeAttribute('src');
@@ -38,15 +39,30 @@
     frameImage.alt=`${names[condition]} source image for ${item.id}; Phase 23 measured outcomes are available in the linked paired frame tables`;
     frameImage.onerror=()=>{
       if(frameImage.getAttribute('src')!==source)return;
-      frameImage.hidden=true;scene.classList.remove('has-image');placeholder.hidden=false;
+      frameImage.hidden=true;els['phase23-box-layer'].hidden=true;scene.classList.remove('has-image');placeholder.hidden=false;
       placeholder.textContent='This source image could not be decoded. Reload the page to retry; paired frame outcomes remain available in the linked tables.';
-      badge.textContent='Image unavailable · aggregate view';
+      badge.textContent='Image unavailable · measured table retained';
     };
     if(frameImage.getAttribute('src')!==source)frameImage.src=source;
     else if(frameImage.complete&&frameImage.naturalWidth===0)frameImage.onerror();
   }
   function drawCase(){
     const item=caseNow();if(!item)return;
+    const robust=phase23ByKey.get(key(item.id,condition));
+    els['phase23-verdict'].textContent=robust.pass?'TARGET MATCHED':'TARGET MISSED';
+    els['phase23-verdict'].classList.toggle('failed',!robust.pass);
+    els['phase23-metrics'].replaceChildren();
+    for(const [label,number] of [['TP',robust.tp],['FP',robust.fp],['FN',robust.fn],['BEST IoU',value(robust.iou)],['TOP SCORE',value(robust.score)]]){
+      const span=document.createElement('span');span.textContent=label;const b=document.createElement('b');b.textContent=number;span.append(b);els['phase23-metrics'].append(span);
+    }
+    els['phase23-box-layer'].replaceChildren();
+    if(els['show-gt'].checked)for(const box of robust.gt)addBox(box,'gt','GT',true,'phase23-box-layer');
+    if(els['show-phase23'].checked){
+      const visible=[...robust.boxes.slice(0,12)];
+      for(const box of robust.boxes)if(box[6]&&!visible.includes(box))visible.push(box);
+      for(const box of visible)addBox(box,box[6]?'tp':'fp',`${box[6]?'TP':'FP'} ${value(box[4])}`,Boolean(box[6]),'phase23-box-layer');
+    }
+    els['phase23-scene'].title=`${robust.count} Phase 23 predictions scored at 0.001 or above; display is a subset, all predictions determine the metrics.`;
     els['frame-title'].textContent=`FRAME ${String(index+1).padStart(3,'0')} / 086`;
     els['frame-sequence'].textContent=`${item.id.replace('.jpg','')} · ${names[condition].toUpperCase()}`;
     els['frame-range'].value=index;
@@ -104,11 +120,11 @@
     els['matrix'].querySelectorAll('button.selected').forEach(button=>button.classList.remove('selected'));
     els['matrix'].querySelector(`[data-frame="${index}"][data-condition="${condition}"]`)?.classList.add('selected');
   }
-  function addBox(box,type,label,showLabel=true){
+  function addBox(box,type,label,showLabel=true,layer='box-layer'){
     const node=document.createElement('span');node.className=`overlay-box ${type}`;
     Object.assign(node.style,positions(box));node.title=`${label}${type!=='gt'?` · IoU ${value(box[5])}`:''}`;
     if(type!=='gt'&&showLabel){const tag=document.createElement('em');tag.textContent=label;node.append(tag);}
-    els['box-layer'].append(node);
+    els[layer].append(node);
   }
   function matches(item){
     const c=els['filter-condition'].value,o=els['filter-outcome'].value,f=Number(els['filter-confidence'].value);
@@ -177,17 +193,19 @@
       :`No matching images loaded. Use original frame filenames${folderMode?' inside condition-named folders':''}. ${skipped?`${skipped} file${skipped===1?' was':'s were'} skipped. `:''}Files are not sent anywhere.`;
   }
   function init(payload){
-    if(payload.status!=='baseline_only'||payload.phase23!==null||payload.frame_ids.length!==86||payload.cases.length!==516
+    if(payload.status!=='paired_verified'||payload.phase23?.status!=='original_checkpoint_replay_verified'||payload.phase23.cases.length!==516||payload.frame_ids.length!==86||payload.cases.length!==516
       ||!payload.phase23_condition_aggregates||Object.keys(payload.phase23_condition_aggregates).length!==6
       ||payload.conditions.some(c=>!payload.phase23_condition_aggregates[c]||!Number.isFinite(payload.phase23_condition_aggregates[c].map50)||!Number.isFinite(payload.phase23_condition_aggregates[c].recall)))throw Error('Atlas data contract failed');
     data=payload;byKey=new Map(data.cases.map(item=>[key(item.id,item.condition),item]));
+    phase23ByKey=new Map(data.phase23.cases.map(item=>[key(item.id,item.condition),item]));
+    if(phase23ByKey.size!==516||[...byKey.keys()].some(k=>!phase23ByKey.has(k)))throw Error('Phase 23 case identity mismatch');
     index=0;
     const sizes=data.frame_ids.map(id=>byKey.get(key(id,'clean')).size).sort((a,b)=>a-b);smallLimit=sizes[Math.ceil(sizes.length*.25)-1];
     for(const c of data.conditions){const button=document.createElement('button');button.type='button';button.dataset.condition=c;button.textContent=names[c];button.addEventListener('click',()=>{condition=c;drawCase()});els['conditions'].append(button);const option=document.createElement('option');option.value=c;option.textContent=names[c];els['filter-condition'].append(option);}
     els['frame-range'].addEventListener('input',event=>{index=Number(event.target.value);drawCase()});
     els['prev-frame'].addEventListener('click',()=>{index=(index+85)%86;drawCase()});els['next-frame'].addEventListener('click',()=>{index=(index+1)%86;drawCase()});
     els['view-mode'].addEventListener('click',()=>{const side=els['comparison'].classList.toggle('stacked');els['view-mode'].setAttribute('aria-pressed',String(!side));els['view-mode'].textContent=side?'Stacked view':'Side by side';});
-    for(const id of ['show-gt','show-baseline'])els[id].addEventListener('change',drawCase);
+    for(const id of ['show-gt','show-baseline','show-phase23'])els[id].addEventListener('change',drawCase);
     for(const id of ['filter-condition','filter-outcome','filter-confidence','small-target'])els[id].addEventListener('change',drawMatrix);
     els['show-wrong'].addEventListener('click',()=>{wrongOnly=!wrongOnly;els['show-wrong'].setAttribute('aria-pressed',String(wrongOnly));drawScatter();});
     els['local-files'].addEventListener('change',event=>{acceptImages(event.target.files,false);event.target.value='';});
@@ -203,5 +221,5 @@
     document.querySelectorAll('[data-open-evidence]').forEach(button=>button.addEventListener('click',()=>els['evidence-dialog'].showModal()));els['close-evidence'].addEventListener('click',()=>els['evidence-dialog'].close());
     drawMatrix();
   }
-  fetch('/failure-atlas-data.json?v=2').then(response=>{if(!response.ok)throw Error(`HTTP ${response.status}`);return response.json()}).then(init).catch(error=>{els['image-note'].textContent=`Frame data could not load. Read the Phase 25 method or try again. (${error.message})`;});
+  fetch('/failure-atlas-data.json?v=3').then(response=>{if(!response.ok)throw Error(`HTTP ${response.status}`);return response.json()}).then(init).catch(error=>{els['image-note'].textContent=`Frame data could not load. Read the Phase 25 method or try again. (${error.message})`;});
 })();

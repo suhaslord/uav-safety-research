@@ -274,10 +274,10 @@ try {
     await page.setViewportSize({ width: 1440, height: 1000 });
     add('archive-has-seven-research-categories', categories === 7 && categoryNav === 7, { categories, categoryNav });
     add('archive-first-category-label-fits-on-phone', firstCategoryFits);
-    add('archive-has-all-28-phase-records', allCards === 28, { allCards });
-    add('archive-preserves-13-frozen-and-15-other-records', frozenCards === 13 && historicalCards === 15, { frozenCards, historicalCards });
+    add('archive-has-all-29-phase-records', allCards === 29, { allCards });
+    add('archive-preserves-13-frozen-and-16-other-records', frozenCards === 13 && historicalCards === 16, { frozenCards, historicalCards });
     add('archive-preserves-6-pass-7-fail', frozenPass === 6 && frozenFail === 7, { frozenPass, frozenFail });
-    add('archive-personalizes-every-card', identities === 28 && questions === 28 && signals === 28, { identities, questions, signals });
+    add('archive-personalizes-every-card', identities === 29 && questions === 29 && signals === 29, { identities, questions, signals });
     add('archive-uses-polished-tesla-shell', archivePolish === 1 && archivePersonalization === 1 && archiveSignature === 0, { archivePolish, archivePersonalization, archiveSignature });
     add('archive-has-category-led-thesis', /Every phase stays part of the story/i.test(archiveText) && /7 research categories/i.test(archiveText));
     const phase23Card = await page.locator('.archive-card[href="/phases/phase23/"]').count();
@@ -297,7 +297,7 @@ try {
       noHorizontalOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth <= 1
     }));
     add('phase23-six-condition-images-load-at-source-ratio', phase23.gallery.length === 6 && phase23.gallery.every(image => image.loaded && image.width === 640 && image.height === 585), phase23.gallery);
-    add('phase23-shows-committed-results-and-checkpoint-gate', phase23.rows === 6 && phase23.source.includes('phase23_robust_detector/summary.md') && phase23.hasBoundary && /exact Phase 23/.test(phase23.recovery) && phase23.noHorizontalOverflow, phase23);
+    add('phase23-shows-committed-results-and-checkpoint-gate', phase23.rows === 6 && phase23.source.includes('phase23_robust_detector/summary.md') && phase23.hasBoundary && /Original Phase 23 replay verified/i.test(phase23.recovery) && /24 \/ 24 metric cells matched/.test(phase23.recovery) && phase23.noHorizontalOverflow, phase23);
     await page.goto(BASE + '/phases/phase24/', { waitUntil: 'domcontentloaded', timeout: 45000 });
     await page.waitForFunction(() => {
       const charts = [...document.querySelectorAll('[data-phase24-chart]')];
@@ -329,9 +329,10 @@ try {
       text: document.querySelector('main')?.innerText || '',
       noHorizontalOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth <= 1
     }));
-    add('phase25-shows-method-and-honest-pending-status',
-      /Find the misses/i.test(phase25.title) && /exact Phase 23 model and original inference versions/i.test(phase25.status)
+    add('phase25-shows-verified-method-and-retrospective-boundary',
+      /Find the misses/i.test(phase25.title) && /24 \/ 24 published metric cells matched exactly/i.test(phase25.status)
       && phase25.images === 2 && /retrospective audit/i.test(phase25.text)
+      && /860 within-model pairs/i.test(phase25.text) && /not independent validation/i.test(phase25.text)
       && /86/.test(phase25.inputAudit) && /516/.test(phase25.inputAudit)
       && phase25.noHorizontalOverflow, phase25);
     add('phase25-stress-lens-uses-published-aggregates',
@@ -349,7 +350,9 @@ try {
       conditions: document.querySelectorAll('#conditions button').length,
       matrix: document.querySelectorAll('#matrix button').length,
       score: document.querySelector('#baseline-metrics')?.textContent || '',
-      pending: document.querySelector('.pending-panel')?.textContent || '',
+      phase23Score: document.querySelector('#phase23-metrics')?.textContent || '',
+      aggregateNote: document.querySelector('.aggregate-footnote')?.textContent || '',
+      phase23Verdict: document.querySelector('#phase23-verdict')?.textContent || '',
       phase23Map50: document.querySelector('#phase23-map50')?.textContent || '',
       phase23Recall: document.querySelector('#phase23-recall')?.textContent || '',
       folderInput: document.querySelector('#local-folder')?.hasAttribute('webkitdirectory') || false,
@@ -369,14 +372,16 @@ try {
       visibleLabels: document.querySelectorAll('#box-layer .overlay-box em').length,
       caseSummary: document.querySelector('#case-features')?.textContent || ''
     }));
-    add('atlas-live-baseline-and-published-phase23-aggregates', /See where the model fails/i.test(atlas.title)
+    add('atlas-measured-models-and-distinct-published-aggregates', /See where the model fails/i.test(atlas.title)
       && atlas.conditions === 6 && atlas.matrix === 516 && /BEST IoU/.test(atlas.score)
-      && /Paired frame tables verified/i.test(atlas.pending) && /published condition aggregates/i.test(atlas.pending) && /verified paired frame outcomes/i.test(atlas.pending) && atlas.phase23Map50 === '55.5%' && atlas.phase23Recall === '59.3%'
+      && /BEST IoU/.test(atlas.phase23Score) && /TARGET (MATCHED|MISSED)/i.test(atlas.phase23Verdict)
+      && /aggregates are distinct from the selected frame metrics/i.test(atlas.aggregateNote)
+      && atlas.phase23Map50 === '55.5%' && atlas.phase23Recall === '59.3%'
       && atlas.folderInput && atlas.overflow <= 1
       && atlas.heroImage === '/media/perception/kios_clean.jpg' && atlas.sourceImageLoaded
-      && atlas.phase23ImageLoaded && atlas.phase23ImageSameSource && /Same source frame/.test(atlas.phase23ImageBadge), atlas);
+      && atlas.phase23ImageLoaded && atlas.phase23ImageSameSource && /Same reconstructed input.*measured predictions/.test(atlas.phase23ImageBadge), atlas);
     const atlasImageAudit = await page.evaluate(async () => {
-      const payload = await fetch('/failure-atlas-data.json?v=2').then(response => response.json());
+      const payload = await fetch('/failure-atlas-data.json?v=3').then(response => response.json());
       const sources = payload.conditions.flatMap(condition => payload.frame_ids.map(frame => `/media/phase25/${condition}/${frame}`));
       const failures = [];
       // Keep this intentionally serial. A 12-way decode burst can exhaust the
@@ -506,7 +511,8 @@ try {
       /Phase 23/.test(phase23Gallery.pageTitle) && phase23Gallery.images.length === 6
       && phase23Gallery.images.every(image => image.loaded)
       && /Explore all 86 frames/.test(phase23Gallery.atlasLink)
-      && /exact Phase 23/.test(phase23Gallery.recoveryNote), phase23Gallery);
+      && /Original Phase 23 replay verified/.test(phase23Gallery.recoveryNote)
+      && /24 \/ 24 metric cells matched/.test(phase23Gallery.recoveryNote), phase23Gallery);
 
     await page.goto(BASE + '/phases/phase12/', { waitUntil: 'domcontentloaded', timeout: 45000 });
     await page.waitForTimeout(250);

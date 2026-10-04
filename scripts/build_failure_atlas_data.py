@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the compact public Atlas from the verified baseline-only audit tables."""
+"""Build the public Atlas from authenticated baseline and Phase 23 prediction tables."""
 
 from __future__ import annotations
 
@@ -29,6 +29,50 @@ def rows(name: str):
 
 def box(row):
     return [round(float(row[key]), 6) for key in ("x0", "y0", "x1", "y1")]
+
+
+def verified_phase23_cases(baseline_frames):
+    source = ROOT / "results/phase25_failure_atlas"
+    receipt = json.loads((ROOT / "results/research_revalidation_2026_10_03/replay_receipt.json").read_text())
+    if receipt["comparison"] != "EXACT_MATCH" or receipt["maximum_absolute_delta"] != 0:
+        raise ValueError("Phase 23 replay has not matched published aggregates exactly")
+    if receipt["checkpoint_sha256"] != "43240be969708c32b3e11340c9846b3a588baf361378398677c794d16a455310":
+        raise ValueError("Phase 23 checkpoint identity changed")
+    for name, expected in receipt["replay_table_sha256"].items():
+        if hashlib.sha256((source / name).read_bytes()).hexdigest() != expected:
+            raise ValueError(f"Replayed Phase 23 table changed: {name}")
+    cases = {}
+    with (source / "frame_condition_metrics.csv").open(newline="", encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            if row["model"] != "phase23":
+                continue
+            key = row["frame_id"], row["condition"]
+            if key in cases or key not in baseline_frames:
+                raise ValueError("Duplicate or unknown Phase 23 case")
+            cases[key] = {"id": key[0], "condition": key[1], "sequence": row["sequence"],
+                          "tp": int(row["tp"]), "fp": int(row["fp"]), "fn": int(row["fn"]),
+                          "pass": row["frame_success"] == "True", "count": int(row["detection_count"]),
+                          "iou": round(float(row["best_iou"]), 4), "score": round(float(row["best_confidence_any"]), 4),
+                          "gt": baseline_frames[key]["gt"], "boxes": [], "omitted": 0}
+    total = displayed = 0
+    with (source / "prediction_boxes.csv").open(newline="", encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            if row["model"] != "phase23":
+                continue
+            item = cases[row["frame_id"], row["condition"]]
+            total += 1
+            score = float(row["confidence"])
+            if score < DISPLAY_FLOOR and row["is_true_positive"] != "True":
+                item["omitted"] += 1
+                continue
+            item["boxes"].append([*box(row), round(score, 4), round(float(row["match_iou"]), 4), int(row["is_true_positive"] == "True")])
+            displayed += 1
+    if set(cases) != set(baseline_frames) or sum(c["count"] for c in cases.values()) != total:
+        raise ValueError("Incomplete Phase 23 prediction population")
+    return {"status": "original_checkpoint_replay_verified", "checkpoint_sha256": receipt["checkpoint_sha256"],
+            "prediction_rows": total, "displayed_rows": displayed,
+            "cases": [cases[key] for key in sorted(cases, key=lambda k: (k[0], CONDITIONS.index(k[1])))],
+            "source_hashes": receipt["replay_table_sha256"]}
 
 
 def build() -> bytes:
@@ -101,7 +145,7 @@ def build() -> bytes:
         "phase23_comparison_csv": hashlib.sha256(PHASE23_COMPARISON.read_bytes().replace(b"\r\n", b"\n")).hexdigest(),
     }
     result = {
-        "status": "baseline_only", "phase23": None, "conditions": CONDITIONS,
+        "status": "paired_verified", "phase23": verified_phase23_cases(frames), "conditions": CONDITIONS,
         "phase23_condition_aggregates": phase23_condition_aggregates,
         "frame_ids": ids, "display_floor": DISPLAY_FLOOR, "inference_floor": .001,
         "prediction_rows": manifest["prediction_rows"], "displayed_rows": displayed,

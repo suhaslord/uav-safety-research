@@ -63,6 +63,9 @@ jobs:
             exit 1
           fi
 
+      - name: Verify current research website record and unmodified evidence figure
+        run: python scripts/build_site_revalidation_data.py --check
+
       - name: Fetch licensed editorial media
         run: node deploy/vercel/fetch-editorial-media.mjs
 
@@ -352,12 +355,33 @@ jobs:
           done
           ATLAS_HTML=$(curl --fail --silent --show-error --location "$PUBLIC_URL/failure-atlas/")
           printf '%s' "$ATLAS_HTML" | grep 'Loading the verified 86-frame image set' > /dev/null
-          printf '%s' "$ATLAS_HTML" | grep 'failure-atlas.js?v=7' > /dev/null
+          printf '%s' "$ATLAS_HTML" | grep 'failure-atlas.js?v=8' > /dev/null
           curl --fail --silent --show-error --location "$PUBLIC_URL/media/phase25/clean/land_pad__6500.jpg" -o /dev/null
           curl --fail --silent --show-error --location "$PUBLIC_URL/media/phase25/mixed/land_pad2__2100.jpg" -o /dev/null
           echo "✓ Phase 23 examples and reconstructed Failure Atlas frames load from production"
 
-          echo "=== Verification complete: AegisLand serves local licensed photography and the frozen Phase 1–22 research archive ==="
+          curl --fail --silent --show-error --location "$PUBLIC_URL/data/research-revalidation.json" -o /tmp/research-revalidation.json
+          curl --fail --silent --show-error --location "$PUBLIC_URL/failure-atlas-data.json" -o /tmp/research-atlas.json
+          python - <<'PY'
+          import json
+          current=json.load(open('/tmp/research-revalidation.json'))
+          atlas=json.load(open('/tmp/research-atlas.json'))
+          assert current['phase23']['phase23_cells_checked']==24
+          assert current['phase23']['maximum_absolute_delta']==0
+          assert current['phase23']['clean_stressed_pair_count']==860
+          assert current['phase26']['status']=='NO_DATASET_ADMITTED'
+          assert current['phase26']['minimum_accepted_dhash_distance']==10
+          assert atlas['status']=='paired_verified'
+          assert len(atlas['phase23']['cases'])==516
+          assert atlas['phase23']['prediction_rows']==71420
+          PY
+          curl --fail --silent --show-error --location "$PUBLIC_URL/media/research-revalidation-occlusion.png" -o /tmp/research-revalidation-occlusion.png
+          test $(wc -c < /tmp/research-revalidation-occlusion.png) -gt 1000
+          REPRO_HTML=$(curl --fail --silent --show-error --location "$PUBLIC_URL/reproduce/")
+          printf '%s' "$REPRO_HTML" | grep 'validate_research_release.py' > /dev/null
+          printf '%s' "$REPRO_HTML" | grep '1.0.0rc1' > /dev/null
+
+          echo "=== Verification complete: current verified research and the unchanged frozen simulation archive are published ==="
 
       - name: Verify production desktop/mobile evidence and navigation
         run: |

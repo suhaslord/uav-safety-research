@@ -25,8 +25,8 @@ def test_phase25_lens_reuses_published_aggregates_without_frame_claims() -> None
     assert 'data-atlas-chart' in phase and 'data-atlas-controls' in phase
     assert 'data-atlas-controls' in home
     assert 'src="/phase25-explorer.js?v=' in phase and 'src="/phase25-explorer.js?v=' in home
-    assert "Measured baseline frame outcomes are now" in phase
-    assert "Phase 23 paired outcomes are now complete" in phase
+    assert "Both models’ measured frame metrics and prediction boxes" in phase
+    assert "860 within-model pairs" in phase
     audit = json.loads((ROOT / "docs/phase25_reconstruction_audit.json").read_text(encoding="utf-8"))
     assert audit["archive_derived_protected_image_count"] == 86
     assert audit["frame_condition_count"] == 516
@@ -218,12 +218,12 @@ def test_phase_archive_uses_shared_tesla_polish_without_rewriting_lineage() -> N
     assert "Keep every result in view." in archive
     assert "Research categories" in archive
     assert "<strong>7</strong> research categories" in archive
-    assert "28 phase records" in archive
+    assert "29 phase records" in archive
     assert "6 PASS / 7 FAIL" in archive
-    assert "Phase 23 detector and Phase 24 audit are separate" in archive
+    assert "Phases 23–25 detector evidence and Phase 26 admission are separate" in archive
 
 
-def test_phase_taxonomy_personalizes_all_28_phase_routes() -> None:
+def test_phase_taxonomy_personalizes_all_29_phase_routes() -> None:
     taxonomy = (ROOT / "dashboard" / "phase-taxonomy.js").read_text(encoding="utf-8")
     personalization = (ROOT / "dashboard" / "phase-personalization.js").read_text(encoding="utf-8")
     css = (ROOT / "dashboard" / "phase-personalization.css").read_text(encoding="utf-8")
@@ -232,7 +232,7 @@ def test_phase_taxonomy_personalizes_all_28_phase_routes() -> None:
         "phase1", "phase2", "phase3", "phase4", "phase5", "phase6", "phase6b",
         "phase7", "phase8", "phase9", "phase10", "phase10r", "phase11", "phase12",
         "phase13a", "phase13b", "phase13c", "phase14", "phase15", "phase16", "phase17",
-        "phase18", "phase19", "phase20", "phase21", "phase22", "phase23", "phase24",
+        "phase18", "phase19", "phase20", "phase21", "phase22", "phase23", "phase24", "phase25",
     )
     for slug in expected_slugs:
         assert f"{slug}: {{ category:" in taxonomy
@@ -323,7 +323,7 @@ def test_phase23_report_and_phase24_share_a_report_layout() -> None:
     assert "py scripts\\bundle_phase23_checkpoint.py" in phase23
 
 
-def test_phase25_is_featured_as_work_in_progress_without_result_claims() -> None:
+def test_phase25_is_featured_as_verified_retrospective_work() -> None:
     home = (ROOT / "deploy" / "vercel" / "index.html").read_text(encoding="utf-8")
     page = (ROOT / "deploy" / "vercel" / "phase25.html").read_text(encoding="utf-8")
     archive = (ROOT / "dashboard" / "phases" / "index.html").read_text(encoding="utf-8")
@@ -342,13 +342,20 @@ def test_phase25_is_featured_as_work_in_progress_without_result_claims() -> None
     assert "original Phase 23 checkpoint" in page
 
 
-def test_failure_atlas_is_baseline_only_with_auditable_tables() -> None:
+def test_failure_atlas_has_both_original_models_with_auditable_tables() -> None:
     site = json.loads((ROOT / "deploy/vercel/failure-atlas-data.json").read_text(encoding="utf-8"))
     manifest = json.loads((ROOT / "results/phase25_baseline_diagnostic/run_manifest.json").read_text(encoding="utf-8"))
     comparison_path = ROOT / "results/phase23_robust_detector/robustness_comparison.csv"
     with comparison_path.open(newline="", encoding="utf-8") as handle:
         comparison = {row["condition"]: row for row in csv.DictReader(handle)}
-    assert site["status"] == "baseline_only" and site["phase23"] is None
+    assert site["status"] == "paired_verified"
+    robust = site["phase23"]
+    assert robust["status"] == "original_checkpoint_replay_verified"
+    assert len(robust["cases"]) == 516 and robust["prediction_rows"] == 71420
+    assert robust["checkpoint_sha256"] == "43240be969708c32b3e11340c9846b3a588baf361378398677c794d16a455310"
+    assert sum(case["count"] for case in robust["cases"]) == 71420
+    assert sum(len(case["boxes"]) + case["omitted"] for case in robust["cases"]) == 71420
+    assert sum(case["tp"] for case in robust["cases"]) == sum(box[6] for case in robust["cases"] for box in case["boxes"]) == 272
     assert len(site["frame_ids"]) == 86 and len(site["cases"]) == 516
     assert site["prediction_rows"] == manifest["prediction_rows"] == 136359
     assert {key: value for key, value in site["source_hashes"].items() if key != "phase23_comparison_csv"} == manifest["table_sha256"]
@@ -367,7 +374,8 @@ def test_failure_atlas_is_baseline_only_with_auditable_tables() -> None:
     assert 'id="local-folder"' in html and "webkitdirectory" in html
     assert 'id="phase23-map50"' in html and 'id="phase23-recall"' in html
     assert 'id="phase23-frame-image"' in html and 'id="phase23-image-placeholder"' in html
-    assert "These are not predictions for this frame" in html
+    assert 'id="phase23-box-layer"' in html and 'id="show-phase23"' in html
+    assert "distinct from the selected frame metrics" in html
     assert "Loading the verified 86-frame image set" in html
     assert "Images selected locally are not hash-checked" in html
     assert 'href="/aegisland-brand.css?v=2"' in html

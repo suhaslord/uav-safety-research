@@ -35,7 +35,7 @@ check requires episode outcomes and paired transitions to match exactly;
 continuous measurements allow only `1e-13` relative/absolute tolerance for
 last-bit runtime rounding.
 
-Run `PYTHONPATH=src:. python3 scripts/verify_model_vase_parity.py` to replay all
+Run `python scripts/verify_model_vase_parity.py` from an editable installation to replay all
 10,000 frozen episodes and compare the episode table, summaries, and paired
 effects. Pass `--replay-dir PATH` to verify an already generated run.
 
@@ -51,7 +51,7 @@ effects. Pass `--replay-dir PATH` to verify an already generated run.
 | Phase 12 | The frozen adaptive-normalized conformal candidate passed its registered simulation gates through final replication, including lateral 95% coverage of `95.53%` and the p95 width/error ratio of `2.230×`. | A positive result for state-uncertainty estimation in its defined simulation lineage. It has not been connected to the V3 landing decision path. |
 | Phase 22 | The frozen simulation transfer study passed all 10 locked gates. | Supports the bounded transfer claim in that simulation protocol; it is not physical-flight evidence. |
 | Phases 23–24 | On the KIOS real-image split, macro mAP50 rose by 3.4 points, while the equal-weight occlusion + mixed average fell by 13.3 points. | Real-image detector evidence shows where the visual front end remains weak. It does not measure a landing response. |
-| Phase 25 | On 86 protected frames × 6 conditions (516 paired views), the authenticated Phase 23 checkpoint produced 49 recovered, 65 regressed, 223 both-pass, and 179 both-fail frame transitions. Blur and noise improved (+9.3 pp and +3.5 pp recall); clean, low-light, and occlusion regressed (−8.1 pp, −12.8 pp, −11.6 pp). The mechanism: 480 px input resolves concentric pad features for isotropic corruptions but those features collapse under 55% central occlusion. | Paired frame outcomes with an authenticated checkpoint and established mechanism for the occlusion/mixed regression. |
+| Phase 25 | On 86 protected frames × 6 conditions (516 paired views), the authenticated Phase 23 checkpoint produced 49 recovered, 65 regressed, 223 both-pass, and 179 both-fail frame transitions. Blur and noise improved (+9.3 pp and +3.5 pp recall); clean, low-light, and occlusion regressed (−8.1 pp, −12.8 pp, −11.6 pp). A fresh original-runtime replay reproduced all 24 aggregate metric cells exactly and all four prediction tables byte-for-byte. | Authenticated retrospective outcomes, not a demonstrated causal explanation of the training/resolution tradeoff. |
 | Phase 26 | KIOS 2022 archive rejected (100% byte-duplicate overlap). KIOS 2024 residual real frames rejected (same two sessions, cross-split collision). IMAV 2025 candidate blocked pending images, manifest, and provenance. No independent evaluation set has been admitted. | The admission gate is preserved; the next candidate must supply session-level provenance and pass zero-overlap screening. |
 
 These rows are complementary studies, not a meta-analysis or a single joint
@@ -73,10 +73,13 @@ conditions, plus a measurable low-light completion cost and weak
 mixed-lateral frame rejection.
 
 **Across real-camera imagery and physical flight, the question remains open.**
-The recovered Phase 23 detector's paired study confirms occlusion and
-mixed-stress regression (65 regressed frames vs 49 recovered); the mechanism
-is understood (480 px feature specialization under 55% central occlusion), but
-it has not been addressed in the detector. Phase 8 found a mismatch against
+The recovered Phase 23 detector's paired study records 65 regressed views
+versus 49 recovered views, with condition-specific tradeoffs. A separate
+860-row table pairs each model's clean and stressed views. These are distinct
+comparisons: model-to-model regressions do not establish a causal training or
+input-resolution mechanism. Controlled occlusion reveals gradual confidence
+loss and a modest nonmonotonic recall decline in its frozen baseline study;
+it does not establish a universal failure threshold. Phase 8 found a mismatch against
 the available PX4/Gazebo trace; and Phase 26 has no admitted independent test
 set. The evidence does not establish a validated real-world fallback or
 flight safety.
@@ -92,6 +95,12 @@ track. A future end-to-end composition that feeds the KIOS detector or Phase
 12 intervals into the landing supervisor would be a new Model VASE version and
 would require a preregistered paired evaluation before it could claim combined
 performance.
+
+Latest replay, controlled-occlusion answers and independence boundaries:
+[research revalidation](research_revalidation_2026_10_03.md). The ten recovered
+controlled-occlusion source files are authenticated only against
+`f090da03d20b2425c5addccb4d19117c8991bcc1`; the separately frozen v2 inference
+is not relabeled as the failed historical attempt.
 
 ## Scope and next test
 

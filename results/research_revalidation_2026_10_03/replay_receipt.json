@@ -1,0 +1,224 @@
+{
+  "schema": "aegisland.original-detector-replay.v1",
+  "status": "PASS",
+  "recorded_at_utc": "2026-10-03T23:00:12.795704+00:00",
+  "inference_commit": "040f790ef3cc5b6e568d1e8078d02de8bf171fe7",
+  "runtime": {
+    "python_version": "3.13.2",
+    "ultralytics_version": "8.4.160",
+    "torch_version": "2.7.0+cu118",
+    "numpy_version": "2.2.3",
+    "pillow_version": "11.0.0"
+  },
+  "checkpoint_sha256": "43240be969708c32b3e11340c9846b3a588baf361378398677c794d16a455310",
+  "baseline_checkpoint_sha256": "3a1801b192d624f8dcdda4bc5d9a9157309000df67a4c30d62368c37901feddd",
+  "protected_manifest_sha256": "8605cf1cbf9e8769c0324bf066078f9964f232ac3128131c8bd0b689bb7b64b7",
+  "source_archive_sha256": "9d27a3e9616c188fb72a727633705735da5df168ce47efeed389dcb3455fdbdb",
+  "comparison": "EXACT_MATCH",
+  "phase23_cells_checked": 24,
+  "maximum_absolute_delta": 0.0,
+  "deltas": {
+    "clean": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "map50": 0.0,
+      "map50_95": 0.0
+    },
+    "blur": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "map50": 0.0,
+      "map50_95": 0.0
+    },
+    "low_light": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "map50": 0.0,
+      "map50_95": 0.0
+    },
+    "noise": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "map50": 0.0,
+      "map50_95": 0.0
+    },
+    "occlusion": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "map50": 0.0,
+      "map50_95": 0.0
+    },
+    "mixed": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "map50": 0.0,
+      "map50_95": 0.0
+    }
+  },
+  "frozen_tables_byte_identical": {
+    "aggregate_validation.csv": true,
+    "frame_condition_metrics.csv": true,
+    "prediction_boxes.csv": true,
+    "ground_truth_targets.csv": true
+  },
+  "replay_table_sha256": {
+    "aggregate_validation.csv": "e05226f4f49f447bc264e680a07c3a2b89e8f235a1b796859fcac0f6f39ae473",
+    "frame_condition_metrics.csv": "3aa45f12947c11d9b07d52b8a8717a63e0bf0aeedc0c56c946e44420e06ff089",
+    "prediction_boxes.csv": "b3063077cc0f21043724c0bfbbed5a7915a4cd6497d3997f5843bc36f78cc141",
+    "ground_truth_targets.csv": "6f0a49f829cfa4b453df9535f0cb76b6852bbc7618640ebd3a9172ed6aa0ff20"
+  },
+  "cross_model_transition_counts": {
+    "regressed": 65,
+    "both_fail": 179,
+    "both_pass": 223,
+    "recovered": 49
+  },
+  "clean_stressed_pair_count": 860,
+  "clean_stressed_summaries": [
+    {
+      "model": "baseline",
+      "condition": "blur",
+      "counts": {
+        "both_pass": 45,
+        "regressed": 8,
+        "both_fail": 33
+      }
+    },
+    {
+      "model": "baseline",
+      "condition": "low_light",
+      "counts": {
+        "both_pass": 48,
+        "regressed": 5,
+        "recovered": 1,
+        "both_fail": 32
+      }
+    },
+    {
+      "model": "baseline",
+      "condition": "noise",
+      "counts": {
+        "regressed": 14,
+        "both_fail": 27,
+        "both_pass": 39,
+        "recovered": 6
+      }
+    },
+    {
+      "model": "baseline",
+      "condition": "occlusion",
+      "counts": {
+        "both_pass": 51,
+        "regressed": 2,
+        "recovered": 2,
+        "both_fail": 31
+      }
+    },
+    {
+      "model": "baseline",
+      "condition": "mixed",
+      "counts": {
+        "regressed": 16,
+        "both_fail": 27,
+        "both_pass": 37,
+        "recovered": 6
+      }
+    },
+    {
+      "model": "phase23",
+      "condition": "blur",
+      "counts": {
+        "both_fail": 32,
+        "regressed": 1,
+        "both_pass": 45,
+        "recovered": 8
+      }
+    },
+    {
+      "model": "phase23",
+      "condition": "low_light",
+      "counts": {
+        "both_fail": 40,
+        "regressed": 8,
+        "both_pass": 38
+      }
+    },
+    {
+      "model": "phase23",
+      "condition": "noise",
+      "counts": {
+        "both_fail": 36,
+        "regressed": 2,
+        "both_pass": 44,
+        "recovered": 4
+      }
+    },
+    {
+      "model": "phase23",
+      "condition": "occlusion",
+      "counts": {
+        "both_fail": 39,
+        "both_pass": 42,
+        "regressed": 4,
+        "recovered": 1
+      }
+    },
+    {
+      "model": "phase23",
+      "condition": "mixed",
+      "counts": {
+        "both_fail": 34,
+        "regressed": 8,
+        "both_pass": 38,
+        "recovered": 6
+      }
+    }
+  ],
+  "controlled_occlusion_recovery_source_commit": "f090da03d20b2425c5addccb4d19117c8991bcc1",
+  "controlled_occlusion_recovery_files": [
+    {
+      "path": "docs/phase25_occlusion_sweep_protocol.md",
+      "sha256": "e169e16ea40ca44ee60ca8b6074d054c33aeeaf1a3d24e55fa4cd3b8581882d7"
+    },
+    {
+      "path": "docs/phase25_occlusion_sweep_reproduce.md",
+      "sha256": "845b638310186fcc05f15203c99cb156b2e87be0a6951c1a09bf360bf2333006"
+    },
+    {
+      "path": "results/phase25_control_input_diagnostic/clean_reconciliation.csv",
+      "sha256": "279d12f171c3801bef7cc73c8cf68b6d712083338d93a3c8be28a4aff4bf9c64"
+    },
+    {
+      "path": "results/phase25_control_input_diagnostic/diagnostic.json",
+      "sha256": "633266bd6898ad828450583ec157567257e2ad82821b27de9230658695724942"
+    },
+    {
+      "path": "results/phase25_occlusion_sweep/historical_attempt.json",
+      "sha256": "aaa59a0cf2d21ccbb3fcc477730924322a8ccdc019c665d56dc8eae1a55e6859"
+    },
+    {
+      "path": "results/phase25_occlusion_sweep_recovered/restoration_record.json",
+      "sha256": "9805d1e1c9a595d2fe1ca0855d41d5915ddf83b5fe7859732689d35d926517f4"
+    },
+    {
+      "path": "results/phase25_occlusion_sweep_recovered/summary.md",
+      "sha256": "ef5f18b7736b2d9e08cf288878bd25563c909ec0065e4b86cfc1a940610c4dd9"
+    },
+    {
+      "path": "results/phase25_occlusion_sweep_recovered/zero_dose_gate.json",
+      "sha256": "5e14318f4c6e707d229f69931e4127b4fcefef5487fbaa249b1a54735a1b213a"
+    },
+    {
+      "path": "scripts/run_phase25_occlusion_sweep.py",
+      "sha256": "939b286418c66fa7a8ab39c6dc981b43324b5804f21f026ff1090a84e95c79a4"
+    },
+    {
+      "path": "tests/test_phase25_occlusion_sweep_publication.py",
+      "sha256": "02182a7340845ee7bef4779bf0c0f3d51126b32b2213ae3a1319ff1fe91fcca8"
+    }
+  ],
+  "scope": "Retrospective KIOS replay; clean/stress pairs are within the same model. Cross-model transitions are a separate comparison. No independent validation, deployment threshold, or flight-safety claim.",
+  "paired_clean_vs_stressed_sha256": "d38eb52e32b80abec996732cf587b737e4239412b9b3132313c4078931a449c7",
+  "replay_run_manifest_sha256": "141a71bf53a452c1517c78a583014a87802f2575a1982ffb571a0e046b8a4184",
+  "verification_script_sha256": "cdfc799d0fbc352d0ecb6b355ef747d48a3925d7149cb5e7ae83385084f18c2e"
+}

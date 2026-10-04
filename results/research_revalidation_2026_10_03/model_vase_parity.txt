@@ -1,0 +1,5 @@
+episode outcomes: 10000 rows match (maximum numeric delta 3.55e-15)
+summary metrics: 20 rows match (maximum numeric delta 1.11e-16)
+paired effects: 5 rows match (maximum numeric delta 7.11e-15)
+Model VASE frozen V3 parity: PASS
+10,000 episode outcomes and all published comparisons reproduced.

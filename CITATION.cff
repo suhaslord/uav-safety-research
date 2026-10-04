@@ -1,5 +1,5 @@
 cff-version: 1.2.0
-message: "If you use this student research project, please cite the repository."
+message: "If you use this research release candidate, cite this software and its exact Git revision. Cite external datasets and original model recovery separately; no flight or independent validation is claimed."
 title: "AegisLand: Confidence-Aware Autonomous UAV Landing Safety Research"
 type: software
 authors:
@@ -7,4 +7,4 @@ authors:
     given-names: "Suhas"
 repository-code: "https://github.com/suhaslord/uav-safety-research"
 license: MIT
-version: 0.1.0
+version: "1.0.0rc1"

@@ -1,10 +1,12 @@
 # Paper Workspace
 
-This folder is reserved for the research write-up after the preregistered Phase 1 experiment is complete.
+This folder retains the historical simulation write-up and planning material. The original Phase 1 planning below is archival, not a claim that the current experiments are pending.
 
-The paper should be written from saved experiment artifacts rather than from memory.
+The current retrospective detector supplement is [Original-detector replay and controlled-occlusion evidence](detector_revalidation_report.md), with generated tables/figures, verified model/runtime provenance and explicit independent-data limitations. It does not rewrite the historical simulation paper or claim detector-to-controller/flight validation.
 
-## Planned structure
+Use [REPRODUCE.md](../REPRODUCE.md) for the scoped release-candidate gate and [citation/provenance](../docs/citation_provenance.md) for sources and rights. Write results from saved experiment artifacts, not from memory.
+
+## Original Phase 1 planned structure (archival)
 
 1. **Abstract** — question, method, primary result, limitation
 2. **Introduction** — why uncertainty-aware autonomy matters

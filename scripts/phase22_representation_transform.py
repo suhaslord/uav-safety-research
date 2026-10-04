@@ -58,11 +58,16 @@ def atomic_write(path: Path, content: bytes, expected_sha256: str, *, image: boo
             with Image.open(temporary) as opened:
                 opened.load()
         os.replace(temporary, path)
-        directory = os.open(path.parent, os.O_RDONLY)
-        try:
-            os.fsync(directory)
-        finally:
-            os.close(directory)
+        # Windows cannot open directories with os.open for fsync. File bytes
+        # are still fsynced and atomically replaced; do not claim POSIX
+        # directory-entry crash durability on that platform. Frozen historical
+        # method bytes remain separately archived under frozen_methods/.
+        if os.name != "nt":
+            directory = os.open(path.parent, os.O_RDONLY)
+            try:
+                os.fsync(directory)
+            finally:
+                os.close(directory)
     finally:
         temporary.unlink(missing_ok=True)
 
