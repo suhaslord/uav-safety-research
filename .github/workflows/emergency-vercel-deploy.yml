@@ -178,7 +178,8 @@ jobs:
           test -s .vercel-release/film/evaluation-nasa-clip.webm
           grep -q 'href="/aegisland-brand.css?v=' .vercel-release/model-vase.html
           grep -q '#e82127' .vercel-release/model-vase.css
-          grep -q '/media/phase25/${condition}/${item.id}' .vercel-release/failure-atlas.js
+          grep -q '/media/phase25/${condition}/${item.id}' .vercel-release/failure-atlas-frozen.js
+          grep -q 'Local image · unverified · measured predictions unchanged' .vercel-release/failure-atlas.js
           grep -q 'Loading the verified 86-frame image set' .vercel-release/failure-atlas.html
 
           grep -q 'href="/phase-polish.css?v=' .vercel-release/dashboard/phases/index.html
