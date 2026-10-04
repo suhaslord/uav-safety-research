@@ -33,14 +33,16 @@ jobs:
           grep -q 'data-editorial-media="local-v2"' deploy/vercel/index.html
           grep -q 'href="/aegisland.css?v=' deploy/vercel/index.html
           ! grep -q 'href="/signature.css?v=' deploy/vercel/index.html
-          grep -q 'href="/research-home.css?v=' deploy/vercel/index.html
-          grep -q 'href="/research-media.css?v=' deploy/vercel/index.html
+          grep -q 'href="/home-evidence.css?v=' deploy/vercel/index.html
+          grep -q 'href="/aegisland-brand.css?v=' deploy/vercel/index.html
+          grep -q 'id="home-comparison"' deploy/vercel/index.html
+          grep -q 'src="/home-evidence.js?v=' deploy/vercel/index.html
           grep -q 'Model VASE · answer so far' deploy/vercel/index.html
           grep -q 'Can the system know when its landing estimate is unreliable?' deploy/vercel/index.html
-          grep -q 'Frozen simulation · Phase 22' deploy/vercel/index.html
+          grep -q 'Frozen simulation, not a camera-to-control result' deploy/vercel/index.html
           grep -q 'href="/model-vase/">Model VASE' deploy/vercel/index.html
-          grep -q 'href="/failure-atlas/">Open Failure Atlas' deploy/vercel/index.html
-          grep -q 'href="/model-vase/">How the evidence fits together' deploy/vercel/index.html
+          grep -q 'href="/failure-atlas/">Explore Failure Atlas' deploy/vercel/index.html
+          grep -q 'href="/model-vase/">How Model VASE fits together' deploy/vercel/index.html
           grep -q 'These are different experiments. They have not been joined into one tested model.' deploy/vercel/index.html
           grep -q '"source": "/model-vase/"' deploy/vercel/vercel.json
           grep -q 'Model VASE is an integrated research architecture, not a newly trained checkpoint.' deploy/vercel/model-vase.html
@@ -57,9 +59,12 @@ jobs:
           grep -q 'name="aegis-evidence-boundary"' deploy/vercel/index.html
           grep -q 'home-lineage__track' deploy/vercel/index.html
           grep -q '6 PASS / 7 FAIL' deploy/vercel/index.html
-          test "$(grep -o 'NASA field image · context only' deploy/vercel/index.html | wc -l)" -eq 1
-          grep -q 'src="/media/perception/kios_clean.jpg"' deploy/vercel/index.html
-          grep -q 'src="/media/perception/kios_occlusion.jpg"' deploy/vercel/index.html
+          grep -q 'details class="field-context"' deploy/vercel/index.html
+          grep -q 'Photographs and footage, not AegisLand experiment results' deploy/vercel/index.html
+          grep -q 'data-home-model="baseline"' deploy/vercel/index.html
+          grep -q 'data-home-model="phase23"' deploy/vercel/index.html
+          grep -q 'rows.length !== 516' deploy/vercel/home-evidence.js
+          grep -q 'Target matching permits false positives and does not mean landing success' deploy/vercel/index.html
 
           test -f deploy/vercel/phase-polish.css
           test -f deploy/vercel/phase-reading-responsive.css

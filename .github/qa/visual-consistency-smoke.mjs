@@ -546,7 +546,7 @@ try {
       add(`mobile-${route}-no-horizontal-overflow`, overflow <= 1, { overflow });
     }
     await page.goto(BASE + '/', { waitUntil: 'domcontentloaded', timeout: 45000 });
-    const ctas = await page.locator('.hero .button').evaluateAll(els => els.map(el => Math.round(el.getBoundingClientRect().height)));
+    const ctas = await page.locator('.evidence-actions .button').evaluateAll(els => els.map(el => Math.round(el.getBoundingClientRect().height)));
     add('mobile-home-ctas-touchable', ctas.length >= 2 && ctas.every(height => height >= 40), { ctas });
     await page.goto(BASE + '/phases/', { waitUntil: 'domcontentloaded', timeout: 45000 });
     await page.waitForTimeout(300);
