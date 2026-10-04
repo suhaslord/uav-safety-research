@@ -22,8 +22,10 @@ try {
       page.on('pageerror',e=>errors.push(e.message));
       const response=await page.goto(base+route,{waitUntil:'domcontentloaded',timeout:45000});
       await page.locator('main').waitFor({state:'visible',timeout:15000});
-      if(route==='/phases/phase22/') {
-        await page.locator('#experiment-lab img').first().waitFor({state:'attached',timeout:15000});
+      // current-data.js replaces the archive/phase lab asynchronously. Wait for
+      // its actual camera images before making the lazy-image audit snapshot.
+      if(['/phases/','/phases/phase22/'].includes(route)) {
+        await page.locator('#experiment-lab[data-current-dataset="kios-real-video"] img').first().waitFor({state:'attached',timeout:15000});
       }
       // A full-page audit must load offscreen lazy images before measuring them.
       await page.locator('img').evaluateAll(images=>images

@@ -50,6 +50,14 @@ def test_live_atlas_label_corrections_leave_frozen_artifacts_addressable():
     assert "fetch(" not in wrapper  # no new inference or modified result tables
 
 
+def test_release_qa_waits_for_current_camera_panels_before_image_audit():
+    smoke = (ROOT / ".github/qa/phase22-release-smoke.mjs").read_text(encoding="utf-8")
+    assert "if(['/phases/','/phases/phase22/'].includes(route))" in smoke
+    assert '#experiment-lab[data-current-dataset="kios-real-video"] img' in smoke
+    assert "i.loading='eager'" in smoke
+    assert "(!i.complete||i.naturalWidth===0)" in smoke
+
+
 def test_reproduction_page_uses_current_gate_and_exact_source_fetch():
     text = (SITE / "reproduce.html").read_text(encoding="utf-8")
     assert "python scripts/validate_research_release.py" in text
