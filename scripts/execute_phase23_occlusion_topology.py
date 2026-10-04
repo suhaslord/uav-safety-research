@@ -64,7 +64,9 @@ EXPECTED_BUNDLE_SHA = "a55531930988deeadf81853d00b63c7e589c6b7fd2270f57653abdb5c
 EXPECTED_CKPT_SHA = "43240be969708c32b3e11340c9846b3a588baf361378398677c794d16a455310"
 PROTOCOL_V1_1_PATH = REPO_ROOT / "docs/phase25_phase23_occlusion_topology_protocol_v1_1.json"
 EXPECTED_PROTOCOL_V1_1_SHA = "b4637e5b9b0c9551ac6a106d20fe8bc62f05d50b7030432c1c4e1bf7cf771a29"
-PROTOCOL_V2_PATH = REPO_ROOT / "docs/phase25_topology_lossless_v2.json"
+PROTOCOL_V2_PATH = REPO_ROOT / "docs/phase25_topology_lossless_v2_1.json"
+EXECUTION_SCHEMA = "aegisland.phase25.topology-lossless.v2.1"
+FROZEN_RELEASE_MANIFEST = REPO_ROOT / "results/research_revalidation_2026_10_03/frozen_manifest.json"
 
 # Clean baseline historical values
 HISTORICAL_CLEAN_METRICS = {
@@ -196,14 +198,15 @@ def verify_runtime() -> dict[str, str]:
 
 def verify_method_lock() -> dict:
     protocol = json.loads(PROTOCOL_V2_PATH.read_text(encoding="utf-8"))
-    if protocol["schema"] != "aegisland.phase25.topology-lossless.v2":
+    if protocol["schema"] != EXECUTION_SCHEMA:
         raise ValueError("Unsupported topology execution protocol")
     methods = protocol["method_text_sha256"]
     required = {"scripts/execute_phase23_occlusion_topology.py", "scripts/generate_occlusion_topology.py",
                 "scripts/phase25_lib.py", "scripts/phase25_reconstruction_lock.py",
                 "src/uav_safety/real_landing_dataset.py", "scripts/build_real_image_stress_suite.py",
                 "scripts/prepare_kios_real_yolo_split.py", "docs/phase25_input_lock.json",
-                "docs/phase25_reconstruction_lock.json", str(PROTOCOL_V1_1_PATH.relative_to(REPO_ROOT)).replace("\\", "/")}
+                "docs/phase25_reconstruction_lock.json", str(PROTOCOL_V1_1_PATH.relative_to(REPO_ROOT)).replace("\\", "/"),
+                str(FROZEN_RELEASE_MANIFEST.relative_to(REPO_ROOT)).replace("\\", "/")}
     if set(methods) != required:
         raise ValueError("Incomplete topology method lock")
     for relative, expected in methods.items():
@@ -219,10 +222,13 @@ def verify_method_lock() -> dict:
 
 
 def require_fresh_output(out_dir: Path) -> None:
-    historical = REPO_ROOT / "results/phase25_occlusion_topology"
+    manifest = json.loads(FROZEN_RELEASE_MANIFEST.read_text(encoding="utf-8"))
+    protected = {REPO_ROOT / "results/phase25_occlusion_topology"}
+    protected.update(REPO_ROOT.joinpath(*Path(relative).parts[:2])
+                     for relative in manifest["files_sha256"] if Path(relative).parts[0] == "results")
     resolved = out_dir.resolve()
-    if resolved == historical or historical in resolved.parents:
-        raise ValueError("The historical topology directory is immutable; choose a new v2 output directory")
+    if any(resolved == path.resolve() or path.resolve() in resolved.parents for path in protected):
+        raise ValueError("The historical topology and frozen release directories are immutable; choose a new output directory")
     if out_dir.exists() and (not out_dir.is_dir() or any(out_dir.iterdir())):
         raise ValueError(f"Output must be a new or empty directory: {out_dir}")
 
@@ -277,7 +283,7 @@ def run_zero_dose_baseline_gate(
         shutil.copyfile(Path(row["label_path"]), label)
     temp_yaml = out_dir / "clean_gate.yaml"
     temp_yaml.write_text(
-        f"path: {cond_dir.resolve()}\n"
+        f"path: {json.dumps(str(cond_dir.resolve()))}\n"
         f"train: images/test\n"
         f"val: images/test\n"
         f"test: images/test\n"
@@ -365,7 +371,8 @@ def generate_treatment_dataset(
         lbl_path = clean_lbl_dir / row["label"]
 
         source_sha = sha256_file(img_path)
-        img = Image.open(img_path).convert("RGB")
+        with Image.open(img_path) as source_image:
+            img = source_image.convert("RGB")
         img_w, img_h = img.size
 
         labels = read_yolo_boxes(lbl_path, class_id=0)
@@ -394,17 +401,14 @@ def generate_treatment_dataset(
 
                 if dose <= 0.0:
                     mask = np.zeros((img_h, img_w), dtype=np.uint8)
-                    achieved_dose = 0.0
-                    mask_px = 0
-                    box_px = int(round(target_yolo.width * img_w * target_yolo.height * img_h))
-                    dose_error = 0.0
-                    gen_sha = atomic_write_lossless_image(img, out_path)
                 else:
                     mask = MASK_GENERATORS[topo](img_w, img_h, target_yolo, dose, rng)
-                    achieved_dose, mask_px, box_px = compute_achieved_dose(mask, target_yolo, img_w, img_h)
-                    dose_error = abs(achieved_dose - dose)
-                    occluded = apply_mask(img, mask)
-                    gen_sha = atomic_write_lossless_image(occluded, out_path)
+                achieved_dose, mask_px, box_px = compute_achieved_dose(mask, target_yolo, img_w, img_h)
+                if box_px == 0:
+                    raise ValueError(f"Target has no rasterized pixels: {frame_id}")
+                dose_error = abs(achieved_dose - dose)
+                occluded = apply_mask(img, mask) if dose > 0.0 else img
+                gen_sha = atomic_write_lossless_image(occluded, out_path)
 
                 # Decode validation
                 with Image.open(out_path) as verify_img:
@@ -415,11 +419,11 @@ def generate_treatment_dataset(
                     "sequence": sequence,
                     "topology": topo,
                     "requested_dose": dose,
-                    "achieved_dose": round(achieved_dose, 6),
-                    "dose_error": round(dose_error, 6),
+                    "achieved_dose": achieved_dose,
+                    "dose_error": dose_error,
                     "mask_pixels": mask_px,
                     "box_pixels": box_px,
-                    "visible_box_fraction": round(1.0 - achieved_dose, 6),
+                    "visible_box_fraction": 1.0 - achieved_dose,
                     "image_path": str(out_path.resolve()),
                     "label_path": str(lbl_path.resolve()),
                     "label_sha256": sha256_file(lbl_path),
@@ -560,7 +564,7 @@ def save_artifacts(
             "checkpoint_sha256": EXPECTED_CKPT_SHA,
             "manifest_sha256": EXPECTED_MANIFEST_SHA,
             "protocol_v1_1_sha256": EXPECTED_PROTOCOL_V1_1_SHA,
-            "execution_protocol": "aegisland.phase25.topology-lossless.v2",
+            "execution_protocol": EXECUTION_SCHEMA,
             "protocol_v2_sha256": sha256_file(PROTOCOL_V2_PATH),
             "control_dataset": "all generated requested-dose-zero PNGs",
             "control_views": sum(float(r["requested_dose"]) == 0.0 for r in final_views),
@@ -571,14 +575,14 @@ def save_artifacts(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Phase 23 Occlusion Topology Experiment Runner")
+    parser = argparse.ArgumentParser(description="Phase 23 lossless topology v2.1 runner")
     parser.add_argument("--manifest", type=Path, default=REPO_ROOT / "results/phase25_failure_atlas/protected_test_manifest.csv")
     parser.add_argument("--bundle", type=Path, default=REPO_ROOT / "data/external/phase25_inputs/phase23_recovery_bundle.zip")
     parser.add_argument("--stress-root", type=Path, required=True)
     parser.add_argument("--source-root", type=Path, required=True)
     parser.add_argument("--archive", type=Path, required=True)
     parser.add_argument("--out-dir", type=Path, required=True, help="new, empty v2 directory; historical output is protected")
-    parser.add_argument("--execute", action="store_true", help="compatibility flag; this command always executes v2")
+    parser.add_argument("--execute", action="store_true", help="compatibility flag; this command always executes v2.1")
     args = parser.parse_args()
 
     require_fresh_output(args.out_dir)

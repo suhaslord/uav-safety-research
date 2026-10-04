@@ -85,10 +85,10 @@ def treatment(tmp_path, monkeypatch):
     labels.mkdir(parents=True)
     pixels = np.arange(32 * 32 * 3, dtype=np.uint8).reshape(32, 32, 3)
     Image.fromarray(pixels).save(images / "frame.jpg", quality=80)
-    (labels / "frame.txt").write_text("0 0.5 0.5 0.75 0.75\n")
+    (labels / "frame.txt").write_text("0 0.5 0.5 0.7 0.6\n")
     manifest = [{"image": "frame.jpg", "label": "frame.txt", "sequence": "land_pad"}]
     monkeypatch.setattr(runner, "DEFAULT_DOSES", [0.0, 0.5])
-    out = tmp_path / "out"
+    out = tmp_path / "out #1"
     out.mkdir()
     rows = runner.generate_treatment_dataset(manifest, stress, out)
     return stress, out, rows
@@ -108,12 +108,21 @@ def test_generated_zero_controls_preserve_source_pixels_and_reject_reuse(treatme
         runner.atomic_write_lossless_image(Image.fromarray(expected), Path(zeros[0]["image_path"]))
 
 
+def test_zero_and_positive_doses_use_the_same_rasterized_denominator(treatment):
+    _, _, rows = treatment
+    assert len({r["box_pixels"] for r in rows}) == 1
+    for row in rows:
+        assert row["achieved_dose"] == row["mask_pixels"] / row["box_pixels"]
+        assert row["visible_box_fraction"] == 1 - row["achieved_dose"]
+
+
 def test_gate_evaluates_exact_generated_inventory(treatment):
     _, out, rows = treatment
     controls = [r for r in rows if r["requested_dose"] == 0]
 
     def val(**kwargs):
-        assert "zero_dose_gate" in Path(kwargs["data"]).read_text()
+        path_line = Path(kwargs["data"]).read_text().splitlines()[0]
+        assert json.loads(path_line.removeprefix("path: ")) == str((out / "zero_dose_gate").resolve())
         actual = list((out / "zero_dose_gate/images/test").iterdir())
         assert {p.name for p in actual} == {Path(r["image_path"]).name for r in controls}
         for row in controls:
@@ -204,6 +213,9 @@ def test_output_rejects_historical_and_stale_directories(tmp_path):
     runner.require_fresh_output(tmp_path / "new")
     with pytest.raises(ValueError, match="historical topology"):
         runner.require_fresh_output(ROOT / "results/phase25_occlusion_topology/new")
+    for directory in ("phase25_failure_atlas", "research_revalidation_2026_10_03", "phase23_robust_detector"):
+        with pytest.raises(ValueError, match="frozen release directories"):
+            runner.require_fresh_output(ROOT / "results" / directory / "new-replay")
     (tmp_path / "stale").write_text("retained result")
     with pytest.raises(ValueError, match="new or empty"):
         runner.require_fresh_output(tmp_path)

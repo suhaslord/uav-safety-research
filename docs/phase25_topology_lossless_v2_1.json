@@ -1,0 +1,33 @@
+{
+  "schema": "aegisland.phase25.topology-lossless.v2.1",
+  "status": "method_frozen_inference_not_run",
+  "historical_protocol": "docs/phase25_phase23_occlusion_topology_protocol_v1_1.json",
+  "historical_commit": "db7aca05382f608cbe021cabb5c32862123c7633",
+  "representation": "lossless PNG of decoded RGB source and intended masks; verify every decoded output pixel",
+  "controls": "all generated zero-dose views (86 frames x 4 topologies), aggregate gate before treatment inference",
+  "fresh_output_required": true,
+  "resume_allowed": false,
+  "runtime_lock": "docs/phase25_input_lock.json#phase25_runtime",
+  "reconstruction_lock": "docs/phase25_reconstruction_lock.json",
+  "analysis": "descriptive exploratory; no significance tests or frame bootstrap intervals; publish separately from historical JPEG observations",
+  "method_text_sha256": {
+    "scripts/execute_phase23_occlusion_topology.py": "8dcba75bfb94380fbdb594e71ded1338e930e45f97df8b1d5b20cc365fb0c6cc",
+    "scripts/generate_occlusion_topology.py": "4c49f33eeeeac3a192cad19b8d77acb201a04034c6a351087c1190aa41cab053",
+    "scripts/phase25_lib.py": "9e215c57a59e2130225ffd3518fcfd657071a483b048af6f64ebef5147e6d6f0",
+    "scripts/phase25_reconstruction_lock.py": "226888fcd7edfcf4ce960250229516a0a816d4b8932a72ee311f2bb2ab50ecc2",
+    "src/uav_safety/real_landing_dataset.py": "e371682b00adcc0ddff255046c5461ef09570f2d80e12698f82f204efe210bfb",
+    "scripts/build_real_image_stress_suite.py": "e44168e573c36c81161ff0438035c05f64e41cb21fce0243090deb677cbe586e",
+    "scripts/prepare_kios_real_yolo_split.py": "47d83fe00d6c96488a1787c7230881aca66f96538f9656963180340a95cb2744",
+    "docs/phase25_input_lock.json": "62daf9d3fba8da1fe074c0476c2db7425e90dd89011c18efd0a62f5d6bbe8798",
+    "docs/phase25_reconstruction_lock.json": "41e9252f94b82109c835f9c30f1c970beca1684aac73ed09f432c88f443a4f48",
+    "docs/phase25_phase23_occlusion_topology_protocol_v1_1.json": "b4637e5b9b0c9551ac6a106d20fe8bc62f05d50b7030432c1c4e1bf7cf771a29",
+    "results/research_revalidation_2026_10_03/frozen_manifest.json": "157cf7b37f1793e1b85c158d89245a1b751fe441481b8083b905e8a5e0efcc6f"
+  },
+  "supersedes_method": {
+    "protocol": "docs/phase25_topology_lossless_v2.json",
+    "commit": "b04100f24c7f504ac8813c0bb37745f9151d9061",
+    "prior_inference_performed": false
+  },
+  "dose_metadata": "Unrounded achieved dose from mask_pixels / rasterized box_pixels, using the same denominator at every requested dose.",
+  "output_policy": "Reject nonempty output and every retained topology or frozen release result directory, including new child directories."
+}
