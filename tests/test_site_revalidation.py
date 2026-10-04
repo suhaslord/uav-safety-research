@@ -42,6 +42,8 @@ def test_live_atlas_label_corrections_leave_frozen_artifacts_addressable():
     assert "mv .vercel-release/failure-atlas.js .vercel-release/failure-atlas-frozen.js" in workflow
     assert "cp .vercel-release/failure-atlas-live.js .vercel-release/failure-atlas.js" in workflow
     assert "cmp deploy/vercel/failure-atlas.js .vercel-release/failure-atlas-frozen.js" in workflow
+    assert "grep -q '/media/phase25/${condition}/${item.id}' .vercel-release/failure-atlas-frozen.js" in workflow
+    assert "grep -q '/media/phase25/${condition}/${item.id}' .vercel-release/failure-atlas.js" not in workflow
     wrapper = (SITE / "failure-atlas-live.js").read_text(encoding="utf-8")
     assert "/failure-atlas-frozen.js?v=8" in wrapper
     assert "Local image · unverified · measured predictions unchanged" in wrapper
