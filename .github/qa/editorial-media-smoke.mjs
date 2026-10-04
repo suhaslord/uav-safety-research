@@ -219,8 +219,9 @@ try {
     add('autoplay-home-status', !!response && response.status() < 400, { status: response?.status() || 0 });
     const clips = page.locator('.home-field-media video[data-autoplay="visible"]');
     add('autoplay-two-clips-present', await clips.count() === 2, { count: await clips.count() });
-    const eagerlyLoaded = await clips.evaluateAll((videos) => videos.every((video) => video.preload === 'auto' && video.muted && video.loop));
-    add('autoplay-clips-eagerly-preloaded', eagerlyLoaded);
+    const deferred = await clips.evaluateAll((videos) => videos.every((video) => video.preload === 'none' && video.muted && video.loop));
+    add('context-clips-deferred-until-disclosure-opens', deferred && await page.locator('.field-context').evaluate(el => !el.open));
+    await page.locator('.field-context > summary').click();
     for (let index = 0; index < Math.min(await clips.count(), 2); index += 1) {
       const clip = clips.nth(index);
       await clip.scrollIntoViewIfNeeded();
