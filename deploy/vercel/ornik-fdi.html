@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#171a20">
+  <meta name="description" content="AegisLand's hardware-free Crazyflie Webots actuator-fault pilot: 15 trajectories, held-out results, raw evidence, and clear limits.">
+  <meta property="og:title" content="Actuator fault pilot · AegisLand">
+  <meta property="og:description" content="The headless Webots pipeline ran. The first detector's motor-isolation results were weak, and are reported with their limits.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://aegisland-research-cockpit.vercel.app/ornik-fdi/">
+  <link rel="canonical" href="https://aegisland-research-cockpit.vercel.app/ornik-fdi/">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=8">
+  <link rel="stylesheet" href="/phase-report.css?v=1">
+  <link rel="stylesheet" href="/site-refresh.css?v=6">
+  <link rel="stylesheet" href="/aegisland-brand.css?v=3">
+  <link rel="stylesheet" href="/ornik-fdi.css?v=1">
+  <title>Actuator fault pilot · AegisLand</title>
+</head>
+<body class="fdi-page">
+  <a class="fdi-skip" href="#main">Skip to the research</a>
+  <header class="top">
+    <a class="brand vase-brand" href="/" aria-label="AegisLand research home"><img src="/model-vase-mark.svg" alt=""><span class="vase-brand__type"><strong>AEGISLAND</strong><small>RESEARCH</small></span></a>
+    <nav class="nav" aria-label="Research navigation"><a href="/">Research home</a><a href="/model-vase/">Model VASE</a><a href="/phases/">Archive</a></nav>
+  </header>
+  <nav class="record-path" aria-label="Research track"><strong>Separate software study · actuator fault isolation</strong><a href="/model-vase/">Model VASE evidence map →</a></nav>
+
+  <main id="main" class="fdi-main">
+    <section class="fdi-hero" aria-labelledby="fdi-title">
+      <div class="fdi-hero__copy">
+        <p class="fdi-eyebrow">Hardware-free pilot · 10 October 2026</p>
+        <h1 id="fdi-title">The simulator ran.<br><span>The detector was weak.</span></h1>
+        <p class="fdi-dek">A hosted, headless Crazyflie Webots experiment injected single-motor failures and preserved every trace. It shows AegisLand can run this software study without bench access—and that the first motor-isolation model is not ready to trust.</p>
+        <div class="fdi-hero__links"><a href="#results">Read the held-out results</a><a href="#method">Inspect the protocol</a></div>
+      </div>
+      <aside class="fdi-hero__verdict" aria-label="Pilot headline result">
+        <span>FIRST HELD-OUT RESULT</span>
+        <strong>0.491</strong>
+        <b>balanced accuracy</b>
+        <p>Recall was just 18–27% for motors 1–3. The pipeline passed; reliable isolation did not.</p>
+      </aside>
+    </section>
+
+    <section class="fdi-answer" aria-labelledby="answer-title">
+      <p class="fdi-section-label">What changed</p>
+      <div><h2 id="answer-title">A new software-only evidence track.</h2><p>The pilot adds a reproducible actuator-fault workflow alongside AegisLand's landing-perception research. It remains a separate experiment: none of its signals, weights, or metrics are connected to the Model VASE supervisor or camera results.</p></div>
+    </section>
+
+    <section id="results" class="fdi-results" aria-labelledby="results-title">
+      <div class="fdi-section-head"><div><p class="fdi-section-label">Held-out seed · 47</p><h2 id="results-title">The average hides which motors are missed.</h2></div><p>The model trained on seeds 11 and 23, then scored complete trajectories from seed 47. The split is by command seed; windows from one trajectory were never divided between training and holdout.</p></div>
+
+      <div class="fdi-metrics" aria-label="Overall pilot metrics">
+        <div><strong>0.661</strong><span>Window accuracy</span></div>
+        <div class="fdi-metric--alert"><strong>0.491</strong><span>Balanced accuracy</span></div>
+        <div class="fdi-metric--alert"><strong>0.469</strong><span>Macro F1</span></div>
+        <div><strong>165</strong><span>Held-out windows · overlapping</span></div>
+      </div>
+
+      <div class="fdi-section-head fdi-section-head--compact"><div><p class="fdi-section-label">Isolation by class</p><h3>Three motor classes remain difficult.</h3></div><p>There are 22 fault-labelled windows per motor class and 77 healthy windows. The small sample counts and overlap make these descriptive pilot metrics only.</p></div>
+      <div class="table-wrap fdi-table-wrap" tabindex="0" role="region" aria-label="Scrollable recall by fault class">
+        <table aria-describedby="recall-note">
+          <caption>Correctly classified held-out windows by true class</caption>
+          <thead><tr><th scope="col">True class</th><th scope="col">Correct / windows</th><th scope="col">Recall</th><th scope="col">Visual</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Healthy</th><td>77 / 77</td><td>100.0%</td><td><progress max="100" value="100" aria-label="Healthy recall 100 percent">100%</progress></td></tr>
+            <tr class="fdi-row--weak"><th scope="row">Motor 1 failed</th><td>4 / 22</td><td>18.2%</td><td><progress max="100" value="18.2" aria-label="Motor 1 recall 18.2 percent">18.2%</progress></td></tr>
+            <tr class="fdi-row--weak"><th scope="row">Motor 2 failed</th><td>6 / 22</td><td>27.3%</td><td><progress max="100" value="27.3" aria-label="Motor 2 recall 27.3 percent">27.3%</progress></td></tr>
+            <tr class="fdi-row--weak"><th scope="row">Motor 3 failed</th><td>4 / 22</td><td>18.2%</td><td><progress max="100" value="18.2" aria-label="Motor 3 recall 18.2 percent">18.2%</progress></td></tr>
+            <tr><th scope="row">Motor 4 failed</th><td>18 / 22</td><td>81.8%</td><td><progress max="100" value="81.8" aria-label="Motor 4 recall 81.8 percent">81.8%</progress></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p id="recall-note" class="fdi-note">The healthy class is not the challenge: the detector correctly labelled every healthy window, while confusing several failed-motor classes with one another. A high overall window accuracy would hide that failure pattern.</p>
+
+      <details class="fdi-confusion">
+        <summary>Open the full confusion matrix</summary>
+        <div class="table-wrap fdi-table-wrap" tabindex="0" role="region" aria-label="Scrollable held-out confusion matrix">
+          <table>
+            <caption>Held-out windows: rows are the true class; columns are the predicted class.</caption>
+            <thead><tr><th scope="col">True \ Predicted</th><th scope="col">Healthy</th><th scope="col">Motor 1</th><th scope="col">Motor 2</th><th scope="col">Motor 3</th><th scope="col">Motor 4</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Healthy</th><td>77</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+              <tr><th scope="row">Motor 1</th><td>1</td><td>4</td><td>11</td><td>3</td><td>3</td></tr>
+              <tr><th scope="row">Motor 2</th><td>1</td><td>0</td><td>6</td><td>5</td><td>10</td></tr>
+              <tr><th scope="row">Motor 3</th><td>1</td><td>14</td><td>1</td><td>4</td><td>2</td></tr>
+              <tr><th scope="row">Motor 4</th><td>1</td><td>1</td><td>0</td><td>2</td><td>18</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </section>
+
+    <section id="method" class="fdi-method" aria-labelledby="method-title">
+      <div class="fdi-section-head"><div><p class="fdi-section-label">Frozen pilot protocol</p><h2 id="method-title">Three seeds. Five actuator states. Raw traces retained.</h2></div><p>The run used a pinned open Crazyflie Webots plant and a deterministic command profile. The experiment changes the controller wrapper to inject a motor-command loss; it is not the paper's plant or training method.</p></div>
+      <div class="fdi-method-grid">
+        <article><span>01 / Scenarios</span><h3>15 complete trajectories</h3><p>For command seeds 11, 23, and 47: one healthy case and a complete loss of motor 1, 2, 3, or 4. The fault begins at 10 seconds in each 24-second run. Every trace contains 750 samples.</p></article>
+        <article><span>02 / Inputs</span><h3>Motion and commanded motors</h3><p>Each sample includes simulated position, three-axis angular rate, and four requested motor speeds. The faulted command is still logged as requested; motor application is separately zeroed.</p></article>
+        <article><span>03 / Split</span><h3>Hold out the entire command seed</h3><p>Ten trajectories from seeds 11 and 23 train the model. Five trajectories from seed 47 are held out. This avoids splitting adjacent windows from a single trace across both sets.</p></article>
+        <article><span>04 / Detector</span><h3>Small five-class MLP</h3><p>A NumPy network uses 100-sample windows with stride 20, one 24-unit hidden layer, and 80 Adam epochs. It is an independent baseline, not the paper's method or a recovery controller.</p></article>
+      </div>
+      <div class="fdi-math"><strong>330 training windows</strong><span aria-hidden="true">→</span><strong>165 held-out windows</strong><span aria-hidden="true">→</span><strong>one exploratory score</strong></div>
+    </section>
+
+    <section class="fdi-boundary" aria-labelledby="boundary-title">
+      <p class="fdi-section-label">Evidence boundary</p>
+      <h2 id="boundary-title">A software milestone, not a flight claim.</h2>
+      <div class="fdi-boundary-grid">
+        <div><strong>Established</strong><p>A hosted workflow can generate seeded headless Webots traces, fit the pilot model, and preserve predictions, weights, settings, and hashes without a physical aircraft.</p></div>
+        <div><strong>Not established</strong><p>Reliable motor isolation, detection latency, recovery, learned control-barrier performance, PX4/Gazebo behavior, flight safety, or a faithful reproduction of the cited paper.</p></div>
+        <div><strong>Still separate</strong><p>This study does not change the camera evidence, the frozen landing-controller results, or Phase 26's <code>NO_DATASET_ADMITTED</code> status. It is not wired into Model VASE.</p></div>
+      </div>
+      <p class="fdi-limits"><strong>Why the score is preliminary:</strong> the holdout contains one trajectory per class and overlapping windows. The result should guide a larger trajectory-level study; it cannot estimate generalization. The next gate is a faithful source/weights decision or a clearly labelled independent reproduction, followed by a larger predeclared seed holdout.</p>
+    </section>
+
+    <section class="fdi-sources" aria-labelledby="sources-title">
+      <div class="fdi-section-head"><div><p class="fdi-section-label">Reproducibility and source</p><h2 id="sources-title">Follow every step back to its record.</h2></div><p>The artifact is retained by GitHub through 9 November 2026. It includes all 15 CSV traces, held-out predictions, model weights, metrics, protocol, and SHA-256 provenance.</p></div>
+      <div class="fdi-source-links">
+        <a href="https://github.com/suhaslord/uav-safety-research/actions/runs/38030993520" target="_blank" rel="noreferrer"><strong>Hosted Webots run and artifact</strong><span>Run status and downloadable evidence ↗</span></a>
+        <a href="https://github.com/suhaslord/uav-safety-research/tree/main/experiments/ornik_fdi_webots" target="_blank" rel="noreferrer"><strong>Pilot source and protocol</strong><span>Controller, training script, and README ↗</span></a>
+        <a href="https://github.com/suhaslord/uav-safety-research/pull/173" target="_blank" rel="noreferrer"><strong>Merge record · PR #173</strong><span>Hardware-free FDI workflow merged to main ↗</span></a>
+        <a href="https://github.com/suhaslord/uav-safety-research/issues/16" target="_blank" rel="noreferrer"><strong>Research issue #16</strong><span>Open reproduction and robustness gates ↗</span></a>
+        <a href="https://doi.org/10.1109/LCSYS.2023.3302768" target="_blank" rel="noreferrer"><strong>Garg et al. · IEEE Control Systems Letters</strong><span>Model-Free Neural Fault Detection and Isolation for Safe Control ↗</span></a>
+      </div>
+      <p class="fdi-preflight">The public-source audit and reuse questions are recorded in <a href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/ornik_fdi_reproduction_preflight.md" target="_blank" rel="noreferrer">the reproduction preflight ↗</a>. The Webots pilot is explicitly not a reproduction of the paper.</p>
+    </section>
+
+    <nav class="fdi-next" aria-label="Continue research"><a href="/">← AegisLand research home</a><a href="/model-vase/">Model VASE →</a><a href="/phases/">Browse the phase archive →</a></nav>
+  </main>
+  <footer class="fdi-footer"><span>AEGISLAND · research candidate 1.0.0rc1 · evidence boundaries preserved</span><a href="/">Research home</a></footer>
+</body>
+</html>
