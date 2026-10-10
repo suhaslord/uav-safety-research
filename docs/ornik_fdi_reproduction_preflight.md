@@ -36,3 +36,7 @@ These settings define the faithful-reproduction target. AegisLand’s existing U
 5. Only after that baseline is reconciled should the team define the PX4/Gazebo translation and its robustness sweep.
 
 **Evidence boundary:** this preflight records source and execution constraints only. It contains no AegisLand actuator-fault detection result, recovery result, flight result, or safety claim.
+
+## Separate AegisLand software pilot
+
+A distinct, AegisLand-owned [Webots motor-failure pilot](../experiments/ornik_fdi_webots/README.md) is now staged for a hosted Linux runner. It uses the pinned Bitcraze Crazyflie simulator, four single-motor shutdown conditions, held-out command seeds, and a small NumPy classifier. This is an independent exploratory bridge; it is not the faithful Phase 1 paper reproduction, does not use the authors' missing weights, and does not evaluate recovery or PX4/Gazebo. The workflow has not yet produced data or metrics, so no result is claimed.

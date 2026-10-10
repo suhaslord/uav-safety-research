@@ -27,6 +27,7 @@ Start here if you want to understand the project without reading every source fi
 | Document | Purpose |
 |---|---|
 | [`ornik_fdi_reproduction_preflight.md`](ornik_fdi_reproduction_preflight.md) | Pinned source audit, paper settings, and software execution gates for the Crazyflie neural FDI reproduction |
+| [`../experiments/ornik_fdi_webots/README.md`](../experiments/ornik_fdi_webots/README.md) | Separate hardware-free Webots pilot for collecting motor-failure traces and fitting an exploratory neural detector; not a paper reproduction |
 
 ## Phase 26 independent data
 
