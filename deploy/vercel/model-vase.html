@@ -15,7 +15,7 @@
 </head>
 <body class="model-vase-page">
   <a class="vase-skip" href="#main">Skip to Model VASE</a>
-  <header class="top"><a class="brand vase-brand" href="/" aria-label="AegisLand, Model VASE"><img src="/model-vase-mark.svg" alt=""><span class="vase-brand__type"><strong>AEGISLAND</strong><small>MODEL VASE</small></span></a><nav class="nav" aria-label="Research navigation"><a href="/failure-atlas/">Failure Atlas</a><a href="/phases/">All phases</a><a href="/">Research home</a></nav></header>
+  <header class="top"><a class="brand vase-brand" href="/" aria-label="AegisLand, Model VASE"><img src="/model-vase-mark.svg" alt=""><span class="vase-brand__type"><strong>AEGISLAND</strong><small>MODEL VASE</small></span></a><nav class="nav" aria-label="Research navigation"><a href="/failure-atlas/">Failure Atlas</a><a href="/ornik-fdi/">Fault isolation</a><a href="/phases/">All phases</a><a href="/">Research home</a></nav></header>
   <nav class="record-path" aria-label="Research record"><strong>Unified system · frozen evidence by phase</strong><a href="/phases/">Browse the research archive →</a></nav>
   <main id="main">
     <section class="vase-hero" aria-labelledby="title">
@@ -85,6 +85,12 @@
             <h3>Transfer evidence stops at simulation.</h3>
             <p>Phase 8 recorded a PX4/Gazebo diagnostic mismatch. Phase 22 passed 10 locked simulation gates; neither establishes flight performance.</p>
             <a href="/phases/phase22/">Read the Phase 22 record ↗</a>
+          </article>
+          <article class="vase-evidence-card vase-evidence-card--wide">
+            <div class="vase-card-meta"><span>SEPARATE ACTUATOR STUDY</span><b>WEBOTS · NOT INTEGRATED</b></div>
+            <h3>Motor-loss telemetry ran without physical hardware.</h3>
+            <p>The 15-trajectory Crazyflie pilot reached 0.491 balanced accuracy. It recalled only 18–27% of motor 1–3 failures on one held-out command seed; the detector is not reliable yet and is not connected to the VASE supervisor.</p>
+            <a href="/ornik-fdi/">Read the actuator fault pilot and its boundaries ↗</a>
           </article>
         </div>
       </section>
