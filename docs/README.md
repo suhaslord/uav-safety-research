@@ -22,6 +22,16 @@ Start here if you want to understand the project without reading every source fi
 | [`NEXT_EXPERIMENT.md`](NEXT_EXPERIMENT.md) | Exact next preregistered experiment |
 | [`RESULTS_CHECKLIST.md`](RESULTS_CHECKLIST.md) | Checks before publishing any result |
 
+## Phase 26 independent data
+
+| Document | Purpose |
+|---|---|
+| [`phase26_protocol.md`](phase26_protocol.md) | Frozen separate-data study rules and publication gate |
+| [`phase26_imav2025_preregistration.md`](phase26_imav2025_preregistration.md) | Frozen prediction score, threshold rule, and admission requirements |
+| [`phase26_capture_campaign_guide.md`](phase26_capture_campaign_guide.md) | Field steps for collecting, partitioning, recording, and screening a new independent campaign |
+| [`phase26_capture_manifest_template.csv`](phase26_capture_manifest_template.csv) | Blank image-level intake manifest for the Phase 26 audit script |
+| [`phase26_secondary_leads_screen_2026-10-10.md`](phase26_secondary_leads_screen_2026-10-10.md) | Public dataset candidates screened so far |
+
 ## External feedback
 
 | Document | Purpose |
