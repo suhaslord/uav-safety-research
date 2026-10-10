@@ -22,6 +22,12 @@ Start here if you want to understand the project without reading every source fi
 | [`NEXT_EXPERIMENT.md`](NEXT_EXPERIMENT.md) | Exact next preregistered experiment |
 | [`RESULTS_CHECKLIST.md`](RESULTS_CHECKLIST.md) | Checks before publishing any result |
 
+## Simulation-only actuator-fault study
+
+| Document | Purpose |
+|---|---|
+| [`ornik_fdi_reproduction_preflight.md`](ornik_fdi_reproduction_preflight.md) | Pinned source audit, paper settings, and software execution gates for the Crazyflie neural FDI reproduction |
+
 ## Phase 26 independent data
 
 | Document | Purpose |
