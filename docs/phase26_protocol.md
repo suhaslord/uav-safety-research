@@ -80,6 +80,25 @@ capture sessions cannot be verified. These rules are provisional until the
 candidate input hashes, session provenance, and annotation audit are recorded.
 No IMAV model outcomes have been inspected or declared independent here.
 
+The [DDroneC-DB2 candidate screen](phase26_candidate_screen_dronedb2_2026-10-08.md)
+rejects its published random image-level folds as an independent test set;
+dataset rights and source-video/session mapping also remain unverified.
+
+The [UAVLandData candidate screen](phase26_candidate_screen_uavlanddata_2026-10-10.md)
+records its real-landing source as a possible development lead, but rejects
+the published random image split as an independent test and requires
+image-to-session provenance, rights verification, and a blinded target review
+before further use.
+
+The [secondary public-source screen](phase26_secondary_leads_screen_2026-10-10.md)
+records other rejected landing-data leads and the specific ontology, release,
+or provenance gap for each.
+
+The [TiHAN Marker Based Landing candidate screen](phase26_candidate_screen_tihan_mbl_2026-10-10.md)
+records a newly surfaced 7,517-image lead. Its published 70/15/15 split is not
+documented as capture-session-separated; access terms, session provenance,
+and target geometry remain unverified, so it is not admitted.
+
 The first reliability score is the maximum score of the frozen detector's
 post-NMS landing-target predictions; use zero when no prediction exists. It
 must never take ground-truth boxes or labels as inputs. For the primary
