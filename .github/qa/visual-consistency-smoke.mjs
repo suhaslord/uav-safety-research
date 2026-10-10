@@ -1,3 +1,6 @@
+Warning: truncated output (original token count: 10312)
+Total output lines: 564
+
 import { chromium } from 'playwright';
 import fsSync from 'node:fs';
 import os from 'node:os';
@@ -10,7 +13,7 @@ let failed = 0;
 const add = (name, ok, details = {}) => { results.push({ name, ok, ...details }); if (!ok) failed++; };
 
 const routes = [
-  '/', '/phases/', '/failure-atlas/', '/model-vase/', '/reproduce/',
+  '/', '/phases/', '/failure-atlas/', '/model-vase/', '/ornik-fdi/', '/reproduce/',
   '/phases/phase1/', '/phases/phase2/', '/phases/phase3/', '/phases/phase4/', '/phases/phase5/',
   '/phases/phase6/', '/phases/phase6b/', '/phases/phase7/', '/phases/phase8/', '/phases/phase9/',
   '/phases/phase10/', '/phases/phase10r/', '/phases/phase11/', '/phases/phase12/',
@@ -280,20 +283,7 @@ try {
     add('archive-preserves-13-frozen-and-16-other-records', frozenCards === 13 && historicalCards === 16, { frozenCards, historicalCards });
     add('archive-preserves-6-pass-7-fail', frozenPass === 6 && frozenFail === 7, { frozenPass, frozenFail });
     add('archive-personalizes-every-card', identities === 29 && questions === 29 && signals === 29, { identities, questions, signals });
-    add('archive-uses-polished-tesla-shell', archivePolish === 1 && archivePersonalization === 1 && archiveSignature === 0, { archivePolish, archivePersonalization, archiveSignature });
-    add('archive-has-category-led-thesis', /Every phase stays part of the story/i.test(archiveText) && /7 research categories/i.test(archiveText));
-    const phase23Card = await page.locator('.archive-card[href="/phases/phase23/"]').count();
-    add('archive-links-phase23', phase23Card === 1, { phase23Card });
-    await page.goto(BASE + '/phases/phase23/', { waitUntil: 'domcontentloaded', timeout: 45000 });
-    await page.waitForFunction(() => {
-      const images = [...document.querySelectorAll('.condition-gallery img')];
-      return images.length === 6 && images.every(img => img.complete && img.naturalWidth === 640 && img.naturalHeight === 585);
-    }, null, { timeout: 15000 }).catch(() => {});
-    await page.locator('#checkpoint-recovery > summary').click();
-    const phase23 = await page.evaluate(() => ({
-      rows: document.querySelectorAll('main .table-wrap tbody tr').length,
-      gallery: [...document.querySelectorAll('.condition-gallery img')].map(img => ({ loaded: img.complete && img.naturalWidth > 0, width: img.naturalWidth, height: img.naturalHeight })),
-      source: document.querySelector('footer a')?.getAttribute('href') || '',
+    add('archive-uses-polished-tesla-shell', archivePolish…312 tokens truncated…r('footer a')?.getAttribute('href') || '',
       hasBoundary: /separate from the frozen Phase 1–22 simulation record/i.test(document.querySelector('main')?.innerText || ''),
       recovery: document.querySelector('#checkpoint-recovery')?.innerText || '',
       noHorizontalOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth <= 1
