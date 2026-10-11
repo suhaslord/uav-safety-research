@@ -235,14 +235,13 @@ try {
       top: el.getBoundingClientRect().top,
       videos: document.querySelectorAll('video[data-home-film]').length,
       mutedAutoplay: document.querySelectorAll('video[data-home-film][autoplay][muted][playsinline]').length,
-      contextLabels: document.querySelectorAll('video[data-home-film][aria-label*="not AegisLand"]').length
-        + document.querySelectorAll('video[data-home-film][aria-label*="not AegisLand experimental"]').length,
+      contextLabels: document.querySelectorAll('video[data-home-film][aria-label*="not AegisLand"]').length,
       sourceLinks: document.querySelectorAll('.home-film-hero a[href]').length
     }));
     const preview = await page.locator('#home-comparison').evaluate(el => ({ top: el.getBoundingClientRect().top, models: el.querySelectorAll('[data-home-model]').length, controls: el.querySelectorAll('[data-home-condition]:not([disabled])').length }));
     add('home-video-led-first-viewport', film.top < 1000 && film.videos === 2 && film.mutedAutoplay === 2 && film.contextLabels >= 2, film);
     add('home-real-model-comparison-follows-films', preview.top > film.top && preview.models === 2 && preview.controls === 6, preview);
-    add('home-current-thesis-visible', /Drone perception and fault research/i.test(homeText) && /Same view\. Two models\./i.test(homeText) && /camera results remain separate/i.test(homeText), { excerpt: homeText.slice(0, 500) });
+    add('home-current-thesis-visible', /Drone perception and fault research/i.test(homeText) && /Same view\. Two models\./i.test(homeText) && /Camera and control results are separate experiments/i.test(homeText), { excerpt: homeText.slice(0, 500) });
     add('home-current-project-framing-visible', /Model VASE explores when a simulator should distrust its own landing estimate/i.test(homeText) && /−13\.3 pp/.test(homeText) && /Phase 24/i.test(homeText));
     add('home-evidence-boundary-visible', /Camera and control results are separate experiments/i.test(homeText) && /No flight-safety claim/i.test(homeText));
     add('home-phase22-final-visible', /0\.8319/.test(homeText) && /0\.7744/.test(homeText) && /10 \/ 10 gates passed/i.test(homeText) && /100%/.test(homeText), { excerpt: homeText.slice(0, 900) });
