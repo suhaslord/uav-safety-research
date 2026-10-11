@@ -133,12 +133,15 @@ def main():
         report = json.loads(z.read("report/heldout_results.json"))
         # Confirm that the archived run identity, pinned simulator, and
         # declared evaluation settings agree with the frozen audit rule.
-        run_sha = z.read("git_sha.txt").decode("utf-8").strip()
+        try:
+            run_sha = z.read("git_sha.txt").decode("utf-8").strip()
+            digests = json.loads(z.read("docker_image_digest.json"))
+        except KeyError as exc:
+            raise ValueError(f"Evidence artifact missing required provenance file: {exc}") from exc
         if report.get("git_sha") != run_sha or len(run_sha) != 40 or any(
             digit not in "0123456789abcdef" for digit in run_sha.lower()
         ):
             raise ValueError("Git checkout SHA is missing or conflicts with report provenance")
-        digests = json.loads(z.read("docker_image_digest.json"))
         if not isinstance(digests, list) or not any(
             isinstance(value, str) and
             value.startswith("cyberbotics/webots@sha256:") and
