@@ -121,9 +121,14 @@ def test_homepage_videos_have_webm_fallbacks_for_browsers_without_h264() -> None
 def test_production_deploy_gate_accepts_autoplay_and_checks_both_video_formats() -> None:
     workflow = (ROOT / ".github" / "workflows" / "emergency-vercel-deploy.yml").read_text(encoding="utf-8")
 
-    assert "data-autoplay=\"visible\"" in workflow
-    assert "aerocast-flight.webm" in workflow
-    assert "evaluation-nasa-clip.webm" in workflow
+    # Enforce both muted native autoplay instances and both encoded formats.
+    # This replaces the obsolete data-autoplay attribute expected by the old layout.
+    assert "data-home-film autoplay muted" in workflow
+    assert "grep -o 'data-home-film autoplay muted'" in workflow
+    assert "wc -l" in workflow
+    for clip in ("aerocast-flight", "evaluation-nasa-clip"):
+        assert clip + ".webm" in workflow
+        assert clip + ".mp4" in workflow
     assert "href=\"/aegisland-brand.css?v=2\"" not in workflow
     assert "<video controls playsinline preload=\"none\"" not in workflow
 
