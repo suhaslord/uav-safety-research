@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - research/fdi-h3-px4-development-capture-20261011
+      - research/fdi-h3-raw-ulog-replay-20261011
 
 concurrency:
   group: h3-development-capture-${{ github.ref }}
@@ -34,7 +35,7 @@ jobs:
           python -m pip install -e ".[dev]" pyulog "mavsdk==3.17.4"
           python -c "from mavsdk import System; from mavsdk.offboard import OffboardError, PositionNedYaw; print('Legacy MAVSDK offboard API available')"
           python -m pip show mavsdk > /tmp/h3-development-mavsdk-package.txt
-          python -m pytest -q tests/test_fdi_h3_px4_ulog_preflight.py tests/test_fdi_h3_px4_development_trace.py tests/test_fdi_h3_development_capture_workflow.py
+          python -m pytest -q tests/test_fdi_h3_px4_ulog_preflight.py tests/test_fdi_h3_px4_development_trace.py tests/test_fdi_h3_development_capture_workflow.py tests/test_fdi_h3_raw_ulog_replay_audit.py
 
       - name: Clone pinned candidate PX4 source
         run: |
@@ -118,6 +119,14 @@ jobs:
             --csv /tmp/h3-development/px4_h3_unmapped.csv \
             --metadata /tmp/h3-development/px4_h3_unmapped_metadata.json
 
+      - name: Independently replay raw ULog sensor values against export
+        run: |
+          python -m scripts.fdi_h3_raw_ulog_replay_audit \
+            /tmp/h3-development/px4_gazebo_raw.ulg \
+            --csv /tmp/h3-development/px4_h3_unmapped.csv \
+            --metadata /tmp/h3-development/px4_h3_unmapped_metadata.json \
+            --output /tmp/h3-development/raw_ulog_replay_audit.json
+
       - name: Write development-only provenance receipt including failures
         if: always()
         run: |
@@ -146,6 +155,7 @@ jobs:
 
           preflight = read_json('px4_h3_preflight.json')
           trace = read_json('px4_h3_unmapped_metadata.json')
+          replay = read_json('raw_ulog_replay_audit.json')
           source = (root / 'px4_source.env')
           receipt = {
               'study': 'FDI-H3',
@@ -163,8 +173,11 @@ jobs:
               'raw_ulog_sha256': sha256('px4_gazebo_raw.ulg'),
               'preflight': preflight,
               'unmapped_trace_metadata': trace,
-              'status': 'DEVELOPMENT_EXPORT_CREATED' if trace else (
-                  'PREFLIGHT_INCOMPLETE' if preflight else 'RAW_LOG_MISSING_OR_SETUP_FAILED'
+              'raw_ulog_replay_audit': replay,
+              'status': 'DEVELOPMENT_EXPORT_CREATED' if trace and replay and replay.get('status') == 'MATCHED_DEVELOPMENT_ONLY' else (
+                  'RAW_REPLAY_INCOMPLETE' if trace else (
+                      'PREFLIGHT_INCOMPLETE' if preflight else 'RAW_LOG_MISSING_OR_SETUP_FAILED'
+                  )
               ),
               'note': 'Telemetry collection only. No motor faults injected and no protected H3 test executed.',
           }

@@ -60,3 +60,12 @@ def test_capture_records_exact_model_submodule_and_cancels_obsolete_runs():
     assert 'PX4-GZ_MODEL_SUBMODULE_SHA=' in body
     assert 'HEAD:Tools/simulation/gz' in body
     assert 'cancel-in-progress: true' in body
+
+
+def test_source_replay_is_a_required_development_gate():
+    body = text()
+    assert 'scripts.fdi_h3_raw_ulog_replay_audit' in body
+    assert 'raw_ulog_replay_audit.json' in body
+    assert "MATCHED_DEVELOPMENT_ONLY" in body
+    assert body.index('Independently replay raw ULog') < body.index('Write development-only provenance receipt')
+    assert body.index('Independently replay raw ULog') < body.index('Independently audit development-only evidence')
