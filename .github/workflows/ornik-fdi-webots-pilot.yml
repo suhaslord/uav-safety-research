@@ -17,6 +17,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: fdi-pilot-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   webots-fdi-pilot:
     runs-on: ubuntu-24.04
