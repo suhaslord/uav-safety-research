@@ -88,6 +88,12 @@ As an explicit negative simulator-dynamics finding, **data excluded by the 10.70
 
 The auditor reports these *post-time-censor* extrema independently of the early detection score. No filter or fault-detection threshold was changed after examining these data.
 
+## What the archived controller actually measures
+
+The original Webots controller calls `motor.setVelocity(sign * applied_power)` with zero applied power for the selected failed motor after onset. However, the archived CSV `cmd_m1`–`cmd_m4` columns contain the **unmodified PID-command outputs**, not the post-injection motor values or independently measured rotor speeds. Consequently, the raw traces confirm the specified *scenario labels and resulting gyro response*, but do **not independently prove motor-actuator realization**. The injection mechanism is supported by the frozen controller source and simulation setup, not separate physical motor feedback.
+
+The controller also defines `finite(value)` such that a nonfinite raw sensor value is silently written/used as `0.0`. Although all archived telemetry values pass finite-number checks, that alone **cannot prove the underlying raw Webots sensors never emitted NaN or infinity**; there is no counter or validity flag for such substitutions. These are additional provenance/instrumentation limitations, not evidence that substitutions occurred. A future, separately frozen robustness experiment should record **raw sensor validity flags/counters and applied per-motor commands** and mark such cases explicitly rather than concealing them.
+
 ## Why the result is not a broader safety claim
 
 1. **The first long-window MLP approach was rejected.** Its preceding 15-trace pilot showed 0.661 window accuracy and 0.491 balanced accuracy on only one held-out seed. Some post-failure Webots trajectories diverged into physically absurd rotations/altitudes. This justified changing the *research question* before examining the new protected seeds; the new rule itself was inspired by those pilot results. This selection must be disclosed.
