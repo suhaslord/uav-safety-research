@@ -1,6 +1,15 @@
 name: FDI H2 prospective stress study
 
 on:
+  push:
+    branches:
+      - "research/fdi-h2-*"
+    paths:
+      - "experiments/ornik_fdi_webots/webots_fdi_h2_controller.py"
+      - "experiments/ornik_fdi_webots/evaluate_fdi_h2.py"
+      - "experiments/ornik_fdi_webots/test_fdi_h2.py"
+      - "docs/fdi_h2_prospective_protocol.md"
+      - ".github/workflows/fdi-h2-prospective.yml"
   pull_request:
     branches:
       - research/fdi-heldout-seed-validation-20261011
