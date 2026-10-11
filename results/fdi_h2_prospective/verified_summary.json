@@ -1,0 +1,195 @@
+{
+  "study": "AegisLand FDI-H2",
+  "evidence_date_utc": "2026-10-11",
+  "status": "completed_independently_replayed_within_simulator",
+  "source": {
+    "pr": 178,
+    "run_id": 38115058084,
+    "artifact_id": 11693248745,
+    "artifact_zip_sha256": "3c76f9bbcb92254d96521065f0c20e7a363ee7160b482f20cc41f991c27a70d5",
+    "workflow_checkout_sha": "5ed639aa107d6534885023af5804584615ce5f9a"
+  },
+  "evaluation": {
+    "motor_classes": [
+      "healthy",
+      "motor_1",
+      "motor_2",
+      "motor_3",
+      "motor_4"
+    ],
+    "new_seed_clusters": 8,
+    "simulated_trajectories": 144,
+    "raw_telemetry_rows": 54072,
+    "offline_noise_decisions": 432,
+    "decision_metric": "temporally_valid_5_class_balanced_accuracy",
+    "noise_sigma_units": "rad/s",
+    "noise_injected_offline_only": true,
+    "sensor_conditions": [
+      0,
+      0.2,
+      1
+    ],
+    "motor_speed_retention_conditions": [
+      0,
+      0.5
+    ]
+  },
+  "results": [
+    {
+      "noise_sigma": 0,
+      "retention": 0,
+      "balanced_accuracy": 1,
+      "bootstrap_cluster_95_percent": [
+        1,
+        1
+      ],
+      "fault_correct_isolation": 64,
+      "healthy_controls_correct": 16
+    },
+    {
+      "noise_sigma": 0,
+      "retention": 0.5,
+      "balanced_accuracy": 1,
+      "bootstrap_cluster_95_percent": [
+        1,
+        1
+      ],
+      "fault_correct_isolation": 64,
+      "healthy_controls_correct": 16,
+      "primary_endpoint": true
+    },
+    {
+      "noise_sigma": 0.2,
+      "retention": 0,
+      "balanced_accuracy": 1,
+      "bootstrap_cluster_95_percent": [
+        1,
+        1
+      ],
+      "fault_correct_isolation": 64,
+      "healthy_controls_correct": 16
+    },
+    {
+      "noise_sigma": 0.2,
+      "retention": 0.5,
+      "balanced_accuracy": 1,
+      "bootstrap_cluster_95_percent": [
+        1,
+        1
+      ],
+      "fault_correct_isolation": 64,
+      "healthy_controls_correct": 16
+    },
+    {
+      "noise_sigma": 1,
+      "retention": 0,
+      "balanced_accuracy": 0.9375,
+      "bootstrap_cluster_95_percent": [
+        0.9,
+        0.975
+      ],
+      "fault_correct_isolation": 59,
+      "healthy_controls_correct": 16,
+      "wrong_motor_predictions": 5,
+      "confusion_matrix": [
+        [
+          16,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          15,
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          16,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          13,
+          3
+        ],
+        [
+          0,
+          0,
+          0,
+          1,
+          15
+        ]
+      ]
+    },
+    {
+      "noise_sigma": 1,
+      "retention": 0.5,
+      "balanced_accuracy": 0.9625,
+      "bootstrap_cluster_95_percent": [
+        0.925,
+        0.9878124999999983
+      ],
+      "fault_correct_isolation": 61,
+      "healthy_controls_correct": 16,
+      "wrong_motor_predictions": 3,
+      "confusion_matrix": [
+        [
+          16,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          15,
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          16,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          16,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          2,
+          14
+        ]
+      ]
+    }
+  ],
+  "audit": {
+    "raw_sha256s_verified": 144,
+    "decision_replays_matched": 432,
+    "aggregate_groups_verified": 6,
+    "missing_provenance": 0
+  },
+  "limitations": [
+    "one fixed Webots dynamics plant",
+    "online sensor-noise robustness NOT evaluated",
+    "no physical drone flights or controller recovery",
+    "retention means commanded motor speed rather than thrust",
+    "raw artifact expires after GitHub Actions retention"
+  ]
+}
