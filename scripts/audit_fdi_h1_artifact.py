@@ -21,6 +21,7 @@ PROTECTED = (53, 59, 61, 67, 71, 73, 79, 83)
 SOURCE = (11, 23, 29, 31)
 DEVELOPMENT = (41, 47)
 SEEDS = SOURCE + DEVELOPMENT + PROTECTED
+EXPECTED_ROWS_PER_TRACE = 750  # Archived 24s run at 32ms cadence.
 QUADRANTS = {(1, 1): 1, (1, -1): 2, (-1, -1): 3, (-1, 1): 4}
 NUMERIC_TELEMETRY_FIELDS = (
     "time_s", "x_m", "y_m", "z_m", "gyro_p_rps", "gyro_q_rps", "gyro_r_rps",
@@ -289,7 +290,8 @@ def main():
             seed = int(name.split("_")[0][4:])
             motor = int(name.split("_")[1][5:-4])
             rows = list(csv.DictReader(io.StringIO(contents.decode())))
-            assert len(rows) == int(entry["rows"]) >= 700
+            if len(rows) != EXPECTED_ROWS_PER_TRACE or int(entry["rows"]) != EXPECTED_ROWS_PER_TRACE:
+                raise ValueError(f"Unexpected trace length in {name}: expected {EXPECTED_ROWS_PER_TRACE}, got {len(rows)}")
             times = [float(row["time_s"]) for row in rows]
             assert all(math.isfinite(t) for t in times)
             assert all(b > a for a, b in zip(times, times[1:]))
