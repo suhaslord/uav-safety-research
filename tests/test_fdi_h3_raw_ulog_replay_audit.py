@@ -10,7 +10,7 @@ from scripts.fdi_h3_raw_ulog_replay_audit import (
 
 def fixture():
     gyro_times = list(range(0, 2_400_000, 20_000))
-    motor_times = list(range(0, 2_400_000, 100_000))
+    # Finish both recorded topics at the same observed timestamp, matching the\n    # exporter's strict intersection rather than inventing extra gyro rows.\n    motor_times = list(range(0, 2_400_000, 100_000)) + [gyro_times[-1]]
     g = {"timestamp": gyro_times}
     m = {"timestamp": motor_times}
     for i in range(3):
