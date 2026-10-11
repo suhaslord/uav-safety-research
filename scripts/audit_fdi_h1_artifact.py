@@ -33,6 +33,13 @@ NUMERIC_TELEMETRY_FIELDS = (
 
 
 
+def validate_container_provenance(digests):
+    """Reject tag drift: the frozen result used one exact Docker digest."""
+    if not isinstance(digests, list) or PINNED_WEBOTS_DIGEST not in digests:
+        raise ValueError("Webots container digest does not match the frozen historical image")
+    return True
+
+
 def validate_trace_length(actual_rows, reported_rows, trace_name):
     """Historical artifact has exactly 750 samples per 24-second trace."""
     if actual_rows != EXPECTED_ROWS_PER_TRACE or reported_rows != EXPECTED_ROWS_PER_TRACE:
@@ -252,8 +259,7 @@ def main():
             digit not in "0123456789abcdef" for digit in run_sha.lower()
         ):
             raise ValueError("Git checkout SHA is missing or conflicts with report provenance")
-        if not isinstance(digests, list) or PINNED_WEBOTS_DIGEST not in digests:
-            raise ValueError("Webots container digest does not match the frozen historical image")
+        validate_container_provenance(digests)
         rule = report.get("predefined_rule", {})
         expected_rule = {
             "p_abs_threshold_rad_per_s": 2.0,
