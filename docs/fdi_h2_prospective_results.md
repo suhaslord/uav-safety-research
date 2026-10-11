@@ -62,6 +62,12 @@ python scripts/audit_fdi_h2_artifact.py aegisland-fdi-h2-prospective-evidence.zi
 
 The independent auditor also rejects duplicate ZIP member names, malformed/reordered CSV headers, and corrupted pre-onset Boolean markers. Its optional external-ZIP checksum prevents a self-consistent but substituted ZIP from being mistaken for the archived original. The local evaluator file is checked against the SHA-256 embedded in the report; use the historical evaluator bytes, not a later modified analysis script. A different legitimate artifact will have its **own** ZIP fingerprint. These are integrity protections, not new flight results. Raw Actions artifacts have a **90-day retention period**; preserve a verified copy outside GitHub before expiry.
 
+## Independent trace-timing and paired-control integrity
+
+A further **read-only independent check of the original 144-trace ZIP** found **72 trajectories with 313 samples** (9-second onset; recorded through 10.016s) and **72 with 438 samples** (13-second onset; recorded through 14.016s), accounting for all **54,072 samples**. Every recorded timestamp occupies its expected 32ms position; none of the 144 original traces has a missing or shifted sample. The 16 healthy controls match all **128 paired faulty-condition trajectories exactly before the corresponding injected onset**, comparing position, gyroscope and pre-injection motor-command fields. There are 281 pre-onset samples per 9-second case and 406 per 13-second case.
+
+The independent auditor now also enforces these paired-input and sample-grid integrity conditions and rejects altered published rule/noise/bootstrap metadata. The pairing result supports controlled *within-simulator* comparisons. It does **not** mean 128 independent vehicles or flight tests, nor does it measure post-fault applied motor speed.
+
 ## Measurement and instrumentation boundaries
 
 The frozen H2 Webots controller applies a motor-command-speed multiplier in its actuator loop, but the archived `cmd_m1`–`cmd_m4` columns record **pre-fault PID requests**, not the resulting `motor.setVelocity()` inputs or independently measured rotor RPM. The analysis therefore verifies the **declared scenario controls and their recorded gyroscope response** under the pinned controller; it does **not** independently measure the realized motor speed or aerodynamic thrust.
