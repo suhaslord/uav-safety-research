@@ -177,3 +177,10 @@ fault detector are valid. The original recorded `vehicle_angular_velocity`
 is a processed PX4 topic and still needs a separately documented mapping to
 the simulated `sensor_gyro` and measurement time base. H3 remains
 **NOT_ADMITTED**; no protected fault trials are executed by this tool.
+
+
+## Distinguish processed PX4 body-rate telemetry from raw IMU (2026-10-11)
+
+Pinned PX4 source [`VehicleAngularVelocity.cpp`](https://github.com/PX4/PX4-Autopilot/blob/d6f12ad1c4f70ad3230afd7d86e971421e02fef4/src/modules/sensors/vehicle_angular_velocity/VehicleAngularVelocity.cpp#L921-L940) shows that the exported `vehicle_angular_velocity.xyz` samples are **downstream processed body rates**, not unfiltered sensor outputs: the module selects an IMU, applies optional notch and low-pass filtering, performs calibration and orientation correction, and subtracts an estimated gyro bias. The output message retains both `timestamp_sample` (the source measurement time) and `timestamp` (publication time), and those must not be conflated. See also [PX4's Gazebo IMU bridge](https://github.com/PX4/PX4-Autopilot/blob/d6f12ad1c4f70ad3230afd7d86e971421e02fef4/src/modules/simulation/gz_bridge/GZBridge.cpp#L449-L497), which converts the Gazebo IMU angular velocity from FLU to FRD and publishes the earlier `sensor_gyro` topic.
+
+**Interpretation constraint:** our existing development CSV names include `gyro_xyz*_unmapped_radps` for backwards compatibility. They contain the **logged processed `vehicle_angular_velocity.xyz`**, not direct Gazebo angular velocity or a ground-truth motor response. The new numerical replay proves CSV equality with that processed topic, *not* equality with the IMU plugin signal, nor proof of when sensor perturbation entered the PX4 feedback/control loop. Before H3 is admitted, review actual `timestamp_sample`, selected sensor/calibration and logging settings, and verify prospective **online sensor-side noise injection** and resulting control response in the independent simulator. Do not infer those properties from this replay.
