@@ -36,3 +36,13 @@ def test_capture_preserves_raw_ulog_and_pinned_source():
     assert "px4_gazebo_raw.ulg" in body
     assert "raw_ulog_sha256" in body
     assert "if-no-files-found: warn" in body
+
+
+def test_legacy_mavsdk_import_is_validated_before_sitl_setup():
+    body = text()
+    # The Oct 11 development attempt failed before flight because pip resolved
+    # MAVSDK v4, whose native API removed the old mavsdk.offboard import.
+    assert 'mavsdk<4' in body
+    assert 'from mavsdk.offboard import OffboardError, PositionNedYaw' in body
+    assert 'mavsdk_package.txt' in body
+    assert body.index('from mavsdk.offboard import') < body.index('Install PX4 SITL')
