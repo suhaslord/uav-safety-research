@@ -41,10 +41,10 @@ def key(row):
     return (row["frame_id"], row["condition"], row["model"])
 
 
-def box(row):
+def box(row, *, allow_degenerate=False):
     values = tuple(float(row[k]) for k in BOX_FIELDS)
     if (any(not math.isfinite(x) or not 0 <= x <= 1 for x in values)
-            or values[2] <= values[0] or values[3] <= values[1]):
+            or values[2] < values[0] or values[3] < values[1]\n            or not allow_degenerate and (values[2] == values[0] or values[3] == values[1])):
         raise ValueError(f"Invalid normalized-area box: {values}")
     return values
 
@@ -126,7 +126,7 @@ def diagnostics(table_root: Path):
         # The score is prediction-only. Ground-truth matching happens afterward.
         if category == TARGET_CLASS_ID:
             top[k] = update_top(top.get(k), {
-                "index": index, "confidence": score, "box": box(item)
+                "index": index, "confidence": score, "box": box(item, allow_degenerate=True)
             })
 
     report_rows = []
