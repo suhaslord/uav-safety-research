@@ -76,7 +76,7 @@ def test_current_pages_separate_replay_pairs_and_causal_uncertainty():
     phase23 = (SITE / "phase23.html").read_text(encoding="utf-8")
     phase25 = (SITE / "phase25.html").read_text(encoding="utf-8")
     controlled = (SITE / "phase22-detector-study.html").read_text(encoding="utf-8")
-    assert "860" in home and "24 / 24" in home
+    assert "860" in home and ("24 / 24" in home or "24/24" in home)
     assert "clean-room reproduction" not in phase23
     assert "not a newly trained model" in phase23
     assert "860 within-model pairs" in phase25 and "516 cross-model views" in phase25
