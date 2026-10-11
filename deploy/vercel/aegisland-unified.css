@@ -140,3 +140,25 @@ body:has(#study-results) .fdi-completed h2 {letter-spacing:-.055em}
  body :is(a,button){transition:none!important}
 }
 /* Visible research accessibility: never turn evidence negative results into badges or hide their warnings. */
+
+/* Homepage: measured landing-confidence regression rather than a vague success claim. */
+.aegis-home-spotlight {background:#f4f4f4;border-block:1px solid #e2e3e3;padding:clamp(58px,8vw,120px) 0}
+.aegis-home-spotlight__layout {display:grid;grid-template-columns:minmax(0,1.25fr) minmax(320px,.75fr);gap:clamp(30px,6vw,95px);align-items:center}
+.aegis-home-spotlight h2 {font-size:clamp(37px,5vw,70px)!important;font-weight:500!important;letter-spacing:-.065em!important;line-height:1.02!important;margin:0 0 24px!important}
+.aegis-home-spotlight p {max-width:650px;color:#393c41;font-size:clamp(15px,1.6vw,18px);line-height:1.65}
+.aegis-home-spotlight__text>.eyebrow {color:#b52127!important;font-size:12px!important;font-weight:750;letter-spacing:.14em}
+.aegis-home-spotlight__boundary {font-size:13px!important;color:#5c5e62!important}
+.aegis-home-spotlight__link {display:inline-flex;align-items:center;min-height:44px;margin-top:8px;text-decoration:none;font-weight:750;font-size:14px;color:#171a20!important;border-bottom:2px solid #e82127}
+.aegis-home-spotlight__link:hover {color:#bd2025!important}
+.aegis-home-spotlight__stats {background:white;border:1px solid #e2e3e3}
+.aegis-home-spotlight__stats>div {padding:23px 30px}
+.aegis-home-spotlight__stats>div+div {border-top:1px solid #e2e3e3}
+.aegis-home-spotlight__stats span {display:block;color:#5c5e62;text-transform:uppercase;letter-spacing:.08em;font-size:11px;font-weight:650}
+.aegis-home-spotlight__stats strong {display:inline-flex;align-items:baseline;gap:9px;margin:10px 23px 0 0;color:#171a20;font-size:clamp(30px,3vw,45px);font-weight:600;line-height:1.05;letter-spacing:-.06em}
+.aegis-home-spotlight__stats strong small {font-size:11px;font-weight:650;letter-spacing:0;line-height:1.3;color:#5c5e62}
+.aegis-home-spotlight__stats .aegis-home-spotlight__warning {color:#bc2c30}
+.aegis-home-spotlight__stats .aegis-home-spotlight__status {background:#fff}
+.aegis-home-spotlight__status strong {font-size:clamp(23px,3vw,35px);letter-spacing:-.04em}
+.aegis-home-spotlight__status>small {display:block;color:#5c5e62;font-size:12px;margin-top:8px}
+@media(max-width:900px){.aegis-home-spotlight__layout{grid-template-columns:1fr;gap:26px}.aegis-home-spotlight__stats{display:grid;grid-template-columns:1fr 1fr}.aegis-home-spotlight__stats>div+div{border-top:0}.aegis-home-spotlight__stats>div:nth-child(2){border-left:1px solid #e2e3e3}.aegis-home-spotlight__stats>.aegis-home-spotlight__status{grid-column:1/-1;border-top:1px solid #e2e3e3}}
+@media(max-width:560px){.aegis-home-spotlight__stats{grid-template-columns:1fr}.aegis-home-spotlight__stats>div:nth-child(2){border-left:0;border-top:1px solid #e2e3e3}.aegis-home-spotlight__stats>.aegis-home-spotlight__status{grid-column:auto}.aegis-home-spotlight__stats>div{padding:22px}.aegis-home-spotlight h2{font-size:40px!important}}
