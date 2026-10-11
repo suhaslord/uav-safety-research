@@ -1,8 +1,13 @@
 name: FDI early pre-contact validation
 
 on:
-  pull_request:
-    branches: [main]
+  # Use push-diff filtering: on pull_request, GitHub compares the ENTIRE
+  # PR against main, causing full reruns even after test-only commits.
+  # The original held-out study is already archived; future source changes
+  # trigger this reproducibility suite, while unit tests run on each PR.
+  push:
+    branches:
+      - "research/fdi-*"
     paths:
       # Repeat the expensive 70-trajectory study only when its executable
       # simulator controller, frozen evaluator, or workflow changes.
