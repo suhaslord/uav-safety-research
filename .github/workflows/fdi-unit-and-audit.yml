@@ -13,6 +13,12 @@ on:
 permissions:
   contents: read
 
+# Multiple small commits can arrive while earlier checks are still queued.
+# Keep only the most recent verification for each PR/branch.
+concurrency:
+  group: fdi-fast-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   frozen-detector-and-audit-unit-tests:
     runs-on: ubuntu-24.04
