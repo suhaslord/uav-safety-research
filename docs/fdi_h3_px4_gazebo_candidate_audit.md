@@ -81,3 +81,38 @@ This capture **does not introduce motor failures**, does not evaluate the H1/H2 
 The first independent PX4/Gazebo development capture [run 38142829434](https://github.com/suhaslord/uav-safety-research/actions/runs/38142829434) built and started headless PX4 successfully but **did not fly the development mission**. Python failed while importing `mavsdk.offboard` because the unbounded dependency resolved to MAVSDK 4.0.6, whose native API is incompatible with the legacy mission script. The archived raw `.ulg` is a startup/debug recording, **not** a successful mission or H3 fault trial. Neither the ULog signal preflight nor the development CSV export ran, and no detector metrics can be inferred.
 
 The capture workflow now installs `mavsdk<4`, tests the legacy `mavsdk.offboard` import **before** the costly SITL setup, and preserves the installed package metadata in the run artifact. The original failure remains preserved, and any replacement capture must demonstrate a completed simulated mission and passing signal checks before progressing to manual motor-map review. This change corrects a software API mismatch; it does **not** admit independent H3 trials or establish simulated flight safety.
+
+
+## First completed PX4 development capture — independently reconciled (2026-10-11)
+
+The [corrected PX4/Gazebo capture run 38143526133](https://github.com/suhaslord/uav-safety-research/actions/runs/38143526133) passed after pinning the legacy MAVSDK API generation. Its [development artifact 11704047252](https://github.com/suhaslord/uav-safety-research/actions/runs/38143526133/artifacts/11704047252) contains the source revision, completed eight-segment mission receipt, unmodified ULog, preflight, unmapped CSV, and source SHA-256. The artifact from this run was configured for **14-day retention**; newer workflow revisions request **90 days**.
+
+**Recorded observations (development only):**
+
+| Check | Observed |
+| --- | --- |
+| PX4 release / pinned source | `v1.17.0` / `d6f12ad1c4f70ad3230afd7d86e971421e02fef4` |
+| Model | Gazebo `gz_x500` |
+| Installed MAVSDK in successful run | `3.17.4` (legacy gRPC API) |
+| Simulated mission metadata | `completed: true`, eight maneuver segments |
+| Shared gyro/actuator window | 41.8 seconds |
+| `vehicle_angular_velocity` overlap observations | 4,182 |
+| `actuator_motors` overlap observations | 420 |
+| Exported causal/unmapped paired CSV rows | 4,182 |
+| Greatest age of associated actuator command | 96 ms (limit: 100 ms) |
+| Raw ULog SHA-256 | `727503330869b1e787b1bb571f5ab1fa1d921c7e5e927b7b117f06dfb85cc37b` |
+| Preflight | `READY_FOR_MANUAL_SIGNAL_MAPPING` — zero errors |
+| Development export | `DEVELOPMENT_ONLY_UNMAPPED` — no motor labels or predictions |
+
+The archived ZIP was additionally checked by a separate read-only, standard-library auditor: `scripts/fdi_h3_development_bundle_audit.py`. It reconciles the raw recording checksum with all receipts and preflight/export metadata, checks mission completion, CSV row counts, causal command time alignment, finite channels and age bounds, and **rejects any claim of H3 fault results**. The 4,182-row source ZIP passed the bundle-consistency check with zero reported errors. The auditor's result is `CONSISTENT_DEVELOPMENT_ONLY`, **not independent-dynamics admission**; it does not independently parse the ULog to reproduce every exported numeric channel, establish physical motor mappings, or verify fault injection.
+
+To audit a downloaded artifact ZIP locally, without a simulator:
+
+```bash
+python -m scripts.fdi_h3_development_bundle_audit fdi-h3-px4-development-only.zip \
+  --output development_audit.json
+```
+
+The GitHub Actions workflow now performs this audit before upload, pins `mavsdk==3.17.4`, and requests 90-day retention for new artifacts. Regression tests deliberately reject falsified checksums, missing missions, future/stale actuator associations, nonfinite gyro data, row-count discrepancies, and any claim of protected H3 scoring.
+
+**Next scientific gate:** source-review the pin-to-Gazebo motor/joint mapping and gyro units, sign, timestamp basis; establish simulator-applied actuator fault observability and independently review its implementation, then freeze a new protected-seed set **before** attempting motor fault scores. No motor fault was injected or scored in this capture.
