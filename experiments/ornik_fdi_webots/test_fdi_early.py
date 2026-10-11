@@ -37,5 +37,39 @@ class EarlyFDIValidation(unittest.TestCase):
         self.assertEqual(metrics(rows)['balanced_accuracy'],0.2)
         self.assertEqual(bootstrap_test(rows)['percentile_95_interval'],[0.2,0.2])
 
+    def test_detection_is_not_equivalent_to_correct_isolation(self):
+        # Two paired seeds with imperfect outcomes. Wrong motor labels
+        # count as detections but NOT as correct fault isolation.
+        records = []
+        for seed in (901, 903):
+            for motor in range(5):
+                predicted = motor
+                if motor == 1:
+                    predicted = 0             # missed fault
+                elif motor == 2:
+                    predicted = 3             # detected, wrongly isolated
+                elif motor == 0 and seed == 903:
+                    predicted = 1             # healthy false alarm
+                records.append(dict(
+                    seed=seed, motor=motor, prediction=predicted,
+                    alert_time_s=10.25 if predicted and motor else None))
+        results = metrics(records)
+        self.assertEqual(results['balanced_accuracy'], 0.5)
+        self.assertEqual(results['healthy_false_alarm_rate'], 0.5)
+        self.assertEqual(results['fault_detection_rate'], 0.75)
+        self.assertEqual(results['correct_fault_isolation_rate'], 0.5)
+        self.assertEqual(results['confusion_matrix_rows_true_cols_predicted'][2][3], 2)
+
+    def test_seed_cluster_bootstrap_reflects_seed_failure(self):
+        records = [
+            {'seed': seed, 'motor': motor,
+             'prediction': (0 if seed == TEST_SEEDS[-1] else motor),
+             'alert_time_s': 10.25 if motor and seed != TEST_SEEDS[-1] else None}
+            for seed in TEST_SEEDS for motor in range(5)]
+        lo, hi = bootstrap_test(records)['percentile_95_interval']
+        self.assertLess(lo, hi)
+        self.assertGreaterEqual(lo, 0.2)
+        self.assertLessEqual(hi, 1.0)
+
 if __name__=='__main__':
     unittest.main()
