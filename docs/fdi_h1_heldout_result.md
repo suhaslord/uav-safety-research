@@ -43,6 +43,12 @@ Protected confusion matrix, **rows = truth** and **columns = prediction**:
 
 **Uncertainty:** the seed-cluster bootstrap in the workflow reports `[1.0, 1.0]` because every one of the eight seed clusters achieved perfect classification. That **does not** mean future accuracy is known with certainty. A more conservative exact two-sided 95% binomial lower bound for **8 successful seed clusters out of 8**, assuming independent identically distributed generated-command seeds, is only **0.631**. Even that inference is restricted to the same simulation/command distribution and ignores dependence through the shared vehicle physics. Do **not** treat 40 trajectories or overlapping sensor samples as independent real-world experiments.
 
+## Descriptive development outcomes (not independent confirmation)
+
+The **30 nonprotected trajectories** from six source/development command seeds (11, 23, 29, 31, 41, 47) were also independently replayed against their saved raw CSVs and SHA-256 manifest. All **30/30** raw checksums match, and the archived descriptive score is **1.000 balanced accuracy** (six correct healthy cases and six correct isolations for each of four motor classes). The median correct-fault latency is **0.272 seconds**. These results agree with `development_descriptive_result` and the archived decision log.
+
+**Do not combine these 30 cases with the 40 protected cases to increase an independent sample size.** The rule was inspired by preliminary results including pilot seeds 11, 23 and 47, so the development figures are descriptive only. They do not strengthen the protected generalization claim.
+
 ## Independent artifact audit
 
 In addition to the green GitHub Actions and unit tests, a separate standard-library replay checked the downloaded workflow artifact:
