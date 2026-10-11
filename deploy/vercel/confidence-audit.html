@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#ffffff">
+<meta name="description" content="AegisLand's verified Phase 25 top-confidence reliability audit: why a correct landing-pad box can exist while the highest-confidence prediction is wrong. No Phase 26 independent dataset admitted.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="When confidence gets it wrong · AegisLand">
+<meta property="og:description" content="86 real KIOS frames across six dependent camera conditions. Previously-used data, clear failure counts, raw evidence and limits.">
+<link rel="canonical" href="https://aegisland-research-cockpit.vercel.app/confidence-audit/">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/aegisland-unified.css?v=1">
+<title>Landing confidence audit · AegisLand</title>
+</head>
+<body class="aegis-report">
+<a href="#main" style="position:absolute;left:10px;top:-100px;background:#fff;padding:10px;z-index:999" onfocus="this.style.top='8px'" onblur="this.style.top='-100px'">Skip to findings</a>
+<header><div class="report-wrap report-header">
+<a class="report-mark" href="/" aria-label="AegisLand research home">AEGISLAND<small>RESEARCH EVIDENCE</small></a>
+<nav class="report-nav" aria-label="Research navigation">
+<a href="/">Home</a><a href="/failure-atlas/">Failure Atlas</a><a href="/phases/">Archive</a><a href="/fdi-results/">Motor faults</a><a href="#sources">Sources</a>
+</nav></div></header>
+<main id="main">
+<section class="report-hero" aria-labelledby="report-title"><div class="report-wrap">
+<p class="report-kicker">Phase 25 · read-only diagnostic · 11 October 2026</p>
+<h1 id="report-title">A high score<br><em>isn't always right.</em></h1>
+<p class="report-lead">AegisLand's detector can produce a correct landing-pad box and still assign its highest confidence to a different, incorrect box. That difference matters before any controller relies on the selected prediction.</p>
+<div class="report-actions"><a class="report-btn dark" href="#results">See the actual numbers</a><a class="report-btn" href="#boundaries">Research limits</a><a class="report-btn" href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase25_top_confidence_results_20261011.md" target="_blank" rel="noopener noreferrer">Read audited findings ↗</a></div>
+</div></section>
+<div class="report-wrap report-stats" aria-label="Study size and caveats">
+<div><strong>86</strong><span>original real-image frames, reused under six conditions</span></div>
+<div><strong>135</strong><span>dependent model/view cases where any-match passed but the top box was wrong</span></div>
+<div><strong>2</strong><span>source video sessions; not 1,032 independent cases</span></div>
+</div>
+<section class="report-section" id="results"><div class="report-wrap">
+<div class="report-intro"><div><p class="report-kicker">01 / A different question</p><h2>What gets trusted?</h2></div>
+<p>The earlier <em>any-match</em> score asks whether some detection matched every labeled target. A downstream system might instead choose the single <strong>highest-confidence</strong> box. This read-only analysis selects that top box without looking at the ground truth, then checks whether it actually overlaps a labeled landing pad at IoU ≥ 0.50.</p></div>
+<div class="report-table-wrap" tabindex="0" role="region" aria-label="Any-correct compared with top-correct detection counts">
+<table><caption>Counts correct out of 86 reused KIOS frames for each condition and model.</caption>
+<thead><tr><th scope="col">Camera condition</th><th scope="col">Baseline any correct</th><th scope="col">Baseline top correct</th><th scope="col">Phase 23 any correct</th><th scope="col">Phase 23 top correct</th></tr></thead>
+<tbody>
+<tr><th scope="row">Clean</th><td>53 / 86</td><td>35 / 86</td><td>46 / 86</td><td>45 / 86</td></tr>
+<tr><th scope="row">Blur</th><td>45 / 86</td><td>36 / 86</td><td>53 / 86</td><td>51 / 86</td></tr>
+<tr><th scope="row">Low light</th><td>49 / 86</td><td>36 / 86</td><td>38 / 86</td><td>38 / 86</td></tr>
+<tr><th scope="row">Noise</th><td>45 / 86</td><td>39 / 86</td><td>48 / 86</td><td>46 / 86</td></tr>
+<tr class="warn"><th scope="row">Occlusion</th><td>53 / 86</td><td>33 / 86</td><td>43 / 86</td><td><strong>23 / 86</strong></td></tr>
+<tr class="warn"><th scope="row">Mixed stress</th><td>43 / 86</td><td>21 / 86</td><td>44 / 86</td><td><strong>22 / 86</strong></td></tr>
+</tbody></table></div>
+<p style="margin-top:16px;color:#5c5e62;font-size:13px;max-width:930px">A frame can have a correct candidate somewhere in its detections while the top candidate is incorrect. Across six reused conditions and both models, <strong>135 dependent model/view instances</strong> had this disagreement (88 baseline and 47 Phase 23). These instances are not independent flight events.</p>
+</div></section>
+<section class="report-section soft" id="warning"><div class="report-wrap">
+<div class="report-intro"><div><p class="report-kicker">02 / Concrete failure examples</p><h2>High confidence cannot be assumed safe.</h2></div><p>Even a high detector score is not a calibrated probability of safe landing. Illustrative retrospective score cutoffs show how false confidence and near-total abstention can both occur. These cutoffs are <strong>not</strong> deployment settings.</p></div>
+<div class="report-cards">
+<article class="report-card"><span class="report-kicker">Phase 23 / occlusion</span><span class="report-big">2 accepted.<br>2 incorrect.</span><h3>Score cutoff 0.50</h3><p>Out of 86 dependent occlusion views, an illustrative 0.50 cutoff kept two top detections. Both top boxes were wrong. A higher score alone would not have rescued that example.</p></article>
+<article class="report-card"><span class="report-kicker">Phase 23 / mixed stress</span><span class="report-big">0 / 86</span><h3>Score cutoff 0.25</h3><p>The illustrative 0.25 cutoff accepted no mixed-stress views. A rule that abstains on everything can avoid accepting bad boxes while failing to supply any usable coverage.</p></article>
+</div>
+<div class="report-boundary"><strong>No thresholds were tuned.</strong><p>These cutoff calculations describe previously used protected data. They cannot select a Phase 26 accept/reject threshold; tuning requires genuinely new development data, followed by sealed independent evaluation.</p></div>
+</div></section>
+<section class="report-section" id="boundaries"><div class="report-wrap">
+<div class="report-intro"><div><p class="report-kicker">03 / Scientific boundary</p><h2>Useful diagnosis.<br>Not a deployment verdict.</h2></div><p>The frozen dataset contains <strong>86 KIOS frames, two original video sessions</strong>, and six conditions reconstructed from each frame. The resulting <strong>1,032 paired model/view rows are dependent</strong>. Every frame has a labeled landing target. There are no independent empty-pad negative scenes, no new test sessions, and no tested confidence-to-safety calibration.</p></div>
+<div class="report-cards">
+<article class="report-card"><h3>What was verified</h3><p>The four frozen Phase 25 input tables were SHA-256 verified, the original 86 × 6 × 2 inventory reconciled, and the read-only top-candidate analysis archived without retraining or modifying the source evidence.</p></article>
+<article class="report-card"><h3>What remains unverified</h3><p>False acceptance in no-target images, safe-to-proceed decisions, new camera-domain generalization, integrated Model VASE controller response, physical flight performance, and Phase 26 independent dataset admission.</p></article>
+</div>
+<div class="report-boundary"><strong>Phase 26 status: NO_DATASET_ADMITTED.</strong><p>The next admissible test needs independent real-camera sessions, negative frames, owner permissions, matching pad annotations and duplicate screening against KIOS; select a rule on development data before testing sealed sessions once. H1/H2 motor-fault simulations do not answer this landing-perception question.</p></div>
+</div></section>
+<section class="report-section soft" id="sources"><div class="report-wrap"><div class="report-intro"><div><p class="report-kicker">04 / Evidence trail</p><h2>Everything traceable.</h2></div><p>Original frozen tables are unchanged. The Actions artifact preserves all 1,032 top-selection decisions, a summary, and the source run identity. The artifact has finite retention and should be preserved independently for external review.</p></div>
+<div class="report-sources">
+<a class="report-source" href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase25_top_confidence_results_20261011.md" target="_blank" rel="noopener noreferrer"><strong>Verified result and metrics ↗</strong><span>Read-only retrospective report</span></a>
+<a class="report-source" href="https://github.com/suhaslord/uav-safety-research/blob/main/scripts/diagnose_phase25_top_confidence.py" target="_blank" rel="noopener noreferrer"><strong>Calculation source ↗</strong><span>Hash-verified, no new inference</span></a>
+<a class="report-source" href="https://github.com/suhaslord/uav-safety-research/actions/runs/38112934701/artifacts/11691644582" target="_blank" rel="noopener noreferrer"><strong>Raw audited outcomes ↗</strong><span>1,032 dependent rows; expiring artifact</span></a>
+<a class="report-source" href="https://github.com/suhaslord/uav-safety-research/pull/177" target="_blank" rel="noopener noreferrer"><strong>Merged research PR #177 ↗</strong><span>Source history, CI, discussion</span></a>
+<a class="report-source" href="/failure-atlas/"><strong>Failure Atlas →</strong><span>86-frame paired image explorer</span></a>
+<a class="report-source" href="/fdi-results/"><strong>Motor fault studies →</strong><span>Separate simulation-only research track</span></a>
+</div></div></section>
+</main>
+<footer class="report-footer"><div class="report-wrap"><span>AEGISLAND · Retrospective research · No landing-safety claim</span><span><a href="/">Home</a> · <a href="/phases/">Phase archive</a> · <a href="https://github.com/suhaslord/uav-safety-research">GitHub</a></span></div></footer>
+</body>
+</html>
