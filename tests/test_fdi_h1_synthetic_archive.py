@@ -16,7 +16,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from scripts import audit_fdi_h1_artifact as audit
-from tests.test_fdi_h1_audit_metrics import synthetic_report
+from test_fdi_h1_audit_metrics import synthetic_report
 
 
 class SyntheticZipAuditTests(unittest.TestCase):
