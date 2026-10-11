@@ -1,4 +1,4 @@
-name: FDI held-out seed validation
+name: FDI early pre-contact validation
 
 on:
   pull_request:
@@ -13,7 +13,7 @@ permissions:
   contents: read
 
 jobs:
-  fdi-independent-seed-holdout:
+  fdi-precontact-seed-holdout:
     runs-on: ubuntu-24.04
     timeout-minutes: 150
     steps:
@@ -29,7 +29,7 @@ jobs:
         run: |
           set -euo pipefail
           python -m pip install --disable-pip-version-check "numpy==2.2.6"
-          python -m unittest discover -s experiments/ornik_fdi_webots -p 'test_fdi_h1.py' -v
+          python -m unittest discover -s experiments/ornik_fdi_webots -p 'test_fdi_early.py' -v
 
       - name: Fetch pinned Crazyflie simulation
         run: |
@@ -72,7 +72,7 @@ jobs:
               apt-get update -qq
               DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends python3-numpy >/dev/null
               xvfb-run --auto-servernum webots --version
-              for seed in 11 23 29 31 41 43 47 53 59 61 67 71 73 79; do
+              for seed in 11 23 29 31 41 47 53 59 61 67 71 73 79 83; do
                 for motor in 0 1 2 3 4; do
                   export FDI_SEED="$seed"
                   export FDI_FAILED_MOTOR="$motor"
@@ -84,11 +84,11 @@ jobs:
             '
           test "$(find experiments/ornik_fdi_webots/heldout_run/raw -name '*.csv' | wc -l)" -eq 70
 
-      - name: Evaluate frozen model and held-out seeds without tuning
+      - name: Evaluate frozen early gyro rule before simulated impact
         run: |
           set -euo pipefail
           mkdir -p experiments/ornik_fdi_webots/heldout_run/report
-          python experiments/ornik_fdi_webots/validate_trajectory_generalization.py \
+          python experiments/ornik_fdi_webots/evaluate_fdi_early.py \
             --input-dir experiments/ornik_fdi_webots/heldout_run/raw \
             --output-dir experiments/ornik_fdi_webots/heldout_run/report
           git rev-parse HEAD > experiments/ornik_fdi_webots/heldout_run/git_sha.txt
@@ -98,7 +98,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: aegisland-fdi-h1-heldout-seed-evidence
+          name: aegisland-fdi-h1-precontact-evidence
           path: experiments/ornik_fdi_webots/heldout_run/
           if-no-files-found: warn
           retention-days: 90
