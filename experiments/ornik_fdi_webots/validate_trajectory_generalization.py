@@ -24,7 +24,7 @@ DEVELOPMENT_SEEDS = (41, 43)
 TEST_SEEDS = (47, 53, 59, 61, 67, 71, 73, 79)
 GROUPS = {"train": TRAIN_SEEDS, "development": DEVELOPMENT_SEEDS, "test": TEST_SEEDS}
 FAULT_ONSET_S = 10.0
-EVALUATION_START_S = 12.0  # deliberately excludes ambiguous onset windows
+EVALUATION_START_S = 14.0  # beyond 100-sample history after fault onset at t=10 s
 EVALUATION_END_S = 22.0
 MODEL_SEED = 20261011
 BOOTSTRAP_SEED = 20261012
