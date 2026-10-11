@@ -52,7 +52,21 @@ The uploaded workflow artifact contains:
 
 **Independent check:** Downloaded ZIP and verified all **144/144 CSV SHA-256 hashes**, monotonic time and scenario coverage. Directly replayed **432/432 decisions** from raw gyroscope readings with independently reconstructed seeded offline noise, then recalculated all six aggregate balanced accuracies. No disagreement found. This checks evidence integrity and statistical replay, **not the physical validity of the simulator**.
 
-Reproduce the deeper audit using `scripts/audit_fdi_h2_artifact.py` against the unmodified ZIP, optionally passing the historical evaluator source file to verify the archived source checksum. Raw Actions artifacts are temporary (90-day retention); preserve a copy independently before expiry.
+Reproduce the deeper audit using the **unmodified** archived ZIP:
+
+```bash
+python scripts/audit_fdi_h2_artifact.py aegisland-fdi-h2-prospective-evidence.zip \\
+  --evaluator-source experiments/ornik_fdi_webots/evaluate_fdi_h2.py \\
+  --expected-archive-sha256 3c76f9bbcb92254d96521065f0c20e7a363ee7160b482f20cc41f991c27a70d5
+```
+
+The independent auditor also rejects duplicate ZIP member names, malformed/reordered CSV headers, and corrupted pre-onset Boolean markers. Its optional external-ZIP checksum prevents a self-consistent but substituted ZIP from being mistaken for the archived original. The local evaluator file is checked against the SHA-256 embedded in the report; use the historical evaluator bytes, not a later modified analysis script. A different legitimate artifact will have its **own** ZIP fingerprint. These are integrity protections, not new flight results. Raw Actions artifacts have a **90-day retention period**; preserve a verified copy outside GitHub before expiry.
+
+## Measurement and instrumentation boundaries
+
+The frozen H2 Webots controller applies a motor-command-speed multiplier in its actuator loop, but the archived `cmd_m1`–`cmd_m4` columns record **pre-fault PID requests**, not the resulting `motor.setVelocity()` inputs or independently measured rotor RPM. The analysis therefore verifies the **declared scenario controls and their recorded gyroscope response** under the pinned controller; it does **not** independently measure the realized motor speed or aerodynamic thrust.
+
+The controller's `finite()` routine also substitutes **zero** when an upstream sensor reports a nonfinite number, without a flag in the CSV. Finite archived values cannot demonstrate that no such substitution occurred. A future study must log requested *and applied* actuator signals, raw sensor validity/counters, and any invalid samples before making stronger fault-severity or sensor-robustness claims.
 
 ## What this means and what must come next
 
