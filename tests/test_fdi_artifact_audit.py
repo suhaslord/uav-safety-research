@@ -139,6 +139,39 @@ class ArtifactAuditRegressionTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, "does not match"):
                     audit.validate_container_provenance(bad)
 
+    def test_historical_timestamp_grid_is_complete(self):
+        valid = [{"time_s": f"{i * .032:.6f}"} for i in range(1, 751)]
+        audit.validate_time_grid(valid, "synthetic.csv")
+        shifted = [dict(x) for x in valid]
+        shifted[321]["time_s"] = "10.336000"
+        with self.assertRaisesRegex(ValueError, "expected timestamp"):
+            audit.validate_time_grid(shifted, "synthetic.csv")
+        repeated = [dict(x) for x in valid]
+        repeated[12]["time_s"] = repeated[11]["time_s"]
+        with self.assertRaisesRegex(ValueError, "expected timestamp"):
+            audit.validate_time_grid(repeated, "synthetic.csv")
+
+    def test_csv_schema_rejects_reordered_and_duplicate_headers(self):
+        fields = list(audit.TRACE_COLUMNS)
+        audit.validate_trace_schema(fields, "synthetic.csv")
+        for altered in (fields[:-1], fields + ["seed"],
+                        fields[:2][::-1] + fields[2:]):
+            with self.subTest(altered=altered):
+                with self.assertRaisesRegex(ValueError, "CSV schema"):
+                    audit.validate_trace_schema(altered, "synthetic.csv")
+
+    def test_paired_pre_fault_comparison_detects_divergence(self):
+        before_fault = tuple(("0.000",) * len(audit.PRE_ONSET_FIELDS)
+                             for _ in range(audit.PRE_ONSET_SAMPLES))
+        paired = {seed: {motor: before_fault for motor in range(5)}
+                  for seed in audit.SEEDS}
+        self.assertEqual(audit.verify_paired_pre_onset(paired), 56)
+        altered = list(before_fault)
+        altered[37] = ("0.001",) + altered[37][1:]
+        paired[audit.PROTECTED[0]][2] = tuple(altered)
+        with self.assertRaisesRegex(ValueError, "differs from paired healthy"):
+            audit.verify_paired_pre_onset(paired)
+
     def test_expected_seed_split_exact(self):
         self.assertEqual(len(audit.SEEDS), 14)
         self.assertEqual(len(set(audit.SEEDS)), 14)
