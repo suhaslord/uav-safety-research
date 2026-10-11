@@ -2,6 +2,7 @@
 
 No protected artifact, simulator output or flight-safety data are loaded.
 """
+import hashlib
 import io
 import json
 import subprocess
@@ -81,6 +82,16 @@ class ArtifactAuditRegressionTests(unittest.TestCase):
         )
         self.assertNotEqual(completed.returncode, 0)
         self.assertIn("assertions enabled", completed.stderr)
+
+    def test_evaluator_source_checksum_matches_supplied_bytes(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / "frozen-evaluator.py"
+            source.write_bytes(b"# synthetic frozen code\\n")
+            report = {"analysis_script_sha256": hashlib.sha256(source.read_bytes()).hexdigest()}
+            self.assertTrue(audit.verify_evaluator_source(report, source))
+            source.write_bytes(b"# changed after freeze\\n")
+            with self.assertRaisesRegex(ValueError, "checksum mismatch"):
+                audit.verify_evaluator_source(report, source)
 
     def test_expected_seed_split_exact(self):
         self.assertEqual(len(audit.SEEDS), 14)
