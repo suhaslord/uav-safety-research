@@ -135,6 +135,16 @@ def main():
     traces = ensure_complete_files(args.input_dir)
     full = train_detector(traces, command_only=False)
     commands = train_detector(traces, command_only=True)
+    # Archive the exact trained weights and train-only normalization statistics.
+    np.savez_compressed(
+        args.output_dir / "frozen_models.npz",
+        full_mean=full[0], full_std=full[1],
+        full_w1=full[2][0], full_b1=full[2][1],
+        full_w2=full[2][2], full_b2=full[2][3],
+        commands_mean=commands[0], commands_std=commands[1],
+        commands_w1=commands[2][0], commands_b1=commands[2][1],
+        commands_w2=commands[2][2], commands_b2=commands[2][3],
+    )
     records = []
     provenance = []
     for group, seeds in GROUPS.items():
@@ -192,6 +202,7 @@ def main():
         },
         "git_sha": os.environ.get("GITHUB_SHA", "local-uncommitted"),
         "workflow_run_id": os.environ.get("GITHUB_RUN_ID"),
+        "frozen_models_sha256": sha256(args.output_dir / "frozen_models.npz"),
         "pilot_training_script_sha256": sha256(Path(__file__).with_name("train_pilot.py")),
         "evaluation_script_sha256": sha256(Path(__file__)),
         "input_manifest": provenance,
