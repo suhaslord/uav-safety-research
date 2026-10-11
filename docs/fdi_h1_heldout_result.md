@@ -80,6 +80,14 @@ The historical `metrics()` implementation scores the **first alert's motor class
 
 The archived 70-trace decision log contains **zero pre-onset alerts** in all splits, including all **40 protected trajectories**. Therefore the caveat does **not** change the reported result for this particular dataset. A future separately preregistered study should explicitly make temporal validity part of its primary classification endpoint, rather than silently revising this historical score.
 
+## Frozen input-pairing and excluded-late-data audit
+
+The independent replay of the archived **70 CSVs** confirms that every trace has the complete 750-sample **0.032–24.000 second grid**, with no missing 32 ms step or unexpected telemetry columns. For each of the 14 command seeds, the healthy case and all four fault cases have **identical recorded state, gyro, and PID-command fields at each of the 312 pre-onset samples** (0.032–9.984 s). That is **56 verified scenario-to-control pre-fault pairings** and supports the comparison's controlled input construction; it does not demonstrate generalization to different plants or real drones.
+
+As an explicit negative simulator-dynamics finding, **data excluded by the 10.70 s scoring deadline** reached an altitude of **15,403.779864 m** (seed 61, failed motor 1, t=24.000 s) and an absolute p/q gyroscope rate of **9,999.999024 rad/s** (seed 71, failed motor 4, t=20.128 s). These extrema were computed from the retained raw evidence and are presented only as diagnostics of physically implausible late-stage behavior. They are **not input to the frozen fault detector, not additional scored outcomes, and not evidence of a successful flight response**.
+
+The auditor reports these *post-time-censor* extrema independently of the early detection score. No filter or fault-detection threshold was changed after examining these data.
+
 ## Why the result is not a broader safety claim
 
 1. **The first long-window MLP approach was rejected.** Its preceding 15-trace pilot showed 0.661 window accuracy and 0.491 balanced accuracy on only one held-out seed. Some post-failure Webots trajectories diverged into physically absurd rotations/altitudes. This justified changing the *research question* before examining the new protected seeds; the new rule itself was inspired by those pilot results. This selection must be disclosed.
