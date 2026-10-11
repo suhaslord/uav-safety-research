@@ -56,10 +56,11 @@ In addition to the green GitHub Actions and unit tests, a separate standard-libr
 Run an independent audit against a downloaded artifact:
 
 ```bash
-python scripts/audit_fdi_h1_artifact.py aegisland-fdi-h1-precontact-evidence.zip
+python scripts/audit_fdi_h1_artifact.py aegisland-fdi-h1-precontact-evidence.zip \
+  --evaluator-source experiments/ornik_fdi_webots/evaluate_fdi_early.py
 ```
 
-The workflow also preserves the raw traces, exact Git checkout, `report/trajectory_decisions.csv`, `report/heldout_results.json`, image digest and Python environment. The code and protocol are [in PR #175](https://github.com/suhaslord/uav-safety-research/pull/175).
+The optional `--evaluator-source` check compares the local frozen evaluator bytes to the SHA-256 recorded in the archived report. Without this option the auditor verifies raw data and numeric replay, **but not independent identity of the evaluator source**.\n\nThe workflow also preserves the raw traces, exact Git checkout, `report/trajectory_decisions.csv`, `report/heldout_results.json`, image digest and Python environment. The code and protocol are [in PR #175](https://github.com/suhaslord/uav-safety-research/pull/175).
 
 ## Scoring implementation caveat (retrospective audit)
 
