@@ -107,6 +107,18 @@ class ArtifactAuditRegressionTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "cmd_m4"):
             audit.validate_numeric_telemetry(incomplete, "synthetic.csv")
 
+    def test_external_archive_fingerprint_detects_tampering(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "evidence.zip"
+            path.write_bytes(b"synthetic archive placeholder")
+            digest = hashlib.sha256(path.read_bytes()).hexdigest()
+            self.assertTrue(audit.verify_expected_archive_sha256(path, digest))
+            path.write_bytes(path.read_bytes() + b"modified")
+            with self.assertRaisesRegex(ValueError, "differs"):
+                audit.verify_expected_archive_sha256(path, digest)
+            with self.assertRaisesRegex(ValueError, "64 hexadecimal"):
+                audit.verify_expected_archive_sha256(path, "invalid")
+
     def test_expected_seed_split_exact(self):
         self.assertEqual(len(audit.SEEDS), 14)
         self.assertEqual(len(set(audit.SEEDS)), 14)
