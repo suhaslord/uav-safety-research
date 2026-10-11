@@ -66,6 +66,44 @@ class H3PX4ULogPreflightTests(unittest.TestCase):
         r = audit_ulog(ulog(gyro, fake_topic(ACTUATOR_TOPIC)))
         self.assertTrue(any("xyz[1]" in x for x in r["errors"]))
 
+    def test_clean_overlap_proves_continuous_observed_samples(self):
+        r = audit_ulog(ulog(fake_topic(GYRO_TOPIC), fake_topic(ACTUATOR_TOPIC)))
+        self.assertEqual(r["topics"][GYRO_TOPIC]["overlap_samples"], 200)
+        self.assertEqual(r["topics"][ACTUATOR_TOPIC]["overlap_samples"], 200)
+        self.assertAlmostEqual(
+            r["topics"][GYRO_TOPIC]["overlap_max_unobserved_s"], 0.02
+        )
+
+    def test_dropped_motor_command_interval_blocks_manual_mapping(self):
+        motor = fake_topic(ACTUATOR_TOPIC)
+        motor.data["timestamp"] = [
+            value + (400000 if index >= 75 else 0)
+            for index, value in enumerate(motor.data["timestamp"])
+        ]
+        r = audit_ulog(ulog(fake_topic(GYRO_TOPIC), motor))
+        self.assertEqual(r["status"], "INCOMPLETE_TELEMETRY")
+        self.assertTrue(any("unobserved interval" in e for e in r["errors"]))
+        self.assertGreater(
+            r["topics"][ACTUATOR_TOPIC]["overlap_max_unobserved_s"], 0.4
+        )
+
+    def test_dense_samples_outside_overlap_do_not_fake_paired_coverage(self):
+        stamps = (
+            [1500000 + i * 120000 for i in range(21)]
+            + [4100000 + i * 1000 for i in range(179)]
+        )
+        motor = fake_topic(ACTUATOR_TOPIC, timestamp_override=stamps)
+        r = audit_ulog(ulog(fake_topic(GYRO_TOPIC), motor))
+        self.assertGreater(r["gyro_actuator_time_overlap_s"], 2.0)
+        self.assertLess(r["topics"][ACTUATOR_TOPIC]["overlap_samples"], 50)
+        self.assertTrue(any("observed samples in shared window" in e for e in r["errors"]))
+
+    def test_short_overlap_does_not_claim_continuity(self):
+        motor = fake_topic(ACTUATOR_TOPIC, offset=2500000)
+        r = audit_ulog(ulog(fake_topic(GYRO_TOPIC), motor))
+        self.assertTrue(any("overlap" in e for e in r["errors"]))
+        self.assertIsNone(r["topics"][ACTUATOR_TOPIC]["overlap_samples"])
+
 
 if __name__ == "__main__":
     unittest.main()

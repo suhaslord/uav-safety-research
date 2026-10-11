@@ -23,6 +23,8 @@ REQUIRED = {
 }
 MIN_ROWS = 50
 MIN_OVERLAP_S = 2.0
+MIN_OVERLAP_ROWS = 50
+MAX_UNOBSERVED_INTERVAL_S = 0.2
 
 
 def _series(d, field):
@@ -48,6 +50,8 @@ def _topic_summary(dataset, required_fields):
         "median_period_s": None,
         "start_s": None,
         "end_s": None,
+        "overlap_samples": None,
+        "overlap_max_unobserved_s": None,
     }
     if n < 2:
         return result
@@ -119,6 +123,34 @@ def audit_ulog(ulog, *, input_sha256=None):
         overlap = min(a["end_s"], b["end_s"]) - max(a["start_s"], b["start_s"])
         if overlap < MIN_OVERLAP_S:
             errors.append(f"gyro/actuator topic overlap {overlap:.3f}s is below {MIN_OVERLAP_S:.3f}s")
+        else:
+            # A multi-second intersection can still contain only a few usable
+            # paired samples, or a recording outage. Audit each signal within
+            # the *common* interval; count raw observations, never interpolate
+            # across missing measurements to make a candidate appear ready.
+            window_start = max(a["start_s"], b["start_s"])
+            window_end = min(a["end_s"], b["end_s"])
+            for name in REQUIRED:
+                raw_us = by_name[name][0].data["timestamp"]
+                within = [float(t) * 1e-6 for t in raw_us
+                          if window_start <= float(t) * 1e-6 <= window_end]
+                summary = topics[name]
+                summary["overlap_samples"] = len(within)
+                if len(within) < MIN_OVERLAP_ROWS:
+                    errors.append(
+                        f"{name} has only {len(within)} observed samples in shared window "
+                        f"(requires {MIN_OVERLAP_ROWS})"
+                    )
+                # Include boundary gaps: no "fresh" sample can be silently
+                # carried forward for hundreds of milliseconds at either edge.
+                points = [window_start, *within, window_end]
+                max_gap = max(later - earlier for earlier, later in zip(points, points[1:]))
+                summary["overlap_max_unobserved_s"] = max_gap
+                if max_gap > MAX_UNOBSERVED_INTERVAL_S + 1e-9:
+                    errors.append(
+                        f"{name} has {max_gap:.3f}s unobserved interval in shared window "
+                        f"(limit {MAX_UNOBSERVED_INTERVAL_S:.3f}s)"
+                    )
     else:
         overlap = None
 
