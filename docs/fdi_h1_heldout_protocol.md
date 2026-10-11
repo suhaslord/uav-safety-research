@@ -1,48 +1,55 @@
-# AegisLand FDI-H1: held-out motor-fault generalization
+# AegisLand FDI-H1 — early motor fault isolation before simulated impact
 
-**Protocol frozen in code before outcomes. Status: NOT RUN / NO RESULTS CLAIMED.**
+**Status: corrected protocol, numerical outcome pending.** This document replaces the initial long-window comparison in this PR after review of the preceding 15-simulation pilot. Keep that failed methodological idea in the record; do not claim that a late, unstable simulation can prove flight-relevant fault detection.
 
-## One question
+## Research question
 
-Can the small, AegisLand-owned Webots motor-fault classifier distinguish a healthy Crazyflie from complete loss of one of four motors **on command trajectories excluded from fitting**?
+With the **same** pinned Webots/Bitcraze Crazyflie plant and full single-motor shutdown at 10 seconds, can an **interpretable causal gyroscope rule** correctly identify the motor **before the simulation becomes unstable** on previously unseen command seeds?
 
-This is an independent-command-seed *within-simulator* generalization check. It is **not** independent vehicle, domain, real-camera, actual flight, or fault-tolerant landing validation; it is **not** a reproduction of Garg et al. / Ornik et al.
+This is only a narrow *within-simulator* pre-contact feasibility study, not a reproduction of Garg/Ornik, a flight-safety experiment, or a hardware result.
 
-## Plant and immutable choices
+## Why the first attempt was revised
 
-- Simulation: pinned Bitcraze crazyflie-simulation source commit `7e93752dbc803af2488c1db46bb79b3da55f5d8c`, Webots Docker image tag `cyberbotics/webots:R2025a-ubuntu22.04`. The workflow records the pulled image digest and git provenance.
-- Controller: unmodified AegisLand Webots logger in `webots_fdi_controller.py`; the requested motor command is logged, while the failed actuator receives zero from t = 10 s onward.
-- Conditions: healthy or complete failure of exactly one of motors 1, 2, 3, 4. Every command seed is run under all five conditions.
-- Command protocol: frozen `seeded_commands()` in the logger; same distribution and times for all splits.
-- Window inputs: 100 timesteps of position, angular rate, and requested motor-speed signals (unchanged original pilot feature layout).
-- Model: existing NumPy one-hidden-layer MLP, 24 hidden units, 80 epochs, batch size 64, Adam lr 0.001, training RNG seed 20261011. Reuse original code; **no refitting after inspecting test outcomes**.
-- Entire trajectories are split by command seed: training = 11,23,29,31; development = 41,43; **protected test = 47,53,59,61,67,71,73,79**. No window from a test seed may enter fitting or normalization. The development set is descriptive only: there is no hyperparameter search or threshold optimization.
-- Evaluation: consider predictions from windows ending **14–22 s** (after a full 100-sample post-fault history); majority-vote exactly **one prediction per trajectory**. Ties choose smallest class index (healthy = 0).
-- Full model vs command-only **ablation** using the same model class and training procedure; vs an always-healthy negative control.
-- **Primary metric:** five-class balanced accuracy across the **40 protected test trajectories** (eight command-seed clusters, each repeated under all five motor conditions). Secondary: macro F1, per-class recall, healthy false-positive rate = 1 - healthy recall, and confusion matrix.
-- Sampling unit for uncertainty: **command seed**, not overlapping 100-sample windows. Use fixed 2,000-draw seed-cluster bootstrap with seed 20261012 and 2.5th/97.5th percentiles. Intervals are descriptive and likely wide with eight independent commands.
-- Save all raw traces, five-class predictions, model provenance hashes, complete input SHA-256 manifest, environment details, exact Git commit and run ID as downloadable CI artifacts.
+The earlier 15-simulation exploratory pilot (command seeds 11, 23, 47) produced 0.661 window accuracy and 0.491 balanced accuracy on just one held-out command seed. Reviewing its actual CSV logs showed that some full-motor-loss trajectories subsequently exhibit physically absurd altitude and angular-rate values (e.g., hundreds of metres altitude and thousands of rad/s angular rate). The first draft of PR #175 evaluated windows at 14–22 seconds, **after** this divergence. Its MLP results would mainly test simulator failure artifacts. The late-window analysis was withdrawn *before looking at outcomes on the newly reserved seeds*.
 
-## Acceptance criteria
+The replacement rule was inspired by the **already inspected** pilot seeds 11, 23, 47. Therefore those seeds must **not** be presented as protected independent evaluation.
 
-An experiment is *executed* only if the hosted Webots workflow generates all **70 trajectories** (14 seeds × five conditions) and every input trace passes the independent evaluator's completeness, monotonic timestamp and onset-label checks. Missing files or incomplete traces **fail closed**; no partial or invented metrics.
+## Frozen rule and evaluation
 
-There is **no predetermined success threshold**. Publish the actual held-out result even if it is near chance, worse than command-only, or worse than always-healthy. Do not report window-level p-values as independent evidence.
+- Simulator: Bitcraze `crazyflie-simulation` at commit `7e93752dbc803af2488c1db46bb79b3da55f5d8c`; Webots Docker `cyberbotics/webots:R2025a-ubuntu22.04` with full image digest recorded.
+- Same stock quadrotor dynamics/PID and AegisLand logging controller; 24 s of trajectory saved for audit, but **only pre-contact data scored**.
+- Fault class: healthy (0) or fully disable one motor (1–4) at exactly t=10.0 s; identical commanded motion for all five scenarios sharing a command seed.
+- Each timestep, based exclusively on measured gyro `p` and `q`, mark a candidate if **|p| ≥ 2.0 rad/s and |q| ≥ 0.75 rad/s** for **3 consecutive samples**. The first qualifying alert wins. Healthy = no alert. At the first alert, quadrant `(+,+)→1, (+,-)→2, (-,-)→3, (-,+)→4`; a pre-onset alert is an error.
+- Stop scoring at t=10.70 s or when simulated altitude falls below **0.50 m after onset**, whichever comes first. Altitude is **not** fed into the detector: it is used only to censor the outcome, preventing post-contact instabilities from contaminating results. This is not a stand-in for a real contact detector.
+- Rule developed from preceding pilot and **frozen before obtaining or interpreting data for independent command seeds 53,59,61,67,71,73,79,83**.
 
-The comparison has significant remaining limitations: one simulation environment and hardware model, only complete motor shutdown at a fixed time, correlated paired trials across classes, no unseen controller or faults outside the generator, and no physical safety inference. The command-only model helps detect a shortcut but cannot rule out all simulator-specific cues.
+## Data and statistics
 
-## Execution and evidence
+Run 14 command seeds × five conditions = **70 complete simulated trajectories**:
 
-The PR-triggered GitHub Actions workflow `FDI held-out seed validation` runs Webots on GitHub-hosted Linux, with no real UAV or hardware required. It records and uploads results; generated raw data are not committed to `main`.
+- Source/pilot development: 11, 23, 29, 31.
+- Descriptive development: 41, 47.
+- **Protected test: 53, 59, 61, 67, 71, 73, 79, 83** — 40 trajectories, eight independent command-seed clusters. Seed 47 was seen in the previous pilot and is intentionally excluded.
+- **Primary endpoint:** five-class trajectory-level balanced accuracy (healthy and four motor classes).
+- Secondary, all reported: healthy false-alarm rate, fault detection fraction, correct motor isolation fraction, per-class recall, confusion matrix, median latency for correctly detected faults.
+- **Uncertainty:** 2,000 bootstrap resamples of the eight complete command-seed clusters (all five paired fault conditions sampled together), RNG seed 20261012. Do not treat each timestep as an independent observation.
+- Negative baseline: always healthy → 20% balanced accuracy on this balanced evaluation.
+- Raw 70 CSVs and SHA-256 input manifest, rule source SHA, exact git commit, results and environment archived. Fail if any file missing, any input malformed, or simulated fault onset mismatches the definition.
 
-The exact analysis command after capturing trajectories is:
+## Honest interpretation limits
+
+Even a 100% score here would not imply a robust motor-fault detector: this deterministic scenario is unusually simple, complete loss in a single plant has a strong gyroscope signature, and only a few independent command patterns are sampled. The motor-sign map may be particular to this plant/controller. There is no injected sensor noise, partial loss, different drone, real-world turbulence, recovery policy, or controlled flight experiment. The frozen initial MLP late-time result is **not** part of this study's evidence.
+
+Report failure and success cases as observed, including raw data and the eight-cluster confidence interval. Do not publish a safety or generalization claim beyond this narrow protocol. No independent Phase 26 landing-pad validation is implied.
+
+## Workflow
+
+`.github/workflows/fdi-heldout-seed-validation.yml` generates all 70 trajectories and uses:
 
 ```bash
-python experiments/ornik_fdi_webots/validate_trajectory_generalization.py \
+python experiments/ornik_fdi_webots/evaluate_fdi_early.py \
   --input-dir experiments/ornik_fdi_webots/heldout_run/raw \
   --output-dir experiments/ornik_fdi_webots/heldout_run/report
 ```
 
-Read `heldout_metrics.json` and `trajectory_predictions.csv` only **after** all integrity checks succeed. The report includes clear negative and failure cases; no website or model update should be based on these data without a separate development/retest cycle.
-
-Do not conflate this FDI-H1 study with the Phase 25/26 landing-pad detector evidence or claim it advances the independent Phase 26 validation gate.
+If workflows fail, fix infrastructure while preserving the holdout labels and frozen rule. If **analysis** fails, disclose what happened rather than silently changing thresholds or reusing the test as a new development set.
