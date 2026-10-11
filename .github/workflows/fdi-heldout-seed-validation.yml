@@ -29,7 +29,8 @@ jobs:
         run: |
           set -euo pipefail
           python -m pip install --disable-pip-version-check "numpy==2.2.6"
-          python -m unittest discover -s experiments/ornik_fdi_webots -p 'test_fdi_early.py' -v\n          python -m unittest discover -s experiments/ornik_fdi_webots -p 'test_fdi_robustness_synthetic.py' -v
+          python -m unittest discover -s experiments/ornik_fdi_webots -p 'test_fdi_early.py' -v
+          python -m unittest discover -s experiments/ornik_fdi_webots -p 'test_fdi_robustness_synthetic.py' -v
 
       - name: Fetch pinned Crazyflie simulation
         run: |
