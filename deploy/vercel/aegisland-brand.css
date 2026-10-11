@@ -1,3 +1,7 @@
+/* The frozen Failure Atlas HTML keeps its verified bytes. It inherits
+   the additive unified visual system through this existing stylesheet. */
+@import url("/aegisland-unified.css?v=1");
+
 /* AegisLand / Model VASE visual system: photo-led, spare, high-contrast. */
 :root {
   color-scheme: light;

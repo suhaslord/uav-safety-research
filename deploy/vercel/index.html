@@ -17,12 +17,13 @@
   <link rel="stylesheet" href="/ornik-fdi.css?v=1">
   <script defer src="/home-evidence.js?v=1"></script>
   <script defer src="/phase25-explorer.js?v=2"></script>
+  <link rel="stylesheet" href="/aegisland-unified.css?v=1">
 </head>
 <body class="research-workspace home-workspace home-evidence-led" data-presentation="evidence-led">
   <a class="skip-link" href="#main">Skip to the research</a>
   <header class="site-header signature-nav">
     <a class="brand vase-brand" href="#top" aria-label="AegisLand, Model VASE"><img src="/model-vase-mark.svg" alt=""><span class="vase-brand__type"><strong>AEGISLAND</strong><small>MODEL VASE</small></span></a>
-    <nav class="site-nav signature-nav__links" aria-label="Primary navigation"><a href="#phase25">Results</a><a href="/fdi-results/">Fault isolation</a><a href="/model-vase/">Model VASE</a><a href="/phases/">Archive</a><a href="/reproduce/">Reproduce</a></nav>
+    <nav class="site-nav signature-nav__links" aria-label="Primary navigation"><a href="#phase25">Results</a><a href="/confidence-audit/">Confidence audit</a><a href="/fdi-results/">Fault isolation</a><a href="/model-vase/">Model VASE</a><a href="/phases/">Archive</a><a href="/reproduce/">Reproduce</a></nav>
     <div class="header-actions"><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub</a></div>
     <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-expanded="false" aria-controls="mobileMenuSheet">Menu</button>
   </header>
@@ -71,6 +72,23 @@
       <div class="wrap simulation-transfer" id="status"><div><h3>Phase 22: transfer without refitting.</h3><p>10 / 10 gates passed on the final synthetic 32-cell holdout.</p></div><dl><div><dt>RMSE-surface R²</dt><dd>0.8319</dd></div><div><dt>MAE-surface R²</dt><dd>0.7744</dd></div><div><dt>Stable-sign accuracy</dt><dd>100%</dd></div></dl><a href="/phases/phase22/">Frozen record →</a></div>
     </section>
 
+    <section class="aegis-home-spotlight" id="confidence-findings" aria-labelledby="confidence-title">
+      <div class="wrap aegis-home-spotlight__layout">
+        <div class="aegis-home-spotlight__text">
+          <p class="eyebrow">New · audited landing-perception finding · Phase 25</p>
+          <h2 id="confidence-title">The most confident box<br>can still be wrong.</h2>
+          <p>On the same 86 reused KIOS frames, Phase 23 had a correct detection somewhere in <strong>43</strong> occlusion views—but its highest-confidence box was correct in only <strong>23</strong>. Under mixed stress, the counts were <strong>44</strong> versus <strong>22</strong>.</p>
+          <p class="aegis-home-spotlight__boundary">Across both detectors and all six dependent view conditions, 135 previously successful model/view outcomes had an incorrect top candidate. Only two original video sessions were studied; these are not independent trials, and the score is not a calibrated flight-safety probability.</p>
+          <a class="aegis-home-spotlight__link" href="/confidence-audit/">Read the top-confidence failure analysis and raw evidence →</a>
+        </div>
+        <div class="aegis-home-spotlight__stats" aria-label="Highest-confidence localization audit">
+          <div><span>Phase 23 / occlusion / 86 views</span><strong>43 <small>any correct</small></strong><strong class="aegis-home-spotlight__warning">23 <small>top correct</small></strong></div>
+          <div><span>Phase 23 / mixed / 86 views</span><strong>44 <small>any correct</small></strong><strong class="aegis-home-spotlight__warning">22 <small>top correct</small></strong></div>
+          <div class="aegis-home-spotlight__status"><span>Phase 26 admission</span><strong>NO DATASET</strong><small>A separate new-camera holdout is still required.</small></div>
+        </div>
+      </div>
+    </section>
+
     <section class="home-fdi-pilot" id="fault-isolation" aria-labelledby="home-fdi-title">
       <div class="wrap home-fdi-pilot__grid">
         <div class="home-fdi-pilot__copy">
@@ -93,7 +111,7 @@
 
     <section class="home-field-media" aria-label="Separate flight context"><div class="wrap"><details class="field-context"><summary>View the NASA field context <span>Photographs and footage, not AegisLand experiment results</span></summary><div class="home-field-media__stage"><figure class="home-field-media__feature"><video controls playsinline muted loop preload="none" data-autoplay="visible" poster="/film/aerocast-poster.jpg" aria-label="Silent NASA Armstrong footage of an Alta-X aircraft in flight"><source src="/film/aerocast-flight.mp4" type="video/mp4"><source src="/film/aerocast-flight.webm" type="video/webm"><a href="/film/aerocast-flight.mp4">Open the NASA flight clip.</a></video><figcaption>NASA Armstrong · public-domain context · <a href="https://images.nasa.gov/details/AFRC-2023-14003-01_Alta_X_First_Mission_Jay1">Source ↗</a></figcaption></figure><figure><video controls playsinline muted loop preload="none" data-autoplay="visible" poster="/film/evaluation-nasa-poster.jpg" aria-label="Silent NASA Ames footage of a multirotor wind-tunnel test"><source src="/film/evaluation-nasa-clip.mp4" type="video/mp4"><source src="/film/evaluation-nasa-clip.webm" type="video/webm"><a href="/film/evaluation-nasa-clip.mp4">Open the NASA wind-tunnel clip.</a></video><figcaption>NASA Ames · public-domain context · <a href="https://images.nasa.gov/details/ARC-20191204-AAV3241-Multirotor-WindTunnel-TestRun-NASAWeb">Source ↗</a></figcaption></figure><figure><img src="/media/acero-uav-flight.jpg" alt="NASA ACERO aircraft in flight during a separate field test, not an AegisLand experiment" width="1280" height="852" loading="lazy"><figcaption>Don Richey / NASA Ames · public-domain context · <a href="https://commons.wikimedia.org/wiki/File:Advanced_Capabilities_for_Emergency_Response_Operations_(ACERO)_(ACD24-0180-035).jpg">Source ↗</a></figcaption></figure><figure><img src="/media/acero-uav-landing.jpg" alt="NASA Ames aircraft approaching a marked pad during a separate field test" width="1280" height="852" loading="lazy"><figcaption>NASA Ames · public-domain context · <a href="https://images-assets.nasa.gov/image/ACD24-0180-037/ACD24-0180-037~orig.jpg">Source ↗</a></figcaption></figure></div></details></div></section>
   </main>
-  <footer class="footer home-footer"><p>AegisLand · Model VASE · 1.0.0rc1 research candidate</p><div class="footer-links"><a href="/failure-atlas/">Failure Atlas</a><a href="/ornik-fdi/">Actuator fault pilot</a><a href="/model-vase/">Model VASE</a><a href="/phases/">Archive</a><a href="/reproduce/">Reproduce</a><a href="https://github.com/suhaslord/uav-safety-research">GitHub</a></div><details class="home-supporters"><summary>Workspace support</summary><p>CHERRY Americas donated a keyboard; Contour Design contributed workspace equipment. Both shipments were confirmed in September 2026. These contributions do not affect research methods or verdicts.</p></details></footer>
+  <footer class="footer home-footer"><p>AegisLand · Model VASE · 1.0.0rc1 research candidate</p><div class="footer-links"><a href="/failure-atlas/">Failure Atlas</a><a href="/fdi-results/">Motor-fault studies</a><a href="/confidence-audit/">Confidence audit</a><a href="/model-vase/">Model VASE</a><a href="/phases/">Archive</a><a href="/reproduce/">Reproduce</a><a href="https://github.com/suhaslord/uav-safety-research">GitHub</a></div><details class="home-supporters"><summary>Workspace support</summary><p>CHERRY Americas donated a keyboard; Contour Design contributed workspace equipment. Both shipments were confirmed in September 2026. These contributions do not affect research methods or verdicts.</p></details></footer>
   <script src="/frozen-lineage.js?v=3"></script>
 </body>
 </html>
