@@ -209,6 +209,38 @@ def check_metric(actual,claimed,tag):
         elif not near(v,out):
             raise ValueError(f"{tag}.{k} mismatch: {v!r} vs {out!r}")
 
+
+def verify_frozen_report_contract(result):
+    """Check declared preregistered detector and offline-noise semantics."""
+    expected={
+        "gyro_p_abs":2.0,
+        "gyro_q_abs":.75,
+        "consecutive_steps":3,
+        "quadrants":str(QUADS),
+    }
+    if result.get("fixed_H1_rule")!=expected:
+        raise ValueError("Published H2 rule metadata differs from the frozen H1 detector")
+    if result.get("sensor_noise_is_offline_not_physical") is not True:
+        raise ValueError("H2 must state that noise was injected offline, not during flight dynamics")
+    if result.get("always_healthy_balanced_accuracy")!=.2:
+        raise ValueError("Published always-healthy negative control baseline is incorrect")
+    if result.get("pilot_test_data_used_for_tuning") is not False:
+        raise ValueError("Published no-tuning provenance assertion changed")
+    return True
+
+
+def verify_seed_bootstrap_metadata(bootstrap):
+    """Enforce the predeclared resampling unit, count and independent RNG."""
+    expected={
+        "resampling_unit":"command seed (all motors, onset and retention paired)",
+        "seed_count":len(SEEDS),
+        "bootstrap_draws":2000,
+        "seed":20261013,
+    }
+    if any(bootstrap.get(key)!=value for key,value in expected.items()):
+        raise ValueError("H2 cluster-bootstrap provenance differs from preregistered design")
+    return True
+
 def audit(artifact,source=None,expected_archive_sha256=None):
     external_zip_verified=(verify_archive_sha256(artifact,expected_archive_sha256)
                            if expected_archive_sha256 is not None else False)
@@ -235,6 +267,7 @@ def audit(artifact,source=None,expected_archive_sha256=None):
             raise ValueError("Protocol metadata mismatch")
         if result.get("primary_endpoint")!="retain_50_noise_0p0.metrics.temporal_valid_balanced_accuracy":
             raise ValueError("Primary endpoint was changed")
+        verify_frozen_report_contract(result)
         csv_reader=csv.DictReader(io.StringIO(zipf.read("report/per_case_decisions.csv").decode()))
         validate_csv_headers(csv_reader.fieldnames,DECISION_HEADERS,"H2 decisions")
         rows=list(csv_reader)
@@ -309,6 +342,7 @@ def audit(artifact,source=None,expected_archive_sha256=None):
                     slice_=[x for x in group if x["onset"]==onset]
                     check_metric(rows_metrics(slice_),claimed["by_onset"][str(int(onset))],f"{tag}.onset{onset}")
                 # Independent paired-seed resampling, same locked 2,000 draws.
+                verify_seed_bootstrap_metadata(claimed["seed_cluster_bootstrap"])
                 rng=random.Random(20261013)
                 groups={seed:[x for x in group if x["seed"]==seed] for seed in SEEDS}
                 estimates=[]
