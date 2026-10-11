@@ -180,6 +180,7 @@ def main():
         confusion = [[0] * 5 for _ in range(5)]
         successful_fault_alerts = []
         protected_records = []
+        protected_pre_onset_alerts = 0
         checked = 0
         for entry in manifest:
             name = entry["file"]
@@ -218,6 +219,8 @@ def main():
                 protected_records.append({"seed": seed, "motor": motor, "prediction": pred,
                                           "alert_time_s": timestamp})
                 confusion[motor][pred] += 1
+                if timestamp is not None and timestamp < 10.0:
+                    protected_pre_onset_alerts += 1
                 if motor > 0 and pred == motor:
                     successful_fault_alerts.append((timestamp, altitude))
             checked += 1
@@ -232,6 +235,7 @@ def main():
             "confusion_matrix": confusion,
             "balanced_accuracy": balanced_accuracy,
             "healthy_false_alarms": sum(confusion[0][1:]),
+            "protected_pre_onset_alerts_all_classes": protected_pre_onset_alerts,
             "correct_fault_isolations": len(successful_fault_alerts),
             "median_correct_fault_detection_latency_seconds": statistics.median(latencies) if latencies else None,
             "detection_altitude_range_m": [min(h for _, h in successful_fault_alerts), max(h for _, h in successful_fault_alerts)] if successful_fault_alerts else None,
