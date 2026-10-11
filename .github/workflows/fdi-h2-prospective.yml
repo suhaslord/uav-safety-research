@@ -10,19 +10,15 @@ on:
       - "experiments/ornik_fdi_webots/test_fdi_h2.py"
       - "docs/fdi_h2_prospective_protocol.md"
       - ".github/workflows/fdi-h2-prospective.yml"
-  pull_request:
-    branches:
-      - research/fdi-heldout-seed-validation-20261011
-    paths:
-      - "experiments/ornik_fdi_webots/webots_fdi_h2_controller.py"
-      - "experiments/ornik_fdi_webots/evaluate_fdi_h2.py"
-      - "experiments/ornik_fdi_webots/test_fdi_h2.py"
-      - "docs/fdi_h2_prospective_protocol.md"
-      - ".github/workflows/fdi-h2-prospective.yml"
   workflow_dispatch:
 
 permissions:
   contents: read
+
+# Expensive 144-simulation replication: one active push revision per branch.
+concurrency:
+  group: fdi-h2-simulation-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   h2-prospective-stress:
