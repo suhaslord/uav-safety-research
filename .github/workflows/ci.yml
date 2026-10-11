@@ -4,6 +4,12 @@ on:
   push:
   pull_request:
 
+# For each PR, test the newest revision rather than building a queue
+# of superseded commits. Separate PRs retain separate jobs.
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     runs-on: ubuntu-latest
