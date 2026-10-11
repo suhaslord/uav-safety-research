@@ -12,6 +12,7 @@ import hashlib
 import io
 import json
 import math
+import random
 import statistics
 import zipfile
 
@@ -21,6 +22,89 @@ DEVELOPMENT = (41, 47)
 SEEDS = SOURCE + DEVELOPMENT + PROTECTED
 QUADRANTS = {(1, 1): 1, (1, -1): 2, (-1, -1): 3, (-1, 1): 4}
 
+
+
+def _check_value(name, observed, reported):
+    """Check a published numeric endpoint, including undefined metrics."""
+    if observed is None:
+        if reported is not None:
+            raise ValueError(f"{name}: expected null, found {reported!r}")
+    elif isinstance(reported, bool) or not isinstance(reported, (int, float)) or not math.isclose(
+        observed, reported, rel_tol=1e-10, abs_tol=1e-10
+    ):
+        raise ValueError(f"{name}: replay gives {observed!r}, report says {reported!r}")
+
+
+def verify_report_metrics(report, protected):
+    """Recompute all reported test endpoints and cluster bootstrap independently.
+
+    The records must already be checked against raw gyro trace replays.
+    This routine deliberately accepts imperfect outcomes: an audit should
+    expose poor performance, not fail because it assumes 100% accuracy.
+    """
+    by_seed = {seed: [r for r in protected if r["seed"] == seed] for seed in PROTECTED}
+    if any(sorted(r["motor"] for r in rows) != list(range(5)) for rows in by_seed.values()):
+        raise ValueError("Protected test must contain each motor condition exactly once per seed")
+
+    def score(records):
+        matrix = [[0] * 5 for _ in range(5)]
+        for row in records:
+            matrix[row["motor"]][row["prediction"]] += 1
+        recalls = [matrix[i][i] / sum(matrix[i]) for i in range(5)]
+        return sum(recalls) / 5
+
+    confusion = [[0] * 5 for _ in range(5)]
+    for row in protected:
+        confusion[row["motor"]][row["prediction"]] += 1
+    recalls = [confusion[i][i] / sum(confusion[i]) for i in range(5)]
+    faults = [r for r in protected if r["motor"] != 0]
+    latencies = [r["alert_time_s"] - 10.0 for r in faults
+                 if r["prediction"] == r["motor"] and r["alert_time_s"] is not None
+                 and r["alert_time_s"] >= 10.0]
+    recalculated = {
+        "trajectories": len(protected),
+        "balanced_accuracy": sum(recalls) / 5,
+        "healthy_false_alarm_rate": 1 - recalls[0],
+        "fault_detection_rate": sum(r["prediction"] != 0 for r in faults) / len(faults),
+        "correct_fault_isolation_rate": sum(r["prediction"] == r["motor"] for r in faults) / len(faults),
+        "median_correct_detection_latency_s": statistics.median(latencies) if latencies else None,
+    }
+    published = report["protected_result"]
+    for key, value in recalculated.items():
+        _check_value(key, value, published.get(key))
+    if published.get("confusion_matrix_rows_true_cols_predicted") != confusion:
+        raise ValueError("Published protected confusion matrix disagrees with raw replay")
+    for name, recall in zip(("healthy", "motor_1", "motor_2", "motor_3", "motor_4"), recalls):
+        _check_value("class_recall." + name, recall, published["class_recall"].get(name))
+
+    # Identical RNG and paired command-seed cluster sampling to frozen
+    # evaluator, but independently implemented here.
+    bootstrap = report["protected_seed_cluster_bootstrap"]
+    if bootstrap.get("random_seed") != 20261012 or bootstrap.get("bootstrap_draws") != 2000:
+        raise ValueError("Bootstrap provenance differs from frozen protocol")
+    rng = random.Random(20261012)
+    draws = []
+    for _ in range(2000):
+        draw = []
+        for __ in PROTECTED:
+            draw.extend(by_seed[rng.choice(PROTECTED)])
+        draws.append(score(draw))
+    draws.sort()
+
+    def percentile(p):
+        index = p * (len(draws) - 1)
+        low = int(index)
+        fraction = index - low
+        return draws[low] * (1 - fraction) + draws[min(low + 1, len(draws) - 1)] * fraction
+
+    interval = bootstrap.get("percentile_95_interval")
+    if not isinstance(interval, list) or len(interval) != 2:
+        raise ValueError("Missing or malformed seed-cluster bootstrap interval")
+    for i, expected in enumerate((percentile(.025), percentile(.975))):
+        _check_value(f"seed_cluster_bootstrap[{i}]", expected, interval[i])
+    _check_value("always_healthy_balanced_accuracy", 0.2,
+                 report.get("always_healthy_balanced_accuracy"))
+    return confusion, latencies
 
 def decision(rows):
     streak = 0
@@ -64,6 +148,7 @@ def main():
             raise ValueError("Duplicate ZIP members make evidence ambiguous")
         confusion = [[0] * 5 for _ in range(5)]
         successful_fault_alerts = []
+        protected_records = []
         checked = 0
         for entry in manifest:
             name = entry["file"]
@@ -99,16 +184,15 @@ def main():
                 assert math.isclose(float(saved["alert_time_s"]), timestamp, abs_tol=1e-10)
                 assert math.isclose(float(saved["alert_altitude_m"]), altitude, abs_tol=1e-10)
             if seed in PROTECTED:
+                protected_records.append({"seed": seed, "motor": motor, "prediction": pred,
+                                          "alert_time_s": timestamp})
                 confusion[motor][pred] += 1
                 if motor > 0 and pred == motor:
                     successful_fault_alerts.append((timestamp, altitude))
             checked += 1
-        recalls = [confusion[k][k] / sum(confusion[k]) for k in range(5)]
-        balanced_accuracy = sum(recalls) / 5.0
-        assert math.isclose(balanced_accuracy, report["protected_result"]["balanced_accuracy"])
-        assert confusion == report["protected_result"]["confusion_matrix_rows_true_cols_predicted"]
-        assert len(successful_fault_alerts) == 32
-        assert report["protected_result"]["trajectories"] == 40
+        verified_confusion, latencies = verify_report_metrics(report, protected_records)
+        assert verified_confusion == confusion
+        balanced_accuracy = sum(confusion[k][k] / sum(confusion[k]) for k in range(5)) / 5.0
         lower_bound = 0.025 ** (1 / len(PROTECTED)) if confusion == [[8 if i == j else 0 for j in range(5)] for i in range(5)] else None
         summary = {
             "status": "independently_replayed",
@@ -118,8 +202,8 @@ def main():
             "balanced_accuracy": balanced_accuracy,
             "healthy_false_alarms": sum(confusion[0][1:]),
             "correct_fault_isolations": len(successful_fault_alerts),
-            "median_correct_fault_detection_latency_seconds": statistics.median(t - 10.0 for t, _ in successful_fault_alerts),
-            "detection_altitude_range_m": [min(h for _, h in successful_fault_alerts), max(h for _, h in successful_fault_alerts)],
+            "median_correct_fault_detection_latency_seconds": statistics.median(latencies) if latencies else None,
+            "detection_altitude_range_m": [min(h for _, h in successful_fault_alerts), max(h for _, h in successful_fault_alerts)] if successful_fault_alerts else None,
             "eight_cluster_all_success_exact_binomial_lower_95pct_if_iid": lower_bound,
             "interpretation": "single simulator, full motor shutdown, fixed onset; not real-world or safety validation"
         }
