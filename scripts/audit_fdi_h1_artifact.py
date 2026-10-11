@@ -73,6 +73,10 @@ def verify_report_metrics(report, protected):
     This routine deliberately accepts imperfect outcomes: an audit should
     expose poor performance, not fail because it assumes 100% accuracy.
     """
+    if len(protected) != 40 or any(row["seed"] not in PROTECTED for row in protected):
+        raise ValueError("Expected exactly 40 records on the eight protected seeds")
+    if any(row["motor"] not in range(5) or row["prediction"] not in range(5) for row in protected):
+        raise ValueError("Protected motor labels and predictions must be in 0..4")
     by_seed = {seed: [r for r in protected if r["seed"] == seed] for seed in PROTECTED}
     if any(sorted(r["motor"] for r in rows) != list(range(5)) for rows in by_seed.values()):
         raise ValueError("Protected test must contain each motor condition exactly once per seed")
@@ -136,6 +140,7 @@ def verify_report_metrics(report, protected):
     _check_value("always_healthy_balanced_accuracy", 0.2,
                  report.get("always_healthy_balanced_accuracy"))
     return confusion, latencies
+
 
 def decision(rows):
     streak = 0
