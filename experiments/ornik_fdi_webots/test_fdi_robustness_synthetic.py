@@ -47,6 +47,21 @@ class FrozenDetectorRobustnessTests(unittest.TestCase):
                          early_decision(perturb(20261011)))
         self.assertEqual(early_decision(perturb(20261011))["prediction"], 1)
 
+    def test_noise_alone_does_not_guarantee_detection(self):
+        # A synthetic subthreshold gyro signal is not a valid motor diagnosis,
+        # even when the scenario label says a fault occurred.
+        rows = [sample(10.01 + i*.032, 1.5, .5) for i in range(8)]
+        self.assertEqual(early_decision(rows)["prediction"], 0)
+
+    def test_first_alarm_wins_even_if_later_quadrant_changes(self):
+        rows = [sample(10.01 + i*.032, 3, 1) for i in range(3)]
+        rows += [sample(10.11 + i*.032, -3, -1) for i in range(3)]
+        self.assertEqual(early_decision(rows)["prediction"], 1)
+
+    def test_no_alert_after_time_censor(self):
+        rows = [sample(10.71 + i*.032, 3, 1) for i in range(4)]
+        self.assertEqual(early_decision(rows)["prediction"], 0)
+
     def test_noise_can_cause_false_alarm(self):
         # Explicit negative counterexample: the frozen rule has no way
         # to distinguish sustained healthy gyro excursion from a fault.
