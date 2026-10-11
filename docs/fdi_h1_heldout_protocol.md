@@ -1,5 +1,7 @@
 # AegisLand FDI-H1 — early motor fault isolation before simulated impact
 
+> **Historical frozen protocol.** The original “numerical outcome pending” status below is preserved as part of the pre-evaluation record, not as the current experiment status. The completed, independently audited result and its limitations are in [FDI-H1 held-out result](fdi_h1_heldout_result.md). Do not modify this protocol retrospectively to match test outcomes.
+
 **Status: corrected protocol, numerical outcome pending.** This document replaces the initial long-window comparison in this PR after review of the preceding 15-simulation pilot. Keep that failed methodological idea in the record; do not claim that a late, unstable simulation can prove flight-relevant fault detection.
 
 ## Research question
