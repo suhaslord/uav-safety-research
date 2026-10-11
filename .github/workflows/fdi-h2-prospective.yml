@@ -1,0 +1,124 @@
+name: FDI H2 prospective stress study
+
+on:
+  push:
+    branches:
+      - "research/fdi-h2-*"
+    paths:
+      - "experiments/ornik_fdi_webots/webots_fdi_h2_controller.py"
+      - "experiments/ornik_fdi_webots/evaluate_fdi_h2.py"
+      - "experiments/ornik_fdi_webots/test_fdi_h2.py"
+      - "docs/fdi_h2_prospective_protocol.md"
+      - ".github/workflows/fdi-h2-prospective.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Expensive 144-simulation replication: one active push revision per branch.
+concurrency:
+  group: fdi-h2-simulation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  h2-prospective-stress:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - name: Check out exact pre-registered branch
+        uses: actions/checkout@v4
+
+      - name: Set up Python and unit tests
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: H2 analysis unit tests (no model tuning)
+        run: |
+          set -euo pipefail
+          python -m compileall -q experiments/ornik_fdi_webots
+          python -m unittest discover -s experiments/ornik_fdi_webots -p 'test_fdi_h2.py' -v
+
+      - name: Fetch pinned plant and controller
+        run: |
+          set -euo pipefail
+          git clone --no-checkout https://github.com/bitcraze/crazyflie-simulation.git bitcraze-crazyflie-simulation
+          git -C bitcraze-crazyflie-simulation checkout 7e93752dbc803af2488c1db46bb79b3da55f5d8c
+          test "$(git -C bitcraze-crazyflie-simulation rev-parse HEAD)" = "7e93752dbc803af2488c1db46bb79b3da55f5d8c"
+          mkdir -p bitcraze-crazyflie-simulation/simulator_files/webots/controllers/ornik_fdi_controller
+          cp experiments/ornik_fdi_webots/webots_fdi_h2_controller.py \
+            bitcraze-crazyflie-simulation/simulator_files/webots/controllers/ornik_fdi_controller/ornik_fdi_controller.py
+          python - <<'PY'
+          from pathlib import Path
+          world=Path("bitcraze-crazyflie-simulation/simulator_files/webots/worlds/crazyflie_world.wbt")
+          old=world.read_text()
+          needle="Crazyflie {\n}\n"
+          new='Crazyflie {\n  controller "ornik_fdi_controller"\n  supervisor TRUE\n}\n'
+          if old.count(needle)!=1:
+              raise RuntimeError("Unexpected stock Webots Crazyflie world structure")
+          world.write_text(old.replace(needle,new))
+          PY
+
+      - name: Run 144 registered hardware-free Webots trajectories
+        env:
+          WEBOTS_IMAGE: cyberbotics/webots:R2025a-ubuntu22.04
+        run: |
+          set -euo pipefail
+          mkdir -p experiments/ornik_fdi_webots/h2_run/raw
+          docker pull "$WEBOTS_IMAGE"
+          docker image inspect "$WEBOTS_IMAGE" --format '{{json .RepoDigests}}' > experiments/ornik_fdi_webots/h2_run/docker_image_digest.json
+          docker run --rm \
+            -v "$GITHUB_WORKSPACE:$GITHUB_WORKSPACE" \
+            -w "$GITHUB_WORKSPACE/bitcraze-crazyflie-simulation" \
+            -e GITHUB_WORKSPACE="$GITHUB_WORKSPACE" \
+            "$WEBOTS_IMAGE" bash -lc '
+              set -euo pipefail
+              apt-get update -qq
+              DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends python3-numpy >/dev/null
+              xvfb-run --auto-servernum webots --version
+              capture() {
+                local seed="$1" onset="$2" motor="$3" keep="$4"
+                export FDI_SEED="$seed"
+                export FDI_FAILED_MOTOR="$motor"
+                export FDI_FAULT_ONSET_S="${onset}.0"
+                case "$keep" in
+                  0) export FDI_FAULT_RETENTION=0.0 ;;
+                  50) export FDI_FAULT_RETENTION=0.5 ;;
+                  100) export FDI_FAULT_RETENTION=1.0 ;;
+                  *) exit 14 ;;
+                esac
+                export FDI_TELEMETRY_PATH="$GITHUB_WORKSPACE/experiments/ornik_fdi_webots/h2_run/raw/seed${seed}_onset${onset}_motor${motor}_keep${keep}.csv"
+                timeout --signal=TERM 50s xvfb-run --auto-servernum webots --mode=fast --no-rendering --stdout --stderr --minimize --batch simulator_files/webots/worlds/crazyflie_world.wbt
+                test -s "$FDI_TELEMETRY_PATH"
+              }
+              for seed in 89 97 101 103 107 109 113 127; do
+                for onset in 9 13; do
+                  capture "$seed" "$onset" 0 100
+                  for keep in 0 50; do
+                    for motor in 1 2 3 4; do
+                      capture "$seed" "$onset" "$motor" "$keep"
+                    done
+                  done
+                done
+              done
+            '
+          test "$(find experiments/ornik_fdi_webots/h2_run/raw -name '*.csv' | wc -l)" -eq 144
+
+      - name: Evaluate frozen gyro rule under prospective stresses
+        run: |
+          set -euo pipefail
+          python experiments/ornik_fdi_webots/evaluate_fdi_h2.py \
+            --input-dir experiments/ornik_fdi_webots/h2_run/raw \
+            --output-dir experiments/ornik_fdi_webots/h2_run/report
+          git rev-parse HEAD > experiments/ornik_fdi_webots/h2_run/git_sha.txt
+          python -m pip freeze > experiments/ornik_fdi_webots/h2_run/analysis_environment.txt
+          cp docs/fdi_h2_prospective_protocol.md experiments/ornik_fdi_webots/h2_run/PROTOCOL.md
+
+      - name: Archive all evidence (including failures)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aegisland-fdi-h2-prospective-evidence
+          path: experiments/ornik_fdi_webots/h2_run/
+          if-no-files-found: warn
+          retention-days: 90
