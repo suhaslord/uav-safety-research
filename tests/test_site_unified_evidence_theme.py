@@ -46,7 +46,13 @@ class UnifiedWebsiteTests(unittest.TestCase):
         cls.routes = json.loads((VERCEL / "vercel.json").read_text(encoding="utf-8"))["rewrites"]
 
     def test_every_published_template_uses_exact_same_last_theme_layer(self):
-        main_templates = list(VERCEL.glob("*.html"))
+        # The original Failure Atlas HTML is in the research freeze SHA-256
+        # manifest: it must not be edited by a site-only theme change.
+        main_templates = [p for p in VERCEL.glob("*.html") if p.name != "failure-atlas.html"]
+        brand = (VERCEL / "aegisland-brand.css").read_text(encoding="utf-8")
+        atlas = (VERCEL / "failure-atlas.html").read_text(encoding="utf-8")
+        self.assertIn('@import url("/aegisland-unified.css?v=1");', brand)
+        self.assertIn('/aegisland-brand.css', atlas)
         dashboard_templates = list(DASHBOARD.glob("*.html"))
         phase_templates = list((DASHBOARD / "phases").glob("*.html"))
         phase_templates += list((DASHBOARD / "phases").glob("phase*/index.html"))
@@ -114,8 +120,10 @@ class UnifiedWebsiteTests(unittest.TestCase):
     def test_camera_report_is_not_misrepresented_as_motor_fault_study(self):
         self.assertIn("H1/H2 motor-fault simulations do not answer", self.audit)
         self.assertIn("not a calibrated", self.home)
+        # The signed Failure Atlas HTML is unchanged. The audit is linked
+        # from the main page, Phase 25 and VASE instead of altering the freeze.
         self.assertIn('href="/confidence-audit/"',
-                      (VERCEL / "failure-atlas.html").read_text(encoding="utf-8"))
+                      (VERCEL / "phase25.html").read_text(encoding="utf-8"))
         self.assertIn('href="/confidence-audit/"',
                       (VERCEL / "model-vase.html").read_text(encoding="utf-8"))
         self.assertIn("Phase 26", self.audit)
