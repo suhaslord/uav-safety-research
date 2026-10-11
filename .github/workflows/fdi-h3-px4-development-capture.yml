@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - research/fdi-h3-px4-development-capture-20261011
+      - research/fdi-h3-raw-ulog-replay-audit-20261011
 
 concurrency:
   group: h3-development-capture-${{ github.ref }}
