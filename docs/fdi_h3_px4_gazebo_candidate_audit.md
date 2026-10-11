@@ -67,3 +67,11 @@ python -m scripts.fdi_h3_px4_development_trace path/to/recording.ulg \
 ```
 
 Keep development traces separate from future protected H3 evidence. The exporter deliberately does not claim physical actuator response, measurement timestamps (`timestamp_sample`), alignment accuracy, simulator independence, motor fault injection, or any validated fault-isolation result. New synthetic regression tests specifically reject future-command borrowing, stale actuator data and non-finite telemetry.
+
+## Fresh independent-simulator development telemetry attempt
+
+The earlier successful Phase 8 PX4/Gazebo jobs [31451880394](https://github.com/suhaslord/uav-safety-research/actions/runs/31451880394) and [31451862547](https://github.com/suhaslord/uav-safety-research/actions/runs/31451862547) ran on 2026-08-11. Both currently return **no downloadable workflow artifacts**, so those raw .ulg files could not be audited for H3.
+
+The separate GitHub Actions workflow `.github/workflows/fdi-h3-px4-development-capture.yml` is restricted to a dedicated H3 development branch and manual dispatch. It reruns the **existing, non-fault** PX4/Gazebo mission to collect a fresh raw ULog, pins the PX4 release and commit and the declared Gazebo model, runs the read-only H3 telemetry preflight, then attempts a strictly **unmapped development CSV export**. It preserves a provenance receipt and the raw file as a short-lived GitHub Actions artifact, including failures if the requested motor/gyro topics were absent.
+
+This capture **does not introduce motor failures**, does not evaluate the H1/H2 classifier, does not access H3 protected seeds, and cannot admit H3 or establish independent fault-isolation accuracy. Source-level plant independence, motor ordering, applied actuation, measurement timestamps, online sensor/noise configuration, actual simulation-side fault conditions, and a separately frozen holdout still require independent review. An incomplete recording must be recorded as a blocker, never converted into a successful H3 result.
