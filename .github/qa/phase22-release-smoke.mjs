@@ -40,6 +40,15 @@ try {
       });
       const text=await page.locator('body').innerText();
       const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth);
+       if (route==='/' && viewport.name==='desktop' && overflow>2) {
+         const offenders=await page.evaluate(()=>[...document.querySelectorAll('body *')]
+           .map(el=>({el,right:el.getBoundingClientRect().right,left:el.getBoundingClientRect().left}))
+           .filter(x=>x.right>document.documentElement.clientWidth+2)
+           .slice(0,15)
+           .map(x=>({tag:x.el.tagName,selector:x.el.id?'#'+x.el.id:x.el.className?.toString().slice(0,90),right:Math.round(x.right),left:Math.round(x.left)})));
+         console.log('HOMEPAGE_OVERFLOW_DIAGNOSTIC',JSON.stringify(offenders));
+       }
+
       const images=await page.locator('img').evaluateAll(images=>images.filter(i=>i.getAttribute('src')&&i.getClientRects().length&&(!i.complete||i.naturalWidth===0)).map(i=>i.getAttribute('src')));
       // Checkout QA lacks deployment-only reconstructed/editorial assets. Production checks every visible image.
       const deploymentOnlyImages=local?images.filter(src=>/^\/media\/(editorial|phase25|perception)\//.test(src)):[];
