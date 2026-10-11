@@ -6,6 +6,10 @@ on:
     branches:
       - research/fdi-h3-px4-development-capture-20261011
 
+concurrency:
+  group: h3-development-capture-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
@@ -38,6 +42,9 @@ jobs:
           mv /tmp/h3-development-mavsdk-package.txt /tmp/h3-development/mavsdk_package.txt
           git clone --branch "$PX4_RELEASE" --depth 1 --recursive https://github.com/PX4/PX4-Autopilot.git /tmp/PX4-Autopilot
           echo "PX4-PX4_AUTOPILOT_SHA=$(git -C /tmp/PX4-Autopilot rev-parse HEAD)" | tee /tmp/h3-development/px4_source.env
+          MODEL_SHA="$(git -C /tmp/PX4-Autopilot rev-parse HEAD:Tools/simulation/gz)"
+          test "$MODEL_SHA" = "$(git -C /tmp/PX4-Autopilot/Tools/simulation/gz rev-parse HEAD)"
+          echo "PX4-GZ_MODEL_SUBMODULE_SHA=$MODEL_SHA" | tee -a /tmp/h3-development/px4_source.env
           test "$PX4_SIMULATOR_MODEL" = "gz_x500"
 
       - name: Install PX4 SITL and Gazebo dependencies
