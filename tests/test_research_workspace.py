@@ -64,25 +64,21 @@ def test_home_editorial_media_is_local_credited_and_context_only() -> None:
     fetcher = _read("deploy/vercel/fetch-editorial-media.mjs")
 
     assert 'data-editorial-media="local-v2"' in html
-    filename = "acero-uav-flight.jpg"
-    assert f'src="/media/{filename}"' in html
-    assert filename in fetcher
+    assert 'src="/media/acero-uav-landing.jpg"' in html
+    assert "acero-uav-landing.jpg" in fetcher
     assert 'id="home-comparison"' in html
     assert '<img src="https://' not in html
-    assert "not AegisLand experiment results" in html
-    assert "Don Richey / NASA Ames" in html
-    assert 'class="field-context"' in html
-    assert html.index('id="home-comparison"') < html.index('class="home-field-media"')
+    assert "visual context, not AegisLand experiment data" in html
+    assert "NASA Armstrong" in html and "NASA Ames" in html
+    assert 'class="home-film-hero"' in html
+    assert html.index('class="home-film-hero"') < html.index('id="home-comparison"')
     assert "Model VASE" in html and "Phase 23 paired" in html
-    assert 'class="home-field-media"' in html
-    assert html.count('data-autoplay="visible"') == 2
-    assert html.count('muted loop preload="none"') == 2
+    assert 'class="home-visual-strip"' in html
+    assert html.count('data-home-film autoplay muted') == 2
     assert 'src="/film/aerocast-flight.mp4"' in html
     assert 'src="/film/evaluation-nasa-clip.mp4"' in html
-    assert 'src="/media/acero-uav-landing.jpg"' in html
-    assert "public-domain context" in html
-    assert "home-field-media__stage" in css
-    assert "aspect-ratio: 3/2" in css
+    assert (ROOT / "deploy/vercel/home-film-restore.css").is_file()
+    assert "home-film-hero__screen" in _read("deploy/vercel/home-film-restore.css")
 
 
 def test_model_vase_hero_uses_the_same_contextual_photo_language_as_home() -> None:
@@ -157,7 +153,7 @@ def test_workspace_uses_original_light_research_system() -> None:
     assert "font-size:clamp(34px,4vw,40px)" in css
     assert "background:rgba(255,255,255,.96)" in css
     assert "text-transform:none" in css
-    assert "--rw-accent:#e82127" in home
+    assert "--rw-accent:#1673c9" in home
     assert "min-height:610px!important" in home
     assert "grid-template-columns:repeat(13,minmax(0,1fr))" in home
-    assert "--phase-accent:#e82127!important" in identity
+    assert "--phase-accent:#1673c9!important" in identity
