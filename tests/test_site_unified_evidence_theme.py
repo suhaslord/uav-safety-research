@@ -57,7 +57,7 @@ class UnifiedWebsiteTests(unittest.TestCase):
         dashboard_templates = list(DASHBOARD.glob("*.html"))
         phase_templates = list((DASHBOARD / "phases").glob("*.html"))
         phase_templates += list((DASHBOARD / "phases").glob("phase*/index.html"))
-        self.assertGreaterEqual(len(main_templates), 12)
+        self.assertGreaterEqual(len(main_templates), 11)  # Two frozen HTML templates inherit the theme
         self.assertGreaterEqual(len(dashboard_templates), 3)
         self.assertGreaterEqual(len(phase_templates), 14)
         for path in main_templates + dashboard_templates + phase_templates:
