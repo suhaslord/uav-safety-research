@@ -25,6 +25,33 @@ QUADS={(1,1):1,(1,-1):2,(-1,-1):3,(-1,1):4}
 TRACE_HEADERS=FIELDS+("failed_motor","fault_active","seed","fault_onset_s","motor_retention")
 DECISION_HEADERS=("seed","onset","motor","retention","sensor_noise_sigma_radps",
                   "prediction","alert_time_s","alert_altitude_m","pre_onset")
+SAMPLE_PERIOD_S=.032
+PRE_ONSET_FIELDS=FIELDS
+
+
+def verify_temporal_pairing(signatures):
+    """Each seed/onset's eight fault cases must match the healthy pre-fault trace."""
+    expected=set(cases())
+    if set(signatures)!=expected:
+        raise ValueError("H2 paired pre-fault evidence has missing or extra scenarios")
+    count=0
+    for seed in SEEDS:
+        for onset in ONSETS:
+            healthy=signatures[(seed,onset,0,1.0)]
+            expected_count=math.ceil(onset/SAMPLE_PERIOD_S)-1
+            if len(healthy)!=expected_count:
+                raise ValueError("H2 pre-onset healthy trace has an invalid sample count")
+            for keep in KEEPS:
+                for motor in (1,2,3,4):
+                    if signatures[(seed,onset,motor,keep)]!=healthy:
+                        raise ValueError(
+                            f"seed{seed} onset{onset} motor{motor} keep{keep}: "
+                            "pre-fault telemetry differs from its healthy control"
+                        )
+                    count+=1
+    return count
+
+
 
 
 def validate_archive_members(names):
@@ -88,11 +115,14 @@ def float_checked(row,key,identity):
 
 def check_trace(rows,case,identity):
     seed,onset,motor,keep=case
-    if len(rows)<220:
-        raise ValueError(f"{identity}: fewer than 220 rows")
+    expected_rows=math.ceil((onset+1.0)/SAMPLE_PERIOD_S)
+    if len(rows)!=expected_rows:
+        raise ValueError(f"{identity}: expected {expected_rows} complete 32ms samples, got {len(rows)}")
     last=-math.inf
-    for row in rows:
+    for index,row in enumerate(rows,start=1):
         t=float_checked(row,"time_s",identity)
+        if not math.isclose(t,index*SAMPLE_PERIOD_S,rel_tol=0,abs_tol=1e-6):
+            raise ValueError(f"{identity}: incomplete or shifted 32ms timestamp grid at row {index}")
         if t<=last:
             raise ValueError(f"{identity}: nonincreasing time")
         if (int(row["seed"])!=seed or int(row["failed_motor"])!=motor or
@@ -239,6 +269,8 @@ def audit(artifact,source=None,expected_archive_sha256=None):
         raw_names={f for f in files if f.startswith("raw/") and f.endswith(".csv")}
         if raw_names!={"raw/"+name(c) for c in cases()}:
             raise ValueError("Incorrect raw trace inventory")
+        paired_signatures={}
+        total_trace_samples=0
         for case in cases():
             fname=name(case)
             entry=manifest_map[fname]
@@ -253,11 +285,19 @@ def audit(artifact,source=None,expected_archive_sha256=None):
             if entry["rows"]!=len(source_rows):
                 raise ValueError(f"{fname}: row count mismatch")
             check_trace(source_rows,case,fname)
+            total_trace_samples+=len(source_rows)
+            paired_signatures[case]=tuple(
+                tuple(row[field] for field in PRE_ONSET_FIELDS)
+                for row in source_rows if float(row["time_s"])<case[1]
+            )
             for sigma in NOISES:
                 pred,t,z,pre=replay(source_rows,case,sigma)
                 saved=output[case+(sigma,)]
                 if pred!=saved["prediction"] or pre!=saved["pre_onset"] or not near(t,saved["alert_time_s"]) or not near(z,saved["alert_altitude_m"]):
                     raise ValueError(f"{fname} sigma={sigma}: saved decision differs from raw replay")
+        paired_fault_comparisons=verify_temporal_pairing(paired_signatures)
+        if total_trace_samples!=54072:
+            raise ValueError("H2 total raw sample inventory does not match the frozen grid")
         for sigma in NOISES:
             for keep in KEEPS:
                 group=[x for x in output.values() if x["sensor_noise_sigma_radps"]==sigma
@@ -285,6 +325,8 @@ def audit(artifact,source=None,expected_archive_sha256=None):
                 if len(interval)!=2 or not all(near(x,y) for x,y in zip((perc(.025),perc(.975)),interval)):
                     raise ValueError(f"{tag}: paired seed bootstrap interval mismatch")
         return {"ok":True,"raw_traces":144,"noise_variant_decisions":432,
+                "raw_telemetry_samples":total_trace_samples,
+                "paired_preonset_fault_comparisons":paired_fault_comparisons,
                 "external_zip_checksum_verified":external_zip_verified,
                 "primary_balanced_accuracy":result["groups"]["retain_50_noise_0p0"]["metrics"]["temporal_valid_balanced_accuracy"],
                 "complete_loss_balanced_accuracy":result["groups"]["retain_0_noise_0p0"]["metrics"]["temporal_valid_balanced_accuracy"]}
