@@ -26,7 +26,7 @@ def test_capture_cannot_be_mistaken_for_h3_detector_accuracy():
     assert "fault_injection_verified" in body
     assert "false" in body.lower()
     assert "actions/upload-artifact@v4" in body
-    assert "retention-days: 14" in body
+    assert "retention-days: 90" in body
     assert "if: always()" in body
 
 
@@ -42,7 +42,14 @@ def test_legacy_mavsdk_import_is_validated_before_sitl_setup():
     body = text()
     # The Oct 11 development attempt failed before flight because pip resolved
     # MAVSDK v4, whose native API removed the old mavsdk.offboard import.
-    assert 'mavsdk<4' in body
+    assert 'mavsdk==3.17.4' in body
     assert 'from mavsdk.offboard import OffboardError, PositionNedYaw' in body
     assert 'mavsdk_package.txt' in body
     assert body.index('from mavsdk.offboard import') < body.index('Install PX4 SITL')
+
+
+def test_successful_capture_passes_separate_bundle_audit_before_upload():
+    body = text()
+    assert 'scripts.fdi_h3_development_bundle_audit' in body
+    assert 'development_audit.json' in body
+    assert body.index('Independently audit development-only evidence') < body.index('Upload PX4 development evidence')
