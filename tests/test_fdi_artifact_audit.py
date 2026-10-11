@@ -127,6 +127,18 @@ class ArtifactAuditRegressionTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, "Unexpected trace length"):
                     audit.validate_trace_length(actual, manifest, "synthetic.csv")
 
+    def test_frozen_webots_container_digest_is_exact(self):
+        self.assertTrue(audit.validate_container_provenance([audit.PINNED_WEBOTS_DIGEST]))
+        for bad in (
+            [],
+            None,
+            ["cyberbotics/webots@sha256:" + "f" * 64],
+            ["cyberbotics/webots:R2025a-ubuntu22.04"],
+        ):
+            with self.subTest(digests=bad):
+                with self.assertRaisesRegex(ValueError, "does not match"):
+                    audit.validate_container_provenance(bad)
+
     def test_expected_seed_split_exact(self):
         self.assertEqual(len(audit.SEEDS), 14)
         self.assertEqual(len(set(audit.SEEDS)), 14)
