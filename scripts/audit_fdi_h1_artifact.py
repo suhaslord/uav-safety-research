@@ -1,0 +1,487 @@
+#!/usr/bin/env python3
+"""Independently audit a downloaded AegisLand FDI-H1 artifact ZIP.
+
+Uses only Python's standard library; recomputes early alerts directly from raw
+gyro measurements, validates SHA256 provenance and compares saved predictions.
+Does not train a model or modify the frozen threshold/holdout split.
+"""
+from __future__ import annotations
+import argparse
+import csv
+import hashlib
+import io
+import json
+import math
+import random
+import statistics
+import zipfile
+from pathlib import Path
+
+PROTECTED = (53, 59, 61, 67, 71, 73, 79, 83)
+SOURCE = (11, 23, 29, 31)
+DEVELOPMENT = (41, 47)
+SEEDS = SOURCE + DEVELOPMENT + PROTECTED
+EXPECTED_ROWS_PER_TRACE = 750  # Archived 24s run at 32ms cadence.
+PINNED_WEBOTS_DIGEST = "cyberbotics/webots@sha256:f0023e30daf38b172e4e6ad24ed345909bcd9551df34d63d824e121a7cebf099"
+QUADRANTS = {(1, 1): 1, (1, -1): 2, (-1, -1): 3, (-1, 1): 4}
+NUMERIC_TELEMETRY_FIELDS = (
+    "time_s", "x_m", "y_m", "z_m", "gyro_p_rps", "gyro_q_rps", "gyro_r_rps",
+    "cmd_m1", "cmd_m2", "cmd_m3", "cmd_m4",
+)
+TRACE_COLUMNS = NUMERIC_TELEMETRY_FIELDS + ("failed_motor", "fault_active", "seed")
+PRE_ONSET_FIELDS = NUMERIC_TELEMETRY_FIELDS[1:]
+SAMPLE_PERIOD_S = 0.032
+PRE_ONSET_SAMPLES = 312  # Samples 0.032s..9.984s, before the 10s fault.
+
+
+
+
+
+
+
+def validate_trace_schema(columns, trace_name):
+    """Reject missing/repeated/reordered CSV columns (DictReader can hide duplicates)."""
+    if tuple(columns or ()) != TRACE_COLUMNS:
+        raise ValueError(f"{trace_name}: CSV schema differs from frozen telemetry contract")
+
+
+def validate_time_grid(rows, trace_name):
+    """Every one of the historical 750 records must occupy its 32ms time slot."""
+    for index, row in enumerate(rows, start=1):
+        measured = float(row["time_s"])
+        expected = index * SAMPLE_PERIOD_S
+        if not math.isfinite(measured) or not math.isclose(
+            measured, expected, rel_tol=0, abs_tol=0.000001
+        ):
+            raise ValueError(
+                f"{trace_name}: expected timestamp {expected:.6f}s "
+                f"at sample {index}; recorded {measured!r}s"
+            )
+
+
+def pre_onset_signature(rows):
+    """Read-only signature for deterministic paired-scenario audit.
+
+    Compare state and commanded motor outputs, not the scenario label.
+    A candidate's own fault has not yet been injected before 10 seconds.
+    """
+    return tuple(
+        tuple(row[key] for key in PRE_ONSET_FIELDS)
+        for row in rows if float(row["time_s"]) < 10.0
+    )
+
+
+def verify_paired_pre_onset(signatures):
+    """Check 14 command seeds have five identical pre-fault plant trajectories."""
+    if set(signatures) != set(SEEDS):
+        raise ValueError("Paired pre-onset audit is missing or contains foreign command seeds")
+    checked = 0
+    for seed in SEEDS:
+        candidates = signatures[seed]
+        if set(candidates) != set(range(5)):
+            raise ValueError(f"Seed {seed}: expected healthy and all four motor scenarios")
+        healthy = candidates[0]
+        if len(healthy) != PRE_ONSET_SAMPLES:
+            raise ValueError(f"Seed {seed}: expected {PRE_ONSET_SAMPLES} pre-onset samples")
+        for motor in range(1, 5):
+            if candidates[motor] != healthy:
+                raise ValueError(
+                    f"Seed {seed}, motor {motor}: telemetry differs from paired healthy "
+                    "control before the imposed fault"
+                )
+            checked += 1
+    return checked
+
+
+
+def excluded_post_time_censor_extrema(rows):
+    """Describe—not score—the physically suspect telemetry after 10.70s.
+
+    These values MUST NOT be passed back to the frozen detector or used to
+    tune it. Extreme late readings are evidence of simulation limitations.
+    """
+    excluded = [r for r in rows if float(r["time_s"]) > 10.70]
+    if not excluded:
+        raise ValueError("Missing post-censor telemetry needed for diagnostic integrity")
+    highest_altitude = max(excluded, key=lambda r: float(r["z_m"]))
+    highest_rate = max(
+        excluded,
+        key=lambda r: max(abs(float(r["gyro_p_rps"])), abs(float(r["gyro_q_rps"])))
+    )
+    return {
+        "samples": len(excluded),
+        "max_altitude_m": float(highest_altitude["z_m"]),
+        "max_altitude_time_s": float(highest_altitude["time_s"]),
+        "max_abs_gyro_pq_rad_per_s": max(
+            abs(float(highest_rate["gyro_p_rps"])),
+            abs(float(highest_rate["gyro_q_rps"]))
+        ),
+        "max_abs_gyro_time_s": float(highest_rate["time_s"]),
+    }
+
+
+def validate_container_provenance(digests):
+    """Reject tag drift: the frozen result used one exact Docker digest."""
+    if not isinstance(digests, list) or PINNED_WEBOTS_DIGEST not in digests:
+        raise ValueError("Webots container digest does not match the frozen historical image")
+    return True
+
+
+def validate_trace_length(actual_rows, reported_rows, trace_name):
+    """Historical artifact has exactly 750 samples per 24-second trace."""
+    if actual_rows != EXPECTED_ROWS_PER_TRACE or reported_rows != EXPECTED_ROWS_PER_TRACE:
+        raise ValueError(
+            f"Unexpected trace length in {trace_name}: expected "
+            f"{EXPECTED_ROWS_PER_TRACE}, got {actual_rows} (manifest {reported_rows})"
+        )
+
+
+def validate_numeric_telemetry(row, trace_name):
+    """Require every recorded numeric state and command to be finite."""
+    for key in NUMERIC_TELEMETRY_FIELDS:
+        try:
+            value = float(row[key])
+        except (KeyError, ValueError, TypeError) as exc:
+            raise ValueError(f"{trace_name}: missing or malformed {key}") from exc
+        if not math.isfinite(value):
+            raise ValueError(f"{trace_name}: nonfinite telemetry {key}")
+
+def verify_expected_archive_sha256(archive_path, expected):
+    """Bind a self-consistent ZIP and its manifest to an external fingerprint."""
+    if len(expected) != 64 or any(ch not in "0123456789abcdef" for ch in expected.lower()):
+        raise ValueError("Expected archive SHA-256 must be exactly 64 hexadecimal characters")
+    digest = hashlib.sha256()
+    with Path(archive_path).open("rb") as source:
+        for block in iter(lambda: source.read(1024 * 1024), b""):
+            digest.update(block)
+    if digest.hexdigest() != expected.lower():
+        raise ValueError("Artifact ZIP SHA-256 differs from external expected checksum")
+    return True
+
+
+def verify_evaluator_source(report, source_path):
+    """Verify an external copy of the frozen evaluator against its saved digest.
+
+    The artifact stores only its evaluator SHA-256; without an independently
+    supplied source file, code identity cannot be confirmed from the ZIP.
+    """
+    actual = hashlib.sha256(Path(source_path).read_bytes()).hexdigest()
+    expected = report.get("analysis_script_sha256")
+    if actual != expected:
+        raise ValueError(
+            "Evaluator source checksum mismatch: supplied source is not the archived analysis code"
+        )
+    return True
+
+def _check_value(name, observed, reported):
+    """Check a published numeric endpoint, including undefined metrics."""
+    if observed is None:
+        if reported is not None:
+            raise ValueError(f"{name}: expected null, found {reported!r}")
+    elif isinstance(reported, bool) or not isinstance(reported, (int, float)) or not math.isclose(
+        observed, reported, rel_tol=1e-10, abs_tol=1e-10
+    ):
+        raise ValueError(f"{name}: replay gives {observed!r}, report says {reported!r}")
+
+
+def verify_report_metrics(report, protected):
+    """Recompute all reported test endpoints and cluster bootstrap independently.
+
+    The records must already be checked against raw gyro trace replays.
+    This routine deliberately accepts imperfect outcomes: an audit should
+    expose poor performance, not fail because it assumes 100% accuracy.
+    """
+    if len(protected) != 40 or any(row["seed"] not in PROTECTED for row in protected):
+        raise ValueError("Expected exactly 40 records on the eight protected seeds")
+    if any(row["motor"] not in range(5) or row["prediction"] not in range(5) for row in protected):
+        raise ValueError("Protected motor labels and predictions must be in 0..4")
+    by_seed = {seed: [r for r in protected if r["seed"] == seed] for seed in PROTECTED}
+    if any(sorted(r["motor"] for r in rows) != list(range(5)) for rows in by_seed.values()):
+        raise ValueError("Protected test must contain each motor condition exactly once per seed")
+
+    def score(records):
+        matrix = [[0] * 5 for _ in range(5)]
+        for row in records:
+            matrix[row["motor"]][row["prediction"]] += 1
+        recalls = [matrix[i][i] / sum(matrix[i]) for i in range(5)]
+        return sum(recalls) / 5
+
+    confusion = [[0] * 5 for _ in range(5)]
+    for row in protected:
+        confusion[row["motor"]][row["prediction"]] += 1
+    recalls = [confusion[i][i] / sum(confusion[i]) for i in range(5)]
+    faults = [r for r in protected if r["motor"] != 0]
+    latencies = [r["alert_time_s"] - 10.0 for r in faults
+                 if r["prediction"] == r["motor"] and r["alert_time_s"] is not None
+                 and r["alert_time_s"] >= 10.0]
+    recalculated = {
+        "trajectories": len(protected),
+        "balanced_accuracy": sum(recalls) / 5,
+        "healthy_false_alarm_rate": 1 - recalls[0],
+        "fault_detection_rate": sum(r["prediction"] != 0 for r in faults) / len(faults),
+        "correct_fault_isolation_rate": sum(r["prediction"] == r["motor"] for r in faults) / len(faults),
+        "median_correct_detection_latency_s": statistics.median(latencies) if latencies else None,
+    }
+    published = report["protected_result"]
+    for key, value in recalculated.items():
+        _check_value(key, value, published.get(key))
+    if published.get("confusion_matrix_rows_true_cols_predicted") != confusion:
+        raise ValueError("Published protected confusion matrix disagrees with raw replay")
+    for name, recall in zip(("healthy", "motor_1", "motor_2", "motor_3", "motor_4"), recalls):
+        _check_value("class_recall." + name, recall, published["class_recall"].get(name))
+
+    # Identical RNG and paired command-seed cluster sampling to frozen
+    # evaluator, but independently implemented here.
+    bootstrap = report["protected_seed_cluster_bootstrap"]
+    if bootstrap.get("random_seed") != 20261012 or bootstrap.get("bootstrap_draws") != 2000:
+        raise ValueError("Bootstrap provenance differs from frozen protocol")
+    rng = random.Random(20261012)
+    draws = []
+    for _ in range(2000):
+        draw = []
+        for __ in PROTECTED:
+            draw.extend(by_seed[rng.choice(PROTECTED)])
+        draws.append(score(draw))
+    draws.sort()
+
+    def percentile(p):
+        index = p * (len(draws) - 1)
+        low = int(index)
+        fraction = index - low
+        return draws[low] * (1 - fraction) + draws[min(low + 1, len(draws) - 1)] * fraction
+
+    interval = bootstrap.get("percentile_95_interval")
+    if not isinstance(interval, list) or len(interval) != 2:
+        raise ValueError("Missing or malformed seed-cluster bootstrap interval")
+    for i, expected in enumerate((percentile(.025), percentile(.975))):
+        _check_value(f"seed_cluster_bootstrap[{i}]", expected, interval[i])
+    _check_value("always_healthy_balanced_accuracy", 0.2,
+                 report.get("always_healthy_balanced_accuracy"))
+    return confusion, latencies
+
+
+def verify_descriptive_metrics(report, records):
+    """Replay the 30 nonprotected descriptive trajectories independently.
+
+    These data are not a second protected test and must never be pooled with
+    the 40 held-out trajectories as independent confirmation.
+    """
+    dev_seeds = SOURCE + DEVELOPMENT
+    if len(records) != 30 or any(r["seed"] not in dev_seeds for r in records):
+        raise ValueError("Expected exactly 30 nonprotected descriptive records")
+    by_seed = {seed: [r for r in records if r["seed"] == seed] for seed in dev_seeds}
+    if any(sorted(r["motor"] for r in rows) != list(range(5)) for rows in by_seed.values()):
+        raise ValueError("Development records must contain all five paired motor classes")
+    if any(r["prediction"] not in range(5) for r in records):
+        raise ValueError("Development predictions must be in 0..4")
+    matrix = [[0] * 5 for _ in range(5)]
+    for r in records:
+        matrix[r["motor"]][r["prediction"]] += 1
+    recalls = [matrix[i][i] / sum(matrix[i]) for i in range(5)]
+    faults = [r for r in records if r["motor"] > 0]
+    latencies = [r["alert_time_s"] - 10.0 for r in faults
+                 if r["prediction"] == r["motor"] and
+                 r["alert_time_s"] is not None and r["alert_time_s"] >= 10.0]
+    actual = {
+        "trajectories": len(records),
+        "balanced_accuracy": sum(recalls) / 5,
+        "healthy_false_alarm_rate": 1 - recalls[0],
+        "fault_detection_rate": sum(r["prediction"] != 0 for r in faults) / len(faults),
+        "correct_fault_isolation_rate": sum(r["prediction"] == r["motor"] for r in faults) / len(faults),
+        "median_correct_detection_latency_s": statistics.median(latencies) if latencies else None,
+    }
+    published = report["development_descriptive_result"]
+    for key, value in actual.items():
+        _check_value("development." + key, value, published.get(key))
+    if published.get("confusion_matrix_rows_true_cols_predicted") != matrix:
+        raise ValueError("Development descriptive confusion matrix disagrees with replay")
+    for name, recall in zip(("healthy", "motor_1", "motor_2", "motor_3", "motor_4"), recalls):
+        _check_value("development.class_recall." + name, recall,
+                     published["class_recall"].get(name))
+    return matrix
+
+
+def decision(rows):
+    streak = 0
+    for row in rows:
+        time = float(row["time_s"])
+        altitude = float(row["z_m"])
+        if time > 10.70 or (time >= 10.0 and altitude < 0.50):
+            break
+        p = float(row["gyro_p_rps"])
+        q = float(row["gyro_q_rps"])
+        streak = streak + 1 if abs(p) >= 2.0 and abs(q) >= 0.75 else 0
+        if streak >= 3:
+            return QUADRANTS[(1 if p > 0 else -1, 1 if q > 0 else -1)], time, altitude
+    return 0, None, None
+
+
+def main():
+    # Most verification below uses assertions. Never silently skip the evidence
+    # checks when invoked using Python's optimized (-O) mode.
+    if not __debug__:
+        raise RuntimeError("Artifact audit requires assertions enabled; do not use python -O")
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("artifact_zip", help="ZIP uploaded by GitHub Actions FDI early pre-contact validation")
+    parser.add_argument("--evaluator-source", type=Path,
+                        help="Optional local frozen evaluator for SHA-256 identity verification")
+    parser.add_argument("--expected-archive-sha256",
+                        help="Externally recorded SHA-256 for the complete ZIP; optional but recommended")
+    args = parser.parse_args()
+    archive_verified = (verify_expected_archive_sha256(
+        args.artifact_zip, args.expected_archive_sha256)
+        if args.expected_archive_sha256 is not None else False)
+    with zipfile.ZipFile(args.artifact_zip) as z:
+        report = json.loads(z.read("report/heldout_results.json"))
+        source_verified = (verify_evaluator_source(report, args.evaluator_source)
+                           if args.evaluator_source is not None else False)
+        # Confirm that the archived run identity, pinned simulator, and
+        # declared evaluation settings agree with the frozen audit rule.
+        try:
+            run_sha = z.read("git_sha.txt").decode("utf-8").strip()
+            digests = json.loads(z.read("docker_image_digest.json"))
+        except KeyError as exc:
+            raise ValueError(f"Evidence artifact missing required provenance file: {exc}") from exc
+        if report.get("git_sha") != run_sha or len(run_sha) != 40 or any(
+            digit not in "0123456789abcdef" for digit in run_sha.lower()
+        ):
+            raise ValueError("Git checkout SHA is missing or conflicts with report provenance")
+        validate_container_provenance(digests)
+        rule = report.get("predefined_rule", {})
+        expected_rule = {
+            "p_abs_threshold_rad_per_s": 2.0,
+            "q_abs_threshold_rad_per_s": .75,
+            "consecutive_alert_samples": 3,
+            "fault_onset_s": 10.0,
+            "time_censor_s": 10.70,
+            "altitude_censor_m": .50,
+            "first_alarm_wins": True,
+        }
+        for key, expected_value in expected_rule.items():
+            if rule.get(key) != expected_value:
+                raise ValueError(f"Frozen evaluation metadata mismatch: {key}")
+        saved_rows = list(csv.DictReader(io.StringIO(z.read("report/trajectory_decisions.csv").decode())))
+        manifest = report["input_manifest"]
+        expected = {f"seed{s}_motor{m}.csv" for s in SEEDS for m in range(5)}
+        assert len(manifest) == len(expected) == 70
+        assert len(saved_rows) == 70
+        assert {entry["file"] for entry in manifest} == expected
+        assert {name[4:] for name in z.namelist() if name.startswith("raw/") and name.endswith(".csv")} == expected
+        assert report.get("protected_test_trajectories") == 40
+        assert tuple(report["protected_test_seeds"]) == PROTECTED
+        assert tuple(report["source_development_seeds"]) == SOURCE
+        assert tuple(report["development_seeds"]) == DEVELOPMENT
+        indexed = {(int(row["seed"]), int(row["motor"])): row for row in saved_rows}
+        assert len(indexed) == 70
+        if len(z.namelist()) != len(set(z.namelist())):
+            raise ValueError("Duplicate ZIP members make evidence ambiguous")
+        confusion = [[0] * 5 for _ in range(5)]
+        successful_fault_alerts = []
+        protected_records = []
+        development_records = []
+        protected_pre_onset_alerts = 0
+        pre_onset_signatures = {}
+        postcensor_max_altitude = (-float("inf"), None)
+        postcensor_max_abs_rate = (-float("inf"), None)
+        postcensor_samples = 0
+        checked = 0
+        for entry in manifest:
+            name = entry["file"]
+            contents = z.read("raw/" + name)
+            assert hashlib.sha256(contents).hexdigest() == entry["sha256"], name
+            seed = int(name.split("_")[0][4:])
+            motor = int(name.split("_")[1][5:-4])
+            reader = csv.DictReader(io.StringIO(contents.decode()))
+            validate_trace_schema(reader.fieldnames, name)
+            rows = list(reader)
+            validate_trace_length(len(rows), int(entry["rows"]), name)
+            validate_time_grid(rows, name)
+            pre_onset_signatures.setdefault(seed, {})[motor] = pre_onset_signature(rows)
+            late = excluded_post_time_censor_extrema(rows)
+            postcensor_samples += late["samples"]
+            if late["max_altitude_m"] > postcensor_max_altitude[0]:
+                postcensor_max_altitude = (
+                    late["max_altitude_m"],
+                    {"seed": seed, "motor": motor, "time_s": late["max_altitude_time_s"]},
+                )
+            if late["max_abs_gyro_pq_rad_per_s"] > postcensor_max_abs_rate[0]:
+                postcensor_max_abs_rate = (
+                    late["max_abs_gyro_pq_rad_per_s"],
+                    {"seed": seed, "motor": motor, "time_s": late["max_abs_gyro_time_s"]},
+                )
+            times = [float(row["time_s"]) for row in rows]
+            assert all(math.isfinite(t) for t in times)
+            assert all(b > a for a, b in zip(times, times[1:]))
+            assert times[-1] >= 22
+            for row in rows:
+                t = float(row["time_s"])
+                assert int(row["seed"]) == seed
+                assert int(row["failed_motor"]) == motor
+                assert int(row["fault_active"]) == int(motor > 0 and t >= 10.0)
+                validate_numeric_telemetry(row, name)
+            pred, timestamp, altitude = decision(rows)
+            saved = indexed[(seed, motor)]
+            expected_split = ("protected_test" if seed in PROTECTED else
+                              "development" if seed in DEVELOPMENT else
+                              "source_development")
+            if entry.get("split") != expected_split or saved.get("split") != expected_split:
+                raise ValueError(f"Split metadata inconsistent with seed {seed}")
+            if saved.get("false_alert_before_onset") != str(timestamp is not None and timestamp < 10.0):
+                raise ValueError(f"Pre-onset alert flag disagrees with trace {name}")
+            assert int(saved["prediction"]) == pred
+            if timestamp is None:
+                assert not saved["alert_time_s"] and not saved["alert_altitude_m"]
+            else:
+                assert math.isclose(float(saved["alert_time_s"]), timestamp, abs_tol=1e-10)
+                assert math.isclose(float(saved["alert_altitude_m"]), altitude, abs_tol=1e-10)
+            record = {"seed": seed, "motor": motor, "prediction": pred, "alert_time_s": timestamp}
+            if seed in PROTECTED:
+                protected_records.append(record)
+                confusion[motor][pred] += 1
+                if timestamp is not None and timestamp < 10.0:
+                    protected_pre_onset_alerts += 1
+                if motor > 0 and pred == motor:
+                    successful_fault_alerts.append((timestamp, altitude))
+            else:
+                development_records.append(record)
+            checked += 1
+        verified_pre_onset_pairs = verify_paired_pre_onset(pre_onset_signatures)
+        verified_confusion, latencies = verify_report_metrics(report, protected_records)
+        development_confusion = verify_descriptive_metrics(report, development_records)
+        assert verified_confusion == confusion
+        balanced_accuracy = sum(confusion[k][k] / sum(confusion[k]) for k in range(5)) / 5.0
+        lower_bound = 0.025 ** (1 / len(PROTECTED)) if confusion == [[8 if i == j else 0 for j in range(5)] for i in range(5)] else None
+        summary = {
+            "status": "independently_replayed",
+            "files_checked": checked,
+            "paired_pre_onset_scenarios_verified": verified_pre_onset_pairs,
+            "pre_onset_samples_per_scenario": PRE_ONSET_SAMPLES,
+            "timestamp_grid_period_s": SAMPLE_PERIOD_S,
+            "excluded_after_time_censor": {
+                "samples": postcensor_samples,
+                "max_altitude_m": postcensor_max_altitude[0],
+                "max_altitude_trace": postcensor_max_altitude[1],
+                "max_abs_gyro_pq_rad_per_s": postcensor_max_abs_rate[0],
+                "max_abs_gyro_trace": postcensor_max_abs_rate[1],
+                "not_used_for_scoring": True,
+            },
+            "evaluator_source_checksum_verified": source_verified,
+            "archive_checksum_verified": archive_verified,
+            "protected_trajectories": 40,
+            "descriptive_development_trajectories": len(development_records),
+            "descriptive_development_confusion_matrix": development_confusion,
+            "confusion_matrix": confusion,
+            "balanced_accuracy": balanced_accuracy,
+            "healthy_false_alarms": sum(confusion[0][1:]),
+            "protected_pre_onset_alerts_all_classes": protected_pre_onset_alerts,
+            "correct_fault_isolations": len(successful_fault_alerts),
+            "median_correct_fault_detection_latency_seconds": statistics.median(latencies) if latencies else None,
+            "detection_altitude_range_m": [min(h for _, h in successful_fault_alerts), max(h for _, h in successful_fault_alerts)] if successful_fault_alerts else None,
+            "eight_cluster_all_success_exact_binomial_lower_95pct_if_iid": lower_bound,
+            "interpretation": "single simulator, full motor shutdown, fixed onset; not real-world or safety validation"
+        }
+        print(json.dumps(summary, indent=2))
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,117 @@
+name: FDI early pre-contact validation
+
+on:
+  # Use push-diff filtering: on pull_request, GitHub compares the ENTIRE
+  # PR against main, causing full reruns even after test-only commits.
+  # The original held-out study is already archived; future source changes
+  # trigger this reproducibility suite, while unit tests run on each PR.
+  push:
+    branches:
+      - "research/fdi-*"
+    paths:
+      # Repeat the expensive 70-trajectory study only when its executable
+      # simulator controller, frozen evaluator, or workflow changes.
+      # Test-only and documentation changes are checked by lightweight CI.
+      - "experiments/ornik_fdi_webots/webots_fdi_controller.py"
+      - "experiments/ornik_fdi_webots/evaluate_fdi_early.py"
+      - ".github/workflows/fdi-heldout-seed-validation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fdi-heldout-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  fdi-precontact-seed-holdout:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 150
+    steps:
+      - name: Check out experiment code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Pin analysis requirements and run unit tests
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check "numpy==2.2.6"
+          python -m unittest discover -s experiments/ornik_fdi_webots -p 'test_fdi_early.py' -v
+          python -m unittest discover -s experiments/ornik_fdi_webots -p 'test_fdi_robustness_synthetic.py' -v
+
+      - name: Fetch pinned Crazyflie simulation
+        run: |
+          set -euo pipefail
+          git clone --no-checkout https://github.com/bitcraze/crazyflie-simulation.git bitcraze-crazyflie-simulation
+          git -C bitcraze-crazyflie-simulation checkout 7e93752dbc803af2488c1db46bb79b3da55f5d8c
+          test "$(git -C bitcraze-crazyflie-simulation rev-parse HEAD)" = "7e93752dbc803af2488c1db46bb79b3da55f5d8c"
+
+      - name: Install the existing telemetry controller in the pinned Webots world
+        run: |
+          set -euo pipefail
+          mkdir -p bitcraze-crazyflie-simulation/simulator_files/webots/controllers/ornik_fdi_controller
+          cp experiments/ornik_fdi_webots/webots_fdi_controller.py \
+            bitcraze-crazyflie-simulation/simulator_files/webots/controllers/ornik_fdi_controller/ornik_fdi_controller.py
+          python - <<'PY'
+          from pathlib import Path
+          world = Path("bitcraze-crazyflie-simulation/simulator_files/webots/worlds/crazyflie_world.wbt")
+          text = world.read_text()
+          needle = "Crazyflie {\n}\n"
+          replacement = 'Crazyflie {\n  controller "ornik_fdi_controller"\n  supervisor TRUE\n}\n'
+          if text.count(needle) != 1:
+              raise SystemExit("Webots world stock Crazyflie node missing or ambiguous")
+          world.write_text(text.replace(needle, replacement))
+          PY
+
+      - name: Run all 70 seed-by-condition Webots simulations
+        env:
+          WEBOTS_IMAGE: cyberbotics/webots:R2025a-ubuntu22.04
+        run: |
+          set -euo pipefail
+          mkdir -p experiments/ornik_fdi_webots/heldout_run/raw
+          docker pull "$WEBOTS_IMAGE"
+          docker image inspect "$WEBOTS_IMAGE" --format '{{json .RepoDigests}}' > experiments/ornik_fdi_webots/heldout_run/docker_image_digest.json
+          docker run --rm \
+            -v "$GITHUB_WORKSPACE:$GITHUB_WORKSPACE" \
+            -w "$GITHUB_WORKSPACE/bitcraze-crazyflie-simulation" \
+            -e GITHUB_WORKSPACE="$GITHUB_WORKSPACE" \
+            "$WEBOTS_IMAGE" bash -lc '
+              set -euo pipefail
+              apt-get update -qq
+              DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends python3-numpy >/dev/null
+              xvfb-run --auto-servernum webots --version
+              for seed in 11 23 29 31 41 47 53 59 61 67 71 73 79 83; do
+                for motor in 0 1 2 3 4; do
+                  export FDI_SEED="$seed"
+                  export FDI_FAILED_MOTOR="$motor"
+                  export FDI_TELEMETRY_PATH="$GITHUB_WORKSPACE/experiments/ornik_fdi_webots/heldout_run/raw/seed${seed}_motor${motor}.csv"
+                  timeout --signal=TERM 60s xvfb-run --auto-servernum webots --mode=fast --no-rendering --stdout --stderr --minimize --batch simulator_files/webots/worlds/crazyflie_world.wbt
+                  test -s "$FDI_TELEMETRY_PATH"
+                done
+              done
+            '
+          test "$(find experiments/ornik_fdi_webots/heldout_run/raw -name '*.csv' | wc -l)" -eq 70
+
+      - name: Evaluate frozen early gyro rule before simulated impact
+        run: |
+          set -euo pipefail
+          mkdir -p experiments/ornik_fdi_webots/heldout_run/report
+          python experiments/ornik_fdi_webots/evaluate_fdi_early.py \
+            --input-dir experiments/ornik_fdi_webots/heldout_run/raw \
+            --output-dir experiments/ornik_fdi_webots/heldout_run/report
+          git rev-parse HEAD > experiments/ornik_fdi_webots/heldout_run/git_sha.txt
+          python -m pip freeze > experiments/ornik_fdi_webots/heldout_run/analysis_environment.txt
+
+      - name: Archive raw evidence whether evaluation passes or fails
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aegisland-fdi-h1-precontact-evidence
+          path: experiments/ornik_fdi_webots/heldout_run/
+          if-no-files-found: warn
+          retention-days: 90

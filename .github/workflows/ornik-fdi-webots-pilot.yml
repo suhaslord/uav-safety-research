@@ -1,15 +1,25 @@
 name: Ornik FDI Webots pilot
 
 on:
-  pull_request:
-    branches: [main]
+  # Historical pilot: rerun only when actual pilot source changes,
+  # not on every downstream FDI-H1 unit test or documentation update.
+  push:
+    branches:
+      - "research/fdi-*"
     paths:
-      - "experiments/ornik_fdi_webots/**"
+      # Pilot reruns only when pilot source, plant controller or workflow
+      # changes; unit-test edits have their own fast workflow.
+      - "experiments/ornik_fdi_webots/webots_fdi_controller.py"
+      - "experiments/ornik_fdi_webots/train_pilot.py"
       - ".github/workflows/ornik-fdi-webots-pilot.yml"
   workflow_dispatch:
 
 permissions:
   contents: read
+
+concurrency:
+  group: fdi-pilot-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   webots-fdi-pilot:
