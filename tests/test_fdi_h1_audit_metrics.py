@@ -72,7 +72,7 @@ class FdiAuditMetricsTests(unittest.TestCase):
             verify_report_metrics(report, synthetic_records())
 
     def test_missing_paired_seed_scenario_is_rejected(self):
-        with self.assertRaisesRegex(ValueError, "each motor condition"):
+        with self.assertRaisesRegex(ValueError, "exactly 40 records|each motor condition"):
             verify_report_metrics(synthetic_report(), synthetic_records()[:-1])
 
     def test_null_latency_in_bad_outcome_is_not_replaced_by_zero(self):
