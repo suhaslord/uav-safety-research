@@ -69,7 +69,7 @@ class SyntheticZipAuditTests(unittest.TestCase):
                         stream = io.StringIO()
                         writer = csv.DictWriter(stream, fieldnames=fields)
                         writer.writeheader()
-                        for index in range(1, 701):
+                        for index in range(1, 751):
                             t = index * .032
                             writer.writerow({
                                 "time_s": f"{t:.6f}", "x_m": "0", "y_m": "0",
@@ -82,7 +82,7 @@ class SyntheticZipAuditTests(unittest.TestCase):
                         content = stream.getvalue().encode()
                         z.writestr("raw/" + name, content)
                         report["input_manifest"].append({
-                            "file": name, "rows": 700,
+                            "file": name, "rows": 750,
                             "sha256": hashlib.sha256(content).hexdigest(),
                             "split": split,
                         })
