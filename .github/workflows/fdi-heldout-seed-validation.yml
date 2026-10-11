@@ -4,8 +4,11 @@ on:
   pull_request:
     branches: [main]
     paths:
-      - "experiments/ornik_fdi_webots/**"
-      - "docs/fdi_h1_heldout_protocol.md"
+      # Repeat the expensive 70-trajectory study only when its executable
+      # simulator controller, frozen evaluator, or workflow changes.
+      # Test-only and documentation changes are checked by lightweight CI.
+      - "experiments/ornik_fdi_webots/webots_fdi_controller.py"
+      - "experiments/ornik_fdi_webots/evaluate_fdi_early.py"
       - ".github/workflows/fdi-heldout-seed-validation.yml"
   workflow_dispatch:
 
