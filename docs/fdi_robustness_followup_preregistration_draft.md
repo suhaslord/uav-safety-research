@@ -27,7 +27,7 @@ Freeze **new command seeds 89, 97, 101, 103, 107, 109, 113, 127** before any R1 
 A deterministic, **unexecuted** scenario generator and its synthetic tests are now committed at `experiments/ornik_fdi_webots/fdi_robustness_plan.py` and `test_fdi_robustness_plan.py`. To write the exact prospective manifest once (refuses overwrite), use:
 
 ```bash
-python experiments/ornik_fdi_webots/fdi_robustness_plan.py \\
+python experiments/ornik_fdi_webots/fdi_robustness_plan.py \
   --output results/fdi_r1/scenario_plan.json
 ```
 
