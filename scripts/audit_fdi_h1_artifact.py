@@ -22,9 +22,24 @@ SOURCE = (11, 23, 29, 31)
 DEVELOPMENT = (41, 47)
 SEEDS = SOURCE + DEVELOPMENT + PROTECTED
 QUADRANTS = {(1, 1): 1, (1, -1): 2, (-1, -1): 3, (-1, 1): 4}
+NUMERIC_TELEMETRY_FIELDS = (
+    "time_s", "x_m", "y_m", "z_m", "gyro_p_rps", "gyro_q_rps", "gyro_r_rps",
+    "cmd_m1", "cmd_m2", "cmd_m3", "cmd_m4",
+)
 
 
 
+
+
+def validate_numeric_telemetry(row, trace_name):
+    """Require every recorded numeric state and command to be finite."""
+    for key in NUMERIC_TELEMETRY_FIELDS:
+        try:
+            value = float(row[key])
+        except (KeyError, ValueError, TypeError) as exc:
+            raise ValueError(f"{trace_name}: missing or malformed {key}") from exc
+        if not math.isfinite(value):
+            raise ValueError(f"{trace_name}: nonfinite telemetry {key}")
 
 def verify_evaluator_source(report, source_path):
     """Verify an external copy of the frozen evaluator against its saved digest.
@@ -219,7 +234,7 @@ def main():
                 assert int(row["seed"]) == seed
                 assert int(row["failed_motor"]) == motor
                 assert int(row["fault_active"]) == int(motor > 0 and t >= 10.0)
-                assert all(math.isfinite(float(row[key])) for key in ("z_m", "gyro_p_rps", "gyro_q_rps"))
+                validate_numeric_telemetry(row, name)
             pred, timestamp, altitude = decision(rows)
             saved = indexed[(seed, motor)]
             expected_split = ("protected_test" if seed in PROTECTED else
