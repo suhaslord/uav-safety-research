@@ -133,3 +133,47 @@ The successful capture identified PX4 commit `d6f12ad1c4f70ad3230afd7d86e971421e
 **Important mapping caveat:** the airframe allocator's planar `CA_ROTOR*_PX/PY` values and the Gazebo SDF rotor poses are not numerically identical and are expressed in different coordinate conventions. Neither numeric index agreement nor a signed-axis guess suffices to declare H1 motor-class equivalence. A runtime engineering check must confirm model-joint identity, actual simulated actuation, frame conversion, and which downstream `vehicle_angular_velocity` data correspond to the sensor measurements.
 
 This investigation narrows the remaining mapping task, but has **not** injected motor faults, verified physical rotor failure, checked online sensor-noise propagation, opened protected H3 seeds, or established independence/admission. Continue to report `NOT_ADMITTED`.
+
+
+## Raw ULog numerical replay gate (2026-10-11)
+
+The original development archive auditor compared file checksums, the two exported
+receipts, causal timestamp constraints, row counts, and the documented
+`DEVELOPMENT_ONLY_UNMAPPED` flags. That established **internal consistency**,
+but deliberately could not prove the numerical CSV samples actually matched
+the raw PX4 recorder.
+
+`scripts/fdi_h3_raw_ulog_replay_audit.py` adds a separate **read-only numerical
+replay** from the original `.ulg` using `pyulog`, with no fault injections and
+no detector predictions. It independently traverses the original monotonic
+gyroscope timeline and reselects the most recent motor command at or before
+each gyro sample. Every CSV timestamp, calculated command age, all three gyro
+channels, and all four motor-command values must exactly equal that raw ULog
+source sample (finite floats). The required source SHA-256 and the CSV's sample
+count, time boundaries, and maximum age are verified too. Any discrepancy
+causes a nonzero exit and explicit `REJECTED` status; the tool limits error
+report volume without substituting missing sensor data.
+
+The capture workflow executes this gate before creating a
+`DEVELOPMENT_EXPORT_CREATED` receipt and before its existing independent
+archive-consistency check. Both reports are retained with the raw ULog in
+the development artifact. New synthetic regression cases cover mismatched
+gyro or motor values, future/stale timestamp associations, missing samples,
+corrupted digests, duplicated topics, nonfinite raw data, and false H3 claims.
+
+Reproduce on a **previously recorded simulation log** with its actual export:
+
+```bash
+python -m scripts.fdi_h3_raw_ulog_replay_audit px4_gazebo_raw.ulg \
+  --csv px4_h3_unmapped.csv \
+  --metadata px4_h3_unmapped_metadata.json \
+  --output raw_ulog_replay_audit.json
+```
+
+Passing reports `MATCHED_DEVELOPMENT_ONLY` and proves agreement between these
+local files, **not** that the hardware-equivalent rotor dynamics, gyro axes,
+simulator injection, physical index-to-quadrant mapping, or the future protected
+fault detector are valid. The original recorded `vehicle_angular_velocity`
+is a processed PX4 topic and still needs a separately documented mapping to
+the simulated `sensor_gyro` and measurement time base. H3 remains
+**NOT_ADMITTED**; no protected fault trials are executed by this tool.
