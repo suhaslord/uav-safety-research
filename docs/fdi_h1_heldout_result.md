@@ -58,8 +58,11 @@ Run an independent audit against a downloaded artifact:
 
 ```bash
 python scripts/audit_fdi_h1_artifact.py aegisland-fdi-h1-precontact-evidence.zip \
-  --evaluator-source experiments/ornik_fdi_webots/evaluate_fdi_early.py
+  --evaluator-source experiments/ornik_fdi_webots/evaluate_fdi_early.py \
+  --expected-archive-sha256 2c9aa507ffcb4bbcfcec31ce26496f6790cdc3527eb063f0cc6f32bd76c45932
 ```
+
+The optional `--expected-archive-sha256` check binds the archive to a checksum preserved **outside** the ZIP. This matters because a self-consistent manifest inside an altered archive cannot, by itself, prove external provenance. The supplied digest was independently recomputed for the retained October 11 artifact; for a different legitimately generated ZIP, record its own external digest instead.
 
 The optional `--evaluator-source` check compares the local frozen evaluator bytes to the SHA-256 recorded in the archived report. Without this option the auditor verifies raw data and numeric replay, **but not independent identity of the evaluator source**.
 
