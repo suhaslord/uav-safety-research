@@ -48,8 +48,8 @@ jobs:
           from pathlib import Path
           world = Path("bitcraze-crazyflie-simulation/simulator_files/webots/worlds/crazyflie_world.wbt")
           text = world.read_text()
-          needle = "Crazyflie {\\n}\\n"
-          replacement = 'Crazyflie {\\n  controller "ornik_fdi_controller"\\n  supervisor TRUE\\n}\\n'
+          needle = "Crazyflie {\n}\n"
+          replacement = 'Crazyflie {\n  controller "ornik_fdi_controller"\n  supervisor TRUE\n}\n'
           if text.count(needle) != 1:
               raise SystemExit("Webots world stock Crazyflie node missing or ambiguous")
           world.write_text(text.replace(needle, replacement))
