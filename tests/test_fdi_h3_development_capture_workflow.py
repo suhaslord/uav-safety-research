@@ -53,3 +53,10 @@ def test_successful_capture_passes_separate_bundle_audit_before_upload():
     assert 'scripts.fdi_h3_development_bundle_audit' in body
     assert 'development_audit.json' in body
     assert body.index('Independently audit development-only evidence') < body.index('Upload PX4 development evidence')
+
+
+def test_capture_records_exact_model_submodule_and_cancels_obsolete_runs():
+    body = text()
+    assert 'PX4-GZ_MODEL_SUBMODULE_SHA=' in body
+    assert 'HEAD:Tools/simulation/gz' in body
+    assert 'cancel-in-progress: true' in body
