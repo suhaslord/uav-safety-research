@@ -3,7 +3,7 @@ body.home-evidence-led {
   --home-max: 1280px;
   --home-space: clamp(56px, 6vw, 88px);
   --home-muted: #5c6066;
-  --home-action: #c91b21;
+  --home-action: #09549d;
   line-height: 1.55;
   overflow-x: visible;
 }
@@ -26,7 +26,7 @@ body.home-evidence-led {
 .home-evidence-led .actions { gap: 12px; margin-top: 28px; }
 .home-evidence-led .button { min-height: 48px; padding-inline: 20px; min-width: 0; }
 .home-evidence-led .button.primary { background: var(--home-action) !important; border-color: var(--home-action) !important; }
-.home-evidence-led .button.primary:hover { background: #ac171d !important; }
+.home-evidence-led .button.primary:hover { background: #0b579f !important; }
 .home-evidence-led .button.secondary { border: 1px solid #d1d3d6; }
 .hero-scope { max-width: 44ch; margin: 20px 0 0; color: var(--home-muted); font-size: 12px; }
 .home-comparison { min-width: 0; }
@@ -43,7 +43,7 @@ body.home-evidence-led {
 .home-model__head { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 4px 10px; margin-bottom: 10px; }
 .home-model__head h3 { font-size: 14px; line-height: 1.3; margin: 0; font-weight: 600 !important; }
 .home-model__head > span { font-size: 10px; font-weight: 600; color: #256039; }
-.home-model__head > span[data-missed="true"] { color: #b01d24; }
+.home-model__head > span[data-missed="true"] { color: #145ca4; }
 .home-camera { position: relative; aspect-ratio: 1052/961; background: #edf0f1; border-radius: 4px; overflow: hidden; }
 .home-camera img { width: 100%; height: 100%; object-fit: contain; display: block; }
 .home-camera__placeholder { position: absolute; inset: 0; display: grid; place-content: center; padding: 20px; font-size: 12px; text-align: center; color: #56616b; margin: 0; }
@@ -83,7 +83,7 @@ body.home-evidence-led {
 .chart-heading h3 { font-size: 16px; line-height: 1.4; margin: 0; }
 .chart-legend { display: flex; gap: 14px; color: #535a63; font-size: 11px; }
 .chart-legend i { width: 16px; height: 4px; display: inline-block; }
-.baseline-key { background: #9fa4aa; }.robust-key { background: #c91b21; }
+.baseline-key { background: #9fa4aa; }.robust-key { background: #09549d; }
 .atlas-chart { display: grid; gap: 0; }
 .atlas-chart-row { display: grid; grid-template-columns: 68px minmax(0,1fr) 84px; align-items: center; gap: 16px; min-height: 52px; border-top: 1px solid var(--vase-line); }
 .atlas-chart-row:last-child { border-bottom: 1px solid var(--vase-line); }
@@ -91,7 +91,7 @@ body.home-evidence-led {
 .atlas-chart-bars { display: grid; gap: 5px; }
 .atlas-chart-track { height: 6px; background: #f2f3f4; }
 .atlas-chart-bar { display: block; height: 100%; }
-.atlas-chart-bar--baseline { background: #9fa4aa; }.atlas-chart-bar--robust { background: #c91b21; }
+.atlas-chart-bar--baseline { background: #9fa4aa; }.atlas-chart-bar--robust { background: #09549d; }
 .atlas-chart-values { text-align: right; color: #535a63; font-size: 12px; font-variant-numeric: tabular-nums; }
 .chart-caption { color: var(--home-muted); font-size: 11px; line-height: 1.5; margin: 16px 0 0; }
 .research-counts { display: flex; align-items: center; gap: 20px 32px; flex-wrap: wrap; margin-top: 36px; padding-top: 24px; border-top: 1px solid var(--vase-line); color: #535a63; font-size: 12px; }
@@ -124,7 +124,7 @@ body.home-evidence-led {
 .copy-disclosure summary { padding-block: 20px; cursor: pointer; color: #535a63; font-size: 12px; }
 .home-lineage { margin-bottom: 24px; }.home-lineage__head { display: flex; justify-content: space-between; font-size: 11px; color: #535a63; }
 .home-lineage__track { display: grid; grid-template-columns: repeat(13,minmax(0,1fr)); gap: 8px; margin-top: 14px; }
-.home-lineage__node { min-height: 44px; display: grid; place-content: center; font-size: 11px; border-bottom: 2px solid #c91b21; text-decoration: none; }
+.home-lineage__node { min-height: 44px; display: grid; place-content: center; font-size: 11px; border-bottom: 2px solid #09549d; text-decoration: none; }
 .home-lineage__node[data-verdict="PASS"] { border-color: #368552; }
 .home-evidence-led .evidence-list { padding-bottom: 20px; }
 .home-evidence-led .evidence-item { font-size: 12px; }
