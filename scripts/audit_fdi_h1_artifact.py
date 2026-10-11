@@ -15,6 +15,7 @@ import math
 import random
 import statistics
 import zipfile
+from pathlib import Path
 
 PROTECTED = (53, 59, 61, 67, 71, 73, 79, 83)
 SOURCE = (11, 23, 29, 31)
@@ -23,6 +24,21 @@ SEEDS = SOURCE + DEVELOPMENT + PROTECTED
 QUADRANTS = {(1, 1): 1, (1, -1): 2, (-1, -1): 3, (-1, 1): 4}
 
 
+
+
+def verify_evaluator_source(report, source_path):
+    """Verify an external copy of the frozen evaluator against its saved digest.
+
+    The artifact stores only its evaluator SHA-256; without an independently
+    supplied source file, code identity cannot be confirmed from the ZIP.
+    """
+    actual = hashlib.sha256(Path(source_path).read_bytes()).hexdigest()
+    expected = report.get("analysis_script_sha256")
+    if actual != expected:
+        raise ValueError(
+            "Evaluator source checksum mismatch: supplied source is not the archived analysis code"
+        )
+    return True
 
 def _check_value(name, observed, reported):
     """Check a published numeric endpoint, including undefined metrics."""
@@ -128,9 +144,13 @@ def main():
         raise RuntimeError("Artifact audit requires assertions enabled; do not use python -O")
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("artifact_zip", help="ZIP uploaded by GitHub Actions FDI early pre-contact validation")
+    parser.add_argument("--evaluator-source", type=Path,
+                        help="Optional local frozen evaluator for SHA-256 identity verification")
     args = parser.parse_args()
     with zipfile.ZipFile(args.artifact_zip) as z:
         report = json.loads(z.read("report/heldout_results.json"))
+        source_verified = (verify_evaluator_source(report, args.evaluator_source)
+                           if args.evaluator_source is not None else False)
         # Confirm that the archived run identity, pinned simulator, and
         # declared evaluation settings agree with the frozen audit rule.
         try:
@@ -231,6 +251,7 @@ def main():
         summary = {
             "status": "independently_replayed",
             "files_checked": checked,
+            "evaluator_source_checksum_verified": source_verified,
             "protected_trajectories": 40,
             "confusion_matrix": confusion,
             "balanced_accuracy": balanced_accuracy,
