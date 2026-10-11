@@ -24,6 +24,15 @@ These are separate one-factor-at-a-time studies against a common control, **not*
 
 Freeze **new command seeds 89, 97, 101, 103, 107, 109, 113, 127** before any R1 runs. These eight seeds are disjoint from all 14 seeds used in the historical study. This is a fixed, convenience-generated set of seeded command programs, **not a representative sample of real-world flights**. Do not drop, replace or select seeds after seeing their outcomes.
 
+A deterministic, **unexecuted** scenario generator and its synthetic tests are now committed at `experiments/ornik_fdi_webots/fdi_robustness_plan.py` and `test_fdi_robustness_plan.py`. To write the exact prospective manifest once (refuses overwrite), use:
+
+```bash
+python experiments/ornik_fdi_webots/fdi_robustness_plan.py \\
+  --output results/fdi_r1/scenario_plan.json
+```
+
+Before executing any Webots R1 run, archive that file, its printed SHA-256, the controller and evaluator hashes and a reviewed actuation/validity instrumentation implementation. **The generator creates no flight or simulator data.**
+
 The first self-contained challenge varies **only actuator effectiveness**, with sensor noise fixed at zero and onset at **t=10.0 seconds**. For each new seed, execute one healthy control, four complete shutdowns (0% retained effectiveness), and four 50%-retained-effectiveness cases: **8 seeds × 9 distinct scenarios = 72 complete simulations**. The same command history must be used for all nine scenarios sharing a seed. Score the full-shutdown and partial-loss strata separately against their shared healthy controls; **do not mix them into one 72-trace five-class accuracy** or treat each fault condition as an independent command-seed cluster. The full-shutdown arm is a new baseline on *new* seeds, not a rerun or replacement of protected FDI-H1 test data.
 
 Before running R1, pin and log the new controller source, plant image digest, configuration and exact scenario JSON manifest; implement and test the *applied* motor fraction at the actuator. The manifest generator is a **design artifact only**, not proof that any simulation ran.
