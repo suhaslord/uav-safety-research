@@ -22,6 +22,7 @@ SOURCE = (11, 23, 29, 31)
 DEVELOPMENT = (41, 47)
 SEEDS = SOURCE + DEVELOPMENT + PROTECTED
 EXPECTED_ROWS_PER_TRACE = 750  # Archived 24s run at 32ms cadence.
+PINNED_WEBOTS_DIGEST = "cyberbotics/webots@sha256:f0023e30daf38b172e4e6ad24ed345909bcd9551df34d63d824e121a7cebf099"
 QUADRANTS = {(1, 1): 1, (1, -1): 2, (-1, -1): 3, (-1, 1): 4}
 NUMERIC_TELEMETRY_FIELDS = (
     "time_s", "x_m", "y_m", "z_m", "gyro_p_rps", "gyro_q_rps", "gyro_r_rps",
@@ -251,13 +252,8 @@ def main():
             digit not in "0123456789abcdef" for digit in run_sha.lower()
         ):
             raise ValueError("Git checkout SHA is missing or conflicts with report provenance")
-        if not isinstance(digests, list) or not any(
-            isinstance(value, str) and
-            value.startswith("cyberbotics/webots@sha256:") and
-            len(value.partition("@sha256:")[2]) == 64
-            for value in digests
-        ):
-            raise ValueError("Missing pinned Webots image digest")
+        if not isinstance(digests, list) or PINNED_WEBOTS_DIGEST not in digests:
+            raise ValueError("Webots container digest does not match the frozen historical image")
         rule = report.get("predefined_rule", {})
         expected_rule = {
             "p_abs_threshold_rad_per_s": 2.0,
