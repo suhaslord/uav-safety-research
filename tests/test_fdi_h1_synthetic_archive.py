@@ -96,7 +96,7 @@ class SyntheticZipAuditTests(unittest.TestCase):
                 z.writestr("report/heldout_results.json", json.dumps(report))
                 z.writestr("git_sha.txt", "a" * 40 + "\n")
                 z.writestr("docker_image_digest.json",
-                           json.dumps(["cyberbotics/webots@sha256:" + "f" * 64]))
+                           json.dumps([audit.PINNED_WEBOTS_DIGEST]))
             output = io.StringIO()
             with patch.object(sys, "argv", ["audit", str(archive)]), redirect_stdout(output):
                 audit.main()
