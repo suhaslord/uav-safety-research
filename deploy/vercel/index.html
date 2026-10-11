@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#ffffff">
-  <meta name="description" content="Explore AegisLand's camera evidence, frozen simulation results, and new hardware-free Webots actuator-fault pilot—with its weak early detector results reported plainly.">
+  <meta name="description" content="Explore AegisLand's camera research and verified H1/H2 motor-fault studies: reproducible clean successes and identification mistakes under offline sensor noise.">
   <meta name="aegis-evidence-boundary" content="simulation_only=true; safety_acceptance=false; controller_tuning_allowed=false">
   <link rel="canonical" href="https://aegisland-research-cockpit.vercel.app/">
   <meta property="og:title" content="AegisLand | Research evidence, in view">
-  <meta property="og:description" content="Camera studies, frozen simulation results, and a hardware-free Webots motor-fault pilot—with limits left in view.">
+  <meta property="og:description" content="Camera studies, frozen simulation results, and H1/H2 motor-fault experiments with observed noise sensitivity and research limits.">
   <meta property="og:type" content="website"><meta property="og:url" content="https://aegisland-research-cockpit.vercel.app/">
   <title>AegisLand | Model VASE</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=7">
@@ -22,13 +22,13 @@
   <a class="skip-link" href="#main">Skip to the research</a>
   <header class="site-header signature-nav">
     <a class="brand vase-brand" href="#top" aria-label="AegisLand, Model VASE"><img src="/model-vase-mark.svg" alt=""><span class="vase-brand__type"><strong>AEGISLAND</strong><small>MODEL VASE</small></span></a>
-    <nav class="site-nav signature-nav__links" aria-label="Primary navigation"><a href="#phase25">Results</a><a href="/ornik-fdi/">Fault isolation</a><a href="/model-vase/">Model VASE</a><a href="/phases/">Archive</a><a href="/reproduce/">Reproduce</a></nav>
+    <nav class="site-nav signature-nav__links" aria-label="Primary navigation"><a href="#phase25">Results</a><a href="/fdi-results/">Fault isolation</a><a href="/model-vase/">Model VASE</a><a href="/phases/">Archive</a><a href="/reproduce/">Reproduce</a></nav>
     <div class="header-actions"><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub</a></div>
     <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-expanded="false" aria-controls="mobileMenuSheet">Menu</button>
   </header>
   <nav class="mobile-menu-sheet" id="mobileMenuSheet" aria-label="Mobile navigation" aria-hidden="true" inert>
     <div class="mobile-menu-head"><strong>AEGISLAND</strong><button class="mobile-menu-close" type="button" aria-label="Close navigation">Close</button></div>
-    <div class="mobile-menu-links"><a href="#phase25">Camera results</a><a href="/ornik-fdi/">Actuator fault pilot</a><a href="/failure-atlas/">Failure Atlas</a><a href="/model-vase/">Model VASE</a><a href="/phases/">Research archive</a><a href="/reproduce/">Reproduce the evidence</a></div>
+    <div class="mobile-menu-links"><a href="#phase25">Camera results</a><a href="/fdi-results/">Actuator fault results</a><a href="/failure-atlas/">Failure Atlas</a><a href="/model-vase/">Model VASE</a><a href="/phases/">Research archive</a><a href="/reproduce/">Reproduce the evidence</a></div>
     <div class="mobile-menu-meta"><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">Source repository</a></div>
   </nav>
   <main id="main">
@@ -37,8 +37,8 @@
         <div class="evidence-hero__copy">
           <h1 id="hero-title">The evidence.<br><span>In plain sight.</span></h1>
           <p class="hero-deck">Aerial landing research, with the failures left in. Compare original detector predictions, explore camera stress, and read the new hardware-free Webots motor-fault pilot.</p>
-          <div class="actions"><a class="button primary signature-button" href="/failure-atlas/">Explore Failure Atlas</a><a class="button secondary" href="/ornik-fdi/">Read the new pilot</a></div>
-          <p class="hero-scope">First Webots fault-isolation pilot: the pipeline ran; early motor detection was weak. No flight claim. <a href="/failure-atlas/">Explore Failure Atlas</a></p>
+          <div class="actions"><a class="button primary signature-button" href="/failure-atlas/">Explore Failure Atlas</a><a class="button secondary" href="/fdi-results/">Motor-fault results</a></div>
+          <p class="hero-scope">New actuator-fault evidence: H1 and H2 succeeded in clean Webots tests; high offline gyro noise caused wrong-motor labels. No flight claim. <a href="/failure-atlas/">Explore Failure Atlas</a></p>
         </div>
         <div class="home-comparison" id="home-comparison" aria-labelledby="comparison-title">
           <div class="comparison-heading"><h2 id="comparison-title">Same view. Two models.</h2><a href="/failure-atlas/">Full explorer →</a></div>
@@ -74,17 +74,17 @@
     <section class="home-fdi-pilot" id="fault-isolation" aria-labelledby="home-fdi-title">
       <div class="wrap home-fdi-pilot__grid">
         <div class="home-fdi-pilot__copy">
-          <p class="home-fdi-pilot__eyebrow">New evidence · software-only actuator study</p>
-          <h2 id="home-fdi-title">The Webots pipeline works.<br>The first detector needs work.</h2>
-          <p>A hosted Crazyflie simulation generated 15 healthy and single-motor-loss trajectories without bench hardware. On the held-out seed, balanced accuracy was 0.491; recall was only 18–27% for motors 1–3.</p>
-          <p class="home-fdi-pilot__boundary">This is an independent exploratory pilot, not a reproduction of the paper, a PX4/Gazebo result, or part of the Model VASE controller.</p>
-          <a class="text-link" href="/ornik-fdi/">Read the protocol, confusion matrix, and limits →</a>
+          <p class="home-fdi-pilot__eyebrow">Audited evidence · two independent command-seed studies</p>
+          <h2 id="home-fdi-title">Clean simulation: all correctly identified.<br>High noise: the motor labels slip.</h2>
+          <p>H1 tested 70 Crazyflie/Webots trajectories; H2 tested 144 new scenarios with different fault times and partial retained motor speed. H2's predeclared clean balanced accuracy was 100%. At high offline gyroscope noise, it fell to 93.75% under full motor loss and 96.25% under half retained speed.</p>
+          <p class="home-fdi-pilot__boundary">The noise is added offline; the same deterministic plant is reused. Neither study demonstrates real-world fault isolation, flight recovery or safety. The weak 49.1% initial learned-model pilot remains separately archived.</p>
+          <a class="text-link" href="/fdi-results/">Inspect H1 and H2, wrong-motor cases, raw evidence and limits →</a>
         </div>
-        <div class="home-fdi-pilot__score" aria-label="Pilot summary">
-          <div><strong>0.491</strong><span>balanced accuracy<br>held-out command seed</span></div>
-          <div><strong>18–27%</strong><span>recall for motor<br>failures 1–3</span></div>
-          <div><strong>15</strong><span>complete Webots<br>trajectories</span></div>
-          <a href="https://github.com/suhaslord/uav-safety-research/actions/runs/38030993520" target="_blank" rel="noreferrer">Open the run and its raw evidence ↗</a>
+        <div class="home-fdi-pilot__score" aria-label="Audited H1 and H2 results">
+          <div><strong>40 / 40</strong><span>H1 protected test cases<br>correct in clean simulation</span></div>
+          <div><strong>93.75%</strong><span>H2 full-speed loss<br>high offline gyro noise</span></div>
+          <div><strong>96.25%</strong><span>H2 half speed retained<br>high offline gyro noise</span></div>
+          <a href="/fdi-results/">See the complete motor-fault evidence →</a>
         </div>
       </div>
     </section>
