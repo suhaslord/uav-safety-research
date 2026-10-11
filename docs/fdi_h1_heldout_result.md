@@ -61,6 +61,12 @@ python scripts/audit_fdi_h1_artifact.py aegisland-fdi-h1-precontact-evidence.zip
 
 The workflow also preserves the raw traces, exact Git checkout, `report/trajectory_decisions.csv`, `report/heldout_results.json`, image digest and Python environment. The code and protocol are [in PR #175](https://github.com/suhaslord/uav-safety-research/pull/175).
 
+## Scoring implementation caveat (retrospective audit)
+
+The historical `metrics()` implementation scores the **first alert's motor class** without separately disqualifying a correctly labeled motor alert that occurred **before the fault onset**. Such a premature alert should be an error under the frozen written protocol even if its predicted motor label later matches the injected fault. This latent edge case is now covered by a synthetic regression test, **without modifying the frozen evaluator**.
+
+The archived 70-trace decision log contains **zero pre-onset alerts** in all splits, including all **40 protected trajectories**. Therefore the caveat does **not** change the reported result for this particular dataset. A future separately preregistered study should explicitly make temporal validity part of its primary classification endpoint, rather than silently revising this historical score.
+
 ## Why the result is not a broader safety claim
 
 1. **The first long-window MLP approach was rejected.** Its preceding 15-trace pilot showed 0.661 window accuracy and 0.491 balanced accuracy on only one held-out seed. Some post-failure Webots trajectories diverged into physically absurd rotations/altitudes. This justified changing the *research question* before examining the new protected seeds; the new rule itself was inspired by those pilot results. This selection must be disclosed.
