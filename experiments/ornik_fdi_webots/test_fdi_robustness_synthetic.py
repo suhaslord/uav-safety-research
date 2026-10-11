@@ -9,7 +9,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from evaluate_fdi_early import early_decision, THRESHOLD_P, THRESHOLD_Q, PERSISTENCE
+from evaluate_fdi_early import early_decision, metrics, THRESHOLD_P, THRESHOLD_Q, PERSISTENCE
 
 
 def sample(t, p=0.0, q=0.0, z=1.0):
@@ -69,6 +69,19 @@ class FrozenDetectorRobustnessTests(unittest.TestCase):
         decision = early_decision(rows)
         self.assertTrue(decision["false_alert_before_onset"])
         self.assertEqual(decision["prediction"], 1)
+
+    def test_historical_scoring_pre_onset_caveat(self):
+        # Diagnostic of a limitation in the FROZEN scoring routine:
+        # a correct motor label before onset is still classed as correct,
+        # even though protocol semantics say a premature alert is an error.
+        early = early_decision([sample(9 + i*.032, 3, 1) for i in range(3)])
+        self.assertTrue(early["false_alert_before_onset"])
+        records = [{"motor": m, "prediction": m,
+                    "alert_time_s": early["alert_time_s"] if m == 1 else
+                                    (10.272 if m else None)} for m in range(5)]
+        self.assertEqual(metrics(records)["balanced_accuracy"], 1.0)
+        # This synthetic counterexample does not occur in the archived
+        # held-out data; do not silently reinterpret its result.
 
     def test_censor_prevents_post_contact_classification(self):
         rows = [sample(10.01, 3, 1, .49),
