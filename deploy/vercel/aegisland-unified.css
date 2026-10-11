@@ -74,6 +74,14 @@ body:has(#study-results) .fdi-section-label {color:#b52127!important}
 body:has(#study-results) .fdi-completed h2 {letter-spacing:-.055em}
 
 /* New landing-confidence report, with light/graphite surfaces and one red accent. */
+.aegis-report .report-skip{position:absolute;top:-90px;left:10px;z-index:999;background:#fff;padding:11px 15px;font-weight:700}
+.aegis-report .report-skip:focus{top:8px}
+body :is(.atlas-hero,.vase-hero,.fdi-hero,.proof-intro,.archive-hero,.phase-detail__hero) {background-color:#f4f4f4!important}
+body :is(.vase-hero,.fdi-hero,.atlas-hero) :is(.eyebrow,.fdi-eyebrow) {color:#bd2025!important}
+body :is(.fdi-next-experiment,.vase-next,.home-fdi-pilot,.proof-intro) {border-color:#e2e3e3!important}
+body :is(.atlas-hero,.vase-hero,.fdi-hero) h1 {letter-spacing:-.055em!important}
+body :is(.btn,.report-btn,.top-btn,.archive-menu-toggle,.mobile-menu-toggle) {min-height:44px}
+body :is(.phase-card,.result-card,.report-card,.archive-record-card) {box-shadow:none!important}
 .aegis-report {font-size:15px;line-height:1.65}
 .aegis-report * {box-sizing:border-box}
 .aegis-report .report-wrap {width:min(1200px,calc(100% - 56px));margin:auto}
