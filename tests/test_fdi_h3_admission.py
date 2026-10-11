@@ -80,6 +80,35 @@ class FDIH3AdmissionTests(unittest.TestCase):
         self.assertTrue(any("leakage" in x for x in problems))
         self.assertTrue(any("12" in x for x in problems))
 
+    def test_malformed_seed_lists_rejected_without_type_error(self):
+        for invalid in (["oops", {"fake": 1}], [True, 203, 204], [201.5, 202], [[210], 211], {"seeds": [210]}, None):
+            with self.subTest(invalid=invalid):
+                doc = candidate()
+                doc["splits"]["protected_seeds"] = invalid
+                findings = validate(doc)
+                self.assertTrue(any("protected seeds must" in x for x in findings))
+
+    def test_malformed_development_split_does_not_skip_holdout_check(self):
+        doc = candidate()
+        doc["splits"]["development_seeds"] = [[], 132]
+        doc["splits"]["protected_seeds"] = [200] * 12
+        findings = validate(doc)
+        self.assertTrue(any("development seeds must" in x for x in findings))
+        self.assertTrue(any("duplicates" in x for x in findings))
+
+    def test_empty_development_and_invalid_sample_period_rejected(self):
+        doc = candidate()
+        doc["splits"]["development_seeds"] = []
+        doc["interface"]["sample_period_s"] = float("nan")
+        findings = validate(doc)
+        self.assertTrue(any("nonempty development" in x for x in findings))
+        self.assertTrue(any("finite sample period" in x for x in findings))
+
+    def test_engine_identity_type_validation(self):
+        doc = candidate()
+        doc["engine"]["dynamics_family"] = ["different", "words"]
+        self.assertTrue(any("independent dynamics" in x for x in validate(doc)))
+
     def test_all_h1_h2_seeds_are_protected_from_reuse(self):
         doc = candidate()
         for used in PREVIOUSLY_USED:
