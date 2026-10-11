@@ -1,5 +1,5 @@
 /* Actuator fault pilot: same white editorial surface, navy headline field and restrained AegisLand red. */
-.fdi-page{--fdi-ink:#171a20;--fdi-body:#39404a;--fdi-muted:#69727d;--fdi-line:#e0e5eb;--fdi-soft:#f5f7fa;--fdi-red:#e82127;--fdi-warn:#ad3d34;--fdi-warn-bg:#fff0ed;color:var(--fdi-ink)}
+.fdi-page{--fdi-ink:#171a20;--fdi-body:#39404a;--fdi-muted:#69727d;--fdi-line:#e0e5eb;--fdi-soft:#f5f7fa;--fdi-red:#1673c9;--fdi-warn:#ad3d34;--fdi-warn-bg:#fff0ed;color:var(--fdi-ink)}
 .fdi-page .fdi-skip{position:fixed;z-index:30;top:8px;left:12px;padding:10px 14px;background:#fff;color:var(--fdi-ink);transform:translateY(-150%)}
 .fdi-page .fdi-skip:focus{transform:none}
 .fdi-page .top{position:sticky;top:0;z-index:20;backdrop-filter:blur(14px)}
@@ -88,11 +88,11 @@
 /* Homepage feature: keep the new study visible while preserving the site's editorial rhythm. */
 .home-fdi-pilot{padding:clamp(58px,7vw,96px) 0;background:#f4f5f6;border-block:1px solid #e5e7ea}
 .home-fdi-pilot__grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(270px,.58fr);gap:clamp(28px,6vw,76px);align-items:center}
-.home-fdi-pilot__eyebrow{margin:0 0 12px;color:#e82127;font-size:11px;font-weight:750;letter-spacing:.12em;text-transform:uppercase}
+.home-fdi-pilot__eyebrow{margin:0 0 12px;color:#1673c9;font-size:11px;font-weight:750;letter-spacing:.12em;text-transform:uppercase}
 .home-fdi-pilot h2{max-width:740px;margin:0;font-size:clamp(34px,4.6vw,58px);font-weight:550;letter-spacing:-.055em;line-height:1.01}
 .home-fdi-pilot__copy>p:not(.home-fdi-pilot__eyebrow){max-width:68ch;color:#39404a;font-size:15px;line-height:1.7}
 .home-fdi-pilot__copy .home-fdi-pilot__boundary{margin:16px 0;color:#69727d;font-size:12px}
-.home-fdi-pilot .text-link{display:inline-flex;min-height:44px;align-items:center;color:#171a20;font-size:13px;font-weight:680;text-decoration-color:#e82127;text-underline-offset:5px}
+.home-fdi-pilot .text-link{display:inline-flex;min-height:44px;align-items:center;color:#171a20;font-size:13px;font-weight:680;text-decoration-color:#1673c9;text-underline-offset:5px}
 .home-fdi-pilot__score{display:grid;grid-template-columns:1fr 1fr;gap:0 18px;padding:22px 24px;background:#171a20;color:#fff}
 .home-fdi-pilot__score>div{padding:13px 0 16px;border-bottom:1px solid rgba(255,255,255,.17)}
 .home-fdi-pilot__score strong{display:block;color:#fff;font-size:clamp(29px,4vw,43px);font-weight:550;letter-spacing:-.06em;line-height:1.05}
@@ -103,4 +103,4 @@
 @media(max-width:850px){.fdi-hero{grid-template-columns:1fr}.fdi-hero__verdict{max-width:440px}.fdi-section-head{display:block}.fdi-section-head>p{margin-top:12px}.fdi-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.fdi-metrics>div:nth-child(2){border-right:0}.fdi-metrics>div:nth-child(-n+2){border-bottom:1px solid var(--fdi-line)}.fdi-metrics>div:nth-child(3){padding-left:0}.fdi-boundary-grid{grid-template-columns:1fr 1fr}.home-fdi-pilot__grid{grid-template-columns:1fr}.home-fdi-pilot__score{max-width:560px}}
 @media(max-width:560px){.fdi-main{width:calc(100% - 32px)}.fdi-page .top{padding:0 16px;min-height:58px}.fdi-page .nav{gap:8px;font-size:11px}.fdi-page .nav a:first-child,.fdi-page .nav a:last-child{display:inline}.fdi-page .nav a{min-height:40px}.fdi-page .record-path{width:calc(100% - 32px)}.fdi-hero{margin-inline:-16px;padding:48px 16px 38px;gap:25px}.fdi-hero:after{right:-65px;top:18px;width:220px}.fdi-hero h1{font-size:clamp(42px,13vw,60px)}.fdi-dek{font-size:17px}.fdi-hero__verdict{padding:19px}.fdi-answer{grid-template-columns:1fr;gap:12px;padding:28px 0}.fdi-section-head{margin-top:46px}.fdi-metrics>div{padding:16px 12px}.fdi-metrics>div:first-child,.fdi-metrics>div:nth-child(3){padding-left:0}.fdi-metrics strong{font-size:34px}.fdi-table-wrap{margin-inline:-2px}.fdi-method-grid,.fdi-source-links,.fdi-boundary-grid{grid-template-columns:1fr}.fdi-math{align-items:flex-start;flex-direction:column;gap:4px}.fdi-math span{transform:rotate(90deg);margin-left:7px}.fdi-boundary{margin-inline:-16px;padding:38px 16px 40px}.fdi-boundary-grid{gap:10px}.fdi-next{display:grid;gap:0}.fdi-footer{flex-direction:column;padding:20px 16px}.home-fdi-pilot__score{padding:17px}.home-fdi-pilot h2{font-size:clamp(32px,10vw,46px)}.home-workspace .footer-links{gap:7px 14px;flex-wrap:wrap}}
 @media(prefers-reduced-motion:reduce){.fdi-page{scroll-behavior:auto}}
-:is(.fdi-page a,.fdi-page summary):focus-visible{outline:2px solid #e82127;outline-offset:3px}
+:is(.fdi-page a,.fdi-page summary):focus-visible{outline:2px solid #1673c9;outline-offset:3px}
