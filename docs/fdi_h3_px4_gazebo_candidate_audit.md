@@ -22,6 +22,20 @@ These are real repo capabilities, but **neither script establishes a four-motor 
 | Protected independence | Phase 8 is a different topic, not a frozen H3 validation set | Reserve >=12 new independent command-seed clusters distinct from all H1/H2 seeds |
 | Contact/stability gate | Phase 8 tracks landing/dismount, not H3 pre-impact event detection | Define independently measurable contact/censor events and bounded pre-impact state validation |
 
+## Implemented: read-only ULog signal inventory
+
+The new `scripts/fdi_h3_px4_ulog_preflight.py` does not run Gazebo, arm a vehicle or modify a PX4 setting. Given an **existing recorded PX4 ULog**, it checks the presence and integrity of `vehicle_angular_velocity` (`xyz[0]`, `xyz[1]`, `xyz[2]`) and `actuator_motors` (`control[0]` through `control[3]`). It checks finite values, timestamp order, recording span and overlap, records a SHA-256 digest of the log, and writes a structured status.
+
+```bash
+python scripts/fdi_h3_px4_ulog_preflight.py \\
+  path/to/existing_px4_recording.ulg \\
+  --output results/fdi_h3_preflight/example_local_report.json
+```
+
+The tool is intentionally read-only and refuses to infer actual **applied** motor thrust or index-to-quadrant parity from commanded actuator outputs alone. Even a complete result says **READY_FOR_MANUAL_SIGNAL_MAPPING**, never **ADMITTED** or **H3_PASS**. The existing Phase 8 logs may lack an `actuator_motors` stream or suitable angular-rate topic; in that case the preflight should fail, and this absence is evidence of incomplete instrumentation rather than something to impute. Synthetic-only unit tests are at `tests/test_fdi_h3_px4_ulog_preflight.py`.
+
+**What has not happened:** no PX4 H3 .ulg recording has been inspected as part of this branch, no simulated motor-fault injection was performed, and no comparative H3 detector score exists.
+
 ## Candidate decision
 
 **Do not run the frozen H1/H2 classifier on arbitrary converted Phase 8 position traces and call that H3.** There is no defensible p/q motor-label target there. First build and audit the simulator-to-telemetry interface using **development-only** runs. A separate reviewer should verify independence and unit/sign mappings, freeze the candidate manifest, and only then admit a new protected test.
