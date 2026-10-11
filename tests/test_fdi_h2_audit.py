@@ -98,6 +98,48 @@ class H2ArtifactAuditUnitTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError,"pre_onset"):
                     h2.read_bool_exact(invalid,"synthetic")
 
+    def test_frozen_rule_and_negative_baseline_metadata(self):
+        report={
+            "fixed_H1_rule":{
+                "gyro_p_abs":2.0,
+                "gyro_q_abs":.75,
+                "consecutive_steps":3,
+                "quadrants":str(h2.QUADS),
+            },
+            "sensor_noise_is_offline_not_physical":True,
+            "always_healthy_balanced_accuracy":.2,
+            "pilot_test_data_used_for_tuning":False,
+        }
+        self.assertTrue(h2.verify_frozen_report_contract(report))
+        for key,value in [
+            ("always_healthy_balanced_accuracy",.25),
+            ("sensor_noise_is_offline_not_physical",False),
+            ("pilot_test_data_used_for_tuning",True),
+        ]:
+            with self.subTest(key=key):
+                bad={**report,key:value}
+                with self.assertRaises(ValueError):
+                    h2.verify_frozen_report_contract(bad)
+        bad={**report,"fixed_H1_rule":{**report["fixed_H1_rule"],"gyro_q_abs":.5}}
+        with self.assertRaisesRegex(ValueError,"frozen H1"):
+            h2.verify_frozen_report_contract(bad)
+
+    def test_bootstrap_metadata_is_seed_cluster_based(self):
+        meta={
+            "resampling_unit":"command seed (all motors, onset and retention paired)",
+            "seed_count":8,
+            "bootstrap_draws":2000,
+            "seed":20261013,
+        }
+        self.assertTrue(h2.verify_seed_bootstrap_metadata(meta))
+        for key,value in [
+            ("seed_count",144),("bootstrap_draws",400),("seed",0),
+            ("resampling_unit","individual sensor samples"),
+        ]:
+            with self.subTest(key=key):
+                with self.assertRaisesRegex(ValueError,"bootstrap provenance"):
+                    h2.verify_seed_bootstrap_metadata({**meta,key:value})
+
     def test_full_grid_rejects_missing_or_shifted_samples(self):
         case=(89,9.0,0,1.0)
         def make_row(index):
