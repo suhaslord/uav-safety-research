@@ -93,6 +93,20 @@ class ArtifactAuditRegressionTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "checksum mismatch"):
                 audit.verify_evaluator_source(report, source)
 
+    def test_nonfinite_numeric_telemetry_is_rejected_for_each_field(self):
+        clean = {key: "0.0" for key in audit.NUMERIC_TELEMETRY_FIELDS}
+        audit.validate_numeric_telemetry(clean, "synthetic.csv")
+        for key in audit.NUMERIC_TELEMETRY_FIELDS:
+            with self.subTest(field=key):
+                poisoned = dict(clean)
+                poisoned[key] = "nan"
+                with self.assertRaisesRegex(ValueError, key):
+                    audit.validate_numeric_telemetry(poisoned, "synthetic.csv")
+        incomplete = dict(clean)
+        del incomplete["cmd_m4"]
+        with self.assertRaisesRegex(ValueError, "cmd_m4"):
+            audit.validate_numeric_telemetry(incomplete, "synthetic.csv")
+
     def test_expected_seed_split_exact(self):
         self.assertEqual(len(audit.SEEDS), 14)
         self.assertEqual(len(set(audit.SEEDS)), 14)
