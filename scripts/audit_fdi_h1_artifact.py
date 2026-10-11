@@ -142,6 +142,47 @@ def verify_report_metrics(report, protected):
     return confusion, latencies
 
 
+def verify_descriptive_metrics(report, records):
+    """Replay the 30 nonprotected descriptive trajectories independently.
+
+    These data are not a second protected test and must never be pooled with
+    the 40 held-out trajectories as independent confirmation.
+    """
+    dev_seeds = SOURCE + DEVELOPMENT
+    if len(records) != 30 or any(r["seed"] not in dev_seeds for r in records):
+        raise ValueError("Expected exactly 30 nonprotected descriptive records")
+    by_seed = {seed: [r for r in records if r["seed"] == seed] for seed in dev_seeds}
+    if any(sorted(r["motor"] for r in rows) != list(range(5)) for rows in by_seed.values()):
+        raise ValueError("Development records must contain all five paired motor classes")
+    if any(r["prediction"] not in range(5) for r in records):
+        raise ValueError("Development predictions must be in 0..4")
+    matrix = [[0] * 5 for _ in range(5)]
+    for r in records:
+        matrix[r["motor"]][r["prediction"]] += 1
+    recalls = [matrix[i][i] / sum(matrix[i]) for i in range(5)]
+    faults = [r for r in records if r["motor"] > 0]
+    latencies = [r["alert_time_s"] - 10.0 for r in faults
+                 if r["prediction"] == r["motor"] and
+                 r["alert_time_s"] is not None and r["alert_time_s"] >= 10.0]
+    actual = {
+        "trajectories": len(records),
+        "balanced_accuracy": sum(recalls) / 5,
+        "healthy_false_alarm_rate": 1 - recalls[0],
+        "fault_detection_rate": sum(r["prediction"] != 0 for r in faults) / len(faults),
+        "correct_fault_isolation_rate": sum(r["prediction"] == r["motor"] for r in faults) / len(faults),
+        "median_correct_detection_latency_s": statistics.median(latencies) if latencies else None,
+    }
+    published = report["development_descriptive_result"]
+    for key, value in actual.items():
+        _check_value("development." + key, value, published.get(key))
+    if published.get("confusion_matrix_rows_true_cols_predicted") != matrix:
+        raise ValueError("Development descriptive confusion matrix disagrees with replay")
+    for name, recall in zip(("healthy", "motor_1", "motor_2", "motor_3", "motor_4"), recalls):
+        _check_value("development.class_recall." + name, recall,
+                     published["class_recall"].get(name))
+    return matrix
+
+
 def decision(rows):
     streak = 0
     for row in rows:
@@ -220,6 +261,7 @@ def main():
         confusion = [[0] * 5 for _ in range(5)]
         successful_fault_alerts = []
         protected_records = []
+        development_records = []
         protected_pre_onset_alerts = 0
         checked = 0
         for entry in manifest:
@@ -255,16 +297,19 @@ def main():
             else:
                 assert math.isclose(float(saved["alert_time_s"]), timestamp, abs_tol=1e-10)
                 assert math.isclose(float(saved["alert_altitude_m"]), altitude, abs_tol=1e-10)
+            record = {"seed": seed, "motor": motor, "prediction": pred, "alert_time_s": timestamp}
             if seed in PROTECTED:
-                protected_records.append({"seed": seed, "motor": motor, "prediction": pred,
-                                          "alert_time_s": timestamp})
+                protected_records.append(record)
                 confusion[motor][pred] += 1
                 if timestamp is not None and timestamp < 10.0:
                     protected_pre_onset_alerts += 1
                 if motor > 0 and pred == motor:
                     successful_fault_alerts.append((timestamp, altitude))
+            else:
+                development_records.append(record)
             checked += 1
         verified_confusion, latencies = verify_report_metrics(report, protected_records)
+        development_confusion = verify_descriptive_metrics(report, development_records)
         assert verified_confusion == confusion
         balanced_accuracy = sum(confusion[k][k] / sum(confusion[k]) for k in range(5)) / 5.0
         lower_bound = 0.025 ** (1 / len(PROTECTED)) if confusion == [[8 if i == j else 0 for j in range(5)] for i in range(5)] else None
@@ -273,6 +318,8 @@ def main():
             "files_checked": checked,
             "evaluator_source_checksum_verified": source_verified,
             "protected_trajectories": 40,
+            "descriptive_development_trajectories": len(development_records),
+            "descriptive_development_confusion_matrix": development_confusion,
             "confusion_matrix": confusion,
             "balanced_accuracy": balanced_accuracy,
             "healthy_false_alarms": sum(confusion[0][1:]),
