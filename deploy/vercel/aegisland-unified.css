@@ -62,6 +62,7 @@ body:has(#study-results) .fdi-hero,
 body:has(#study-results) .fdi-completed,
 body:has(#study-results) .fdi-next-experiment {background:#fff!important}
 body:has(#study-results) .fdi-hero {border-bottom:1px solid #e2e3e3!important}
+body:has(#study-results) .fdi-hero::before {display:none!important}
 body:has(#study-results) .fdi-hero h1 span {color:#393c41!important}
 body:has(#study-results) :is(.fdi-hero__links a,.fdi-study-links a) {
   border-radius:3px!important
