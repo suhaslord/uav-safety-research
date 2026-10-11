@@ -1,8 +1,11 @@
 name: Ornik FDI Webots pilot
 
 on:
-  pull_request:
-    branches: [main]
+  # Historical pilot: rerun only when actual pilot source changes,
+  # not on every downstream FDI-H1 unit test or documentation update.
+  push:
+    branches:
+      - "research/fdi-*"
     paths:
       # Pilot reruns only when pilot source, plant controller or workflow
       # changes; unit-test edits have their own fast workflow.
