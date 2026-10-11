@@ -44,12 +44,16 @@ def key(row):
 def box(row, *, allow_degenerate=False):
     values = tuple(float(row[k]) for k in BOX_FIELDS)
     if (any(not math.isfinite(x) or not 0 <= x <= 1 for x in values)
-            or values[2] < values[0] or values[3] < values[1]\n            or not allow_degenerate and (values[2] == values[0] or values[3] == values[1])):
+            or values[2] < values[0] or values[3] < values[1]
+            or not allow_degenerate and (values[2] == values[0] or values[3] == values[1])):
         raise ValueError(f"Invalid normalized-area box: {values}")
     return values
 
 
 def iou(left, right):
+    # Boundary-clipped predictions with zero area remain false positives.
+    if left[2] == left[0] or left[3] == left[1]:
+        return 0.0
     dx = max(0.0, min(left[2], right[2]) - max(left[0], right[0]))
     dy = max(0.0, min(left[3], right[3]) - max(left[1], right[1]))
     union = ((left[2] - left[0]) * (left[3] - left[1])
