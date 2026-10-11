@@ -4,6 +4,7 @@ No protected artifact, simulator output or flight-safety data are loaded.
 """
 import io
 import json
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -70,6 +71,16 @@ class ArtifactAuditRegressionTests(unittest.TestCase):
                 with redirect_stdout(io.StringIO()):
                     with self.assertRaises((AssertionError, ValueError)):
                         audit.main()
+
+    def test_optimized_python_cannot_skip_audit_assertions(self):
+        # Python -O removes assert statements. The auditor must fail
+        # explicitly instead of printing an unverified success report.
+        completed = subprocess.run(
+            [sys.executable, "-O", str(Path(audit.__file__)), "invalid.zip"],
+            capture_output=True, text=True, check=False,
+        )
+        self.assertNotEqual(completed.returncode, 0)
+        self.assertIn("assertions enabled", completed.stderr)
 
     def test_expected_seed_split_exact(self):
         self.assertEqual(len(audit.SEEDS), 14)
