@@ -1,0 +1,142 @@
+/* AegisLand 2026 unified visual layer — Tesla-inspired restraint, original research branding.
+   This stylesheet is loaded LAST. It intentionally avoids changing experiments,
+   data visualizations, interactive controls, position semantics, or archive state. */
+:root {
+  color-scheme: light;
+  --vase-ink:#171a20; --vase-body:#393c41; --vase-muted:#5c5e62;
+  --vase-red:#e82127; --vase-line:#e2e3e3; --vase-paper:#fff; --vase-soft:#f4f4f4;
+  --ink:#171a20; --body:#393c41; --muted:#5c5e62;
+  --blue:#e82127; --accent:#e82127; --site-blue:#e82127;
+  --tesla-blue:#e82127; --line:#e2e3e3; --sky:#f4f4f4; --ash:#f4f4f4; --bg:#fff;
+  --rw-accent:#e82127; --rw-accent-hover:#bd2025; --phase-accent:#e82127;
+  --fdi-red:#e82127;
+}
+html {scroll-padding-top:88px}
+body {background:#fff!important;color:#171a20!important;font-family:"Helvetica Neue",Arial,Helvetica,sans-serif!important;-webkit-font-smoothing:antialiased}
+body :is(h1,h2,h3,h4) {font-family:"Helvetica Neue",Arial,Helvetica,sans-serif!important;letter-spacing:-.045em}
+body :is(a,button,input,select,summary,textarea):focus-visible {
+  outline:3px solid #e82127!important;outline-offset:3px!important
+}
+body a {text-underline-offset:3px}
+body :is(.site-header,.top,.signature-nav,.fdi-top,.atlas-top,.archive-nav) {
+  background:rgba(255,255,255,.97)!important;
+  border-color:#e2e3e3!important;
+  box-shadow:none!important;
+  color:#171a20!important;
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)
+}
+body :is(.site-header,.top,.signature-nav) :is(.brand,.wordmark,.mark) {color:#171a20!important}
+body :is(.site-header,.top,.signature-nav) nav a {color:#393c41!important}
+body :is(.site-header,.top,.signature-nav) nav a:hover,
+body :is(.site-header,.top,.signature-nav) nav a[aria-current=page] {color:#bd2025!important}
+body :is(.eyebrow,.fdi-eyebrow,.fdi-section-label,.fdi-study-kicker,.fdi-study-label,
+         .section-label,.chapter-kicker,.proof-kicker,.atlas-kicker,.label) {
+  letter-spacing:.14em!important;text-transform:uppercase
+}
+body :is(.button,.btn,.primary-link,.signature-button,.fdi-hero__links a,.fdi-study-links a) {
+  border-radius:3px!important;box-shadow:none!important;
+  transition:background-color .18s ease,color .18s ease,border-color .18s ease!important
+}
+body :is(.button,.btn,.primary-link,.signature-button,.fdi-hero__links a):hover {transform:none!important}
+body :is(.button.primary,.btn.primary,.primary-link,.signature-button.primary,
+         .fdi-hero__links a:first-child) {
+  background:#171a20!important;border-color:#171a20!important;color:#fff!important
+}
+body :is(.button.primary,.btn.primary,.primary-link,.signature-button.primary,
+         .fdi-hero__links a:first-child):hover {
+  background:#393c41!important;border-color:#393c41!important
+}
+body :is(.card,.fdi-study-card,.fdi-study-audit,.fdi-results-compare,
+         .home-fdi-pilot__score,.phase-card,.result-card,.evidence-card) {
+  box-shadow:none!important;border-radius:4px!important
+}
+body :is(.fdi-study-card,.card) {border-color:#e2e3e3!important}
+body :is(.fdi-study-card,.card).primary {background:#f4f4f4!important}
+body :is(.fdi-table-wrap,.table-scroll) {border-color:#e2e3e3!important;border-radius:4px!important}
+body :is(.table-wrap,.table-scroll) :is(td,th) {border-color:#e8e8e8!important}
+body :is(.table-wrap,.table-scroll) thead th {color:#393c41!important}
+body :is(.fdi-note,.note,.legend) {color:#5c5e62!important}
+
+/* H1/H2 page was a separate blue microsite: replace its visual tokens as well. */
+body:has(#study-results) .fdi-hero,
+body:has(#study-results) .fdi-completed,
+body:has(#study-results) .fdi-next-experiment {background:#fff!important}
+body:has(#study-results) .fdi-hero {border-bottom:1px solid #e2e3e3!important}
+body:has(#study-results) .fdi-hero h1 span {color:#393c41!important}
+body:has(#study-results) :is(.fdi-hero__links a,.fdi-study-links a) {
+  border-radius:3px!important
+}
+body:has(#study-results) .fdi-stress-row {background:#fff4f3!important}
+body:has(#study-results) .fdi-study-audit {background:#f4f4f4!important}
+body:has(#study-results) .fdi-results-compare {border-color:#e2e3e3!important}
+body:has(#study-results) .fdi-eyebrow,
+body:has(#study-results) .fdi-section-label {color:#b52127!important}
+body:has(#study-results) .fdi-completed h2 {letter-spacing:-.055em}
+
+/* New landing-confidence report, with light/graphite surfaces and one red accent. */
+.aegis-report {font-size:15px;line-height:1.65}
+.aegis-report * {box-sizing:border-box}
+.aegis-report .report-wrap {width:min(1200px,calc(100% - 56px));margin:auto}
+.aegis-report .report-header {min-height:72px;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:13px 0}
+.aegis-report .report-mark {color:#171a20;font-size:14px;font-weight:750;letter-spacing:.18em;text-decoration:none;white-space:nowrap}
+.aegis-report .report-mark small {display:block;font-size:9px;letter-spacing:.22em;color:#5c5e62;font-weight:600}
+.aegis-report .report-nav {display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.aegis-report .report-nav a {font-size:13px;font-weight:650;text-decoration:none;color:#393c41}
+.aegis-report .report-nav a:hover {color:#b52127}
+.aegis-report .report-hero {border-block:1px solid #e2e3e3;padding:clamp(70px,10vw,150px) 0 clamp(68px,8vw,110px);background:#f4f4f4}
+.aegis-report .report-kicker {font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#ad2428;font-weight:800;margin:0 0 20px}
+.aegis-report h1 {max-width:1000px;font-size:clamp(45px,8vw,105px);letter-spacing:-.07em;line-height:.99;font-weight:520;margin:0}
+.aegis-report h1 em {font-style:normal;color:#5c5e62}
+.aegis-report .report-lead {max-width:710px;margin:24px 0 0;color:#393c41;font-size:clamp(17px,2.2vw,22px);line-height:1.55}
+.aegis-report .report-actions {display:flex;gap:10px;flex-wrap:wrap;margin-top:28px}
+.aegis-report .report-btn {border:1px solid #171a20;padding:12px 20px;min-height:46px;display:inline-flex;align-items:center;text-decoration:none;border-radius:3px;color:#171a20;font-weight:650;font-size:13px}
+.aegis-report .report-btn.dark {background:#171a20;color:#fff}
+.aegis-report .report-btn:hover {background:#393c41;color:#fff}
+.aegis-report .report-stats {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:26px;padding:38px 0;border-bottom:1px solid #e2e3e3}
+.aegis-report .report-stats strong {display:block;font-size:clamp(33px,4vw,54px);letter-spacing:-.06em;line-height:1.1}
+.aegis-report .report-stats span {display:block;color:#5c5e62;font-size:13px;margin-top:9px}
+.aegis-report .report-section {padding:clamp(60px,8vw,105px) 0}
+.aegis-report .report-section.soft {background:#f4f4f4}
+.aegis-report .report-intro {display:grid;grid-template-columns:minmax(240px,.85fr) minmax(0,1.15fr);align-items:start;gap:clamp(30px,6vw,90px);margin-bottom:36px}
+.aegis-report h2 {font-size:clamp(33px,5vw,56px);line-height:1.05;margin:0;letter-spacing:-.05em;font-weight:520}
+.aegis-report h3 {font-size:23px;letter-spacing:-.04em;line-height:1.16;margin:0 0 11px}
+.aegis-report .report-intro p {max-width:690px;color:#393c41;margin:0}
+.aegis-report .report-table-wrap {overflow:auto;border:1px solid #dcdcdc;background:#fff}
+.aegis-report table {border-collapse:collapse;width:100%;min-width:640px;font-size:14px}
+.aegis-report caption {text-align:left;padding:16px 20px;color:#5c5e62;font-size:12px}
+.aegis-report th,.aegis-report td {padding:17px 20px;border-top:1px solid #e2e3e3;text-align:left;font-variant-numeric:tabular-nums}
+.aegis-report thead th {border-top:none;color:#393c41;font-size:12px;font-weight:750}
+.aegis-report tr.warn {background:#fff1f0}
+.aegis-report .report-cards {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
+.aegis-report .report-card {border:1px solid #e2e3e3;background:#fff;padding:clamp(24px,3vw,40px)}
+.aegis-report .report-card p {color:#5c5e62;font-size:14px;margin:0}
+.aegis-report .report-big {display:block;font-size:clamp(34px,4vw,54px);font-weight:600;line-height:1.15;letter-spacing:-.05em;margin-bottom:18px}
+.aegis-report .report-boundary {border-left:4px solid #e82127;background:#f4f4f4;padding:22px 27px;margin-top:28px}
+.aegis-report .report-boundary p {margin:5px 0 0;color:#393c41;font-size:14px}
+.aegis-report .report-sources {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.aegis-report .report-source {display:block;text-decoration:none;border:1px solid #e2e3e3;padding:20px;color:#171a20}
+.aegis-report .report-source:hover {border-color:#393c41}
+.aegis-report .report-source strong {display:block;font-size:14px}
+.aegis-report .report-source span {display:block;font-size:12px;color:#5c5e62;margin-top:5px}
+.aegis-report .report-footer {padding:30px 0;border-top:1px solid #e2e3e3;background:#f4f4f4;color:#5c5e62;font-size:12px}
+.aegis-report .report-footer .report-wrap {display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+@media(max-width:850px) {
+ .aegis-report .report-intro{grid-template-columns:1fr;gap:18px}
+ .aegis-report .report-cards{grid-template-columns:1fr}
+ .aegis-report .report-sources{grid-template-columns:1fr 1fr}
+ body :is(.site-header,.top,.signature-nav) nav a{font-size:12px}
+}
+@media(max-width:560px) {
+ .aegis-report .report-wrap{width:calc(100% - 32px)}
+ .aegis-report .report-header{align-items:flex-start;flex-direction:column;gap:10px}
+ .aegis-report .report-nav{gap:14px}
+ .aegis-report .report-stats{grid-template-columns:1fr 1fr;gap:24px 16px}
+ .aegis-report .report-sources{grid-template-columns:1fr}
+ .aegis-report h1{font-size:clamp(44px,11vw,68px)}
+ .aegis-report .report-table-wrap{margin-right:0}
+}
+@media (prefers-reduced-motion:reduce){
+ html{scroll-behavior:auto!important}
+ body :is(a,button){transition:none!important}
+}
+/* Visible research accessibility: never turn evidence negative results into badges or hide their warnings. */
