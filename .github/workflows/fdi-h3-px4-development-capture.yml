@@ -1,0 +1,178 @@
+name: FDI-H3 PX4 Development Telemetry Capture
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - research/fdi-h3-px4-development-capture-20261011
+
+permissions:
+  contents: read
+
+jobs:
+  px4-development-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      PX4_RELEASE: v1.17.0
+      PX4_SIMULATOR_MODEL: gz_x500
+      DEVELOPMENT_ONLY: "true"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install existing research and PX4 log dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]" pyulog mavsdk
+          python -m pytest -q tests/test_fdi_h3_px4_ulog_preflight.py tests/test_fdi_h3_px4_development_trace.py tests/test_fdi_h3_development_capture_workflow.py
+
+      - name: Clone pinned candidate PX4 source
+        run: |
+          mkdir -p /tmp/h3-development
+          git clone --branch "$PX4_RELEASE" --depth 1 --recursive https://github.com/PX4/PX4-Autopilot.git /tmp/PX4-Autopilot
+          echo "PX4-PX4_AUTOPILOT_SHA=$(git -C /tmp/PX4-Autopilot rev-parse HEAD)" | tee /tmp/h3-development/px4_source.env
+          test "$PX4_SIMULATOR_MODEL" = "gz_x500"
+
+      - name: Install PX4 SITL and Gazebo dependencies
+        run: |
+          sudo env DEBIAN_FRONTEND=noninteractive bash /tmp/PX4-Autopilot/Tools/setup/ubuntu.sh --no-nuttx
+          python -m pip install -r /tmp/PX4-Autopilot/Tools/setup/requirements.txt
+          python -c "import kconfiglib; print('PX4 Python setup OK')"
+
+      - name: Start headless PX4 and require simulator readiness
+        run: |
+          cd /tmp/PX4-Autopilot
+          export HEADLESS=1
+          export PX4_SIM_SPEED_FACTOR=1
+          export PX4_PARAM_SDLOG_PROFILE=129
+          export PX4_PARAM_COM_RCL_EXCEPT=4
+          (make px4_sitl "$PX4_SIMULATOR_MODEL" </dev/null > /tmp/h3-development/px4_gazebo.log 2>&1) &
+          echo $! > /tmp/h3-development/px4_make.pid
+          ready=0
+          for _ in $(seq 1 480); do
+            pid="$(cat /tmp/h3-development/px4_make.pid)"
+            if ! kill -0 "$pid" 2>/dev/null; then
+              echo "SITL exited before readiness"
+              tail -n 150 /tmp/h3-development/px4_gazebo.log
+              exit 1
+            fi
+            if grep -q "Startup script returned successfully" /tmp/h3-development/px4_gazebo.log; then
+              ready=1
+              break
+            fi
+            sleep 1
+          done
+          test "$ready" -eq 1
+
+      - name: Record development-only non-fault PX4/Gazebo mission
+        run: |
+          touch /tmp/h3-development/mission_started
+          timeout --signal=TERM --kill-after=15s 240s \
+            python scripts/run_px4_gazebo_mission.py \
+            --connection udpin://0.0.0.0:14550 \
+            --metadata-out /tmp/h3-development/mission_metadata.json
+
+      - name: Stop SITL and preserve run-scoped ULog
+        if: always()
+        run: |
+          sleep 5
+          if [ -f /tmp/h3-development/px4_make.pid ]; then
+            kill "$(cat /tmp/h3-development/px4_make.pid)" 2>/dev/null || true
+          fi
+          sleep 2
+          ROOT=/tmp/PX4-Autopilot/build/px4_sitl_default/rootfs/log
+          if [ -d "$ROOT" ] && [ -f /tmp/h3-development/mission_started ]; then
+            find "$ROOT" -type f -name '*.ulg' -newer /tmp/h3-development/mission_started -print \
+              > /tmp/h3-development/ulog_candidates.txt
+            ULOG="$(find "$ROOT" -type f -name '*.ulg' -newer /tmp/h3-development/mission_started -printf '%T@ %p\n' | sort -n | tail -1 | cut -d' ' -f2-)"
+            if [ -n "$ULOG" ] && [ -f "$ULOG" ]; then
+              cp "$ULOG" /tmp/h3-development/px4_gazebo_raw.ulg
+            fi
+          fi
+
+      - name: Run real ULog read-only H3 signal preflight
+        run: |
+          test -s /tmp/h3-development/px4_gazebo_raw.ulg
+          python -m scripts.fdi_h3_px4_ulog_preflight \
+            /tmp/h3-development/px4_gazebo_raw.ulg \
+            --output /tmp/h3-development/px4_h3_preflight.json
+
+      - name: Export unscored and unmapped development telemetry
+        run: |
+          python -m scripts.fdi_h3_px4_development_trace \
+            /tmp/h3-development/px4_gazebo_raw.ulg \
+            --csv /tmp/h3-development/px4_h3_unmapped.csv \
+            --metadata /tmp/h3-development/px4_h3_unmapped_metadata.json
+
+      - name: Write development-only provenance receipt including failures
+        if: always()
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          root = Path('/tmp/h3-development')
+          root.mkdir(parents=True, exist_ok=True)
+          def read_json(filename):
+              candidate = root / filename
+              if not candidate.exists():
+                  return None
+              return json.loads(candidate.read_text(encoding='utf-8'))
+          def sha256(filename):
+              candidate = root / filename
+              if not candidate.is_file():
+                  return None
+              digest = hashlib.sha256()
+              with candidate.open('rb') as f:
+                  for chunk in iter(lambda: f.read(1024 * 1024), b''):
+                      digest.update(chunk)
+              return digest.hexdigest()
+
+          preflight = read_json('px4_h3_preflight.json')
+          trace = read_json('px4_h3_unmapped_metadata.json')
+          source = (root / 'px4_source.env')
+          receipt = {
+              'study': 'FDI-H3',
+              'stage': 'DEVELOPMENT_ONLY_PX4_GAZEBO_TELEMETRY',
+              'can_claim_h3_results': False,
+              'independent_dynamics_verified': False,
+              'fault_injection_verified': False,
+              'physical_motor_map_verified': False,
+              'px4_release': os.environ['PX4_RELEASE'],
+              'px4_source_id': source.read_text().strip() if source.exists() else None,
+              'simulator_model': os.environ['PX4_SIMULATOR_MODEL'],
+              'github_sha': os.environ['GITHUB_SHA'],
+              'github_run_id': os.environ['GITHUB_RUN_ID'],
+              'mission_metadata': read_json('mission_metadata.json'),
+              'raw_ulog_sha256': sha256('px4_gazebo_raw.ulg'),
+              'preflight': preflight,
+              'unmapped_trace_metadata': trace,
+              'status': 'DEVELOPMENT_EXPORT_CREATED' if trace else (
+                  'PREFLIGHT_INCOMPLETE' if preflight else 'RAW_LOG_MISSING_OR_SETUP_FAILED'
+              ),
+              'note': 'Telemetry collection only. No motor faults injected and no protected H3 test executed.',
+          }
+          (root / 'development_receipt.json').write_text(
+              json.dumps(receipt, indent=2, sort_keys=True, allow_nan=False) + '\n'
+          )
+          print(json.dumps({
+              'status': receipt['status'],
+              'raw_ulog_sha256': receipt['raw_ulog_sha256'],
+              'can_claim_h3_results': False,
+          }))
+          PY
+
+      - name: Upload short-lived PX4 development evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fdi-h3-px4-development-only
+          path: /tmp/h3-development
+          retention-days: 14
+          if-no-files-found: warn
