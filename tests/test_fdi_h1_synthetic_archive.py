@@ -4,6 +4,7 @@ No protected historical traces are read or represented as real simulation data.
 This catches accidental hardcoding of the archived 100% result.
 """
 import csv
+from copy import deepcopy
 import hashlib
 import io
 import json
@@ -24,6 +25,12 @@ class SyntheticZipAuditTests(unittest.TestCase):
         # All forty protected trajectories predict healthy: deliberately
         # unsuccessful on every motor fault, yet a VALID negative result.
         report = synthetic_report(always_healthy=True)
+        development = deepcopy(report["protected_result"])
+        development["trajectories"] = 30
+        development["confusion_matrix_rows_true_cols_predicted"] = [
+            [6 if col == 0 else 0 for col in range(5)] for _ in range(5)
+        ]
+        report["development_descriptive_result"] = development
         report.update({
             "git_sha": "a" * 40,
             "protected_test_trajectories": 40,
@@ -95,6 +102,7 @@ class SyntheticZipAuditTests(unittest.TestCase):
                 audit.main()
             results = json.loads(output.getvalue())
         self.assertEqual(results["files_checked"], 70)
+        self.assertEqual(results["descriptive_development_trajectories"], 30)
         self.assertEqual(results["balanced_accuracy"], .2)
         self.assertEqual(results["correct_fault_isolations"], 0)
         self.assertIsNone(results["median_correct_fault_detection_latency_seconds"])
