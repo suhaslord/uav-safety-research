@@ -32,6 +32,15 @@ NUMERIC_TELEMETRY_FIELDS = (
 
 
 
+def validate_trace_length(actual_rows, reported_rows, trace_name):
+    """Historical artifact has exactly 750 samples per 24-second trace."""
+    if actual_rows != EXPECTED_ROWS_PER_TRACE or reported_rows != EXPECTED_ROWS_PER_TRACE:
+        raise ValueError(
+            f"Unexpected trace length in {trace_name}: expected "
+            f"{EXPECTED_ROWS_PER_TRACE}, got {actual_rows} (manifest {reported_rows})"
+        )
+
+
 def validate_numeric_telemetry(row, trace_name):
     """Require every recorded numeric state and command to be finite."""
     for key in NUMERIC_TELEMETRY_FIELDS:
@@ -290,8 +299,7 @@ def main():
             seed = int(name.split("_")[0][4:])
             motor = int(name.split("_")[1][5:-4])
             rows = list(csv.DictReader(io.StringIO(contents.decode())))
-            if len(rows) != EXPECTED_ROWS_PER_TRACE or int(entry["rows"]) != EXPECTED_ROWS_PER_TRACE:
-                raise ValueError(f"Unexpected trace length in {name}: expected {EXPECTED_ROWS_PER_TRACE}, got {len(rows)}")
+            validate_trace_length(len(rows), int(entry["rows"]), name)
             times = [float(row["time_s"]) for row in rows]
             assert all(math.isfinite(t) for t in times)
             assert all(b > a for a, b in zip(times, times[1:]))
