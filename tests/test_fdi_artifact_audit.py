@@ -172,6 +172,23 @@ class ArtifactAuditRegressionTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "differs from paired healthy"):
             audit.verify_paired_pre_onset(paired)
 
+    def test_late_unphysical_samples_are_reported_but_never_scored(self):
+        # The early, extremely large reading is deliberately outside this
+        # diagnostic: only samples strictly after the frozen time cutoff count.
+        records = [
+            row(10.60, 999, 999, 999),
+            row(10.72, -4, 1, 2),
+            row(11.00, 1, -5, 3),
+        ]
+        result = audit.excluded_post_time_censor_extrema(records)
+        self.assertEqual(result["samples"], 2)
+        self.assertEqual(result["max_altitude_m"], 3)
+        self.assertEqual(result["max_altitude_time_s"], 11.0)
+        self.assertEqual(result["max_abs_gyro_pq_rad_per_s"], 5)
+        self.assertEqual(result["max_abs_gyro_time_s"], 11.0)
+        with self.assertRaisesRegex(ValueError, "Missing post-censor"):
+            audit.excluded_post_time_censor_extrema([row(10.50)])
+
     def test_expected_seed_split_exact(self):
         self.assertEqual(len(audit.SEEDS), 14)
         self.assertEqual(len(set(audit.SEEDS)), 14)
