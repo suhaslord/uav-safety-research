@@ -1,4 +1,4 @@
-:root{--phase-ink:#171a20;--phase-body:#393c41;--phase-muted:#6e7075;--phase-line:#e2e3e3;--phase-ash:#f4f4f4;--phase-white:#fff;--phase-blue:#e82127;--phase-danger:#b3261e;--phase-header:56px;--phase-ease:cubic-bezier(.5,0,0,.75)}
+:root{--phase-ink:#171a20;--phase-body:#393c41;--phase-muted:#6e7075;--phase-line:#e2e3e3;--phase-ash:#f4f4f4;--phase-white:#fff;--phase-blue:#1673c9;--phase-danger:#b3261e;--phase-header:56px;--phase-ease:cubic-bezier(.5,0,0,.75)}
 
 /* Shared phase-page polish: intentionally flat, restrained, and Tesla-adjacent. */
 html{background:var(--phase-white);scroll-padding-top:calc(var(--phase-header) + 18px)}
