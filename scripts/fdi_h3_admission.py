@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import re
 from pathlib import Path
 
@@ -35,7 +36,9 @@ def validate(manifest):
         engine = {}
     identifier = engine.get("implementation", "")
     check(isinstance(identifier, str) and len(identifier.strip()) > 7, "engine implementation identity missing")
-    check(engine.get("dynamics_family") not in (None, "", "bitcraze-webots", "same-webots-plant"),
+    dynamics_family = engine.get("dynamics_family")
+    check(isinstance(dynamics_family, str) and len(dynamics_family.strip()) > 7 and
+          dynamics_family.strip().lower() not in ("bitcraze-webots", "same-webots-plant"),
           "a candidate independent dynamics family is required; original Webots is not eligible")
     origin = engine.get("source_url", "")
     check(isinstance(origin, str) and origin.startswith("https://"), "engine source URL missing")
@@ -59,8 +62,8 @@ def validate(manifest):
     check(interface.get("motor_quadrant_map") == H1_MOTOR_MAP,
           "frozen H1 quadrant mapping differs; do not tune on protected evaluation")
     dt = interface.get("sample_period_s")
-    check(isinstance(dt, (float, int)) and not isinstance(dt, bool) and 0 < dt <= 0.1,
-          "document plausible sample period (0, 0.1] s")
+    check(isinstance(dt, (float, int)) and not isinstance(dt, bool) and math.isfinite(dt) and 0 < dt <= 0.1,
+          "document finite sample period (0, 0.1] s")
     check(isinstance(interface.get("altitude_reference"), str) and len(interface["altitude_reference"].strip()) > 5,
           "document altitude frame")
     check(isinstance(interface.get("contact_indicator"), str) and bool(interface["contact_indicator"].strip()),
@@ -82,17 +85,26 @@ def validate(manifest):
     if not isinstance(splits, dict):
         splits = {}
     development, protected = splits.get("development_seeds"), splits.get("protected_seeds")
+    valid_splits = {}
     for label, seeds in (("development", development), ("protected", protected)):
-        check(isinstance(seeds, list) and all(isinstance(v, int) and not isinstance(v, bool) and v >= 0 for v in seeds),
-              f"{label} seeds must be a list of nonnegative integers")
-        if isinstance(seeds, list):
-            check(len(seeds) == len(set(map(str, seeds))), f"{label} seeds must not contain duplicates")
-            check(not set(v for v in seeds if isinstance(v, int)).intersection(PREVIOUSLY_USED),
-                  f"{label} contains known H1/H2 seeds")
-    if isinstance(protected, list):
-        check(len(protected) >= 12, "at least 12 independent protected command seeds required")
-    if isinstance(development, list) and isinstance(protected, list):
-        check(not set(development).intersection(protected), "development/protected seed leakage")
+        # Never create a set from unvalidated external JSON. The old implementation
+        # could raise TypeError for a list containing a dictionary or list.
+        valid = (isinstance(seeds, list) and
+                 all(type(value) is int and value >= 0 for value in seeds))
+        check(valid, f"{label} seeds must be a list of nonnegative integers")
+        if not valid:
+            continue
+        check(len(seeds) == len(set(seeds)), f"{label} seeds must not contain duplicates")
+        check(not set(seeds).intersection(PREVIOUSLY_USED), f"{label} contains known H1/H2 seeds")
+        valid_splits[label] = seeds
+    if "development" in valid_splits:
+        check(bool(valid_splits["development"]), "a separate nonempty development split is required")
+    if "protected" in valid_splits:
+        check(len(valid_splits["protected"]) >= 12,
+              "at least 12 independent protected command seeds required")
+    if len(valid_splits) == 2:
+        check(not set(valid_splits["development"]).intersection(valid_splits["protected"]),
+              "development/protected seed leakage")
 
     for name in ("development_protocol_url", "protected_protocol_url", "manifest_archive_url"):
         url = manifest.get(name)
@@ -103,7 +115,10 @@ def validate(manifest):
 
 def evaluate_file(path):
     raw = Path(path).read_bytes()
-    manifest = json.loads(raw)
+    try:
+        manifest = json.loads(raw)
+    except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+        raise ValueError(f"Candidate manifest is not valid UTF-8 JSON: {exc}") from exc
     problems = validate(manifest)
     return {
         "study": "FDI-H3",
