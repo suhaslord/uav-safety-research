@@ -131,6 +131,34 @@ def main():
     args = parser.parse_args()
     with zipfile.ZipFile(args.artifact_zip) as z:
         report = json.loads(z.read("report/heldout_results.json"))
+        # Confirm that the archived run identity, pinned simulator, and
+        # declared evaluation settings agree with the frozen audit rule.
+        run_sha = z.read("git_sha.txt").decode("utf-8").strip()
+        if report.get("git_sha") != run_sha or len(run_sha) != 40 or any(
+            digit not in "0123456789abcdef" for digit in run_sha.lower()
+        ):
+            raise ValueError("Git checkout SHA is missing or conflicts with report provenance")
+        digests = json.loads(z.read("docker_image_digest.json"))
+        if not isinstance(digests, list) or not any(
+            isinstance(value, str) and
+            value.startswith("cyberbotics/webots@sha256:") and
+            len(value.partition("@sha256:")[2]) == 64
+            for value in digests
+        ):
+            raise ValueError("Missing pinned Webots image digest")
+        rule = report.get("predefined_rule", {})
+        expected_rule = {
+            "p_abs_threshold_rad_per_s": 2.0,
+            "q_abs_threshold_rad_per_s": .75,
+            "consecutive_alert_samples": 3,
+            "fault_onset_s": 10.0,
+            "time_censor_s": 10.70,
+            "altitude_censor_m": .50,
+            "first_alarm_wins": True,
+        }
+        for key, expected_value in expected_rule.items():
+            if rule.get(key) != expected_value:
+                raise ValueError(f"Frozen evaluation metadata mismatch: {key}")
         saved_rows = list(csv.DictReader(io.StringIO(z.read("report/trajectory_decisions.csv").decode())))
         manifest = report["input_manifest"]
         expected = {f"seed{s}_motor{m}.csv" for s in SEEDS for m in range(5)}
