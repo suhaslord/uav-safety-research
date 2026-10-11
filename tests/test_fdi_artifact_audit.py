@@ -119,6 +119,14 @@ class ArtifactAuditRegressionTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "64 hexadecimal"):
                 audit.verify_expected_archive_sha256(path, "invalid")
 
+    def test_exact_historical_trace_row_contract(self):
+        self.assertEqual(audit.EXPECTED_ROWS_PER_TRACE, 750)
+        audit.validate_trace_length(750, 750, "synthetic.csv")
+        for actual, manifest in ((749, 749), (751, 751), (750, 749), (749, 750)):
+            with self.subTest(actual=actual, manifest=manifest):
+                with self.assertRaisesRegex(ValueError, "Unexpected trace length"):
+                    audit.validate_trace_length(actual, manifest, "synthetic.csv")
+
     def test_expected_seed_split_exact(self):
         self.assertEqual(len(audit.SEEDS), 14)
         self.assertEqual(len(set(audit.SEEDS)), 14)
