@@ -38,6 +38,10 @@ def decision(rows):
 
 
 def main():
+    # Most verification below uses assertions. Never silently skip the evidence
+    # checks when invoked using Python's optimized (-O) mode.
+    if not __debug__:
+        raise RuntimeError("Artifact audit requires assertions enabled; do not use python -O")
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("artifact_zip", help="ZIP uploaded by GitHub Actions FDI early pre-contact validation")
     args = parser.parse_args()
@@ -50,11 +54,14 @@ def main():
         assert len(saved_rows) == 70
         assert {entry["file"] for entry in manifest} == expected
         assert {name[4:] for name in z.namelist() if name.startswith("raw/") and name.endswith(".csv")} == expected
+        assert report.get("protected_test_trajectories") == 40
         assert tuple(report["protected_test_seeds"]) == PROTECTED
         assert tuple(report["source_development_seeds"]) == SOURCE
         assert tuple(report["development_seeds"]) == DEVELOPMENT
         indexed = {(int(row["seed"]), int(row["motor"])): row for row in saved_rows}
         assert len(indexed) == 70
+        if len(z.namelist()) != len(set(z.namelist())):
+            raise ValueError("Duplicate ZIP members make evidence ambiguous")
         confusion = [[0] * 5 for _ in range(5)]
         successful_fault_alerts = []
         checked = 0
@@ -78,6 +85,13 @@ def main():
                 assert all(math.isfinite(float(row[key])) for key in ("z_m", "gyro_p_rps", "gyro_q_rps"))
             pred, timestamp, altitude = decision(rows)
             saved = indexed[(seed, motor)]
+            expected_split = ("protected_test" if seed in PROTECTED else
+                              "development" if seed in DEVELOPMENT else
+                              "source_development")
+            if entry.get("split") != expected_split or saved.get("split") != expected_split:
+                raise ValueError(f"Split metadata inconsistent with seed {seed}")
+            if saved.get("false_alert_before_onset") != str(timestamp is not None and timestamp < 10.0):
+                raise ValueError(f"Pre-onset alert flag disagrees with trace {name}")
             assert int(saved["prediction"]) == pred
             if timestamp is None:
                 assert not saved["alert_time_s"] and not saved["alert_altitude_m"]
