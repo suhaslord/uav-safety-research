@@ -1,0 +1,47 @@
+name: Phase 25 top-box reliability diagnostic
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/diagnose_phase25_top_confidence.py"
+      - "tests/test_phase25_top_confidence_diagnostic.py"
+      - "docs/phase25_top_confidence_diagnostic.md"
+      - ".github/workflows/phase25-top-confidence-diagnostic.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  top-box-audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout authenticated historical tables
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Test top-box selection and clipped-box semantics
+        run: python -m unittest discover -s tests -p 'test_phase25_top_confidence_diagnostic.py' -v
+
+      - name: Recompute retrospective top-box outcomes without detector inference
+        run: |
+          set -euo pipefail
+          python scripts/diagnose_phase25_top_confidence.py \
+            --results-dir results/phase25_failure_atlas \
+            --out-dir phase25_top_box_reliability_audit
+          git rev-parse HEAD > phase25_top_box_reliability_audit/source_commit.txt
+          python -V > phase25_top_box_reliability_audit/python_version.txt
+
+      - name: Preserve audit outputs for external review
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase25-top-box-descriptive-evidence
+          path: phase25_top_box_reliability_audit/
+          retention-days: 90
+          if-no-files-found: error
