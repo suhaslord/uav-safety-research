@@ -116,3 +116,20 @@ python -m scripts.fdi_h3_development_bundle_audit fdi-h3-px4-development-only.zi
 The GitHub Actions workflow now performs this audit before upload, pins `mavsdk==3.17.4`, and requests 90-day retention for new artifacts. Regression tests deliberately reject falsified checksums, missing missions, future/stale actuator associations, nonfinite gyro data, row-count discrepancies, and any claim of protected H3 scoring.
 
 **Next scientific gate:** source-review the pin-to-Gazebo motor/joint mapping and gyro units, sign, timestamp basis; establish simulator-applied actuator fault observability and independently review its implementation, then freeze a new protected-seed set **before** attempting motor fault scores. No motor fault was injected or scored in this capture.
+
+
+## Pinned PX4 / Gazebo source-level motor and gyro path review
+
+The successful capture identified PX4 commit `d6f12ad1c4f70ad3230afd7d86e971421e02fef4`. At that exact commit, `Tools/simulation/gz` references model-source submodule `b6127f4ec20de867e215fb5f78ae88b80f371909` (not an unpinned latest model). The capture workflow now records and checks the submodule SHA as well as the PX4 SHA in future run receipts.
+
+| Evidence | What the pinned source actually shows |
+| --- | --- |
+| [PX4 Gazebo x500 airframe](https://github.com/PX4/PX4-Autopilot/blob/d6f12ad1c4f70ad3230afd7d86e971421e02fef4/ROMFS/px4fmu_common/init.d-posix/airframes/4001_gz_x500) | Four configured control-allocation rotors, simulated output functions 101–104, and rotor position/moment-arm declarations in PX4's vehicle coordinate convention. |
+| [Gazebo x500 motor plugins](https://github.com/PX4/PX4-gazebo-models/blob/b6127f4ec20de867e215fb5f78ae88b80f371909/models/x500/model.sdf) | Four explicit `MulticopterMotorModel` plugins: `motorNumber` 0, 1, 2, 3 target `rotor_0_joint` through `rotor_3_joint`, respectively; their rotations are CCW, CCW, CW, CW. |
+| [Gazebo x500 base links](https://github.com/PX4/PX4-gazebo-models/blob/b6127f4ec20de867e215fb5f78ae88b80f371909/models/x500_base/model.sdf) | Rotor link poses in Gazebo coordinates: index 0 (`+0.174,-0.174`), 1 (`-0.174,+0.174`), 2 (`+0.174,+0.174`), 3 (`-0.174,-0.174`), meters. |
+| [PX4 Gazebo ESC mixing bridge](https://github.com/PX4/PX4-Autopilot/blob/d6f12ad1c4f70ad3230afd7d86e971421e02fef4/src/modules/simulation/gz_bridge/GZMixingInterfaceESC.cpp) | Publishes indexed `gz::msgs::Actuators.velocity(i)` entries to the model motor-speed command topic; this is a **command**, not independently measured thrust or rotor RPM. |
+| [PX4 Gazebo IMU bridge](https://github.com/PX4/PX4-Autopilot/blob/d6f12ad1c4f70ad3230afd7d86e971421e02fef4/src/modules/simulation/gz_bridge/GZBridge.cpp) | Rotates Gazebo IMU angular velocity from body FLU to body FRD before publishing `sensor_gyro`. The logged `vehicle_angular_velocity` topic is a downstream PX4 representation and still needs an explicit source-to-log sample/timestamp verification. |
+
+**Important mapping caveat:** the airframe allocator's planar `CA_ROTOR*_PX/PY` values and the Gazebo SDF rotor poses are not numerically identical and are expressed in different coordinate conventions. Neither numeric index agreement nor a signed-axis guess suffices to declare H1 motor-class equivalence. A runtime engineering check must confirm model-joint identity, actual simulated actuation, frame conversion, and which downstream `vehicle_angular_velocity` data correspond to the sensor measurements.
+
+This investigation narrows the remaining mapping task, but has **not** injected motor faults, verified physical rotor failure, checked online sensor-noise propagation, opened protected H3 seeds, or established independence/admission. Continue to report `NOT_ADMITTED`.
