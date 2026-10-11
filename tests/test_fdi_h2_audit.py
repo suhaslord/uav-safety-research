@@ -98,6 +98,37 @@ class H2ArtifactAuditUnitTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError,"pre_onset"):
                     h2.read_bool_exact(invalid,"synthetic")
 
+    def test_full_grid_rejects_missing_or_shifted_samples(self):
+        case=(89,9.0,0,1.0)
+        def make_row(index):
+            return {**{name:"0.0" for name in h2.FIELDS},
+                    "time_s":f"{index * h2.SAMPLE_PERIOD_S:.6f}",
+                    "seed":"89","failed_motor":"0","fault_onset_s":"9.0",
+                    "motor_retention":"1.0","fault_active":"0"}
+        good=[make_row(i) for i in range(1,314)]
+        h2.check_trace(good,case,"synthetic.csv")
+        with self.assertRaisesRegex(ValueError,"expected 313"):
+            h2.check_trace(good[:-1],case,"synthetic.csv")
+        corrupt=[dict(x) for x in good]
+        corrupt[28]["time_s"]="0.999"
+        with self.assertRaisesRegex(ValueError,"32ms timestamp grid"):
+            h2.check_trace(corrupt,case,"synthetic.csv")
+
+    def test_all_128_paired_fault_scenarios_require_identical_prefix(self):
+        signature9=(("zero",),)*281
+        signature13=(("zero",),)*406
+        signatures={case:(signature9 if case[1]==9.0 else signature13)
+                    for case in h2.cases()}
+        self.assertEqual(h2.verify_temporal_pairing(signatures),128)
+        changed=dict(signatures)
+        changed[(89,9.0,1,0.5)]=signature9[:-1]+(("altered",),)
+        with self.assertRaisesRegex(ValueError,"pre-fault telemetry differs"):
+            h2.verify_temporal_pairing(changed)
+        changed=dict(signatures)
+        del changed[(127,13.0,4,0.5)]
+        with self.assertRaisesRegex(ValueError,"missing or extra scenarios"):
+            h2.verify_temporal_pairing(changed)
+
     def test_external_sha256_detects_altered_evidence_bytes(self):
         with tempfile.TemporaryDirectory() as directory:
             path=Path(directory)/"synthetic.zip"
