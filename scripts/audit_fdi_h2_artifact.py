@@ -22,6 +22,44 @@ KEEPS=(0.0,.5)
 NOISES=(0.0,.2,1.0)
 FIELDS=("time_s","x_m","y_m","z_m","gyro_p_rps","gyro_q_rps","gyro_r_rps","cmd_m1","cmd_m2","cmd_m3","cmd_m4")
 QUADS={(1,1):1,(1,-1):2,(-1,-1):3,(-1,1):4}
+TRACE_HEADERS=FIELDS+("failed_motor","fault_active","seed","fault_onset_s","motor_retention")
+DECISION_HEADERS=("seed","onset","motor","retention","sensor_noise_sigma_radps",
+                  "prediction","alert_time_s","alert_altitude_m","pre_onset")
+
+
+def validate_archive_members(names):
+    """ZIP members must be unique; set() by itself hides ambiguous duplicates."""
+    if len(names)!=len(set(names)):
+        raise ValueError("Duplicate ZIP members make the archived evidence ambiguous")
+    return set(names)
+
+
+def validate_csv_headers(headers,expected,tag):
+    """Reject duplicate/missing/reordered CSV headers before DictReader masks them."""
+    if tuple(headers or ())!=tuple(expected):
+        raise ValueError(f"{tag}: CSV schema differs from recorded protocol")
+
+
+def read_bool_exact(value,tag):
+    """Never silently interpret a corrupted pre-onset marker as False."""
+    if value not in ("True","False"):
+        raise ValueError(f"{tag}: pre_onset must be True or False")
+    return value=="True"
+
+
+def verify_archive_sha256(path,expected):
+    """Optional check against a fingerprint recorded separately from the ZIP."""
+    if (not isinstance(expected,str) or len(expected)!=64 or
+            any(char not in "0123456789abcdef" for char in expected.lower())):
+        raise ValueError("Archive SHA-256 must have exactly 64 hexadecimal characters")
+    digest=hashlib.sha256()
+    with Path(path).open("rb") as source:
+        for chunk in iter(lambda:source.read(1024*1024),b""):
+            digest.update(chunk)
+    if digest.hexdigest()!=expected.lower():
+        raise ValueError("Evidence ZIP differs from externally recorded SHA-256")
+    return True
+
 
 def cases():
     for seed in SEEDS:
@@ -141,9 +179,11 @@ def check_metric(actual,claimed,tag):
         elif not near(v,out):
             raise ValueError(f"{tag}.{k} mismatch: {v!r} vs {out!r}")
 
-def audit(artifact,source=None):
+def audit(artifact,source=None,expected_archive_sha256=None):
+    external_zip_verified=(verify_archive_sha256(artifact,expected_archive_sha256)
+                           if expected_archive_sha256 is not None else False)
     with zipfile.ZipFile(artifact) as zipf:
-        files=set(zipf.namelist())
+        files=validate_archive_members(zipf.namelist())
         required={"report/h2_results.json","report/per_case_decisions.csv","git_sha.txt","docker_image_digest.json"}
         if not required.issubset(files):
             raise ValueError("Missing required report or provenance")
@@ -165,7 +205,9 @@ def audit(artifact,source=None):
             raise ValueError("Protocol metadata mismatch")
         if result.get("primary_endpoint")!="retain_50_noise_0p0.metrics.temporal_valid_balanced_accuracy":
             raise ValueError("Primary endpoint was changed")
-        rows=list(csv.DictReader(io.StringIO(zipf.read("report/per_case_decisions.csv").decode())))
+        csv_reader=csv.DictReader(io.StringIO(zipf.read("report/per_case_decisions.csv").decode()))
+        validate_csv_headers(csv_reader.fieldnames,DECISION_HEADERS,"H2 decisions")
+        rows=list(csv_reader)
         if len(rows)!=432:
             raise ValueError("Expected 432 decisions")
         output={}
@@ -184,13 +226,16 @@ def audit(artifact,source=None):
                          "prediction":int(row["prediction"]),
                          "alert_time_s":float(alert) if alert else None,
                          "alert_altitude_m":float(z) if z else None,
-                         "pre_onset":row["pre_onset"]=="True"}
+                         "pre_onset":read_bool_exact(row["pre_onset"],"H2 decisions")}
         if len(output)!=len(list(cases()))*len(NOISES):
             raise ValueError("Case/noise coverage incomplete")
         manifests=result.get("raw_manifest",[])
         manifest_map={m["file"]:m for m in manifests}
         if len(manifests)!=144 or len(manifest_map)!=144:
             raise ValueError("Manifest must have exactly 144 unique trace entries")
+        expected_manifest={name(c) for c in cases()}
+        if set(manifest_map)!=expected_manifest:
+            raise ValueError("Raw manifest case inventory differs from registered scenarios")
         raw_names={f for f in files if f.startswith("raw/") and f.endswith(".csv")}
         if raw_names!={"raw/"+name(c) for c in cases()}:
             raise ValueError("Incorrect raw trace inventory")
@@ -202,7 +247,9 @@ def audit(artifact,source=None):
                 raise ValueError(f"{fname}: raw SHA-256 mismatch")
             if any(entry[k]!=v for k,v in zip(("seed","onset","motor","retention"),case)):
                 raise ValueError(f"{fname}: manifest metadata mismatch")
-            source_rows=list(csv.DictReader(io.StringIO(sourcebytes.decode())))
+            trace_reader=csv.DictReader(io.StringIO(sourcebytes.decode()))
+            validate_csv_headers(trace_reader.fieldnames,TRACE_HEADERS,fname)
+            source_rows=list(trace_reader)
             if entry["rows"]!=len(source_rows):
                 raise ValueError(f"{fname}: row count mismatch")
             check_trace(source_rows,case,fname)
@@ -238,6 +285,7 @@ def audit(artifact,source=None):
                 if len(interval)!=2 or not all(near(x,y) for x,y in zip((perc(.025),perc(.975)),interval)):
                     raise ValueError(f"{tag}: paired seed bootstrap interval mismatch")
         return {"ok":True,"raw_traces":144,"noise_variant_decisions":432,
+                "external_zip_checksum_verified":external_zip_verified,
                 "primary_balanced_accuracy":result["groups"]["retain_50_noise_0p0"]["metrics"]["temporal_valid_balanced_accuracy"],
                 "complete_loss_balanced_accuracy":result["groups"]["retain_0_noise_0p0"]["metrics"]["temporal_valid_balanced_accuracy"]}
 
@@ -245,8 +293,10 @@ def main():
     parser=argparse.ArgumentParser()
     parser.add_argument("artifact_zip",type=Path)
     parser.add_argument("--evaluator-source",type=Path)
+    parser.add_argument("--expected-archive-sha256",
+                        help="Optional externally retained SHA-256 for exact evidence ZIP bytes")
     args=parser.parse_args()
-    print(json.dumps(audit(args.artifact_zip,args.evaluator_source),indent=2))
+    print(json.dumps(audit(args.artifact_zip,args.evaluator_source,args.expected_archive_sha256),indent=2))
 
 if __name__=="__main__":
     main()
