@@ -93,6 +93,33 @@ def verify_paired_pre_onset(signatures):
     return checked
 
 
+
+def excluded_post_time_censor_extrema(rows):
+    """Describe—not score—the physically suspect telemetry after 10.70s.
+
+    These values MUST NOT be passed back to the frozen detector or used to
+    tune it. Extreme late readings are evidence of simulation limitations.
+    """
+    excluded = [r for r in rows if float(r["time_s"]) > 10.70]
+    if not excluded:
+        raise ValueError("Missing post-censor telemetry needed for diagnostic integrity")
+    highest_altitude = max(excluded, key=lambda r: float(r["z_m"]))
+    highest_rate = max(
+        excluded,
+        key=lambda r: max(abs(float(r["gyro_p_rps"])), abs(float(r["gyro_q_rps"])))
+    )
+    return {
+        "samples": len(excluded),
+        "max_altitude_m": float(highest_altitude["z_m"]),
+        "max_altitude_time_s": float(highest_altitude["time_s"]),
+        "max_abs_gyro_pq_rad_per_s": max(
+            abs(float(highest_rate["gyro_p_rps"])),
+            abs(float(highest_rate["gyro_q_rps"]))
+        ),
+        "max_abs_gyro_time_s": float(highest_rate["time_s"]),
+    }
+
+
 def validate_container_provenance(digests):
     """Reject tag drift: the frozen result used one exact Docker digest."""
     if not isinstance(digests, list) or PINNED_WEBOTS_DIGEST not in digests:
@@ -354,6 +381,9 @@ def main():
         development_records = []
         protected_pre_onset_alerts = 0
         pre_onset_signatures = {}
+        postcensor_max_altitude = (-float("inf"), None)
+        postcensor_max_abs_rate = (-float("inf"), None)
+        postcensor_samples = 0
         checked = 0
         for entry in manifest:
             name = entry["file"]
@@ -367,6 +397,18 @@ def main():
             validate_trace_length(len(rows), int(entry["rows"]), name)
             validate_time_grid(rows, name)
             pre_onset_signatures.setdefault(seed, {})[motor] = pre_onset_signature(rows)
+            late = excluded_post_time_censor_extrema(rows)
+            postcensor_samples += late["samples"]
+            if late["max_altitude_m"] > postcensor_max_altitude[0]:
+                postcensor_max_altitude = (
+                    late["max_altitude_m"],
+                    {"seed": seed, "motor": motor, "time_s": late["max_altitude_time_s"]},
+                )
+            if late["max_abs_gyro_pq_rad_per_s"] > postcensor_max_abs_rate[0]:
+                postcensor_max_abs_rate = (
+                    late["max_abs_gyro_pq_rad_per_s"],
+                    {"seed": seed, "motor": motor, "time_s": late["max_abs_gyro_time_s"]},
+                )
             times = [float(row["time_s"]) for row in rows]
             assert all(math.isfinite(t) for t in times)
             assert all(b > a for a, b in zip(times, times[1:]))
@@ -415,6 +457,14 @@ def main():
             "paired_pre_onset_scenarios_verified": verified_pre_onset_pairs,
             "pre_onset_samples_per_scenario": PRE_ONSET_SAMPLES,
             "timestamp_grid_period_s": SAMPLE_PERIOD_S,
+            "excluded_after_time_censor": {
+                "samples": postcensor_samples,
+                "max_altitude_m": postcensor_max_altitude[0],
+                "max_altitude_trace": postcensor_max_altitude[1],
+                "max_abs_gyro_pq_rad_per_s": postcensor_max_abs_rate[0],
+                "max_abs_gyro_trace": postcensor_max_abs_rate[1],
+                "not_used_for_scoring": True,
+            },
             "evaluator_source_checksum_verified": source_verified,
             "archive_checksum_verified": archive_verified,
             "protected_trajectories": 40,
