@@ -41,6 +41,19 @@ def validate_numeric_telemetry(row, trace_name):
         if not math.isfinite(value):
             raise ValueError(f"{trace_name}: nonfinite telemetry {key}")
 
+def verify_expected_archive_sha256(archive_path, expected):
+    """Bind a self-consistent ZIP and its manifest to an external fingerprint."""
+    if len(expected) != 64 or any(ch not in "0123456789abcdef" for ch in expected.lower()):
+        raise ValueError("Expected archive SHA-256 must be exactly 64 hexadecimal characters")
+    digest = hashlib.sha256()
+    with Path(archive_path).open("rb") as source:
+        for block in iter(lambda: source.read(1024 * 1024), b""):
+            digest.update(block)
+    if digest.hexdigest() != expected.lower():
+        raise ValueError("Artifact ZIP SHA-256 differs from external expected checksum")
+    return True
+
+
 def verify_evaluator_source(report, source_path):
     """Verify an external copy of the frozen evaluator against its saved digest.
 
@@ -207,7 +220,12 @@ def main():
     parser.add_argument("artifact_zip", help="ZIP uploaded by GitHub Actions FDI early pre-contact validation")
     parser.add_argument("--evaluator-source", type=Path,
                         help="Optional local frozen evaluator for SHA-256 identity verification")
+    parser.add_argument("--expected-archive-sha256",
+                        help="Externally recorded SHA-256 for the complete ZIP; optional but recommended")
     args = parser.parse_args()
+    archive_verified = (verify_expected_archive_sha256(
+        args.artifact_zip, args.expected_archive_sha256)
+        if args.expected_archive_sha256 is not None else False)
     with zipfile.ZipFile(args.artifact_zip) as z:
         report = json.loads(z.read("report/heldout_results.json"))
         source_verified = (verify_evaluator_source(report, args.evaluator_source)
@@ -317,6 +335,7 @@ def main():
             "status": "independently_replayed",
             "files_checked": checked,
             "evaluator_source_checksum_verified": source_verified,
+            "archive_checksum_verified": archive_verified,
             "protected_trajectories": 40,
             "descriptive_development_trajectories": len(development_records),
             "descriptive_development_confusion_matrix": development_confusion,
