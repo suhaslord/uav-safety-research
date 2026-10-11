@@ -3,6 +3,7 @@
 **Evidence date:** 2026-10-11 UTC.  
 **Status:** Completed **within-simulator** experiment; replication outside this one vehicle/plant and simulation setting **not demonstrated**.  
 **GitHub Actions [successful run](https://github.com/suhaslord/uav-safety-research/actions/runs/38110119678)** · [raw CSV and JSON artifact](https://github.com/suhaslord/uav-safety-research/actions/runs/38110119678/artifacts/11691184435) (90-day Actions artifact retention)  
+**Downloaded evidence ZIP SHA-256 (independently retained copy):** `2c9aa507ffcb4bbcfcec31ce26496f6790cdc3527eb063f0cc6f32bd76c45932`. This hash fingerprints that particular ZIP package; the 70 individual CSV SHA-256 values in the manifest remain the primary source-level integrity checks. Preserve an external copy before the 90-day Actions artifact expires.  
 **Provenance:** workflow-generated checkout SHA `08ecd66ecffe6a16739d0618b521b41d580801d9` (pull-request synthetic merge commit); pinned Bitcraze `7e93752dbc803af2488c1db46bb79b3da55f5d8c`; Webots container digest `sha256:f0023e30daf38b172e4e6ad24ed345909bcd9551df34d63d824e121a7cebf099`; Python 3.12 and NumPy 2.2.6.
 
 ## Answer to the narrow research question
