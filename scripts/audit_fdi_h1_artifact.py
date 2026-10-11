@@ -28,9 +28,69 @@ NUMERIC_TELEMETRY_FIELDS = (
     "time_s", "x_m", "y_m", "z_m", "gyro_p_rps", "gyro_q_rps", "gyro_r_rps",
     "cmd_m1", "cmd_m2", "cmd_m3", "cmd_m4",
 )
+TRACE_COLUMNS = NUMERIC_TELEMETRY_FIELDS + ("failed_motor", "fault_active", "seed")
+PRE_ONSET_FIELDS = NUMERIC_TELEMETRY_FIELDS[1:]
+SAMPLE_PERIOD_S = 0.032
+PRE_ONSET_SAMPLES = 312  # Samples 0.032s..9.984s, before the 10s fault.
 
 
 
+
+
+
+
+def validate_trace_schema(columns, trace_name):
+    """Reject missing/repeated/reordered CSV columns (DictReader can hide duplicates)."""
+    if tuple(columns or ()) != TRACE_COLUMNS:
+        raise ValueError(f"{trace_name}: CSV schema differs from frozen telemetry contract")
+
+
+def validate_time_grid(rows, trace_name):
+    """Every one of the historical 750 records must occupy its 32ms time slot."""
+    for index, row in enumerate(rows, start=1):
+        measured = float(row["time_s"])
+        expected = index * SAMPLE_PERIOD_S
+        if not math.isfinite(measured) or not math.isclose(
+            measured, expected, rel_tol=0, abs_tol=0.000001
+        ):
+            raise ValueError(
+                f"{trace_name}: expected timestamp {expected:.6f}s "
+                f"at sample {index}; recorded {measured!r}s"
+            )
+
+
+def pre_onset_signature(rows):
+    """Read-only signature for deterministic paired-scenario audit.
+
+    Compare state and commanded motor outputs, not the scenario label.
+    A candidate's own fault has not yet been injected before 10 seconds.
+    """
+    return tuple(
+        tuple(row[key] for key in PRE_ONSET_FIELDS)
+        for row in rows if float(row["time_s"]) < 10.0
+    )
+
+
+def verify_paired_pre_onset(signatures):
+    """Check 14 command seeds have five identical pre-fault plant trajectories."""
+    if set(signatures) != set(SEEDS):
+        raise ValueError("Paired pre-onset audit is missing or contains foreign command seeds")
+    checked = 0
+    for seed in SEEDS:
+        candidates = signatures[seed]
+        if set(candidates) != set(range(5)):
+            raise ValueError(f"Seed {seed}: expected healthy and all four motor scenarios")
+        healthy = candidates[0]
+        if len(healthy) != PRE_ONSET_SAMPLES:
+            raise ValueError(f"Seed {seed}: expected {PRE_ONSET_SAMPLES} pre-onset samples")
+        for motor in range(1, 5):
+            if candidates[motor] != healthy:
+                raise ValueError(
+                    f"Seed {seed}, motor {motor}: telemetry differs from paired healthy "
+                    "control before the imposed fault"
+                )
+            checked += 1
+    return checked
 
 
 def validate_container_provenance(digests):
@@ -293,6 +353,7 @@ def main():
         protected_records = []
         development_records = []
         protected_pre_onset_alerts = 0
+        pre_onset_signatures = {}
         checked = 0
         for entry in manifest:
             name = entry["file"]
@@ -300,8 +361,12 @@ def main():
             assert hashlib.sha256(contents).hexdigest() == entry["sha256"], name
             seed = int(name.split("_")[0][4:])
             motor = int(name.split("_")[1][5:-4])
-            rows = list(csv.DictReader(io.StringIO(contents.decode())))
+            reader = csv.DictReader(io.StringIO(contents.decode()))
+            validate_trace_schema(reader.fieldnames, name)
+            rows = list(reader)
             validate_trace_length(len(rows), int(entry["rows"]), name)
+            validate_time_grid(rows, name)
+            pre_onset_signatures.setdefault(seed, {})[motor] = pre_onset_signature(rows)
             times = [float(row["time_s"]) for row in rows]
             assert all(math.isfinite(t) for t in times)
             assert all(b > a for a, b in zip(times, times[1:]))
@@ -338,6 +403,7 @@ def main():
             else:
                 development_records.append(record)
             checked += 1
+        verified_pre_onset_pairs = verify_paired_pre_onset(pre_onset_signatures)
         verified_confusion, latencies = verify_report_metrics(report, protected_records)
         development_confusion = verify_descriptive_metrics(report, development_records)
         assert verified_confusion == confusion
@@ -346,6 +412,9 @@ def main():
         summary = {
             "status": "independently_replayed",
             "files_checked": checked,
+            "paired_pre_onset_scenarios_verified": verified_pre_onset_pairs,
+            "pre_onset_samples_per_scenario": PRE_ONSET_SAMPLES,
+            "timestamp_grid_period_s": SAMPLE_PERIOD_S,
             "evaluator_source_checksum_verified": source_verified,
             "archive_checksum_verified": archive_verified,
             "protected_trajectories": 40,
