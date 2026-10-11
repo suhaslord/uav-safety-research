@@ -128,3 +128,21 @@ body.home-evidence-led .home-footer a:hover{color:#1269b8}
 @media(prefers-reduced-motion:reduce){
  .home-visual-strip__image>img{transition:none}
 }
+
+
+/* Mobile menu must sit ABOVE its own fixed header hit area. */
+@media(max-width:820px){
+ body.home-evidence-led .site-header{height:64px!important;min-height:64px!important;grid-template-columns:minmax(0,1fr) auto!important;align-items:center!important;overflow:visible!important}
+ body.home-evidence-led .site-header .mobile-menu-toggle{
+   display:inline-flex!important;position:relative!important;z-index:91!important;
+   pointer-events:auto!important;align-self:center!important;justify-self:end!important;
+   align-items:center!important;justify-content:center!important;
+   width:auto;min-width:74px!important;min-height:44px!important;
+   margin:0!important;transform:none!important;touch-action:manipulation;
+ }
+ body.home-evidence-led .site-header::before,body.home-evidence-led .site-header::after{pointer-events:none!important}
+ body.home-evidence-led main{padding-top:64px!important}
+}
+.measurement-notes{margin-top:14px;border-top:1px solid #d4e3f2;color:#58748b;font-size:12px}
+.measurement-notes summary{display:inline-flex;min-height:44px;align-items:center;cursor:pointer;color:#1267b5;font-weight:650}
+.measurement-notes p{max-width:78ch;margin:0 0 16px;line-height:1.6}
