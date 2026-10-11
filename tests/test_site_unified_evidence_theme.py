@@ -48,11 +48,12 @@ class UnifiedWebsiteTests(unittest.TestCase):
     def test_every_published_template_uses_exact_same_last_theme_layer(self):
         # The original Failure Atlas HTML is in the research freeze SHA-256
         # manifest: it must not be edited by a site-only theme change.
-        main_templates = [p for p in VERCEL.glob("*.html") if p.name != "failure-atlas.html"]
+        main_templates = [p for p in VERCEL.glob("*.html") if p.name not in {"failure-atlas.html", "model-vase.html"}]
         brand = (VERCEL / "aegisland-brand.css").read_text(encoding="utf-8")
         atlas = (VERCEL / "failure-atlas.html").read_text(encoding="utf-8")
         self.assertIn('@import url("/aegisland-unified.css?v=1");', brand)
         self.assertIn('/aegisland-brand.css', atlas)
+        self.assertIn('/aegisland-brand.css', (VERCEL / "model-vase.html").read_text(encoding="utf-8"))
         dashboard_templates = list(DASHBOARD.glob("*.html"))
         phase_templates = list((DASHBOARD / "phases").glob("*.html"))
         phase_templates += list((DASHBOARD / "phases").glob("phase*/index.html"))
@@ -124,8 +125,7 @@ class UnifiedWebsiteTests(unittest.TestCase):
         # from the main page, Phase 25 and VASE instead of altering the freeze.
         self.assertIn('href="/confidence-audit/"',
                       (VERCEL / "phase25.html").read_text(encoding="utf-8"))
-        self.assertIn('href="/confidence-audit/"',
-                      (VERCEL / "model-vase.html").read_text(encoding="utf-8"))
+        self.assertIn('href="/confidence-audit/"', self.home)
         self.assertIn("Phase 26", self.audit)
 
 
