@@ -197,6 +197,7 @@ jobs:
               'development_receipt.json', 'mission_metadata.json',
               'px4_h3_preflight.json', 'px4_h3_unmapped_metadata.json',
               'px4_h3_unmapped.csv', 'px4_gazebo_raw.ulg', 'px4_source.env',
+              'source_motor_map_audit.json',
           ]
           with ZipFile('/tmp/h3-development-audit.zip', 'w', compression=ZIP_DEFLATED) as archive:
               for name in required:
