@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - research/fdi-h3-px4-development-capture-20261011
+      - research/fdi-h3-raw-ulog-replay-audit-20261011
 
 concurrency:
   group: h3-development-capture-${{ github.ref }}
@@ -196,6 +197,12 @@ jobs:
           python -m scripts.fdi_h3_development_bundle_audit \
             /tmp/h3-development-audit.zip \
             --output /tmp/h3-development/development_audit.json
+
+      - name: Replay recorded ULog values against development CSV
+        run: |
+          python -m scripts.fdi_h3_px4_ulog_csv_replay \
+            /tmp/h3-development-audit.zip \
+            --output /tmp/h3-development/ulog_csv_replay_audit.json
 
       - name: Upload PX4 development evidence with independent audit
         if: always()
