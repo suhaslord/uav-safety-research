@@ -62,6 +62,11 @@ class RawGyroInventoryTests(unittest.TestCase):
         log.data_list[1].data["timestamp_sample"][0] = 1000
         self.assertIn("after publication", str(inventory(log)["errors"]))
 
+    def test_boolean_raw_timestamp_is_rejected(self):
+        log = sample()
+        log.data_list[1].data["timestamp"][0] = True
+        self.assertEqual(inventory(log)["status"], "REJECTED")
+
     def test_nonfinite_raw_axis_fails(self):
         log = sample()
         log.data_list[1].data["x"][0] = float("nan")
