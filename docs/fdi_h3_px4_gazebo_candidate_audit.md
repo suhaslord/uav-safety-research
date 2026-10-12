@@ -133,3 +133,30 @@ The successful capture identified PX4 commit `d6f12ad1c4f70ad3230afd7d86e971421e
 **Important mapping caveat:** the airframe allocator's planar `CA_ROTOR*_PX/PY` values and the Gazebo SDF rotor poses are not numerically identical and are expressed in different coordinate conventions. Neither numeric index agreement nor a signed-axis guess suffices to declare H1 motor-class equivalence. A runtime engineering check must confirm model-joint identity, actual simulated actuation, frame conversion, and which downstream `vehicle_angular_velocity` data correspond to the sensor measurements.
 
 This investigation narrows the remaining mapping task, but has **not** injected motor faults, verified physical rotor failure, checked online sensor-noise propagation, opened protected H3 seeds, or established independence/admission. Continue to report `NOT_ADMITTED`.
+
+
+## Second development run: independent numeric ULog replay (2026-10-11)
+
+[PX4/Gazebo workflow run 38154840182](https://github.com/suhaslord/uav-safety-research/actions/runs/38154840182) completed the non-fault mission, preflight, development export, independent receipt/bundle audit, and a new **raw ULog → exported CSV numerical replay**. Its preserved [90-day evidence artifact 11708446869](https://github.com/suhaslord/uav-safety-research/actions/runs/38154840182/artifacts/11708446869) includes the original raw ULog and the replay audit JSON.
+
+| Observation | Run result |
+| --- | --- |
+| Replay status | `ULOG_CSV_REPLAY_MATCH` |
+| Logged gyro samples replayed against CSV | **4,162 / 4,162** |
+| Reported replay errors | **0** |
+| Independently reconciled bundle status | `CONSISTENT_DEVELOPMENT_ONLY` |
+| Raw ULog SHA-256 | `ec2af29f81863e7a6b66403cbc724676762e279f618e45ff7f0c46322b33e614` |
+| Scientific admission | **NOT_ADMITTED** |
+
+This is a **different recorded development run** from the 4,182-row first capture documented above; their counts and source-file hashes must not be conflated. The replay verifies original gyro values, four **commanded** actuator channels, nearest preceding command association and logged timestamps. It does not turn actuator commands into measurements of applied motor RPM or infer physical motor identity.
+
+The replay CLI now **fails closed** on empty recorded topics, invalid or nonincreasing timestamp sequences, absent shared observations, and development archives rejected by the existing independent bundle auditor. This matters because a CSV containing only a header previously could pass when the two source topics had no overlapping samples. Dedicated synthetic tests cover those failure modes.
+
+Re-run the independent development-only checks on the **downloaded run artifact** (not on protected H3 data):
+
+```bash
+python -m scripts.fdi_h3_development_bundle_audit path/to/development-bundle.zip
+python -m scripts.fdi_h3_px4_ulog_csv_replay path/to/development-bundle.zip
+```
+
+**Remaining requirements before any motor-fault claim:** verify Gazebo joint-to-PX4 index and actual applied actuation at runtime, independently validate gyro axis/timestamp semantics, freeze an admissible fault-injection protocol and independent holdout seeds, then evaluate genuinely injected simulated failures. No H3 classification metrics are reported here.
