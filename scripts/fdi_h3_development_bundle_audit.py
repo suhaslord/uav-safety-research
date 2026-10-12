@@ -110,6 +110,44 @@ def audit_bundle(path: Path) -> dict:
         else:
             check("gyro_sample_clock_audit" not in receipt,
                   "gyro sample clock receipt missing archived audit")
+        # Optional high-rate instrumentation receipt. These are standalone
+        # development measurements and never establish applied motor faults.
+        optional_dense = ("logger_topics.txt", "logger_profile_receipt.json",
+                          "dense_raw_gyro_audit.json")
+        present_dense = [name in archive.namelist() for name in optional_dense]
+        if any(present_dense) or "dense_raw_gyro_audit" in receipt:
+            check(all(present_dense),
+                  "incomplete optional dense raw gyro evidence in archive")
+            if all(present_dense):
+                logger_bytes = archive.read("logger_topics.txt")
+                logger_receipt = json.loads(archive.read("logger_profile_receipt.json"))
+                density = json.loads(archive.read("dense_raw_gyro_audit.json"))
+                check(receipt.get("dense_raw_gyro_logger_receipt") == logger_receipt,
+                      "logger override receipt differs from archived evidence")
+                check(receipt.get("dense_raw_gyro_audit") == density,
+                      "dense raw gyro report differs from archived evidence")
+                check(logger_receipt.get("logger_topic_file_sha256") ==
+                      hashlib.sha256(logger_bytes).hexdigest(),
+                      "logger override file checksum mismatch")
+                check(logger_receipt.get("status") == "FROZEN_DEVELOPMENT_LOGGER_PLAN"
+                      and logger_receipt.get("replaces_default_px4_topic_profile") is True,
+                      "unaccepted development logger override")
+                check(density.get("status") == "DENSE_RAW_GYRO_OBSERVED_DEVELOPMENT_ONLY"
+                      and density.get("errors") == []
+                      and density.get("raw_ulog_sha256") == raw_digest,
+                      "raw gyro density report rejected or source hash mismatch")
+                for flag in ("can_claim_h3_results", "fault_injection_verified"):
+                    check(logger_receipt.get(flag) is False,
+                          f"logger receipt must refuse {flag}")
+                for flag in ("can_claim_h3_results", "fault_injection_verified",
+                             "raw_sensor_identity_verified", "gyro_axis_parity_verified",
+                             "applied_actuation_verified", "cross_topic_clock_sync_verified"):
+                    check(density.get(flag) is False,
+                          f"raw gyro report must refuse {flag}")
+        else:
+            check("dense_raw_gyro_logger_receipt" not in receipt,
+                  "missing archived dense logger evidence")
+
         check(mission.get("completed") is True and len(mission.get("segments", [])) > 0,
               "simulator mission was not completed")
         check(receipt.get("status") == "DEVELOPMENT_EXPORT_CREATED",

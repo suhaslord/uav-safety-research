@@ -44,6 +44,9 @@ class BundleAuditTests(unittest.TestCase):
         }
         self.source_audit = None
         self.clock_audit = None
+        self.dense_logger_plan = None
+        self.dense_logger_receipt = None
+        self.dense_report = None
         self.rows = [
             ["1000000", "1000000", "0", "0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7"],
             ["1020000", "1000000", "20000", "0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7"],
@@ -67,10 +70,64 @@ class BundleAuditTests(unittest.TestCase):
             parts["source_motor_map_audit.json"] = json.dumps(self.source_audit)
         if self.clock_audit is not None:
             parts["gyro_sample_clock_audit.json"] = json.dumps(self.clock_audit)
+        if self.dense_logger_plan is not None:
+            parts["logger_topics.txt"] = self.dense_logger_plan
+        if self.dense_logger_receipt is not None:
+            parts["logger_profile_receipt.json"] = json.dumps(self.dense_logger_receipt)
+        if self.dense_report is not None:
+            parts["dense_raw_gyro_audit.json"] = json.dumps(self.dense_report)
         with ZipFile(self.bundle, "w", compression=ZIP_DEFLATED) as archive:
             for name, contents in parts.items():
                 archive.writestr(name, contents)
         return audit_bundle(self.bundle)
+
+    def populate_dense_receipts(self):
+        from scripts.fdi_h3_px4_dense_logger_plan import plan_text
+        import hashlib
+        self.dense_logger_plan = plan_text()
+        self.dense_logger_receipt = {
+            "status": "FROZEN_DEVELOPMENT_LOGGER_PLAN",
+            "logger_topic_file_sha256": hashlib.sha256(
+                self.dense_logger_plan.encode("utf-8")).hexdigest(),
+            "replaces_default_px4_topic_profile": True,
+            "can_claim_h3_results": False,
+            "fault_injection_verified": False,
+        }
+        self.dense_report = {
+            "status": "DENSE_RAW_GYRO_OBSERVED_DEVELOPMENT_ONLY",
+            "errors": [], "raw_ulog_sha256": self.receipt["raw_ulog_sha256"],
+            "can_claim_h3_results": False,
+            "raw_sensor_identity_verified": False,
+            "gyro_axis_parity_verified": False,
+            "cross_topic_clock_sync_verified": False,
+            "applied_actuation_verified": False,
+            "fault_injection_verified": False,
+        }
+        self.receipt["dense_raw_gyro_logger_receipt"] = self.dense_logger_receipt.copy()
+        self.receipt["dense_raw_gyro_audit"] = self.dense_report.copy()
+
+    def test_high_rate_logger_receipt_reconciled(self):
+        self.populate_dense_receipts()
+        self.assertEqual(self.write_bundle()["status"], "CONSISTENT_DEVELOPMENT_ONLY")
+
+    def test_changed_logger_text_fails_checksum(self):
+        self.populate_dense_receipts()
+        self.dense_logger_plan += "sensor_gyro 1000\\n"
+        self.assertIn("logger override file checksum mismatch",
+                      " ".join(self.write_bundle()["errors"]))
+
+    def test_density_report_cannot_claim_sensor_identity(self):
+        self.populate_dense_receipts()
+        self.dense_report["raw_sensor_identity_verified"] = True
+        self.receipt["dense_raw_gyro_audit"] = self.dense_report.copy()
+        self.assertIn("raw gyro report must refuse raw_sensor_identity_verified",
+                      " ".join(self.write_bundle()["errors"]))
+
+    def test_missing_density_report_rejected(self):
+        self.populate_dense_receipts()
+        self.dense_report = None
+        self.assertIn("incomplete optional dense raw gyro evidence",
+                      " ".join(self.write_bundle()["errors"]))
 
     def static_source_audit(self):
         return {
