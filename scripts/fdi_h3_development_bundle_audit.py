@@ -82,6 +82,34 @@ def audit_bundle(path: Path) -> dict:
         else:
             check("source_motor_map_audit" not in receipt,
                   "source motor map receipt missing archived source audit")
+        # Later development captures archive this read-only timing diagnostic.
+        # Historic bundles without the diagnostic remain valid, but no receipt
+        # may claim a report that is absent from the archive.
+        if "gyro_sample_clock_audit.json" in archive.namelist():
+            clock = json.loads(archive.read("gyro_sample_clock_audit.json"))
+            check(receipt.get("gyro_sample_clock_audit") == clock,
+                  "gyro sample clock receipt differs from archived clock audit")
+            check(clock.get("status") == "SAMPLE_CLOCK_OBSERVED_DEVELOPMENT_ONLY"
+                  and clock.get("errors") == [],
+                  "archived gyro sample clock integrity audit failed")
+            check(clock.get("raw_ulog_sha256") == raw_digest,
+                  "gyro sample clock audit source hash disagrees with raw ULog")
+            gyro_samples = preflight.get("topics", {}).get("vehicle_angular_velocity", {}).get("samples")
+            command_samples = preflight.get("topics", {}).get("actuator_motors", {}).get("samples")
+            if gyro_samples is not None:
+                check(clock.get("gyro_rows") == gyro_samples,
+                      "gyro sample clock count differs from source preflight")
+            if command_samples is not None:
+                check(clock.get("actuator_command_rows") == command_samples,
+                      "gyro sample clock actuator count differs from source preflight")
+            for flag in ("can_claim_h3_results", "physical_motor_map_verified",
+                         "applied_actuation_verified", "gyro_axis_parity_verified",
+                         "cross_topic_clock_sync_verified", "fault_injection_verified"):
+                check(clock.get(flag) is False,
+                      f"gyro sample clock audit must explicitly refuse {flag}")
+        else:
+            check("gyro_sample_clock_audit" not in receipt,
+                  "gyro sample clock receipt missing archived audit")
         check(mission.get("completed") is True and len(mission.get("segments", [])) > 0,
               "simulator mission was not completed")
         check(receipt.get("status") == "DEVELOPMENT_EXPORT_CREATED",
