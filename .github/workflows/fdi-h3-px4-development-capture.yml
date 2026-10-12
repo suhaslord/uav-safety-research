@@ -6,6 +6,7 @@ on:
     branches:
       - research/fdi-h3-px4-development-capture-20261011
       - research/fdi-h3-raw-ulog-replay-audit-20261011
+      - research/h3-px4-pinned-motor-source-gate-20261012
 
 concurrency:
   group: h3-development-capture-${{ github.ref }}
