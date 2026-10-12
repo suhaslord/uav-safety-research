@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - research/h3-raw-gyro-source-inventory-20261012
+      - research/h3-raw-gyro-replication-20261012
       - main
     paths:
       - scripts/fdi_h3_px4_raw_gyro_inventory.py
@@ -19,10 +20,20 @@ jobs:
   inventory-recorded-log:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: prior
+            run_id: '38194770306'
+            raw_sha: 'c78fa8c95c8f00a56e43661f388d4df57b4890cc011e990eb19528179f032274'
+          - label: integrated
+            run_id: '38200113003'
+            raw_sha: '00f8ce722bc7527f948450a1353b49b5765702aa942836635773514cf1d00a84'
     env:
       GH_TOKEN: ${{ github.token }}
-      SOURCE_RUN: '38194770306'
-      RAW_SHA256: 'c78fa8c95c8f00a56e43661f388d4df57b4890cc011e990eb19528179f032274'
+      SOURCE_RUN: ${{ matrix.run_id }}
+      RAW_SHA256: ${{ matrix.raw_sha }}
     steps:
       - uses: actions/checkout@v4
 
@@ -48,13 +59,13 @@ jobs:
         run: |
           python -m scripts.fdi_h3_px4_raw_gyro_inventory \
             /tmp/h3-raw/px4_gazebo_raw.ulg \
-            --output h3-raw-gyro-inventory.json
+            --output h3-raw-gyro-inventory-${{ matrix.label }}.json
 
       - name: Preserve raw-source availability result
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: fdi-h3-raw-gyro-source-inventory
-          path: h3-raw-gyro-inventory.json
+          name: fdi-h3-raw-gyro-source-inventory-${{ matrix.label }}
+          path: h3-raw-gyro-inventory-${{ matrix.label }}.json
           retention-days: 90
           if-no-files-found: warn
