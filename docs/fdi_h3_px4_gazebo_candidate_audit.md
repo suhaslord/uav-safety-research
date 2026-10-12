@@ -260,3 +260,25 @@ Inspection of [PX4 v1.17.0 `src/modules/logger/logged_topics.cpp`](https://githu
 These defaults explain the **different logging densities** observed in the preserved non-fault recording far better than a presumed 1-Hz physical gyroscope. The source also supports a custom `etc/logging/logger_topics.txt` topic/interval list, but `initialize_logged_topics` uses that custom list **instead of** its usual configured topic profile when the file supplies entries; an experiment must therefore explicitly preserve all required evidence streams rather than assume an override only adds one extra topic.
 
 **Interpretation:** the 41 raw gyro rows are consistent with a 1-second logger throttle, not evidence that the onboard simulated gyroscope ran at 1 Hz. No full-rate raw gyro data or source-to-processed channel pairing has been recovered from this recording. A future simulation-only instrumentation study should declare and checksum any changed logger topic configuration, verify recorded raw and processed sample coverage, and separately establish sensor selection and coordinate/frame transformations before any new H3 fault trials. This source review does **not** retroactively change the completed capture or its NOT_ADMITTED status.
+
+
+## Full integration check after adding sample-clock evidence (2026-10-12)
+
+A **fresh** pinned, non-fault PX4/Gazebo SITL capture [run 38200113003](https://github.com/suhaslord/uav-safety-research/actions/runs/38200113003) completed all workflow steps including the source-rotor map gate, simulated mission, gyro sample-clock audit, ULog preflight, unmapped development export, independent bundle audit and raw ULog/CSV numerical replay. The new [evidence artifact 11725171131](https://github.com/suhaslord/uav-safety-research/actions/runs/38200113003/artifacts/11725171131) includes the clock report in the independently audited bundle.
+
+| Fresh integrated development evidence | Observed |
+| --- | ---: |
+| Raw recording SHA-256 | `00f8ce722bc7527f948450a1353b49b5765702aa942836635773514cf1d00a84` |
+| Raw ULog/CSV identical-value replay | **4,162 / 4,162 rows** |
+| Entire processed gyro topic | 4,166 samples |
+| Actuator command topic | 418 observations |
+| Causally preceding command at gyro sample timestamp | 4,166 / 4,166 |
+| Median / p95 / maximum associated command age | 44 / 92 / 96 ms |
+| Command associations older than 100 ms | 0 |
+| Identical sample vs publication timestamps | **4,166 / 4,166** |
+| Independent bundle consistency | `CONSISTENT_DEVELOPMENT_ONLY` |
+| Numerical replay status | `ULOG_CSV_REPLAY_MATCH` |
+
+The **4,162** replay observations are from the shared gyro/actuator export window; **4,166** is the whole processed-gyro topic. This is a third raw recording and has a different SHA-256 from the two previous non-fault captures. The matching clocks do **not** prove zero real sensing latency. The retained motor-source gate is a structural source review, not measured rotor behavior.
+
+**Scientific status remains NOT_ADMITTED**: no motor-speed loss was imposed or independently measured, no H1-motor-class / PX4-rotor parity was established, and no protected H3 fault-detection score can be inferred.
