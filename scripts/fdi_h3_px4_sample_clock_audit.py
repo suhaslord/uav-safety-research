@@ -100,7 +100,16 @@ def inspect(ulog, *, source_sha256=None) -> dict:
             "median": statistics.median(latency),
             "p95_nearest_rank": _percentile(latency, 0.95),
             "maximum": max(latency),
+            "identical_sample_publication_rows": sum(delay == 0 for delay in latency),
+            "distinct_sample_publication_rows": sum(delay > 0 for delay in latency),
         },
+        "clock_interpretation": (
+            "All gyro sample and publication timestamps coincide in this recording. "
+            "Observed equality is not independent evidence of sensor-to-publication latency."
+            if all(delay == 0 for delay in latency)
+            else "Sample and publication timestamps differ in some logged records, "
+                 "but their common time base and independent timing remain unverified."
+        ),
         "causal_command_at_gyro_sample": {
             "samples_with_prior_command": preceding_count,
             "samples_without_prior_command": len(sample) - preceding_count,
