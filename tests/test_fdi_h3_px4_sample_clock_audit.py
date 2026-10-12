@@ -73,6 +73,7 @@ class SampleClockTests(unittest.TestCase):
         log = example()
         log.data_list[0].data["timestamp"] = [101200, 202200, 303200, 404200]
         log.data_list[0].data["timestamp_sample"] = [101000, 202000, 303000, 404000]
+        log.data_list[1].data["timestamp"] = [0, 1, 2, 3]
         result = inspect(log)
         self.assertEqual(result["causal_command_at_gyro_sample"]["stale_over_100ms"], 4)
         self.assertFalse(result["fault_injection_verified"])
