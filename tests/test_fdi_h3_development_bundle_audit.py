@@ -43,6 +43,7 @@ class BundleAuditTests(unittest.TestCase):
             "independent_dynamics_verified": False, "physical_motor_map_verified": False,
         }
         self.source_audit = None
+        self.clock_audit = None
         self.rows = [
             ["1000000", "1000000", "0", "0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7"],
             ["1020000", "1000000", "20000", "0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7"],
@@ -64,6 +65,8 @@ class BundleAuditTests(unittest.TestCase):
         }
         if self.source_audit is not None:
             parts["source_motor_map_audit.json"] = json.dumps(self.source_audit)
+        if self.clock_audit is not None:
+            parts["gyro_sample_clock_audit.json"] = json.dumps(self.clock_audit)
         with ZipFile(self.bundle, "w", compression=ZIP_DEFLATED) as archive:
             for name, contents in parts.items():
                 archive.writestr(name, contents)
@@ -77,6 +80,43 @@ class BundleAuditTests(unittest.TestCase):
             "applied_actuation_verified": False,
             "fault_injection_verified": False,
         }
+
+    def sample_clock_receipt(self):
+        return {
+            "status": "SAMPLE_CLOCK_OBSERVED_DEVELOPMENT_ONLY",
+            "errors": [],
+            "raw_ulog_sha256": self.receipt["raw_ulog_sha256"],
+            "gyro_rows": 2,
+            "actuator_command_rows": 1,
+            "can_claim_h3_results": False,
+            "physical_motor_map_verified": False,
+            "applied_actuation_verified": False,
+            "gyro_axis_parity_verified": False,
+            "cross_topic_clock_sync_verified": False,
+            "fault_injection_verified": False,
+        }
+
+    def test_new_sample_clock_archived_and_reconciled(self):
+        self.clock_audit = self.sample_clock_receipt()
+        self.receipt["gyro_sample_clock_audit"] = self.clock_audit.copy()
+        self.assertEqual(self.write_bundle()["status"], "CONSISTENT_DEVELOPMENT_ONLY")
+
+    def test_tampered_sample_clock_hash_rejected(self):
+        self.clock_audit = self.sample_clock_receipt()
+        self.receipt["gyro_sample_clock_audit"] = self.clock_audit.copy()
+        self.clock_audit["raw_ulog_sha256"] = "0" * 64
+        self.assertIn("source hash", " ".join(self.write_bundle()["errors"]))
+
+    def test_source_clock_cannot_claim_sync_verified(self):
+        self.clock_audit = self.sample_clock_receipt()
+        self.clock_audit["cross_topic_clock_sync_verified"] = True
+        self.receipt["gyro_sample_clock_audit"] = self.clock_audit.copy()
+        self.assertIn("must explicitly refuse cross_topic_clock_sync_verified",
+                      " ".join(self.write_bundle()["errors"]))
+
+    def test_missing_sample_clock_artifact_rejected(self):
+        self.receipt["gyro_sample_clock_audit"] = self.sample_clock_receipt()
+        self.assertIn("missing archived audit", " ".join(self.write_bundle()["errors"]))
 
     def test_archived_source_map_matches_receipt(self):
         self.source_audit = self.static_source_audit()
