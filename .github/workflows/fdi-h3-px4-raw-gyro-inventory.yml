@@ -1,0 +1,60 @@
+name: FDI-H3 Existing PX4 ULog Raw Gyro Inventory
+
+on:
+  push:
+    branches:
+      - research/h3-raw-gyro-source-inventory-20261012
+      - main
+    paths:
+      - scripts/fdi_h3_px4_raw_gyro_inventory.py
+      - tests/test_fdi_h3_px4_raw_gyro_inventory.py
+      - .github/workflows/fdi-h3-px4-raw-gyro-inventory.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  inventory-recorded-log:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SOURCE_RUN: '38194770306'
+      RAW_SHA256: 'c78fa8c95c8f00a56e43661f388d4df57b4890cc011e990eb19528179f032274'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Validate synthetic raw-gyro cases
+        run: python -m unittest discover -s tests -p 'test_fdi_h3_px4_raw_gyro_inventory.py' -v
+
+      - name: Install read-only raw ULog parser
+        run: python -m pip install pyulog
+
+      - name: Fetch and checksum the already recorded PX4 development log
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/h3-raw
+          gh run download "$SOURCE_RUN" --repo "$GITHUB_REPOSITORY" \
+            --name fdi-h3-px4-development-only --dir /tmp/h3-raw
+          printf '%s  %s\n' "$RAW_SHA256" /tmp/h3-raw/px4_gazebo_raw.ulg | sha256sum --check --status
+
+      - name: Inventory raw gyro observations without claiming source parity
+        run: |
+          python -m scripts.fdi_h3_px4_raw_gyro_inventory \
+            /tmp/h3-raw/px4_gazebo_raw.ulg \
+            --output h3-raw-gyro-inventory.json
+
+      - name: Preserve raw-source availability result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fdi-h3-raw-gyro-source-inventory
+          path: h3-raw-gyro-inventory.json
+          retention-days: 90
+          if-no-files-found: warn
