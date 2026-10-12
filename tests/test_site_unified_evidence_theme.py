@@ -63,13 +63,17 @@ class UnifiedWebsiteTests(unittest.TestCase):
         for path in main_templates + dashboard_templates + phase_templates:
             with self.subTest(path=str(path.relative_to(ROOT))):
                 s = path.read_text(encoding="utf-8")
-                self.assertEqual(s.count(THEME), 1, "shared stylesheet should load exactly once")
+                theme = "/aegisland-unified.css?v=2" if path == VERCEL / "index.html" else THEME
+                self.assertEqual(s.count(theme), 1, "shared stylesheet should load exactly once")
                 self.assertIn("</head>", s)
-                self.assertLess(s.index(THEME), s.index("</head>"))
+                self.assertLess(s.index(theme), s.index("</head>"))
                 # Last stylesheet takes precedence over the older page-specific
                 # CSS without modifying the frozen simulator/archive scripts.
                 head = s.split("</head>", 1)[0]
-                self.assertNotIn("<link rel=\"stylesheet\"", head.split(THEME, 1)[1])
+                if path == VERCEL / "index.html":
+                    self.assertIn('href="/home-film-restore.css', head.split(theme, 1)[1])
+                else:
+                    self.assertNotIn("<link rel=\"stylesheet\"", head.split(theme, 1)[1])
 
     def test_new_route_works_under_vercel_and_pages(self):
         rewrite_pairs = {(r["source"], r["destination"]) for r in self.routes}
@@ -108,9 +112,9 @@ class UnifiedWebsiteTests(unittest.TestCase):
         self.assertIn("min-height:44px", self.theme)
 
     def test_shared_theme_uses_graphite_white_and_single_clear_accent(self):
-        for literal in ("--vase-ink:#171a20", "--vase-red:#e82127",
+        for literal in ("--vase-ink:#171a20", "--vase-red:#1673c9",
                         "--vase-paper:#fff", "--vase-soft:#f4f4f4",
-                        "--blue:#e82127"):
+                        "--blue:#1673c9"):
             self.assertIn(literal, self.theme)
         self.assertIn(".aegis-home-spotlight", self.theme)
         self.assertIn(".aegis-report", self.theme)

@@ -18,7 +18,7 @@ def test_production_home_assertions_match_current_presentation(name):
     marker = f'      - name: {name}\n'
     assert workflow.count(marker) == 1
     block = workflow.split(marker, 1)[1].split('\n      - ', 1)[0]
-    commands = [line.strip().replace('.vercel-release/index.html', 'deploy/vercel/index.html')
+    commands = [line.strip().replace('.vercel-release/index.html', 'deploy/vercel/index.html').replace('.vercel-release/vercel.json', 'deploy/vercel/vercel.json')
                 for line in block.splitlines()
                 if 'grep' in line and any(target in line for target in
                     ['.vercel-release/index.html', '$PUBLIC_HTML', '$HOME_HTML'])]

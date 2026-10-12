@@ -57,14 +57,14 @@ def test_vercel_home_is_native_frozen_archive_shell() -> None:
     assert "const rev=" not in html
     assert 'id="evidenceSpine"' in html
     assert 'src="/frozen-lineage.js?v=' in html
-    assert "Model VASE · answer so far" in html
+    assert "Model VASE explores when a simulator should distrust its own landing estimate" in html
     assert 'id="current-audit"' in html
     assert 'id="phase25"' in html
     assert '<a class="button primary signature-button" href="/failure-atlas/">Explore Failure Atlas</a>' in html
     assert 'id="home-comparison"' in html
     assert 'href="/home-evidence.css?v=' in html
-    assert "Can the system know when its landing estimate is unreliable?" in html
-    assert "These are different experiments. They have not been joined into one tested model." in html
+    assert "Model VASE explores when a simulator should distrust its own landing estimate" in html
+    assert "Camera and control results are separate experiments." in html
     assert "97.6%" in html and "−13.3 pp" in html
     assert "Baseline measured · Phase 23 paired" in html
     assert "0.8319" in html
@@ -97,7 +97,7 @@ def test_model_vase_page_reports_separate_evidence_without_claiming_a_fused_mode
     assert 'data-evidence-panel="simulation"' in page and 'data-evidence-panel="vision"' in page
     assert "activate('vision')" in evidence_script and "ArrowRight" in evidence_script
     assert 'href="/aegisland-brand.css?v=' in page
-    assert "#e82127" in stylesheet and "#3e6ae1" not in stylesheet and "prefers-reduced-motion" in stylesheet
+    assert "#1673c9" in stylesheet and "#3e6ae1" not in stylesheet and "prefers-reduced-motion" in stylesheet
     assert 'viewBox="0 0 48 48"' in mark
 
 
@@ -121,9 +121,14 @@ def test_homepage_videos_have_webm_fallbacks_for_browsers_without_h264() -> None
 def test_production_deploy_gate_accepts_autoplay_and_checks_both_video_formats() -> None:
     workflow = (ROOT / ".github" / "workflows" / "emergency-vercel-deploy.yml").read_text(encoding="utf-8")
 
-    assert "data-autoplay=\"visible\"" in workflow
-    assert "aerocast-flight.webm" in workflow
-    assert "evaluation-nasa-clip.webm" in workflow
+    # Enforce both muted native autoplay instances and both encoded formats.
+    # This replaces the obsolete data-autoplay attribute expected by the old layout.
+    assert "data-home-film autoplay muted" in workflow
+    assert "grep -o 'data-home-film autoplay muted'" in workflow
+    assert "wc -l" in workflow
+    for clip in ("aerocast-flight", "evaluation-nasa-clip"):
+        assert clip + ".webm" in workflow
+        assert clip + ".mp4" in workflow
     assert "href=\"/aegisland-brand.css?v=2\"" not in workflow
     assert "<video controls playsinline preload=\"none\"" not in workflow
 
@@ -204,7 +209,7 @@ def test_phase_archive_uses_shared_tesla_polish_without_rewriting_lineage() -> N
     frozen = (ROOT / "dashboard" / "phases" / "frozen.html").read_text(encoding="utf-8")
     phase = (ROOT / "dashboard" / "phases" / "phase.html").read_text(encoding="utf-8")
 
-    assert "--phase-blue:#e82127" in polish
+    assert "--phase-blue:#1673c9" in polish
     assert "backdrop-filter" in polish
     assert "linear-gradient" not in polish
     assert 'href="/phase-polish.css?v=' in archive

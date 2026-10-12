@@ -37,10 +37,25 @@ try {
     await page.locator('#home-show-boxes').uncheck();
     add(`${width}-box-toggle`,await page.locator('.home-boxes').evaluateAll(l=>l.every(x=>x.hidden)));
     await page.locator('#home-show-boxes').check();
-    const geometry=await page.evaluate(()=>({overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth,previewTop:document.querySelector('#home-comparison').getBoundingClientRect().top,previewWidth:document.querySelector('#home-comparison').getBoundingClientRect().width,contextOpen:document.querySelector('.field-context').open,chartRows:document.querySelectorAll('[data-atlas-chart] .atlas-chart-row').length,height:document.documentElement.scrollHeight}));
+    const geometry=await page.evaluate(()=>{
+      const preview=document.querySelector('#home-comparison').getBoundingClientRect();
+      const film=document.querySelector('.home-film-hero').getBoundingClientRect();
+      const videos=[...document.querySelectorAll('video[data-home-film]')];
+      return {
+        overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth,
+        previewTop:preview.top+window.scrollY,
+        previewWidth:preview.width,
+        filmTop:film.top+window.scrollY,
+        filmWidth:film.width,
+        videoCount:videos.length,
+        mutedInlineAutoplay:videos.filter(v=>v.hasAttribute('muted')&&v.hasAttribute('autoplay')&&v.hasAttribute('playsinline')).length,
+        chartRows:document.querySelectorAll('[data-atlas-chart] .atlas-chart-row').length,
+        height:document.documentElement.scrollHeight
+      };
+    });
     add(`${width}-no-horizontal-overflow`,geometry.overflow<=1,geometry);
-    add(`${width}-evidence-before-context`,!geometry.contextOpen&&geometry.chartRows===6);
-    if(width===1440)add('desktop-comparison-in-first-viewport',geometry.previewTop<300&&geometry.previewWidth>500,geometry);
+    add(`${width}-film-before-evidence`,geometry.filmTop<geometry.previewTop&&geometry.videoCount===2&&geometry.mutedInlineAutoplay===2&&geometry.chartRows===6,geometry);
+    if(width===1440)add('desktop-video-first-viewport',geometry.filmTop<1000&&geometry.filmWidth>500&&geometry.previewWidth>500,geometry);
     if(width<=768) {
       await page.locator('#mobileMenuToggle').click();
       add(`${width}-menu-opens`,await page.locator('#mobileMenuToggle').getAttribute('aria-expanded')==='true');

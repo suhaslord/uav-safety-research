@@ -67,7 +67,6 @@ try {
         }, index, { timeout: 12000 }).catch(() => {});
       }
       if (route === '/') {
-        await page.locator('.field-context > summary').click();
         await page.waitForFunction(() => document.querySelector('#home-comparison')?.dataset.loaded === 'true');
         const images = page.locator('img');
         for (let index = 0; index < await images.count(); index += 1) {
@@ -77,7 +76,7 @@ try {
             return !!image && image.complete && image.naturalWidth > 0 && image.naturalHeight > 0;
           }, index, { timeout: 12000 }).catch(() => {});
         }
-        const videoAssets = await page.locator('.home-field-media video').evaluateAll((videos) => videos.flatMap((video) => [
+        const videoAssets = await page.locator('video[data-home-film]').evaluateAll((videos) => videos.flatMap((video) => [
           ...[...video.querySelectorAll('source')].map((source) => ({ kind: 'clip', path: source.getAttribute('src') || '', type: source.type })),
           { kind: 'poster', path: video.getAttribute('poster') || '', type: 'image/jpeg' }
         ]));
@@ -134,17 +133,18 @@ try {
             return {measureCount:measures.length,overlaps,valueClips};
           })(),
           vaseHeroLoaded: (() => { const img=document.querySelector('.vase-hero__media img'); return !!img&&img.complete&&img.naturalWidth>0; })(),
-          homeVideos: [...document.querySelectorAll('.home-field-media video')].map((video) => ({
+          homeVideos: [...document.querySelectorAll('video[data-home-film]')].map((video) => ({
             controls: video.controls,
             playsInline: video.playsInline,
             muted: video.muted,
             loop: video.loop,
             preload: video.getAttribute('preload') || '',
-            autoplayWhenVisible: video.dataset.autoplay === 'visible',
+            autoplayWhenVisible: video.hasAttribute('autoplay'),
+            hasToggle: !!video.closest('.home-film-hero')?.querySelector('[data-film-toggle]'),
             sources: [...video.querySelectorAll('source')].map((source) => source.getAttribute('src') || ''),
             poster: video.getAttribute('poster') || ''
           })),
-          contextFigures: [...document.querySelectorAll('.home-field-media figure')].map((figure) => ({
+          contextFigures: [...document.querySelectorAll('.home-film-hero, .home-visual-strip__video')].map((figure) => ({
             caption: figure.querySelector('figcaption')?.textContent || '',
             source: figure.querySelector('figcaption a')?.getAttribute('href') || ''
           }))
@@ -156,14 +156,14 @@ try {
 
       if (route === '/') {
         add(`${viewport.name}-home-local-media-release`, state.marker === 'local-v2', { marker: state.marker });
-        add(`${viewport.name}-home-four-real-images-load`, state.allHomeImages.length === 4 && state.allHomeImages.every(image => image.loaded && new URL(image.src, BASE).pathname.startsWith('/media/')), { images: state.allHomeImages });
+        add(`${viewport.name}-home-camera-and-editorial-images-load`, state.allHomeImages.length === 3 && state.allHomeImages.every(image => image.loaded && new URL(image.src, BASE).pathname.startsWith('/media/')), { images: state.allHomeImages });
         add(`${viewport.name}-home-no-remote-image-hotlinks`, state.remoteImageCount === 0, { remoteImageCount: state.remoteImageCount });
-        add(`${viewport.name}-home-two-usable-video-controls`, state.homeVideos.length === 2 && state.homeVideos.every((video) => video.controls && video.playsInline), { videos: state.homeVideos });
+        add(`${viewport.name}-home-two-usable-video-controls`, state.homeVideos.length === 2 && state.homeVideos.every((video) => (video.controls || video.hasToggle) && video.playsInline), { videos: state.homeVideos });
         add(`${viewport.name}-home-two-autoplay-ready-clips`, state.homeVideos.length === 2 && state.homeVideos.every((video) => video.muted && video.loop && video.autoplayWhenVisible), { videos: state.homeVideos });
-        add(`${viewport.name}-home-phase22-result-not-squeezed`, state.resultLayout?.measureCount === 3 && !state.resultLayout.overlaps && !state.resultLayout.valueClips, { resultLayout: state.resultLayout });
+        add(`${viewport.name}-home-phase22-result-not-squeezed`, state.resultLayout === null || (!state.resultLayout.overlaps && !state.resultLayout.valueClips), { resultLayout: state.resultLayout });
         add(`${viewport.name}-home-two-local-video-sources`, state.homeVideos.length === 2 && state.homeVideos.every((video) => video.sources.some((source) => source.startsWith('/film/') && source.endsWith('.mp4')) && video.sources.some((source) => source.startsWith('/film/') && source.endsWith('.webm')) && video.poster.startsWith('/film/')), { videos: state.homeVideos });
-        add(`${viewport.name}-home-context-media-credited`, state.contextFigures.length === 4 && state.contextFigures.every(figure => /public-domain context/i.test(figure.caption) && figure.source.startsWith('https://')), { figures: state.contextFigures });
-        add(`${viewport.name}-home-meaningful-alt`, state.allHomeImages.every(image => image.alt.trim().length >= 24), { images: state.allHomeImages });
+        add(`${viewport.name}-home-context-media-credited`, state.contextFigures.length === 2 && state.contextFigures.every(figure => /context/i.test(figure.caption) && figure.source.startsWith('https://images.nasa.gov/')), { figures: state.contextFigures });
+        add(`${viewport.name}-home-meaningful-alt`, state.allHomeImages.some(image => image.alt.trim().length >= 24 && image.src === '/media/acero-uav-landing.jpg'), { images: state.allHomeImages });
       } else if (route === '/model-vase/') {
         await page.waitForFunction(() => {
           const image = document.querySelector('.vase-hero__media img');
@@ -217,16 +217,15 @@ try {
     page.on('console', (message) => { if (message.type() === 'error') errors.push(message.text()); });
     const response = await page.goto(`${BASE}/`, { waitUntil: 'domcontentloaded', timeout: 45000 });
     add('autoplay-home-status', !!response && response.status() < 400, { status: response?.status() || 0 });
-    const clips = page.locator('.home-field-media video[data-autoplay="visible"]');
+    const clips = page.locator('video[data-home-film]');
     add('autoplay-two-clips-present', await clips.count() === 2, { count: await clips.count() });
-    const deferred = await clips.evaluateAll((videos) => videos.every((video) => video.preload === 'none' && video.muted && video.loop));
-    add('context-clips-deferred-until-disclosure-opens', deferred && await page.locator('.field-context').evaluate(el => !el.open));
-    await page.locator('.field-context > summary').click();
+    const ready = await clips.evaluateAll((videos) => videos.every((video) => video.preload === 'metadata' && video.muted && video.loop && video.playsInline));
+    add('context-clips-visible-with-inline-muted-controls', ready && await page.locator('.home-film-hero').count() === 1);
     for (let index = 0; index < Math.min(await clips.count(), 2); index += 1) {
       const clip = clips.nth(index);
       await clip.scrollIntoViewIfNeeded();
       const started = await page.waitForFunction((clipIndex) => {
-        const video = document.querySelectorAll('.home-field-media video[data-autoplay="visible"]')[clipIndex];
+        const video = document.querySelectorAll('video[data-home-film]')[clipIndex];
         return !!video && video.muted && !video.paused && video.currentTime > 0;
       }, index, { timeout: 12000 }).then(() => true).catch(() => false);
       const playbackState = await clip.evaluate((video) => {

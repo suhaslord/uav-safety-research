@@ -11,15 +11,15 @@
   --vase-line: #e5e5e5;
   --vase-paper: #fff;
   --vase-soft: #f5f5f5;
-  --vase-red: #e82127;
+  --vase-red: #1673c9;
   --site-blue: var(--vase-red);
   --blue: var(--vase-red);
   --accent: var(--vase-red);
-  --accent-hover: #c91b21;
+  --accent-hover: #09549d;
   --phase-blue: var(--vase-red);
   --phase-accent: var(--vase-red);
   --rw-accent: var(--vase-red);
-  --rw-accent-hover: #c91b21;
+  --rw-accent-hover: #09549d;
   --p2-blue: var(--vase-red);
   --tesla-blue: var(--vase-red);
 }
@@ -59,7 +59,7 @@ body :is(.site-header,.signature-nav,.top) :is(a,button):hover { color: var(--va
 
 body :is(.button,.signature-button,.primary-link,.hero-links a,.record-links a,.atlas-continue a,.evidence-button,.mode-button) { border-radius: 2px !important; box-shadow: none !important; font-family: inherit !important; transition: background-color .18s ease,color .18s ease,border-color .18s ease,opacity .18s ease !important; }
 body :is(.button.primary,.signature-button.primary,.primary-link,.hero-links a:first-child) { color: #fff !important; background: var(--vase-red) !important; border-color: var(--vase-red) !important; }
-body :is(.button.primary,.signature-button.primary,.primary-link,.hero-links a:first-child):hover { color: #fff !important; background: #c91b21 !important; border-color: #c91b21 !important; }
+body :is(.button.primary,.signature-button.primary,.primary-link,.hero-links a:first-child):hover { color: #fff !important; background: #09549d !important; border-color: #09549d !important; }
 body :is(.button.secondary,.record-links a,.hero-links a:not(:first-child)) { color: var(--vase-ink) !important; background: #fff !important; border-color: #a7a7a7 !important; }
 body :is(.button.secondary,.record-links a,.hero-links a:not(:first-child)):hover { border-color: var(--vase-ink) !important; }
 

@@ -6,9 +6,9 @@
   --line: #e2e3e3;
   --paper: #fff;
   --soft: #f4f4f4;
-  --accent: #e82127;
+  --accent: #1673c9;
   --pass: #2f6a45;
-  --fail: #b3261e;
+  --fail: #a35d33;
   --radius: 2px;
   --page-width: 1520px;
 }
@@ -123,7 +123,7 @@ main { max-width: var(--page-width); margin: 0 auto; }
   white-space: nowrap;
   transition: background-color .18s ease, transform .18s ease;
 }
-.primary-link:hover { background: #c91b21; color: #fff; }
+.primary-link:hover { background: #0b579f; color: #fff; }
 .primary-link:active { transform: translateY(1px); }
 .evidence-button {
   min-height: 44px;

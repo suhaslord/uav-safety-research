@@ -4,18 +4,18 @@
 :root {
   color-scheme: light;
   --vase-ink:#171a20; --vase-body:#393c41; --vase-muted:#5c5e62;
-  --vase-red:#e82127; --vase-line:#e2e3e3; --vase-paper:#fff; --vase-soft:#f4f4f4;
+  --vase-red:#1673c9; --vase-line:#e2e3e3; --vase-paper:#fff; --vase-soft:#f4f4f4;
   --ink:#171a20; --body:#393c41; --muted:#5c5e62;
-  --blue:#e82127; --accent:#e82127; --site-blue:#e82127;
-  --tesla-blue:#e82127; --line:#e2e3e3; --sky:#f4f4f4; --ash:#f4f4f4; --bg:#fff;
-  --rw-accent:#e82127; --rw-accent-hover:#bd2025; --phase-accent:#e82127;
-  --fdi-red:#e82127;
+  --blue:#1673c9; --accent:#1673c9; --site-blue:#1673c9;
+  --tesla-blue:#1673c9; --line:#e2e3e3; --sky:#f4f4f4; --ash:#f4f4f4; --bg:#fff;
+  --rw-accent:#1673c9; --rw-accent-hover:#0b579f; --phase-accent:#1673c9;
+  --fdi-red:#1673c9;
 }
 html {scroll-padding-top:88px}
 body {background:#fff!important;color:#171a20!important;font-family:"Helvetica Neue",Arial,Helvetica,sans-serif!important;-webkit-font-smoothing:antialiased}
 body :is(h1,h2,h3,h4) {font-family:"Helvetica Neue",Arial,Helvetica,sans-serif!important;letter-spacing:-.045em}
 body :is(a,button,input,select,summary,textarea):focus-visible {
-  outline:3px solid #e82127!important;outline-offset:3px!important
+  outline:3px solid #1673c9!important;outline-offset:3px!important
 }
 body a {text-underline-offset:3px}
 body :is(.site-header,.top,.signature-nav,.fdi-top,.atlas-top,.archive-nav) {
@@ -28,7 +28,7 @@ body :is(.site-header,.top,.signature-nav,.fdi-top,.atlas-top,.archive-nav) {
 body :is(.site-header,.top,.signature-nav) :is(.brand,.wordmark,.mark) {color:#171a20!important}
 body :is(.site-header,.top,.signature-nav) nav a {color:#393c41!important}
 body :is(.site-header,.top,.signature-nav) nav a:hover,
-body :is(.site-header,.top,.signature-nav) nav a[aria-current=page] {color:#bd2025!important}
+body :is(.site-header,.top,.signature-nav) nav a[aria-current=page] {color:#0b579f!important}
 body :is(.eyebrow,.fdi-eyebrow,.fdi-section-label,.fdi-study-kicker,.fdi-study-label,
          .section-label,.chapter-kicker,.proof-kicker,.atlas-kicker,.label) {
   letter-spacing:.14em!important;text-transform:uppercase
@@ -67,18 +67,18 @@ body:has(#study-results) .fdi-hero h1 span {color:#393c41!important}
 body:has(#study-results) :is(.fdi-hero__links a,.fdi-study-links a) {
   border-radius:3px!important
 }
-body:has(#study-results) .fdi-stress-row {background:#fff4f3!important}
+body:has(#study-results) .fdi-stress-row {background:#edf6ff!important}
 body:has(#study-results) .fdi-study-audit {background:#f4f4f4!important}
 body:has(#study-results) .fdi-results-compare {border-color:#e2e3e3!important}
 body:has(#study-results) .fdi-eyebrow,
-body:has(#study-results) .fdi-section-label {color:#b52127!important}
+body:has(#study-results) .fdi-section-label {color:#145ca4!important}
 body:has(#study-results) .fdi-completed h2 {letter-spacing:-.055em}
 
 /* New landing-confidence report, with light/graphite surfaces and one red accent. */
 .aegis-report .report-skip{position:absolute;top:-90px;left:10px;z-index:999;background:#fff;padding:11px 15px;font-weight:700}
 .aegis-report .report-skip:focus{top:8px}
 body :is(.atlas-hero,.vase-hero,.fdi-hero,.proof-intro,.archive-hero,.phase-detail__hero) {background-color:#f4f4f4!important}
-body :is(.vase-hero,.fdi-hero,.atlas-hero) :is(.eyebrow,.fdi-eyebrow) {color:#bd2025!important}
+body :is(.vase-hero,.fdi-hero,.atlas-hero) :is(.eyebrow,.fdi-eyebrow) {color:#0b579f!important}
 body :is(.fdi-next-experiment,.vase-next,.home-fdi-pilot,.proof-intro) {border-color:#e2e3e3!important}
 body :is(.atlas-hero,.vase-hero,.fdi-hero) h1 {letter-spacing:-.055em!important}
 body :is(.btn,.report-btn,.top-btn,.archive-menu-toggle,.mobile-menu-toggle) {min-height:44px}
@@ -91,9 +91,9 @@ body :is(.phase-card,.result-card,.report-card,.archive-record-card) {box-shadow
 .aegis-report .report-mark small {display:block;font-size:9px;letter-spacing:.22em;color:#5c5e62;font-weight:600}
 .aegis-report .report-nav {display:flex;align-items:center;gap:20px;flex-wrap:wrap}
 .aegis-report .report-nav a {font-size:13px;font-weight:650;text-decoration:none;color:#393c41}
-.aegis-report .report-nav a:hover {color:#b52127}
+.aegis-report .report-nav a:hover {color:#145ca4}
 .aegis-report .report-hero {border-block:1px solid #e2e3e3;padding:clamp(70px,10vw,150px) 0 clamp(68px,8vw,110px);background:#f4f4f4}
-.aegis-report .report-kicker {font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#ad2428;font-weight:800;margin:0 0 20px}
+.aegis-report .report-kicker {font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#245c91;font-weight:800;margin:0 0 20px}
 .aegis-report h1 {max-width:1000px;font-size:clamp(45px,8vw,105px);letter-spacing:-.07em;line-height:.99;font-weight:520;margin:0}
 .aegis-report h1 em {font-style:normal;color:#5c5e62}
 .aegis-report .report-lead {max-width:710px;margin:24px 0 0;color:#393c41;font-size:clamp(17px,2.2vw,22px);line-height:1.55}
@@ -115,12 +115,12 @@ body :is(.phase-card,.result-card,.report-card,.archive-record-card) {box-shadow
 .aegis-report caption {text-align:left;padding:16px 20px;color:#5c5e62;font-size:12px}
 .aegis-report th,.aegis-report td {padding:17px 20px;border-top:1px solid #e2e3e3;text-align:left;font-variant-numeric:tabular-nums}
 .aegis-report thead th {border-top:none;color:#393c41;font-size:12px;font-weight:750}
-.aegis-report tr.warn {background:#fff1f0}
+.aegis-report tr.warn {background:#edf6ff}
 .aegis-report .report-cards {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
 .aegis-report .report-card {border:1px solid #e2e3e3;background:#fff;padding:clamp(24px,3vw,40px)}
 .aegis-report .report-card p {color:#5c5e62;font-size:14px;margin:0}
 .aegis-report .report-big {display:block;font-size:clamp(34px,4vw,54px);font-weight:600;line-height:1.15;letter-spacing:-.05em;margin-bottom:18px}
-.aegis-report .report-boundary {border-left:4px solid #e82127;background:#f4f4f4;padding:22px 27px;margin-top:28px}
+.aegis-report .report-boundary {border-left:4px solid #1673c9;background:#f4f4f4;padding:22px 27px;margin-top:28px}
 .aegis-report .report-boundary p {margin:5px 0 0;color:#393c41;font-size:14px}
 .aegis-report .report-sources {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
 .aegis-report .report-source {display:block;text-decoration:none;border:1px solid #e2e3e3;padding:20px;color:#171a20}
@@ -155,17 +155,17 @@ body :is(.phase-card,.result-card,.report-card,.archive-record-card) {box-shadow
 .aegis-home-spotlight__layout {display:grid;grid-template-columns:minmax(0,1.25fr) minmax(320px,.75fr);gap:clamp(30px,6vw,95px);align-items:center}
 .aegis-home-spotlight h2 {font-size:clamp(37px,5vw,70px)!important;font-weight:500!important;letter-spacing:-.065em!important;line-height:1.02!important;margin:0 0 24px!important}
 .aegis-home-spotlight p {max-width:650px;color:#393c41;font-size:clamp(15px,1.6vw,18px);line-height:1.65}
-.aegis-home-spotlight__text>.eyebrow {color:#b52127!important;font-size:12px!important;font-weight:750;letter-spacing:.14em}
+.aegis-home-spotlight__text>.eyebrow {color:#145ca4!important;font-size:12px!important;font-weight:750;letter-spacing:.14em}
 .aegis-home-spotlight__boundary {font-size:13px!important;color:#5c5e62!important}
-.aegis-home-spotlight__link {display:inline-flex;align-items:center;min-height:44px;margin-top:8px;text-decoration:none;font-weight:750;font-size:14px;color:#171a20!important;border-bottom:2px solid #e82127}
-.aegis-home-spotlight__link:hover {color:#bd2025!important}
+.aegis-home-spotlight__link {display:inline-flex;align-items:center;min-height:44px;margin-top:8px;text-decoration:none;font-weight:750;font-size:14px;color:#171a20!important;border-bottom:2px solid #1673c9}
+.aegis-home-spotlight__link:hover {color:#0b579f!important}
 .aegis-home-spotlight__stats {background:white;border:1px solid #e2e3e3}
 .aegis-home-spotlight__stats>div {padding:23px 30px}
 .aegis-home-spotlight__stats>div+div {border-top:1px solid #e2e3e3}
 .aegis-home-spotlight__stats span {display:block;color:#5c5e62;text-transform:uppercase;letter-spacing:.08em;font-size:11px;font-weight:650}
 .aegis-home-spotlight__stats strong {display:inline-flex;align-items:baseline;gap:9px;margin:10px 23px 0 0;color:#171a20;font-size:clamp(30px,3vw,45px);font-weight:600;line-height:1.05;letter-spacing:-.06em}
 .aegis-home-spotlight__stats strong small {font-size:11px;font-weight:650;letter-spacing:0;line-height:1.3;color:#5c5e62}
-.aegis-home-spotlight__stats .aegis-home-spotlight__warning {color:#bc2c30}
+.aegis-home-spotlight__stats .aegis-home-spotlight__warning {color:#245c91}
 .aegis-home-spotlight__stats .aegis-home-spotlight__status {background:#fff}
 .aegis-home-spotlight__status strong {font-size:clamp(23px,3vw,35px);letter-spacing:-.04em}
 .aegis-home-spotlight__status>small {display:block;color:#5c5e62;font-size:12px;margin-top:8px}

@@ -11,13 +11,15 @@
   <meta property="og:type" content="website"><meta property="og:url" content="https://aegisland-research-cockpit.vercel.app/">
   <title>AegisLand | Model VASE</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=7">
-  <link rel="stylesheet" href="/aegisland.css?v=6">
-  <link rel="stylesheet" href="/aegisland-brand.css?v=3">
-  <link rel="stylesheet" href="/home-evidence.css?v=1">
+  <link rel="stylesheet" href="/aegisland.css?v=7">
+  <link rel="stylesheet" href="/aegisland-brand.css?v=4">
+  <link rel="stylesheet" href="/home-evidence.css?v=2">
   <link rel="stylesheet" href="/ornik-fdi.css?v=1">
   <script defer src="/home-evidence.js?v=1"></script>
   <script defer src="/phase25-explorer.js?v=2"></script>
-  <link rel="stylesheet" href="/aegisland-unified.css?v=1">
+  <link rel="stylesheet" href="/aegisland-unified.css?v=2">
+  <link rel="stylesheet" href="/home-film-restore.css?v=1">
+  <script defer src="/home-film-restore.js?v=1"></script>
 </head>
 <body class="research-workspace home-workspace home-evidence-led" data-presentation="evidence-led">
   <a class="skip-link" href="#main">Skip to the research</a>
@@ -25,8 +27,8 @@
     <a class="brand vase-brand" href="#top" aria-label="AegisLand, Model VASE"><img src="/model-vase-mark.svg" alt=""><span class="vase-brand__type"><strong>AEGISLAND</strong><small>MODEL VASE</small></span></a>
     <nav class="site-nav signature-nav__links" aria-label="Primary navigation"><a href="#phase25">Results</a><a href="/confidence-audit/">Confidence audit</a><a href="/fdi-results/">Fault isolation</a><a href="/model-vase/">Model VASE</a><a href="/phases/">Archive</a><a href="/reproduce/">Reproduce</a></nav>
     <div class="header-actions"><a href="https://github.com/suhaslord/uav-safety-research" target="_blank" rel="noreferrer">GitHub</a></div>
-    <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-expanded="false" aria-controls="mobileMenuSheet">Menu</button>
   </header>
+  <button class="mobile-menu-toggle mobile-menu-floating" id="mobileMenuToggle" type="button" aria-expanded="false" aria-controls="mobileMenuSheet">Menu</button>
   <nav class="mobile-menu-sheet" id="mobileMenuSheet" aria-label="Mobile navigation" aria-hidden="true" inert>
     <div class="mobile-menu-head"><strong>AEGISLAND</strong><button class="mobile-menu-close" type="button" aria-label="Close navigation">Close</button></div>
     <div class="mobile-menu-links"><a href="#phase25">Camera results</a><a href="/fdi-results/">Actuator fault results</a><a href="/failure-atlas/">Failure Atlas</a><a href="/model-vase/">Model VASE</a><a href="/phases/">Research archive</a><a href="/reproduce/">Reproduce the evidence</a></div>
@@ -36,11 +38,44 @@
     <section class="evidence-hero" id="top" aria-labelledby="hero-title">
       <div class="wrap evidence-hero__grid">
         <div class="evidence-hero__copy">
-          <h1 id="hero-title">The evidence.<br><span>In plain sight.</span></h1>
-          <p class="hero-deck">Aerial landing research, with the failures left in. Compare original detector predictions, explore camera stress, and read the new hardware-free Webots motor-fault pilot.</p>
+          <h1 id="hero-title">Make landings<br><span>more reliable.</span></h1>
+          <p class="hero-deck">Drone perception and fault research. Explore the tests, including where the models fail.</p>
           <div class="actions"><a class="button primary signature-button" href="/failure-atlas/">Explore Failure Atlas</a><a class="button secondary" href="/fdi-results/">Motor-fault results</a></div>
-          <p class="hero-scope">New actuator-fault evidence: H1 and H2 succeeded in clean Webots tests; high offline gyro noise caused wrong-motor labels. No flight claim. <a href="/failure-atlas/">Explore Failure Atlas</a></p>
+          <p class="hero-scope">Simulation and benchmark findings only — not a flight-safety claim.</p>
         </div>
+        <figure class="home-film-hero">
+          <div class="home-film-hero__screen">
+            <video data-home-film autoplay muted loop playsinline controls preload="metadata" poster="/film/aerocast-poster.jpg" aria-label="NASA Armstrong Alta-X aircraft flying, editorial context not AegisLand experimental footage">
+              <source src="/film/aerocast-flight.mp4" type="video/mp4">
+              <source src="/film/aerocast-flight.webm" type="video/webm">
+              <a href="/film/aerocast-flight.mp4">Watch the aircraft footage</a>
+            </video>
+            <div class="home-film-hero__tag">FLIGHT / FIELD CONTEXT</div>
+            <button class="home-film-toggle" type="button" data-film-toggle hidden aria-label="Pause video">Pause</button>
+          </div>
+          <figcaption>NASA Armstrong footage · visual context, not AegisLand experiment data · <a href="https://images.nasa.gov/details/AFRC-2023-14003-01_Alta_X_First_Mission_Jay1" target="_blank" rel="noreferrer">Source ↗</a></figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="home-visual-strip" aria-label="Research and field imagery">
+      <div class="wrap home-visual-strip__grid">
+        <figure class="home-visual-strip__video">
+          <video data-home-film autoplay muted playsinline loop controls preload="metadata" poster="/film/evaluation-nasa-poster.jpg" aria-label="NASA Ames multirotor wind-tunnel footage, not AegisLand experiment data">
+            <source src="/film/evaluation-nasa-clip.mp4" type="video/mp4">
+            <source src="/film/evaluation-nasa-clip.webm" type="video/webm">
+            <a href="/film/evaluation-nasa-clip.mp4">Watch wind tunnel footage</a>
+          </video>
+          <figcaption>NASA Ames · wind-tunnel research context · <a href="https://images.nasa.gov/details/ARC-20191204-AAV3241-Multirotor-WindTunnel-TestRun-NASAWeb" target="_blank" rel="noreferrer">Source ↗</a></figcaption>
+        </figure>
+        <a class="home-visual-strip__image" href="/failure-atlas/" aria-label="Explore the AegisLand camera stress comparison">
+          <img src="/media/acero-uav-landing.jpg" width="1280" height="852" loading="lazy" alt="NASA aircraft nearing a marked landing pad; illustration only">
+          <span>THE CAMERA STUDY <b>Explore Failure Atlas →</b><small>Photo: NASA Ames · field context</small></span>
+        </a>
+      </div>
+    </section>
+    <section class="home-comparison-feature" id="camera-preview" aria-label="Interactive camera comparison">
+      <div class="wrap">
         <div class="home-comparison" id="home-comparison" aria-labelledby="comparison-title">
           <div class="comparison-heading"><h2 id="comparison-title">Same view. Two models.</h2><a href="/failure-atlas/">Full explorer →</a></div>
           <div class="home-condition-tabs" role="group" aria-label="Choose camera condition">
@@ -52,23 +87,24 @@
           </div>
           <div class="home-comparison__legend"><span><i class="home-key--gt"></i>Annotation</span><span><i class="home-key--tp"></i>Matched box</span><span><i class="home-key--fp"></i>Unmatched box</span><label><input type="checkbox" id="home-show-boxes" checked> Show boxes</label></div>
           <p class="home-example-note" id="home-case-note" role="status">Loading the saved original-model record…</p>
-          <p class="home-display-note">Illustrative reused KIOS frame, not a representative sample. Metrics count every prediction; overlays show all matched boxes and up to two unmatched boxes. Target matching permits false positives and does not mean landing success.</p>
+          <p class="home-display-note">Illustrative reused KIOS frame, not representative. <a href="/failure-atlas/">See complete metrics and limits.</a></p>
+          <details class="measurement-notes"><summary>How this preview is measured</summary><p>Metrics count every prediction. Overlays display all matched boxes and up to two unmatched boxes. Target matching permits false positives and does not mean landing success. The displayed frame is reused and is not representative of independent trials.</p></details>
           <noscript><p>Open <a href="/failure-atlas/">Failure Atlas</a> for the measured comparison. This preview needs JavaScript.</p></noscript>
         </div>
       </div>
     </section>
-    <div class="replay-strip"><div class="wrap"><p><strong>Original replay, exact match.</strong> 24 / 24 published metric cells matched exactly; four prediction tables matched byte-for-byte.</p><a href="/reproduce/#revalidation">Check the receipt →</a></div></div>
+    <div class="replay-strip"><div class="wrap"><p><strong>Verified replay.</strong> 24/24 metric cells matched the published source.</p><a href="/reproduce/#revalidation">Check the receipt →</a></div></div>
 
     <section class="camera-results" id="phase25" aria-labelledby="phase25-title" data-phase25-explorer data-atlas-precision="1">
       <div class="wrap results-grid">
-        <div class="results-copy"><h2 id="phase25-title">The average improves.<br>The hard tail doesn't.</h2><p>Phase 23 improves mAP50 in four of six camera conditions. Occlusion and mixed stress expose regressions that the average hides.</p><p class="result-difference"><strong>−13.3 pp</strong> mAP50 on the equally weighted occlusion + mixed-stress pair · Phase 24 reanalysis</p><p class="comparison-state">Baseline measured · Phase 23 paired</p><a class="text-link" href="/phases/phase25/">Read the paired detector study →</a></div>
-        <div class="home-aggregate-chart"><div class="chart-heading"><h3>All six conditions. No hidden tail.</h3><div class="chart-legend"><span><i class="baseline-key"></i>Baseline</span><span><i class="robust-key"></i>Phase 23</span></div></div><div class="atlas-chart" data-atlas-chart role="img" aria-label="Published mAP50 comparison by condition"></div><p class="chart-caption">Published condition-level mAP50, not the selected-frame match above. Same 86 reused frames from two dependent sequences.</p><p hidden data-atlas-error>Chart unavailable. <a href="/phases/phase23/">Read the original condition table.</a></p></div>
+        <div class="results-copy"><h2 id="phase25-title">The average improves.<br>The hard tail doesn't.</h2><p>Better in four of six camera conditions. Worse under occlusion and mixed stress.</p><p class="result-difference"><strong>−13.3 pp</strong> mAP50 on the equally weighted occlusion + mixed-stress pair · Phase 24 reanalysis</p><p class="comparison-state">Baseline measured · Phase 23 paired</p><a class="text-link" href="/phases/phase25/">Read the paired detector study →</a></div>
+        <div class="home-aggregate-chart"><div class="chart-heading"><h3>All six conditions. No hidden tail.</h3><div class="chart-legend"><span><i class="baseline-key"></i>Baseline</span><span><i class="robust-key"></i>Phase 23</span></div></div><div class="atlas-chart" data-atlas-chart role="img" aria-label="Published mAP50 comparison by condition"></div><p class="chart-caption">Measured across six conditions on 86 reused frames.</p><p hidden data-atlas-error>Chart unavailable. <a href="/phases/phase23/">Read the original condition table.</a></p></div>
       </div>
       <div class="wrap research-counts phase25-feature__proof"><span><b>86</b> protected frames</span><span><b>516</b> cross-model views</span><span><b>860</b> within-model stress pairs</span><a href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase25_reconstruction_audit.json">Input audit ↗</a><a href="/phases/phase23/">Original model record →</a></div>
     </section>
 
     <section class="simulation-brief" id="model-vase" aria-labelledby="vase-home-title">
-      <div class="wrap simulation-grid"><div><h2 id="vase-home-title">A signal in simulation.<br>A separate question.</h2><p>Can the system know when its landing estimate is unreliable? Model VASE · answer so far: a simulation found a recovery signal. The camera results remain separate.</p><p>These are different experiments. They have not been joined into one tested model.</p><a class="text-link" href="/model-vase/">How Model VASE fits together →</a></div><div class="simulation-signal" id="current-audit"><strong>97.6%</strong><p>V3 landing success under mixed stress.<br>Frozen simulation, not a camera-to-control result.</p><a href="/model-vase/#results-title">Explore the simulation evidence →</a></div></div>
+      <div class="wrap simulation-grid"><div><h2 id="vase-home-title">A signal in simulation.<br>A separate question.</h2><p>Model VASE explores when a simulator should distrust its own landing estimate.</p><p>Camera and control results are separate experiments.</p><a class="text-link" href="/model-vase/">How Model VASE fits together →</a></div><div class="simulation-signal" id="current-audit"><strong>97.6%</strong><p>V3 landing success under mixed stress.<br>Frozen simulation, not a camera-to-control result.</p><a href="/model-vase/#results-title">Explore the simulation evidence →</a></div></div>
       <div class="wrap simulation-transfer" id="status"><div><h3>Phase 22: transfer without refitting.</h3><p>10 / 10 gates passed on the final synthetic 32-cell holdout.</p></div><dl><div><dt>RMSE-surface R²</dt><dd>0.8319</dd></div><div><dt>MAE-surface R²</dt><dd>0.7744</dd></div><div><dt>Stable-sign accuracy</dt><dd>100%</dd></div></dl><a href="/phases/phase22/">Frozen record →</a></div>
     </section>
 
@@ -78,8 +114,8 @@
           <p class="eyebrow">New · audited landing-perception finding · Phase 25</p>
           <h2 id="confidence-title">The most confident box<br>can still be wrong.</h2>
           <p>On the same 86 reused KIOS frames, Phase 23 had a correct detection somewhere in <strong>43</strong> occlusion views—but its highest-confidence box was correct in only <strong>23</strong>. Under mixed stress, the counts were <strong>44</strong> versus <strong>22</strong>.</p>
-          <p class="aegis-home-spotlight__boundary">Across both detectors and all six dependent view conditions, 135 previously successful model/view outcomes had an incorrect top candidate. Only two original video sessions were studied; these are not independent trials, and the score is not a calibrated flight-safety probability.</p>
-          <a class="aegis-home-spotlight__link" href="/confidence-audit/">Read the top-confidence failure analysis and raw evidence →</a>
+          <p class="aegis-home-spotlight__boundary">Only two source video sessions were used. This is not a calibrated flight-safety probability.</p>
+          <a class="aegis-home-spotlight__link" href="/confidence-audit/">Explore confidence audit →</a>
         </div>
         <div class="aegis-home-spotlight__stats" aria-label="Highest-confidence localization audit">
           <div><span>Phase 23 / occlusion / 86 views</span><strong>43 <small>any correct</small></strong><strong class="aegis-home-spotlight__warning">23 <small>top correct</small></strong></div>
@@ -94,9 +130,9 @@
         <div class="home-fdi-pilot__copy">
           <p class="home-fdi-pilot__eyebrow">Audited evidence · two independent command-seed studies</p>
           <h2 id="home-fdi-title">Clean simulation: all correctly identified.<br>High noise: the motor labels slip.</h2>
-          <p>H1 tested 70 Crazyflie/Webots trajectories; H2 tested 144 new scenarios with different fault times and partial retained motor speed. H2's predeclared clean balanced accuracy was 100%. At high offline gyroscope noise, it fell to 93.75% under full motor loss and 96.25% under half retained speed.</p>
-          <p class="home-fdi-pilot__boundary">The noise is added offline; the same deterministic plant is reused. Neither study demonstrates real-world fault isolation, flight recovery or safety. The weak 49.1% initial learned-model pilot remains separately archived.</p>
-          <a class="text-link" href="/fdi-results/">Inspect H1 and H2, wrong-motor cases, raw evidence and limits →</a>
+          <p>H1: 70 simulated trajectories. H2: 144 new scenarios. Clean results were strong; high offline gyro noise reduced motor identification accuracy.</p>
+          <p class="home-fdi-pilot__boundary">The noise is added offline; these simulations do not demonstrate real-world flight safety.</p>
+          <a class="text-link" href="/fdi-results/">Explore motor-fault results →</a>
         </div>
         <div class="home-fdi-pilot__score" aria-label="Audited H1 and H2 results">
           <div><strong>40 / 40</strong><span>H1 protected test cases<br>correct in clean simulation</span></div>
@@ -107,9 +143,8 @@
       </div>
     </section>
 
-    <section class="home-records" id="evidence" aria-labelledby="method-title"><div class="wrap"><div class="records-heading"><h2 id="method-title">Nothing swept out of view.</h2><a class="text-link" href="/reproduce/">Reproduce the work →</a></div><div class="research-record-links"><a href="/phase22-detector-study/"><strong>Controlled occlusion</strong><span>53 to 48 matched frames. Graded degradation, not a universal breakpoint.</span><span aria-hidden="true">→</span></a><a href="/reproduce/#revalidation"><strong>Original-model replay</strong><span>Authenticated checkpoint. 24 metric cells. Four byte-identical tables.</span><span aria-hidden="true">→</span></a><a href="/phases/"><strong>29 research records</strong><span>The frozen passes, failed gates and later detector studies, together.</span><span aria-hidden="true">→</span></a></div><p class="independent-boundary"><strong>Independent data: no dataset admitted.</strong> Phase 26 remains a separate prospective gate. The original raw-source occlusion sweep remains INCONCLUSIVE after a failed clean gate; the later Q95 result is a separate saved-artifact replay.</p><a class="text-link" href="/phases/">See every phase →</a><details class="copy-disclosure"><summary>View all 13 frozen Phase 12–22 verdicts · 6 PASS / 7 FAIL</summary><div class="home-lineage"><div class="home-lineage__head"><span>Phase 12 → Phase 22</span><strong>6 PASS / 7 FAIL</strong></div><div class="home-lineage__track" id="homeLineage"></div></div><div class="evidence-list" id="evidenceSpine"></div></details><p class="home-boundary">Simulation and benchmark results only. No flight-safety claim, certification claim, or controller-tuning claim.</p></div></section>
+    <section class="home-records" id="evidence" aria-labelledby="method-title"><div class="wrap"><div class="records-heading"><h2 id="method-title">Read the research.</h2><a class="text-link" href="/reproduce/">Reproduce the work →</a></div><div class="research-record-links"><a href="/phase22-detector-study/"><strong>Controlled occlusion</strong><span>53 to 48 matched frames. Graded degradation, not a universal breakpoint.</span><span aria-hidden="true">→</span></a><a href="/reproduce/#revalidation"><strong>Original-model replay</strong><span>Authenticated checkpoint. 24 metric cells. Four byte-identical tables.</span><span aria-hidden="true">→</span></a><a href="/phases/"><strong>29 research records</strong><span>The frozen passes, failed gates and later detector studies, together.</span><span aria-hidden="true">→</span></a></div><p class="independent-boundary"><strong>Independent data pending.</strong> Phase 26 has not admitted a new camera dataset. Details in the archive.</p><a class="text-link" href="/phases/">See every phase →</a><details class="copy-disclosure"><summary>View all 13 frozen Phase 12–22 verdicts · 6 PASS / 7 FAIL</summary><div class="home-lineage"><div class="home-lineage__head"><span>Phase 12 → Phase 22</span><strong>6 PASS / 7 FAIL</strong></div><div class="home-lineage__track" id="homeLineage"></div></div><div class="evidence-list" id="evidenceSpine"></div></details><p class="home-boundary">Simulation and benchmark results only. No flight-safety claim, certification claim, or controller-tuning claim.</p></div></section>
 
-    <section class="home-field-media" aria-label="Separate flight context"><div class="wrap"><details class="field-context"><summary>View the NASA field context <span>Photographs and footage, not AegisLand experiment results</span></summary><div class="home-field-media__stage"><figure class="home-field-media__feature"><video controls playsinline muted loop preload="none" data-autoplay="visible" poster="/film/aerocast-poster.jpg" aria-label="Silent NASA Armstrong footage of an Alta-X aircraft in flight"><source src="/film/aerocast-flight.mp4" type="video/mp4"><source src="/film/aerocast-flight.webm" type="video/webm"><a href="/film/aerocast-flight.mp4">Open the NASA flight clip.</a></video><figcaption>NASA Armstrong · public-domain context · <a href="https://images.nasa.gov/details/AFRC-2023-14003-01_Alta_X_First_Mission_Jay1">Source ↗</a></figcaption></figure><figure><video controls playsinline muted loop preload="none" data-autoplay="visible" poster="/film/evaluation-nasa-poster.jpg" aria-label="Silent NASA Ames footage of a multirotor wind-tunnel test"><source src="/film/evaluation-nasa-clip.mp4" type="video/mp4"><source src="/film/evaluation-nasa-clip.webm" type="video/webm"><a href="/film/evaluation-nasa-clip.mp4">Open the NASA wind-tunnel clip.</a></video><figcaption>NASA Ames · public-domain context · <a href="https://images.nasa.gov/details/ARC-20191204-AAV3241-Multirotor-WindTunnel-TestRun-NASAWeb">Source ↗</a></figcaption></figure><figure><img src="/media/acero-uav-flight.jpg" alt="NASA ACERO aircraft in flight during a separate field test, not an AegisLand experiment" width="1280" height="852" loading="lazy"><figcaption>Don Richey / NASA Ames · public-domain context · <a href="https://commons.wikimedia.org/wiki/File:Advanced_Capabilities_for_Emergency_Response_Operations_(ACERO)_(ACD24-0180-035).jpg">Source ↗</a></figcaption></figure><figure><img src="/media/acero-uav-landing.jpg" alt="NASA Ames aircraft approaching a marked pad during a separate field test" width="1280" height="852" loading="lazy"><figcaption>NASA Ames · public-domain context · <a href="https://images-assets.nasa.gov/image/ACD24-0180-037/ACD24-0180-037~orig.jpg">Source ↗</a></figcaption></figure></div></details></div></section>
   </main>
   <footer class="footer home-footer"><p>AegisLand · Model VASE · 1.0.0rc1 research candidate</p><div class="footer-links"><a href="/failure-atlas/">Failure Atlas</a><a href="/fdi-results/">Motor-fault studies</a><a href="/confidence-audit/">Confidence audit</a><a href="/model-vase/">Model VASE</a><a href="/phases/">Archive</a><a href="/reproduce/">Reproduce</a><a href="https://github.com/suhaslord/uav-safety-research">GitHub</a></div><details class="home-supporters"><summary>Workspace support</summary><p>CHERRY Americas donated a keyboard; Contour Design contributed workspace equipment. Both shipments were confirmed in September 2026. These contributions do not affect research methods or verdicts.</p></details></footer>
   <script src="/frozen-lineage.js?v=3"></script>

@@ -108,8 +108,8 @@ try {
 
       let videoPlaybackVerified = route !== '/';
       if (route === '/') {
-        await page.locator('.field-context > summary').click();
-        const videos = page.locator('video');
+        await page.locator('.home-film-hero').waitFor({ state: 'visible' });
+        const videos = page.locator('video[data-home-film]');
         const count = await videos.count();
         videoPlaybackVerified = count === 2;
         add(vp.name + '-home-two-videos-present', videoPlaybackVerified, { count });
@@ -119,7 +119,7 @@ try {
           await video.evaluate(element => element.play().catch(() => {}));
           const played = await page.waitForFunction(
             (i) => {
-              const element = document.querySelectorAll('video')[i];
+              const element = document.querySelectorAll('video[data-home-film]')[i];
               return element && element.muted && !element.paused && element.currentTime > 0.5 && element.readyState >= 2;
             },
             index,
