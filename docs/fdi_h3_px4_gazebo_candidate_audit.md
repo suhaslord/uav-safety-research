@@ -210,3 +210,10 @@ python -m scripts.fdi_h3_px4_sample_clock_audit path/to/px4_gazebo_raw.ulg \
 The **4,164** whole-topic sample-clock observations are distinct from the **4,162** rows exported inside the shared gyro/command CSV time window; these denominators are not interchangeable. The source ULog reports identical sample and publish timestamps in all 4,164 gyro messages. This is a meaningful *measurement limitation*: **zero logged separation is not independent proof that actual sensing and publication have zero latency**, nor does it verify PX4-to-Gazebo synchronization. Future work must independently trace the simulation IMU sample through the PX4 estimator and verify motor-command-to-rotor behavior at runtime before mapping H1 class labels.
 
 This remains `SAMPLE_CLOCK_OBSERVED_DEVELOPMENT_ONLY`; it is **not** a demonstrated applied fault, physical motor map, independent H3 holdout, or flight-safety result.
+
+
+### New-capture provenance contract
+
+Future H3 **development-only** PX4/Gazebo captures also run the gyro sample-clock diagnostic before exporting the unmapped CSV. Each capture stores `gyro_sample_clock_audit.json` both in the preserved artifact and the independently audited evidence ZIP. The receipt embeds the exact report, and the independent bundle checker rejects a missing/mismatched claimed report, wrong raw-ULog SHA-256, inconsistent ULog topic counts, or any claim that the report verifies the motor map, applied actuation, sensor-axis parity, cross-topic clock synchronization or fault injection. Previously archived bundles with no claimed clock report remain readable.
+
+The separate workflow `.github/workflows/fdi-h3-px4-sample-clock-audit.yml` reproduces the already observed capture's timing report without rerunning the simulator, verifies the raw file hash, and runs synthetic rejection tests. Source-relative zero timestamp separation is reported as **unverified physical timing**, never promoted to independent evidence of zero sensor latency.
