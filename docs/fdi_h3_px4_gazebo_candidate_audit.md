@@ -160,3 +160,21 @@ python -m scripts.fdi_h3_px4_ulog_csv_replay path/to/development-bundle.zip
 ```
 
 **Remaining requirements before any motor-fault claim:** verify Gazebo joint-to-PX4 index and actual applied actuation at runtime, independently validate gyro axis/timestamp semantics, freeze an admissible fault-injection protocol and independent holdout seeds, then evaluate genuinely injected simulated failures. No H3 classification metrics are reported here.
+
+
+## Automated frozen x500 model-source check (2026-10-12)
+
+The initial PX4/Gazebo motor-source review above is now executable in a **read-only development gate**: `scripts/fdi_h3_px4_source_motor_gate.py`. After cloning the pinned PX4 source and model submodule, and **before starting the expensive simulator**, the H3 development capture workflow checks the exact `x500/model.sdf` and `x500_base/model.sdf` files.
+
+The check rejects changes to the four motor plugin indices 0–3, joint/link references, expected source-space rotor XY positions, spin directions, model include, and `command/motor_speed` topic. It also ensures that the corresponding structural rotor joints exist and have the expected parent and child. An accepted report includes both input-file SHA-256 hashes, source index-to-joint descriptions, and `STATIC_SOURCE_MAP_VERIFIED` status. The new capture stores this report alongside the raw ULog and includes it in the independent evidence ZIP. The bundle auditor compares it with the provenance receipt; missing or inconsistent claimed evidence is rejected. Older already-preserved development bundles without a source report remain independently auditable.
+
+For the **pinned candidate source checkout only**:
+
+```bash
+python -m scripts.fdi_h3_px4_source_motor_gate \
+  --model-sdf /path/to/PX4-Autopilot/Tools/simulation/gz/models/x500/model.sdf \
+  --base-sdf /path/to/PX4-Autopilot/Tools/simulation/gz/models/x500_base/model.sdf \
+  --output source_motor_map_audit.json
+```
+
+Synthetic tests deliberately alter motor indices, joint names, coordinates, spin and command topics to prove that source drift fails the gate. **This is a source-code structural check, not a runtime fault trial**: it cannot establish applied RPM/thrust, PX4 log-to-Gazebo motor equivalence, H1 class mapping, accurate gyro axes, runtime fault injection, or independent-dynamics scientific admission. Those evidence gates and a new protected holdout are still mandatory.
