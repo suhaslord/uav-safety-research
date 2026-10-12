@@ -1,0 +1,64 @@
+name: H3 pinned PX4 Gazebo motor source audit
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/fdi_h3_px4_source_motor_gate.py'
+      - 'tests/test_fdi_h3_px4_source_motor_gate.py'
+      - '.github/workflows/fdi-h3-px4-source-audit.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/fdi_h3_px4_source_motor_gate.py'
+      - '.github/workflows/fdi-h3-px4-source-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  static-source-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      GZ_MODEL_SHA: b6127f4ec20de867e215fb5f78ae88b80f371909
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run synthetic source drift rejection tests
+        run: python -m unittest discover -s tests -p 'test_fdi_h3_px4_source_motor_gate.py' -v
+
+      - name: Fetch exact pinned Gazebo model source (no simulator)
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/h3-gz-models
+          git -C /tmp/h3-gz-models init -q
+          git -C /tmp/h3-gz-models remote add origin https://github.com/PX4/PX4-gazebo-models.git
+          git -C /tmp/h3-gz-models sparse-checkout init --no-cone
+          git -C /tmp/h3-gz-models sparse-checkout set --no-cone \
+            models/x500/model.sdf models/x500_base/model.sdf
+          git -C /tmp/h3-gz-models -c protocol.version=2 \
+            fetch --depth=1 --filter=blob:none origin "$GZ_MODEL_SHA"
+          git -C /tmp/h3-gz-models checkout -q --detach FETCH_HEAD
+          test "$(git -C /tmp/h3-gz-models rev-parse HEAD)" = "$GZ_MODEL_SHA"
+
+      - name: Verify frozen rotor source structure and SHA-256s
+        run: |
+          python -m scripts.fdi_h3_px4_source_motor_gate \
+            --model-sdf /tmp/h3-gz-models/models/x500/model.sdf \
+            --base-sdf /tmp/h3-gz-models/models/x500_base/model.sdf \
+            --output h3-source-audit.json
+
+      - name: Upload static-only audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: h3-pinned-source-only
+          path: h3-source-audit.json
+          retention-days: 90
+          if-no-files-found: warn
