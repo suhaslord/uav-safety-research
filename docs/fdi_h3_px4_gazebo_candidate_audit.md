@@ -245,3 +245,18 @@ The next read-only check, `scripts/fdi_h3_px4_raw_gyro_inventory.py`, inventorie
 This is a **negative observability result**: the preserved raw topic is far sparser than the processed rate topic. The 996-ms gap measures the ULog's recorded observations, **not necessarily the underlying gyroscope's operating rate**. Even though 4,076 processed samples have *some* earlier recorded raw observation, that does not make them sample-matched pairs. Do not estimate sensor calibration, latency, sign transformations, or FDI accuracy from these sparse pairs.
 
 **Next instrumentation gate:** confirm PX4's selected raw gyro identity and explicitly obtain a development ULog with adequately sampled raw sensor data, a documented source-to-processed association, and verified coordinate units before any H3 motor-class mapping. Keep the frozen H3 holdout and fault-injection trials closed; this inventory generates no motor-failure metrics.
+
+
+### Why the raw gyroscope recording is sparse: pinned logger source review
+
+Inspection of [PX4 v1.17.0 `src/modules/logger/logged_topics.cpp`](https://github.com/PX4/PX4-Autopilot/blob/d6f12ad1c4f70ad3230afd7d86e971421e02fef4/src/modules/logger/logged_topics.cpp) shows a concrete logging-policy difference in the default PX4 SITL profile:
+
+| Topic | Pinned default logger interval | Approximate interval in the actual ULog |
+| --- | ---: | ---: |
+| `sensor_gyro` | **1,000 ms** (`add_optional_topic_multi(..., 1000, 4)`) | ~1,000 ms |
+| `actuator_motors` | **100 ms** | ~100 ms |
+| `vehicle_angular_velocity` | **10 ms** in the SITL default-topic section | ~8–10 ms |
+
+These defaults explain the **different logging densities** observed in the preserved non-fault recording far better than a presumed 1-Hz physical gyroscope. The source also supports a custom `etc/logging/logger_topics.txt` topic/interval list, but `initialize_logged_topics` uses that custom list **instead of** its usual configured topic profile when the file supplies entries; an experiment must therefore explicitly preserve all required evidence streams rather than assume an override only adds one extra topic.
+
+**Interpretation:** the 41 raw gyro rows are consistent with a 1-second logger throttle, not evidence that the onboard simulated gyroscope ran at 1 Hz. No full-rate raw gyro data or source-to-processed channel pairing has been recovered from this recording. A future simulation-only instrumentation study should declare and checksum any changed logger topic configuration, verify recorded raw and processed sample coverage, and separately establish sensor selection and coordinate/frame transformations before any new H3 fault trials. This source review does **not** retroactively change the completed capture or its NOT_ADMITTED status.
