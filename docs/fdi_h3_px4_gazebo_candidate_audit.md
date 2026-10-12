@@ -224,3 +224,24 @@ The separate workflow `.github/workflows/fdi-h3-px4-sample-clock-audit.yml` repr
 Source review of [PX4 v1.17.0 `VehicleAngularVelocity::CalibrateAndPublish`](https://github.com/PX4/PX4-Autopilot/blob/d6f12ad1c4f70ad3230afd7d86e971421e02fef4/src/modules/sensors/vehicle_angular_velocity/VehicleAngularVelocity.cpp) confirms that `timestamp_sample` is inherited from the upstream gyroscope reading, while `timestamp` is assigned from `hrt_absolute_time()` at publish time. The same routine rotates and calibrates the angular-rate vector and subtracts a bias estimate before publishing `vehicle_angular_velocity.xyz`. Thus these logged rates are **downstream processed body-rate estimates, not unmodified `sensor_gyro` channel bytes**.
 
 In this particular completed Gazebo/SITL recording, all logged sample and publish timestamps coincide despite their separate assignments in the source. Their exact equality in the ULog does not independently measure processing delay or establish raw-to-published numerical identity. The separate PX4-to-Gazebo sensor frame and motor-index validation remain unresolved.
+
+
+## Raw sensor-to-body-rate logging coverage (2026-10-12)
+
+The next read-only check, `scripts/fdi_h3_px4_raw_gyro_inventory.py`, inventories all `sensor_gyro` topic instances in the checksum-verified **non-fault** H3 development ULog. It does not select an instrument or infer raw/processed axis parity. Synthetic tests reject nonmonotonic, missing, nonfinite and future-sample observations. The pinned [PX4 `SensorGyro.msg`](https://github.com/PX4/PX4-Autopilot/blob/d6f12ad1c4f70ad3230afd7d86e971421e02fef4/msg/SensorGyro.msg) defines sensor `x/y/z`, `timestamp_sample`, `timestamp`, and `device_id`. The processed downstream topic is bias corrected and calibrated, so a pointwise numerical equality assumption would be scientifically incorrect.
+
+[Actual recorded-log source inventory run 38200412458](https://github.com/suhaslord/uav-safety-research/actions/runs/38200412458), with preserved [audit artifact 11725505749](https://github.com/suhaslord/uav-safety-research/actions/runs/38200412458/artifacts/11725505749), reported:
+
+| Non-fault development ULog observation | Result |
+| --- | ---: |
+| `vehicle_angular_velocity` processed samples | 4,164 |
+| `sensor_gyro` instances stored | 1 |
+| `sensor_gyro` recorded samples | **41** |
+| Raw gyro device ID observed | `1310988` |
+| Processed samples with some earlier recorded raw observation | 4,076 / 4,164 |
+| Maximum time since preceding **logged** raw sample | **996 ms** |
+| Source identity / axis parity independently validated | **No** |
+
+This is a **negative observability result**: the preserved raw topic is far sparser than the processed rate topic. The 996-ms gap measures the ULog's recorded observations, **not necessarily the underlying gyroscope's operating rate**. Even though 4,076 processed samples have *some* earlier recorded raw observation, that does not make them sample-matched pairs. Do not estimate sensor calibration, latency, sign transformations, or FDI accuracy from these sparse pairs.
+
+**Next instrumentation gate:** confirm PX4's selected raw gyro identity and explicitly obtain a development ULog with adequately sampled raw sensor data, a documented source-to-processed association, and verified coordinate units before any H3 motor-class mapping. Keep the frozen H3 holdout and fault-injection trials closed; this inventory generates no motor-failure metrics.
