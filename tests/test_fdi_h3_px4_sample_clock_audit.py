@@ -62,6 +62,25 @@ class SampleClockTests(unittest.TestCase):
         log.data_list[0].data["timestamp_sample"][0] = "1000"
         self.assertIn("noninteger", str(inspect(log)["errors"]))
 
+    def test_boolean_gyro_sample_timestamp_rejected(self):
+        log = example()
+        log.data_list[0].data["timestamp_sample"][0] = True
+        result = inspect(log)
+        self.assertEqual(result["status"], "REJECTED")
+        self.assertIn("noninteger timestamp_sample", result["errors"])
+
+    def test_boolean_actuator_timestamp_rejected(self):
+        log = example()
+        log.data_list[1].data["timestamp"][0] = False
+        result = inspect(log)
+        self.assertEqual(result["status"], "REJECTED")
+        self.assertIn("noninteger timestamp", result["errors"])
+
+    def test_boolean_publication_timestamp_rejected(self):
+        log = example()
+        log.data_list[0].data["timestamp"][0] = True
+        self.assertEqual(inspect(log)["status"], "REJECTED")
+
     def test_duplicate_actuator_topic_rejected(self):
         log = example()
         log.data_list.append(log.data_list[1])
