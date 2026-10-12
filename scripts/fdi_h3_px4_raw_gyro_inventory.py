@@ -25,6 +25,8 @@ def timestamps(data: dict, field: str) -> list[int]:
     if values is None:
         raise ValueError(f"missing {field}")
     try:
+        if any(isinstance(value, bool) for value in values):
+            raise ValueError(f"Boolean {field} is not a timestamp")
         stamps = [operator.index(value) for value in values]
     except (TypeError, ValueError, OverflowError) as exc:
         raise ValueError(f"invalid noninteger {field}") from exc
