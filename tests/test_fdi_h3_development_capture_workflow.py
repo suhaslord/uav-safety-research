@@ -60,3 +60,14 @@ def test_capture_records_exact_model_submodule_and_cancels_obsolete_runs():
     assert 'PX4-GZ_MODEL_SUBMODULE_SHA=' in body
     assert 'HEAD:Tools/simulation/gz' in body
     assert 'cancel-in-progress: true' in body
+
+
+def test_source_motor_gate_runs_before_expensive_simulator_setup():
+    body = text()
+    assert 'scripts.fdi_h3_px4_source_motor_gate' in body
+    assert '--model-sdf /tmp/PX4-Autopilot/Tools/simulation/gz/models/x500/model.sdf' in body
+    assert '--base-sdf /tmp/PX4-Autopilot/Tools/simulation/gz/models/x500_base/model.sdf' in body
+    assert body.index('Verify pinned x500 source motor') < body.index('Install PX4 SITL')
+    assert "'source_motor_map_audit': read_json('source_motor_map_audit.json')" in body
+    assert "'source_motor_map_audit.json'," in body
+    assert 'physical_motor_map_verified' in body

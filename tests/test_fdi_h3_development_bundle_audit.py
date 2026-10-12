@@ -42,6 +42,7 @@ class BundleAuditTests(unittest.TestCase):
             "can_claim_h3_results": False, "fault_injection_verified": False,
             "independent_dynamics_verified": False, "physical_motor_map_verified": False,
         }
+        self.source_audit = None
         self.rows = [
             ["1000000", "1000000", "0", "0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7"],
             ["1020000", "1000000", "20000", "0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7"],
@@ -61,10 +62,45 @@ class BundleAuditTests(unittest.TestCase):
             "px4_gazebo_raw.ulg": self.raw,
             "px4_source.env": "PX4-PX4_AUTOPILOT_SHA=fixture",
         }
+        if self.source_audit is not None:
+            parts["source_motor_map_audit.json"] = json.dumps(self.source_audit)
         with ZipFile(self.bundle, "w", compression=ZIP_DEFLATED) as archive:
             for name, contents in parts.items():
                 archive.writestr(name, contents)
         return audit_bundle(self.bundle)
+
+    def static_source_audit(self):
+        return {
+            "status": "STATIC_SOURCE_MAP_VERIFIED", "errors": [],
+            "can_claim_h3_results": False,
+            "physical_motor_map_verified": False,
+            "applied_actuation_verified": False,
+            "fault_injection_verified": False,
+        }
+
+    def test_archived_source_map_matches_receipt(self):
+        self.source_audit = self.static_source_audit()
+        self.receipt["source_motor_map_audit"] = self.source_audit.copy()
+        self.assertEqual(self.write_bundle()["status"], "CONSISTENT_DEVELOPMENT_ONLY")
+
+    def test_changed_source_map_report_rejected(self):
+        self.source_audit = self.static_source_audit()
+        self.receipt["source_motor_map_audit"] = self.source_audit.copy()
+        self.source_audit["status"] = "REJECTED"
+        report = self.write_bundle()
+        self.assertEqual(report["status"], "REJECTED")
+        self.assertIn("source motor map", " ".join(report["errors"]))
+
+    def test_missing_archived_source_map_rejected(self):
+        self.receipt["source_motor_map_audit"] = self.static_source_audit()
+        self.assertIn("missing archived source audit", " ".join(self.write_bundle()["errors"]))
+
+    def test_source_map_cannot_claim_applied_actuation(self):
+        self.source_audit = self.static_source_audit()
+        self.source_audit["applied_actuation_verified"] = True
+        self.receipt["source_motor_map_audit"] = self.source_audit.copy()
+        self.assertIn("must explicitly refuse applied_actuation_verified",
+                      " ".join(self.write_bundle()["errors"]))
 
     def test_valid_fixture_is_consistent_but_not_h3_accuracy(self):
         result = self.write_bundle()

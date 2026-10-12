@@ -65,6 +65,23 @@ def audit_bundle(path: Path) -> dict:
               "export preflight differs from archived preflight")
         check(receipt.get("mission_metadata") == mission,
               "receipt mission differs from archived mission")
+        # New development captures preserve the source-model audit as a separate
+        # file. Older sealed development ZIPs remain replayable, but a claimed
+        # source gate must have matching evidence and never assert H3 admission.
+        if "source_motor_map_audit.json" in archive.namelist():
+            source_map = json.loads(archive.read("source_motor_map_audit.json"))
+            check(receipt.get("source_motor_map_audit") == source_map,
+                  "source motor map receipt differs from archived source audit")
+            check(source_map.get("status") == "STATIC_SOURCE_MAP_VERIFIED"
+                  and source_map.get("errors") == [],
+                  "pinned x500 source motor map gate did not pass")
+            for flag in ("can_claim_h3_results", "physical_motor_map_verified",
+                         "applied_actuation_verified", "fault_injection_verified"):
+                check(source_map.get(flag) is False,
+                      f"source motor map audit must explicitly refuse {flag}")
+        else:
+            check("source_motor_map_audit" not in receipt,
+                  "source motor map receipt missing archived source audit")
         check(mission.get("completed") is True and len(mission.get("segments", [])) > 0,
               "simulator mission was not completed")
         check(receipt.get("status") == "DEVELOPMENT_EXPORT_CREATED",
