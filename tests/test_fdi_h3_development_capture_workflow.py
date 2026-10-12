@@ -80,3 +80,19 @@ def test_clock_audit_is_preserved_in_every_new_development_bundle():
     assert "'gyro_sample_clock_audit': read_json('gyro_sample_clock_audit.json')" in body
     assert "'gyro_sample_clock_audit.json'," in body
     assert "tests/test_fdi_h3_px4_sample_clock_audit.py" in body
+
+
+def test_dense_raw_sensor_logging_is_opt_in_and_receipted_before_startup():
+    body = text()
+    assert "dense_raw_gyro_diagnostics:" in body
+    assert "H3_DENSE_RAW_GYRO:" in body
+    assert "scripts/fdi_h3_px4_dense_logger_plan.py" in body
+    assert "make px4_sitl_default" in body
+    assert "rootfs/fs/microsd/etc/logging" in body
+    assert "topics from logger_topics.txt" in body
+    assert "scripts.fdi_h3_px4_dense_raw_gate" in body
+    assert body.index("Install opt-in raw gyro logger profile") < body.index("Start headless PX4")
+    assert body.index("Verify opt-in dense raw gyro coverage") < body.index("Export unscored")
+    assert "logger_profile_receipt.json" in body
+    assert "dense_raw_gyro_audit.json" in body
+    assert "fault_injection_verified" in body
