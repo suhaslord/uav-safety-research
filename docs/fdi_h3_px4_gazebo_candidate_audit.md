@@ -282,3 +282,20 @@ A **fresh** pinned, non-fault PX4/Gazebo SITL capture [run 38200113003](https://
 The **4,162** replay observations are from the shared gyro/actuator export window; **4,166** is the whole processed-gyro topic. This is a third raw recording and has a different SHA-256 from the two previous non-fault captures. The matching clocks do **not** prove zero real sensing latency. The retained motor-source gate is a structural source review, not measured rotor behavior.
 
 **Scientific status remains NOT_ADMITTED**: no motor-speed loss was imposed or independently measured, no H1-motor-class / PX4-rotor parity was established, and no protected H3 fault-detection score can be inferred.
+
+
+### Repeat raw gyro inventory on a second independently recorded development file
+
+The [two-capture inventory workflow run 38200949975](https://github.com/suhaslord/uav-safety-research/actions/runs/38200949975) verifies each recording's frozen SHA-256 before separately running the **same** read-only raw-gyro inventory. Its jobs for both recordings completed successfully. The preserved [original development recording](https://github.com/suhaslord/uav-safety-research/actions/runs/38194770306) and the [new integrated recording](https://github.com/suhaslord/uav-safety-research/actions/runs/38200113003) are distinct raw files; they must not be combined as an H3 motor-failure test.
+
+| Observed ULog attribute | Earlier recording `c78fa8c9…` | Fresh integrated recording `00f8ce72…` |
+| --- | ---: | ---: |
+| Processed `vehicle_angular_velocity` samples | 4,164 | 4,166 |
+| Logged raw `sensor_gyro` samples | **41** | **41** |
+| Raw `sensor_gyro` instances | 1 | 1 |
+| Observed raw device ID | `1310988` | `1310988` |
+| Processed rows with an earlier *recorded* raw sample | 4,076 | 4,078 |
+| Maximum age since preceding *logged* raw observation | 996 ms | 996 ms |
+| Numerically verified raw→processed gyro transformation | **No** | **No** |
+
+The two independent non-fault recordings reproduce the **1-Hz logging-density bottleneck** under the unchanged PX4 logger configuration. They do **not** establish that the actual simulated IMU sampled at 1 Hz, or that device-ID agreement proves estimator-source selection. A future instrumentation-only PX4 test must preserve its logger override and verify the raw topic coverage before attempting raw-to-processed axis/frame mapping.
