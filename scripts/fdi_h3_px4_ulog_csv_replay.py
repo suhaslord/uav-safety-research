@@ -30,9 +30,22 @@ def replay(ulog, csv_text: str) -> dict:
                 "rows_checked": 0, "can_claim_h3_results": False}
     gyro = datasets[GYRO_TOPIC][0].data
     motors = datasets[ACTUATOR_TOPIC][0].data
-    gt = [int(x) for x in gyro["timestamp"]]
-    mt = [int(x) for x in motors["timestamp"]]
+    try:
+        gt = [int(x) for x in gyro["timestamp"]]
+        mt = [int(x) for x in motors["timestamp"]]
+    except (KeyError, ValueError, TypeError, OverflowError):
+        return {"status": "REJECTED", "errors": ["invalid ULog timestamps"],
+                "rows_checked": 0, "can_claim_h3_results": False}
+    if not gt or not mt:
+        return {"status": "REJECTED", "errors": ["empty required ULog topic"],
+                "rows_checked": 0, "can_claim_h3_results": False}
+    if any(b <= a for times in (gt, mt) for a, b in zip(times, times[1:])):
+        return {"status": "REJECTED", "errors": ["nonincreasing ULog timestamps"],
+                "rows_checked": 0, "can_claim_h3_results": False}
     start, end = max(gt[0], mt[0]), min(gt[-1], mt[-1])
+    if start > end or not any(start <= stamp <= end for stamp in gt):
+        return {"status": "REJECTED", "errors": ["no shared gyro/actuator samples"],
+                "rows_checked": 0, "can_claim_h3_results": False}
     reader = csv.DictReader(io.StringIO(csv_text))
     if reader.fieldnames != FIELDS:
         return {"status": "REJECTED", "errors": ["unexpected CSV schema"],
@@ -74,6 +87,8 @@ def replay(ulog, csv_text: str) -> dict:
             errors.append(f"invalid CSV row {count}: {exc}")
         if len(errors) >= 25:
             break
+    if count == 0:
+        errors.append("no gyro samples replayed from the shared telemetry window")
     if next(reader, None) is not None:
         errors.append("CSV contains extra rows beyond recorded gyro window")
     return {"study": "FDI-H3", "status": "ULOG_CSV_REPLAY_MATCH" if not errors else "REJECTED",
@@ -83,6 +98,15 @@ def replay(ulog, csv_text: str) -> dict:
 
 
 def audit_zip(path: Path) -> dict:
+    # Do not award a successful numerical replay to a bundle with a forged
+    # provenance receipt, altered source hash or a rejected development gate.
+    from scripts.fdi_h3_development_bundle_audit import audit_bundle
+    bundle = audit_bundle(path)
+    if bundle["status"] != "CONSISTENT_DEVELOPMENT_ONLY":
+        return {"study": "FDI-H3", "status": "REJECTED",
+                "errors": ["development evidence bundle failed independent audit",
+                           *bundle["errors"]],
+                "rows_checked": 0, "can_claim_h3_results": False}
     from pyulog import ULog
     from tempfile import TemporaryDirectory
     with ZipFile(path) as archive:
