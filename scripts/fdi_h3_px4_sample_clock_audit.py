@@ -29,7 +29,13 @@ def _timestamps(data, name: str, *, require: bool = True):
             raise ValueError(f"missing {name}")
         return None
     try:
-        stamps = [operator.index(value) for value in values]
+        # bool implements __index__ in Python, but a boolean clock entry is
+        # not a valid logged integer timestamp and must not be normalized.
+        stamps = []
+        for value in values:
+            if isinstance(value, bool):
+                raise TypeError("boolean timestamp")
+            stamps.append(operator.index(value))
     except (TypeError, ValueError, OverflowError) as exc:
         raise ValueError(f"noninteger {name}") from exc
     if not stamps:
