@@ -178,3 +178,49 @@ python -m scripts.fdi_h3_px4_source_motor_gate \
 ```
 
 Synthetic tests deliberately alter motor indices, joint names, coordinates, spin and command topics to prove that source drift fails the gate. **This is a source-code structural check, not a runtime fault trial**: it cannot establish applied RPM/thrust, PX4 log-to-Gazebo motor equivalence, H1 class mapping, accurate gyro axes, runtime fault injection, or independent-dynamics scientific admission. Those evidence gates and a new protected holdout are still mandatory.
+
+
+## Sample-time vs publish-time review of the verified source capture (2026-10-12)
+
+The [fully successful development capture run 38194770306](https://github.com/suhaslord/uav-safety-research/actions/runs/38194770306) produced [artifact 11723151763](https://github.com/suhaslord/uav-safety-research/actions/runs/38194770306/artifacts/11723151763). This includes a passing frozen x500 source gate, a completed non-fault PX4/Gazebo mission, 4,162 exact development CSV/ULog replay matches, and an independently accepted evidence bundle. The raw `.ulg` file SHA-256 is `c78fa8c95c8f00a56e43661f388d4df57b4890cc011e990eb19528179f032274`.
+
+The frozen PX4 v1.17.0 [`VehicleAngularVelocity.msg`](https://github.com/PX4/PX4-Autopilot/blob/d6f12ad1c4f70ad3230afd7d86e971421e02fef4/msg/versioned/VehicleAngularVelocity.msg) defines `timestamp_sample` as the time of the contributing sample and `timestamp` as the message publication timestamp. They are distinct *fields*, but should not be assumed to be independently observed clocks.
+
+To check this, the new `scripts/fdi_h3_px4_sample_clock_audit.py` inspects the **entire existing raw ULog only**, without re-running the simulator. It checks for missing, duplicated, noninteger, negative or nonmonotonic time fields; never joins a later actuator command to an earlier gyro sample; and records descriptive sample-to-command ages. Run it as:
+
+```bash
+python -m scripts.fdi_h3_px4_sample_clock_audit path/to/px4_gazebo_raw.ulg \
+  --output h3-sample-clock-audit.json
+```
+
+[Read-only audit run 38199734215](https://github.com/suhaslord/uav-safety-research/actions/runs/38199734215) passed 10 synthetic tests and the real source-ULog audit, preserving [artifact 11724718878](https://github.com/suhaslord/uav-safety-research/actions/runs/38199734215/artifacts/11724718878). Its measurements were:
+
+| Development-only observation | Value |
+| --- | ---: |
+| All gyro observations inspected | 4,164 |
+| Actuator command observations | 418 |
+| Gyro samples with a preceding logged command | 4,164 |
+| Median associated command age at `timestamp_sample` | 44 ms |
+| 95th-percentile age, nearest rank | 92 ms |
+| Maximum age | 96 ms |
+| Commands older than the declared 100-ms limit | 0 |
+| Gyro rows with identical `timestamp_sample` and `timestamp` | **4,164 / 4,164** |
+| Observed sample-to-publication timestamp difference | **0 μs** |
+
+The **4,164** whole-topic sample-clock observations are distinct from the **4,162** rows exported inside the shared gyro/command CSV time window; these denominators are not interchangeable. The source ULog reports identical sample and publish timestamps in all 4,164 gyro messages. This is a meaningful *measurement limitation*: **zero logged separation is not independent proof that actual sensing and publication have zero latency**, nor does it verify PX4-to-Gazebo synchronization. Future work must independently trace the simulation IMU sample through the PX4 estimator and verify motor-command-to-rotor behavior at runtime before mapping H1 class labels.
+
+This remains `SAMPLE_CLOCK_OBSERVED_DEVELOPMENT_ONLY`; it is **not** a demonstrated applied fault, physical motor map, independent H3 holdout, or flight-safety result.
+
+
+### New-capture provenance contract
+
+Future H3 **development-only** PX4/Gazebo captures also run the gyro sample-clock diagnostic before exporting the unmapped CSV. Each capture stores `gyro_sample_clock_audit.json` both in the preserved artifact and the independently audited evidence ZIP. The receipt embeds the exact report, and the independent bundle checker rejects a missing/mismatched claimed report, wrong raw-ULog SHA-256, inconsistent ULog topic counts, or any claim that the report verifies the motor map, applied actuation, sensor-axis parity, cross-topic clock synchronization or fault injection. Previously archived bundles with no claimed clock report remain readable.
+
+The separate workflow `.github/workflows/fdi-h3-px4-sample-clock-audit.yml` reproduces the already observed capture's timing report without rerunning the simulator, verifies the raw file hash, and runs synthetic rejection tests. Source-relative zero timestamp separation is reported as **unverified physical timing**, never promoted to independent evidence of zero sensor latency.
+
+
+### What the pinned PX4 publisher implements
+
+Source review of [PX4 v1.17.0 `VehicleAngularVelocity::CalibrateAndPublish`](https://github.com/PX4/PX4-Autopilot/blob/d6f12ad1c4f70ad3230afd7d86e971421e02fef4/src/modules/sensors/vehicle_angular_velocity/VehicleAngularVelocity.cpp) confirms that `timestamp_sample` is inherited from the upstream gyroscope reading, while `timestamp` is assigned from `hrt_absolute_time()` at publish time. The same routine rotates and calibrates the angular-rate vector and subtracts a bias estimate before publishing `vehicle_angular_velocity.xyz`. Thus these logged rates are **downstream processed body-rate estimates, not unmodified `sensor_gyro` channel bytes**.
+
+In this particular completed Gazebo/SITL recording, all logged sample and publish timestamps coincide despite their separate assignments in the source. Their exact equality in the ULog does not independently measure processing delay or establish raw-to-published numerical identity. The separate PX4-to-Gazebo sensor frame and motor-index validation remain unresolved.

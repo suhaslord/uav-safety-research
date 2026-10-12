@@ -1,0 +1,62 @@
+name: FDI-H3 Existing PX4 ULog Gyro Sample Clock Audit
+
+on:
+  push:
+    branches:
+      - research/h3-gyro-sample-clock-audit-20261012
+      - main
+    paths:
+      - scripts/fdi_h3_px4_sample_clock_audit.py
+      - tests/test_fdi_h3_px4_sample_clock_audit.py
+      - .github/workflows/fdi-h3-px4-sample-clock-audit.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  read-only-sample-clock:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      SOURCE_RUN: '38194770306'
+      RAW_SHA256: 'c78fa8c95c8f00a56e43661f388d4df57b4890cc011e990eb19528179f032274'
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run synthetic sample and command-clock tests
+        run: python -m unittest discover -s tests -p 'test_fdi_h3_px4_sample_clock_audit.py' -v
+
+      - name: Install read-only ULog parser
+        run: python -m pip install pyulog
+
+      - name: Download recorded development artifact, not protected H3 data
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/h3-archive
+          gh run download "$SOURCE_RUN" --repo "$GITHUB_REPOSITORY" \
+            --name fdi-h3-px4-development-only --dir /tmp/h3-archive
+          test -s /tmp/h3-archive/px4_gazebo_raw.ulg
+          printf '%s  %s\n' "$RAW_SHA256" /tmp/h3-archive/px4_gazebo_raw.ulg | sha256sum --check --status
+
+      - name: Inspect actual recorded gyro sample and publish clocks
+        run: |
+          python -m scripts.fdi_h3_px4_sample_clock_audit \
+            /tmp/h3-archive/px4_gazebo_raw.ulg \
+            --output h3-sample-clock-audit.json
+
+      - name: Upload separate development-only timestamp report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fdi-h3-development-gyro-sample-clock
+          path: h3-sample-clock-audit.json
+          retention-days: 90
+          if-no-files-found: warn

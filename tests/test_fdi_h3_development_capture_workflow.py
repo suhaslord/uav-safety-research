@@ -71,3 +71,12 @@ def test_source_motor_gate_runs_before_expensive_simulator_setup():
     assert "'source_motor_map_audit': read_json('source_motor_map_audit.json')" in body
     assert "'source_motor_map_audit.json'," in body
     assert 'physical_motor_map_verified' in body
+
+
+def test_clock_audit_is_preserved_in_every_new_development_bundle():
+    body = text()
+    assert "scripts.fdi_h3_px4_sample_clock_audit" in body
+    assert body.index("Audit recorded gyro sample-versus-publication clocks") < body.index("Independently audit development-only evidence")
+    assert "'gyro_sample_clock_audit': read_json('gyro_sample_clock_audit.json')" in body
+    assert "'gyro_sample_clock_audit.json'," in body
+    assert "tests/test_fdi_h3_px4_sample_clock_audit.py" in body
