@@ -23,12 +23,24 @@ class SampleClockTests(unittest.TestCase):
         self.assertEqual(result["status"], "SAMPLE_CLOCK_OBSERVED_DEVELOPMENT_ONLY")
         self.assertEqual(result["gyro_rows"], 4)
         self.assertEqual(result["sample_publish_delay_us"]["maximum"], 200)
+        self.assertEqual(result["sample_publish_delay_us"]["distinct_sample_publication_rows"], 4)
         self.assertEqual(result["causal_command_at_gyro_sample"]["age_median_us"], 100)
         self.assertEqual(result["raw_ulog_sha256"], "a" * 64)
         self.assertFalse(result["can_claim_h3_results"])
         self.assertFalse(result["gyro_axis_parity_verified"])
         self.assertFalse(result["cross_topic_clock_sync_verified"])
         self.assertFalse(result["applied_actuation_verified"])
+
+    def test_identical_sample_and_publish_clock_is_explicitly_unverified(self):
+        log = example()
+        log.data_list[0].data["timestamp_sample"] = list(
+            log.data_list[0].data["timestamp"]
+        )
+        report = inspect(log)
+        self.assertEqual(report["sample_publish_delay_us"]["identical_sample_publication_rows"], 4)
+        self.assertEqual(report["sample_publish_delay_us"]["distinct_sample_publication_rows"], 0)
+        self.assertIn("not independent evidence", report["clock_interpretation"])
+        self.assertFalse(report["cross_topic_clock_sync_verified"])
 
     def test_future_sample_timestamp_rejected(self):
         log = example()
