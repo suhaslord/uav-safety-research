@@ -125,6 +125,46 @@ def parameters(*, data_yaml: Path, project: Path, name: str, epochs: int,
                 project=str(project.resolve()), name=name, exist_ok=False)
 
 
+
+def development_screen(baseline: dict, candidate: dict) -> dict:
+    """Diagnostic *development-only* screen; NEVER a promotion/safety decision."""
+    expected = ("clean", *CONDITIONS)
+    for scores in (baseline, candidate):
+        if set(scores) != set(expected):
+            raise ValueError("Missing or unexpected development stress conditions")
+        for condition in expected:
+            row = scores[condition]
+            if not all(key in row and math.isfinite(row[key]) and 0 <= row[key] <= 1
+                       for key in ("precision", "recall", "map50", "map50_95")):
+                raise ValueError("Invalid development validation metrics")
+    map_deltas = {
+        c: candidate[c]["map50"] - baseline[c]["map50"] for c in expected
+    }
+    mean_delta = sum(map_deltas.values()) / len(expected)
+    clean_precision_delta = (candidate["clean"]["precision"] -
+                             baseline["clean"]["precision"])
+    # Conservative descriptive gates, frozen before this candidate evaluation:
+    # protect the clean and previously regressed blur/mixed outcomes; seek
+    # improvement averaged across all six correlated development conditions.
+    gates = {
+        "clean_map50_no_meaningful_drop": map_deltas["clean"] >= -0.005,
+        "clean_precision_no_large_drop": clean_precision_delta >= -0.05,
+        "blur_map50_no_large_drop": map_deltas["blur"] >= -0.02,
+        "mixed_map50_no_large_drop": map_deltas["mixed"] >= -0.02,
+        "mean_six_condition_map50_gain": mean_delta >= 0.01,
+    }
+    return {
+        "status": "development_screen_pass" if all(gates.values()) else "development_screen_fail",
+        "gates": gates,
+        "mean_six_condition_map50_delta": mean_delta,
+        "clean_precision_delta": clean_precision_delta,
+        "thresholds_not_selected_from_protected_test": True,
+        "independent_data": False,
+        "automatic_model_promotion": False,
+        "note": "Exploratory development comparison, not independent generalization or flight safety.",
+    }
+
+
 def train_pair(source_root: Path, candidate_root: Path, out: Path,
                *, initialization: str = "yolo11n.pt", epochs: int = 12,
                imgsz: int = 320, batch: int = 16, seed: int = 20261013,
@@ -190,6 +230,10 @@ def train_pair(source_root: Path, candidate_root: Path, out: Path,
                     for metric in diff}
         for condition in ("clean", *CONDITIONS)
     }
+    screening = development_screen(
+        summaries["baseline"]["development_validation_by_condition"],
+        summaries["candidate"]["development_validation_by_condition"],
+    )
     report = {"schema": "aegisland.detector_robustness.development-comparison.v2",
               "status": "development_comparison_only",
               "initialization": initialization,
@@ -200,6 +244,7 @@ def train_pair(source_root: Path, candidate_root: Path, out: Path,
               "validation_conditions": ["clean", *CONDITIONS],
               "candidate_minus_baseline": diff,
               "candidate_minus_baseline_by_condition": stress_diff,
+              "development_screen": screening,
               "protected_test_evaluated": False, "independent_validation": False,
               "model_improvement_established": False,
               "limits": "Validation shares the original KIOS sessions. No independent test or safe-flight claim."}

@@ -214,3 +214,60 @@ def test_matched_candidate_modified_training_label_is_rejected(tmp_path, monkeyp
     with pytest.raises(ValueError, match="training label was changed"):
         runner.train_pair(root, new, tmp_path / "unused", model_factory=lambda _: None)
     assert not (tmp_path / "unused").exists()
+
+
+def test_photometric_only_training_never_masks_target(tmp_path):
+    root, sha, protected = sample_split(tmp_path)
+    receipt = build(root, tmp_path / "mild", seed=20261013, variants=1,
+                    mode="matched", replace_fraction=0.15,
+                    train_condition_set="photometric",
+                    locked_sha=sha, protected_manifest=protected)
+    assert receipt["train_condition_set"] == "photometric"
+    assert receipt["train_conditions"] == ["blur", "low_light", "noise"]
+    assert receipt["transformed_train"] == 1
+    assert receipt["training_image_count"] == 2
+    assert {r["condition"] for r in receipt["inventory"]} <= {
+        "original", "blur", "low_light", "noise"}
+    assert all(r["masked_fraction_upper_bound"] == 0 for r in receipt["inventory"])
+    assert (tmp_path / "mild/images/val/val__0003.png").read_bytes() == (
+        root / "images/val/val__0003.png").read_bytes()
+
+
+def test_unknown_condition_set_is_rejected_before_output(tmp_path):
+    root, sha, protected = sample_split(tmp_path)
+    with pytest.raises(ValueError, match="documented training condition set"):
+        build(root, tmp_path / "bad", mode="matched", variants=1,
+              train_condition_set="other", locked_sha=sha,
+              protected_manifest=protected)
+    assert not (tmp_path / "bad").exists()
+
+
+def test_development_screen_rejects_clean_and_mixed_regression():
+    from scripts.train_detector_robustness_candidate import development_screen
+    keys = ("clean", "blur", "low_light", "noise", "partial_occlusion", "mixed")
+    baseline = {key: {"precision": 0.6, "recall": 0.3,
+                      "map50": 0.35, "map50_95": 0.2} for key in keys}
+    candidate = {key: dict(row) for key, row in baseline.items()}
+    candidate["noise"]["map50"] += 0.20
+    candidate["clean"]["map50"] -= 0.03
+    candidate["mixed"]["map50"] -= 0.04
+    report = development_screen(baseline, candidate)
+    assert report["status"] == "development_screen_fail"
+    assert report["gates"]["mean_six_condition_map50_gain"] is True
+    assert report["gates"]["clean_map50_no_meaningful_drop"] is False
+    assert report["gates"]["mixed_map50_no_large_drop"] is False
+    assert report["automatic_model_promotion"] is False
+
+
+def test_development_screen_requires_all_conditions_and_checks_ranges():
+    from scripts.train_detector_robustness_candidate import development_screen
+    keys = ("clean", "blur", "low_light", "noise", "partial_occlusion", "mixed")
+    rows = {key: {"precision": 0.5, "recall": 0.4,
+                  "map50": 0.35, "map50_95": 0.2} for key in keys}
+    candidate = {key: dict(row, map50=0.38) for key, row in rows.items()}
+    assert development_screen(rows, candidate)["status"] == "development_screen_pass"
+    with pytest.raises(ValueError, match="Missing"):
+        development_screen(rows, {"clean": candidate["clean"]})
+    candidate["noise"]["map50"] = float("nan")
+    with pytest.raises(ValueError, match="Invalid"):
+        development_screen(rows, candidate)

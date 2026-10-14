@@ -62,3 +62,61 @@ regressions, retain the existing model; do not promote the candidate.
 ## What counts as progress
 
 A working training run and signed source receipts are implementation progress. **A model improvement is demonstrated only if we actually train it, compare both variants on separate development validation data, and obtain favorable reproducible metrics.** That is still weaker than independent Phase 26 testing, which requires new eligible real-camera sessions and verified negative frames.
+
+
+## Conservative photometric-only follow-up (2026-10-13; frozen before run)
+
+The equal-budget 50%-replacement candidate lost clean, blur, and mixed-stress
+mAP50, even though noise and partial occlusion sometimes improved. It is
+**not promoted** (see `detector_robustness_matched_budget_results_20261013.md`).
+Do not change the original model or reinterpret that negative result.
+
+This limited follow-up holds model, data split, training hyperparameters and
+total optimizer budget fixed but makes the training intervention substantially
+milder: replace only **15% of the 252 development training images**, equally
+distributed among **blur, low-light and noise**. Leave all other train images
+byte-identical to originals. No target obstruction or mixed corruption is used
+for training, though **all six** existing development-validation conditions
+are evaluated unchanged. Reconstructing the original clean training baseline
+remains part of the paired training workflow. The frozen test frames remain
+sealed and are never used to train, choose a candidate, or set thresholds.
+
+Both arms use **12 epochs, 320 px, batch 16, SGD, seed 20261013**, equal
+training-image counts and equal optimization-step budgets. Only
+development-validation metrics may be compared; there is just one seed and
+two temporally dependent KIOS camera sequences.
+
+The development screen, implemented before this run in
+`scripts/train_detector_robustness_candidate.py`, requires **all five**:
+
+- Clean mAP50 drop no worse than 0.005.
+- Clean precision drop no worse than 0.05.
+- Blur mAP50 drop no worse than 0.02.
+- Mixed mAP50 drop no worse than 0.02.
+- Equal-weight six-condition average mAP50 gain of at least 0.01.
+
+These guardrails are exploratory development checks, **not** proof of
+independent generalization. A passing screen will **not automatically promote
+model weights**. A failing screen means keep the original detector. The
+previous historical Phase 23 weights, held-out reports, and any frozen
+external-data admission criteria remain unchanged. No fresh independent
+camera-domain test is claimed.
+
+Run the existing workflow via a PR, or reproduce with:
+
+```bash
+python -m scripts.prepare_detector_robustness_augmentation \
+  --split-root data/derived/kios_real_yolo \
+  --out data/derived/detector_robustness_photometric_15pct \
+  --seed 20261013 --mode matched --variants 1 \
+  --replace-fraction 0.15 --train-condition-set photometric
+
+python -m scripts.train_detector_robustness_candidate \
+  --source-root data/derived/kios_real_yolo \
+  --candidate-root data/derived/detector_robustness_photometric_15pct \
+  --out results/detector_robustness_photometric_15pct \
+  --initialization yolo11n.pt --epochs 12 --imgsz 320 \
+  --batch 16 --seed 20261013 --device cpu
+```
+
+No real-flight execution or controller changes are included.
