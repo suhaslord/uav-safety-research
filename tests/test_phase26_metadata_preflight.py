@@ -7,12 +7,12 @@ from scripts.check_phase26_metadata import preflight
 
 
 def manifest(tmp_path: Path, *, size=30, no_negatives=False, shared_video=False,
-             shared_hash=False, shared_session=False, no_dev_negative=False) -> Path:
+             shared_hash=False, shared_session=False, no_test_negative=False) -> Path:
     path = tmp_path / "manifest.csv"
     rows = []
     for i in range(size):
         split = "dev" if i < size // 2 else "test"
-        empty = i == 0 or (i == size // 2 and not no_dev_negative)
+        empty = i == 0 or (i == size // 2 and not no_test_negative)
         if no_negatives:
             empty = False
         rows.append({
@@ -60,7 +60,7 @@ def test_metadata_leaks_are_rejected(tmp_path):
 def test_single_partition_negatives_are_reported_without_redefining_frozen_gate(tmp_path):
     # Frozen policy requires a verified negative inventory overall; report gaps
     # in either split without silently changing the preregistered admission rule.
-    result = preflight(manifest(tmp_path, no_dev_negative=True))
+    result = preflight(manifest(tmp_path, no_test_negative=True))
     assert result["status"] == "metadata_only_ready_for_archive_screen"
     assert result["warnings"] == ["no_empty_target_frames_in_test"]
 
