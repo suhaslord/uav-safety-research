@@ -61,7 +61,7 @@ try {
         head: window.AEGIS_FROZEN_LINEAGE?.frozenScientificHead || ''
       }));
       readinessExcerpt = state.text.slice(0, 300);
-      if (response && response.status() < 400 && state.shell === 'native frozen-archive' && state.head === FROZEN_HEAD && /Phase 22/i.test(state.text) && /Phase 23 (pending|paired)/i.test(state.text)) {
+      if (response && response.status() < 400 && state.shell === 'native frozen-archive' && state.text.includes('Can a drone recognize when its landing-pad detection is wrong?') && /No flight-safety claim/i.test(state.text)) {
         ready = true;
         break;
       }
@@ -206,34 +206,31 @@ try {
 
   await page.goto(BASE + '/', { waitUntil: 'domcontentloaded', timeout: 45000 });
   await page.waitForTimeout(700);
-  const home = await page.evaluate(({ resultSha, candidateSha, frozenHead }) => {
-    const data = window.AEGIS_FROZEN_LINEAGE;
+  const home = await page.evaluate(() => {
     const text = document.body?.innerText || '';
     return {
       shell: document.documentElement.dataset.siteShell || '',
       preview: document.querySelectorAll('#home-comparison [data-home-model]').length,
       evidenceLed: document.body.dataset.presentation === 'evidence-led',
-      evidenceRows: document.querySelectorAll('#evidenceSpine .evidence-row').length,
-      passRows: document.querySelectorAll('#evidenceSpine .evidence-row[data-verdict="PASS"]').length,
-      failRows: document.querySelectorAll('#evidenceSpine .evidence-row[data-verdict="FAIL"]').length,
-      phase23LinkCount: document.querySelectorAll('a[href*="phase23"]').length,
+      question: text.includes('Can a drone recognize when its landing-pad detection is wrong?'),
+      hypothesis: text.includes('A confidence-based check can reduce accepted wrong landing-pad locations'),
+      status: text.includes('Independent camera validation is still pending.'),
+      finding: text.includes('43') && text.includes('23') && text.includes('two source videos'),
+      steps: document.querySelectorAll('.story-steps article').length,
+      archiveLink: document.querySelectorAll('a[href="/phases/"]').length > 0,
       hasBoundary: document.querySelector('meta[name="aegis-evidence-boundary"]')?.content === 'simulation_only=true; safety_acceptance=false; controller_tuning_allowed=false'
-        && /No flight-safety claim/i.test(text) && /controller-tuning claim/i.test(text),
-      hasFinalMetrics: text.includes('0.8319') && text.includes('0.7744') && text.includes('100%'),
-      saysFrozen: /Phase 22/i.test(text) && /Phase 23 (pending|paired)/i.test(text),
-      dataOk: !!data && data.frozenThrough === 'Phase 22' && data.phases.length === 13 && data.counts.PASS === 6 && data.counts.FAIL === 7 && data.frozenScientificHead === frozenHead && data.bySlug.phase22.resultSha === resultSha && data.bySlug.phase22.candidateSha === candidateSha
+        && /No flight-safety claim/i.test(text) && /controller-tuning claim/i.test(text)
     };
-  }, { resultSha: PHASE22_RESULT, candidateSha: PHASE22_CANDIDATE, frozenHead: FROZEN_HEAD });
+  });
   add('home-native-frozen-shell', home.shell === 'native frozen-archive', home);
-  add('home-evidence-led-original-model-comparison', home.preview === 2 && home.evidenceLed, home);
-  add('home-13-record-spine', home.evidenceRows === 13, home);
-  add('home-preserves-6-pass-7-fail', home.passRows === 6 && home.failRows === 7, home);
-  add('home-frozen-lineage-identity', home.dataOk, home);
-  add('home-final-metrics-visible', home.hasFinalMetrics, home);
-  add('home-claim-boundary-visible', home.hasBoundary, home);
-  add('home-links-separate-phase23-detector', home.phase23LinkCount > 0 && home.saysFrozen, home);
+  add('home-original-model-comparison', home.preview === 2 && home.evidenceLed, home);
+  add('home-one-research-question-hypothesis', home.question && home.hypothesis, home);
+  add('home-retrospective-finding-and-honest-status', home.finding && home.status, home);
+  add('home-detect-check-verify', home.steps === 3, home);
+  add('home-claim-boundary', home.hasBoundary, home);
+  add('home-full-archive-still-linked', home.archiveLink, home);
 
-  const archiveCta = page.getByRole('link', { name: /see every phase|inspect every phase|browse all phases/i }).first();
+  const archiveCta = page.getByRole('link', { name: /research archive/i }).first();
   add('home-archive-cta-exists', await archiveCta.count() === 1);
   if (await archiveCta.count()) {
     await archiveCta.click();
