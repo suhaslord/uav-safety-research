@@ -7,7 +7,7 @@ import json
 import math
 from pathlib import Path
 
-from scripts.prepare_detector_robustness_dev_augmentation import digest, verify_split
+from scripts.prepare_detector_robustness_augmentation import digest, verify_split
 
 
 def verify_candidate(source_root: Path, candidate_root: Path) -> dict:
