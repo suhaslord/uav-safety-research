@@ -1,5 +1,9 @@
 # AegisLand
 
+**Start here: [Research question, hypothesis, verified evidence, and the missing independent test](PROJECT_SHOWCASE.md).**
+
+One-sentence focus: *Can a UAV vision model identify unreliable landing-pad localization under image degradation before a downstream system trusts it?* The currently validated evidence is retrospective; the external reliability hypothesis has **not** been confirmed.
+
 **UAV landing-perception research: synthetic tests first, then real-image transfer.**
 
 [![CI](https://github.com/suhaslord/uav-safety-research/actions/workflows/ci.yml/badge.svg)](https://github.com/suhaslord/uav-safety-research/actions/workflows/ci.yml)
