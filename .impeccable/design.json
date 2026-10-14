@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-14T04:17:46.1700406Z",
-  "title": "Design System: AegisLand Homepage",
+  "generatedAt": "2026-10-14T05:08:08.637801+00:00",
+  "title": "Design System: AegisLand",
   "extensions": {
     "colorMeta": {
       "action": {
@@ -134,11 +134,11 @@
     "typographyMeta": {
       "display": {
         "displayName": "Hero Display",
-        "purpose": "Approved Helvetica Neue/Arial display stack adapted to the user-pinned Tesla reference; observed hero size and tracking."
+        "purpose": "Approved Helvetica Neue/Arial display stack; unchanged homepage hero size and tracking."
       },
       "headline": {
         "displayName": "Chapter Headline",
-        "purpose": "Question, finding, and archive chapter titles."
+        "purpose": "Unchanged homepage question, finding, and archive chapter titles."
       },
       "body": {
         "displayName": "Research Body",
@@ -151,9 +151,31 @@
       "fine": {
         "displayName": "Fine",
         "purpose": "Caveats and footer copy."
+      },
+      "site-display": {
+        "displayName": "Site Photo Display",
+        "purpose": "Centered report, phase, archive, and prototype photo introductions."
+      },
+      "site-headline": {
+        "displayName": "Site Headline",
+        "purpose": "Report, tool, and archive section headings."
+      },
+      "site-deck": {
+        "displayName": "Site Photo Deck",
+        "purpose": "Original introductory text and evidence caveats over context photography, including phase deck and lede text; white foreground and mobile 15px."
+      },
+      "site-supporting": {
+        "displayName": "Site Supporting",
+        "purpose": "Preserved original introductory copy below headings, including phase labels, Model VASE card metadata, and the answer label; nested spans and bold elements inherit ordinary size, weight, and tracking. Research navigation and locked-verdict badges remain semantic."
       }
     },
-    "shadows": [],
+    "shadows": [
+      {
+        "name": "mobile-navigation-panel",
+        "value": "0 12px 28px rgb(23 26 32 / 12%)",
+        "purpose": "Supplemental native Menu panel only; reports and tool panels remain flat."
+      }
+    ],
     "motion": [
       {
         "name": "action-state",
@@ -172,12 +194,20 @@
         "value": "1100px"
       },
       {
-        "name": "mobile",
+        "name": "homepage-mobile",
         "value": "768px"
       },
       {
-        "name": "condition-scroll",
+        "name": "homepage-condition-scroll",
         "value": "600px"
+      },
+      {
+        "name": "site-menu",
+        "value": "980px"
+      },
+      {
+        "name": "site-mobile",
+        "value": "700px"
       }
     ]
   },
@@ -234,22 +264,50 @@
       "description": "Independent control on each NASA context film; the live script updates its label and pressed state.",
       "html": "<div class=\"ds-film-context\"><button class=\"ds-film-toggle\" type=\"button\" aria-label=\"Pause aircraft footage\" aria-pressed=\"true\">Pause</button></div>",
       "css": ".ds-film-context{padding:24px;background:var(--editorial-ink,#171a20)}.ds-film-toggle{min-height:44px;min-width:76px;border:1px solid rgba(255,255,255,.7);border-radius:4px;background:rgb(23 26 32 / 75%);color:#fff;font-weight:650;cursor:pointer}.ds-film-toggle:hover{background:rgba(4,29,55,.85)}.ds-film-toggle:focus-visible{outline:3px solid var(--home-action,#3e6ae1);outline-offset:4px}"
+    },
+    {
+      "name": "Site Primary Action",
+      "kind": "button",
+      "refersTo": "site-button-primary",
+      "description": "Shared report, archive, and prototype action; photo introductions use a wider desktop minimum.",
+      "html": "<a class=\"ds-site-action\" href=\"/failure-atlas/\">Open Failure Atlas</a>",
+      "css": ".ds-site-action{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:12px 24px;border:1px solid var(--site-action,#3e6ae1);border-radius:4px;background:var(--site-action,#3e6ae1);color:#fff;font-family:\"Helvetica Neue\",Arial,Helvetica,sans-serif;font-size:14px;font-weight:600;text-decoration:none;box-shadow:none;transform:none;transition:background-color .18s ease,color .18s ease,border-color .18s ease}.ds-site-action:hover{background:var(--site-action-hover,#3457b8);border-color:var(--site-action-hover,#3457b8)}.ds-site-action:focus-visible{outline:3px solid var(--site-action,#3e6ae1);outline-offset:4px}@media(prefers-reduced-motion:reduce){.ds-site-action{transition:none}}"
+    },
+    {
+      "name": "Prototype Model Select",
+      "kind": "input",
+      "description": "Existing native model selector, preserving real detector options and shared control geometry.",
+      "html": "<div class=\"ds-model-select\"><label for=\"ds-model\">Detector</label><select id=\"ds-model\"><option value=\"phase23\">Phase 23 detector</option><option value=\"baseline\">Baseline detector</option></select></div>",
+      "css": ".ds-model-select{display:grid;gap:8px;font-family:\"Helvetica Neue\",Arial,Helvetica,sans-serif}.ds-model-select label{font-weight:700;font-size:12px}.ds-model-select select{min-height:44px;border:1px solid var(--site-rule,#dedfe2);border-radius:4px;padding:10px;background:#fff;color:#20415f;max-width:100%;font-family:inherit}.ds-model-select select:focus-visible{outline:3px solid var(--site-action,#3e6ae1);outline-offset:4px}"
+    },
+    {
+      "name": "Report Evidence Card",
+      "kind": "card",
+      "description": "Flat white report container; original evidence content remains unchanged.",
+      "html": "<article class=\"ds-report-card\"><h3>Evidence boundary</h3><p>Research on recorded images. No flight-safety claim or real-world controller-tuning claim.</p></article>",
+      "css": ".ds-report-card{border:1px solid var(--site-rule,#dedfe2);border-radius:4px;background:#fff;padding:clamp(24px,3vw,40px);box-shadow:none;color:var(--site-ink,#171a20);font-family:\"Helvetica Neue\",Arial,Helvetica,sans-serif}.ds-report-card h3{font-family:inherit;font-weight:500;letter-spacing:-.025em;line-height:1.25}.ds-report-card p{color:var(--site-muted,#5c5e62);font-size:14px;margin:0;line-height:1.6}"
     }
   ],
   "narrative": {
     "northStar": "Tesla's image-led research chapters",
-    "overview": "The user-pinned Tesla reference establishes centered, spacious composition, full-bleed imagery, neutral typography, and simple rectangular actions. AegisLand retains its identity, research language, working evidence controls, and explicitly attributed NASA context media.\n\nThis is a record of the shipped homepage, not a replacement system for the working prototype or archived research surfaces. Ground truth is `deploy/vercel/index.html` and its stylesheet cascade: the homepage-specific `tesla-home.css` wins through scope and specificity while the final linked `tesla-editorial.css` continues to style the prototype separately. The opening direction contract records the pinned reference override (seed `8f1be4a2`).",
+    "overview": "The user-pinned Tesla reference establishes centered, spacious composition, full-bleed imagery, neutral typography, and simple rectangular actions. AegisLand retains its identity, research language, working evidence controls, and explicitly attributed NASA context media.\n\nThe user approved the homepage and extended the same presentation throughout the website. This record now covers the homepage, prototype, explorer, reports, and historical archive. Ground truth is the shipped templates and their stylesheet cascade: `tesla-home.css` retains the approved homepage composition, while the scoped `tesla-site.css` and `tesla-site.js` adapt the same world to reading reports and operating tools. The existing editorial layer remains in the cascade. The homepage contract records the pinned reference override (seed `8f1be4a2`); the site extension explicitly inherits that approved seed and preserves original findings, limits, controls, and source records.",
     "keyCharacteristics": [
       "Full-width media chapters with centered foreground copy.",
       "White navigation and open research sections with a pale comparison surface.",
       "Small-radius controls, flat containers, and clear evidence annotations.",
-      "Visible source attribution, caveats, focus states, and individual film controls."
+      "Visible source attribution, caveats, focus states, and individual film controls.",
+      "Shared presentation across reports, tools, and archive without changing scientific records or calculations."
     ],
     "rules": [
       {
         "name": "The Evidence Color Rule",
         "body": "Camera annotation, matched-box, and unmatched-box colors keep their existing semantic meaning and legend labels; action blue does not replace them.",
         "section": "colors"
+      },
+      {
+        "name": "The Heading First Rule",
+        "body": "On site-extension surfaces, original introductory labels preceding a same-parent heading become ordinary supporting text immediately after it, preserving their information without retaining decorative kicker styling.",
+        "section": "typography"
       },
       {
         "name": "The Paired Evidence Rule",
@@ -263,13 +321,14 @@
       }
     ],
     "dos": [
-      "Do use the scoped homepage cascade as the source of truth for this surface.",
+      "Do use the scoped homepage and site-extension cascades as the source of truth for their respective surfaces.",
       "Do retain source attribution and evidence caveats beside context media and measurements.",
       "Do preserve paired camera evidence, semantic overlay colors, focus outlines, and film controls.",
-      "Do use open sections and small-radius actions with generous chapter spacing."
+      "Do use open sections and small-radius actions with generous chapter spacing.",
+      "Do preserve original scientific records, interactive calculations, menu handlers, and active control states while sharing presentation."
     ],
     "donts": [
-      "Don't propagate homepage overrides into the working prototype or archived research UI.",
+      "Don't apply full-bleed context-media cropping to measured tool images or scientific plots.",
       "Don't crop recorded camera evidence to imitate the full-bleed context-media treatment.",
       "Don't infer design tokens from overridden legacy declarations or screenshot capture artifacts."
     ]

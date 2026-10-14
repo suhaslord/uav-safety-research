@@ -22,6 +22,8 @@ The homepage links to the working prototype, confidence audit, Failure Atlas, ar
 
 The user requested a website as close to Tesla's website as possible while retaining the existing information. Preserve the AegisLand name and existing research wording, metrics, links, and evidence boundaries. NASA media remains explicitly labeled as research context rather than AegisLand experiment data.
 
+The user approved the homepage redesign and requested the same design throughout the website, including the prototype, explorer, reports, and historical research archive. Scientific records and interactive calculations remain unchanged.
+
 ## Evidence on Hand
 
 `deploy/vercel/index.html`, `docs/research_story.json`, `deploy/vercel/failure-atlas-data.json`, the existing NASA footage in `deploy/vercel/film/`, and the existing NASA ACERO photographs in `deploy/vercel/media/`.

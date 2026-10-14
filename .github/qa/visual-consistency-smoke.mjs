@@ -134,7 +134,10 @@ try {
         responsivePhaseStyle: [...document.querySelectorAll('link[rel="stylesheet"]')].some(link => (link.getAttribute('href') || '').startsWith('/phase-reading-responsive.css')),
         phaseHeroColumns: (() => {
           const element = document.querySelector('body.archive-shell .hero, .phase-detail__hero, .hero-grid');
-          if (!element || getComputedStyle(element).display !== 'grid') return null;
+          if (!element) return null;
+          const style = getComputedStyle(element);
+          if (style.display === 'flex' && style.flexDirection === 'column') return 1;
+          if (style.display !== 'grid') return null;
           return getComputedStyle(element).gridTemplateColumns.trim().split(/\s+/).filter(Boolean).length;
         })(),
         phaseStoryColumns: (() => {

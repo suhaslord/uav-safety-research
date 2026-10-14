@@ -117,6 +117,12 @@ try {
             const rect = frame.getBoundingClientRect();
             return rect.height > 0 ? rect.width / rect.height : 0;
           }),
+          heroMediaFits: frames.map(frame => {
+            const hero = frame.closest('[data-tesla-hero="photo"]');
+            if (!hero) return null;
+            const media = frame.getBoundingClientRect(), surface = hero.getBoundingClientRect();
+            return Math.abs(media.width-surface.width)<2 && Math.abs(media.height-surface.height)<2;
+          }),
           // This smoke test owns only editorial/context photography. Dataset evidence
           // can be sourced independently without weakening the local-media contract
           // for the NASA editorial figures themselves.
@@ -200,7 +206,7 @@ try {
         add(`${viewport.name}-${route}-phase-photo-credit`, state.credits.length === 1 && /Public domain/i.test(state.credits[0]) && /(Don Richey|Joel Kowsky)/i.test(state.credits[0]), { credits: state.credits });
         add(`${viewport.name}-${route}-phase-photo-source`, state.sourceLinks.length === 1 && state.sourceLinks[0].startsWith('https://commons.wikimedia.org/wiki/File:'), { sourceLinks: state.sourceLinks });
         const targetRatio = expectedPhaseRatio(viewport.name);
-        add(`${viewport.name}-${route}-phase-photo-ratio`, state.ratios.length === 1 && Math.abs(state.ratios[0] - targetRatio) < 0.03, { ratios: state.ratios, targetRatio });
+        add(`${viewport.name}-${route}-phase-photo-ratio`, state.ratios.length === 1 && (state.heroMediaFits[0] === true || (state.heroMediaFits[0] === null && Math.abs(state.ratios[0] - targetRatio) < 0.03)), { ratios: state.ratios, targetRatio, heroMediaFits:state.heroMediaFits });
         if (viewport.name === 'desktop' && state.localSources[0]) desktopPhaseSources.set(route, state.localSources[0]);
       }
       await page.close();

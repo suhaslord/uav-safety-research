@@ -32,7 +32,7 @@ const dashboardAssets = new Set([
 ]);
 
 const deployAssets = new Set([
-  'tesla-home.css',
+  'tesla-home.css', 'tesla-site.css', 'tesla-site.js',
   'lab/state.mjs', 'lab/lab.js', 'lab/lab.css', 'lab/worker.js', 'lab/python-bundle.json', 'lab/current-data.js',
   'prototype-cases.json', 'prototype.js', 'prototype.css', 'tesla-editorial.css', 'research-story.css', 'aegisland-unified.css', 'home-evidence.css', 'home-evidence.js', 'home-film-restore.css', 'home-film-restore.js', 'phase-explorer.js', 'presentation.js', 'presentation.css', 'aegisland.css', 'signature.css', 'research-home.css', 'research-media.css', 'phase-polish.css',
   'phase-polish-fixes.css', 'phase-polish-v2.css', 'phase-ui-consistency.css', 'final-convergence.css', 'final-convergence-base.css', 'craft-polish.css', 'phase-reading-responsive.css', 'home-hero-contrast.css', 'frozen-lineage.js', 'ornik-fdi.css',

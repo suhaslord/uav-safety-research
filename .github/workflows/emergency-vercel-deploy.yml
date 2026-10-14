@@ -407,6 +407,7 @@ jobs:
           QA_BASE_URL=https://aegisland-research-cockpit.vercel.app node .github/qa/phase22-release-smoke.mjs
           QA_BASE_URL=https://aegisland-research-cockpit.vercel.app QA_OUT=qa-artifacts/home-evidence node .github/qa/home-evidence-smoke.mjs
           QA_BASE_URL=https://aegisland-research-cockpit.vercel.app node .github/qa/website-regression-smoke.mjs
+          QA_BASE_URL=https://aegisland-research-cockpit.vercel.app node .github/qa/tesla-site-smoke.mjs
           python -c 'import json,os,urllib.request; d=json.load(urllib.request.urlopen("https://aegisland-research-cockpit.vercel.app/release.json")); assert d["commit"]==os.environ["GITHUB_SHA"],d'
       - uses: actions/upload-artifact@v4
         if: always()
