@@ -1,0 +1,8 @@
+{
+  "question": "Can a drone recognize when its landing-pad detection is wrong?",
+  "hypothesis": "A confidence-based check can reduce accepted wrong landing-pad locations on new camera data without rejecting nearly every detection.",
+  "goal": "Know when to trust a landing-pad detection and when to hold it back.",
+  "finding": "In 86 reused test frames under occlusion, Phase 23 had a correct box somewhere in 43 views, but its top-confidence box was correct in only 23.",
+  "method": "Score the best detection, accept or abstain, then measure mistakes and coverage on separate camera sessions.",
+  "status": "Independent camera validation is still pending."
+}
