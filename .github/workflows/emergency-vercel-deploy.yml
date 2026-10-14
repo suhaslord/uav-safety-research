@@ -153,7 +153,7 @@ jobs:
           ! grep -q '/lab/lab.js' .vercel-release/index.html
           grep -q '/media/perception/synthetic_clean.png' .vercel-release/presentation.js
           ! grep -q 'raw.githubusercontent.com' .vercel-release/presentation.js
-          grep -q '6 PASS / 7 FAIL' .vercel-release/index.html
+          grep -q 'Independent camera validation is still pending.' .vercel-release/index.html
           grep -q '0.8319' .vercel-release/index.html
           grep -q '0.7744' .vercel-release/index.html
           grep -q '100%' .vercel-release/index.html
@@ -253,7 +253,7 @@ jobs:
           printf '%s' "$PUBLIC_HTML" | grep 'href="/aegisland-brand.css?v=' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep 'src="/model-vase-mark.svg"' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep 'class="home-film-hero"' > /dev/null
-          printf '%s' "$PUBLIC_HTML" | grep 'visual context, not AegisLand experiment data' > /dev/null
+          printf '%s' "$PUBLIC_HTML" | grep 'flight context, not AegisLand experiment data' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep 'NASA Armstrong footage' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep 'Can a drone recognize when its landing-pad detection is wrong?' > /dev/null
           printf '%s' "$PUBLIC_HTML" | grep 'A confidence-based check can reduce accepted wrong landing-pad locations' > /dev/null
