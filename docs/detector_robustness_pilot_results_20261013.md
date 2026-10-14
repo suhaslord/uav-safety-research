@@ -1,6 +1,8 @@
 # Detector robustness: first paired development pilot — 2026-10-13 PT
 
 **Execution: PASS. Experimental status: exploratory development only.**
+
+**Superseding methodological correction:** the first pilot gave the augmented model roughly triple the optimizer updates, so its apparent accuracy gain is confounded. The subsequent **matched-budget study** found that augmentation reduced clean mAP50 and precision. See [matched-budget results](detector_robustness_matched_budget_results_20261013.md). Do not promote the candidate from this earlier pilot or cite its positive delta as a verified model improvement.
 [GitHub Actions run 38509701137](https://github.com/suhaslord/uav-safety-research/actions/runs/38509701137) succeeded after restoring the SHA-verified KIOS archive from cache. The original Zenodo attempt timed out, but this successful rerun reconstructed the fixed source split and completed both real YOLO11n CPU training runs.
 
 The saved `phase27-dev-only-model-pilot` artifact (GitHub Actions artifact ID **11868999004**) contains the full development-only comparison JSON, training image receipt, separate baseline/candidate `best.pt` files, and both training CSV logs. The ZIP is **not** a new official Phase 23 checkpoint or independent flight-safety evidence.
