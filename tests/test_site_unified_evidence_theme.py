@@ -93,8 +93,8 @@ class UnifiedWebsiteTests(unittest.TestCase):
             with self.subTest(value=value):
                 self.assertIn(value.lower(), self.faults.lower())
         self.assertIn('href="/confidence-audit/"', self.home)
-        self.assertIn('id="confidence-findings"', self.home)
-        self.assertIn("NO DATASET", self.home)
+        self.assertIn('id="findings"', self.home)
+        self.assertIn("No independent Phase 26 dataset has passed admission", self.home)
 
     def test_accessibility_and_mobile_contract(self):
         d = Document()
