@@ -65,6 +65,24 @@ used for the admission screen. Store annotations separately from image files.
 
 ## Build and screen the candidate
 
+Before the expensive full-archive comparison, optionally run a **metadata-only**
+preflight on the unaltered candidate CSV:
+
+```bash
+python -m scripts.check_phase26_metadata \\
+  --manifest data/external/phase26_new_campaign/capture_manifest.csv \\
+  --out data/external/phase26_new_campaign/metadata_preflight.json
+```
+
+This catches missing minimum 30 images, fewer than two documented session
+IDs, missing development/test partitions, empty-target inventory omissions,
+invalid image-hash fields, and listed split/video/hash reuse. The report
+separately counts empty-target rows in development and test. **It does not
+authenticate the files, infer independent capture, prove negative labels, screen
+against KIOS, authorize inference, or admit a dataset.** The hash-locked full
+`audit_phase26_manifest.py` and documented human reviews below remain
+mandatory; none of the frozen protocol or hash-locked scripts changed.
+
 1. Put unchanged candidate images under one candidate directory. Fill
    [`phase26_capture_manifest_template.csv`](phase26_capture_manifest_template.csv)
    with one row for every image. `path` is relative to the candidate directory;
