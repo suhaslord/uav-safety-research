@@ -101,7 +101,12 @@ def prepare_development_stress(source_root: Path, work_dir: Path, seed: int) -> 
                     transformed.save(output)
             shutil.copyfile(label, root / "labels/val" / label.name)
         yaml = root / "data.yaml"
-        yaml.write_text(f"path: {root.resolve()}\nval: images/val\nnames:\n  0: landing_pad\n",
+        # Ultralytics requires a train key even for a val-only invocation;
+        # point it at the unchanged original development training directory.
+        # No training call is ever made with this stress-data YAML.
+        yaml.write_text(f"path: {root.resolve()}\n"
+                        f"train: {(source_root / 'images/train').resolve()}\n"
+                        "val: images/val\nnames:\n  0: landing_pad\n",
                         encoding="utf-8")
         data[condition] = yaml
     return data
