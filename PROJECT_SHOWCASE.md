@@ -25,6 +25,8 @@ Independent camera validation is still pending. The [existing Phase 26 protocol]
 - [Source-based claim audit](scripts/audit_showcase_claims.py): verifies historical paired counts and reports that no independent external dataset is admitted.
 - [Full methods and limitations](docs/showcase_validation_checklist_2026_10_13.md): what an external validation must contain.
 
+**Coverage** means the fraction of eligible images for which the rule accepts a result; it must be reported beside the wrong-accepted-result rate so abstaining on everything cannot look successful.
+
 **Not claimed:** a tested flight-safety system, an end-to-end landing controller, or proof of generalization to a new camera.
 
 **Other engineering work** (including simulation and motor-fault studies) remains in the [research archive](https://aegisland-research-cockpit.vercel.app/phases/). It is supporting work, not proof of the camera-reliability hypothesis.
