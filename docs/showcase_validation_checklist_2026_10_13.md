@@ -23,6 +23,12 @@
 - Units of statistical independence: **capture sessions**. An array of heavily correlated frames is not a sample of independent flights; with too few sessions, present descriptive counts only.
 - Keep an explicit status flag: development audit, admitted independent test, or not admitted. No pilot/airworthiness/safety claim.
 
+## What would count as an original contribution?
+
+The maximum-confidence threshold in Phase 26 is a **necessary baseline, not a new algorithm**. A stronger follow-on idea is to test whether *independent evidence* (for example, predeclared temporal box consistency on a video sequence, or a genuinely independent onboard state-estimate signal where available) can flag confidently wrong top predictions that confidence alone misses. That follows the existing Model VASE motivation, but it is not yet a demonstrated method.
+
+Treat that as a **separate prospective hypothesis and experiment** after the confidence-only baseline, not a post-hoc change to the current Phase 26 rule. Before implementation: specify what independent measurements are actually available, align timestamps and coordinate systems, prevent test-label leakage, preregister the comparison (always accept vs confidence only vs independent-consistency filter), fix costs of false rejects, and reserve **another untouched** session-level test for any new model/rule selection. Do not reuse the baseline's opened test set to tune a follow-on filter. If no appropriate independent signal or new untouched sessions exist, the primary publishable contribution remains the transparent failure-mode audit and negative validation limitations rather than an invented sensor-fusion result.
+
 ## Concrete work order and hard gates
 
 | Priority | Deliverable | Pass criteria | Current state |
