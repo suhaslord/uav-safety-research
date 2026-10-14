@@ -3,10 +3,10 @@ name: Detector robustness development detector pilot
 on:
   pull_request:
     paths:
-      - 'scripts/prepare_detector_robustness_dev_augmentation.py'
-      - 'scripts/train_detector_robustness_dev_candidate.py'
-      - 'tests/test_detector_robustness_dev_augmentation.py'
-      - 'docs/detector_robustness_dev_detector_candidate.md'
+      - 'scripts/prepare_detector_robustness_augmentation.py'
+      - 'scripts/train_detector_robustness_candidate.py'
+      - 'tests/test_detector_robustness_augmentation.py'
+      - 'docs/detector_robustness_candidate.md'
       - '.github/workflows/detector_robustness-dev-detector-pilot.yml'
   workflow_dispatch:
 
@@ -33,7 +33,7 @@ jobs:
           python -m pip install ultralytics
 
       - name: Unit tests and untrusted-fixture guards
-        run: pytest -q tests/test_detector_robustness_dev_augmentation.py
+        run: pytest -q tests/test_detector_robustness_augmentation.py
 
       - name: Install official archive extractor
         run: |
@@ -70,14 +70,14 @@ jobs:
 
       - name: Create train-only camera-stress images
         run: |
-          python -m scripts.prepare_detector_robustness_dev_augmentation \
+          python -m scripts.prepare_detector_robustness_augmentation \
             --split-root "$RUNNER_TEMP/detector_robustness-split" \
             --out "$RUNNER_TEMP/detector_robustness-aug" \
             --seed 20261013 --variants 2
 
       - name: Train baseline and candidate, compare only untouched development validation
         run: |
-          python -m scripts.train_detector_robustness_dev_candidate \
+          python -m scripts.train_detector_robustness_candidate \
             --source-root "$RUNNER_TEMP/detector_robustness-split" \
             --candidate-root "$RUNNER_TEMP/detector_robustness-aug" \
             --out "$RUNNER_TEMP/detector_robustness-comparison" \
