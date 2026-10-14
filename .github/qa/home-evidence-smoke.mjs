@@ -49,12 +49,12 @@ try {
         filmWidth:film.width,
         videoCount:videos.length,
         mutedInlineAutoplay:videos.filter(v=>v.hasAttribute('muted')&&v.hasAttribute('autoplay')&&v.hasAttribute('playsinline')).length,
-        chartRows:document.querySelectorAll('[data-atlas-chart] .atlas-chart-row').length,
+        storySteps:document.querySelectorAll('.story-steps article').length,
         height:document.documentElement.scrollHeight
       };
     });
     add(`${width}-no-horizontal-overflow`,geometry.overflow<=1,geometry);
-    add(`${width}-film-before-evidence`,geometry.filmTop<geometry.previewTop&&geometry.videoCount===2&&geometry.mutedInlineAutoplay===2&&geometry.chartRows===6,geometry);
+    add(`${width}-film-before-evidence`,geometry.filmTop<geometry.previewTop&&geometry.videoCount===2&&geometry.mutedInlineAutoplay===2&&geometry.storySteps===3,geometry);
     if(width===1440)add('desktop-video-first-viewport',geometry.filmTop<1000&&geometry.filmWidth>500&&geometry.previewWidth>500,geometry);
     if(width<=768) {
       await page.locator('#mobileMenuToggle').click();
