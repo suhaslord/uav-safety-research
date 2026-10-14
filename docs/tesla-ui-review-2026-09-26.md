@@ -11,3 +11,11 @@ Reference inspected: [Tesla homepage](https://www.tesla.com/) and [Model Y page]
 | An image or video has room without disguising factual detail. | Some evidence sections were visually crowded even when the underlying result was clear. | Kept the detailed metrics, limits, sources, PASS/FAIL record, and report charts below the simpler opening. |
 
 The media remain AegisLand's existing NASA context photographs and KIOS result frames, with their source and evidence-boundary labels. Frozen verdicts and numerical result artifacts were not changed. The shared style layer is `deploy/vercel/site-refresh.css`; it is loaded last by the homepage, archive, historical/frozen phase templates, and Phase 23/24 reports.
+
+## October 13: editorial refresh (homepage and prototype)
+
+Reference revisited: [Tesla Model Y](https://www.tesla.com/modely) and the [Tesla homepage](https://www.tesla.com/). The useful reference is the hierarchy, **not** the red logo, cars, photos, or sales copy: clear short headings, prominent original media, flat light/dark surfaces, quiet metadata, small navigation, and straightforward actions.
+
+The scoped `deploy/vercel/tesla-editorial.css` now loads **after** the older layered stylesheets on `index.html` and `prototype.html`. It replaces decorative blue radial gradients, oversized rounded cards, shadows, and bold colored hero lettering with white/light-gray editorial sections, graphite headlines, minimal rectangular controls, and a restrained blue link/annotation accent. The placement of the copy, NASA context videos, archived frame comparisons, prediction overlays, controls, statistics, and scientific notices is intentionally unchanged. Older archive and frozen report pages remain unmodified.
+
+Test coverage: `tests/test_tesla_editorial.py` checks stylesheet loading order, retained videos, preserved controls, and explicit independent-test boundaries. Existing browser workflows cover desktop/mobile functionality. Style changes do **not** assert new experimental results, independent camera data, or flight safety.
