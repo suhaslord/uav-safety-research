@@ -210,7 +210,7 @@ def test_matched_candidate_modified_training_label_is_rejected(tmp_path, monkeyp
     original_verify = verify_split
     monkeypatch.setattr(runner, "verify_split", lambda location:
                         original_verify(location, locked_sha=sha, protected_manifest=protected))
-    (new / "labels/train/train__0001.txt").write_text("0 0.5 0.5 0.4 0.4\\n")
+    (new / "labels/train/train__0001.txt").write_text("0 0.5 0.5 0.4 0.4\n")
     with pytest.raises(ValueError, match="training label was changed"):
         runner.train_pair(root, new, tmp_path / "unused", model_factory=lambda _: None)
     assert not (tmp_path / "unused").exists()
