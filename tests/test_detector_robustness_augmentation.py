@@ -9,7 +9,7 @@ import numpy as np
 from PIL import Image
 import pytest
 
-from scripts.prepare_detector_robustness_dev_augmentation import (
+from scripts.prepare_detector_robustness_augmentation import (
     augment, build, digest, verify_split,
 )
 
@@ -108,7 +108,7 @@ def test_partial_obstructions_do_not_fully_hide_targets():
 
 
 def test_paired_training_is_same_seed_and_val_only(tmp_path, monkeypatch):
-    from scripts import train_detector_robustness_dev_candidate as runner
+    from scripts import train_detector_robustness_candidate as runner
     root, sha, protected = sample_split(tmp_path)
     candidate = tmp_path / "candidate"
     build(root, candidate, variants=1, locked_sha=sha, protected_manifest=protected)
@@ -153,7 +153,7 @@ def test_paired_training_is_same_seed_and_val_only(tmp_path, monkeypatch):
 
 
 def test_changed_validation_file_blocks_training(tmp_path, monkeypatch):
-    from scripts import train_detector_robustness_dev_candidate as runner
+    from scripts import train_detector_robustness_candidate as runner
     root, sha, protected = sample_split(tmp_path)
     candidate = tmp_path / "candidate"
     build(root, candidate, variants=1, locked_sha=sha, protected_manifest=protected)
