@@ -40,10 +40,30 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y p7zip-full
 
+      - name: Restore authenticated KIOS archive cache
+        uses: actions/cache@v4
+        with:
+          path: .cache/phase25/airisim_dataset2.7z
+          key: phase25-kios-archive-13682584-865515c2d8f5e9cd9b2ee1e1ec294270
+
       - name: Reconstruct SHA-verified KIOS split
         run: |
-          python scripts/download_kios_real_landing_dataset.py \
-            --out "$RUNNER_TEMP/phase27-kios" --accept-download --extract
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/phase27-kios"
+          if test -f .cache/phase25/airisim_dataset2.7z; then
+            cp .cache/phase25/airisim_dataset2.7z "$RUNNER_TEMP/phase27-kios/airisim_dataset2.7z"
+          fi
+          for attempt in 1 2 3; do
+            if python scripts/download_kios_real_landing_dataset.py \
+              --out "$RUNNER_TEMP/phase27-kios" --accept-download --extract; then
+              break
+            fi
+            rm -f "$RUNNER_TEMP/phase27-kios/airisim_dataset2.7z"
+            if test "$attempt" -eq 3; then
+              exit 1
+            fi
+            sleep $((attempt * 5))
+          done
           python scripts/prepare_kios_real_yolo_split.py \
             --dataset-root "$RUNNER_TEMP/phase27-kios/extracted" \
             --out "$RUNNER_TEMP/phase27-split"
