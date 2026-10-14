@@ -9,8 +9,9 @@
   const saveData = () => Boolean(navigator.connection && navigator.connection.saveData);
   const state = new WeakMap();
 
-  for (const video of films) {
-    const toggle = video.closest('.home-film-hero')?.querySelector('[data-film-toggle]');
+  for (const [index, video] of films.entries()) {
+    const toggle = video.closest('figure')?.querySelector('[data-film-toggle]');
+    const footageLabel = index === 0 ? 'aircraft footage' : 'wind-tunnel footage';
     const filmState = { visible: false, manuallyPaused: false, request: 0 };
     state.set(video, filmState);
     video.muted = true;
@@ -18,13 +19,13 @@
     video.playsInline = true;
     video.loop = true;
     video.preload = 'metadata';
-    video.controls = !toggle;  // Native pause/seek always available on the secondary clip.
+    video.controls = !toggle;
 
     const updateButton = () => {
       if (!toggle) return;
       const paused = video.paused;
       toggle.textContent = paused ? 'Play' : 'Pause';
-      toggle.setAttribute('aria-label', paused ? 'Play aircraft footage' : 'Pause aircraft footage');
+      toggle.setAttribute('aria-label', `${paused ? 'Play' : 'Pause'} ${footageLabel}`);
       toggle.setAttribute('aria-pressed', String(!paused));
     };
 
@@ -48,7 +49,7 @@
     };
 
     if (toggle) {
-      if (video.id === '') video.id = 'aegis-feature-film';
+      if (video.id === '') video.id = index === 0 ? 'aegis-feature-film' : `aegis-context-film-${index}`;
       toggle.setAttribute('aria-controls', video.id);
       toggle.hidden = false;
       toggle.addEventListener('click', () => {
