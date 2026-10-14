@@ -119,7 +119,7 @@ def group_development_sessions(images: list[Path]) -> dict[str, list[Path]]:
         if "__" not in item.stem:
             raise ValueError("Missing development sequence ID in image name")
         sequence = item.stem.rsplit("__", 1)[0]
-        if not sequence or sequence in {".", ".."} or "/" in sequence or "\\\\" in sequence:
+        if not sequence or sequence in {".", ".."} or "/" in sequence or "\\" in sequence:
             raise ValueError("Invalid development sequence ID")
         groups.setdefault(sequence, []).append(item)
     return {name: sorted(group, key=lambda p: p.name)
@@ -159,9 +159,9 @@ def prepare_development_session_slices(source_root: Path, stress: dict[str, Path
                 shutil.copyfile(label, root / "labels/val" / label.name)
             yaml = root / "data.yaml"
             yaml.write_text(
-                f"path: {root.resolve()}\\n"
-                f"train: {(source_root / 'images/train').resolve()}\\n"
-                "val: images/val\\nnames:\\n  0: landing_pad\\n", encoding="utf-8")
+                f"path: {root.resolve()}\n"
+                f"train: {(source_root / 'images/train').resolve()}\n"
+                "val: images/val\nnames:\n  0: landing_pad\n", encoding="utf-8")
             configurations[sequence][condition] = yaml
     return configurations, counts
 
