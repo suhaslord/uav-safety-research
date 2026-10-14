@@ -69,6 +69,12 @@ jobs:
       - name: Fetch licensed editorial media
         run: node deploy/vercel/fetch-editorial-media.mjs
 
+      - name: Build offline reliability prototype from frozen signed inputs
+        run: |
+          python -m scripts.build_reliability_prototype
+          python -m scripts.build_reliability_prototype --check
+          test -s deploy/vercel/prototype-cases.json
+          node --check deploy/vercel/prototype.js
       - name: Build self-contained production bundle
         shell: bash
         run: |
@@ -97,6 +103,10 @@ jobs:
           ! grep -q 'cdn.jsdelivr.net/gh/suhaslord/uav-safety-research' .vercel-release/index.html .vercel-release/vercel.json
 
           test -f .vercel-release/aegisland.css
+          test -s .vercel-release/prototype.html
+          test -s .vercel-release/prototype.js
+          test -s .vercel-release/prototype.css
+          test -s .vercel-release/prototype-cases.json
           test -f .vercel-release/research-home.css
           test -f .vercel-release/research-media.css
           test -f .vercel-release/phase-polish.css

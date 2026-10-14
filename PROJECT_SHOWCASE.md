@@ -18,6 +18,10 @@ A camera can sound confident and still point to the wrong landing pad. In 86 reu
 
 Independent camera validation is still pending. The [existing Phase 26 protocol](docs/phase26_protocol.md) and [candidate admission rules](docs/phase26_imav2025_preregistration.md) control the actual experiment; this page is a simple explanation, **not a new protocol**.
 
+## Working prototype
+
+[Try the offline camera reliability check](https://aegisland-research-cockpit.vercel.app/prototype/). It plays back authentic **previously tested** detector outputs. The confidence score determines ACCEPT or ABSTAIN without reading an annotation; the annotation is shown after the decision for explanation. The cutoff slider is **illustrative only**, not a tuned or validated threshold. The new-camera experiment remains pending.
+
 ## Evidence so far
 
 - [Phase 25 top-confidence audit](docs/phase25_top_confidence_results_20261011.md): the most confident box is sometimes wrong even if another box is correct. Retrospective analysis, not a new independent test.

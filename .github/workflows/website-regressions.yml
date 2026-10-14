@@ -30,6 +30,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Rebuild frozen prototype records before browser tests
+        run: |
+          python -m scripts.build_reliability_prototype
+          python -m scripts.build_reliability_prototype --check
       - name: Install browser test runtime
         run: |
           npm install --no-save playwright@1.55.0
@@ -48,3 +55,4 @@ jobs:
             sleep 1
           done
           node .github/qa/website-regression-smoke.mjs
+          node .github/qa/prototype-smoke.mjs

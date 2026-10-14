@@ -1,6 +1,14 @@
 {
   "rewrites": [
     {
+      "source": "/prototype/",
+      "destination": "/prototype.html"
+    },
+    {
+      "source": "/prototype",
+      "destination": "/prototype.html"
+    },
+    {
       "source": "/phase22-detector-study/",
       "destination": "/phase22-detector-study.html"
     },

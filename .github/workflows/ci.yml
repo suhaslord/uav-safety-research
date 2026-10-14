@@ -48,6 +48,12 @@ jobs:
           python scripts/reproduce_release.py --skip-site > /dev/null
       - name: Check Phase 8 Trace Lab JavaScript
         run: node --check phase8_dashboard/app.js
+      - name: Generate authenticated offline reliability demo and check browser logic
+        run: |
+          python -m scripts.build_reliability_prototype
+          python -m scripts.build_reliability_prototype --check
+          node --check deploy/vercel/prototype.js
+          node --test tests/prototype_logic.test.cjs
       - name: Unit tests
         run: pytest -q
       - name: Browser experiment state regression tests
