@@ -101,7 +101,7 @@ def prepare_development_stress(source_root: Path, work_dir: Path, seed: int) -> 
                     transformed.save(output)
             shutil.copyfile(label, root / "labels/val" / label.name)
         yaml = root / "data.yaml"
-        yaml.write_text(f"path: {root.resolve()}\\nval: images/val\\nnames:\\n  0: landing_pad\\n",
+        yaml.write_text(f"path: {root.resolve()}\nval: images/val\nnames:\n  0: landing_pad\n",
                         encoding="utf-8")
         data[condition] = yaml
     return data
