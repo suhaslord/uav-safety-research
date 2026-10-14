@@ -19,7 +19,7 @@ This is **development within the same two KIOS source sequences**, not independe
 First use the verified KIOS source archive and existing `scripts/prepare_kios_real_yolo_split.py` to reconstruct `data/derived/kios_real_yolo`. Then:
 
 ```bash
-python -m scripts.prepare_detector_robustness_dev_augmentation \
+python -m scripts.prepare_detector_robustness_augmentation \
   --split-root data/derived/kios_real_yolo \
   --out data/derived/detector_robustness_train_candidate \
   --seed 20261013 --variants 2
@@ -32,7 +32,7 @@ This generates candidate training images, copied validation, `data.yaml`, and a 
 With Ultralytics installed and pretrained `yolo11n.pt` available:
 
 ```bash
-python -m scripts.train_detector_robustness_dev_candidate \
+python -m scripts.train_detector_robustness_candidate \
   --source-root data/derived/kios_real_yolo \
   --candidate-root data/derived/detector_robustness_train_candidate \
   --out results/detector_robustness_dev_comparison \
