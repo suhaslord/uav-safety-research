@@ -1,8 +1,8 @@
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
 
-const base = 'http://127.0.0.1:4173';
-const server = spawn('node',['.github/qa/local-vercel-server.mjs'],{stdio:'ignore'});
+const base = process.env.QA_BASE_URL || 'http://127.0.0.1:4173';
+const server = process.env.QA_BASE_URL ? null : spawn('node',['.github/qa/local-vercel-server.mjs'],{stdio:'ignore'});
 let browser;
 const checks=[];
 const check=(name,pass,details={})=>{
@@ -57,5 +57,5 @@ try{
   process.exitCode=1;
 }finally{
   if(browser)await browser.close();
-  server.kill();
+  if (server) server.kill();
 }
