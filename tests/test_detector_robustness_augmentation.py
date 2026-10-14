@@ -214,3 +214,29 @@ def test_matched_candidate_modified_training_label_is_rejected(tmp_path, monkeyp
     with pytest.raises(ValueError, match="training label was changed"):
         runner.train_pair(root, new, tmp_path / "unused", model_factory=lambda _: None)
     assert not (tmp_path / "unused").exists()
+
+
+def test_photometric_only_training_never_masks_target(tmp_path):
+    root, sha, protected = sample_split(tmp_path)
+    receipt = build(root, tmp_path / "mild", seed=20261013, variants=1,
+                    mode="matched", replace_fraction=0.15,
+                    train_condition_set="photometric",
+                    locked_sha=sha, protected_manifest=protected)
+    assert receipt["train_condition_set"] == "photometric"
+    assert receipt["train_conditions"] == ["blur", "low_light", "noise"]
+    assert receipt["transformed_train"] == 1
+    assert receipt["training_image_count"] == 2
+    assert {r["condition"] for r in receipt["inventory"]} <= {
+        "original", "blur", "low_light", "noise"}
+    assert all(r["masked_fraction_upper_bound"] == 0 for r in receipt["inventory"])
+    assert (tmp_path / "mild/images/val/val__0003.png").read_bytes() == (
+        root / "images/val/val__0003.png").read_bytes()
+
+
+def test_unknown_condition_set_is_rejected_before_output(tmp_path):
+    root, sha, protected = sample_split(tmp_path)
+    with pytest.raises(ValueError, match="documented training condition set"):
+        build(root, tmp_path / "bad", mode="matched", variants=1,
+              train_condition_set="other", locked_sha=sha,
+              protected_manifest=protected)
+    assert not (tmp_path / "bad").exists()
