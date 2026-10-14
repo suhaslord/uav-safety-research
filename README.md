@@ -29,6 +29,16 @@ In 86 reused test frames under occlusion, Phase 23 had a correct box somewhere i
 
 The [interactive offline demo](https://aegisland-research-cockpit.vercel.app/prototype/) uses the **original frozen top-prediction outputs** on 86 previously used KIOS frames, with six viewing conditions and both archived detectors. Change the illustrative cutoff, inspect the selected box, and compare wrong accepted predictions with coverage. It makes no independent-data or flight-safety claims. Rebuild its locked records with `python -m scripts.build_reliability_prototype`.
 
+### Optional: try the original frozen detector on your own still images
+
+The website demo plays back existing model outputs. For **actual offline model inference**, `scripts/run_prototype_on_images.py` also supports local JPG/PNG files using only the checksum-verified Phase 22 baseline checkpoint. After setting up Ultralytics and the authentic `best.pt` from the [Phase 22 recovery record](docs/phase22_representation_study.md):
+
+```bash
+python -m scripts.run_prototype_on_images --weights /path/to/best.pt --images /path/to/pictures --illustrative-cutoff 0.50 --out /path/to/new-offline-report.json
+```
+
+This runs CPU inference without labels, produces a per-image prediction/abstention receipt, and rejects an incorrect checkpoint. The cutoff is **for a demo only**, not a calibrated or independently tested rule. This tool processes saved images; it does not connect to or control a drone.
+
 ## Explore and reproduce
 
 - [Phase 25 camera Failure Atlas](results/phase25_failure_atlas/summary.md) and [confidence diagnostic](docs/phase25_top_confidence_results_20261011.md)
