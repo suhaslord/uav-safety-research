@@ -60,7 +60,8 @@ def test_interactive_explorer_stays_separate_from_film_hero():
     assert all(f'data-home-condition="{key}"' in home
                for key in ("clean", "blur", "low_light", "noise", "occlusion", "mixed"))
     assert "Illustrative reused KIOS frame" in home
-    assert "not a flight-safety claim" in home
+    assert "No flight-safety claim" in home
+    assert "not a calibrated probability of a safe landing" in home
 
 
 def test_home_is_blue_and_css_loads_last():

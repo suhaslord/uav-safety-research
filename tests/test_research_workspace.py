@@ -9,15 +9,15 @@ def _read(path: str) -> str:
 
 def test_home_actions_feature_phase25_and_scope_phase22_status() -> None:
     html = _read("deploy/vercel/index.html")
-    assert 'href="/model-vase/">Model VASE</a>' in html
-    assert 'href="/failure-atlas/">Explore Failure Atlas</a>' in html
-    assert 'href="/phases/">Archive</a>' in html
-    assert 'id="current-audit"' in html
-    assert 'id="status"' in html and "Phase 22: transfer without refitting." in html
+    assert 'id="question"' in html and 'id="findings"' in html
+    assert 'id="next"' in html
+    assert 'href="/failure-atlas/"' in html
+    assert 'href="/phases/"' in html
     assert 'href="/phases/phase22/"' in html
-    assert "10 / 10 gates passed" in html
-    assert "6 PASS / 7 FAIL" in html
-    assert 'id="homeLineage"' in html
+    assert 'href="/fdi-results/"' in html  # other experiments stay discoverable
+    assert 'id="home-comparison"' in html
+    assert "Independent camera validation is still pending." in html
+    assert "No flight-safety claim" in html
     assert 'data-aegis-experiment-lab' not in html
     assert "workspace-status-actions" not in html
     assert "workspace-brief-strip" not in html
@@ -60,25 +60,22 @@ def test_workspace_interaction_layer_is_loaded_across_public_shells() -> None:
 
 def test_home_editorial_media_is_local_credited_and_context_only() -> None:
     html = _read("deploy/vercel/index.html")
-    css = _read("deploy/vercel/home-evidence.css")
     fetcher = _read("deploy/vercel/fetch-editorial-media.mjs")
-
     assert 'data-editorial-media="local-v2"' in html
-    assert 'src="/media/acero-uav-landing.jpg"' in html
     assert "acero-uav-landing.jpg" in fetcher
     assert 'id="home-comparison"' in html
     assert '<img src="https://' not in html
-    assert "visual context, not AegisLand experiment data" in html
+    assert "not AegisLand experiment data" in html
     assert "NASA Armstrong" in html and "NASA Ames" in html
     assert 'class="home-film-hero"' in html
     assert html.index('class="home-film-hero"') < html.index('id="home-comparison"')
-    assert "Model VASE" in html and "Phase 23 paired" in html
-    assert 'class="home-visual-strip"' in html
+    assert 'class="home-visual-strip' in html
     assert html.count('data-home-film autoplay muted') == 2
     assert 'src="/film/aerocast-flight.mp4"' in html
     assert 'src="/film/evaluation-nasa-clip.mp4"' in html
     assert (ROOT / "deploy/vercel/home-film-restore.css").is_file()
     assert "home-film-hero__screen" in _read("deploy/vercel/home-film-restore.css")
+    assert "story-hypothesis" in _read("deploy/vercel/research-story.css")
 
 
 def test_model_vase_hero_uses_the_same_contextual_photo_language_as_home() -> None:

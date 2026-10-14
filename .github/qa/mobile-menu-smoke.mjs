@@ -42,8 +42,8 @@ try {
       add('home-menu-opens', await toggle.getAttribute('aria-expanded') === 'true');
       const sheet = page.locator('#mobileMenuSheet');
       add('home-menu-sheet-visible', await sheet.getAttribute('aria-hidden') === 'false');
-      add('home-menu-has-camera-results', await sheet.locator('a[href="#phase25"]').count() === 1);
-      add('home-menu-has-model-vase', await sheet.locator('a[href="/model-vase/"]').count() === 1);
+      add('home-menu-has-camera-results', await sheet.locator('a[href="#findings"]').count() === 1);
+      add('home-menu-has-model-vase', await sheet.locator('a[href="#next"]').count() === 1);
       add('home-menu-has-archive', await sheet.locator('a[href="/phases/"]').count() === 1);
       await page.screenshot({ path:path.join(OUT,'screenshots','mobile-home-menu-open.png'), fullPage:false });
       await page.keyboard.press('Escape');
@@ -52,8 +52,8 @@ try {
     }
 
     const state = await page.evaluate(() => ({ text:document.body.innerText, boundary:document.querySelector('meta[name="aegis-evidence-boundary"]')?.content || '' }));
-    add('home-phase22-visible', /Phase 22/i.test(state.text) && state.text.includes('0.8319') && state.text.includes('0.7744'));
-    add('home-current-project-framing-visible', /Model VASE explores when a simulator should distrust its own landing estimate/i.test(state.text) && /Baseline measured · Phase 23 paired/i.test(state.text) && /Camera and control results are separate experiments/i.test(state.text));
+    add('home-research-question-visible', state.text.includes('Can a drone recognize when its landing-pad detection is wrong?') && state.text.includes('43') && state.text.includes('23'));
+    add('home-current-project-framing-visible', /A confidence-based check can reduce accepted wrong landing-pad locations/i.test(state.text) && /Independent camera validation is still pending/i.test(state.text));
     add('home-claim-boundary-visible', state.boundary === 'simulation_only=true; safety_acceptance=false; controller_tuning_allowed=false' && /No flight-safety claim/i.test(state.text));
     await page.close();
   }

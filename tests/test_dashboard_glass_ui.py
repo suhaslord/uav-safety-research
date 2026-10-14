@@ -51,8 +51,9 @@ def test_vercel_home_is_native_frozen_archive_using_tesla_style_source():
     assert 'href="/home-evidence.css?v=' in SHELL
     assert 'href="/aegisland-brand.css?v=' in SHELL
     assert 'href="/signature.css?v=' not in SHELL
-    # research-home.css content is now consolidated inside tesla-bundle.css (checked above)
-    assert 'src="/frozen-lineage.js?v=' in SHELL
-    assert ".home-lineage__track" in HOME
-    assert "min-height:610px!important" in HOME
+    # The historical phase spine is in the linked archive, not cluttering the new home.
+    assert 'href="/research-story.css?v=' in SHELL
+    assert 'href="/phases/"' in SHELL
+    assert (ROOT / "deploy" / "vercel" / "research-story.css").is_file()
+    assert ".home-lineage__track" in HOME  # historical CSS remains readable
 

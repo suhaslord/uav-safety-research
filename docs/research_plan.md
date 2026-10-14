@@ -1,5 +1,7 @@
 # Research Plan
 
+> **Current public research question (October 2026):** Can a drone recognize when its landing-pad detection is wrong? The current testable hypothesis and external-validation plan are in [the short research summary](../PROJECT_SHOWCASE.md). This document preserves the earlier simulation-oriented plan as historical context; its controller-safety hypothesis has not been established by the real-image detector work.
+
 ## Working title
 
 **AegisLand: Confidence-Aware Safety Supervision for Vision-Based Autonomous UAV Landing**

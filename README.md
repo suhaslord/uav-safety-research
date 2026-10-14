@@ -1,129 +1,39 @@
 # AegisLand
 
-**UAV landing-perception research: synthetic tests first, then real-image transfer.**
+**Can a drone recognize when its landing-pad detection is wrong?**
 
-[![CI](https://github.com/suhaslord/uav-safety-research/actions/workflows/ci.yml/badge.svg)](https://github.com/suhaslord/uav-safety-research/actions/workflows/ci.yml)
-[![Real dataset](https://img.shields.io/badge/real%20dataset-422%20frames-e82127)](https://doi.org/10.5281/zenodo.13682584)
+A confidence-based check can reduce accepted wrong landing-pad locations on new camera data without rejecting nearly every detection.
 
-[Research cockpit](https://aegisland-research-cockpit.vercel.app/) · [Model VASE](https://aegisland-research-cockpit.vercel.app/model-vase/) · [Failure Atlas](https://aegisland-research-cockpit.vercel.app/failure-atlas/) · [Real-data protocol](docs/real_dataset_track.md) · [Experiment archive](https://aegisland-research-cockpit.vercel.app/phases/)
+AegisLand is a research project about **knowing when a camera prediction can be trusted**. The goal is not to make the detector look perfect; it is to see whether a simple accept-or-abstain check catches bad landing-pad locations **without rejecting almost everything**.
 
-AegisLand asks: **when landing perception becomes unreliable, can the system recognize that before it trusts a bad estimate?**
+**Website:** https://aegisland-research-cockpit.vercel.app/  
+**Short research summary:** [PROJECT_SHOWCASE.md](PROJECT_SHOWCASE.md)  
+**Explore real-image failure cases:** [Failure Atlas](https://aegisland-research-cockpit.vercel.app/failure-atlas/)
 
-[Model VASE](docs/model_vase.md) is the shared system architecture and evidence map for that question: Vision, Auxiliary evidence, State reliability, and Escalation. It routes the frozen V3 simulation path through a parity-checked wrapper and connects every other phase as separate, versioned evidence. It is not a newly trained checkpoint, and the detector, conformal estimator, and supervisor have not yet been evaluated together end to end.
+## The finding that started it
 
-## Research release candidate — 1.0.0rc1
+In 86 reused test frames under occlusion, Phase 23 had a correct box somewhere in 43 views, but its top-confidence box was correct in only 23. These are **reused images from two videos**, not new independent test evidence. [See the measured diagnostic](docs/phase25_top_confidence_results_20261011.md).
 
-The original Phase 23 checkpoint/runtime replay matched all **24 aggregate cells exactly** and all four prediction tables byte-for-byte. The new **860 within-model clean/stress pairs** are separate from the verified 516 cross-model comparisons. Controlled-occlusion v2 saved detections were replay-verified; the original failed clean gate remains failed. **No independent Phase 26 dataset is admitted.**
+## The experiment
 
-[Research revalidation](docs/research_revalidation_2026_10_03.md) · [Reproduce and validate](REPRODUCE.md) · [Detector report](paper/detector_revalidation_report.md) · [Citation/provenance](docs/citation_provenance.md)
+**Detect → Check → Verify**
 
-This is a scoped retrospective release candidate, not a tagged final v1.0, independent evaluation or flight certification. The older audit fixes remain a separate commit; historical result files and recovered source bytes are preserved.
+1. Run the existing frozen detector.
+2. Use the highest detection confidence to accept or abstain; choose the threshold using separate development images only.
+3. Test once on new independent camera sessions. Report both wrong accepted predictions **and** accepted coverage, compared with always trusting the top prediction.
 
-## Where the record stands
+**Current status: Independent camera validation is still pending.** Phase 26 has not admitted an independent real-camera dataset. Do not treat the earlier frame comparisons as proof of generalization. [Frozen protocol](docs/phase26_protocol.md) · [Admission report](docs/phase26_admission_report.json).
 
-- [Phase 22](https://aegisland-research-cockpit.vercel.app/phases/phase22/) closes the frozen **simulation** lineage. Its 10 locked transfer gates passed; that result does not establish flight safety.
-- [Phase 23](https://aegisland-research-cockpit.vercel.app/phases/phase23/) compares a robust KIOS detector with an earlier detector baseline on 86 protected test frames. Clean recall improved by 20.9 percentage points, while occlusion and mixed-stress results regressed.
-- [Phase 24](https://aegisland-research-cockpit.vercel.app/phases/phase24/) reanalyzes the committed Phase 23 condition aggregates. The equal-weight mAP50 average rose by 3.4 points, but the occlusion + mixed-stress average fell by 13.3 points. It trained no new model.
+## Explore and reproduce
 
-The detector source files call the earlier 320px comparator “Phase 22 Baseline.” That detector is separate from the frozen Phase 22 simulation transfer model.
+- [Phase 25 camera Failure Atlas](results/phase25_failure_atlas/summary.md) and [confidence diagnostic](docs/phase25_top_confidence_results_20261011.md)
+- [Frozen Phase 26 score and threshold-selection code](scripts/phase26_reliability.py)
+- [Reproduction guide](REPRODUCE.md)
+- [Research question, hypothesis and limits](PROJECT_SHOWCASE.md)
+- [Original experiments and negative results](EXPERIMENT_SUMMARY.md) · [archive on the website](https://aegisland-research-cockpit.vercel.app/phases/)
 
-## Real-image dataset
+Run the repository's small claims check with `python scripts/audit_showcase_claims.py`. This checks archived counts and admission status; it **does not** rerun detector inference.
 
-The current perception track uses the **KIOS Aerial Landing Pad, Unreal Engine Dataset (2024)** and evaluates its **422-image real-video subset** with YOLO landing-pad annotations.
+The simulation, Model VASE, and motor-fault studies remain available in the archive. They are separate supporting investigations, not evidence that this camera reliability rule has been validated.
 
-- **Source:** [Zenodo DOI 10.5281/zenodo.13682584](https://doi.org/10.5281/zenodo.13682584)
-- **Real images used:** 422
-- **Annotations:** YOLO bounding boxes
-- **First test:** run the existing synthetic estimator unchanged — no retraining or tuning
-
-Raw dataset files are downloaded from Zenodo for evaluation and are not copied into this repository or website.
-
-## Initial real-image transfer check (historical)
-
-| Metric | Result |
-| --- | ---: |
-| Images evaluated | **422** |
-| Valid estimate rate | **76.8%** |
-| Horizontal-center MAE | **0.2176 image widths** |
-| Horizontal-center P95 error | **0.5146 image widths** |
-| Predicted x inside annotated pad box | **30.6%** |
-| Mean confidence | **0.520** |
-
-**Result:** the old threshold-centroid heuristic **does not transfer well to real images**. It returned no valid estimate on about 23% of frames, and only about 31% of valid predictions fell horizontally inside the annotated landing-pad box.
-
-That negative result showed why the synthetic benchmark could not stand in for real camera imagery. A separate detector baseline and the Phase 23 comparison were subsequently evaluated on a protected temporal split.
-
-Full result: [`results/real_landing_pad/summary.md`](results/real_landing_pad/summary.md)
-
-## Pipeline
-
-```text
-real camera image → perception model → estimate + confidence → safety supervisor → landing decision
-```
-
-For every block, AegisLand documents **input → operation → output → next handoff** before adding more complexity.
-
-## Earlier heuristic baseline
-
-The initial transfer check deliberately kept the Phase 5 estimator frozen. It is **rule-based, not a neural network**: it thresholds bright pixels and uses a brightness-weighted horizontal centroid. The later detector results are linked above.
-
-Because it predicts only horizontal position, this first transfer test reports horizontal-center error — **not object-detection mAP**.
-
-Implementation: [`src/uav_safety/real_landing_dataset.py`](src/uav_safety/real_landing_dataset.py)
-
-## Earlier synthetic benchmark
-
-Phase 5 used 1,500 generated **96×96 grayscale** images across clean, blur, low light, occlusion, and mixed conditions. That benchmark was useful as a controlled sanity check, but the real-image transfer result shows why it cannot be treated as real-world validation.
-
-<details>
-<summary>Show the old synthetic inputs</summary>
-
-<table>
-  <tr><th>Clean</th><th>Blur</th><th>Low light</th><th>Occlusion</th><th>Mixed</th></tr>
-  <tr>
-    <td><img src="docs/assets/readme/dataset/clean.png" width="120" alt="Synthetic clean input"></td>
-    <td><img src="docs/assets/readme/dataset/blur.png" width="120" alt="Synthetic blurred input"></td>
-    <td><img src="docs/assets/readme/dataset/low_light.png" width="120" alt="Synthetic low-light input"></td>
-    <td><img src="docs/assets/readme/dataset/occlusion.png" width="120" alt="Synthetic occluded input"></td>
-    <td><img src="docs/assets/readme/dataset/mixed.png" width="120" alt="Synthetic mixed-degradation input"></td>
-  </tr>
-</table>
-
-</details>
-
-## Reproduce the real-image test
-
-```bash
-git clone https://github.com/suhaslord/uav-safety-research.git
-cd uav-safety-research
-python -m pip install -e ".[dev]"
-python scripts/download_kios_real_landing_dataset.py --accept-download --extract
-python scripts/run_real_landing_pad_benchmark.py \
-  --dataset-root data/external/kios_landing_pad/extracted \
-  --path-contains real \
-  --out results/real_landing_pad
-```
-
-The downloader verifies the published dataset archive checksum before evaluation.
-
-## Detector results and remaining question
-
-The protected split and detector comparison are complete: [initial detector baseline](results/real_detector/summary.md), [Phase 23 result](results/phase23_robust_detector/summary.md), and [Phase 24 audit](results/phase24_robustness_audit/summary.md). The hard camera conditions still regress. These aggregate metrics do not tell us how often an individual frame fails or how any controller would respond.
-
-Phase 25 has a frozen retrospective [protocol](docs/phase25_protocol.md) and [input audit](docs/phase25_reconstruction_audit.json). The authenticated Phase 23 checkpoint and Phase 22 baseline have been compared across 86 protected frames × 6 conditions (516 paired views), producing [paired frame-level outcomes](results/phase25_failure_atlas/paired_frame_outcomes.csv): 49 recovered, 65 regressed, 223 both-pass, 179 both-fail. Explore them in the [Failure Atlas](https://aegisland-research-cockpit.vercel.app/failure-atlas/). This previously used set cannot validate a new reliability rule. Phase 26 has a [separate-data protocol](docs/phase26_protocol.md); all existing candidates failed the [admission audit](docs/phase26_admission_report.json).
-
-The [reproduction page](https://aegisland-research-cockpit.vercel.app/reproduce/) and [read-only verification command](REPRODUCE.md) check the committed Phase 25A hashes and site snapshots. The [Phase 26 IMAV candidate protocol](docs/phase26_imav2025_preregistration.md) now freezes a prediction-only score, empty-target behavior, and a session-level admission screen before any new test outcomes. IMAV is not yet an admitted independent test set or a published Phase 26 result.
-
-The Phase 26 screen now requires all 422 KIOS comparison images to match the official checksum-verified archive. Its separate development-rule command rejects test rows and records the input hashes; neither command replaces the pending session, annotation, and rights review.
-
-If the original Windows training folder is available, run `py scripts\bundle_phase23_checkpoint.py` there and transfer its ignored `data/external/phase25_inputs/phase23_recovery_bundle.zip` to the audit workspace. The bundle records a candidate hash and observed package versions; aggregate reconciliation still gates any Phase 25 results.
-
-## Research record
-
-The earlier simulation research remains preserved through Phase 22, including failed phases rather than rewriting them after later experiments succeed. Phases 23 and 24 form a separate detector evidence track.
-
-[Project guide](docs/project_understanding_guide.md) · [Block map](docs/block_reference_map.md) · [Methodology](docs/methodology.md) · [Reproducibility](docs/reproducibility.md)
-
-## Scope
-
-AegisLand is still research software. The real-data result is a perception-transfer benchmark; it does **not** establish physical-flight safety, certification, or production readiness.
+**Research only; not a demonstrated flight-safety system.**

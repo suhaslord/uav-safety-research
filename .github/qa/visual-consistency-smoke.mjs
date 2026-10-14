@@ -223,12 +223,6 @@ try {
     add('home-frozen-native-shell', shell === 'native frozen-archive', { shell });
     const teslaStyles = await page.locator('link[href^="/aegisland.css"]').count();
     add('home-uses-tesla-style-source', teslaStyles === 1, { teslaStyles });
-    const evidenceRows = await page.locator('#homeLineage .home-lineage__node').count();
-    const passRows = await page.locator('#homeLineage .home-lineage__node[data-verdict="PASS"]').count();
-    const failRows = await page.locator('#homeLineage .home-lineage__node[data-verdict="FAIL"]').count();
-    add('home-has-complete-frozen-spine', evidenceRows === 13, { evidenceRows });
-    add('home-preserves-pass-fail-record', passRows === 6 && failRows === 7, { passRows, failRows });
-
     const homeText = await page.locator('main').innerText();
     await page.waitForFunction(() => document.querySelector('#home-comparison')?.dataset.loaded === 'true');
     const film = await page.locator('.home-film-hero').evaluate(el => ({
@@ -238,24 +232,26 @@ try {
       contextLabels: document.querySelectorAll('video[data-home-film][aria-label*="not AegisLand"]').length,
       sourceLinks: document.querySelectorAll('.home-film-hero a[href]').length
     }));
-    const preview = await page.locator('#home-comparison').evaluate(el => ({ top: el.getBoundingClientRect().top, models: el.querySelectorAll('[data-home-model]').length, controls: el.querySelectorAll('[data-home-condition]:not([disabled])').length }));
-    add('home-video-led-first-viewport', film.top < 1000 && film.videos === 2 && film.mutedAutoplay === 2 && film.contextLabels >= 2, film);
-    add('home-real-model-comparison-follows-films', preview.top > film.top && preview.models === 2 && preview.controls === 6, preview);
-    add('home-current-thesis-visible', /Drone perception and fault research/i.test(homeText) && /Same view\. Two models\./i.test(homeText) && /Camera and control results are separate experiments/i.test(homeText), { excerpt: homeText.slice(0, 500) });
-    add('home-current-project-framing-visible', /Model VASE explores when a simulator should distrust its own landing estimate/i.test(homeText) && /−13\.3 pp/.test(homeText) && /Phase 24/i.test(homeText));
-    add('home-evidence-boundary-visible', /Camera and control results are separate experiments/i.test(homeText) && /No flight-safety claim/i.test(homeText));
-    add('home-phase22-final-visible', /0\.8319/.test(homeText) && /0\.7744/.test(homeText) && /10 \/ 10 gates passed/i.test(homeText) && /100%/.test(homeText), { excerpt: homeText.slice(0, 900) });
-    const frozenRecord = await page.locator('.copy-disclosure').textContent();
-    add('home-science-is-explicitly-frozen', /Phase 12\s*→\s*Phase 22/i.test(frozenRecord || '') && /6 PASS \/ 7 FAIL/i.test(frozenRecord || '') && /No flight-safety claim/i.test(homeText), { excerpt: frozenRecord?.slice(0, 300) });
+    const preview = await page.locator('#home-comparison').evaluate(el => ({
+      top: el.getBoundingClientRect().top,
+      models: el.querySelectorAll('[data-home-model]').length,
+      controls: el.querySelectorAll('[data-home-condition]:not([disabled])').length
+    }));
+    add('home-video-led-first-viewport', film.top < 1000 && film.videos === 2 && film.mutedAutoplay === 2 && film.contextLabels === 2, film);
+    add('home-interactive-camera-comparison', preview.top > film.top && preview.models === 2 && preview.controls === 6, preview);
+    add('home-main-question-and-hypothesis',
+      /Can a drone recognize when its landing-pad detection is wrong\?/i.test(homeText)
+      && /A confidence-based check can reduce accepted wrong landing-pad locations/i.test(homeText));
+    add('home-retrospective-evidence',
+      /43/i.test(homeText) && /23/i.test(homeText) && /Previously tested KIOS images/i.test(homeText));
+    add('home-independent-evaluation-pending', /Independent camera validation is still pending/i.test(homeText));
     add('home-claim-boundary-visible', /No flight-safety claim/i.test(homeText) && /controller-tuning claim/i.test(homeText));
-    const phase23Links = await page.locator('a[href*="phase23"]').count();
-    add('home-links-phase23-detector', phase23Links > 0, { phase23Links });
-    add('home-features-measured-original-models-and-full-condition-chart',
-      await page.locator('#top .actions a[href="/failure-atlas/"]').count() === 1
-        && await page.locator('#home-comparison .home-model img').count() === 2
-        && await page.locator('#phase25 [data-atlas-chart] .atlas-chart-row').count() === 6
-        && await page.locator('#phase25 .phase25-feature__proof a[href*="phase25_reconstruction_audit.json"]').count() === 1
-        && /Baseline measured · Phase 23 paired/i.test(await page.locator('#phase25').innerText()));
+    add('home-archived-research-discoverable', await page.locator('a[href="/phases/"]').count() >= 1);
+    add('home-three-step-experiment', await page.locator('.story-steps article').count() === 3);
+    add('home-two-models-and-evidence-links',
+      await page.locator('#home-comparison .home-model img').count() === 2
+      && await page.locator('a[href="/failure-atlas/"]').count() >= 1
+      && await page.locator('a[href="/confidence-audit/"]').count() >= 1);
     await page.close();
     await context.close();
   }

@@ -54,10 +54,10 @@ jobs:
               && grep -q 'Cross-template UI consistency pass' /tmp/ui-consistency.css \
               && grep -q '#phaseLimitations span' /tmp/ui-consistency.css \
               && printf '%s' "$HTML" | grep -q 'class="home-film-hero"' \
-              && printf '%s' "$HTML" | grep -q 'class="home-visual-strip"' \
+              && printf '%s' "$HTML" | grep -q 'class="home-visual-strip story-film-strip"' \
               && test "$(printf '%s' "$HTML" | grep -o 'data-home-film autoplay muted' | wc -l)" -eq 2 \
-              && printf '%s' "$HTML" | grep -q 'Model VASE explores when a simulator should distrust its own landing estimate' \
-              && printf '%s' "$HTML" | grep -q 'Camera and control results are separate experiments.' \
+              && printf '%s' "$HTML" | grep -q 'Can a drone recognize when its landing-pad detection is wrong?' \
+              && printf '%s' "$HTML" | grep -q 'A confidence-based check can reduce accepted wrong landing-pad locations' \
               && printf '%s' "$HTML" | grep -q 'NASA Armstrong footage' \
               && ! printf '%s' "$HTML" | grep -q '/lab/lab.js'; then
               for ASSET in acero-uav-flight.jpg acero-ground-control.jpg stereo-uav-preflight.jpg acero-uav-landing.jpg phase01-context.jpg phase22-context.jpg; do
