@@ -1,5 +1,6 @@
 """The editorial refresh cannot displace AegisLand's evidence or controls."""
 from pathlib import Path
+import re
 
 ROOT = Path(__file__).resolve().parents[1]
 SITE = ROOT / "deploy" / "vercel"
@@ -8,11 +9,7 @@ SITE = ROOT / "deploy" / "vercel"
 def test_editorial_sheet_loads_last_only_where_intended():
     for page in ("index.html", "prototype.html"):
         head = (SITE / page).read_text(encoding="utf-8").split("</head>", 1)[0]
-        sources = [
-            item.split('"', 2)[1]
-            for item in head.splitlines()
-            if '<link rel="stylesheet" href="' in item
-        ]
+        sources = re.findall(r'<link rel="stylesheet" href="([^"]+)"', head)
         assert sources[-1] == "/tesla-editorial.css?v=1", page
         assert sources.count("/tesla-editorial.css?v=1") == 1, page
 
