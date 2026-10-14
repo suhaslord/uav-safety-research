@@ -72,6 +72,11 @@ class UnifiedWebsiteTests(unittest.TestCase):
                 head = s.split("</head>", 1)[0]
                 if path == VERCEL / "index.html":
                     self.assertIn('href="/home-film-restore.css', head.split(theme, 1)[1])
+                elif path == VERCEL / "prototype.html":
+                    self.assertEqual(
+                        head.split(theme, 1)[1].count('href="/tesla-editorial.css?v=1"'), 1,
+                        "the working prototype gets one explicit page-scoped editorial layer",
+                    )
                 else:
                     self.assertNotIn("<link rel=\"stylesheet\"", head.split(theme, 1)[1])
 
