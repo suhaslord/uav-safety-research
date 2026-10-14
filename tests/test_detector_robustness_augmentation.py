@@ -111,7 +111,8 @@ def test_paired_training_is_same_seed_and_val_only(tmp_path, monkeypatch):
     from scripts import train_detector_robustness_candidate as runner
     root, sha, protected = sample_split(tmp_path)
     candidate = tmp_path / "candidate"
-    build(root, candidate, variants=1, locked_sha=sha, protected_manifest=protected)
+    build(root, candidate, mode="matched", variants=1,
+          locked_sha=sha, protected_manifest=protected)
     original_verify_split = verify_split
     monkeypatch.setattr(runner, "verify_split", lambda location:
                         original_verify_split(location, locked_sha=sha,
@@ -149,14 +150,19 @@ def test_paired_training_is_same_seed_and_val_only(tmp_path, monkeypatch):
     for key in train_calls[0]:
         if key not in {"data", "name"}:
             assert train_calls[0][key] == train_calls[1][key]
-    assert sum(kind == "val" for kind, _ in calls) == 2
+    assert sum(kind == "val" for kind, _ in calls) == 12
+    assert result["matched_train_images_per_arm"] == 2
+    assert result["matched_optimizer_step_budget"] is True
+    assert set(result["candidate_minus_baseline_by_condition"]) == {
+        "clean", "blur", "low_light", "noise", "partial_occlusion", "mixed"}
 
 
 def test_changed_validation_file_blocks_training(tmp_path, monkeypatch):
     from scripts import train_detector_robustness_candidate as runner
     root, sha, protected = sample_split(tmp_path)
     candidate = tmp_path / "candidate"
-    build(root, candidate, variants=1, locked_sha=sha, protected_manifest=protected)
+    build(root, candidate, mode="matched", variants=1,
+          locked_sha=sha, protected_manifest=protected)
     original_verify_split = verify_split
     monkeypatch.setattr(runner, "verify_split", lambda location:
                         original_verify_split(location, locked_sha=sha,
@@ -165,3 +171,46 @@ def test_changed_validation_file_blocks_training(tmp_path, monkeypatch):
     with pytest.raises(ValueError, match="validation images differ"):
         runner.train_pair(root, candidate, tmp_path / "comparison", model_factory=lambda _: None)
     assert not (tmp_path / "comparison").exists()
+
+
+def test_matched_replacement_preserves_count_names_and_labels(tmp_path):
+    root, sha, protected = sample_split(tmp_path)
+    receipt = build(root, tmp_path / "matched", mode="matched", variants=1,
+                    replace_fraction=0.5, locked_sha=sha, protected_manifest=protected)
+    assert receipt["mode"] == "matched"
+    assert receipt["derived_train"] == 0
+    assert receipt["transformed_train"] == 1
+    assert receipt["training_image_count"] == receipt["original_train"] == 2
+    assert len(list((tmp_path / "matched/images/train").iterdir())) == 2
+    assert any(row["condition"] != "original" for row in receipt["inventory"])
+    for image in (root / "images/train").iterdir():
+        assert (tmp_path / "matched/labels/train" / f"{image.stem}.txt").read_bytes() == (
+            root / "labels/train" / f"{image.stem}.txt").read_bytes()
+
+
+def test_stacked_training_rejected_before_fit(tmp_path, monkeypatch):
+    from scripts import train_detector_robustness_candidate as runner
+    root, sha, protected = sample_split(tmp_path)
+    old = tmp_path / "stacked"
+    build(root, old, variants=1, locked_sha=sha, protected_manifest=protected)
+    original_verify = verify_split
+    monkeypatch.setattr(runner, "verify_split", lambda location:
+                        original_verify(location, locked_sha=sha,
+                                        protected_manifest=protected))
+    with pytest.raises(ValueError, match="Candidate receipt fails"):
+        runner.train_pair(root, old, tmp_path / "unused", model_factory=lambda _: None)
+    assert not (tmp_path / "unused").exists()
+
+
+def test_matched_candidate_modified_training_label_is_rejected(tmp_path, monkeypatch):
+    from scripts import train_detector_robustness_candidate as runner
+    root, sha, protected = sample_split(tmp_path)
+    new = tmp_path / "matched"
+    build(root, new, mode="matched", variants=1, locked_sha=sha, protected_manifest=protected)
+    original_verify = verify_split
+    monkeypatch.setattr(runner, "verify_split", lambda location:
+                        original_verify(location, locked_sha=sha, protected_manifest=protected))
+    (new / "labels/train/train__0001.txt").write_text("0 0.5 0.5 0.4 0.4\n")
+    with pytest.raises(ValueError, match="training label was changed"):
+        runner.train_pair(root, new, tmp_path / "unused", model_factory=lambda _: None)
+    assert not (tmp_path / "unused").exists()

@@ -14,35 +14,50 @@ The existing Phase 23 detector struggles under severe occlusion and mixed distor
 
 This is **development within the same two KIOS source sequences**, not independent evidence. Phase 26 is still `NO_DATASET_ADMITTED`, and no real-world landing safety claims follow from improving a dev metric.
 
-## Data preparation
+## Matched-budget detector comparison
 
-First use the verified KIOS source archive and existing `scripts/prepare_kios_real_yolo_split.py` to reconstruct `data/derived/kios_real_yolo`. Then:
+The earlier two-epoch pilot had a serious confound: the augmented arm saw 756
+images per epoch versus 252 in the baseline, so it received about triple
+the optimizer steps. **Do not interpret that pilot's positive mAP50 delta as
+the effect of augmentation.** The existing documented result is preserved.
+
+We now run the same detector training code with **252 images per arm per epoch**.
+For the augmented arm, exactly half of the 252 original training images are
+replaced in-place by deterministic moderate camera-stress versions; the other
+half remain bit-identical originals. The same files and labels are used in both
+arms and the 64 original development-validation images are untouched. Both arms
+have the same initialization, batch size, epochs, optimizer and seed, so they
+receive equal optimizer-step budgets.
+
+After fitting, the exact same saved checkpoints are evaluated on clean
+validation frames and five deterministic *development validation* stress
+conditions. These are correlated transformations of the same KIOS videos; they
+do not supply new capture sessions, negative-target examples or independent
+generalization evidence. No existing protected test or frozen protocol is
+changed or reused for model selection.
+
+Reconstruct the verified historical source split and run:
 
 ```bash
 python -m scripts.prepare_detector_robustness_augmentation \
   --split-root data/derived/kios_real_yolo \
-  --out data/derived/detector_robustness_train_candidate \
-  --seed 20261013 --variants 2
-```
+  --out data/derived/detector_robustness_matched \
+  --seed 20261013 --mode matched --variants 1 --replace-fraction 0.5
 
-This generates candidate training images, copied validation, `data.yaml`, and a detailed `receipt.json`. It does not train weights or assess any holdout.
-
-## Train and evaluate the actual detector
-
-With Ultralytics installed and pretrained `yolo11n.pt` available:
-
-```bash
 python -m scripts.train_detector_robustness_candidate \
   --source-root data/derived/kios_real_yolo \
-  --candidate-root data/derived/detector_robustness_train_candidate \
-  --out results/detector_robustness_dev_comparison \
-  --initialization yolo11n.pt --epochs 12 --imgsz 320 \
+  --candidate-root data/derived/detector_robustness_matched \
+  --out results/detector_robustness_matched_comparison \
+  --initialization yolo11n.pt --epochs 4 --imgsz 320 \
   --batch 16 --seed 20261013 --device cpu
 ```
 
-This trains two **fresh independent instances of the same initialization** with fixed augmentation/training settings, varying only the training images. Both are validated on identical, byte-verified *development* `val` images. The comparison emits hashes of each `best.pt` checkpoint and development-only precision, recall, mAP50 and mAP50–95 differences in `comparison.json`. Candidate checkpoints are not automatically substituted for frozen Phase 23 weights.
-
-The GitHub Actions training workflow also runs a short CPU proof-of-execution and uploads the resulting development comparison and candidate weights. Its short run is a **smoke experiment**, not an accuracy/robustness conclusion. A fuller comparison on clean and varied independent sessions is a subsequent preregistered study; we must not pick a threshold based on the old 86 protected views.
+The GitHub Actions workflow `detector-robustness-pilot.yml` performs this
+matched-budget four-epoch CPU experiment, runs the unit-test guards and saves
+both model weights and a machine-readable `comparison.json`. It reports
+per-condition development precision, recall, mAP50 and mAP50–95 without a
+selected deployment threshold or safety claims. If this comparison shows
+regressions, retain the existing model; do not promote the candidate.
 
 ## What counts as progress
 
