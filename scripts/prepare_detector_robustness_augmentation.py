@@ -15,6 +15,10 @@ from PIL import Image, ImageDraw, ImageEnhance, ImageFilter
 
 LOCKED_SPLIT_SHA = "32623634069c4f3082b79a6a42bca408c636f4b626e5f7691276257999544905"
 CONDITIONS = ("blur", "low_light", "noise", "partial_occlusion", "mixed")
+TRAIN_CONDITION_SETS = {
+    "all": CONDITIONS,
+    "photometric": ("blur", "low_light", "noise"),
+}
 IMAGE_SUFFIXES = {".jpg", ".jpeg", ".png"}
 REPO = Path(__file__).resolve().parents[1]
 PROTECTED_MANIFEST = REPO / "results/phase25_failure_atlas/protected_test_manifest.csv"
@@ -158,10 +162,14 @@ def augment(image: Image.Image, boxes: list[tuple[float, float, float, float]],
 
 def build(split_root: Path, out: Path, *, seed: int = 20261013, variants: int = 2,
           mode: str = "append", replace_fraction: float = 0.5,
+          train_condition_set: str = "all",
           locked_sha: str = LOCKED_SPLIT_SHA,
           protected_manifest: Path = PROTECTED_MANIFEST) -> dict:
     if mode not in {"append", "matched"}:
         raise ValueError("Choose append or matched mode")
+    if train_condition_set not in TRAIN_CONDITION_SETS:
+        raise ValueError("Choose a documented training condition set")
+    chosen_conditions = TRAIN_CONDITION_SETS[train_condition_set]
     if variants not in range(1, 6) or (mode == "matched" and variants != 1):
         raise ValueError("Matched mode requires exactly one replacement decision per frame")
     if not math.isfinite(replace_fraction) or not 0 < replace_fraction < 1:
@@ -183,7 +191,7 @@ def build(split_root: Path, out: Path, *, seed: int = 20261013, variants: int = 
     ranked = sorted(train, key=lambda p: hashlib.sha256(
         f"{seed}:{p.name}:matched".encode("utf-8")).digest())
     n_replace = max(1, min(len(train) - 1, round(len(train) * replace_fraction)))
-    replacements = {p.name: CONDITIONS[i % len(CONDITIONS)]
+    replacements = {p.name: chosen_conditions[i % len(chosen_conditions)]
                     for i, p in enumerate(ranked[:n_replace])} if mode == "matched" else {}
     inventory = []
     for originals, split in ((train, "train"), (val, "val")):
@@ -215,7 +223,7 @@ def build(split_root: Path, out: Path, *, seed: int = 20261013, variants: int = 
             with Image.open(source) as original:
                 for variant in range(variants):
                     rng = rng_for(seed, source.name, variant)
-                    condition = CONDITIONS[(int(rng.integers(0, 2**31)) + variant) % len(CONDITIONS)]
+                    condition = chosen_conditions[(int(rng.integers(0, 2**31)) + variant) % len(chosen_conditions)]
                     generated, fraction = augment(original, boxes, condition, rng)
                     filename = f"{source.stem}__aug{variant:02d}.png"
                     target_img = out / "images/train" / filename
@@ -233,7 +241,10 @@ def build(split_root: Path, out: Path, *, seed: int = 20261013, variants: int = 
     receipt = {"schema": "aegisland.detector_robustness.development-only-aug.v1",
                "status": "candidate_data_prepared",
                "locked_split_sha256": manifest_sha,
-               "seed": seed, "mode": mode, "replace_fraction": replace_fraction if mode == "matched" else None,
+               "seed": seed, "mode": mode,
+               "train_condition_set": train_condition_set,
+               "train_conditions": list(chosen_conditions),
+               "replace_fraction": replace_fraction if mode == "matched" else None,
                "variants_per_train_frame": variants,
                "original_train": len(train), "original_val": len(val),
                "derived_train": len(train) * variants if mode == "append" else 0,
@@ -256,9 +267,12 @@ def main() -> None:
     parser.add_argument("--variants", type=int, default=2)
     parser.add_argument("--mode", choices=("append", "matched"), default="matched")
     parser.add_argument("--replace-fraction", type=float, default=0.5)
+    parser.add_argument("--train-condition-set", choices=tuple(TRAIN_CONDITION_SETS),
+                        default="all")
     args = parser.parse_args()
     result = build(args.split_root, args.out, seed=args.seed, variants=args.variants,
-                   mode=args.mode, replace_fraction=args.replace_fraction)
+                   mode=args.mode, replace_fraction=args.replace_fraction,
+                   train_condition_set=args.train_condition_set)
     print(json.dumps({k: v for k, v in result.items() if k != "inventory"}, indent=2))
 
 
