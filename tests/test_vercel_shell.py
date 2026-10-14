@@ -23,19 +23,18 @@ def test_phase25_lens_reuses_published_aggregates_without_frame_claims() -> None
     phase = (ROOT / "deploy/vercel/phase25.html").read_text(encoding="utf-8")
     home = (ROOT / "deploy/vercel/index.html").read_text(encoding="utf-8")
     assert 'data-atlas-chart' in phase and 'data-atlas-controls' in phase
-    assert 'data-atlas-chart' in home
-    assert 'src="/phase25-explorer.js?v=' in phase and 'src="/phase25-explorer.js?v=' in home
+    assert 'src="/phase25-explorer.js?v=' in phase
     assert "Both models’ measured frame metrics and prediction boxes" in phase
     assert "860 within-model pairs" in phase
     audit = json.loads((ROOT / "docs/phase25_reconstruction_audit.json").read_text(encoding="utf-8"))
     assert audit["archive_derived_protected_image_count"] == 86
     assert audit["frame_condition_count"] == 516
     assert 'class="atlas-inputs"' in phase
-    assert 'research-counts phase25-feature__proof' in home
+    assert 'id="home-comparison"' in home
+    assert 'href="/confidence-audit/"' in home
     for count in ("86", "516"):
         assert f">{count}</strong>" in phase
-        assert f">{count}</b>" in home
-    assert "phase25_reconstruction_audit.json" in phase and "phase25_reconstruction_audit.json" in home
+    assert "phase25_reconstruction_audit.json" in phase
 
 
 def test_phase25_lens_resolves_assets_under_a_project_page_base_path() -> None:
@@ -48,32 +47,26 @@ def test_phase25_lens_resolves_assets_under_a_project_page_base_path() -> None:
 
 
 def test_vercel_home_is_native_frozen_archive_shell() -> None:
-    html = (ROOT / "deploy" / "vercel" / "index.html").read_text(encoding="utf-8")
-
+    html = (ROOT / "deploy/vercel/index.html").read_text(encoding="utf-8")
+    story = json.loads((ROOT / "docs/research_story.json").read_text(encoding="utf-8"))
     assert 'data-site-shell="native frozen-archive"' in html
     assert 'data-editorial-media="local-v2"' in html
     assert "document.write" not in html
     assert "cdn.jsdelivr.net/gh/suhaslord/uav-safety-research" not in html
-    assert "const rev=" not in html
-    assert 'id="evidenceSpine"' in html
-    assert 'src="/frozen-lineage.js?v=' in html
-    assert "Model VASE explores when a simulator should distrust its own landing estimate" in html
-    assert 'id="current-audit"' in html
-    assert 'id="phase25"' in html
-    assert '<a class="button primary signature-button" href="/failure-atlas/">Explore Failure Atlas</a>' in html
+    assert story["question"] in html
+    assert story["hypothesis"] in html
+    assert story["finding"] in html
+    assert story["status"] in html
+    for anchor in ('id="question"', 'id="findings"', 'id="camera-preview"', 'id="next"'):
+        assert anchor in html
+    assert html.index('id="question"') < html.index('id="findings"') < html.index('id="next"')
     assert 'id="home-comparison"' in html
     assert 'href="/home-evidence.css?v=' in html
-    assert "Model VASE explores when a simulator should distrust its own landing estimate" in html
-    assert "Camera and control results are separate experiments." in html
-    assert "97.6%" in html and "−13.3 pp" in html
-    assert "Baseline measured · Phase 23 paired" in html
-    assert "0.8319" in html
-    assert "0.7744" in html
-    assert "simulation_only=true" in html
-    assert "safety_acceptance=false" in html
-    assert "controller_tuning_allowed=false" in html
-    # Keep the scientific boundary semantic instead of coupling QA to retired prose.
-    assert "Simulation and benchmark results only. No flight-safety claim, certification claim, or controller-tuning claim." in html
+    assert 'href="/research-story.css?v=' in html
+    assert 'href="/phases/"' in html
+    assert "No flight-safety claim" in html
+    for boundary in ("simulation_only=true", "safety_acceptance=false", "controller_tuning_allowed=false"):
+        assert boundary in html
     assert 'name="aegis-evidence-boundary"' in html
 
 
@@ -331,11 +324,12 @@ def test_phase23_report_and_phase24_share_a_report_layout() -> None:
 
 
 def test_phase25_is_featured_as_verified_retrospective_work() -> None:
-    home = (ROOT / "deploy" / "vercel" / "index.html").read_text(encoding="utf-8")
-    page = (ROOT / "deploy" / "vercel" / "phase25.html").read_text(encoding="utf-8")
-    archive = (ROOT / "dashboard" / "phases" / "index.html").read_text(encoding="utf-8")
-
-    assert home.index('id="phase25"') < home.index('id="status"')
+    home = (ROOT / "deploy/vercel/index.html").read_text(encoding="utf-8")
+    page = (ROOT / "deploy/vercel/phase25.html").read_text(encoding="utf-8")
+    archive = (ROOT / "dashboard/phases/index.html").read_text(encoding="utf-8")
+    assert home.index('id="findings"') < home.index('id="next"')
+    assert 'href="/confidence-audit/"' in home
+    assert "Previously tested KIOS images" in home
     assert 'href="/phases/phase25/"' in archive
     assert 'aria-label="Model VASE overview"' in archive
     assert 'aria-label="Current Phase 25 work"' in archive
