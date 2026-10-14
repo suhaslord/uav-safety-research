@@ -36,7 +36,10 @@ try{
     await page.locator('#model-select').selectOption('baseline');
     await page.locator('#condition-select').selectOption('mixed');
     check(viewport.name+'-change-condition',await page.locator('#accepted-total').innerText()==='of 86 frames');
-    await page.locator('#cutoff').fill('0.95');
+    await page.locator('#cutoff').evaluate(input => {
+      input.value = '0.95';
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    });
     check(viewport.name+'-threshold-updates',await page.locator('#cutoff-value').innerText()==='0.95');
     check(viewport.name+'-truth-after-decision',/^(Yes|No|No top box)$/.test(await page.locator('#localization-result').innerText()));
     const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth);
