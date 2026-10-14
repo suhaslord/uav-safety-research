@@ -1,4 +1,4 @@
-name: Detector robustness development detector pilot
+name: Detector robustness matched-budget pilot
 
 on:
   pull_request:
@@ -7,7 +7,7 @@ on:
       - 'scripts/train_detector_robustness_candidate.py'
       - 'tests/test_detector_robustness_augmentation.py'
       - 'docs/detector_robustness_candidate.md'
-      - '.github/workflows/detector_robustness-dev-detector-pilot.yml'
+      - '.github/workflows/detector-robustness-pilot.yml'
   workflow_dispatch:
 
 permissions:
@@ -73,7 +73,7 @@ jobs:
           python -m scripts.prepare_detector_robustness_augmentation \
             --split-root "$RUNNER_TEMP/detector_robustness-split" \
             --out "$RUNNER_TEMP/detector_robustness-aug" \
-            --seed 20261013 --variants 2
+            --seed 20261013 --variants 1 --mode matched --replace-fraction 0.5
 
       - name: Train baseline and candidate, compare only untouched development validation
         run: |
@@ -81,14 +81,14 @@ jobs:
             --source-root "$RUNNER_TEMP/detector_robustness-split" \
             --candidate-root "$RUNNER_TEMP/detector_robustness-aug" \
             --out "$RUNNER_TEMP/detector_robustness-comparison" \
-            --initialization yolo11n.pt --epochs 2 --imgsz 320 \
+            --initialization yolo11n.pt --epochs 4 --imgsz 320 \
             --batch 16 --seed 20261013 --device cpu
 
       - name: Archive descriptive pilot and authenticated development checkpoints
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: detector_robustness-dev-only-model-pilot
+          name: detector-robustness-matched-budget-model-pilot
           path: |
             ${{ runner.temp }}/detector_robustness-aug/receipt.json
             ${{ runner.temp }}/detector_robustness-comparison/comparison.json
