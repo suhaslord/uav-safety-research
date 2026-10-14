@@ -271,3 +271,30 @@ def test_development_screen_requires_all_conditions_and_checks_ranges():
     candidate["noise"]["map50"] = float("nan")
     with pytest.raises(ValueError, match="Invalid"):
         development_screen(rows, candidate)
+
+
+def test_dev_video_grouping_never_merges_sessions():
+    from scripts.train_detector_robustness_candidate import group_development_sessions
+    paths = [Path("land_pad__0030.jpg"), Path("land_pad2__0050.jpg"),
+             Path("land_pad__0020.jpg"), Path("land_pad2__0051.jpg")]
+    grouped = group_development_sessions(paths)
+    assert sorted(grouped) == ["land_pad", "land_pad2"]
+    assert [p.name for p in grouped["land_pad"]] == [
+        "land_pad__0020.jpg", "land_pad__0030.jpg"]
+    assert [p.name for p in grouped["land_pad2"]] == [
+        "land_pad2__0050.jpg", "land_pad2__0051.jpg"]
+    with pytest.raises(ValueError, match="sequence ID"):
+        group_development_sessions([Path("missing-id.jpg")])
+
+
+def test_dev_session_slicing_skips_single_video_synthetic_fixture(tmp_path, monkeypatch):
+    from scripts import train_detector_robustness_candidate as runner
+    root, sha, protected = sample_split(tmp_path)
+    orig = verify_split
+    monkeypatch.setattr(runner, "verify_split", lambda location:
+                        orig(location, locked_sha=sha, protected_manifest=protected))
+    slices, counts = runner.prepare_development_session_slices(
+        root, {}, tmp_path / "unused-session-slices")
+    assert slices == {}
+    assert counts == {"val": 1}
+    assert not (tmp_path / "unused-session-slices").exists()
