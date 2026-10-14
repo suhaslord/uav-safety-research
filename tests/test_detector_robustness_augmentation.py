@@ -240,3 +240,34 @@ def test_unknown_condition_set_is_rejected_before_output(tmp_path):
               train_condition_set="other", locked_sha=sha,
               protected_manifest=protected)
     assert not (tmp_path / "bad").exists()
+
+
+def test_development_screen_rejects_clean_and_mixed_regression():
+    from scripts.train_detector_robustness_candidate import development_screen
+    keys = ("clean", "blur", "low_light", "noise", "partial_occlusion", "mixed")
+    baseline = {key: {"precision": 0.6, "recall": 0.3,
+                      "map50": 0.35, "map50_95": 0.2} for key in keys}
+    candidate = {key: dict(row) for key, row in baseline.items()}
+    candidate["noise"]["map50"] += 0.20
+    candidate["clean"]["map50"] -= 0.03
+    candidate["mixed"]["map50"] -= 0.04
+    report = development_screen(baseline, candidate)
+    assert report["status"] == "development_screen_fail"
+    assert report["gates"]["mean_six_condition_map50_gain"] is True
+    assert report["gates"]["clean_map50_no_meaningful_drop"] is False
+    assert report["gates"]["mixed_map50_no_large_drop"] is False
+    assert report["automatic_model_promotion"] is False
+
+
+def test_development_screen_requires_all_conditions_and_checks_ranges():
+    from scripts.train_detector_robustness_candidate import development_screen
+    keys = ("clean", "blur", "low_light", "noise", "partial_occlusion", "mixed")
+    rows = {key: {"precision": 0.5, "recall": 0.4,
+                  "map50": 0.35, "map50_95": 0.2} for key in keys}
+    candidate = {key: dict(row, map50=0.38) for key, row in rows.items()}
+    assert development_screen(rows, candidate)["status"] == "development_screen_pass"
+    with pytest.raises(ValueError, match="Missing"):
+        development_screen(rows, {"clean": candidate["clean"]})
+    candidate["noise"]["map50"] = float("nan")
+    with pytest.raises(ValueError, match="Invalid"):
+        development_screen(rows, candidate)
