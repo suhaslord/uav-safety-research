@@ -112,6 +112,60 @@ def prepare_development_stress(source_root: Path, work_dir: Path, seed: int) -> 
     return data
 
 
+def group_development_sessions(images: list[Path]) -> dict[str, list[Path]]:
+    """Group development-validation filenames only, never test images."""
+    groups: dict[str, list[Path]] = {}
+    for item in images:
+        if "__" not in item.stem:
+            raise ValueError("Missing development sequence ID in image name")
+        sequence = item.stem.rsplit("__", 1)[0]
+        if not sequence or sequence in {".", ".."} or "/" in sequence or "\\\\" in sequence:
+            raise ValueError("Invalid development sequence ID")
+        groups.setdefault(sequence, []).append(item)
+    return {name: sorted(group, key=lambda p: p.name)
+            for name, group in sorted(groups.items())}
+
+
+def prepare_development_session_slices(source_root: Path, stress: dict[str, Path],
+                                       work_dir: Path) -> tuple[dict[str, dict[str, Path]], dict[str, int]]:
+    """Produce analysis-only, per-sequence development validation folders.
+
+    Sequences are extracted from the verified development manifest filenames.
+    No protected-test or embargo images or labels are opened.
+    """
+    _, val, _ = verify_split(source_root)
+    groups = group_development_sessions(val)
+    counts = {name: len(rows) for name, rows in groups.items()}
+    if len(groups) < 2:
+        return {}, counts
+    if work_dir.exists():
+        raise FileExistsError("Refusing to overwrite development session slices")
+    configurations: dict[str, dict[str, Path]] = {}
+    for sequence, originals in groups.items():
+        configurations[sequence] = {}
+        for condition in ("clean", *CONDITIONS):
+            input_images = (source_root / "images/val" if condition == "clean"
+                            else stress[condition].parent / "images/val")
+            input_labels = source_root / "labels/val"
+            root = work_dir / sequence / condition
+            (root / "images/val").mkdir(parents=True)
+            (root / "labels/val").mkdir(parents=True)
+            for original in originals:
+                src = input_images / original.name
+                label = input_labels / (original.stem + ".txt")
+                if not src.is_file() or not label.is_file():
+                    raise FileNotFoundError("Missing verified development-session input")
+                shutil.copyfile(src, root / "images/val" / original.name)
+                shutil.copyfile(label, root / "labels/val" / label.name)
+            yaml = root / "data.yaml"
+            yaml.write_text(
+                f"path: {root.resolve()}\\n"
+                f"train: {(source_root / 'images/train').resolve()}\\n"
+                "val: images/val\\nnames:\\n  0: landing_pad\\n", encoding="utf-8")
+            configurations[sequence][condition] = yaml
+    return configurations, counts
+
+
 def parameters(*, data_yaml: Path, project: Path, name: str, epochs: int,
                imgsz: int, batch: int, seed: int, device: str) -> dict:
     if epochs < 1 or imgsz < 64 or batch < 1 or name not in {"baseline", "candidate"}:
@@ -184,6 +238,8 @@ def train_pair(source_root: Path, candidate_root: Path, out: Path,
         f"path: {source_root.resolve()}\ntrain: images/train\nval: images/val\nnames:\n  0: landing_pad\n",
         encoding="utf-8")
     stress = prepare_development_stress(source_root, out / "development-stress", seed)
+    per_session, session_counts = prepare_development_session_slices(
+        source_root, stress, out / "development-session-slices")
     summaries = {}
     for label, yaml in (("baseline", baseline_yaml), ("candidate", candidate_root / "data.yaml")):
         model = model_factory(initialization)
@@ -215,10 +271,26 @@ def train_pair(source_root: Path, candidate_root: Path, out: Path,
             if any(not math.isfinite(value) for value in metrics_row.values()):
                 raise ValueError("Nonfinite development stress metric")
             condition_metrics[condition] = metrics_row
+        session_metrics: dict[str, dict[str, dict]] = {}
+        for sequence, conditions in per_session.items():
+            session_metrics[sequence] = {}
+            for condition, session_yaml in conditions.items():
+                evaluated = evaluator.val(data=str(session_yaml.resolve()), split="val",
+                                         imgsz=imgsz, device=device, verbose=False,
+                                         plots=False, project=str((out / "validation").resolve()),
+                                         name=f"{label}-{sequence}-{condition}", exist_ok=False)
+                row = {"precision": float(evaluated.box.mp),
+                       "recall": float(evaluated.box.mr),
+                       "map50": float(evaluated.box.map50),
+                       "map50_95": float(evaluated.box.map)}
+                if any(not math.isfinite(x) for x in row.values()):
+                    raise ValueError("Nonfinite per-sequence development metric")
+                session_metrics[sequence][condition] = row
         summaries[label] = {"weights_sha256": digest(best),
                             "weights_path": str(best.resolve()),
                             "metrics_val_only": values,
                             "development_validation_by_condition": condition_metrics,
+                            "development_validation_by_sequence_and_condition": session_metrics,
                             "training_settings": settings}
     diff = {
         key: summaries["candidate"]["metrics_val_only"][key] - summaries["baseline"]["metrics_val_only"][key]
@@ -241,6 +313,8 @@ def train_pair(source_root: Path, candidate_root: Path, out: Path,
               "seed": seed, "epochs": epochs, "models": summaries,
               "matched_train_images_per_arm": len(list((candidate_root / "images/train").iterdir())),
               "matched_optimizer_step_budget": True,
+              "development_sequence_image_counts": session_counts,
+              "sequence_metrics_are_dependent_on_training": True,
               "validation_conditions": ["clean", *CONDITIONS],
               "candidate_minus_baseline": diff,
               "candidate_minus_baseline_by_condition": stress_diff,
