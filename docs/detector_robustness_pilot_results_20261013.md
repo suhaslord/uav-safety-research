@@ -1,4 +1,4 @@
-# Phase 27 first paired development pilot — 2026-10-13 PT
+# Detector robustness: first paired development pilot — 2026-10-13 PT
 
 **Execution: PASS. Experimental status: exploratory development only.**
 [GitHub Actions run 38509701137](https://github.com/suhaslord/uav-safety-research/actions/runs/38509701137) succeeded after restoring the SHA-verified KIOS archive from cache. The original Zenodo attempt timed out, but this successful rerun reconstructed the fixed source split and completed both real YOLO11n CPU training runs.
@@ -35,3 +35,5 @@ This **does not isolate the effect of camera augmentation**. In the same two epo
 The observed pilot mAP50 difference is a **measured development signal** only. It is not comparable directly to the historical Phase 23 protected-test aggregates, and we must not rename this newly trained candidate "Phase 23 robust" or replace the archived Phase 23 weights.
 
 Next: preregister a **matched-optimization-budget** comparison and separately inspect untouched development-frame errors under controlled conditions, rather than repeatedly evaluating protected KIOS test frames. Only after Phase 26 admits genuinely independent labeled camera sessions, including negative examples, can a prospective independent reliability evaluation be run. This code is research software and not for aircraft control.
+
+> Historical provenance: this experiment was originally introduced as PR #203 under the temporary \"Phase 27\" label. The label was subsequently removed to honor the pre-existing requirement not to create new phases. Existing GitHub Actions run names, archive contents, and recorded hashes are retained without alteration. This is model-development work within the existing research, not a new research phase.

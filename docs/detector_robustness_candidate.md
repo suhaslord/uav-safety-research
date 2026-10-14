@@ -1,6 +1,6 @@
-# Phase 27: train-only camera robustness candidate
+# Detector robustness: train-only camera robustness candidate
 
-**State: candidate implementation, not a verified better model.** This is a separate experiment; Phase 22/23 checkpoints, Phase 25 protected results, and the frozen Phase 26 independent validation plan are unchanged.
+**State: candidate implementation, not a verified better model.** This is an optional training experiment within the existing detector work, not a new numbered research phase. Historical Phase 22/23 checkpoints, Phase 25 protected results, and the frozen independent validation plan are unchanged.
 
 The existing Phase 23 detector struggles under severe occlusion and mixed distortions. This exploratory intervention adds limited blur, low light, noise, and partial masking **only to development training images**. The occluder width and height span 22–40% of one annotated target, so at most ~16% of that target is hidden; original labels stay fixed. Moderate versions of these distortions are intended to preserve enough target structure, but improvement is not guaranteed.
 
@@ -19,9 +19,9 @@ This is **development within the same two KIOS source sequences**, not independe
 First use the verified KIOS source archive and existing `scripts/prepare_kios_real_yolo_split.py` to reconstruct `data/derived/kios_real_yolo`. Then:
 
 ```bash
-python -m scripts.prepare_phase27_dev_augmentation \
+python -m scripts.prepare_detector_robustness_augmentation \
   --split-root data/derived/kios_real_yolo \
-  --out data/derived/phase27_train_candidate \
+  --out data/derived/detector_robustness_train_candidate \
   --seed 20261013 --variants 2
 ```
 
@@ -32,10 +32,10 @@ This generates candidate training images, copied validation, `data.yaml`, and a 
 With Ultralytics installed and pretrained `yolo11n.pt` available:
 
 ```bash
-python -m scripts.train_phase27_dev_candidate \
+python -m scripts.train_detector_robustness_candidate \
   --source-root data/derived/kios_real_yolo \
-  --candidate-root data/derived/phase27_train_candidate \
-  --out results/phase27_dev_comparison \
+  --candidate-root data/derived/detector_robustness_train_candidate \
+  --out results/detector_robustness_dev_comparison \
   --initialization yolo11n.pt --epochs 12 --imgsz 320 \
   --batch 16 --seed 20261013 --device cpu
 ```

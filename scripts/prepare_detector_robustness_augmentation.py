@@ -106,7 +106,7 @@ def validate_label(path: Path) -> list[tuple[float, float, float, float]]:
 
 
 def rng_for(seed: int, filename: str, variant: int) -> np.random.Generator:
-    key = hashlib.sha256(f"{seed}:{filename}:{variant}:phase27".encode()).digest()
+    key = hashlib.sha256(f"{seed}:{filename}:{variant}:detector_robustness".encode()).digest()
     return np.random.default_rng(int.from_bytes(key[:8], "little"))
 
 
@@ -206,7 +206,7 @@ def build(split_root: Path, out: Path, *, seed: int = 20261013, variants: int = 
     (out / "data.yaml").write_text(
         f"path: {out}\ntrain: images/train\nval: images/val\nnames:\n  0: landing_pad\n",
         encoding="utf-8")
-    receipt = {"schema": "aegisland.phase27.development-only-aug.v1",
+    receipt = {"schema": "aegisland.detector_robustness.development-only-aug.v1",
                "status": "candidate_data_prepared",
                "locked_split_sha256": manifest_sha,
                "seed": seed, "variants_per_train_frame": variants,

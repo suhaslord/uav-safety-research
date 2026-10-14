@@ -1,13 +1,13 @@
-name: Phase 27 development detector pilot
+name: Detector robustness development detector pilot
 
 on:
   pull_request:
     paths:
-      - 'scripts/prepare_phase27_dev_augmentation.py'
-      - 'scripts/train_phase27_dev_candidate.py'
-      - 'tests/test_phase27_dev_augmentation.py'
-      - 'docs/phase27_dev_detector_candidate.md'
-      - '.github/workflows/phase27-dev-detector-pilot.yml'
+      - 'scripts/prepare_detector_robustness_augmentation.py'
+      - 'scripts/train_detector_robustness_candidate.py'
+      - 'tests/test_detector_robustness_augmentation.py'
+      - 'docs/detector_robustness_candidate.md'
+      - '.github/workflows/detector_robustness-dev-detector-pilot.yml'
   workflow_dispatch:
 
 permissions:
@@ -33,7 +33,7 @@ jobs:
           python -m pip install ultralytics
 
       - name: Unit tests and untrusted-fixture guards
-        run: pytest -q tests/test_phase27_dev_augmentation.py
+        run: pytest -q tests/test_detector_robustness_augmentation.py
 
       - name: Install official archive extractor
         run: |
@@ -49,38 +49,38 @@ jobs:
       - name: Reconstruct SHA-verified KIOS split
         run: |
           set -euo pipefail
-          mkdir -p "$RUNNER_TEMP/phase27-kios"
+          mkdir -p "$RUNNER_TEMP/detector_robustness-kios"
           if test -f .cache/phase25/airisim_dataset2.7z; then
-            cp .cache/phase25/airisim_dataset2.7z "$RUNNER_TEMP/phase27-kios/airisim_dataset2.7z"
+            cp .cache/phase25/airisim_dataset2.7z "$RUNNER_TEMP/detector_robustness-kios/airisim_dataset2.7z"
           fi
           for attempt in 1 2 3; do
             if python scripts/download_kios_real_landing_dataset.py \
-              --out "$RUNNER_TEMP/phase27-kios" --accept-download --extract; then
+              --out "$RUNNER_TEMP/detector_robustness-kios" --accept-download --extract; then
               break
             fi
-            rm -f "$RUNNER_TEMP/phase27-kios/airisim_dataset2.7z"
+            rm -f "$RUNNER_TEMP/detector_robustness-kios/airisim_dataset2.7z"
             if test "$attempt" -eq 3; then
               exit 1
             fi
             sleep $((attempt * 5))
           done
           python scripts/prepare_kios_real_yolo_split.py \
-            --dataset-root "$RUNNER_TEMP/phase27-kios/extracted" \
-            --out "$RUNNER_TEMP/phase27-split"
+            --dataset-root "$RUNNER_TEMP/detector_robustness-kios/extracted" \
+            --out "$RUNNER_TEMP/detector_robustness-split"
 
       - name: Create train-only camera-stress images
         run: |
-          python -m scripts.prepare_phase27_dev_augmentation \
-            --split-root "$RUNNER_TEMP/phase27-split" \
-            --out "$RUNNER_TEMP/phase27-aug" \
+          python -m scripts.prepare_detector_robustness_augmentation \
+            --split-root "$RUNNER_TEMP/detector_robustness-split" \
+            --out "$RUNNER_TEMP/detector_robustness-aug" \
             --seed 20261013 --variants 2
 
       - name: Train baseline and candidate, compare only untouched development validation
         run: |
-          python -m scripts.train_phase27_dev_candidate \
-            --source-root "$RUNNER_TEMP/phase27-split" \
-            --candidate-root "$RUNNER_TEMP/phase27-aug" \
-            --out "$RUNNER_TEMP/phase27-comparison" \
+          python -m scripts.train_detector_robustness_candidate \
+            --source-root "$RUNNER_TEMP/detector_robustness-split" \
+            --candidate-root "$RUNNER_TEMP/detector_robustness-aug" \
+            --out "$RUNNER_TEMP/detector_robustness-comparison" \
             --initialization yolo11n.pt --epochs 2 --imgsz 320 \
             --batch 16 --seed 20261013 --device cpu
 
@@ -88,13 +88,13 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: phase27-dev-only-model-pilot
+          name: detector_robustness-dev-only-model-pilot
           path: |
-            ${{ runner.temp }}/phase27-aug/receipt.json
-            ${{ runner.temp }}/phase27-comparison/comparison.json
-            ${{ runner.temp }}/phase27-comparison/training/baseline/weights/best.pt
-            ${{ runner.temp }}/phase27-comparison/training/candidate/weights/best.pt
-            ${{ runner.temp }}/phase27-comparison/training/baseline/results.csv
-            ${{ runner.temp }}/phase27-comparison/training/candidate/results.csv
+            ${{ runner.temp }}/detector_robustness-aug/receipt.json
+            ${{ runner.temp }}/detector_robustness-comparison/comparison.json
+            ${{ runner.temp }}/detector_robustness-comparison/training/baseline/weights/best.pt
+            ${{ runner.temp }}/detector_robustness-comparison/training/candidate/weights/best.pt
+            ${{ runner.temp }}/detector_robustness-comparison/training/baseline/results.csv
+            ${{ runner.temp }}/detector_robustness-comparison/training/candidate/results.csv
           if-no-files-found: error
           retention-days: 30

@@ -7,13 +7,13 @@ import json
 import math
 from pathlib import Path
 
-from scripts.prepare_phase27_dev_augmentation import digest, verify_split
+from scripts.prepare_detector_robustness_augmentation import digest, verify_split
 
 
 def verify_candidate(source_root: Path, candidate_root: Path) -> dict:
     train, val, sha = verify_split(source_root)
     receipt = json.loads((candidate_root / "receipt.json").read_text(encoding="utf-8"))
-    if (receipt.get("schema") != "aegisland.phase27.development-only-aug.v1"
+    if (receipt.get("schema") != "aegisland.detector_robustness.development-only-aug.v1"
             or receipt.get("locked_split_sha256") != sha
             or receipt.get("protected_test_read") is not False
             or receipt.get("derived_val") != 0
@@ -97,7 +97,7 @@ def train_pair(source_root: Path, candidate_root: Path, out: Path,
         key: summaries["candidate"]["metrics_val_only"][key] - summaries["baseline"]["metrics_val_only"][key]
         for key in summaries["baseline"]["metrics_val_only"]
     }
-    report = {"schema": "aegisland.phase27.development-comparison.v1",
+    report = {"schema": "aegisland.detector_robustness.development-comparison.v1",
               "status": "development_comparison_only",
               "initialization": initialization,
               "candidate_receipt_sha256": digest(candidate_root / "receipt.json"),
