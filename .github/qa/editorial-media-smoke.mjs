@@ -122,6 +122,7 @@ try {
           // for the NASA editorial figures themselves.
           remoteImageCount: images.filter((img) => /^https?:\/\//i.test(img.getAttribute('src') || '')).length,
           allHomeImages: [...document.querySelectorAll('main img')].map((img) => ({src:img.getAttribute('src')||'',alt:img.getAttribute('alt')||'',loaded:img.complete&&img.naturalWidth>0&&img.naturalHeight>0})),
+          homeCameraImages: [...document.querySelectorAll('.home-camera img')].map((img) => ({src:img.getAttribute('src')||'',alt:img.getAttribute('alt')||''})),
           resultLayout: (() => {
             const section = document.querySelector('#status');
             if (!section) return null;
@@ -140,11 +141,11 @@ try {
             loop: video.loop,
             preload: video.getAttribute('preload') || '',
             autoplayWhenVisible: video.hasAttribute('autoplay'),
-            hasToggle: !!video.closest('.home-film-hero')?.querySelector('[data-film-toggle]'),
+            hasToggle: !!video.closest('figure')?.querySelector('[data-film-toggle]'),
             sources: [...video.querySelectorAll('source')].map((source) => source.getAttribute('src') || ''),
             poster: video.getAttribute('poster') || ''
           })),
-          contextFigures: [...document.querySelectorAll('.home-film-hero, .home-visual-strip__video')].map((figure) => ({
+          contextFigures: [...document.querySelectorAll('.home-film-hero, .home-visual-strip__video, .question-media')].map((figure) => ({
             caption: figure.querySelector('figcaption')?.textContent || '',
             source: figure.querySelector('figcaption a')?.getAttribute('href') || ''
           }))
@@ -156,14 +157,14 @@ try {
 
       if (route === '/') {
         add(`${viewport.name}-home-local-media-release`, state.marker === 'local-v2', { marker: state.marker });
-        add(`${viewport.name}-home-camera-and-editorial-images-load`, state.allHomeImages.length === 2 && state.allHomeImages.every(image => image.loaded && new URL(image.src, BASE).pathname.startsWith('/media/phase25/')), { images: state.allHomeImages });
+        add(`${viewport.name}-home-camera-and-editorial-images-load`, state.allHomeImages.length === 3 && state.allHomeImages.every(image => image.loaded && new URL(image.src, BASE).pathname.startsWith('/media/')) && state.homeCameraImages.length === 2 && state.homeCameraImages.every(image => new URL(image.src, BASE).pathname.startsWith('/media/phase25/')), { images: state.allHomeImages });
         add(`${viewport.name}-home-no-remote-image-hotlinks`, state.remoteImageCount === 0, { remoteImageCount: state.remoteImageCount });
         add(`${viewport.name}-home-two-usable-video-controls`, state.homeVideos.length === 2 && state.homeVideos.every((video) => (video.controls || video.hasToggle) && video.playsInline), { videos: state.homeVideos });
         add(`${viewport.name}-home-two-autoplay-ready-clips`, state.homeVideos.length === 2 && state.homeVideos.every((video) => video.muted && video.loop && video.autoplayWhenVisible), { videos: state.homeVideos });
         add(`${viewport.name}-home-phase22-result-not-squeezed`, state.resultLayout === null || (!state.resultLayout.overlaps && !state.resultLayout.valueClips), { resultLayout: state.resultLayout });
         add(`${viewport.name}-home-two-local-video-sources`, state.homeVideos.length === 2 && state.homeVideos.every((video) => video.sources.some((source) => source.startsWith('/film/') && source.endsWith('.mp4')) && video.sources.some((source) => source.startsWith('/film/') && source.endsWith('.webm')) && video.poster.startsWith('/film/')), { videos: state.homeVideos });
-        add(`${viewport.name}-home-context-media-credited`, state.contextFigures.length === 2 && state.contextFigures.every(figure => /context/i.test(figure.caption) && figure.source.startsWith('https://images.nasa.gov/')), { figures: state.contextFigures });
-        add(`${viewport.name}-home-meaningful-alt`, state.allHomeImages.length === 2 && state.allHomeImages.every(image => image.alt.trim().length >= 24 && /Phase 23|baseline/.test(image.alt)), { images: state.allHomeImages });
+        add(`${viewport.name}-home-context-media-credited`, state.contextFigures.length === 3 && state.contextFigures.every(figure => /context/i.test(figure.caption) && figure.source.startsWith('https://images.nasa.gov/')), { figures: state.contextFigures });
+        add(`${viewport.name}-home-meaningful-alt`, state.allHomeImages.length === 3 && state.allHomeImages.every(image => image.alt.trim().length >= 24) && state.homeCameraImages.every(image => /Phase 23|baseline/.test(image.alt)), { images: state.allHomeImages });
       } else if (route === '/model-vase/') {
         await page.waitForFunction(() => {
           const image = document.querySelector('.vase-hero__media img');

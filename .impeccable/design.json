@@ -1,0 +1,277 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-14T04:17:46.1700406Z",
+  "title": "Design System: AegisLand Homepage",
+  "extensions": {
+    "colorMeta": {
+      "action": {
+        "role": "primary",
+        "displayName": "Action Blue",
+        "tonalRamp": [
+          "oklch(15% 0.19 266)",
+          "oklch(27% 0.19 266)",
+          "oklch(38% 0.19 266)",
+          "oklch(49% 0.19 266)",
+          "oklch(61% 0.19 266)",
+          "oklch(72% 0.19 266)",
+          "oklch(84% 0.19 266)",
+          "oklch(95% 0.19 266)"
+        ]
+      },
+      "action-hover": {
+        "role": "primary",
+        "displayName": "Action Blue Hover",
+        "tonalRamp": [
+          "oklch(15% 0.16 266)",
+          "oklch(27% 0.16 266)",
+          "oklch(38% 0.16 266)",
+          "oklch(49% 0.16 266)",
+          "oklch(61% 0.16 266)",
+          "oklch(72% 0.16 266)",
+          "oklch(84% 0.16 266)",
+          "oklch(95% 0.16 266)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "tonalRamp": [
+          "oklch(15% 0.013 265)",
+          "oklch(27% 0.013 265)",
+          "oklch(38% 0.013 265)",
+          "oklch(49% 0.013 265)",
+          "oklch(61% 0.013 265)",
+          "oklch(72% 0.013 265)",
+          "oklch(84% 0.013 265)",
+          "oklch(95% 0.013 265)"
+        ]
+      },
+      "body": {
+        "role": "neutral",
+        "displayName": "Body",
+        "tonalRamp": [
+          "oklch(15% 0.009 265)",
+          "oklch(27% 0.009 265)",
+          "oklch(38% 0.009 265)",
+          "oklch(49% 0.009 265)",
+          "oklch(61% 0.009 265)",
+          "oklch(72% 0.009 265)",
+          "oklch(84% 0.009 265)",
+          "oklch(95% 0.009 265)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Muted",
+        "tonalRamp": [
+          "oklch(15% 0.007 265)",
+          "oklch(27% 0.007 265)",
+          "oklch(38% 0.007 265)",
+          "oklch(49% 0.007 265)",
+          "oklch(61% 0.007 265)",
+          "oklch(72% 0.007 265)",
+          "oklch(84% 0.007 265)",
+          "oklch(95% 0.007 265)"
+        ]
+      },
+      "white": {
+        "role": "neutral",
+        "displayName": "White",
+        "tonalRamp": [
+          "oklch(15% 0 0)",
+          "oklch(27% 0 0)",
+          "oklch(38% 0 0)",
+          "oklch(49% 0 0)",
+          "oklch(61% 0 0)",
+          "oklch(72% 0 0)",
+          "oklch(84% 0 0)",
+          "oklch(95% 0 0)"
+        ]
+      },
+      "ash": {
+        "role": "neutral",
+        "displayName": "Ash",
+        "tonalRamp": [
+          "oklch(15% 0 0)",
+          "oklch(27% 0 0)",
+          "oklch(38% 0 0)",
+          "oklch(49% 0 0)",
+          "oklch(61% 0 0)",
+          "oklch(72% 0 0)",
+          "oklch(84% 0 0)",
+          "oklch(95% 0 0)"
+        ]
+      },
+      "control": {
+        "role": "neutral",
+        "displayName": "Control",
+        "tonalRamp": [
+          "oklch(15% 0 0)",
+          "oklch(27% 0 0)",
+          "oklch(38% 0 0)",
+          "oklch(49% 0 0)",
+          "oklch(61% 0 0)",
+          "oklch(72% 0 0)",
+          "oklch(84% 0 0)",
+          "oklch(95% 0 0)"
+        ]
+      },
+      "divider": {
+        "role": "neutral",
+        "displayName": "Divider",
+        "tonalRamp": [
+          "oklch(15% 0.004 265)",
+          "oklch(27% 0.004 265)",
+          "oklch(38% 0.004 265)",
+          "oklch(49% 0.004 265)",
+          "oklch(61% 0.004 265)",
+          "oklch(72% 0.004 265)",
+          "oklch(84% 0.004 265)",
+          "oklch(95% 0.004 265)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Hero Display",
+        "purpose": "Approved Helvetica Neue/Arial display stack adapted to the user-pinned Tesla reference; observed hero size and tracking."
+      },
+      "headline": {
+        "displayName": "Chapter Headline",
+        "purpose": "Question, finding, and archive chapter titles."
+      },
+      "body": {
+        "displayName": "Research Body",
+        "purpose": "Supporting research paragraphs."
+      },
+      "action": {
+        "displayName": "Action",
+        "purpose": "Button and navigation labels."
+      },
+      "fine": {
+        "displayName": "Fine",
+        "purpose": "Caveats and footer copy."
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "action-state",
+        "value": "background-color .18s ease, color .18s ease, border-color .18s ease",
+        "purpose": "Inherited action-color transitions; reduced motion disables transitions."
+      },
+      {
+        "name": "film-visibility",
+        "value": "0.2",
+        "purpose": "Minimum visible film fraction for automatic playback; reduced motion, save-data, document visibility, and manual pause also gate playback."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "compact-desktop",
+        "value": "1100px"
+      },
+      {
+        "name": "mobile",
+        "value": "768px"
+      },
+      {
+        "name": "condition-scroll",
+        "value": "600px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Action",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Hero action; recurring research actions use wider horizontal padding.",
+      "html": "<a class=\"ds-primary\" href=\"/prototype/\">Try the working prototype</a>",
+      "css": ".ds-primary{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:12px 20px;border:0;border-radius:4px;background:var(--home-action,#3e6ae1);color:#fff;font-family:\"Helvetica Neue\",Arial,Helvetica,sans-serif;font-size:14px;font-weight:600;line-height:1.4;text-decoration:none;transition:background-color .18s ease,color .18s ease,border-color .18s ease}.ds-primary:hover{background:#3457b8}.ds-primary:focus-visible{outline:3px solid var(--home-action,#3e6ae1);outline-offset:4px}@media(prefers-reduced-motion:reduce){.ds-primary{transition:none}}"
+    },
+    {
+      "name": "Secondary Action",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "White secondary action paired with the primary on context footage.",
+      "html": "<div class=\"ds-action-context\"><a class=\"ds-secondary\" href=\"#question\">The research question</a></div>",
+      "css": ".ds-action-context{padding:24px;background:var(--editorial-ink,#171a20)}.ds-secondary{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:12px 20px;border:0;border-radius:4px;background:#fff;color:var(--editorial-ink,#171a20);font-family:\"Helvetica Neue\",Arial,Helvetica,sans-serif;font-size:14px;font-weight:600;line-height:1.4;text-decoration:none;transition:background-color .18s ease,color .18s ease,border-color .18s ease}.ds-secondary:hover{background:#e8e8e8}.ds-secondary:focus-visible{outline:3px solid var(--home-action,#3e6ae1);outline-offset:4px}@media(prefers-reduced-motion:reduce){.ds-secondary{transition:none}}"
+    },
+    {
+      "name": "Selected Condition",
+      "kind": "button",
+      "refersTo": "condition-selected",
+      "description": "Existing camera-condition selector with pressed state.",
+      "html": "<button class=\"ds-condition-selected\" type=\"button\" aria-pressed=\"true\">Occlusion</button>",
+      "css": ".ds-condition-selected{min-height:44px;padding:9px 15px;border:0;border-radius:4px;background:var(--editorial-ink,#171a20);color:#fff;font-family:\"Helvetica Neue\",Arial,Helvetica,sans-serif;font-size:12px;font-weight:500;line-height:1.2;cursor:pointer;transition:background .15s ease}.ds-condition-selected:disabled{cursor:wait}.ds-condition-selected:focus-visible{outline:3px solid var(--home-action,#3e6ae1);outline-offset:4px}@media(prefers-reduced-motion:reduce){.ds-condition-selected{transition:none}}"
+    },
+    {
+      "name": "Unselected Condition",
+      "kind": "button",
+      "refersTo": "condition-unselected",
+      "description": "Neutral condition selector; conditions scroll horizontally at narrow widths.",
+      "html": "<button class=\"ds-condition\" type=\"button\" aria-pressed=\"false\">Clean</button>",
+      "css": ".ds-condition{min-height:44px;padding:9px 15px;border:0;border-radius:4px;background:#e8e8e8;color:var(--editorial-body,#393c41);font-family:\"Helvetica Neue\",Arial,Helvetica,sans-serif;font-size:12px;font-weight:500;line-height:1.2;cursor:pointer;transition:background .15s ease}.ds-condition:hover{background:#ddd}.ds-condition:disabled{cursor:wait}.ds-condition:focus-visible{outline:3px solid var(--home-action,#3e6ae1);outline-offset:4px}@media(prefers-reduced-motion:reduce){.ds-condition{transition:none}}"
+    },
+    {
+      "name": "Desktop Navigation",
+      "kind": "nav",
+      "description": "Opaque white navigation with quiet ash hover.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Research navigation\"><a href=\"#question\">The question</a><a href=\"#findings\">The finding</a><a href=\"/prototype/\">Try prototype</a></nav>",
+      "css": ".ds-nav{display:flex;flex-wrap:wrap;align-items:center;gap:clamp(14px,2vw,28px);padding:0 20px;background:#fff}.ds-nav a{display:inline-flex;align-items:center;min-height:44px;padding:4px 13px;border-radius:4px;color:var(--editorial-ink,#171a20);font-family:\"Helvetica Neue\",Arial,Helvetica,sans-serif;font-size:14px;font-weight:600;text-decoration:none;transition:background-color .25s cubic-bezier(.5,0,0,.75),color .25s cubic-bezier(.5,0,0,.75)}.ds-nav a:hover{background:var(--editorial-ash,#f4f4f4)}.ds-nav a:focus-visible{outline:3px solid var(--home-action,#3e6ae1);outline-offset:4px}@media(prefers-reduced-motion:reduce){.ds-nav a{transition:none}}"
+    },
+    {
+      "name": "Evidence Checkbox",
+      "kind": "input",
+      "description": "Native checkbox controlling camera overlays with a full-height label.",
+      "html": "<label class=\"ds-checkbox\"><input type=\"checkbox\" checked> Show boxes</label>",
+      "css": ".ds-checkbox{display:inline-flex;align-items:center;gap:4px;min-height:44px;cursor:pointer;color:#535a63;font-family:\"Helvetica Neue\",Arial,Helvetica,sans-serif;font-size:10px}.ds-checkbox input{width:15px;height:15px;accent-color:var(--home-action,#3e6ae1)}.ds-checkbox input:focus-visible{outline:3px solid var(--home-action,#3e6ae1);outline-offset:4px}"
+    },
+    {
+      "name": "Film Pause Control",
+      "kind": "button",
+      "description": "Independent control on each NASA context film; the live script updates its label and pressed state.",
+      "html": "<div class=\"ds-film-context\"><button class=\"ds-film-toggle\" type=\"button\" aria-label=\"Pause aircraft footage\" aria-pressed=\"true\">Pause</button></div>",
+      "css": ".ds-film-context{padding:24px;background:var(--editorial-ink,#171a20)}.ds-film-toggle{min-height:44px;min-width:76px;border:1px solid rgba(255,255,255,.7);border-radius:4px;background:rgb(23 26 32 / 75%);color:#fff;font-weight:650;cursor:pointer}.ds-film-toggle:hover{background:rgba(4,29,55,.85)}.ds-film-toggle:focus-visible{outline:3px solid var(--home-action,#3e6ae1);outline-offset:4px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Tesla's image-led research chapters",
+    "overview": "The user-pinned Tesla reference establishes centered, spacious composition, full-bleed imagery, neutral typography, and simple rectangular actions. AegisLand retains its identity, research language, working evidence controls, and explicitly attributed NASA context media.\n\nThis is a record of the shipped homepage, not a replacement system for the working prototype or archived research surfaces. Ground truth is `deploy/vercel/index.html` and its stylesheet cascade: the homepage-specific `tesla-home.css` wins through scope and specificity while the final linked `tesla-editorial.css` continues to style the prototype separately. The opening direction contract records the pinned reference override (seed `8f1be4a2`).",
+    "keyCharacteristics": [
+      "Full-width media chapters with centered foreground copy.",
+      "White navigation and open research sections with a pale comparison surface.",
+      "Small-radius controls, flat containers, and clear evidence annotations.",
+      "Visible source attribution, caveats, focus states, and individual film controls."
+    ],
+    "rules": [
+      {
+        "name": "The Evidence Color Rule",
+        "body": "Camera annotation, matched-box, and unmatched-box colors keep their existing semantic meaning and legend labels; action blue does not replace them.",
+        "section": "colors"
+      },
+      {
+        "name": "The Paired Evidence Rule",
+        "body": "Baseline and Phase 23 remain adjacent and comparable; narrow screens retain the pair and compact its labels and metrics.",
+        "section": "layout"
+      },
+      {
+        "name": "The Media Legibility Rule",
+        "body": "Context media retains its dark foreground treatment, visible attribution, and evidence-boundary caption when used behind text.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do use the scoped homepage cascade as the source of truth for this surface.",
+      "Do retain source attribution and evidence caveats beside context media and measurements.",
+      "Do preserve paired camera evidence, semantic overlay colors, focus outlines, and film controls.",
+      "Do use open sections and small-radius actions with generous chapter spacing."
+    ],
+    "donts": [
+      "Don't propagate homepage overrides into the working prototype or archived research UI.",
+      "Don't crop recorded camera evidence to imitate the full-bleed context-media treatment.",
+      "Don't infer design tokens from overridden legacy declarations or screenshot capture artifacts."
+    ]
+  }
+}
