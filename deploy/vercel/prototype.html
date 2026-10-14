@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#ffffff">
+<meta name="description" content="Try AegisLand's offline landing-camera reliability prototype on archived camera predictions. This is a retrospective demonstration, not a safe-flight decision.">
+<title>AegisLand | Try the camera reliability prototype</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="stylesheet" href="/prototype.css?v=1">
+<link rel="stylesheet" href="/aegisland-unified.css?v=1">
+<script defer src="/prototype.js?v=1"></script>
+</head>
+<body class="prototype-page">
+<a class="skip" href="#demo">Skip to prototype</a>
+<header class="nav"><a href="/" class="brand"><span class="mark">A</span><strong>AEGISLAND</strong></a>
+<nav aria-label="Main navigation"><a href="/">Research</a><a href="/failure-atlas/">Failure Atlas</a><a href="/reproduce/">Reproduce</a><a href="https://github.com/suhaslord/uav-safety-research">GitHub ↗</a></nav></header>
+<main>
+<section class="hero">
+<div class="wrap hero-grid">
+<div><p class="eyebrow">WORKING RESEARCH PROTOTYPE · RECORDED DATA</p>
+<h1>What if the camera<br><em>gets it wrong?</em></h1>
+<p class="intro">AegisLand checks how confident the detector is before accepting its landing-pad prediction. Try the same decision on saved camera results.</p>
+<div class="hero-links"><a class="primary-link" href="#demo">Try the prototype ↓</a><a href="/confidence-audit/">Why this matters ↗</a></div>
+<p class="disclaimer">This is an offline look at previously tested frames. It cannot control a drone and is not a tested landing-safety system.</p>
+</div>
+<div class="steps" aria-label="Prototype method">
+<div><span>01</span><strong>DETECT</strong><p>Read a saved camera prediction.</p></div>
+<div><span>02</span><strong>CHECK</strong><p>Accept it or abstain using the confidence score alone.</p></div>
+<div><span>03</span><strong>VERIFY</strong><p>Compare against the saved label afterward.</p></div>
+</div>
+</div>
+</section>
+
+<section class="demo" id="demo" aria-labelledby="demo-title">
+<div class="wrap">
+<div class="demo-top"><div><p class="eyebrow">LIVE DECISIONS ON ARCHIVED DETECTOR OUTPUT</p><h2 id="demo-title">Try the reliability check.</h2><p>Pick a camera condition, move the confidence cutoff, and see what the system would accept or hold back.</p></div><span class="tag">RETROSPECTIVE ONLY</span></div>
+<div id="prototype-status" class="loading" role="status" aria-live="polite">Loading authenticated detector records…</div>
+<div id="prototype-app" hidden>
+<div class="control-bar">
+<div class="control-group">
+<label for="model-select">Detector</label>
+<select id="model-select"><option value="phase23">Phase 23 detector</option><option value="baseline">Baseline detector</option></select>
+</div>
+<div class="control-group">
+<label for="condition-select">Camera condition</label>
+<select id="condition-select"><option value="clean">Clean</option><option value="blur">Blur</option><option value="low_light">Low light</option><option value="noise">Noise</option><option value="occlusion" selected>Occlusion</option><option value="mixed">Mixed</option></select>
+</div>
+<div class="control-group threshold-field">
+<label for="cutoff">Illustrative confidence cutoff <output id="cutoff-value" for="cutoff">0.50</output></label>
+<input id="cutoff" type="range" min="0.05" max="0.95" step="0.05" value="0.50" aria-describedby="threshold-note">
+</div>
+</div>
+<p class="threshold-note" id="threshold-note">The cutoff here is for exploring old results, not for choosing or validating a real-world threshold.</p>
+<div class="demo-layout">
+<div class="visual-card">
+<div class="visual-head"><span id="frame-label">Archived camera image</span><span id="sequence-label">—</span></div>
+<div class="frame-image" id="frame-image">
+<img id="prototype-image" alt="Archived landing-pad image; the blue outline is the top detector box, and the dotted outline is the annotated pad." hidden>
+<div class="overlay" id="predicted-overlay" hidden><span>TOP PREDICTION</span></div>
+<div class="overlay truth" id="truth-overlay" hidden><span>ANNOTATION</span></div>
+<p id="image-message" role="status">Loading verified camera image…</p>
+</div>
+<div class="frame-footer">
+<button type="button" id="previous-frame">← Previous</button>
+<label for="frame-select" class="sr-only">Select archived frame</label><select id="frame-select" aria-label="Select archived frame"></select>
+<button type="button" id="next-frame">Next →</button>
+</div>
+<div class="legend"><span><i class="prediction"></i>Selected detector box</span><span><i class="truth"></i>Original annotation</span></div>
+</div>
+<div class="decision-card" aria-live="polite">
+<p class="eyebrow">THE CHECK</p>
+<div class="decision" id="decision"><span>—</span></div>
+<p id="decision-explainer">—</p>
+<div class="measurement"><span>Detector's highest confidence</span><strong id="confidence-score">—</strong></div>
+<div class="measurement"><span>Localizes the pad (IoU ≥ 0.50)?</span><strong id="localization-result">—</strong></div>
+<div class="measurement"><span>Overlap with annotation</span><strong id="iou-score">—</strong></div>
+<p class="decision-note">The check reads the score only. The annotation is revealed here for evaluating that check after the decision.</p>
+</div>
+</div>
+<div class="summary">
+<div class="summary-title"><h3>All 86 saved frames in this condition</h3><p>Illustrative totals from two already-used videos. Changing the cutoff does not count as independent testing.</p></div>
+<div class="stat-grid">
+<div><span>Accepted</span><strong id="accepted-count">—</strong><small id="accepted-total">of 86 frames</small></div>
+<div><span>Coverage</span><strong id="coverage-rate">—</strong><small>Share with an accepted prediction</small></div>
+<div><span>Wrong among accepted</span><strong id="wrong-count">—</strong><small id="wrong-rate">—</small></div>
+<div><span>Without a filter</span><strong id="baseline-errors">—</strong><small>Wrong top boxes when always trusting them</small></div>
+</div>
+<p class="summary-bottom">A lower error fraction means little if coverage falls to almost zero. The goal is to improve <strong>both usefulness and reliability</strong> on independent sessions.</p>
+</div>
+</div>
+</div>
+</section>
+<section class="what-next"><div class="wrap next-grid"><div><p class="eyebrow">WHAT'S NEXT</p><h2>Does it work on completely new camera recordings?</h2><p>That is the real research experiment. We still need new, independently captured sessions with labels, negative examples, and verified provenance before claiming this approach generalizes.</p></div><div class="next-links"><a href="https://github.com/suhaslord/uav-safety-research/blob/main/PROJECT_SHOWCASE.md">Research question ↗</a><a href="https://github.com/suhaslord/uav-safety-research/blob/main/docs/phase26_protocol.md">Independent-test protocol ↗</a><a href="/failure-atlas/">Explore saved failure cases ↗</a></div></div></section>
+</main>
+<footer><div class="wrap"><span>AegisLand · Reproducible perception research</span><span>Previously tested camera data, not autonomous flight control</span></div></footer>
+</body></html>
