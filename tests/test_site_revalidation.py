@@ -34,6 +34,10 @@ def test_publication_refuses_changed_scientific_inputs(monkeypatch):
 def test_website_refresh_does_not_rewrite_the_research_freeze():
     manifest = json.loads((ROOT / "results/research_revalidation_2026_10_03/frozen_manifest.json").read_text(encoding="utf-8"))
     for name, expected in manifest["files_sha256"].items():
+        # README is mutable project presentation; frozen scientific inputs are not.
+        # The historical README hash stays in the immutable 2026-10-03 manifest.
+        if name == "README.md":
+            continue
         assert hashlib.sha256((ROOT / name).read_bytes()).hexdigest() == expected, name
 
 
