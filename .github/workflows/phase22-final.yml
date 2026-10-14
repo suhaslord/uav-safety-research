@@ -1,0 +1,150 @@
+name: Phase 22 frozen additive context transfer final holdout
+
+on:
+  push:
+    branches: [phase22/frozen-additive-context-transfer]
+    paths:
+      - .github/workflows/phase22-final.yml
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  P22_VALIDATION_RUN: '34042891337'
+  P22_VALIDATION_SCI: 31df52f0c83547e616549ba85cd652036b576244
+  P22_VALIDATION_RESULT_SHA: 7852797ff69fa87a5a1037948b6183f314d3391fd50a185e9911afd45f6570b1
+  P22_FIT_RUN: '34042362702'
+  P22_FIT_CANDIDATE_SHA: 62e75d7b39088c2e66f1cc6be4d180501b79632f2f6847af1fbe0bd96be17551
+  P12_RUN: '34004695243'
+  P12_SHA: e2372ca597cdd983f098f1a45524c077798114c59a62bf9faccefd17b67a4991
+  P14_RUN: '34010431456'
+  P14_SHA: 0443d4e45a1966c77544c5c9965de8caec6e622c79ef8c2ce47aee82a3c95981
+  P17_FIT_RUN: '34011621058'
+  P17_FIT_SHA: 2ca52a418f5616e0e83ef84d0c9238ee429260cd4de7a553356b0c1bba44d8e0
+  P21_FINAL_RUN: '34015012804'
+  P21_FINAL_SHA: bc85a746cf1b770fb4119feb3979789975ed5201065d94de47c6dcc3a051d9ee
+  P22_FINAL_SEED: '2222224'
+
+jobs:
+  final:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Guard final evidence exposure
+        env: { GH_TOKEN: '${{ github.token }}' }
+        run: |
+          V=$(gh api '/repos/${{ github.repository }}/actions/artifacts?name=phase22-validation&per_page=100' --jq '[.artifacts[]|select(.expired==false)]|length')
+          F=$(gh api '/repos/${{ github.repository }}/actions/artifacts?name=phase22-final&per_page=100' --jq '[.artifacts[]|select(.expired==false)]|length')
+          test "$V" = 1
+          test "$F" = 0 || { echo "Phase 22 final artifact already exists"; exit 1; }
+
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+
+      - name: Verify scientific implementation remained frozen after protected validation
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+          pytest -q tests/test_phase22_frozen_additive_context_transfer.py
+          CHANGED=$(git diff --name-only "$P22_VALIDATION_SCI"..HEAD)
+          BAD=$(printf '%s\n' "$CHANGED" | grep -Ev '^(docs/phase22_validation_result\.md|\.github/workflows/phase22-final\.yml)$' || true)
+          test -z "$BAD" || { echo "Unauthorized post-validation scientific change:"; echo "$BAD"; exit 1; }
+          grep -q "$P22_VALIDATION_RESULT_SHA" docs/phase22_validation_result.md
+
+      - name: Recover exact Phase 22 protected result
+        uses: actions/download-artifact@v4
+        with: { name: phase22-validation, path: p22validation, github-token: '${{ github.token }}', repository: suhaslord/uav-safety-research, run-id: '${{ env.P22_VALIDATION_RUN }}' }
+
+      - name: Recover exact Phase 22 fit
+        uses: actions/download-artifact@v4
+        with: { name: phase22-fit, path: p22fit, github-token: '${{ github.token }}', repository: suhaslord/uav-safety-research, run-id: '${{ env.P22_FIT_RUN }}' }
+
+      - name: Recover Phase 12
+        uses: actions/download-artifact@v4
+        with: { name: phase12-development-v3, path: p12, github-token: '${{ github.token }}', repository: suhaslord/uav-safety-research, run-id: '${{ env.P12_RUN }}' }
+
+      - name: Recover Phase 14
+        uses: actions/download-artifact@v4
+        with: { name: phase14-bridge-candidate, path: p14, github-token: '${{ github.token }}', repository: suhaslord/uav-safety-research, run-id: '${{ env.P14_RUN }}' }
+
+      - name: Recover Phase 17 fit
+        uses: actions/download-artifact@v4
+        with: { name: phase17-fit-candidate, path: p17fit, github-token: '${{ github.token }}', repository: suhaslord/uav-safety-research, run-id: '${{ env.P17_FIT_RUN }}' }
+
+      - name: Recover exact Phase 21 final result
+        uses: actions/download-artifact@v4
+        with: { name: phase21-final, path: p21f, github-token: '${{ github.token }}', repository: suhaslord/uav-safety-research, run-id: '${{ env.P21_FINAL_RUN }}' }
+
+      - name: Verify exact identities and freeze final head
+        run: |
+          VALIDATION=$(find p22validation -path '*/results/phase22_validation/validation_result.json' -print -quit)
+          FIT=$(find p22fit -path '*/results/phase22_fit/fit_candidate.json' -print -quit)
+          P12=$(find p12 -path '*/results/phase12_candidate_v3/candidate_freeze.json' -print -quit)
+          P14=$(find p14 -path '*/results/phase14_fit/bridge_candidate.json' -print -quit)
+          P17=$(find p17fit -path '*/results/phase17_fit/fit_candidate.json' -print -quit)
+          P21=$(find p21f -path '*/results/phase21_final/final_result.json' -print -quit)
+          test -n "$VALIDATION"; test -n "$FIT"; test -n "$P12"; test -n "$P14"; test -n "$P17"; test -n "$P21"
+          echo "$P22_VALIDATION_RESULT_SHA  $VALIDATION" | sha256sum -c -
+          echo "$P22_FIT_CANDIDATE_SHA  $FIT" | sha256sum -c -
+          echo "$P12_SHA  $P12" | sha256sum -c -
+          echo "$P14_SHA  $P14" | sha256sum -c -
+          echo "$P17_FIT_SHA  $P17" | sha256sum -c -
+          echo "$P21_FINAL_SHA  $P21" | sha256sum -c -
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          v=json.loads(next(Path('p22validation').rglob('validation_result.json')).read_text())
+          f=json.loads(next(Path('p22fit').rglob('fit_candidate.json')).read_text())
+          assert v['phase22_pass'] is True
+          assert v['phase22_fit_candidate_sha256']=='62e75d7b39088c2e66f1cc6be4d180501b79632f2f6847af1fbe0bd96be17551'
+          assert f['fit_eligible'] is True and f['interaction_terms_retained'] is False
+          assert v['q90_is_descriptive_only'] is True and v['no_refit'] is True
+          PY
+          echo "P22_FIT_FILE=$FIT" >> "$GITHUB_ENV"
+          echo "P12_FILE=$P12" >> "$GITHUB_ENV"
+          echo "P14_FILE=$P14" >> "$GITHUB_ENV"
+          echo "P17_FILE=$P17" >> "$GITHUB_ENV"
+          echo "P21_FILE=$P21" >> "$GITHUB_ENV"
+          echo "P22_FINAL_SCI=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Expose Phase 22 final holdout exactly once
+        run: |
+          rm -rf results/phase22_final
+          python scripts/run_phase22_frozen_additive_context_transfer.py --stage final --phase12-candidate "$P12_FILE" --phase14-bridge "$P14_FILE" --phase17-fit-candidate "$P17_FILE" --phase21-final-result "$P21_FILE" --fit-candidate "$P22_FIT_FILE" --expected-fit-sha256 "$P22_FIT_CANDIDATE_SHA" --out results/phase22_final --git-sha "$P22_FINAL_SCI" 2>&1 | tee phase22-final.log
+          test -f results/phase22_final/final_result.json
+
+      - name: Verify permanent final boundary and record verdict
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          r=json.loads(Path('results/phase22_final/final_result.json').read_text())
+          assert r['schema']=='aegisland.phase22.frozen-additive-context-transfer.final-result.v1'
+          assert r['evaluated_seed_seen_after_run']==int(os.environ['P22_FINAL_SEED'])
+          assert r['families']==list(range(2409,2433))
+          assert r['scientific_git_sha']==os.environ['P22_FINAL_SCI']
+          assert r['phase22_fit_candidate_sha256']==os.environ['P22_FIT_CANDIDATE_SHA']
+          assert r['factorial_context_count']==32 and len(r['contexts'])==32
+          assert len(r['gates'])==10
+          assert r['q90_is_descriptive_only'] is True and r['no_refit'] is True
+          assert r['interaction_terms_retained'] is False and r['zero_adaptation'] is True
+          assert r['simulation_only'] is True and r['safety_acceptance'] is False and r['controller_tuning_allowed'] is False
+          print('PHASE22_FINAL_PASS='+str(bool(r['phase22_pass'])).lower())
+          print(json.dumps(r['gates'],indent=2,sort_keys=True))
+          print(json.dumps(r['rmse_prediction'],indent=2,sort_keys=True))
+          print(json.dumps(r['mae_prediction'],indent=2,sort_keys=True))
+          PY
+          sha256sum results/phase22_final/final_result.json
+
+      - name: Upload permanent Phase 22 final evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase22-final
+          path: |
+            results/phase22_final/
+            phase22-final.log
+          if-no-files-found: error
+          retention-days: 90

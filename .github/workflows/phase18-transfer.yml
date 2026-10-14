@@ -1,0 +1,189 @@
+name: Phase 18 residual advantage transfer confirmation
+
+on:
+  push:
+    branches: [phase18/residual-advantage-confirmation]
+    paths:
+      - .github/workflows/phase18-transfer.yml
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  FROZEN_PHASE18_DEV_SCIENTIFIC_SHA: 2c35a7cb2803a996579d45c8494ce77cbd3b8573
+  FROZEN_PHASE18_DEV_RUN_ID: '34011884494'
+  FROZEN_PHASE18_DEV_RESULT_SHA256: 6b2c6ba8ba390ab5080822fc6906ab5f5c9ef680b4d63ff9ca985c1c8b555c17
+  FROZEN_PHASE12_DEV_RUN_ID: '34004695243'
+  FROZEN_PHASE12_CANDIDATE_SHA256: e2372ca597cdd983f098f1a45524c077798114c59a62bf9faccefd17b67a4991
+  PHASE14_FIT_RUN_ID: '34010431456'
+  PHASE14_BRIDGE_CANDIDATE_SHA256: 0443d4e45a1966c77544c5c9965de8caec6e622c79ef8c2ce47aee82a3c95981
+  PHASE17_FIT_RUN_ID: '34011621058'
+  PHASE17_FIT_CANDIDATE_SHA256: 2ca52a418f5616e0e83ef84d0c9238ee429260cd4de7a553356b0c1bba44d8e0
+  PHASE17_DEVELOPMENT_RUN_ID: '34011708070'
+  PHASE17_RESULT_SHA256: 24aeed60003b3111c9d3dd24cee992f8bac539531d38923b9a205a1423e8d029
+  PHASE18_TRANSFER_SEED: '1818182'
+
+jobs:
+  transfer:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Require development PASS and refuse second transfer exposure
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          DEV_COUNT=$(gh api \
+            -H 'Accept: application/vnd.github+json' \
+            '/repos/${{ github.repository }}/actions/artifacts?name=phase18-development&per_page=100' \
+            --jq '[.artifacts[] | select(.expired == false)] | length')
+          test "$DEV_COUNT" = "1" || { echo "Expected exactly one Phase 18 development artifact"; exit 1; }
+          TRANSFER_COUNT=$(gh api \
+            -H 'Accept: application/vnd.github+json' \
+            '/repos/${{ github.repository }}/actions/artifacts?name=phase18-transfer&per_page=100' \
+            --jq '[.artifacts[] | select(.expired == false)] | length')
+          test "$TRANSFER_COUNT" = "0" || { echo "Phase 18 transfer artifact already exists; refusing second exposure"; exit 1; }
+
+      - name: Check out transfer-authorization head
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Verify scientific implementation remained frozen after development
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+          python -m compileall -q scripts/run_phase18_residual_advantage_confirmation.py
+          pytest -q \
+            tests/test_phase17_context_conditional_coefficient_mismatch.py \
+            tests/test_phase18_residual_advantage_confirmation.py
+          CHANGED=$(git diff --name-only "$FROZEN_PHASE18_DEV_SCIENTIFIC_SHA"..HEAD)
+          printf '%s\n' "$CHANGED"
+          BAD=$(printf '%s\n' "$CHANGED" | grep -Ev '^(docs/phase18_development_result\.md|\.github/workflows/phase18-transfer\.yml)$' || true)
+          test -z "$BAD" || { echo "Scientific implementation changed after Phase 18 development:"; echo "$BAD"; exit 1; }
+          grep -q "$FROZEN_PHASE18_DEV_RESULT_SHA256" docs/phase18_development_result.md
+          grep -q '1818182' docs/phase18_development_result.md
+
+      - name: Recover exact Phase 18 development result
+        uses: actions/download-artifact@v4
+        with:
+          name: phase18-development
+          path: frozen_phase18_development_artifact
+          github-token: ${{ github.token }}
+          repository: suhaslord/uav-safety-research
+          run-id: ${{ env.FROZEN_PHASE18_DEV_RUN_ID }}
+
+      - name: Recover exact frozen Phase 12 candidate
+        uses: actions/download-artifact@v4
+        with:
+          name: phase12-development-v3
+          path: frozen_phase12_candidate_artifact
+          github-token: ${{ github.token }}
+          repository: suhaslord/uav-safety-research
+          run-id: ${{ env.FROZEN_PHASE12_DEV_RUN_ID }}
+
+      - name: Recover exact frozen Phase 14 bridge candidate
+        uses: actions/download-artifact@v4
+        with:
+          name: phase14-bridge-candidate
+          path: frozen_phase14_bridge_artifact
+          github-token: ${{ github.token }}
+          repository: suhaslord/uav-safety-research
+          run-id: ${{ env.PHASE14_FIT_RUN_ID }}
+
+      - name: Recover exact frozen Phase 17 fit candidate
+        uses: actions/download-artifact@v4
+        with:
+          name: phase17-fit-candidate
+          path: frozen_phase17_fit_artifact
+          github-token: ${{ github.token }}
+          repository: suhaslord/uav-safety-research
+          run-id: ${{ env.PHASE17_FIT_RUN_ID }}
+
+      - name: Recover exact failed Phase 17 development result
+        uses: actions/download-artifact@v4
+        with:
+          name: phase17-development
+          path: frozen_phase17_development_artifact
+          github-token: ${{ github.token }}
+          repository: suhaslord/uav-safety-research
+          run-id: ${{ env.PHASE17_DEVELOPMENT_RUN_ID }}
+
+      - name: Verify exact identities and freeze transfer head
+        run: |
+          P18DEV=$(find frozen_phase18_development_artifact -path '*/results/phase18_development/dev_result.json' -print -quit)
+          P12=$(find frozen_phase12_candidate_artifact -path '*/results/phase12_candidate_v3/candidate_freeze.json' -print -quit)
+          BRIDGE=$(find frozen_phase14_bridge_artifact -path '*/results/phase14_fit/bridge_candidate.json' -print -quit)
+          FIT=$(find frozen_phase17_fit_artifact -path '*/results/phase17_fit/fit_candidate.json' -print -quit)
+          P17=$(find frozen_phase17_development_artifact -path '*/results/phase17_development/dev_result.json' -print -quit)
+          test -n "$P18DEV"; test -n "$P12"; test -n "$BRIDGE"; test -n "$FIT"; test -n "$P17"
+          echo "$FROZEN_PHASE18_DEV_RESULT_SHA256  $P18DEV" | sha256sum -c -
+          echo "$FROZEN_PHASE12_CANDIDATE_SHA256  $P12" | sha256sum -c -
+          echo "$PHASE14_BRIDGE_CANDIDATE_SHA256  $BRIDGE" | sha256sum -c -
+          echo "$PHASE17_FIT_CANDIDATE_SHA256  $FIT" | sha256sum -c -
+          echo "$PHASE17_RESULT_SHA256  $P17" | sha256sum -c -
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p18 = json.loads(next(Path('frozen_phase18_development_artifact').rglob('dev_result.json')).read_text())
+          assert p18['phase18_pass'] is True
+          assert all(p18['gates'].values())
+          p17 = json.loads(next(Path('frozen_phase17_development_artifact').rglob('dev_result.json')).read_text())
+          assert p17['phase17_pass'] is False
+          PY
+          echo "PHASE12_CANDIDATE=$P12" >> "$GITHUB_ENV"
+          echo "PHASE14_BRIDGE=$BRIDGE" >> "$GITHUB_ENV"
+          echo "PHASE17_FIT_CANDIDATE=$FIT" >> "$GITHUB_ENV"
+          echo "PHASE17_RESULT=$P17" >> "$GITHUB_ENV"
+          echo "PHASE18_TRANSFER_SCIENTIFIC_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Expose Phase 18 transfer evidence exactly once
+        run: |
+          rm -rf results/phase18_transfer
+          python scripts/run_phase18_residual_advantage_confirmation.py \
+            --stage transfer \
+            --phase12-candidate "$PHASE12_CANDIDATE" \
+            --phase14-bridge "$PHASE14_BRIDGE" \
+            --phase17-fit-candidate "$PHASE17_FIT_CANDIDATE" \
+            --phase17-result "$PHASE17_RESULT" \
+            --out results/phase18_transfer \
+            --git-sha "$PHASE18_TRANSFER_SCIENTIFIC_SHA" 2>&1 | tee phase18-transfer.log
+          test -f results/phase18_transfer/transfer_result.json
+
+      - name: Verify permanent transfer boundary and record verdict
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          r = json.loads(Path('results/phase18_transfer/transfer_result.json').read_text())
+          assert r['schema'] == 'aegisland.phase18.residual-advantage-confirmation.transfer-result.v1'
+          assert r['stage'] == 'transfer'
+          assert r['evaluated_seed_seen_after_run'] == int(os.environ['PHASE18_TRANSFER_SEED'])
+          assert r['families'] == list(range(1953, 1977))
+          assert r['scientific_git_sha'] == os.environ['PHASE18_TRANSFER_SCIENTIFIC_SHA']
+          assert r['phase17_failure_preserved'] is True
+          assert r['no_refit'] is True
+          assert r['zero_adaptation'] is True
+          assert r['simulation_only'] is True
+          assert r['safety_acceptance'] is False
+          assert r['controller_tuning_allowed'] is False
+          assert len(r['gates']) == 10
+          print('PHASE18_TRANSFER_PERMANENTLY_SEEN=true')
+          print('PHASE18_TRANSFER_PASS=' + str(bool(r['phase18_pass'])).lower())
+          print(json.dumps(r['gates'], indent=2, sort_keys=True))
+          print(json.dumps(r['contexts'], indent=2, sort_keys=True))
+          PY
+
+      - name: Upload permanent Phase 18 transfer evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase18-transfer
+          path: |
+            results/phase18_transfer/
+            phase18-transfer.log
+          if-no-files-found: error
+          retention-days: 90
