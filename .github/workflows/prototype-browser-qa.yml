@@ -1,0 +1,39 @@
+name: Prototype browser QA
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/build_reliability_prototype.py'
+      - 'deploy/vercel/prototype*'
+      - 'deploy/vercel/vercel.json'
+      - 'tests/prototype_logic.test.cjs'
+      - '.github/qa/prototype-smoke.mjs'
+      - '.github/workflows/prototype-browser-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  demo-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Build authentic archived demo records
+        run: |
+          python -m scripts.build_reliability_prototype
+          python -m scripts.build_reliability_prototype --check
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install browser runner
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Check browser controls, mobile layout and data-failure handling
+        run: node .github/qa/prototype-smoke.mjs
