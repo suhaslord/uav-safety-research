@@ -157,10 +157,15 @@ def augment(image: Image.Image, boxes: list[tuple[float, float, float, float]],
 
 
 def build(split_root: Path, out: Path, *, seed: int = 20261013, variants: int = 2,
+          mode: str = "append", replace_fraction: float = 0.5,
           locked_sha: str = LOCKED_SPLIT_SHA,
           protected_manifest: Path = PROTECTED_MANIFEST) -> dict:
-    if variants not in range(1, 6):
-        raise ValueError("Use 1–5 training variants per original frame")
+    if mode not in {"append", "matched"}:
+        raise ValueError("Choose append or matched mode")
+    if variants not in range(1, 6) or (mode == "matched" and variants != 1):
+        raise ValueError("Matched mode requires exactly one replacement decision per frame")
+    if not math.isfinite(replace_fraction) or not 0 < replace_fraction < 1:
+        raise ValueError("Replacement fraction must be finite and strictly between 0 and 1")
     if out.exists():
         raise FileExistsError("Output exists: refusing to overwrite candidate")
     train, val, manifest_sha = verify_split(split_root, locked_sha=locked_sha,
@@ -173,6 +178,13 @@ def build(split_root: Path, out: Path, *, seed: int = 20261013, variants: int = 
             validate_label(split_root / "labels" / split / (image.stem + ".txt"))
     for directory in ("images/train", "labels/train", "images/val", "labels/val"):
         (out / directory).mkdir(parents=True, exist_ok=False)
+    # Rank only development-train filenames (never protected test labels or pixels).
+    # Exactly round(fraction * N) originals are replaced, never appended.
+    ranked = sorted(train, key=lambda p: hashlib.sha256(
+        f"{seed}:{p.name}:matched".encode("utf-8")).digest())
+    n_replace = max(1, min(len(train) - 1, round(len(train) * replace_fraction)))
+    replacements = {p.name: CONDITIONS[i % len(CONDITIONS)]
+                    for i, p in enumerate(ranked[:n_replace])} if mode == "matched" else {}
     inventory = []
     for originals, split in ((train, "train"), (val, "val")):
         for source in originals:
@@ -181,11 +193,23 @@ def build(split_root: Path, out: Path, *, seed: int = 20261013, variants: int = 
             dest_lbl = out / "labels" / split / label.name
             shutil.copyfile(source, dest_img)
             shutil.copyfile(label, dest_lbl)
-            inventory.append({"source": source.name, "split": split, "condition": "original",
+            condition = "original"
+            fraction = 0.0
+            if split == "train" and mode == "matched" and source.name in replacements:
+                condition = replacements[source.name]
+                boxes = validate_label(label)
+                with Image.open(source) as original:
+                    generated, fraction = augment(original, boxes, condition,
+                                                  rng_for(seed, source.name, 0))
+                    if source.suffix.lower() in {".jpg", ".jpeg"}:
+                        generated.save(dest_img, format="JPEG", quality=95, subsampling=0)
+                    else:
+                        generated.save(dest_img)
+            inventory.append({"source": source.name, "split": split, "condition": condition,
                               "image": dest_img.relative_to(out).as_posix(),
                               "image_sha256": digest(dest_img), "label_sha256": digest(dest_lbl),
-                              "masked_fraction_upper_bound": 0.0})
-            if split != "train":
+                              "masked_fraction_upper_bound": round(fraction, 5)})
+            if split != "train" or mode == "matched":
                 continue
             boxes = validate_label(label)
             with Image.open(source) as original:
@@ -209,9 +233,12 @@ def build(split_root: Path, out: Path, *, seed: int = 20261013, variants: int = 
     receipt = {"schema": "aegisland.detector_robustness.development-only-aug.v1",
                "status": "candidate_data_prepared",
                "locked_split_sha256": manifest_sha,
-               "seed": seed, "variants_per_train_frame": variants,
+               "seed": seed, "mode": mode, "replace_fraction": replace_fraction if mode == "matched" else None,
+               "variants_per_train_frame": variants,
                "original_train": len(train), "original_val": len(val),
-               "derived_train": len(train) * variants, "derived_val": 0,
+               "derived_train": len(train) * variants if mode == "append" else 0,
+               "transformed_train": len(replacements), "training_image_count": len(train) if mode == "matched" else len(train) * (variants + 1),
+               "derived_val": 0,
                "protected_test_read": False, "test_or_embargo_copied": False,
                "new_model_trained": False, "protected_test_evaluated": False,
                "independent_sessions_used": False,
@@ -227,8 +254,11 @@ def main() -> None:
     parser.add_argument("--out", required=True, type=Path)
     parser.add_argument("--seed", type=int, default=20261013)
     parser.add_argument("--variants", type=int, default=2)
+    parser.add_argument("--mode", choices=("append", "matched"), default="matched")
+    parser.add_argument("--replace-fraction", type=float, default=0.5)
     args = parser.parse_args()
-    result = build(args.split_root, args.out, seed=args.seed, variants=args.variants)
+    result = build(args.split_root, args.out, seed=args.seed, variants=args.variants,
+                   mode=args.mode, replace_fraction=args.replace_fraction)
     print(json.dumps({k: v for k, v in result.items() if k != "inventory"}, indent=2))
 
 
