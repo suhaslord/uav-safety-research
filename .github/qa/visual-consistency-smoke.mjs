@@ -303,7 +303,19 @@ try {
       source: document.querySelector('footer a')?.getAttribute('href') || '',
       hasBoundary: /separate from the frozen Phase 1–22 simulation record/i.test(document.querySelector('main')?.innerText || ''),
       recovery: document.querySelector('#checkpoint-recovery')?.innerText || '',
-      noHorizontalOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth <= 1
+      noHorizontalOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth <= 1,
+      overflowPixels: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      offendingElements: [...document.querySelectorAll('body *')].map(element => {
+        const rect = element.getBoundingClientRect();
+        const style = getComputedStyle(element);
+        return { tag: element.tagName.toLowerCase(), id: element.id || '',
+          cls: typeof element.className === 'string' ? element.className.slice(0, 100) : '',
+          left: Math.round(rect.left), right: Math.round(rect.right),
+          width: Math.round(rect.width), scrollWidth: element.scrollWidth,
+          clientWidth: element.clientWidth, position: style.position,
+          overflowX: style.overflowX };
+      }).filter(x => x.right > document.documentElement.clientWidth + 2 && x.width > 0)
+        .sort((a, b) => b.right - a.right).slice(0, 12)
     }));
     add('phase23-six-condition-images-load-at-source-ratio', phase23.gallery.length === 6 && phase23.gallery.every(image => image.loaded && image.width === 640 && image.height === 585), phase23.gallery);
     add('phase23-shows-committed-results-and-checkpoint-gate', phase23.rows === 6 && phase23.source.includes('phase23_robust_detector/summary.md') && phase23.hasBoundary && /Original Phase 23 replay verified/i.test(phase23.recovery) && /24 \/ 24 metric cells matched/.test(phase23.recovery) && phase23.noHorizontalOverflow, phase23);
