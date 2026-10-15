@@ -171,3 +171,8 @@ body :is(.phase-card,.result-card,.report-card,.archive-record-card) {box-shadow
 .aegis-home-spotlight__status>small {display:block;color:#5c5e62;font-size:12px;margin-top:8px}
 @media(max-width:900px){.aegis-home-spotlight__layout{grid-template-columns:1fr;gap:26px}.aegis-home-spotlight__stats{display:grid;grid-template-columns:1fr 1fr}.aegis-home-spotlight__stats>div+div{border-top:0}.aegis-home-spotlight__stats>div:nth-child(2){border-left:1px solid #e2e3e3}.aegis-home-spotlight__stats>.aegis-home-spotlight__status{grid-column:1/-1;border-top:1px solid #e2e3e3}}
 @media(max-width:560px){.aegis-home-spotlight__stats{grid-template-columns:1fr}.aegis-home-spotlight__stats>div:nth-child(2){border-left:0;border-top:1px solid #e2e3e3}.aegis-home-spotlight__stats>.aegis-home-spotlight__status{grid-column:auto}.aegis-home-spotlight__stats>div{padding:22px}.aegis-home-spotlight h2{font-size:40px!important}}
+
+/* Keep Phase 24 SVG charts scrollable inside their cards rather than widening the document. */
+body:has([data-phase24-chart]) { overflow-x: clip; }
+body:has([data-phase24-chart]) :is(main, .chart-grid, .chart-card, .chart) { min-width: 0; max-width: 100%; }
+body:has([data-phase24-chart]) .chart { overflow-x: auto; overscroll-behavior-x: contain; }
