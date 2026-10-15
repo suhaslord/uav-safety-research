@@ -138,6 +138,16 @@ class FDIH3AdmissionTests(unittest.TestCase):
                 del doc[section][field]
                 self.assertTrue(validate(doc), f"missing {section}.{field} passed")
 
+    def test_reject_blank_invalid_license_and_weak_evidence(self):
+        doc = candidate()
+        doc["engine"]["license"] = " "
+        doc["interface"]["motor_index_mapping_evidence_url"] = "https://"
+        doc["method"]["online_noise_runtime_evidence_url"] = "https://example.org/run time"
+        findings = validate(doc)
+        self.assertTrue(any("engine.license" in x for x in findings))
+        self.assertTrue(any("motor_index_mapping_evidence_url" in x for x in findings))
+        self.assertTrue(any("online_noise_runtime_evidence_url" in x for x in findings))
+
     def test_reject_invalid_runtime_evidence_and_unsealed_holdout(self):
         doc = candidate()
         doc["interface"]["gyro_axis_mapping_evidence_url"] = ["not-a-url"]
