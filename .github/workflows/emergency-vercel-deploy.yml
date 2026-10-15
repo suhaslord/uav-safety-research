@@ -84,6 +84,8 @@ jobs:
           cp -R deploy/vercel/. .vercel-release/
           # Preserve the sealed runtime, then layer live-only label corrections.
           # Vercel filesystem routes take precedence over rewrites.
+          mv .vercel-release/model-vase.html .vercel-release/model-vase-frozen.html
+          cp .vercel-release/model-vase-current.html .vercel-release/model-vase.html
           mv .vercel-release/failure-atlas.html .vercel-release/failure-atlas-frozen.html
           cp .vercel-release/failure-atlas-current.html .vercel-release/failure-atlas.html
           mv .vercel-release/failure-atlas.js .vercel-release/failure-atlas-frozen.js
@@ -123,6 +125,8 @@ jobs:
           test "$(find .vercel-release/media/phase25 -type f -name '*.jpg' | wc -l)" -eq 516
           grep -q '"preview_count": 516' .vercel-release/media/phase25/manifest.json
           test -f .vercel-release/failure-atlas-live.js
+          cmp deploy/vercel/model-vase.html .vercel-release/model-vase-frozen.html
+          cmp deploy/vercel/model-vase-current.html .vercel-release/model-vase.html
           cmp deploy/vercel/failure-atlas.html .vercel-release/failure-atlas-frozen.html
           cmp deploy/vercel/failure-atlas-current.html .vercel-release/failure-atlas.html
           cmp deploy/vercel/failure-atlas.js .vercel-release/failure-atlas-frozen.js

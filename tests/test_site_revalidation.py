@@ -43,6 +43,9 @@ def test_website_refresh_does_not_rewrite_the_research_freeze():
 
 def test_live_atlas_label_corrections_leave_frozen_artifacts_addressable():
     workflow = (ROOT / ".github/workflows/emergency-vercel-deploy.yml").read_text(encoding="utf-8")
+    assert "mv .vercel-release/model-vase.html .vercel-release/model-vase-frozen.html" in workflow
+    assert "cp .vercel-release/model-vase-current.html .vercel-release/model-vase.html" in workflow
+    assert "cmp deploy/vercel/model-vase.html .vercel-release/model-vase-frozen.html" in workflow
     assert "mv .vercel-release/failure-atlas.html .vercel-release/failure-atlas-frozen.html" in workflow
     assert "cp .vercel-release/failure-atlas-current.html .vercel-release/failure-atlas.html" in workflow
     assert "cmp deploy/vercel/failure-atlas.html .vercel-release/failure-atlas-frozen.html" in workflow
