@@ -43,6 +43,12 @@ def test_website_refresh_does_not_rewrite_the_research_freeze():
 
 def test_live_atlas_label_corrections_leave_frozen_artifacts_addressable():
     workflow = (ROOT / ".github/workflows/emergency-vercel-deploy.yml").read_text(encoding="utf-8")
+    assert "mv .vercel-release/model-vase.html .vercel-release/model-vase-frozen.html" in workflow
+    assert "cp .vercel-release/model-vase-current.html .vercel-release/model-vase.html" in workflow
+    assert "cmp deploy/vercel/model-vase.html .vercel-release/model-vase-frozen.html" in workflow
+    assert "mv .vercel-release/failure-atlas.html .vercel-release/failure-atlas-frozen.html" in workflow
+    assert "cp .vercel-release/failure-atlas-current.html .vercel-release/failure-atlas.html" in workflow
+    assert "cmp deploy/vercel/failure-atlas.html .vercel-release/failure-atlas-frozen.html" in workflow
     assert "mv .vercel-release/failure-atlas.js .vercel-release/failure-atlas-frozen.js" in workflow
     assert "cp .vercel-release/failure-atlas-live.js .vercel-release/failure-atlas.js" in workflow
     assert "cmp deploy/vercel/failure-atlas.js .vercel-release/failure-atlas-frozen.js" in workflow
@@ -109,3 +115,11 @@ def test_archive_includes_paired_audit_without_inventing_phase26_results():
     assert "order.length" in archive
     assert "Phase 26: prospective independent-data admission; no dataset admitted" in archive
     assert "phase26: ['Phase 26'" not in archive
+
+
+def test_live_stylesheet_is_served_with_css_mime_type():
+    config = json.loads((SITE / "vercel.json").read_text(encoding="utf-8"))
+    rules = [rule for rule in config["headers"] if rule["source"] == "/tesla-site.css"]
+    assert len(rules) == 1
+    assert any(header["key"].lower() == "content-type" and header["value"].startswith("text/css")
+               for header in rules[0]["headers"])
