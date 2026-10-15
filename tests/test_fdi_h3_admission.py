@@ -16,6 +16,7 @@ def candidate():
             "commit_sha": "a" * 40,
             "runtime_digest": "sha256:" + "b" * 64,
             "independence_evidence_url": "https://example.org/analysis",
+            "license": "BSD-3-Clause",
         },
         "interface": {
             "gyro_units": "rad/s",
@@ -25,6 +26,9 @@ def candidate():
             "sample_period_s": .032,
             "altitude_reference": "world vertical from datum",
             "contact_indicator": "simulated touchdown event",
+            "gyro_axis_mapping_evidence_url": "https://example.org/gyro-axes",
+            "motor_index_mapping_evidence_url": "https://example.org/motor-indices",
+            "applied_actuator_observation_evidence_url": "https://example.org/observed-actuation",
         },
         "method": {
             "threshold_p_radps": 2.0,
@@ -34,10 +38,14 @@ def candidate():
             "injection_site": "simulated_actuator_model",
             "online_gyro_noise": True,
             "online_gyro_noise_spec_url": "https://example.org/noise",
+            "simulator_fault_injection_evidence_url": "https://example.org/simulator-fault",
+            "online_noise_runtime_evidence_url": "https://example.org/online-noise-runtime",
         },
         "splits": {
             "development_seeds": [130, 131],
             "protected_seeds": list(range(200, 212)),
+            "protected_holdout_status": "sealed_unscored",
+            "protected_holdout_freeze_sha256": "c" * 64,
         },
         "development_protocol_url": "https://example.org/dev",
         "protected_protocol_url": "https://example.org/protected",
@@ -115,6 +123,42 @@ class FDIH3AdmissionTests(unittest.TestCase):
             with self.subTest(seed=used):
                 doc["splits"]["development_seeds"] = [used]
                 self.assertTrue(any("known H1/H2" in s for s in validate(doc)))
+
+    def test_require_license_and_mapping_evidence_before_review(self):
+        for section, field in (
+            ("engine", "license"),
+            ("interface", "gyro_axis_mapping_evidence_url"),
+            ("interface", "motor_index_mapping_evidence_url"),
+            ("interface", "applied_actuator_observation_evidence_url"),
+            ("method", "simulator_fault_injection_evidence_url"),
+            ("method", "online_noise_runtime_evidence_url"),
+        ):
+            with self.subTest(section=section, field=field):
+                doc = candidate()
+                del doc[section][field]
+                self.assertTrue(validate(doc), f"missing {section}.{field} passed")
+
+    def test_reject_blank_invalid_license_and_weak_evidence(self):
+        doc = candidate()
+        doc["engine"]["license"] = " "
+        doc["interface"]["motor_index_mapping_evidence_url"] = "https://"
+        doc["method"]["online_noise_runtime_evidence_url"] = "https://example.org/run time"
+        findings = validate(doc)
+        self.assertTrue(any("engine.license" in x for x in findings))
+        self.assertTrue(any("motor_index_mapping_evidence_url" in x for x in findings))
+        self.assertTrue(any("online_noise_runtime_evidence_url" in x for x in findings))
+
+    def test_reject_invalid_runtime_evidence_and_unsealed_holdout(self):
+        doc = candidate()
+        doc["interface"]["gyro_axis_mapping_evidence_url"] = ["not-a-url"]
+        doc["method"]["simulator_fault_injection_evidence_url"] = "offline-only"
+        doc["splits"]["protected_holdout_status"] = "already_scored"
+        doc["splits"]["protected_holdout_freeze_sha256"] = "unfrozen"
+        problems = validate(doc)
+        self.assertTrue(any("gyro_axis_mapping_evidence_url" in p for p in problems))
+        self.assertTrue(any("simulator_fault_injection_evidence_url" in p for p in problems))
+        self.assertTrue(any("sealed_unscored" in p for p in problems))
+        self.assertTrue(any("freeze SHA-256" in p for p in problems))
 
 if __name__ == "__main__":
     unittest.main()

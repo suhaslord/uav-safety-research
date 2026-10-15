@@ -13,12 +13,24 @@ import json
 import math
 import re
 from pathlib import Path
+from urllib.parse import urlsplit
 
 PREVIOUSLY_USED = frozenset(
     (11, 23, 29, 31, 41, 47, 53, 59, 61, 67, 71, 73, 79, 83,
      89, 97, 101, 103, 107, 109, 113, 127)
 )
 H1_MOTOR_MAP = {"++": 1, "+-": 2, "--": 3, "-+": 4}
+
+
+def _is_https_evidence_url(value):
+    """Require a usable HTTPS origin and reject non-string/offline evidence."""
+    if not isinstance(value, str) or any(ch.isspace() for ch in value):
+        return False
+    try:
+        parsed = urlsplit(value)
+        return parsed.scheme == "https" and bool(parsed.hostname) and not parsed.username and not parsed.password
+    except ValueError:
+        return False
 
 
 def validate(manifest):
@@ -52,6 +64,10 @@ def validate(manifest):
     check(isinstance(independence, str) and independence.startswith("https://"),
           "source-level independence evidence missing; parameter shifts alone do not qualify")
 
+    license_id = engine.get("license")
+    check(isinstance(license_id, str) and bool(re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9.+-]{1,99}", license_id)),
+          "engine.license must name a reviewable SPDX license identifier")
+
     interface = manifest.get("interface", {})
     if not isinstance(interface, dict):
         interface = {}
@@ -69,6 +85,10 @@ def validate(manifest):
     check(isinstance(interface.get("contact_indicator"), str) and bool(interface["contact_indicator"].strip()),
           "document simulator contact detection")
 
+    for key in ("gyro_axis_mapping_evidence_url", "motor_index_mapping_evidence_url",
+                "applied_actuator_observation_evidence_url"):
+        check(_is_https_evidence_url(interface.get(key)), f"interface.{key} must provide an HTTPS evidence URL")
+
     method = manifest.get("method", {})
     if not isinstance(method, dict):
         method = {}
@@ -80,6 +100,9 @@ def validate(manifest):
     check(method.get("online_gyro_noise") is True, "online measurement perturbation must be documented")
     check(isinstance(method.get("online_gyro_noise_spec_url"), str) and method["online_gyro_noise_spec_url"].startswith("https://"),
           "online noise implementation evidence URL required")
+
+    for key in ("simulator_fault_injection_evidence_url", "online_noise_runtime_evidence_url"):
+        check(_is_https_evidence_url(method.get(key)), f"method.{key} must provide an HTTPS evidence URL")
 
     splits = manifest.get("splits", {})
     if not isinstance(splits, dict):
@@ -105,6 +128,12 @@ def validate(manifest):
     if len(valid_splits) == 2:
         check(not set(valid_splits["development"]).intersection(valid_splits["protected"]),
               "development/protected seed leakage")
+
+    check(splits.get("protected_holdout_status") == "sealed_unscored",
+          "protected holdout must remain sealed_unscored before independent-source review")
+    freeze_hash = splits.get("protected_holdout_freeze_sha256")
+    check(isinstance(freeze_hash, str) and bool(re.fullmatch(r"[0-9a-fA-F]{64}", freeze_hash)),
+          "protected holdout freeze SHA-256 must be present and well-formed")
 
     for name in ("development_protocol_url", "protected_protocol_url", "manifest_archive_url"):
         url = manifest.get(name)
