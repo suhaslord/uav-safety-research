@@ -176,3 +176,9 @@ body :is(.phase-card,.result-card,.report-card,.archive-record-card) {box-shadow
 body:has([data-phase24-chart]) { overflow-x: clip; }
 body:has([data-phase24-chart]) :is(main, .chart-grid, .chart-card, .chart) { min-width: 0; max-width: 100%; }
 body:has([data-phase24-chart]) .chart { overflow-x: auto; overscroll-behavior-x: contain; }
+
+/* Phase 24: keep the SVG/table charts scrollable inside their cards, never across the document. */
+html:has([data-phase24-chart]) { overflow-x: clip; }
+html:has([data-phase24-chart]) body { max-width: 100%; }
+html:has([data-phase24-chart]) :is(.chart-grid, .chart-card) { min-width: 0; max-width: 100%; }
+html:has([data-phase24-chart]) .chart { max-width: 100%; overflow-x: auto; }
