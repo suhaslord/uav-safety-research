@@ -14,6 +14,7 @@ on:
       - research/h3-px4-pinned-motor-source-gate-20261012
       - research/h3-gyro-sample-clock-audit-20261012
       - research/h3-dense-raw-gyro-observability-20261012
+      - research/h3-logger-storage-path-20261013
 
 concurrency:
   group: h3-development-capture-${{ github.ref }}
@@ -30,7 +31,7 @@ jobs:
       PX4_RELEASE: v1.17.0
       PX4_SIMULATOR_MODEL: gz_x500
       DEVELOPMENT_ONLY: "true"
-      H3_DENSE_RAW_GYRO: ${{ github.ref == 'refs/heads/research/h3-dense-raw-gyro-observability-20261012' || inputs.dense_raw_gyro_diagnostics == true }}
+      H3_DENSE_RAW_GYRO: ${{ github.ref == 'refs/heads/research/h3-dense-raw-gyro-observability-20261012' || github.ref == 'refs/heads/research/h3-logger-storage-path-20261013' || inputs.dense_raw_gyro_diagnostics == true }}
     steps:
       - uses: actions/checkout@v4
 
@@ -80,7 +81,10 @@ jobs:
           python "$GITHUB_WORKSPACE/scripts/fdi_h3_px4_dense_logger_plan.py" \
             --output /tmp/h3-development/logger_topics.txt \
             --receipt /tmp/h3-development/logger_profile_receipt.json
-          TARGET="build/px4_sitl_default/rootfs/fs/microsd/etc/logging"
+          # PX4 v1.17.0 px4/sitl/default.px4board sets CONFIG_BOARD_ROOT_PATH=".".
+          # PX4_STORAGEDIR is therefore rootfs/ (not rootfs/fs/microsd/) in SITL.
+          # Pinned logger source opens PX4_STORAGEDIR/etc/logging/logger_topics.txt.
+          TARGET="build/px4_sitl_default/rootfs/etc/logging"
           mkdir -p "$TARGET"
           cp /tmp/h3-development/logger_topics.txt "$TARGET/logger_topics.txt"
           cmp /tmp/h3-development/logger_topics.txt "$TARGET/logger_topics.txt"
@@ -111,8 +115,9 @@ jobs:
           done
           test "$ready" -eq 1
           if [ "$H3_DENSE_RAW_GYRO" = "true" ]; then
-            grep -q "topics from logger_topics.txt" /tmp/h3-development/px4_gazebo.log || {
-              echo "PX4 did not confirm installation of development-only logger override"
+            grep -Eq 'logging [1-9][0-9]* topics from logger_topics\.txt' /tmp/h3-development/px4_gazebo.log || {
+              echo "PX4 did not confirm reading the development-only logger override"
+              tail -n 120 /tmp/h3-development/px4_gazebo.log
               exit 1
             }
           fi

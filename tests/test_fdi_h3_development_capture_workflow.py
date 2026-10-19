@@ -88,11 +88,24 @@ def test_dense_raw_sensor_logging_is_opt_in_and_receipted_before_startup():
     assert "H3_DENSE_RAW_GYRO:" in body
     assert "scripts/fdi_h3_px4_dense_logger_plan.py" in body
     assert "make px4_sitl_default" in body
-    assert "rootfs/fs/microsd/etc/logging" in body
-    assert "topics from logger_topics.txt" in body
+    assert "rootfs/etc/logging" in body
+    assert "rootfs/fs/microsd/etc/logging\"" not in body
+    assert 'CONFIG_BOARD_ROOT_PATH="."' in body
+    assert "logging [1-9][0-9]* topics from logger_topics" in body
     assert "scripts.fdi_h3_px4_dense_raw_gate" in body
     assert body.index("Install opt-in raw gyro logger profile") < body.index("Start headless PX4")
     assert body.index("Verify opt-in dense raw gyro coverage") < body.index("Export unscored")
     assert "logger_profile_receipt.json" in body
     assert "dense_raw_gyro_audit.json" in body
     assert "fault_injection_verified" in body
+
+
+def test_opt_in_sitl_logger_must_confirm_nonzero_custom_topic_count():
+    body = text()
+    # Pinned PX4 v1.17.0: logged_topics.cpp reports this only after opening
+    # PX4_STORAGEDIR/etc/logging/logger_topics.txt and loading its topics.
+    assert "grep -Eq 'logging [1-9][0-9]* topics from logger_topics\\.txt'" in body
+    assert 'tail -n 120 /tmp/h3-development/px4_gazebo.log' in body
+    assert 'H3_DENSE_RAW_GYRO' in body
+    assert 'research/h3-logger-storage-path-20261013' in body
+    assert 'dense_raw_gyro_diagnostics:' in body
