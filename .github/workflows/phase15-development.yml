@@ -1,0 +1,143 @@
+name: Phase 15 recoverability feasibility development
+
+on:
+  push:
+    branches: [phase15/recoverability-feasibility-frontier]
+    paths:
+      - .github/workflows/phase15-development.yml
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  FROZEN_PHASE12_DEV_RUN_ID: '34004695243'
+  FROZEN_PHASE12_CANDIDATE_SHA256: e2372ca597cdd983f098f1a45524c077798114c59a62bf9faccefd17b67a4991
+  PHASE15_FREEZE_RUN_ID: '34010831493'
+  PHASE15_FRONTIER_SHA256: 446501d41bdc14f016026e075a506530c098f294acd71211b569cc38e0925a1b
+  PHASE15_SCIENTIFIC_SHA: 455332919b475c1d2a5c5072abfbdb806653b810
+  PHASE15_DEV_SEED: '1515151'
+
+jobs:
+  development:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Require frozen frontier and refuse second development exposure
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          FREEZE_COUNT=$(gh api \
+            -H 'Accept: application/vnd.github+json' \
+            '/repos/${{ github.repository }}/actions/artifacts?name=phase15-frontier-candidate&per_page=100' \
+            --jq '[.artifacts[] | select(.expired == false)] | length')
+          test "$FREEZE_COUNT" -ge 1 || { echo "Phase 15 frontier candidate missing"; exit 1; }
+          DEV_COUNT=$(gh api \
+            -H 'Accept: application/vnd.github+json' \
+            '/repos/${{ github.repository }}/actions/artifacts?name=phase15-development&per_page=100' \
+            --jq '[.artifacts[] | select(.expired == false)] | length')
+          test "$DEV_COUNT" = "0" || { echo "Phase 15 development artifact already exists; refusing second exposure"; exit 1; }
+
+      - name: Check out development-authorization head
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Verify exact frozen Phase 15 science
+        run: |
+          test -f docs/phase15_frontier_freeze.md
+          grep -q "$PHASE15_FRONTIER_SHA256" docs/phase15_frontier_freeze.md
+          git diff --exit-code "$PHASE15_SCIENTIFIC_SHA" -- \
+            scripts/run_phase15_recoverability_feasibility_frontier.py \
+            tests/test_phase15_recoverability_feasibility_frontier.py \
+            docs/phase15_preregistration.md
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+          python -m compileall -q \
+            scripts/run_phase15_recoverability_feasibility_frontier.py \
+            scripts/run_phase14_uncertainty_recoverability_bridge.py
+          pytest -q \
+            tests/test_phase14_uncertainty_recoverability_bridge.py \
+            tests/test_phase15_recoverability_feasibility_frontier.py
+
+      - name: Recover exact frozen Phase 12 candidate
+        uses: actions/download-artifact@v4
+        with:
+          name: phase12-development-v3
+          path: frozen_phase12_candidate_artifact
+          github-token: ${{ github.token }}
+          repository: suhaslord/uav-safety-research
+          run-id: ${{ env.FROZEN_PHASE12_DEV_RUN_ID }}
+
+      - name: Recover exact frozen Phase 15 frontier candidate
+        uses: actions/download-artifact@v4
+        with:
+          name: phase15-frontier-candidate
+          path: frozen_phase15_frontier_artifact
+          github-token: ${{ github.token }}
+          repository: suhaslord/uav-safety-research
+          run-id: ${{ env.PHASE15_FREEZE_RUN_ID }}
+
+      - name: Verify candidate identities
+        run: |
+          P12=$(find frozen_phase12_candidate_artifact -path '*/results/phase12_candidate_v3/candidate_freeze.json' -print -quit)
+          FRONTIER=$(find frozen_phase15_frontier_artifact -path '*/results/phase15_frontier/frontier_candidate.json' -print -quit)
+          test -n "$P12"
+          test -n "$FRONTIER"
+          echo "$FROZEN_PHASE12_CANDIDATE_SHA256  $P12" | sha256sum -c -
+          echo "$PHASE15_FRONTIER_SHA256  $FRONTIER" | sha256sum -c -
+          echo "PHASE12_CANDIDATE=$P12" >> "$GITHUB_ENV"
+          echo "PHASE15_FRONTIER=$FRONTIER" >> "$GITHUB_ENV"
+
+      - name: Expose Phase 15 development evidence exactly once
+        run: |
+          rm -rf results/phase15_development
+          python scripts/run_phase15_recoverability_feasibility_frontier.py \
+            --stage dev \
+            --phase12-candidate "$PHASE12_CANDIDATE" \
+            --frontier "$PHASE15_FRONTIER" \
+            --out results/phase15_development \
+            --git-sha "$PHASE15_SCIENTIFIC_SHA" 2>&1 | tee phase15-development.log
+          test -f results/phase15_development/dev_result.json
+          test -f results/phase15_development/dev_natural_transitions.csv
+          test -f results/phase15_development/dev_latency_transitions.csv
+
+      - name: Verify development boundary and record verdict
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          r = json.loads(Path('results/phase15_development/dev_result.json').read_text())
+          assert r['schema'] == 'aegisland.phase15.recoverability-feasibility.dev-result.v1'
+          assert r['evaluated_seed_seen_after_run'] == int(os.environ['PHASE15_DEV_SEED'])
+          assert r['families'] == list(range(1617, 1641))
+          assert r['scientific_git_sha'] == os.environ['PHASE15_SCIENTIFIC_SHA']
+          assert r['phase12_candidate_sha256'] == os.environ['FROZEN_PHASE12_CANDIDATE_SHA256']
+          assert r['frontier_candidate_sha256'] == os.environ['PHASE15_FRONTIER_SHA256']
+          assert r['reference_half_width_m'] == {'lateral': 0.30, 'altitude': 0.85}
+          assert r['quantiles'] == [0.90, 0.95, 0.975, 0.99]
+          assert r['phase14_failure_preserved'] is True
+          assert r['zero_adaptation'] is True
+          assert r['simulation_only'] is True
+          assert r['safety_acceptance'] is False
+          assert r['controller_tuning_allowed'] is False
+          assert len(r['gates']) == 10
+          print('PHASE15_DEVELOPMENT_PERMANENTLY_SEEN=true')
+          print('PHASE15_DEVELOPMENT_PASS=' + str(bool(r['phase15_pass'])).lower())
+          print(json.dumps(r['gates'], indent=2, sort_keys=True))
+          print(json.dumps({'natural': r['natural'], 'latency': r['latency']}, indent=2, sort_keys=True))
+          PY
+
+      - name: Upload permanent Phase 15 development evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase15-development
+          path: |
+            results/phase15_development/
+            phase15-development.log
+          if-no-files-found: error
+          retention-days: 90
