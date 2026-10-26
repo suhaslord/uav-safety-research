@@ -53,7 +53,7 @@ def validate(manifest):
           dynamics_family.strip().lower() not in ("bitcraze-webots", "same-webots-plant"),
           "a candidate independent dynamics family is required; original Webots is not eligible")
     origin = engine.get("source_url", "")
-    check(isinstance(origin, str) and origin.startswith("https://"), "engine source URL missing")
+    check(_is_https_evidence_url(origin), "engine source URL missing or invalid HTTPS evidence URL")
     source_sha = engine.get("commit_sha", "")
     check(isinstance(source_sha, str) and bool(re.fullmatch(r"[0-9a-fA-F]{40}", source_sha)),
           "engine source 40-char Git SHA missing")
@@ -61,8 +61,8 @@ def validate(manifest):
     check(isinstance(digest, str) and bool(re.fullmatch(r"sha256:[0-9a-fA-F]{64}", digest)),
           "container/runtime sha256 digest missing")
     independence = engine.get("independence_evidence_url", "")
-    check(isinstance(independence, str) and independence.startswith("https://"),
-          "source-level independence evidence missing; parameter shifts alone do not qualify")
+    check(_is_https_evidence_url(independence),
+          "source-level independence evidence missing or invalid HTTPS URL; parameter shifts alone do not qualify")
 
     license_id = engine.get("license")
     check(isinstance(license_id, str) and bool(re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9.+-]{1,99}", license_id)),
@@ -98,8 +98,8 @@ def validate(manifest):
           "predeclared motor speed retention set must be [0,0.5,0.8]")
     check(method.get("injection_site") == "simulated_actuator_model", "fault must be injected in simulator motor model")
     check(method.get("online_gyro_noise") is True, "online measurement perturbation must be documented")
-    check(isinstance(method.get("online_gyro_noise_spec_url"), str) and method["online_gyro_noise_spec_url"].startswith("https://"),
-          "online noise implementation evidence URL required")
+    check(_is_https_evidence_url(method.get("online_gyro_noise_spec_url")),
+          "online noise implementation evidence URL required (valid HTTPS)")
 
     for key in ("simulator_fault_injection_evidence_url", "online_noise_runtime_evidence_url"):
         check(_is_https_evidence_url(method.get(key)), f"method.{key} must provide an HTTPS evidence URL")
@@ -137,8 +137,8 @@ def validate(manifest):
 
     for name in ("development_protocol_url", "protected_protocol_url", "manifest_archive_url"):
         url = manifest.get(name)
-        check(isinstance(url, str) and url.startswith("https://"),
-              f"missing immutable public reference: {name}")
+        check(_is_https_evidence_url(url),
+              f"missing or invalid HTTPS public reference: {name}")
     return issues
 
 
