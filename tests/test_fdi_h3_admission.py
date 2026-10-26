@@ -148,6 +148,36 @@ class FDIH3AdmissionTests(unittest.TestCase):
         self.assertTrue(any("motor_index_mapping_evidence_url" in x for x in findings))
         self.assertTrue(any("online_noise_runtime_evidence_url" in x for x in findings))
 
+    def test_all_external_reference_fields_require_valid_https_origins(self):
+        fields = (
+            ("engine", "source_url"),
+            ("engine", "independence_evidence_url"),
+            ("interface", "gyro_axis_mapping_evidence_url"),
+            ("interface", "motor_index_mapping_evidence_url"),
+            ("interface", "applied_actuator_observation_evidence_url"),
+            ("method", "online_gyro_noise_spec_url"),
+            ("method", "simulator_fault_injection_evidence_url"),
+            ("method", "online_noise_runtime_evidence_url"),
+            (None, "development_protocol_url"),
+            (None, "protected_protocol_url"),
+            (None, "manifest_archive_url"),
+        )
+        invalid_urls = (
+            "https://",
+            "https:///no-host",
+            "https://user:password@example.org/evidence",
+            "https://example.org/with space",
+            "http://example.org/evidence",
+            ["https://example.org/evidence"],
+        )
+        for section, field in fields:
+            for value in invalid_urls:
+                with self.subTest(section=section, field=field, value=value):
+                    doc = candidate()
+                    target = doc if section is None else doc[section]
+                    target[field] = value
+                    self.assertTrue(validate(doc), f"invalid {field} reference passed: {value!r}")
+
     def test_reject_invalid_runtime_evidence_and_unsealed_holdout(self):
         doc = candidate()
         doc["interface"]["gyro_axis_mapping_evidence_url"] = ["not-a-url"]
